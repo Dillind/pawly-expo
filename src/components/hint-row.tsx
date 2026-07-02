@@ -1,8 +1,8 @@
 import type { ReactNode } from 'react';
-import { View, StyleSheet } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 
-import { ThemedText } from './themed-text';
-import { ThemedView } from './themed-view';
+import { ThemedText } from './core/themed-text';
+import { ThemedView } from './core/themed-view';
 
 import { Spacing } from '@/constants/theme';
 
@@ -25,11 +25,11 @@ export function HintRow({ title = 'Try editing', hint = 'app/index.tsx' }: HintR
 const styles = StyleSheet.create({
   stepRow: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    justifyContent: 'space-between'
   },
   codeSnippet: {
     borderRadius: Spacing.two,
     paddingVertical: Spacing.half,
-    paddingHorizontal: Spacing.two,
-  },
+    paddingHorizontal: Spacing.two
+  }
 });

@@ -1,5 +1,4 @@
 import { Image } from 'expo-image';
-import * as SplashScreen from 'expo-splash-screen';
 import { useState } from 'react';
 import { Dimensions, StyleSheet, View } from 'react-native';
 import Animated, { Easing, Keyframe } from 'react-native-reanimated';
@@ -9,33 +8,30 @@ const INITIAL_SCALE_FACTOR = Dimensions.get('screen').height / 90;
 const DURATION = 600;
 
 export function AnimatedSplashOverlay() {
-  const [animate, setAnimate] = useState(false);
   const [visible, setVisible] = useState(true);
 
   if (!visible) return null;
 
   const splashKeyframe = new Keyframe({
     0: {
-      transform: [{ scale: 1 }],
-      opacity: 1,
+      transform: [{ scale: INITIAL_SCALE_FACTOR }],
+      opacity: 1
     },
     20: {
-      opacity: 1,
+      opacity: 1
     },
     70: {
       opacity: 0,
-      easing: Easing.elastic(0.7),
+      easing: Easing.elastic(0.7)
     },
     100: {
       opacity: 0,
       transform: [{ scale: 1 }],
-      easing: Easing.elastic(0.7),
-    },
+      easing: Easing.elastic(0.7)
+    }
   });
 
-  const image = <Image style={styles.image} source={require('@/assets/images/expo-logo.png')} />;
-
-  return animate ? (
+  return (
     <Animated.View
       entering={splashKeyframe.duration(DURATION).withCallback((finished) => {
         'worklet';
@@ -43,56 +39,45 @@ export function AnimatedSplashOverlay() {
           scheduleOnRN(setVisible, false);
         }
       })}
-      style={styles.splashOverlay}>
-      {image}
-    </Animated.View>
-  ) : (
-    <View
-      onLayout={() => {
-        SplashScreen.hideAsync().finally(() => {
-          setAnimate(true);
-        });
-      }}
-      style={styles.splashOverlay}>
-      {image}
-    </View>
+      style={styles.backgroundSolidColor}
+    />
   );
 }
 
 const keyframe = new Keyframe({
   0: {
-    transform: [{ scale: INITIAL_SCALE_FACTOR }],
+    transform: [{ scale: INITIAL_SCALE_FACTOR }]
   },
   100: {
     transform: [{ scale: 1 }],
-    easing: Easing.elastic(0.7),
-  },
+    easing: Easing.elastic(0.7)
+  }
 });
 
 const logoKeyframe = new Keyframe({
   0: {
     transform: [{ scale: 1.3 }],
-    opacity: 0,
+    opacity: 0
   },
   40: {
     transform: [{ scale: 1.3 }],
     opacity: 0,
-    easing: Easing.elastic(0.7),
+    easing: Easing.elastic(0.7)
   },
   100: {
     opacity: 1,
     transform: [{ scale: 1 }],
-    easing: Easing.elastic(0.7),
-  },
+    easing: Easing.elastic(0.7)
+  }
 });
 
 const glowKeyframe = new Keyframe({
   0: {
-    transform: [{ rotateZ: '0deg' }],
+    transform: [{ rotateZ: '0deg' }]
   },
   100: {
-    transform: [{ rotateZ: '7200deg' }],
-  },
+    transform: [{ rotateZ: '7200deg' }]
+  }
 });
 
 export function AnimatedIcon() {
@@ -113,36 +98,35 @@ export function AnimatedIcon() {
 const styles = StyleSheet.create({
   imageContainer: {
     justifyContent: 'center',
-    alignItems: 'center',
+    alignItems: 'center'
   },
   glow: {
     width: 201,
     height: 201,
-    position: 'absolute',
+    position: 'absolute'
   },
   iconContainer: {
     justifyContent: 'center',
     alignItems: 'center',
     width: 128,
     height: 128,
-    zIndex: 100,
+    zIndex: 100
   },
   image: {
+    position: 'absolute',
     width: 76,
-    height: 71,
+    height: 71
   },
   background: {
     borderRadius: 40,
     experimental_backgroundImage: `linear-gradient(180deg, #3C9FFE, #0274DF)`,
     width: 128,
     height: 128,
-    position: 'absolute',
+    position: 'absolute'
   },
-  splashOverlay: {
+  backgroundSolidColor: {
     ...StyleSheet.absoluteFill,
     backgroundColor: '#208AEF',
-    alignItems: 'center',
-    justifyContent: 'center',
-    zIndex: 1000,
-  },
+    zIndex: 1000
+  }
 });

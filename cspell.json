@@ -1,0 +1,31 @@
+{
+  "version": "0.2",
+  "language": "en",
+  "words": [
+    "myapp",
+    "TouchableOpacity",
+    "signin",
+    "svgs",
+    "ellipsize",
+    "Uniwind",
+    "Pressable",
+    "Parralax",
+    "supabase"
+  ],
+  "ignoreRegExpList": [
+    "/Author.+/",
+    "/data:.*/",
+    "/\"mappings\":\".+\"/",
+    "/toMatchInlineSnapshot\\(\\s*`[^`]*`\\s*\\)/"
+  ],
+  "ignorePaths": [
+    "**/dist/**",
+    "**/node_modules/**",
+    "**/.git/**",
+    "**/.DS_Store",
+    ".vscode",
+    "package.json",
+    "yarn.lock",
+    "types.d.ts"
+  ]
+}
