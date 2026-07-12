@@ -1,11 +1,13 @@
-import { Colors } from '@/constants/theme';
+import { useTheme } from '@/hooks/use-theme';
 import { NativeTabs } from 'expo-router/unstable-native-tabs';
 
 export default function TabsLayout() {
+  const theme = useTheme();
+
   return (
     <NativeTabs
       disableTransparentOnScrollEdge={true}
-      tintColor={Colors.light.textSecondary}
+      tintColor={theme.textSecondary}
       minimizeBehavior="onScrollDown">
       <NativeTabs.Trigger name="home">
         <NativeTabs.Trigger.Label>Home</NativeTabs.Trigger.Label>

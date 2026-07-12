@@ -1,55 +1,77 @@
 /**
- * Below are the colors that are used in the app. The colors are defined in the light and dark mode.
- * There are many other ways to style your app. For example, [Nativewind](https://www.nativewind.dev/), [Tamagui](https://tamagui.dev/), [unistyles](https://reactnativeunistyles.vercel.app), etc.
+ * Theme tokens for light and dark mode.
  */
 
 import '@/global.css';
 
 import { Platform } from 'react-native';
 
-export const Colors = {
+export const COLORS = {
   light: {
     text: '#000000',
     background: '#ffffff',
     backgroundElement: '#F0F0F3',
     backgroundSelected: '#E0E1E6',
-    textSecondary: '#60646C'
+    textSecondary: '#60646C',
+    red100: '#CE3C39'
   },
   dark: {
     text: '#ffffff',
     background: '#000000',
     backgroundElement: '#212225',
     backgroundSelected: '#2E3135',
-    textSecondary: '#B0B4BA'
+    textSecondary: '#B0B4BA',
+    red100: '#CE3C39'
   }
 } as const;
 
-export type ThemeColor = keyof typeof Colors.light & keyof typeof Colors.dark;
+/** Alias kept for existing imports */
+export const Colors = COLORS;
+
+export type ThemeMode = keyof typeof COLORS;
+export type ThemeColor = keyof typeof COLORS.light & keyof typeof COLORS.dark;
+export type ThemeColors = (typeof COLORS)[ThemeMode];
+
+/**
+ * Inter font family names registered via the expo-font plugin in app.config.ts.
+ */
+export const InterFontFamily = {
+  regular: 'Inter_400Regular',
+  medium: 'Inter_500Medium',
+  semiBold: 'Inter_600SemiBold',
+  bold: 'Inter_700Bold',
+  extraBold: 'Inter_800ExtraBold',
+  black: 'Inter_900Black'
+} as const;
+
+export type InterFontFamilyWeight = keyof typeof InterFontFamily;
 
 export const Fonts = Platform.select({
-  ios: {
-    /** iOS `UIFontDescriptorSystemDesignDefault` */
-    sans: 'system-ui',
-    /** iOS `UIFontDescriptorSystemDesignSerif` */
-    serif: 'ui-serif',
-    /** iOS `UIFontDescriptorSystemDesignRounded` */
-    rounded: 'ui-rounded',
-    /** iOS `UIFontDescriptorSystemDesignMonospaced` */
-    mono: 'ui-monospace'
-  },
-  default: {
-    sans: 'normal',
-    serif: 'serif',
-    rounded: 'normal',
-    mono: 'monospace'
-  },
   web: {
-    sans: 'var(--font-display)',
+    sans: 'Inter, var(--font-display)',
+    regular: 'Inter, var(--font-display)',
+    medium: 'Inter, var(--font-display)',
+    semiBold: 'Inter, var(--font-display)',
+    bold: 'Inter, var(--font-display)',
+    extraBold: 'Inter, var(--font-display)',
+    black: 'Inter, var(--font-display)',
     serif: 'var(--font-serif)',
     rounded: 'var(--font-rounded)',
     mono: 'var(--font-mono)'
+  },
+  default: {
+    sans: InterFontFamily.regular,
+    regular: InterFontFamily.regular,
+    medium: InterFontFamily.medium,
+    semiBold: InterFontFamily.semiBold,
+    bold: InterFontFamily.bold,
+    extraBold: InterFontFamily.extraBold,
+    black: InterFontFamily.black,
+    serif: 'serif',
+    rounded: InterFontFamily.regular,
+    mono: 'monospace'
   }
-});
+})!;
 
 export const Spacing = {
   half: 2,

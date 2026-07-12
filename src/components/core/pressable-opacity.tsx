@@ -1,5 +1,5 @@
 import { APP_ACTIVE_OPACITY } from '@/constants/primitives';
-import React, { LegacyRef, useState } from 'react';
+import React, { useState } from 'react';
 import { Pressable, PressableProps, StyleProp, View, ViewStyle } from 'react-native';
 
 type Props = {
@@ -8,7 +8,7 @@ type Props = {
 } & PressableProps;
 
 const PressableOpacity = React.forwardRef(
-  ({ style, onPress, children, ...props }: Props, ref: LegacyRef<View>) => {
+  ({ style, onPress, children, ...props }: Props, ref: React.Ref<View>) => {
     const [isPressed, setIsPressed] = useState(false);
     return (
       <Pressable
