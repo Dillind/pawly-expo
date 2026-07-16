@@ -1,20 +1,17 @@
-import { useMemo, type DependencyList } from 'react';
-import { StyleSheet, type ImageStyle, type TextStyle, type ViewStyle } from 'react-native';
+import type { DependencyList } from 'react';
 
 import type { ThemeColors } from '@/constants/theme';
-import { useTheme } from '@/hooks/use-theme';
+import { useStyles } from '@/hooks/use-styles';
 
-type NamedStyles<T> = { [P in keyof T]: ViewStyle | TextStyle | ImageStyle };
+type NamedStyles<T> = { [P in keyof T]: import('react-native').ViewStyle | import('react-native').TextStyle | import('react-native').ImageStyle };
 
 /**
- * Builds a StyleSheet from the active theme. Recreates when the color scheme
- * changes, or when optional `deps` change (e.g. a theme-color prop override).
+ * @deprecated Prefer `useStyles(makeStyles)` with a module-level `makeStyles` factory.
+ * See docs/THEMING.md.
  */
 export function useThemedStyles<T extends NamedStyles<T>>(
-  factory: (theme: ThemeColors) => T,
+  factory: (colors: ThemeColors) => T,
   deps: DependencyList = []
 ): T {
-  const theme = useTheme();
-
-  return useMemo(() => StyleSheet.create(factory(theme)), [theme, ...deps]);
+  return useStyles((theme) => factory(theme.colors), deps);
 }

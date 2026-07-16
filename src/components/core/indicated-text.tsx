@@ -25,7 +25,7 @@ const IndicatedText = ({ marginBottom, marginTop, text, textColor }: Props) => {
       <AppText size={16} color={textColor ?? 'text'}>
         {text}
       </AppText>
-      <AsteriskIcon size={16} color={theme.text} />
+      <AsteriskIcon size={16} color={theme.colors.text} />
     </View>
   );
 };

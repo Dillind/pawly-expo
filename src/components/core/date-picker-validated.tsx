@@ -89,7 +89,7 @@ const DatePickerValidated = ({
         <AppText color={selectedDate ? 'text' : 'textSecondary'} size={14}>
           {selectedDate ? dayjs(selectedDate).format('DD / MM / YYYY') : 'dd / mm / yyyy'}
         </AppText>
-        <CalendarIcon size={16} color={theme.text} />
+        <CalendarIcon size={16} color={theme.colors.text} />
       </PressableOpacity>
       {isError && <FieldError marginTop={8} error={errors?.[name]?.message as string} />}
     </View>

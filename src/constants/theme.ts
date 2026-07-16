@@ -32,6 +32,13 @@ export type ThemeMode = keyof typeof COLORS;
 export type ThemeColor = keyof typeof COLORS.light & keyof typeof COLORS.dark;
 export type ThemeColors = (typeof COLORS)[ThemeMode];
 
+/** Resolved theme passed to components and `makeStyles` factories. */
+export type AppTheme = {
+  colors: ThemeColors;
+  isDark: boolean;
+  spacing: typeof Spacing;
+};
+
 /**
  * Inter font family names registered via the expo-font plugin in app.config.ts.
  */

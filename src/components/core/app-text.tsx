@@ -54,7 +54,7 @@ const AppText = ({
           fontFamily: getFontFamily(variant, fontWeight),
           fontSize,
           textAlign: align,
-          color: theme[color],
+          color: theme.colors[color],
           lineHeight: isAndroid ? Math.round(fontSize * 1.25) : undefined,
           includeFontPadding: false
         },

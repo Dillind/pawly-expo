@@ -7,7 +7,7 @@ export default function TabsLayout() {
   return (
     <NativeTabs
       disableTransparentOnScrollEdge={true}
-      tintColor={theme.textSecondary}
+      tintColor={theme.colors.textSecondary}
       minimizeBehavior="onScrollDown">
       <NativeTabs.Trigger name="home">
         <NativeTabs.Trigger.Label>Home</NativeTabs.Trigger.Label>

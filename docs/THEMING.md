@@ -1,6 +1,6 @@
 # Theming
 
-Pawly uses a small, in-repo theme — **no component library and no NativeWind/Tailwind** (see [ADR 0004](./adr/0004-custom-theme-no-component-library.md)). Everything lives in `src/constants/theme.ts` and is consumed through two hooks: `useTheme()` and `useThemedStyles()`.
+Pawly uses a small, in-repo theme — **no component library and no NativeWind/Tailwind** (see [ADR 0004](./adr/0004-custom-theme-no-component-library.md)). Tokens live in `src/constants/theme.ts` and are consumed through `useTheme()` and `useStyles()`.
 
 ## The theme object
 
@@ -9,6 +9,7 @@ Pawly uses a small, in-repo theme — **no component library and no NativeWind/T
 - **`COLORS`** (aliased as `Colors`) — a `light` and `dark` palette with matching keys. `ThemeColor` is the union of those keys.
 - **`Fonts`** — platform-selected font families (Inter on native; CSS variables on web).
 - **`Spacing`**, plus `BottomTabInset` and `MaxContentWidth`.
+- **`AppTheme`** — the resolved shape returned by `useTheme()`: `{ colors, isDark, spacing }`.
 
 Current colour tokens (keys are the `ThemeColor` union):
 
@@ -23,54 +24,93 @@ Current colour tokens (keys are the `ThemeColor` union):
 
 > The proposed brand palette in PRODUCT_BRIEF (teal/blue/indigo) is **not** in the theme yet. Reconcile in a design session before relying on it.
 
-## Getting colours: `useTheme()`
+## Getting the theme: `useTheme()`
 
-`useTheme()` (from `@/hooks/use-theme`) returns the **flat palette for the current colour scheme** — light or dark is resolved for you. Never hard-code colour strings.
+`useTheme()` returns the resolved `AppTheme` for the current colour scheme. Light/dark is handled for you — use `theme.colors` for palette values.
 
 ```tsx
 import { useTheme } from '@/hooks/use-theme';
 
 const MyComponent = () => {
   const theme = useTheme();
-  return <View style={{ backgroundColor: theme.background }} />;
+
+  return <View style={{ backgroundColor: theme.colors.background }} />;
 };
 ```
 
-## Styling: `useThemedStyles()`
-
-Build a `StyleSheet` from the theme with `useThemedStyles`. It recreates styles when the scheme changes, and takes an optional dependency array for prop-driven values.
+For one-off colour access, destructure what you need:
 
 ```tsx
-import { useThemedStyles } from '@/hooks/use-themed-styles';
+const { colors, isDark, spacing } = useTheme();
+```
 
-const styles = useThemedStyles(
-  (colors) => ({
+## Styling: `makeStyles` + `useStyles()`
+
+Define styles at **module scope** with a `makeStyles` factory (normal `StyleSheet.create`), then memoise inside the component with `useStyles`. Styles recompute when the colour scheme changes.
+
+```tsx
+import type { AppTheme } from '@/constants/theme';
+import { useStyles } from '@/hooks/use-styles';
+import { StyleSheet, View } from 'react-native';
+
+const MyComponent = () => {
+  const styles = useStyles(makeStyles);
+
+  return <View style={styles.container} />;
+};
+
+const makeStyles = ({ colors, spacing }: AppTheme) =>
+  StyleSheet.create({
     container: {
       backgroundColor: colors.background,
-      borderColor: colors.textSecondary
+      borderColor: colors.textSecondary,
+      padding: spacing.three
     }
-  }),
-  [] // extra deps, e.g. a colour prop
-);
+  });
 ```
 
-Use `Spacing` for sizing instead of magic numbers:
+Pass extra deps when styles depend on props:
 
 ```tsx
-import { Spacing } from '@/constants/theme';
+const MyComponent = ({ highlighted }: { highlighted: boolean }) => {
+  const styles = useStyles((theme) => makeStyles(theme, highlighted), [highlighted]);
 
-// Spacing: half=2, one=4, two=8, three=16, four=24, five=32, six=64
-<View style={{ padding: Spacing.three, gap: Spacing.two }} />;
+  return <View style={styles.container} />;
+};
+
+const makeStyles = ({ colors, isDark }: AppTheme, highlighted: boolean) =>
+  StyleSheet.create({
+    container: {
+      backgroundColor: highlighted
+        ? colors.backgroundSelected
+        : isDark
+          ? colors.backgroundElement
+          : colors.background
+    }
+  });
 ```
 
-For elevation, use the helpers in `@/lib/styles/shadows` (`createShadowSmall` | `Medium` | `Large`), which take the theme and handle iOS/Android:
+`useStyles` is a React hook — call it **inside** a component, not at module scope.
+
+> `useThemedStyles()` still works but is deprecated. Prefer the `makeStyles` pattern above.
+
+Use `spacing` from the theme (or `Spacing` from `@/constants/theme`) instead of magic numbers:
+
+```tsx
+// spacing: half=2, one=4, two=8, three=16, four=24, five=32, six=64
+const { spacing } = useTheme();
+<View style={{ padding: spacing.three, gap: spacing.two }} />;
+```
+
+For elevation, use the helpers in `@/lib/styles/shadows` (`createShadowSmall` | `Medium` | `Large`), which take `theme.colors` and handle iOS/Android:
 
 ```tsx
 import { createShadowMedium } from '@/lib/styles/shadows';
 
-const styles = useThemedStyles((colors) => ({
-  card: { ...createShadowMedium(colors), backgroundColor: colors.backgroundElement }
-}));
+const makeStyles = ({ colors }: AppTheme) =>
+  StyleSheet.create({
+    card: { ...createShadowMedium(colors), backgroundColor: colors.backgroundElement }
+  });
 ```
 
 ## Text: use `AppText`
@@ -95,7 +135,7 @@ Use `MainButton` (`@/components/core/main-button`) for primary actions — it su
 
 ## Light/dark mode
 
-The app follows the system setting (`userInterfaceStyle: 'automatic'` in `app.config.ts`; scheme resolved via `use-color-scheme`). Because `useTheme()` returns the correct palette automatically, components generally don't branch on mode. If you truly need scheme-specific rendering, read the scheme from `@/hooks/use-color-scheme`.
+The app follows the system setting (`userInterfaceStyle: 'automatic'` in `app.config.ts`). `useTheme()` returns the correct palette via `theme.colors` and exposes `theme.isDark` when you need to branch. Most components should not need to — pass `isDark` into `makeStyles` only for cases where the same token isn't enough.
 
 ## Web fonts (`global.css`)
 

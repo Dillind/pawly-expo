@@ -112,7 +112,7 @@ export const AccordionItem = ({ id, title, icon, children }: AccordionItemProps)
           </AppText>
         </View>
         <Animated.View style={chevronStyle}>
-          <CaretDownIcon size={10} color={theme.text} />
+          <CaretDownIcon size={10} color={theme.colors.text} />
         </Animated.View>
       </PressableOpacity>
       <View style={themedStyles.headerRule} />
@@ -150,7 +150,7 @@ export const AccordionBulletRow = ({ label, isLast = false }: AccordionBulletRow
   return (
     <View>
       <View style={layoutStyles.bulletRow}>
-        <DotIcon size={4} color={theme.text} />
+        <DotIcon size={4} color={theme.colors.text} />
         <AppText variant="body" size={14} color="text" style={layoutStyles.bulletLabel}>
           {label}
         </AppText>

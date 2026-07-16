@@ -1,40 +1,43 @@
+import AppText from '@/components/core/app-text';
+import IndicatedText from '@/components/core/indicated-text';
 import PressableOpacity from '@/components/core/pressable-opacity';
-import { ThemeColor } from '@/constants/theme';
+import type { AppTheme, ThemeColor } from '@/constants/theme';
+import { useStyles } from '@/hooks/use-styles';
 import { useTheme } from '@/hooks/use-theme';
-import { useThemedStyles } from '@/hooks/use-themed-styles';
 import FieldError from '@/lib/form/components/field-error';
+import { Host, TextInput, type TextInputProps, type TextInputRef } from '@expo/ui';
 import { EyeIcon, EyeSlashIcon } from 'phosphor-react-native';
 import React, { useState } from 'react';
 import { useFormContext, useFormState } from 'react-hook-form';
-import {
-  BlurEvent,
-  FocusEvent,
-  KeyboardTypeOptions,
-  ReturnKeyTypeOptions,
-  StyleProp,
-  TextInput,
-  View,
-  ViewStyle
-} from 'react-native';
-import AppText from './app-text';
-import IndicatedText from './indicated-text';
+import { StyleProp, StyleSheet, View, ViewStyle } from 'react-native';
 
-type Props = {
-  placeholder?: string;
+export type { TextInputRef };
+
+type Props = Pick<
+  TextInputProps,
+  | 'placeholder'
+  | 'secureTextEntry'
+  | 'keyboardType'
+  | 'autoCapitalize'
+  | 'autoComplete'
+  | 'autoCorrect'
+  | 'returnKeyType'
+  | 'onSubmitEditing'
+  | 'testID'
+  | 'maxLength'
+  | 'autoFocus'
+> & {
   value: string;
   onChangeText?: (value: string) => void;
-  keyboardType?: KeyboardTypeOptions;
+  onBlur?: () => void;
+  onFocus?: () => void;
   isEditable?: boolean;
-  autoCapitalize?: 'none' | 'sentences' | 'words' | 'characters';
   containerStyle?: StyleProp<ViewStyle>;
-  secureTextEntry?: boolean;
   label?: string;
   marginTop?: number;
   marginBottom?: number;
   onPress?: () => void;
   suffix?: string;
-  onBlur?: ((e: BlurEvent) => void) | undefined;
-  onFocus?: ((e: FocusEvent) => void) | undefined;
   rightIcon?: React.ReactNode;
   isLabelIndicated?: boolean;
   leftIcon?: React.ReactNode;
@@ -43,12 +46,10 @@ type Props = {
   description?: string;
   height?: number;
   backgroundColor?: ThemeColor;
-  returnKeyType?: ReturnKeyTypeOptions;
-  maxLength?: number;
   showFieldError?: boolean;
 };
 
-const TextInputValidated = React.forwardRef<TextInput, Props>(
+const TextInputValidated = React.forwardRef<TextInputRef, Props>(
   (
     {
       name,
@@ -75,40 +76,51 @@ const TextInputValidated = React.forwardRef<TextInput, Props>(
       backgroundColor = 'background',
       returnKeyType = 'done',
       maxLength,
-      showFieldError = true
+      showFieldError = true,
+      autoComplete,
+      testID,
+      onSubmitEditing,
+      autoFocus,
+      autoCorrect = false
     },
     ref
   ) => {
-    const theme = useTheme();
     const [isSecured, setIsSecured] = useState<boolean | undefined>(secureTextEntry);
+
+    const theme = useTheme();
     const form = useFormContext();
     const { errors } = useFormState({ control: form?.control, name });
-    const styles = useThemedStyles(
-      (colors) => ({
-        textInputContainer: {
-          borderRadius: 8,
-          flexDirection: 'row',
-          alignItems: 'center',
-          borderWidth: 1,
-          borderColor: colors[borderColor],
-          backgroundColor: colors[backgroundColor]
-        },
-        visibilityIcon: {
-          paddingRight: 12,
-          height: '100%',
-          justifyContent: 'center'
-        },
-        textInput: {
-          flex: 1,
-          paddingHorizontal: 12,
-          fontSize: 14,
-          fontWeight: 'normal',
-          color: colors.text,
-          paddingVertical: 0,
-          height: '100%'
-        }
-      }),
+
+    const styles = useStyles(
+      (currentTheme) => makeStyles(currentTheme, borderColor, backgroundColor),
       [borderColor, backgroundColor]
+    );
+
+    const input = (
+      <Host style={styles.inputHost}>
+        <TextInput
+          ref={ref}
+          defaultValue={value}
+          onChangeText={onChangeText}
+          onBlur={onBlur}
+          onFocus={onFocus}
+          secureTextEntry={isSecured}
+          editable={isEditable}
+          autoComplete={autoComplete ?? (secureTextEntry ? 'password' : 'off')}
+          autoCorrect={autoCorrect}
+          autoCapitalize={autoCapitalize}
+          placeholder={placeholder}
+          placeholderTextColor={theme.colors.textSecondary}
+          keyboardType={keyboardType}
+          returnKeyType={returnKeyType}
+          maxLength={maxLength}
+          testID={testID}
+          onSubmitEditing={onSubmitEditing}
+          autoFocus={autoFocus}
+          style={styles.textInput}
+          textStyle={{ color: theme.colors.text, ...styles.textInputText }}
+        />
+      </Host>
     );
 
     return (
@@ -128,36 +140,16 @@ const TextInputValidated = React.forwardRef<TextInput, Props>(
         )}
         <View style={[styles.textInputContainer, { height }]}>
           {leftIcon && leftIcon}
-          <TextInput
-            ref={ref}
-            onBlur={onBlur}
-            onPress={onPress}
-            onFocus={onFocus}
-            secureTextEntry={isSecured}
-            editable={isEditable}
-            autoComplete="off"
-            textContentType={secureTextEntry ? 'oneTimeCode' : undefined}
-            autoCorrect={false}
-            autoCapitalize={autoCapitalize}
-            placeholder={placeholder}
-            placeholderTextColor={theme.textSecondary}
-            keyboardType={keyboardType}
-            style={styles.textInput}
-            importantForAutofill="yes"
-            value={value}
-            onChangeText={onChangeText}
-            returnKeyType={returnKeyType}
-            maxLength={maxLength}
-          />
+          {onPress ? <PressableOpacity onPress={onPress}>{input}</PressableOpacity> : input}
           {rightIcon && rightIcon}
           {secureTextEntry && (
             <PressableOpacity
               onPress={() => setIsSecured(!isSecured)}
               style={styles.visibilityIcon}>
               {isSecured ? (
-                <EyeSlashIcon size={16} color={theme.text} />
+                <EyeSlashIcon size={16} color={theme.colors.text} />
               ) : (
-                <EyeIcon size={16} color={theme.text} />
+                <EyeIcon size={16} color={theme.colors.text} />
               )}
             </PressableOpacity>
           )}
@@ -169,6 +161,39 @@ const TextInputValidated = React.forwardRef<TextInput, Props>(
     );
   }
 );
+
+const makeStyles = ({ colors }: AppTheme, borderColor: ThemeColor, backgroundColor: ThemeColor) =>
+  StyleSheet.create({
+    textInputContainer: {
+      borderRadius: 8,
+      flexDirection: 'row',
+      alignItems: 'center',
+      borderWidth: 1,
+      borderColor: colors[borderColor],
+      backgroundColor: colors[backgroundColor]
+    },
+    visibilityIcon: {
+      paddingRight: 12,
+      height: '100%',
+      justifyContent: 'center'
+    },
+    inputHost: {
+      flex: 1,
+      alignSelf: 'stretch',
+      minHeight: 44
+    },
+    textInput: {
+      flex: 1,
+      paddingHorizontal: 12,
+      width: '100%',
+      minHeight: 44,
+      height: '100%'
+    },
+    textInputText: {
+      fontSize: 14,
+      fontWeight: 'normal'
+    }
+  });
 
 TextInputValidated.displayName = 'TextInputValidated';
 

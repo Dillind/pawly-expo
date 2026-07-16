@@ -1,5 +1,6 @@
 import * as dotenv from 'dotenv';
 import { ConfigContext, ExpoConfig } from 'expo/config';
+
 dotenv.config();
 
 const getConfig = ({ config }: ConfigContext): ExpoConfig => {

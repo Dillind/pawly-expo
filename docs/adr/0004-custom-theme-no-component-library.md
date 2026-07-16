@@ -1,6 +1,6 @@
 # Custom theme tokens + Expo UI; no component library, no NativeWind
 
-Styling is done with a small in-repo theme (`src/constants/theme.ts` — `COLORS`, `Fonts`, `Spacing`) consumed via `useTheme()` and `useThemedStyles()`, alongside native components from `@expo/ui` and `expo-router` native tabs. We deliberately do **not** use a component library (e.g. React Native Paper) and do **not** use NativeWind/Tailwind for styling.
+Styling is done with a small in-repo theme (`src/constants/theme.ts` — `COLORS`, `Fonts`, `Spacing`) consumed via `useTheme()` and `useStyles(makeStyles)`, alongside native components from `@expo/ui` and `expo-router` native tabs. We deliberately do **not** use a component library (e.g. React Native Paper) and do **not** use NativeWind/Tailwind for styling.
 
 ## Why this is worth recording
 
@@ -11,5 +11,5 @@ A reader coming from other Expo/React Native projects will reasonably expect Rea
 
 ## Consequences
 
-- New UI uses `StyleSheet` via `useThemedStyles((colors) => ({ ... }))`, colours via theme tokens, and shared primitives in `src/components/core/` (`AppText`, `MainButton`, etc.).
+- New UI uses module-level `makeStyles` + `useStyles()` (or inline styles with `useTheme().colors`), and shared primitives in `src/components/core/` (`AppText`, `MainButton`, etc.).
 - If a Tailwind/NativeWind adoption is ever reconsidered, supersede this ADR rather than adding it ad hoc.

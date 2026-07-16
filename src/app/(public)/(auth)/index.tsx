@@ -1,11 +1,148 @@
-import { Text, View } from 'react-native';
+import AppText from '@/components/core/app-text';
+import MainButton from '@/components/core/main-button';
+import PressableOpacity from '@/components/core/pressable-opacity';
+import TextInputValidated from '@/components/core/text-input-validated';
+import { signInSchema, type SignInFormValues } from '@/constants/schemas/sign-in';
+import type { AppTheme } from '@/constants/theme';
+import { useStyles } from '@/hooks/use-styles';
+import { hapticLight } from '@/lib/haptics';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { Link } from 'expo-router';
+import { Controller, FormProvider, useForm } from 'react-hook-form';
+import { ScrollView, StyleSheet, View } from 'react-native';
+import { toast } from 'sonner-native';
 
 const SignIn = () => {
+  const styles = useStyles(makeStyles);
+
+  const form = useForm<SignInFormValues>({
+    resolver: zodResolver(signInSchema),
+    defaultValues: { email: '', password: '' },
+    mode: 'onBlur'
+  });
+
+  const {
+    control,
+    handleSubmit,
+    formState: { isSubmitting }
+  } = form;
+
+  const onSubmit = handleSubmit(async (values) => {
+    hapticLight();
+
+    // Supabase auth will replace this placeholder.
+    toast.success('Sign in coming soon', {
+      description: `Ready for ${values.email}`
+    });
+  });
+
   return (
-    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-      <Text>SignIn</Text>
-    </View>
+    <ScrollView
+      contentInsetAdjustmentBehavior="automatic"
+      keyboardShouldPersistTaps="handled"
+      contentContainerStyle={styles.scrollContent}>
+      <AppText size={20} fontWeight="bold" style={styles.title}>
+        Welcome back
+      </AppText>
+      <AppText color="textSecondary" size={16} style={styles.subtitle}>
+        Sign in to coordinate care for your pet.
+      </AppText>
+
+      <FormProvider {...form}>
+        <View style={styles.form}>
+          <Controller
+            control={control}
+            name="email"
+            render={({ field: { onChange, onBlur, value } }) => (
+              <TextInputValidated
+                name="email"
+                label="Email"
+                value={value}
+                onChangeText={onChange}
+                onBlur={onBlur}
+                placeholder="you@example.com"
+                keyboardType="email-address"
+                autoCapitalize="none"
+                autoComplete="email"
+                returnKeyType="next"
+                testID="sign-in-email"
+              />
+            )}
+          />
+          <Controller
+            control={control}
+            name="password"
+            render={({ field: { onChange, onBlur, value } }) => (
+              <TextInputValidated
+                name="password"
+                label="Password"
+                value={value}
+                onChangeText={onChange}
+                onBlur={onBlur}
+                placeholder="Your password"
+                secureTextEntry
+                autoCapitalize="none"
+                autoComplete="password"
+                returnKeyType="done"
+                onSubmitEditing={() => {
+                  void onSubmit();
+                }}
+                testID="sign-in-password"
+              />
+            )}
+          />
+        </View>
+
+        <View style={styles.actions}>
+          <MainButton
+            text={isSubmitting ? 'Signing in…' : 'Sign in'}
+            isLoading={isSubmitting}
+            isDisabled={isSubmitting}
+            onPress={() => {
+              void onSubmit();
+            }}
+          />
+
+          <Link href="/forgot-password" asChild>
+            <PressableOpacity style={styles.forgotPassword}>
+              <AppText color="textSecondary" size={16} align="center">
+                Forgot password?
+              </AppText>
+            </PressableOpacity>
+          </Link>
+        </View>
+      </FormProvider>
+    </ScrollView>
   );
 };
+
+const makeStyles = ({ spacing }: AppTheme) =>
+  StyleSheet.create({
+    scrollContent: {
+      flexGrow: 1,
+      padding: spacing.four,
+      gap: spacing.three
+    },
+    title: {
+      marginTop: spacing.two
+    },
+    subtitle: {
+      marginBottom: spacing.one
+    },
+    form: {
+      gap: spacing.two
+    },
+    actions: {
+      gap: spacing.two,
+      marginTop: spacing.two
+    },
+    submitHost: {
+      alignSelf: 'stretch'
+    },
+    forgotPassword: {
+      alignSelf: 'center',
+      paddingVertical: spacing.one
+    }
+  });
 
 export default SignIn;
