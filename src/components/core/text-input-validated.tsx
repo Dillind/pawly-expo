@@ -5,13 +5,19 @@ import type { AppTheme, ThemeColor } from '@/constants/theme';
 import { useStyles } from '@/hooks/use-styles';
 import { useTheme } from '@/hooks/use-theme';
 import FieldError from '@/lib/form/components/field-error';
-import { Host, TextInput, type TextInputProps, type TextInputRef } from '@expo/ui';
 import { EyeIcon, EyeSlashIcon } from 'phosphor-react-native';
 import React, { useState } from 'react';
 import { useFormContext, useFormState } from 'react-hook-form';
-import { StyleProp, StyleSheet, View, ViewStyle } from 'react-native';
+import {
+  StyleProp,
+  StyleSheet,
+  TextInput,
+  type TextInputProps,
+  View,
+  ViewStyle
+} from 'react-native';
 
-export type { TextInputRef };
+export type TextInputRef = React.ElementRef<typeof TextInput>;
 
 type Props = Pick<
   TextInputProps,
@@ -97,7 +103,7 @@ const TextInputValidated = React.forwardRef<TextInputRef, Props>(
     );
 
     const input = (
-      <Host style={styles.inputHost}>
+      <View style={styles.inputHost}>
         <TextInput
           ref={ref}
           defaultValue={value}
@@ -117,10 +123,9 @@ const TextInputValidated = React.forwardRef<TextInputRef, Props>(
           testID={testID}
           onSubmitEditing={onSubmitEditing}
           autoFocus={autoFocus}
-          style={styles.textInput}
-          textStyle={{ color: theme.colors.text, ...styles.textInputText }}
+          style={[styles.textInput, styles.textInputText, { color: theme.colors.text }]}
         />
-      </Host>
+      </View>
     );
 
     return (

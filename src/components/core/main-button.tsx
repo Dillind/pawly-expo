@@ -1,17 +1,17 @@
-import { useTheme } from '@/hooks/use-theme';
+import type { AppTheme } from '@/constants/theme';
+import { useStyles } from '@/hooks/use-styles';
 import { hapticLight } from '@/lib/haptics';
-import {
-  Button,
-  Host,
-  RNHostView,
-  Row,
-  Text,
-  type ButtonVariant,
-  type UniversalStyle
-} from '@expo/ui';
 import { type Href, useRouter } from 'expo-router';
-import React, { type FunctionComponent, type ReactElement } from 'react';
-import { ActivityIndicator, StyleProp, ViewStyle } from 'react-native';
+import React, { type FunctionComponent } from 'react';
+import {
+  ActivityIndicator,
+  Pressable,
+  type StyleProp,
+  StyleSheet,
+  Text,
+  View,
+  type ViewStyle
+} from 'react-native';
 
 type MainButtonProps = {
   text: string;
@@ -27,31 +27,12 @@ type MainButtonProps = {
   hapticFeedback?: boolean;
 };
 
-const variantMap: Record<NonNullable<MainButtonProps['variant']>, ButtonVariant> = {
-  primary: 'filled',
-  secondary: 'outlined',
-  text: 'text'
-};
-
-const sizeStyles: Record<NonNullable<MainButtonProps['size']>, UniversalStyle> = {
-  xs: { paddingVertical: 8, paddingHorizontal: 12, borderRadius: 24 },
-  sm: { paddingVertical: 12, paddingHorizontal: 18, borderRadius: 24 },
-  md: { paddingVertical: 12, paddingHorizontal: 24, borderRadius: 100 },
-  lg: { paddingVertical: 12, paddingHorizontal: 40, borderRadius: 100 }
-};
-
-const textSizes: Record<NonNullable<MainButtonProps['size']>, number> = {
-  xs: 14,
-  sm: 16,
-  md: 18,
-  lg: 24
-};
-
-const wrapReactNativeChild = (child: React.ReactNode) => {
-  if (!child || !React.isValidElement(child)) return null;
-
-  return <RNHostView matchContents>{child as ReactElement}</RNHostView>;
-};
+const sizeStyles = {
+  xs: { paddingVertical: 8, paddingHorizontal: 12, borderRadius: 24, fontSize: 14 },
+  sm: { paddingVertical: 12, paddingHorizontal: 18, borderRadius: 24, fontSize: 16 },
+  md: { paddingVertical: 12, paddingHorizontal: 24, borderRadius: 100, fontSize: 18 },
+  lg: { paddingVertical: 12, paddingHorizontal: 40, borderRadius: 100, fontSize: 24 }
+} as const;
 
 const MainButton: FunctionComponent<MainButtonProps> = ({
   text,
@@ -66,12 +47,10 @@ const MainButton: FunctionComponent<MainButtonProps> = ({
   rightIcon,
   hapticFeedback = false
 }) => {
-  const theme = useTheme();
+  const styles = useStyles(makeStyles);
   const router = useRouter();
 
   if (!onPress && !href) return null;
-
-  const hasCustomContent = isLoading || Boolean(leftIcon) || Boolean(rightIcon);
 
   const handlePress = () => {
     if (isDisabled) return;
@@ -80,30 +59,87 @@ const MainButton: FunctionComponent<MainButtonProps> = ({
     if (href) router.push(href);
   };
 
+  const { paddingVertical, paddingHorizontal, borderRadius, fontSize } = sizeStyles[size];
+  const hasIcons = Boolean(leftIcon) || Boolean(rightIcon);
+
   return (
-    <Host matchContents style={[{ alignSelf: 'stretch' }, containerStyle]}>
-      <Button
-        variant={variantMap[variant]}
-        label={hasCustomContent ? undefined : text}
-        onPress={handlePress}
-        disabled={isDisabled}
-        style={sizeStyles[size]}>
-        {hasCustomContent ? (
-          <Row alignment="center" spacing={8}>
-            {isLoading ? (
-              <RNHostView matchContents>
-                <ActivityIndicator color={theme.colors.text} />
-              </RNHostView>
-            ) : (
-              wrapReactNativeChild(leftIcon)
-            )}
-            <Text textStyle={{ fontSize: textSizes[size], fontWeight: 'bold' }}>{text}</Text>
-            {!isLoading && wrapReactNativeChild(rightIcon)}
-          </Row>
-        ) : null}
-      </Button>
-    </Host>
+    <Pressable
+      onPress={handlePress}
+      disabled={isDisabled || isLoading}
+      style={[
+        styles.base,
+        styles[variant],
+        { paddingVertical, paddingHorizontal, borderRadius },
+        (isDisabled || isLoading) && styles.disabled,
+        containerStyle
+      ]}>
+      <View style={styles.content}>
+        {isLoading ? (
+          <ActivityIndicator
+            size="small"
+            color={variant === 'primary' ? '#ffffff' : undefined}
+            style={styles.icon}
+          />
+        ) : (
+          hasIcons && leftIcon && <View style={styles.icon}>{leftIcon}</View>
+        )}
+        <Text
+          style={[
+            styles.label,
+            styles[`${variant}Label` as keyof typeof styles],
+            { fontSize }
+          ]}>
+          {text}
+        </Text>
+        {!isLoading && rightIcon && <View style={styles.icon}>{rightIcon}</View>}
+      </View>
+    </Pressable>
   );
 };
+
+const makeStyles = ({ colors }: AppTheme) =>
+  StyleSheet.create({
+    base: {
+      alignSelf: 'stretch',
+      alignItems: 'center',
+      justifyContent: 'center'
+    },
+    primary: {
+      backgroundColor: colors.primary
+    },
+    secondary: {
+      backgroundColor: 'transparent',
+      borderWidth: 1,
+      borderColor: colors.primary
+    },
+    text: {
+      backgroundColor: 'transparent'
+    },
+    disabled: {
+      opacity: 0.5
+    },
+    content: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: 8
+    },
+    icon: {
+      alignItems: 'center',
+      justifyContent: 'center'
+    },
+    label: {
+      fontWeight: 'bold'
+    },
+    primaryLabel: {
+      color: '#ffffff'
+    },
+    secondaryLabel: {
+      color: colors.primary
+    },
+    textLabel: {
+      color: colors.primary
+    }
+  });
 
 export default MainButton;

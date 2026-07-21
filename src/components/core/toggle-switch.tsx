@@ -1,5 +1,6 @@
-import { Toggle } from '@expo/ui/swift-ui';
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet, Switch, View } from 'react-native';
+
+import { useTheme } from '@/hooks/use-theme';
 
 import AppText from './app-text';
 
@@ -13,12 +14,19 @@ type Props = {
 };
 
 const ToggleSwitch = ({ marginBottom, marginTop, label, description, value, onChange }: Props) => {
+  const theme = useTheme();
+
   return (
-    <View style={{ ...styles.container, marginBottom, marginTop }}>
-      <AppText size={14} color="text" fontWeight="regular">
-        {description}
-      </AppText>
-      <Toggle label={label} isOn={value} onIsOnChange={onChange} />
+    <View style={[styles.container, { marginBottom, marginTop }]}>
+      <View style={styles.textColumn}>
+        <AppText size={14} color="text" fontWeight="bold">
+          {label}
+        </AppText>
+        <AppText size={13} color="textSecondary" fontWeight="regular">
+          {description}
+        </AppText>
+      </View>
+      <Switch value={value} onValueChange={onChange} trackColor={{ true: theme.colors.primary }} />
     </View>
   );
 };
@@ -28,8 +36,12 @@ export default ToggleSwitch;
 const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
-    gap: 8,
     alignItems: 'center',
-    justifyContent: 'space-between'
+    justifyContent: 'space-between',
+    gap: 8
+  },
+  textColumn: {
+    flex: 1,
+    gap: 2
   }
 });

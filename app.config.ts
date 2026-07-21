@@ -41,6 +41,9 @@ const getConfig = ({ config }: ConfigContext): ExpoConfig => {
       'expo-router',
       'expo-video',
       'expo-screen-orientation',
+      'expo-splash-screen',
+      'expo-status-bar',
+      'expo-web-browser',
       [
         'expo-notifications',
         {

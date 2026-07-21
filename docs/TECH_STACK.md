@@ -16,7 +16,7 @@ Mobile app — iOS first, Android to follow. Built with Expo (React Native) + Ex
 | Layer | Choice | Status | Rationale |
 |---|---|---|---|
 | Framework | Expo SDK 57 (RN 0.86, React 19.2) | Installed | Current SDK; EAS handles build/deploy |
-| UI components | `@expo/ui` + Expo Router native tabs (`unstable-native-tabs`) | Installed | Native-feeling iOS components; see [ADR 0004](./adr/0004-custom-theme-no-component-library.md) — no component library |
+| UI components | Custom RN primitives (`src/components/core/`) + Expo Router native tabs (`unstable-native-tabs`) | Installed | Bespoke `Pressable`/`View`-based components; see [ADR 0004](./adr/0004-custom-theme-no-component-library.md) — no component library, no `@expo/ui` |
 | Styling | Custom theme tokens (`src/constants/theme.ts`) via `useTheme()` / `useThemedStyles()` | Installed | Bespoke native feel; **no NativeWind/Tailwind**. See THEMING.md and ADR 0004 |
 | Routing | Expo Router (file-based, route groups, `Stack.Protected` guards) | Installed | Idiomatic Expo; `(public)` vs `(protected)` groups |
 | State: local | `useState` / `useReducer` | Installed | Component-level state |
@@ -141,7 +141,7 @@ The cron Edge Function runs on a schedule (e.g. every 15 min), evaluates each pe
 
 1. **Supabase Edge Function cron (Priority 1)** — a scheduled function that reads Postgres and fires a push. Least-familiar part of the stack; underpins missed-feed alerts. See ADR 0002.
 2. **Expo Notifications on a real device** — APNs delivery is not representative on the simulator. Test on hardware early.
-3. **`@expo/ui` component coverage** — SDK 57 Expo UI is new. Audit available components against UI requirements; know early where a custom implementation is needed.
+3. **Custom component parity** — audit `src/components/core/` primitives against UI requirements; add new primitives rather than reaching for a component library.
 
 ---
 
