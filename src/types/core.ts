@@ -33,3 +33,10 @@ export type MoreOptions = {
   link?: string;
   route?: Href;
 };
+
+export type UserProfile = {
+  id: string;
+  firstName: string | null;
+  lastName: string | null;
+  avatarUrl: string | null;
+};

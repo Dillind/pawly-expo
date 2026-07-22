@@ -82,7 +82,6 @@ A pet owner who shares responsibility with at least one other person — partner
 ## Risks & Open Questions
 
 - **Technical spike needed (Priority 1):** Supabase Edge Function cron for missed-feed alerts. Build this before anything else — least-certain part of the stack, underpins a core v1 feature. See ADR 0002.
-- **Auth not yet real:** routing is currently gated by a hard-coded flag; Supabase auth is not implemented.
 - **Free-tier household cap:** with multiple Owners allowed, the "up to 2 contributors" limit should be re-expressed as a total-member cap. Finalise the number.
 - **Scope creep watch:** a social media feed. Explicitly out of scope. Named here so it's easier to resist.
 - **Invite flow friction:** invitees must download the app and create an account before joining. Onboarding must be dead simple or the multi-member model falls apart. See ADR 0003.
