@@ -955,7 +955,7 @@ git commit -m "feat: wire root layout to real Supabase auth state"
 **Interfaces:**
 - Consumes: `AuthService.signInWithPassword` (Task 5), `signInSchema`/`SignInFormValues` (already exists at `src/constants/schemas/sign-in.ts`).
 
-- [ ] **Step 1: Finish the sign-in screen**
+- [x] **Step 1: Finish the sign-in screen**
 
 Read the current file first — it already has the form (`signInSchema`, `useForm`, `hapticLight`) wired, with the actual input JSX commented out and the submit handler showing a placeholder toast. Replace its full contents with:
 
@@ -1106,7 +1106,7 @@ const makeStyles = ({ spacing }: AppTheme) =>
 export default SignIn;
 ```
 
-- [ ] **Step 2: Verify**
+- [x] **Step 2: Verify**
 
 ```bash
 npm run typecheck && npm run lint
@@ -1114,14 +1114,14 @@ npm run typecheck && npm run lint
 
 Expected: both pass.
 
-- [ ] **Step 3: Manual QA on simulator**
+- [x] **Step 3: Manual QA on simulator**
 
 Boot the iOS simulator via the argent MCP tools, launch the app, and on the sign-in screen:
 - Confirm both fields and error messages render (submit empty to trigger Zod validation errors).
 - Enter a non-existent account's credentials, submit, confirm the "Could not sign in" toast appears.
 - Confirm "Forgot password?" navigates to the forgot-password screen.
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add "src/app/(public)/(auth)/index.tsx"
