@@ -495,7 +495,7 @@ Dylan confirms the template is saved before Task 9's verification step is run ag
 **Interfaces:**
 - Produces: `supabase` (a configured `SupabaseClient` instance) exported from `src/lib/supabase/client.ts`.
 
-- [ ] **Step 1: Install AsyncStorage**
+- [x] **Step 1: Install AsyncStorage**
 
 ```bash
 npx expo install @react-native-async-storage/async-storage
@@ -503,7 +503,7 @@ npx expo install @react-native-async-storage/async-storage
 
 Expected: added to `package.json` `dependencies` at the SDK-57-compatible version.
 
-- [ ] **Step 2: Add Supabase env vars**
+- [x] **Step 2: Add Supabase env vars**
 
 `.env` currently contains only `EXPO_PUBLIC_NODE_ENV=development`. Append:
 
@@ -514,7 +514,7 @@ EXPO_PUBLIC_SUPABASE_KEY=sb_publishable_DMUsboA7zhMFPGOZB2NR6Q_0ol_mZQJ
 
 (`.env` is already gitignored — confirmed via `.gitignore`'s `.env` entry — so this is safe to write directly, no `.env.local` needed.)
 
-- [ ] **Step 3: Populate `.env.example`**
+- [x] **Step 3: Populate `.env.example`**
 
 `.env.example` is currently empty. Write:
 
@@ -524,7 +524,7 @@ EXPO_PUBLIC_SUPABASE_URL=
 EXPO_PUBLIC_SUPABASE_KEY=
 ```
 
-- [ ] **Step 4: Write the client module**
+- [x] **Step 4: Write the client module**
 
 Create `src/lib/supabase/client.ts`:
 
@@ -549,7 +549,7 @@ export const supabase = createClient(supabaseUrl, supabaseKey, {
 });
 ```
 
-- [ ] **Step 5: Verify**
+- [x] **Step 5: Verify**
 
 ```bash
 npm run typecheck
@@ -557,7 +557,7 @@ npm run typecheck
 
 Expected: no errors (this file isn't imported anywhere yet, but must type-check standalone).
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add .env.example src/lib/supabase/client.ts package.json
@@ -577,7 +577,7 @@ git commit -m "feat: add Supabase client with AsyncStorage session persistence"
 - Consumes: `supabase` from `src/lib/supabase/client.ts` (Task 4).
 - Produces: `AuthService` object with methods `signUp({ email, password, firstName, lastName })`, `verifySignUpOtp({ email, token })`, `signInWithPassword({ email, password })` — all `async`, all throw on error (never return a Supabase `error` object silently). Password-reset methods (`requestPasswordReset`, `verifyPasswordResetOtp`, `updatePassword`) are deliberately not added here — see Task 10's scope note.
 
-- [ ] **Step 1: Write the service**
+- [x] **Step 1: Write the service**
 
 Create `src/lib/supabase/auth.ts`:
 
@@ -630,7 +630,7 @@ export const AuthService = {
 };
 ```
 
-- [ ] **Step 2: Verify**
+- [x] **Step 2: Verify**
 
 ```bash
 npm run typecheck && npm run lint
@@ -638,7 +638,7 @@ npm run typecheck && npm run lint
 
 Expected: both pass with no errors.
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add src/lib/supabase/auth.ts
@@ -658,7 +658,7 @@ Forgot-password is deferred (see Task 10's scope note) — no schema is created 
 **Interfaces:**
 - Produces: `signUpSchema`/`SignUpFormValues`, `verifyOtpSchema`/`VerifyOtpFormValues`.
 
-- [ ] **Step 1: Sign-up schema**
+- [x] **Step 1: Sign-up schema**
 
 Create `src/constants/schemas/sign-up.ts` (mirrors the existing `sign-in.ts` pattern):
 
@@ -675,7 +675,7 @@ export const signUpSchema = z.object({
 export type SignUpFormValues = z.infer<typeof signUpSchema>;
 ```
 
-- [ ] **Step 2: OTP schema (used by the sign-up verification screen)**
+- [x] **Step 2: OTP schema (used by the sign-up verification screen)**
 
 Create `src/constants/schemas/verify-otp.ts`:
 
@@ -689,7 +689,7 @@ export const verifyOtpSchema = z.object({
 export type VerifyOtpFormValues = z.infer<typeof verifyOtpSchema>;
 ```
 
-- [ ] **Step 3: Verify**
+- [x] **Step 3: Verify**
 
 ```bash
 npm run typecheck && npm run lint
@@ -697,7 +697,7 @@ npm run typecheck && npm run lint
 
 Expected: both pass.
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add src/constants/schemas/sign-up.ts src/constants/schemas/verify-otp.ts
@@ -722,7 +722,7 @@ git commit -m "feat: add Zod schemas for sign-up and OTP verification"
 
 **Scope note:** password-reset (forgot-password) is deferred — see Task 10 — since it's tied to account/settings work that isn't happening yet. This task therefore stays a plain two-status gate (`signedOut` / `signedIn`), no `needsPasswordReset` status or extra route group. Don't add that machinery ahead of the flow that would actually need it.
 
-- [ ] **Step 1: Add the `UserProfile` type**
+- [x] **Step 1: Add the `UserProfile` type**
 
 Append to `src/types/core.ts`:
 
@@ -735,7 +735,7 @@ export type UserProfile = {
 };
 ```
 
-- [ ] **Step 2: Write the auth store**
+- [x] **Step 2: Write the auth store**
 
 Create `src/stores/auth-store.ts`:
 
@@ -766,7 +766,7 @@ export const useAuthStore = create<AuthState>((set) => ({
 }));
 ```
 
-- [ ] **Step 3: Write the session hook**
+- [x] **Step 3: Write the session hook**
 
 Create `src/hooks/use-auth-session.ts`:
 
@@ -799,7 +799,7 @@ export function useAuthSession() {
 }
 ```
 
-- [ ] **Step 4: Write the profile query hook**
+- [x] **Step 4: Write the profile query hook**
 
 Create `src/hooks/use-user-profile.ts`:
 
@@ -850,7 +850,7 @@ export function useUserProfile() {
 }
 ```
 
-- [ ] **Step 5: Wire the root layout to real auth state**
+- [x] **Step 5: Wire the root layout to real auth state**
 
 Read `src/app/_layout.tsx` first to confirm it still matches the version already in this repo (imports `QueryClient`/`QueryClientProvider`, `Stack`/`ThemeProvider` from `expo-router`, `useState` for the placeholder, etc.) before editing — if it's drifted, adapt this step's replacement accordingly rather than blindly overwriting.
 
@@ -914,7 +914,7 @@ export default function RootLayout() {
 
 (`AuthGate` is split out as its own component so `useUserProfile`'s `useQuery` call is inside the `QueryClientProvider` tree — it can't run at the top of `RootLayout` itself, above the provider.)
 
-- [ ] **Step 6: Update `docs/PRODUCT_BRIEF.md`**
+- [x] **Step 6: Update `docs/PRODUCT_BRIEF.md`**
 
 Find, in the Risks & Open Questions section:
 
@@ -924,7 +924,7 @@ Find, in the Risks & Open Questions section:
 
 Delete this line — it's no longer true after this task.
 
-- [ ] **Step 7: Verify**
+- [x] **Step 7: Verify**
 
 ```bash
 npm run typecheck && npm run lint
@@ -938,7 +938,7 @@ npm start
 
 Use the argent MCP tools (per this repo's loaded `argent-react-native-app-workflow` skill) to boot the iOS simulator, launch the app, and confirm via `describe`/`debugger-component-tree` that the "Welcome back" sign-in screen renders with no crash.
 
-- [ ] **Step 8: Commit**
+- [x] **Step 8: Commit**
 
 ```bash
 git add src/types/core.ts src/stores/auth-store.ts src/hooks/use-auth-session.ts src/hooks/use-user-profile.ts src/app/_layout.tsx docs/PRODUCT_BRIEF.md
