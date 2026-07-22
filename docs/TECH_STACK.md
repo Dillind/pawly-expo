@@ -29,19 +29,16 @@ Mobile app — iOS first, Android to follow. Built with Expo (React Native) + Ex
 | Icons | `phosphor-react-native` + `react-native-svg` | Installed | Native SVG icons; use `size` prop, not `width`/`height` |
 | Haptics / media | `expo-haptics`, `expo-image`, `expo-image-picker`, `expo-camera` | Installed | Micro-interactions and pet photos |
 | Notifications | `expo-notifications` | Installed | Feed-logged + missed-feed pushes (see `usePushNotifications`) |
-| Secure storage | `expo-secure-store` | Installed | Token/session storage |
+| Secure storage | `expo-secure-store` | Installed | Config plugin present, not currently used for auth — see ADR 0005 |
+| Session storage | `@react-native-async-storage/async-storage` | Installed | Supabase Auth session persistence (unencrypted); see ADR 0005 |
 | Auth toolkit | `expo-auth-session`, `expo-crypto`, `expo-web-browser` | Installed | Present, but **v1 uses email/password only** (OAuth is v2) |
 | Debugging | `reactotron-react-native` | Installed | Dev-only, loaded in root layout when `__DEV__` |
-| Backend | Supabase (Postgres + Auth + Realtime + Storage + Edge Functions) | **Planned** | Covers every v1 requirement without a custom server; client not yet added |
+| Backend | Supabase (Postgres + Auth + Realtime + Storage + Edge Functions) | Installed (Auth + schema foundation) | Covers every v1 requirement without a custom server; Auth wired up, Realtime/Storage/Edge Functions still to come |
 | Payments | RevenueCat | **Planned** | Initialise in v1, paywall off until v2 |
 | Analytics | PostHog | **Planned** | Retention cohorts, weekly-active tracking |
 | Crash reporting | Sentry | **Planned** | Wire in early |
 | Feature voting | Canny | **Planned** | Surfaced in settings |
 | Deployment | EAS Build / Update / Submit | Planned | Standard Expo pipeline; `eas.projectId` not yet set in `app.config.ts` |
-
-### Known open technical decisions
-
-- **Auth:** `app/_layout.tsx` currently gates routes with a hard-coded `useState(false)`. Real auth (Supabase) is not yet implemented.
 
 ---
 
@@ -63,7 +60,8 @@ Reflects [ADR 0001](./adr/0001-household-owns-pets-role-based-ownership.md): a h
 
 ```
 users
-  id, email, display_name, avatar_url, created_at
+  id (→ auth.users, cascade delete), first_name, last_name, avatar_url, created_at
+  -- email is never duplicated here; read it from the authenticated session (auth.users) instead
 
 households
   id, name, timezone, grace_window_minutes (default 60), created_at
