@@ -1139,7 +1139,7 @@ git commit -m "feat: wire sign-in screen to Supabase auth"
 **Interfaces:**
 - Consumes: `AuthService.signUp`, `AuthService.verifySignUpOtp` (Task 5); `signUpSchema`, `verifyOtpSchema` (Task 6).
 
-- [ ] **Step 1: Write the sign-up screen**
+- [x] **Step 1: Write the sign-up screen**
 
 Replace the full contents of `src/app/(public)/(auth)/sign-up/index.tsx` (currently a bare `<Text>SignUp</Text>` stub):
 
@@ -1312,7 +1312,7 @@ const makeStyles = ({ spacing }: AppTheme) =>
 export default SignUp;
 ```
 
-- [ ] **Step 2: Write the verify-code screen**
+- [x] **Step 2: Write the verify-code screen**
 
 Create `src/app/(public)/(auth)/sign-up/verify.tsx` (auto-registers as a route — `sign-up/_layout.tsx` uses file-based discovery with no explicit `<Stack.Screen>` list):
 
@@ -1432,7 +1432,7 @@ const makeStyles = ({ spacing }: AppTheme) =>
 export default VerifySignUp;
 ```
 
-- [ ] **Step 3: Verify**
+- [x] **Step 3: Verify**
 
 ```bash
 npm run typecheck && npm run lint
@@ -1440,7 +1440,7 @@ npm run typecheck && npm run lint
 
 Expected: both pass.
 
-- [ ] **Step 4: Manual QA on simulator (requires Task 3 dashboard config done)**
+- [x] **Step 4: Manual QA on simulator (requires Task 3 dashboard config done)**
 
 Sign up with a real, checkable email address on the simulator. Confirm:
 - Submitting invalid fields (short password, missing name) shows Zod errors.
@@ -1449,7 +1449,7 @@ Sign up with a real, checkable email address on the simulator. Confirm:
 - Entering the correct code signs the user in and the app swaps from the sign-up screen straight into `(protected)` — no manual navigation call should be needed for this, confirming Task 7's reactive `AuthGate` works end-to-end.
 - Entering a wrong code shows the "Could not verify code" toast and stays on the screen.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add "src/app/(public)/(auth)/sign-up/index.tsx" "src/app/(public)/(auth)/sign-up/verify.tsx"
