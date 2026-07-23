@@ -26,7 +26,7 @@
 
 **Interfaces:** None — docs only.
 
-- [ ] **Step 1: Write ADR 0007**
+- [x] **Step 1: Write ADR 0007**
 
 Create `docs/adr/0007-household-creation-is-explicit-not-trigger-based.md`:
 
@@ -51,7 +51,7 @@ Unlike `public.users` (populated automatically by the `handle_new_user` trigger 
 - Anyone extending this later should resist the urge to "simplify" household creation into a trigger — it would silently break the Contributor path the moment that's built.
 ```
 
-- [ ] **Step 2: Update `docs/TECH_STACK.md` data model**
+- [x] **Step 2: Update `docs/TECH_STACK.md` data model**
 
 Find:
 
@@ -67,7 +67,7 @@ pets
   id, household_id (→ households), name, breed, sex (male | female), birthdate, birthdate_is_approximate, photo_url, created_at
 ```
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add docs/TECH_STACK.md docs/adr/0007-household-creation-is-explicit-not-trigger-based.md
