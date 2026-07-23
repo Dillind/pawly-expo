@@ -84,7 +84,7 @@ git commit -m "docs: add ADR 0007 for explicit household creation, update pets d
 **Interfaces:**
 - Produces: tables `public.pets`, `public.feeding_schedules`; enums `public.pet_sex` (`'male' | 'female'`), `public.feeding_schedule_label` (`'morning' | 'lunch' | 'dinner' | 'custom'`); functions `private.is_pet_household_member(target_pet_id uuid)`, `private.is_pet_household_owner(target_pet_id uuid)`, `public.create_household_and_pet(household_timezone text, pet_name text, pet_breed text, pet_sex public.pet_sex, pet_birthdate date, pet_birthdate_is_approximate boolean, pet_photo_url text, feeding_times jsonb) returns public.pets`; new INSERT policies on the existing `households`/`household_members` tables; a public `pet-photos` storage bucket with its own RLS.
 
-- [ ] **Step 1: Write the migration file**
+- [x] **Step 1: Write the migration file**
 
 Create `supabase/migrations/20260723090000_pet_household_onboarding.sql`:
 
@@ -291,17 +291,17 @@ end;
 $$;
 ```
 
-- [ ] **Step 2: Apply the migration**
+- [x] **Step 2: Apply the migration**
 
 Call `mcp__plugin_supabase_supabase__apply_migration` with `project_id: "dofjrttcyjtzvqyttqdo"`, `name: "pet_household_onboarding"`, `query`: the full SQL from Step 1.
 
-- [ ] **Step 3: Verify schema and check for security advisories**
+- [x] **Step 3: Verify schema and check for security advisories**
 
 Call `mcp__plugin_supabase_supabase__list_tables` with `project_id: "dofjrttcyjtzvqyttqdo"`, `schemas: ["public"]`, `verbose: true`. Expected: `pets` and `feeding_schedules` present with the columns above.
 
 Then call `mcp__plugin_supabase_supabase__get_advisors` with `project_id: "dofjrttcyjtzvqyttqdo"`, `type: "security"`. Expected: empty `lints` array — this migration follows the same `private`-schema pattern that fixed the security-definer exposure finding from the auth foundation work, so it should not reintroduce it. If it does, apply the same fix (move the flagged function to `private`) as a follow-up migration, exactly as documented in the auth foundation plan's Task 2.
 
-- [ ] **Step 4: Sanity-check the RPC function manually**
+- [x] **Step 4: Sanity-check the RPC function manually**
 
 Call `mcp__plugin_supabase_supabase__execute_sql` with `project_id: "dofjrttcyjtzvqyttqdo"` and this query (uses Dylan's real test account from the auth foundation testing, reads its id rather than hardcoding it):
 
@@ -320,7 +320,7 @@ select public.create_household_and_pet(
 
 **Important:** this runs as the `postgres`/service role via `execute_sql`, not as an authenticated app user, so `auth.uid()` inside the function will be `null` — expect this specific call to fail (`household_members` insert violates `with check (user_id = auth.uid() ...)`  since `auth.uid()` is null). That failure is itself useful confirmation that the RLS policies correctly reject calls without a real authenticated session — the actual success path gets exercised for real in Task 8's manual QA, from the app, under a real user's JWT. Don't try to work around this by using a service-role bypass here; that would prove nothing about whether the policies work for real users.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add supabase/migrations/20260723090000_pet_household_onboarding.sql
