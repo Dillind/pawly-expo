@@ -480,7 +480,7 @@ git commit -m "feat: add onboarding Zustand store"
 **Interfaces:**
 - Produces: `useHasHousehold()` hook — `useQuery` wrapping a `select id from household_members where user_id = ... limit 1` check, returning `{ data: boolean | undefined, isLoading: boolean }` (renamed/mapped from the raw Query result for clarity at the call site).
 
-- [ ] **Step 1: Write the household-check hook**
+- [x] **Step 1: Write the household-check hook**
 
 Create `src/hooks/use-has-household.ts`:
 
@@ -517,7 +517,7 @@ export function useHasHousehold() {
 }
 ```
 
-- [ ] **Step 2: Wire the gate into `(protected)/_layout.tsx`**
+- [x] **Step 2: Wire the gate into `(protected)/_layout.tsx`**
 
 Read the current file first to confirm it still matches (`Stack` with a single `<Stack.Screen name="(tabs)" />`) before editing.
 
@@ -545,7 +545,7 @@ export default function ProtectedLayout() {
 }
 ```
 
-- [ ] **Step 3: Scaffold the `(onboarding)` route group**
+- [x] **Step 3: Scaffold the `(onboarding)` route group**
 
 Create `src/app/(protected)/(onboarding)/_layout.tsx`:
 
@@ -564,7 +564,7 @@ export default function OnboardingLayout() {
 
 (The screens themselves are written in Tasks 7–8 — same "layout can reference a route that doesn't exist yet" pattern as the auth foundation plan.)
 
-- [ ] **Step 4: Verify**
+- [x] **Step 4: Verify**
 
 ```bash
 npm run typecheck && npm run lint
@@ -572,7 +572,7 @@ npm run typecheck && npm run lint
 
 Expected: both pass (the layout referencing not-yet-existing screen files is fine for Expo Router/TypeScript — routes aren't statically imported by name here).
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/hooks/use-has-household.ts "src/app/(protected)/_layout.tsx" "src/app/(protected)/(onboarding)/_layout.tsx"
