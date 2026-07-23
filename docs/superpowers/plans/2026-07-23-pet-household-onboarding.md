@@ -590,7 +590,7 @@ git commit -m "feat: gate (protected) between onboarding and tabs based on house
 **Interfaces:**
 - Produces: `petDetailsSchema`/`PetDetailsFormValues`, `feedingScheduleSchema`/`FeedingScheduleFormValues`.
 
-- [ ] **Step 1: Pet details schema**
+- [x] **Step 1: Pet details schema**
 
 Create `src/constants/schemas/pet-details.ts`:
 
@@ -609,7 +609,7 @@ export const petDetailsSchema = z.object({
 export type PetDetailsFormValues = z.infer<typeof petDetailsSchema>;
 ```
 
-- [ ] **Step 2: Feeding schedule schema**
+- [x] **Step 2: Feeding schedule schema**
 
 Create `src/constants/schemas/feeding-schedule.ts`:
 
@@ -631,7 +631,7 @@ export const feedingScheduleSchema = z.object({
 export type FeedingScheduleFormValues = z.infer<typeof feedingScheduleSchema>;
 ```
 
-- [ ] **Step 3: Verify**
+- [x] **Step 3: Verify**
 
 ```bash
 npm run typecheck && npm run lint
@@ -639,7 +639,7 @@ npm run typecheck && npm run lint
 
 Expected: both pass.
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add src/constants/schemas/pet-details.ts src/constants/schemas/feeding-schedule.ts
