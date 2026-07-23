@@ -340,7 +340,7 @@ git commit -m "feat: add pets, feeding_schedules, storage bucket, and atomic onb
 
 Matches the `src/services/*.service.ts` + `namespace` + default-export convention already established by `src/services/auth.service.ts` (this is where all of this app's API-calling code lives now — not `src/lib/supabase/`, which stays limited to the raw `client.ts` the services import from).
 
-- [ ] **Step 1: Write the helper**
+- [x] **Step 1: Write the helper**
 
 Create `src/services/storage.service.ts`:
 
@@ -376,7 +376,7 @@ export default StorageService;
 
 (`expo-crypto` is already installed — used here only for `randomUUID()`; the `arrayBuffer()` step is required because `expo-image-picker` returns a local file URI, not a `File`/`Blob` object the Supabase JS upload API can take directly.)
 
-- [ ] **Step 2: Verify**
+- [x] **Step 2: Verify**
 
 ```bash
 npm run typecheck && npm run lint
@@ -384,7 +384,7 @@ npm run typecheck && npm run lint
 
 Expected: both pass.
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add src/services/storage.service.ts
