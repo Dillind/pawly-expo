@@ -657,7 +657,9 @@ git commit -m "feat: add Zod schemas for pet details and feeding schedule"
 - Consumes: `petDetailsSchema` (Task 6), `useOnboardingStore` (Task 4).
 - Produces: navigates to `/feeding-schedule` on submit, with `petDetails` populated in the store.
 
-- [ ] **Step 1: Write the screen**
+**Note on Step 2's typecheck:** Task 7's typecheck only passes once Task 8's `feeding-schedule.tsx` exists on disk, due to Expo Router's `typedRoutes` (enabled in `app.json`) generating its `href` union from files present at typecheck time — `router.push('/feeding-schedule')` below doesn't resolve until that file exists. Write Task 8's screen before running Task 7's Step 2 verification. This is a structural gap from splitting pet-details/feeding-schedule across two tasks (the auth foundation plan avoided this by keeping sign-up and its verify screen in one task); contained to just this one screen pair, nothing else in this plan has the same same-task-boundary typed-route dependency.
+
+- [x] **Step 1: Write the screen**
 
 Create `src/app/(protected)/(onboarding)/pet-details.tsx`:
 
@@ -880,7 +882,7 @@ const makeStyles = ({ spacing }: AppTheme) =>
 export default PetDetails;
 ```
 
-- [ ] **Step 2: Verify**
+- [x] **Step 2: Verify**
 
 ```bash
 npm run typecheck && npm run lint
@@ -888,7 +890,7 @@ npm run typecheck && npm run lint
 
 Expected: both pass — pay particular attention to any unused-import warning per the note above.
 
-- [ ] **Step 3: Manual QA on simulator**
+- [x] **Step 3: Manual QA on simulator**
 
 Boot the simulator, sign in with the existing verified test account (from the auth foundation testing — this account has no household yet, so it should land directly on this screen per the Task 5 gate). Confirm:
 - Tapping the photo circle opens the image picker; selecting a photo shows it in the circular preview.
@@ -896,7 +898,7 @@ Boot the simulator, sign in with the existing verified test account (from the au
 - Filling in valid details and tapping "Next" navigates to `/feeding-schedule`.
 - Backgrounding and reopening the app keeps you on this flow (still no household yet).
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add "src/app/(protected)/(onboarding)/pet-details.tsx"
@@ -915,7 +917,13 @@ git commit -m "feat: add pet details onboarding screen"
 - Consumes: `feedingScheduleSchema` (Task 6), `useOnboardingStore` (Task 4), `StorageService.uploadPetPhoto` (Task 3), `useAuthStore` (for `userId`).
 - Produces: on successful submit, calls `supabase.rpc('create_household_and_pet', ...)`, resets the onboarding store, and (via Task 5's gate reactively re-querying) lands the user on `(tabs)/home`.
 
-- [ ] **Step 1: Write the curated timezone list**
+**Two real gaps found during manual QA, both fixed (not deviations from intent — the plan's own "happy path finishes cleanly" behavior was under-specified in both cases):**
+1. **Missing empty-list error rendering.** The screen's original code had no rendering location anywhere for the array-level Zod error (`feedingTimes` `.min(1, {...})`) — emptying the list and tapping "Finish" failed completely silently. The actual RHF error shape for an array-level `.min()` failure is `errors.feedingTimes.root.message` (not `.message` directly — array fields reserve `.message` conceptually for per-index errors, the array's own error lives under `.root`). Fixed by adding `<FieldError error={form.formState.errors.feedingTimes?.root?.message} />` after the feeding-times list.
+2. **Missing query invalidation for the reactive gate.** After a successful submission, nothing invalidated the Task 5 gate's `useHasHousehold` query (`['has-household', userId]`), so the cached "no household" result just sat there and the app never reactively swapped into `(tabs)/home` mid-session — it only worked on a cold restart (fresh query mount). Fixed by adding `queryClient.invalidateQueries({ queryKey: ['has-household', userId] })` right after `resetOnboarding()` in the success path.
+
+Also required an unrelated follow-up migration: `create_household_and_pet()`'s first insert (`insert into households ... returning id into ...`) hit a classic Postgres RLS gotcha — `INSERT ... RETURNING` implicitly requires the new row to also satisfy the table's SELECT policy, which can never be true for a household that doesn't have its owning member row yet. This made the RPC fail (403/42501) for every caller, always. Fixed in `supabase/migrations/20260723090100_fix_create_household_and_pet_rls.sql` by generating the id in PL/pgSQL and dropping `RETURNING` on that one insert — `security invoker` and every RLS policy are untouched.
+
+- [x] **Step 1: Write the curated timezone list**
 
 Create `src/constants/timezones.ts`:
 
@@ -956,7 +964,7 @@ export const COMMON_TIMEZONES = [
 
 (Hand-curated — `Intl.supportedValuesOf('timeZone')` is not available in this project's Hermes runtime, verified empirically. If the device's detected timezone via `Intl.DateTimeFormat().resolvedOptions().timeZone` isn't in this list, the screen below falls back to including it directly rather than silently dropping the user's real timezone — see Step 2.)
 
-- [ ] **Step 2: Write the screen**
+- [x] **Step 2: Write the screen**
 
 Create `src/app/(protected)/(onboarding)/feeding-schedule.tsx`:
 
@@ -1191,7 +1199,7 @@ export default FeedingSchedule;
 
 There's no dedicated time-picker component in `src/components/core/` yet, and building one is out of scope for this task — the time field above is a masked free-text `"HH:mm"` entry via the existing `TextInputValidated`, validated by the Zod regex already in `feedingScheduleSchema`. Sufficient for v1; a real time-picker can replace it later without touching the schema or the RPC payload shape.
 
-- [ ] **Step 3: Verify**
+- [x] **Step 3: Verify**
 
 ```bash
 npm run typecheck && npm run lint
@@ -1199,7 +1207,7 @@ npm run typecheck && npm run lint
 
 Expected: both pass.
 
-- [ ] **Step 4: Manual QA on simulator — the real end-to-end test**
+- [x] **Step 4: Manual QA on simulator — the real end-to-end test**
 
 Continue from Task 7's manual QA (still signed in as the test account, pet details already filled in from the previous screen). Confirm:
 - Timezone dropdown shows the device's real timezone as a valid selectable option.
@@ -1210,7 +1218,7 @@ Continue from Task 7's manual QA (still signed in as the test account, pet detai
 - After landing on `(tabs)/home`, use `mcp__plugin_supabase_supabase__execute_sql` to confirm the full chain actually persisted: `select households.name, households.timezone, pets.name, pets.sex, count(feeding_schedules.id) from households join pets on pets.household_id = households.id join feeding_schedules on feeding_schedules.pet_id = pets.id group by 1,2,3,4;` — expect one row matching what was entered.
 - Force-quit and relaunch the app — confirm it now lands directly on `(tabs)/home` (skips onboarding), proving the Task 5 gate correctly detects the now-existing `household_members` row on a cold start, not just reactively mid-session.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add "src/app/(protected)/(onboarding)/feeding-schedule.tsx" src/constants/timezones.ts
