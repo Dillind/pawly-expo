@@ -401,7 +401,7 @@ git commit -m "feat: add pet photo upload helper"
 **Interfaces:**
 - Produces: `useOnboardingStore` with `petDetails: PetDetails | null`, `timezone: string`, `feedingTimes: FeedingTime[]`, `setPetDetails`, `setSchedule`, `reset`. Types `PetDetails`, `FeedingTime` exported for reuse by the screens.
 
-- [ ] **Step 1: Write the store**
+- [x] **Step 1: Write the store**
 
 Create `src/stores/onboarding-store.ts`:
 
@@ -453,7 +453,7 @@ export const useOnboardingStore = create<OnboardingState>((set) => ({
 
 (`time` is stored as a plain `"HH:mm"` 24-hour string, not a `Date` — it's a wall-clock time with no date component, matching `feeding_schedules.scheduled_time`'s Postgres `time` type; wrapping it in a `Date` object would invite timezone confusion for a value that specifically isn't supposed to carry one.)
 
-- [ ] **Step 2: Verify**
+- [x] **Step 2: Verify**
 
 ```bash
 npm run typecheck && npm run lint
@@ -461,7 +461,7 @@ npm run typecheck && npm run lint
 
 Expected: both pass.
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add src/stores/onboarding-store.ts
