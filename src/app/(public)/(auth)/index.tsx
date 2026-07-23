@@ -7,7 +7,7 @@ import { signInSchema, type SignInFormValues } from '@/constants/schemas/sign-in
 import type { AppTheme } from '@/constants/theme';
 import { useStyles } from '@/hooks/use-styles';
 import { hapticLight } from '@/lib/haptics';
-import { AuthService } from '@/lib/supabase/auth';
+import AuthService from '@/services/auth.service';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Link } from 'expo-router';
 import { Controller, FormProvider, useForm } from 'react-hook-form';
