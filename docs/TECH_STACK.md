@@ -74,7 +74,7 @@ household_invites
   id, household_id (→ households), code, created_by (→ users), expires_at, revoked_at, redeemed_by, created_at
 
 pets
-  id, household_id (→ households), name, breed, birthdate, birthdate_is_approximate, photo_url, created_at
+  id, household_id (→ households), name, breed, sex (male | female), birthdate, birthdate_is_approximate, photo_url, created_at
 
 feeding_schedules
   id, pet_id (→ pets), scheduled_time (wall-clock time, interpreted in household.timezone),
