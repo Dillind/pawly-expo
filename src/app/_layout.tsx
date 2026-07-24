@@ -45,7 +45,7 @@ export default function RootLayout() {
               <AuthGate />
             </QueryClientProvider>
           </KeyboardProvider>
-          <Toaster richColors position="top-center" />
+          <Toaster richColors position="bottom-center" />
         </SafeAreaProvider>
       </ThemeProvider>
     </GestureHandlerRootView>

@@ -14,13 +14,16 @@ export type PetDetails = {
   photoUri: string | null;
 };
 
-type OnboardingState = {
+type State = {
   petDetails: PetDetails | null;
   timezone: string;
   feedingTimes: FeedingTime[];
+};
+
+type Action = {
   setPetDetails: (details: PetDetails) => void;
   setSchedule: (params: { timezone: string; feedingTimes: FeedingTime[] }) => void;
-  reset: () => void;
+  resetOnboarding: () => void;
 };
 
 const defaultFeedingTimes: FeedingTime[] = [
@@ -29,15 +32,15 @@ const defaultFeedingTimes: FeedingTime[] = [
   { time: '17:00', label: 'dinner' }
 ];
 
-const initialState = {
+const initialState: State = {
   petDetails: null,
   timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
   feedingTimes: defaultFeedingTimes
 };
 
-export const useOnboardingStore = create<OnboardingState>((set) => ({
+export const useOnboardingStore = create<State & Action>((set) => ({
   ...initialState,
   setPetDetails: (details) => set({ petDetails: details }),
   setSchedule: (params) => set(params),
-  reset: () => set({ ...initialState, feedingTimes: defaultFeedingTimes })
+  resetOnboarding: () => set({ ...initialState, feedingTimes: defaultFeedingTimes })
 }));

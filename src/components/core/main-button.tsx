@@ -51,7 +51,7 @@ const MainButton: FunctionComponent<MainButtonProps> = ({
   size = 'md',
   leftIcon,
   rightIcon,
-  hapticFeedback = false
+  hapticFeedback = true
 }) => {
   const styles = useStyles(makeStyles);
   const router = useRouter();

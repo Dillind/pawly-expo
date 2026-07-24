@@ -8,7 +8,7 @@ import { useEffect } from 'react';
  * through useAuthStore, not a second subscription.
  */
 export function useAuthSession() {
-  const setSession = useAuthStore((state) => state.setSession);
+  const { setSession } = useAuthStore();
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {

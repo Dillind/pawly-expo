@@ -20,7 +20,7 @@ async function fetchHasHousehold(userId: string): Promise<boolean> {
  * session identity, same reasoning as useUserProfile in the auth work.
  */
 export function useHasHousehold() {
-  const userId = useAuthStore((state) => state.userId);
+  const { userId } = useAuthStore();
 
   return useQuery({
     queryKey: ['has-household', userId],

@@ -1,4 +1,4 @@
-import DatePickerValidated from '@/components/core/date-picker-validated';
+import DateTimePickerValidated from '@/components/core/date-time-picker-validated';
 import DropdownPickerValidated from '@/components/core/dropdown-picker-validated';
 import Icon from '@/components/core/icon';
 import MainButton from '@/components/core/main-button';
@@ -23,12 +23,11 @@ const sexOptions = ['male', 'female'];
 const PetDetails = () => {
   const styles = useStyles(makeStyles);
   const router = useRouter();
-  const setPetDetails = useOnboardingStore((state) => state.setPetDetails);
-  const storedPetDetails = useOnboardingStore((state) => state.petDetails);
+  const { setPetDetails, petDetails } = useOnboardingStore();
 
   const form = useForm<PetDetailsFormValues>({
     resolver: zodResolver(petDetailsSchema),
-    defaultValues: storedPetDetails ?? {
+    defaultValues: petDetails ?? {
       name: '',
       breed: '',
       sex: 'male',
@@ -101,6 +100,7 @@ const PetDetails = () => {
                 <TextInputValidated
                   name="name"
                   label="Name"
+                  isLabelIndicated
                   value={value}
                   onChangeText={onChange}
                   onBlur={onBlur}
@@ -117,6 +117,7 @@ const PetDetails = () => {
                 <TextInputValidated
                   name="breed"
                   label="Breed"
+                  isLabelIndicated
                   value={value}
                   onChangeText={onChange}
                   onBlur={onBlur}
@@ -133,6 +134,7 @@ const PetDetails = () => {
                 <DropdownPickerValidated
                   name="sex"
                   label="Sex"
+                  isLabelIndicated
                   items={sexOptions}
                   value={value}
                   onChange={(next) => onChange(next as PetDetailsFormValues['sex'])}
@@ -144,9 +146,10 @@ const PetDetails = () => {
               control={control}
               name="birthdate"
               render={({ field: { onChange, value } }) => (
-                <DatePickerValidated
+                <DateTimePickerValidated
                   name="birthdate"
                   label="Birthdate"
+                  isLabelIndicated
                   selectedDate={value}
                   setSelectedDate={onChange}
                 />

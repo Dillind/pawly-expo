@@ -83,6 +83,46 @@ Expo Router (file-based). Auth is enforced with `Stack.Protected` guards in `src
 - **Global (client):** Zustand.
 - **Server/remote:** TanStack Query (`QueryClientProvider` is set up in the root layout). All Supabase/remote reads should go through Query.
 
+**Zustand stores:**
+
+- Split the store's type into `State` and `Action`, combined as `create<State & Action>(...)`. Don't inline everything into one type.
+- Consume with a plain destructure, not a per-field selector:
+
+  ```tsx
+  // Do this
+  const { setSchedule } = useOnboardingStore();
+
+  // Not this
+  const setSchedule = useOnboardingStore((state) => state.setSchedule);
+  ```
+
+  This is a deliberate trade-off, not an oversight: a plain destructure subscribes to the whole store, so the component re-renders on any field changing, not just the ones it reads. Accepted for the cleaner syntax — if a specific component's re-render cost from this ever becomes a real, measured problem, reach for `useShallow` there rather than reintroducing per-field selectors project-wide.
+
+  ```tsx
+  type State = {
+    countryCode: string | null;
+    phoneNumber: string | null;
+  };
+
+  type Action = {
+    setContactInfo: (countryCode: string, phoneNumber: string) => void;
+    reset: () => void;
+  };
+
+  const initialState: State = {
+    countryCode: null,
+    phoneNumber: null
+  };
+
+  const useForgotPasswordStore = create<State & Action>((set) => ({
+    ...initialState,
+    setContactInfo: (countryCode, phoneNumber) => set({ countryCode, phoneNumber }),
+    reset: () => set(initialState)
+  }));
+
+  export default useForgotPasswordStore;
+  ```
+
 ### Theming
 
 `useTheme()` returns `{ colors, isDark, spacing }`. For StyleSheets, define a module-level `makeStyles` factory and call `useStyles(makeStyles)` inside the component. See [docs/THEMING.md](./docs/THEMING.md).

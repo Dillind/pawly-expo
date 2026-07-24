@@ -1,8 +1,8 @@
 import AppText from '@/components/core/app-text';
 import Icon from '@/components/core/icon';
 import { ThemeColor } from '@/constants/theme';
-import { useThemedStyles } from '@/hooks/use-themed-styles';
-import { View } from 'react-native';
+import { useStyles } from '@/hooks/use-styles';
+import { StyleSheet, View } from 'react-native';
 
 type Props = {
   marginTop?: number;
@@ -12,20 +12,22 @@ type Props = {
 };
 
 const IndicatedText = ({ marginBottom, marginTop, text, textColor }: Props) => {
-  const styles = useThemedStyles(() => ({
-    container: {
-      flexDirection: 'row'
-    }
-  }));
-
+  const styles = useStyles(makeStyles);
   return (
     <View style={[styles.container, { marginTop, marginBottom }]}>
       <AppText size={16} color={textColor ?? 'text'}>
         {text}
       </AppText>
-      <Icon name="asterisk" size={16} />
+      <Icon name="asterisk" size={12} color="error" />
     </View>
   );
 };
 
 export default IndicatedText;
+
+const makeStyles = () =>
+  StyleSheet.create({
+    container: {
+      flexDirection: 'row'
+    }
+  });

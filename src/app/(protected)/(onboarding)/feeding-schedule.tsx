@@ -1,8 +1,8 @@
 import AppText from '@/components/core/app-text';
+import DateTimePickerValidated from '@/components/core/date-time-picker-validated';
 import DropdownPickerValidated from '@/components/core/dropdown-picker-validated';
 import MainButton from '@/components/core/main-button';
 import PressableOpacity from '@/components/core/pressable-opacity';
-import TextInputValidated from '@/components/core/text-input-validated';
 import TextDescriptionHeader from '@/components/layout/text-description-header';
 import {
   feedingScheduleSchema,
@@ -12,7 +12,6 @@ import type { AppTheme } from '@/constants/theme';
 import { COMMON_TIMEZONES } from '@/constants/timezones';
 import { useStyles } from '@/hooks/use-styles';
 import FieldError from '@/lib/form/components/field-error';
-import { hapticLight } from '@/lib/haptics';
 import { supabase } from '@/lib/supabase/client';
 import StorageService from '@/services/storage.service';
 import { useAuthStore } from '@/stores/auth-store';
@@ -34,16 +33,12 @@ const labelOptions = ['morning', 'lunch', 'dinner', 'custom'];
 const FeedingSchedule = () => {
   const styles = useStyles(makeStyles);
   const queryClient = useQueryClient();
-  const userId = useAuthStore((state) => state.userId);
-  const petDetails = useOnboardingStore((state) => state.petDetails);
-  const storedTimezone = useOnboardingStore((state) => state.timezone);
-  const storedFeedingTimes = useOnboardingStore((state) => state.feedingTimes);
-  const setSchedule = useOnboardingStore((state) => state.setSchedule);
-  const resetOnboarding = useOnboardingStore((state) => state.reset);
+  const { userId } = useAuthStore();
+  const { petDetails, timezone, feedingTimes, setSchedule, resetOnboarding } = useOnboardingStore();
 
   const form = useForm<FeedingScheduleFormValues>({
     resolver: zodResolver(feedingScheduleSchema),
-    defaultValues: { timezone: storedTimezone, feedingTimes: storedFeedingTimes },
+    defaultValues: { timezone, feedingTimes },
     mode: 'onBlur'
   });
 
@@ -55,22 +50,20 @@ const FeedingSchedule = () => {
     formState: { isSubmitting }
   } = form;
 
-  const feedingTimes = watch('feedingTimes');
+  const watchedFeedingTimes = watch('feedingTimes');
 
   const addFeedingTime = () => {
-    setValue('feedingTimes', [...feedingTimes, { time: '15:00', label: 'custom' }]);
+    setValue('feedingTimes', [...watchedFeedingTimes, { time: '15:00', label: 'custom' }]);
   };
 
   const removeFeedingTime = (index: number) => {
     setValue(
       'feedingTimes',
-      feedingTimes.filter((_, i) => i !== index)
+      watchedFeedingTimes.filter((_, i) => i !== index)
     );
   };
 
   const onSubmit = handleSubmit(async (values) => {
-    hapticLight();
-
     if (!petDetails || !userId) {
       toast.error('Something went wrong', {
         description: 'Missing pet details, go back and try again'
@@ -103,6 +96,7 @@ const FeedingSchedule = () => {
 
       resetOnboarding();
       queryClient.invalidateQueries({ queryKey: ['has-household', userId] });
+      toast.success('Pet profile completed successfully');
     } catch (error) {
       toast.error('Could not finish setup', {
         description: error instanceof Error ? error.message : 'Try again'
@@ -138,21 +132,21 @@ const FeedingSchedule = () => {
           />
 
           <View style={styles.feedingTimesList}>
-            {feedingTimes.map((feedingTime, index) => (
+            {watchedFeedingTimes.map((feedingTime, index) => (
               <View key={index} style={styles.feedingTimeRow}>
-                <Controller
-                  control={control}
-                  name={`feedingTimes.${index}.time`}
-                  render={({ field: { onChange, value } }) => (
-                    <TextInputValidated
-                      value={value}
-                      onChangeText={onChange}
-                      placeholder="07:00"
-                      keyboardType="numbers-and-punctuation"
-                      containerStyle={styles.timeInput}
-                    />
-                  )}
-                />
+                <View style={styles.timeInput}>
+                  <Controller
+                    control={control}
+                    name={`feedingTimes.${index}.time`}
+                    render={({ field: { onChange, value } }) => (
+                      <DateTimePickerValidated
+                        mode="time"
+                        selectedDate={value}
+                        setSelectedDate={onChange}
+                      />
+                    )}
+                  />
+                </View>
                 <Controller
                   control={control}
                   name={`feedingTimes.${index}.label`}

@@ -1,6 +1,7 @@
 import AppText from '@/components/core/app-text';
 import Icon from '@/components/core/icon';
-import { useTheme } from '@/hooks/use-theme';
+import type { AppTheme } from '@/constants/theme';
+import { useStyles } from '@/hooks/use-styles';
 import FieldError from '@/lib/form/components/field-error';
 import { useFormContext } from 'react-hook-form';
 import { StyleProp, StyleSheet, View, ViewStyle } from 'react-native';
@@ -44,7 +45,8 @@ const DropdownPickerValidated = ({
 }: Props) => {
   const form = useFormContext();
   const errors = form?.formState?.errors;
-  const theme = useTheme();
+  const styles = useStyles(makeStyles);
+
   return (
     <View style={[wrapperStyle, { marginBottom, marginTop }]}>
       {label &&
@@ -67,23 +69,17 @@ const DropdownPickerValidated = ({
       <Dropdown
         dropdownPosition={dropdownPosition}
         disable={isDisabled}
-        style={[styles.dropdown]}
+        style={styles.dropdown}
         placeholderStyle={styles.placeholderStyle}
         selectedTextStyle={styles.selectedTextStyle}
-        containerStyle={{
-          backgroundColor: theme.colors.background
-        }}
-        renderRightIcon={() => <Icon name="caretDown" size={10} />}
+        containerStyle={styles.dropdownContainer}
+        renderRightIcon={() => <Icon name="caretDown" size={16} />}
         data={items.map((item) => ({
           label: getText ? getText(item) : item,
           value: item
         }))}
         renderItem={(item, isSelected) => (
-          <View
-            style={{
-              padding: 12,
-              backgroundColor: isSelected ? 'backgroundElement' : 'background'
-            }}>
+          <View style={[styles.item, isSelected && styles.itemSelected]}>
             <AppText color="text" size={16}>
               {item.label}
             </AppText>
@@ -106,32 +102,33 @@ const DropdownPickerValidated = ({
 
 export default DropdownPickerValidated;
 
-const styles = StyleSheet.create({
-  container: {},
-  dropdown: {
-    height: 46,
-    paddingHorizontal: 12,
-    borderWidth: 1,
-    borderRadius: 8,
-    fontFamily: 'body',
-    fontSize: 16,
-    borderColor: 'border',
-    backgroundColor: 'background'
-  },
-  placeholderStyle: {
-    fontFamily: 'body',
-    fontSize: 16,
-    color: 'textSecondary'
-  },
-  selectedTextStyle: {
-    fontFamily: 'body',
-    fontSize: 14,
-    color: 'text'
-  },
-  label: {
-    flexDirection: 'row',
-    marginBottom: 8,
-    borderColor: 'border',
-    backgroundColor: 'backgroundElement'
-  }
-});
+const makeStyles = ({ colors }: AppTheme) =>
+  StyleSheet.create({
+    dropdown: {
+      height: 46,
+      paddingHorizontal: 12,
+      borderWidth: 1,
+      borderRadius: 8,
+      fontSize: 16,
+      borderColor: colors.textSecondary,
+      backgroundColor: colors.background
+    },
+    dropdownContainer: {
+      backgroundColor: colors.background
+    },
+    placeholderStyle: {
+      fontSize: 16,
+      color: colors.textSecondary
+    },
+    selectedTextStyle: {
+      fontSize: 14,
+      color: colors.text
+    },
+    item: {
+      padding: 12,
+      backgroundColor: colors.background
+    },
+    itemSelected: {
+      backgroundColor: colors.backgroundSelected
+    }
+  });
