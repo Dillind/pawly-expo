@@ -1,7 +1,7 @@
 import AppText from '@/components/core/app-text';
+import Icon from '@/components/core/icon';
 import { useTheme } from '@/hooks/use-theme';
 import FieldError from '@/lib/form/components/field-error';
-import { CaretDownIcon } from 'phosphor-react-native';
 import { useFormContext } from 'react-hook-form';
 import { StyleProp, StyleSheet, View, ViewStyle } from 'react-native';
 import { Dropdown } from 'react-native-element-dropdown';
@@ -73,7 +73,7 @@ const DropdownPickerValidated = ({
         containerStyle={{
           backgroundColor: theme.colors.background
         }}
-        renderRightIcon={() => <CaretDownIcon size={10} />}
+        renderRightIcon={() => <Icon name="caretDown" size={10} />}
         data={items.map((item) => ({
           label: getText ? getText(item) : item,
           value: item

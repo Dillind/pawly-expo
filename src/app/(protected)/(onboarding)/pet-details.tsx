@@ -1,5 +1,6 @@
 import DatePickerValidated from '@/components/core/date-picker-validated';
 import DropdownPickerValidated from '@/components/core/dropdown-picker-validated';
+import Icon from '@/components/core/icon';
 import MainButton from '@/components/core/main-button';
 import PressableOpacity from '@/components/core/pressable-opacity';
 import TextInputValidated from '@/components/core/text-input-validated';
@@ -8,14 +9,12 @@ import TextDescriptionHeader from '@/components/layout/text-description-header';
 import { petDetailsSchema, type PetDetailsFormValues } from '@/constants/schemas/pet-details';
 import type { AppTheme } from '@/constants/theme';
 import { useStyles } from '@/hooks/use-styles';
-import { useTheme } from '@/hooks/use-theme';
 import { hapticLight } from '@/lib/haptics';
 import { useOnboardingStore } from '@/stores/onboarding-store';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Image } from 'expo-image';
 import * as ImagePicker from 'expo-image-picker';
 import { useRouter } from 'expo-router';
-import { CameraIcon } from 'phosphor-react-native';
 import { Controller, FormProvider, useForm } from 'react-hook-form';
 import { ScrollView, StyleSheet, View } from 'react-native';
 
@@ -23,7 +22,6 @@ const sexOptions = ['male', 'female'];
 
 const PetDetails = () => {
   const styles = useStyles(makeStyles);
-  const theme = useTheme();
   const router = useRouter();
   const setPetDetails = useOnboardingStore((state) => state.setPetDetails);
   const storedPetDetails = useOnboardingStore((state) => state.petDetails);
@@ -90,7 +88,7 @@ const PetDetails = () => {
               <Image source={{ uri: photoUri }} style={styles.photo} />
             ) : (
               <View style={[styles.photo, styles.photoPlaceholder]}>
-                <CameraIcon size={24} color={theme.colors.textSecondary} />
+                <Icon name="camera" size={24} color="textSecondary" />
               </View>
             )}
           </PressableOpacity>

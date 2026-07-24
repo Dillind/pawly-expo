@@ -1,8 +1,7 @@
 import AppText from '@/components/core/app-text';
+import Icon from '@/components/core/icon';
 import { ThemeColor } from '@/constants/theme';
-import { useTheme } from '@/hooks/use-theme';
 import { useThemedStyles } from '@/hooks/use-themed-styles';
-import { AsteriskIcon } from 'phosphor-react-native';
 import { View } from 'react-native';
 
 type Props = {
@@ -13,7 +12,6 @@ type Props = {
 };
 
 const IndicatedText = ({ marginBottom, marginTop, text, textColor }: Props) => {
-  const theme = useTheme();
   const styles = useThemedStyles(() => ({
     container: {
       flexDirection: 'row'
@@ -25,7 +23,7 @@ const IndicatedText = ({ marginBottom, marginTop, text, textColor }: Props) => {
       <AppText size={16} color={textColor ?? 'text'}>
         {text}
       </AppText>
-      <AsteriskIcon size={16} color={theme.colors.text} />
+      <Icon name="asterisk" size={16} />
     </View>
   );
 };

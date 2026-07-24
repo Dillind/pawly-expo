@@ -1,11 +1,11 @@
 import AppText from '@/components/core/app-text';
+import Icon from '@/components/core/icon';
 import IndicatedText from '@/components/core/indicated-text';
 import PressableOpacity from '@/components/core/pressable-opacity';
 import type { AppTheme, ThemeColor } from '@/constants/theme';
 import { useStyles } from '@/hooks/use-styles';
 import { useTheme } from '@/hooks/use-theme';
 import FieldError from '@/lib/form/components/field-error';
-import { EyeIcon, EyeSlashIcon } from 'phosphor-react-native';
 import React, { useState } from 'react';
 import { useFormContext, useFormState } from 'react-hook-form';
 import {
@@ -151,11 +151,7 @@ const TextInputValidated = React.forwardRef<TextInputRef, Props>(
             <PressableOpacity
               onPress={() => setIsSecured(!isSecured)}
               style={styles.visibilityIcon}>
-              {isSecured ? (
-                <EyeSlashIcon size={16} color={theme.colors.text} />
-              ) : (
-                <EyeIcon size={16} color={theme.colors.text} />
-              )}
+              {isSecured ? <Icon name="eyeOff" size={16} /> : <Icon name="eye" size={16} />}
             </PressableOpacity>
           )}
         </View>

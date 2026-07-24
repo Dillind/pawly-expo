@@ -72,7 +72,9 @@ const FeedingSchedule = () => {
     hapticLight();
 
     if (!petDetails || !userId) {
-      toast.error('Something went wrong', { description: 'Missing pet details, go back and try again' });
+      toast.error('Something went wrong', {
+        description: 'Missing pet details, go back and try again'
+      });
       return;
     }
 
@@ -167,7 +169,7 @@ const FeedingSchedule = () => {
                   )}
                 />
                 <PressableOpacity onPress={() => removeFeedingTime(index)}>
-                  <AppText color="red100" size={20}>
+                  <AppText color="error" size={20}>
                     ×
                   </AppText>
                 </PressableOpacity>

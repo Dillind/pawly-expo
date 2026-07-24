@@ -10,7 +10,7 @@ const FieldError = ({ marginTop, marginBottom, error }: Props) => {
   if (!error) return null;
 
   return (
-    <AppText style={{ marginTop, marginBottom }} color="red100" size={14}>
+    <AppText style={{ marginTop, marginBottom }} color="error" size={14}>
       {error}
     </AppText>
   );

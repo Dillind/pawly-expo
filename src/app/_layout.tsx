@@ -14,10 +14,10 @@ const queryClient = new QueryClient();
 
 if (__DEV__) require('../../ReactotronConfig');
 
-function AuthGate() {
+const AuthGate = () => {
   useAuthSession();
   useUserProfile();
-  const status = useAuthStore((state) => state.status);
+  const { status } = useAuthStore();
 
   if (status === 'loading') return null;
 
@@ -31,7 +31,7 @@ function AuthGate() {
       </Stack.Protected>
     </Stack>
   );
-}
+};
 
 export default function RootLayout() {
   const colorScheme = useColorScheme();

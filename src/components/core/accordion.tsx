@@ -1,8 +1,7 @@
 import AppText from '@/components/core/app-text';
+import Icon from '@/components/core/icon';
 import PressableOpacity from '@/components/core/pressable-opacity';
-import { useTheme } from '@/hooks/use-theme';
 import { useThemedStyles } from '@/hooks/use-themed-styles';
-import { CaretDownIcon, DotIcon } from 'phosphor-react-native';
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { LayoutChangeEvent, StyleSheet, View } from 'react-native';
 import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
@@ -49,7 +48,6 @@ type AccordionItemProps = {
 };
 
 export const AccordionItem = ({ id, title, icon, children }: AccordionItemProps) => {
-  const theme = useTheme();
   const themedStyles = useThemedStyles((colors) => ({
     headerRule: {
       height: StyleSheet.hairlineWidth,
@@ -112,7 +110,7 @@ export const AccordionItem = ({ id, title, icon, children }: AccordionItemProps)
           </AppText>
         </View>
         <Animated.View style={chevronStyle}>
-          <CaretDownIcon size={10} color={theme.colors.text} />
+          <Icon name="caretDown" size={10} />
         </Animated.View>
       </PressableOpacity>
       <View style={themedStyles.headerRule} />
@@ -138,7 +136,6 @@ type AccordionBulletRowProps = {
 };
 
 export const AccordionBulletRow = ({ label, isLast = false }: AccordionBulletRowProps) => {
-  const theme = useTheme();
   const themedStyles = useThemedStyles((colors) => ({
     rowRule: {
       height: StyleSheet.hairlineWidth,
@@ -150,7 +147,7 @@ export const AccordionBulletRow = ({ label, isLast = false }: AccordionBulletRow
   return (
     <View>
       <View style={layoutStyles.bulletRow}>
-        <DotIcon size={4} color={theme.colors.text} />
+        <Icon name="dot" size={4} />
         <AppText variant="body" size={14} color="text" style={layoutStyles.bulletLabel}>
           {label}
         </AppText>

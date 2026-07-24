@@ -11,5 +11,6 @@ export enum MessageType {
   Submitted = 'Successfully submitted',
   Invited = 'Successfully invited',
   Accepted = 'Successfully accepted',
-  SignedOutSuccess = 'Successfully signed out'
+  SignOutSuccess = 'Successfully signed out',
+  SignOutError = 'Failed to sign out'
 }

@@ -93,19 +93,28 @@ Expo Router (file-based). Auth is enforced with `Stack.Protected` guards in `src
 
 ### Icons
 
-Use `phosphor-react-native` (backed by `react-native-svg`). Import icons with the `Icon` suffix from the package root:
+Icons come from `lucide-react-native` (backed by `react-native-svg`), but **never import a Lucide icon directly in a screen or component.** Always go through the shared `Icon` primitive at `src/components/core/icon.tsx`, which reads from the explicit allow-list in `src/constants/icon-map.ts`:
 
 ```tsx
-import { CalendarIcon, EyeIcon } from 'phosphor-react-native';
+import Icon from '@/components/core/icon';
 
-<CalendarIcon size={16} color={theme.text} />
+<Icon name="calendar" size={16} />
+<Icon name="camera" size={24} color="textSecondary" />
 ```
 
-- **`size`** — single value; the icon is always square.
-- **`color`** — pass a theme colour string (`theme.text`, `theme.textSecondary`, etc.).
-- **`weight`** — optional; defaults to `"regular"`. Other values: `"thin"` `"light"` `"bold"` `"fill"` `"duotone"`.
+- **`name`** — required, typed as `IconName` (`keyof typeof iconMap`). Only icons registered in the map are selectable — this is deliberate, not a limitation: it keeps every icon the bundler ever sees an explicit, reviewable choice instead of the whole Lucide set being reachable.
+- **`size`** — defaults to `16`.
+- **`color`** — a `ThemeColor` key (`'text'`, `'textSecondary'`, etc., same set `AppText` uses), defaults to `'text'`.
+- **`strokeWidth`** — optional passthrough; omit to use Lucide's own default (`2`).
+- `Icon` is decorative by default (hidden from the accessibility tree) — it does not accept an `accessibilityLabel`. Icon-only tappable controls should use `IconButton` (owns the tap target and requires a label) once it exists; don't bolt accessibility props onto `Icon` itself.
 
-Do not use `@phosphor-icons/react` — that is the web/DOM SVG package and is not installed.
+**Adding a new icon:**
+
+1. Check the icon exists at [lucide.dev/icons](https://lucide.dev/icons).
+2. Add one line to `src/constants/icon-map.ts`: a semantic key (not necessarily Lucide's own export name — e.g. `caretDown` maps to Lucide's `ChevronDown`, matching this codebase's existing vocabulary) mapped to the Lucide component.
+3. Use `<Icon name="yourNewKey" />` at the call site.
+
+Never import from `lucide-react-native` anywhere except `icon-map.ts` — that's what keeps the bundle from silently growing as icons get added. See [ADR 0008](./docs/adr/0008-lucide-icon-library-typed-icon-map.md) for why Phosphor was replaced.
 
 ### Styling & theming
 

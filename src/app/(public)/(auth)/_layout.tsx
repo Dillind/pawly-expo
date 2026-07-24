@@ -4,7 +4,7 @@ export default function AuthLayout() {
   return (
     <Stack
       screenOptions={{
-        headerLargeTitle: true
+        headerBackVisible: true
       }}>
       <Stack.Screen name="index" options={{ title: 'Sign in' }} />
       <Stack.Screen name="sign-up" options={{ title: 'Sign up' }} />

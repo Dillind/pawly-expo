@@ -1,9 +1,8 @@
 import AppText from '@/components/core/app-text';
+import Icon from '@/components/core/icon';
 import PressableOpacity from '@/components/core/pressable-opacity';
-import { useTheme } from '@/hooks/use-theme';
 import { useThemedStyles } from '@/hooks/use-themed-styles';
 import FieldError from '@/lib/form/components/field-error';
-import { CalendarIcon } from 'phosphor-react-native';
 import dayjs from 'dayjs';
 import { useState } from 'react';
 import { useFormContext, useFormState } from 'react-hook-form';
@@ -32,7 +31,6 @@ const DatePickerValidated = ({
   selectedDate,
   setSelectedDate
 }: Props) => {
-  const theme = useTheme();
   const [isVisible, setIsVisible] = useState<boolean>(false);
   const [date, _setDate] = useState<Date>(new Date());
   const form = useFormContext();
@@ -89,7 +87,7 @@ const DatePickerValidated = ({
         <AppText color={selectedDate ? 'text' : 'textSecondary'} size={14}>
           {selectedDate ? dayjs(selectedDate).format('DD / MM / YYYY') : 'dd / mm / yyyy'}
         </AppText>
-        <CalendarIcon size={16} color={theme.colors.text} />
+        <Icon name="calendar" size={16} />
       </PressableOpacity>
       {isError && <FieldError marginTop={8} error={errors?.[name]?.message as string} />}
     </View>
