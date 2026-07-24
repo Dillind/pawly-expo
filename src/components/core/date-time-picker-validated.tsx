@@ -1,15 +1,17 @@
 import AppText from '@/components/core/app-text';
+import Icon from '@/components/core/icon';
 import PressableOpacity from '@/components/core/pressable-opacity';
-import { useTheme } from '@/hooks/use-theme';
 import { useThemedStyles } from '@/hooks/use-themed-styles';
 import FieldError from '@/lib/form/components/field-error';
-import { CalendarIcon } from 'phosphor-react-native';
 import dayjs from 'dayjs';
+import customParseFormat from 'dayjs/plugin/customParseFormat';
 import { useState } from 'react';
 import { useFormContext, useFormState } from 'react-hook-form';
 import { View } from 'react-native';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
 import IndicatedText from './indicated-text';
+
+dayjs.extend(customParseFormat);
 
 type Props = {
   marginTop?: number;
@@ -18,29 +20,44 @@ type Props = {
   label?: string;
   description?: string;
   isLabelIndicated?: boolean;
+  mode?: 'date' | 'time';
   selectedDate: string;
   setSelectedDate: (date: string) => void;
 };
 
-const DatePickerValidated = ({
+const storeFormat: Record<'date' | 'time', string> = {
+  date: 'YYYY-MM-DD',
+  time: 'HH:mm'
+};
+
+const displayFormat: Record<'date' | 'time', string> = {
+  date: 'DD / MM / YYYY',
+  time: 'h:mm A'
+};
+
+const placeholderText: Record<'date' | 'time', string> = {
+  date: 'dd / mm / yyyy',
+  time: 'hh:mm'
+};
+
+const DateTimePickerValidated = ({
   marginBottom,
   marginTop,
   name,
   label,
   description,
   isLabelIndicated,
+  mode = 'date',
   selectedDate,
   setSelectedDate
 }: Props) => {
-  const theme = useTheme();
   const [isVisible, setIsVisible] = useState<boolean>(false);
-  const [date, _setDate] = useState<Date>(new Date());
   const form = useFormContext();
   const { errors } = useFormState({ control: form?.control, name });
   const isError = name && errors?.[name]?.message;
   const styles = useThemedStyles((colors) => ({
     container: {},
-    datePickerContainer: {
+    pickerContainer: {
       borderRadius: 8,
       borderWidth: 1,
       borderColor: colors.textSecondary,
@@ -54,23 +71,25 @@ const DatePickerValidated = ({
     }
   }));
 
+  const date = selectedDate ? dayjs(selectedDate, storeFormat[mode]).toDate() : new Date();
+
   return (
     <View style={[styles.container, { marginBottom, marginTop }]}>
       <DateTimePickerModal
-        mode="date"
+        mode={mode}
         isVisible={isVisible}
         date={date}
-        display="inline"
-        pickerStyleIOS={{ height: 340 }}
+        display={mode === 'time' ? 'spinner' : 'inline'}
+        pickerStyleIOS={{ height: mode === 'time' ? 216 : 340 }}
         modalPropsIOS={{ presentationStyle: 'overFullScreen' }}
-        onConfirm={(date) => {
-          setSelectedDate(dayjs(date).format('YYYY-MM-DD'));
+        onConfirm={(picked) => {
+          setSelectedDate(dayjs(picked).format(storeFormat[mode]));
           setIsVisible(false);
         }}
         onCancel={() => {
           setIsVisible(false);
         }}
-        maximumDate={new Date()}
+        maximumDate={mode === 'date' ? new Date() : undefined}
       />
       {label &&
         (isLabelIndicated ? (
@@ -85,15 +104,17 @@ const DatePickerValidated = ({
           {description}
         </AppText>
       )}
-      <PressableOpacity style={styles.datePickerContainer} onPress={() => setIsVisible(true)}>
+      <PressableOpacity style={styles.pickerContainer} onPress={() => setIsVisible(true)}>
         <AppText color={selectedDate ? 'text' : 'textSecondary'} size={14}>
-          {selectedDate ? dayjs(selectedDate).format('DD / MM / YYYY') : 'dd / mm / yyyy'}
+          {selectedDate
+            ? dayjs(selectedDate, storeFormat[mode]).format(displayFormat[mode])
+            : placeholderText[mode]}
         </AppText>
-        <CalendarIcon size={16} color={theme.colors.text} />
+        <Icon name={mode === 'time' ? 'clock' : 'calendar'} size={16} />
       </PressableOpacity>
       {isError && <FieldError marginTop={8} error={errors?.[name]?.message as string} />}
     </View>
   );
 };
 
-export default DatePickerValidated;
+export default DateTimePickerValidated;

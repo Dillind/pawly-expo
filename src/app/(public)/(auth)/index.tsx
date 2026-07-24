@@ -6,8 +6,7 @@ import TextDescriptionHeader from '@/components/layout/text-description-header';
 import { signInSchema, type SignInFormValues } from '@/constants/schemas/sign-in';
 import type { AppTheme } from '@/constants/theme';
 import { useStyles } from '@/hooks/use-styles';
-import { hapticLight } from '@/lib/haptics';
-import { AuthService } from '@/lib/supabase/auth';
+import AuthService from '@/services/auth.service';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Link } from 'expo-router';
 import { Controller, FormProvider, useForm } from 'react-hook-form';
@@ -30,8 +29,6 @@ const SignIn = () => {
   } = form;
 
   const onSubmit = handleSubmit(async (values) => {
-    hapticLight();
-
     try {
       await AuthService.signInWithPassword(values);
     } catch (error) {
@@ -40,6 +37,16 @@ const SignIn = () => {
       });
     }
   });
+
+  const handleTestSignIn = () => {
+    const email = process.env.EXPO_PUBLIC_TEST_ACCOUNT_EMAIL;
+    const password = process.env.EXPO_PUBLIC_TEST_ACCOUNT_PASSWORD;
+    if (!email || !password) return;
+
+    form.setValue('email', email);
+    form.setValue('password', password);
+    void onSubmit();
+  };
 
   return (
     <View style={{ flex: 1 }}>
@@ -114,6 +121,15 @@ const SignIn = () => {
                 </AppText>
               </PressableOpacity>
             </Link>
+
+            {__DEV__ && (
+              <MainButton
+                text="Sign in as test account"
+                variant="text"
+                isDisabled={isSubmitting}
+                onPress={handleTestSignIn}
+              />
+            )}
           </View>
         </FormProvider>
       </ScrollView>

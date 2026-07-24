@@ -27,8 +27,7 @@ async function fetchUserProfile(userId: string): Promise<UserProfile> {
  * Sentry.setUser calls) can read it without a hook.
  */
 export function useUserProfile() {
-  const userId = useAuthStore((state) => state.userId);
-  const setProfile = useAuthStore((state) => state.setProfile);
+  const { userId, setProfile } = useAuthStore();
 
   const query = useQuery({
     queryKey: ['profile', userId],

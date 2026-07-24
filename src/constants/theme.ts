@@ -13,7 +13,7 @@ export const COLORS = {
     backgroundElement: '#F0F0F3',
     backgroundSelected: '#E0E1E6',
     textSecondary: '#60646C',
-    red100: '#CE3C39',
+    error: '#CE3C39',
     primary: '#0F7173',
     accent: '#6E44FF'
   },
@@ -23,7 +23,7 @@ export const COLORS = {
     backgroundElement: '#212225',
     backgroundSelected: '#2E3135',
     textSecondary: '#B0B4BA',
-    red100: '#CE3C39',
+    error: '#CE3C39',
     primary: '#14A8AF',
     accent: '#6E44FF'
   }

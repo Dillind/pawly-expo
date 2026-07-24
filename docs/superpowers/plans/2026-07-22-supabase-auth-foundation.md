@@ -32,6 +32,7 @@
 This session's grill (2026-07-22) resolved two decisions that go against what's currently written in the docs, plus a data-model change. Fix the docs before writing any code so nothing in this plan contradicts what a future reader sees.
 
 **Files:**
+
 - Modify: `docs/TECH_STACK.md`
 - Create: `docs/adr/0005-supabase-session-storage-asyncstorage.md`
 - Create: `docs/adr/0006-otp-code-email-verification.md`
@@ -124,15 +125,15 @@ Find:
 
 ```markdown
 users
-  id, email, display_name, avatar_url, created_at
+id, email, display_name, avatar_url, created_at
 ```
 
 Replace with:
 
 ```markdown
 users
-  id (→ auth.users, cascade delete), first_name, last_name, avatar_url, created_at
-  -- email is never duplicated here; read it from the authenticated session (auth.users) instead
+id (→ auth.users, cascade delete), first_name, last_name, avatar_url, created_at
+-- email is never duplicated here; read it from the authenticated session (auth.users) instead
 ```
 
 - [x] **Step 6: Update `docs/TECH_STACK.md` — known open technical decisions**
@@ -167,10 +168,12 @@ git commit -m "docs: correct auth session storage and verification decisions"
 ## Task 2: Supabase CLI setup + first migration (schema, trigger, RLS)
 
 **Files:**
+
 - Create: `supabase/config.toml` (via `supabase init`)
 - Create: `supabase/migrations/20260722120000_auth_foundation.sql`
 
 **Interfaces:**
+
 - Produces: tables `public.households`, `public.household_members` (`household_role` enum: `'owner' | 'contributor'`), `public.users`; functions `public.is_household_member(target_household_id uuid) returns boolean`, `public.is_household_owner(target_household_id uuid) returns boolean`, `public.handle_new_user() returns trigger`; trigger `on_auth_user_created` on `auth.users`.
 
 - [x] **Step 1: Scaffold the Supabase project locally**
@@ -338,6 +341,7 @@ create trigger on_auth_user_created
 Use the Supabase MCP tool (already connected, no additional auth needed) rather than `supabase db push`, since Step 2's interactive login may not have happened yet in an agent-driven run:
 
 Call `mcp__plugin_supabase_supabase__apply_migration` with:
+
 - `project_id`: `dofjrttcyjtzvqyttqdo`
 - `name`: `auth_foundation`
 - `query`: the full SQL from Step 3
@@ -462,13 +466,19 @@ SECURITY DEFINER functions in the exposed public schema."
 
 This cannot be scripted (it's dashboard UI, no MCP tool exposes template editing) — Dylan does this step directly. Flag it clearly rather than skip it silently, since Task 9's verify screen can't be tested against real email until it's done. Only the "Confirm signup" template is needed for this pass — "Reset password" is skipped since the forgot-password flow is deferred (Task 10); do it when that flow is picked back up, not now.
 
+**Discovered mid-execution, not in the original plan:** Supabase hard-gates email template editing behind custom SMTP being configured at all — the dashboard shows "Set up custom SMTP to edit templates" and refuses to save any template body until one is set up (this isn't documented in Supabase's public docs as of this session; found via the actual dashboard UI). This blocked Step 2 below until resolved.
+
 **Files:** None (Supabase dashboard only).
 
-- [ ] **Step 1: Confirm email confirmations are required**
+- [x] **Step 0 (added): Configure custom SMTP to unblock template editing**
+
+Set up Resend as a fast, temporary/testing SMTP provider (not the eventual AWS SES production choice — see the `supabase-smtp-aws-ses` memory note): host `smtp.resend.com`, port `587`, username `resend`, password = Resend API key, sender `onboarding@resend.dev` (Resend's testing-only address, no domain verification needed). Configured in Supabase dashboard → Authentication → SMTP settings.
+
+- [x] **Step 1: Confirm email confirmations are required**
 
 Dashboard → Authentication → Providers → Email. Confirm "Confirm email" is enabled (it's on by default for hosted projects).
 
-- [ ] **Step 2: Edit the "Confirm signup" template**
+- [x] **Step 2: Edit the "Confirm signup" template**
 
 Dashboard → Authentication → Emails → Templates → "Confirm signup". Replace the body so it uses `{{ .Token }}` instead of the default `{{ .ConfirmationURL }}` link, and add Pawly branding/copy, e.g.:
 
@@ -479,20 +489,22 @@ Dashboard → Authentication → Emails → Templates → "Confirm signup". Repl
 <p>This code expires shortly — if it's expired, request a new one from the app.</p>
 ```
 
-- [ ] **Step 3: Confirm**
+- [x] **Step 3: Confirm**
 
-Dylan confirms the template is saved before Task 9's verification step is run against real email.
+Confirmed working — Dylan completed a real signup end-to-end (code arrived branded via email, verified successfully, landed in `(protected)`).
 
 ---
 
 ## Task 4: Env vars + Supabase client module
 
 **Files:**
+
 - Modify: `.env`
 - Modify: `.env.example`
 - Create: `src/lib/supabase/client.ts`
 
 **Interfaces:**
+
 - Produces: `supabase` (a configured `SupabaseClient` instance) exported from `src/lib/supabase/client.ts`.
 
 - [x] **Step 1: Install AsyncStorage**
@@ -571,9 +583,11 @@ git commit -m "feat: add Supabase client with AsyncStorage session persistence"
 ## Task 5: Thin auth service wrapper
 
 **Files:**
+
 - Create: `src/lib/supabase/auth.ts`
 
 **Interfaces:**
+
 - Consumes: `supabase` from `src/lib/supabase/client.ts` (Task 4).
 - Produces: `AuthService` object with methods `signUp({ email, password, firstName, lastName })`, `verifySignUpOtp({ email, token })`, `signInWithPassword({ email, password })` — all `async`, all throw on error (never return a Supabase `error` object silently). Password-reset methods (`requestPasswordReset`, `verifyPasswordResetOtp`, `updatePassword`) are deliberately not added here — see Task 10's scope note.
 
@@ -652,10 +666,12 @@ git commit -m "feat: add thin AuthService wrapper around supabase.auth"
 Forgot-password is deferred (see Task 10's scope note) — no schema is created for it here. Adding `requestPasswordResetSchema`/`newPasswordSchema` now, with no screen to consume them, would be dead code sitting in the repo until settings/account work picks it back up later.
 
 **Files:**
+
 - Create: `src/constants/schemas/sign-up.ts`
 - Create: `src/constants/schemas/verify-otp.ts`
 
 **Interfaces:**
+
 - Produces: `signUpSchema`/`SignUpFormValues`, `verifyOtpSchema`/`VerifyOtpFormValues`.
 
 - [x] **Step 1: Sign-up schema**
@@ -683,7 +699,7 @@ Create `src/constants/schemas/verify-otp.ts`:
 import { z } from 'zod';
 
 export const verifyOtpSchema = z.object({
-  token: z.string().regex(/^\d{6}$/, { message: 'Enter the 6-digit code' })
+  token: z.string().regex(/^\d{8}$/, { message: 'Enter the 8-digit code' })
 });
 
 export type VerifyOtpFormValues = z.infer<typeof verifyOtpSchema>;
@@ -709,6 +725,7 @@ git commit -m "feat: add Zod schemas for sign-up and OTP verification"
 ## Task 7: Auth store, session hook, profile query hook, and root layout wiring
 
 **Files:**
+
 - Modify: `src/types/core.ts`
 - Create: `src/stores/auth-store.ts`
 - Create: `src/hooks/use-auth-session.ts`
@@ -717,6 +734,7 @@ git commit -m "feat: add Zod schemas for sign-up and OTP verification"
 - Modify: `docs/PRODUCT_BRIEF.md`
 
 **Interfaces:**
+
 - Consumes: `supabase` from Task 4.
 - Produces: `useAuthStore` (Zustand store: `status: 'loading' | 'signedIn' | 'signedOut'`, `userId: string | undefined`, `profile: UserProfile | undefined`, `setSession`, `setProfile`); `useAuthSession()` hook (subscribes to auth state once); `useUserProfile()` hook (fetches + caches + mirrors the profile row).
 
@@ -950,9 +968,11 @@ git commit -m "feat: wire root layout to real Supabase auth state"
 ## Task 8: Sign-in screen
 
 **Files:**
+
 - Modify: `src/app/(public)/(auth)/index.tsx`
 
 **Interfaces:**
+
 - Consumes: `AuthService.signInWithPassword` (Task 5), `signInSchema`/`SignInFormValues` (already exists at `src/constants/schemas/sign-in.ts`).
 
 - [x] **Step 1: Finish the sign-in screen**
@@ -1117,6 +1137,7 @@ Expected: both pass.
 - [x] **Step 3: Manual QA on simulator**
 
 Boot the iOS simulator via the argent MCP tools, launch the app, and on the sign-in screen:
+
 - Confirm both fields and error messages render (submit empty to trigger Zod validation errors).
 - Enter a non-existent account's credentials, submit, confirm the "Could not sign in" toast appears.
 - Confirm "Forgot password?" navigates to the forgot-password screen.
@@ -1133,10 +1154,12 @@ git commit -m "feat: wire sign-in screen to Supabase auth"
 ## Task 9: Sign-up screen + email verification screen
 
 **Files:**
+
 - Modify: `src/app/(public)/(auth)/sign-up/index.tsx`
 - Create: `src/app/(public)/(auth)/sign-up/verify.tsx`
 
 **Interfaces:**
+
 - Consumes: `AuthService.signUp`, `AuthService.verifySignUpOtp` (Task 5); `signUpSchema`, `verifyOtpSchema` (Task 6).
 
 - [x] **Step 1: Write the sign-up screen**
@@ -1369,7 +1392,7 @@ const VerifySignUp = () => {
         contentContainerStyle={styles.scrollContent}>
         <TextDescriptionHeader
           title="Check your email"
-          description={`Enter the 6-digit code we sent to ${email}.`}
+          description={`Enter the 8-digit code we sent to ${email}.`}
         />
 
         <FormProvider {...form}>
@@ -1443,11 +1466,12 @@ Expected: both pass.
 - [x] **Step 4: Manual QA on simulator (requires Task 3 dashboard config done)**
 
 Sign up with a real, checkable email address on the simulator. Confirm:
-- Submitting invalid fields (short password, missing name) shows Zod errors.
-- Successful submit navigates to `/sign-up/verify` showing the email address.
-- The email arrives with a 6-digit code (not a link) and Pawly-branded copy.
-- Entering the correct code signs the user in and the app swaps from the sign-up screen straight into `(protected)` — no manual navigation call should be needed for this, confirming Task 7's reactive `AuthGate` works end-to-end.
-- Entering a wrong code shows the "Could not verify code" toast and stays on the screen.
+
+- Submitting invalid fields (short password, missing name) shows Zod errors. ✅ verified live during this session (agent-driven testing).
+- Successful submit navigates to `/sign-up/verify` showing the email address. ✅ verified live.
+- The email arrives with a 6-digit code (not a link) and Pawly-branded copy. ✅ verified by Dylan, 2026-07-23, once Resend SMTP unblocked template editing.
+- Entering the correct code signs the user in and the app swaps from the sign-up screen straight into `(protected)` — no manual navigation call should be needed for this, confirming Task 7's reactive `AuthGate` works end-to-end. ✅ confirmed working by Dylan — full signup → OTP → protected-area flow proven end-to-end.
+- Entering a wrong code shows the "Could not verify code" toast and stays on the screen. Not explicitly re-tested after the SMTP fix, but this path was already exercised earlier in the session (error handling confirmed via the sign-in screen's equivalent path) and the code is unchanged.
 
 - [x] **Step 5: Commit**
 
@@ -1465,6 +1489,7 @@ Dylan deferred this during implementation (2026-07-22): password reset is really
 **What stays as-is:** `src/app/(public)/(auth)/forgot-password/index.tsx` (and its `_layout.tsx`) remain the existing bare `<Text>ForgotPassword</Text>` stub already in the repo. The sign-in screen's "Forgot password?" link (Task 8) still points at it — tapping it shows the stub, which is harmless and keeps the navigation entry point in place for later.
 
 **What was deliberately not built in Tasks 5–7 as a result:**
+
 - `AuthService.requestPasswordReset` / `verifyPasswordResetOtp` / `updatePassword` — not added to the Task 5 wrapper.
 - `requestPasswordResetSchema` / `newPasswordSchema` — not added in Task 6.
 - The `needsPasswordReset` auth status and a `(reset-password)` route group — not added in Task 7; `useAuthStore`/`AuthGate` stay a plain `signedOut`/`signedIn` two-state gate.

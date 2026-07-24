@@ -5,7 +5,7 @@ import { verifyOtpSchema, type VerifyOtpFormValues } from '@/constants/schemas/v
 import type { AppTheme } from '@/constants/theme';
 import { useStyles } from '@/hooks/use-styles';
 import { hapticLight } from '@/lib/haptics';
-import { AuthService } from '@/lib/supabase/auth';
+import AuthService from '@/services/auth.service';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useLocalSearchParams } from 'expo-router';
 import { Controller, FormProvider, useForm } from 'react-hook-form';
@@ -50,7 +50,7 @@ const VerifySignUp = () => {
         contentContainerStyle={styles.scrollContent}>
         <TextDescriptionHeader
           title="Check your email"
-          description={`Enter the 6-digit code we sent to ${email}.`}
+          description={`Enter the 8-digit code we sent to ${email}.`}
         />
 
         <FormProvider {...form}>
@@ -65,9 +65,9 @@ const VerifySignUp = () => {
                   value={value}
                   onChangeText={onChange}
                   onBlur={onBlur}
-                  placeholder="123456"
+                  placeholder="12345678"
                   keyboardType="number-pad"
-                  maxLength={6}
+                  maxLength={8}
                   returnKeyType="done"
                   onSubmitEditing={() => {
                     void onSubmit();
