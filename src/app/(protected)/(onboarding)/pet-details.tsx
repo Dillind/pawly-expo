@@ -185,7 +185,7 @@ const PetDetails = () => {
   );
 };
 
-const makeStyles = ({ spacing }: AppTheme) =>
+const makeStyles = ({ spacing, colors }: AppTheme) =>
   StyleSheet.create({
     scrollContent: {
       flexGrow: 1,
@@ -203,7 +203,7 @@ const makeStyles = ({ spacing }: AppTheme) =>
     photoPlaceholder: {
       alignItems: 'center',
       justifyContent: 'center',
-      backgroundColor: 'rgba(128,128,128,0.15)'
+      backgroundColor: colors.backgroundElement
     },
     form: {
       gap: spacing.two

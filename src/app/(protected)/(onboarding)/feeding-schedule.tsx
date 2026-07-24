@@ -171,7 +171,7 @@ const FeedingSchedule = () => {
             ))}
           </View>
 
-          <FieldError error={form.formState.errors.feedingTimes?.root?.message} />
+          <FieldError error={form.formState.errors.feedingTimes?.message} />
 
           <PressableOpacity onPress={addFeedingTime} style={styles.addTime}>
             <AppText color="primary" size={16}>

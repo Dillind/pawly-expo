@@ -152,7 +152,7 @@ const makeStyles = ({ colors }: AppTheme) =>
       color: '#ffffff'
     },
     secondaryLabel: {
-      color: colors.primary
+      color: '#ffffff'
     },
     textLabel: {
       color: colors.primary
