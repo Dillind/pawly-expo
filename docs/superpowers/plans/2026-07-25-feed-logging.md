@@ -350,15 +350,19 @@ create index feed_logs_pet_id_logged_at_idx on public.feed_logs (pet_id, logged_
 
 alter table public.feed_logs enable row level security;
 
--- The 24-hour bounds live in policies rather than a CHECK constraint, because
--- Postgres rejects non-immutable functions such as now() inside CHECK. Policy
--- expressions are evaluated per statement and may use it.
---
--- private.is_pet_household_member / is_pet_household_owner already exist from
--- the pet/household onboarding migration and are reused unchanged.
+-- The client may only ever write logged_at and notes. Nothing in the product
+-- changes a log's pet_id, logged_by or created_at, and leaving them writable
+-- made three holes reachable below RLS: rewriting pet_id to plant a row in a
+-- stranger's household, renewing the 24h Contributor edit window with
+-- `set created_at = now()`, and fabricating attribution with
+-- `set logged_by = <someone else>`. A column grant closes all three where no
+-- policy edit can reopen them.
+revoke all on public.feed_logs from anon;
+revoke insert, update on public.feed_logs from authenticated;
+grant insert (pet_id, logged_by, logged_at, notes) on public.feed_logs to authenticated;
+grant update (logged_at, notes) on public.feed_logs to authenticated;
 
-create policy "Members can view feed logs for their household's pets"
-on public.feed_logs for select
+create policy "feed_logs_select" on public.feed_logs for select to authenticated
 using ( private.is_pet_household_member(pet_id) );
 
 create policy "Members can log feeds for their household's pets"
@@ -370,33 +374,36 @@ with check (
   and logged_at >= now() - interval '24 hours'
 );
 
--- The logged_at bounds apply to Owners too. An Owner backdating beyond 24
--- hours is precisely the move that retroactively silences a Missed Feed Alert
--- that has already been pushed.
+-- The membership conjunct sits in both `using` and `with check`, not only as a
+-- third alternative alongside the two branches -- see the explanation below
+-- this code fence for why, and why it now applies to DELETE too.
+--
+-- The 24h backdating floor sits inside the Contributor branch only, not over
+-- the whole check: bounding it unconditionally would freeze every log once it
+-- passed 24h old, contradicting "Owners unrestricted". The `logged_at <= now()`
+-- ceiling stays universal for both Owners and Contributors, since a
+-- future-dated log is a data-integrity problem, not an abuse question.
 
-create policy "Owners can update any feed log, contributors their own recent ones"
-on public.feed_logs for update
+create policy "feed_logs_update" on public.feed_logs for update to authenticated
 using (
-  private.is_pet_household_owner(pet_id)
-  or ( logged_by = (select auth.uid()) and created_at > now() - interval '24 hours' )
-)
--- The membership conjunct is what stops a Contributor rewriting pet_id: the
--- other branch names only logged_by and created_at, so without it the
--- post-update row need not belong to a household the caller is in at all.
-
-with check (
   private.is_pet_household_member(pet_id)
   and ( private.is_pet_household_owner(pet_id)
         or ( logged_by = (select auth.uid()) and created_at > now() - interval '24 hours' ) )
+)
+with check (
+  private.is_pet_household_member(pet_id)
+  and ( private.is_pet_household_owner(pet_id)
+        or ( logged_by = (select auth.uid())
+             and created_at > now() - interval '24 hours'
+             and logged_at >= now() - interval '24 hours' ) )
   and logged_at <= now()
-  and logged_at >= now() - interval '24 hours'
 );
 
-create policy "Owners can delete any feed log, contributors their own recent ones"
-on public.feed_logs for delete
+create policy "feed_logs_delete" on public.feed_logs for delete to authenticated
 using (
-  private.is_pet_household_owner(pet_id)
-  or ( logged_by = (select auth.uid()) and created_at > now() - interval '24 hours' )
+  private.is_pet_household_member(pet_id)
+  and ( private.is_pet_household_owner(pet_id)
+        or ( logged_by = (select auth.uid()) and created_at > now() - interval '24 hours' ) )
 );
 ```
 

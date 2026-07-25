@@ -32,7 +32,7 @@ Settled in design sessions and recorded here for the first time:
 
 | Area | Decision |
 |---|---|
-| Contributor edit window | 24 hours from `created_at`, not `logged_at` — otherwise a backdated log is born uneditable. Owners unrestricted. |
+| Contributor edit window | 24 hours from `created_at`, not `logged_at` — otherwise a backdated log is born uneditable. Owners unrestricted, and exempt from the 24h backdating floor (not the future-dating ceiling). `created_at` is unwritable below RLS via a column grant, so the window cannot be renewed. |
 | Tabs | Home · Activity · Profile. Activity is a new third tab. |
 | Home | Today's slots, per-slot state, log button. No analytics. |
 | Log action | Instant write, then a toast offering Undo and Add note. A Double Feed intercepts with a confirm sheet *before* writing. |
@@ -94,8 +94,10 @@ history the day a Contributor deletes their account. The cost is one render bran
 displays as "Removed member".
 
 `logged_at` is separate from `created_at` and is the mutable one: it is what the matcher reads, and
-what backdating changes. `created_at` never moves, which is what makes it the correct basis for the
-Contributor edit window.
+what backdating changes. `created_at` never moves — enforced, not just asserted: the client's `update`
+grant is narrowed to `(logged_at, notes)` only (see Row level security below), so `created_at` is
+unwritable below RLS regardless of what any policy's `with check` allows. That immutability is what
+makes it the correct, un-renewable basis for the Contributor edit window.
 
 No `amount` or `portion` column. Neither the brief nor the glossary calls for one; `notes` absorbs
 "half scoop" until structure is actually requested.
@@ -112,8 +114,19 @@ pet/household onboarding migration and are reused unchanged.
 ```sql
 alter table public.feed_logs enable row level security;
 
-create policy "Members can view feed logs for their household's pets"
-on public.feed_logs for select
+-- The client may only ever write logged_at and notes. Nothing in the product
+-- changes a log's pet_id, logged_by or created_at, and leaving them writable
+-- made three holes reachable below RLS: rewriting pet_id to plant a row in a
+-- stranger's household, renewing the 24h Contributor edit window with
+-- `set created_at = now()`, and fabricating attribution with
+-- `set logged_by = <someone else>`. A column grant closes all three where no
+-- policy edit can reopen them.
+revoke all on public.feed_logs from anon;
+revoke insert, update on public.feed_logs from authenticated;
+grant insert (pet_id, logged_by, logged_at, notes) on public.feed_logs to authenticated;
+grant update (logged_at, notes) on public.feed_logs to authenticated;
+
+create policy "feed_logs_select" on public.feed_logs for select to authenticated
 using ( private.is_pet_household_member(pet_id) );
 
 create policy "Members can log feeds for their household's pets"
@@ -125,37 +138,58 @@ with check (
   and logged_at >= now() - interval '24 hours'
 );
 
-create policy "Owners can update any feed log, contributors their own recent ones"
-on public.feed_logs for update
+-- The membership conjunct sits in both `using` and `with check`, not only as a
+-- third alternative alongside the two branches -- see the explanation below
+-- this code fence for why, and why it now applies to DELETE too.
+--
+-- The 24h backdating floor sits inside the Contributor branch only, not over
+-- the whole check: bounding it unconditionally would freeze every log once it
+-- passed 24h old, contradicting "Owners unrestricted". The `logged_at <= now()`
+-- ceiling stays universal for both Owners and Contributors, since a
+-- future-dated log is a data-integrity problem, not an abuse question.
+
+create policy "feed_logs_update" on public.feed_logs for update to authenticated
 using (
-  private.is_pet_household_owner(pet_id)
-  or ( logged_by = (select auth.uid()) and created_at > now() - interval '24 hours' )
+  private.is_pet_household_member(pet_id)
+  and ( private.is_pet_household_owner(pet_id)
+        or ( logged_by = (select auth.uid()) and created_at > now() - interval '24 hours' ) )
 )
 with check (
   private.is_pet_household_member(pet_id)
   and ( private.is_pet_household_owner(pet_id)
-        or ( logged_by = (select auth.uid()) and created_at > now() - interval '24 hours' ) )
+        or ( logged_by = (select auth.uid())
+             and created_at > now() - interval '24 hours'
+             and logged_at >= now() - interval '24 hours' ) )
   and logged_at <= now()
-  and logged_at >= now() - interval '24 hours'
 );
 
-create policy "Owners can delete any feed log, contributors their own recent ones"
-on public.feed_logs for delete
+create policy "feed_logs_delete" on public.feed_logs for delete to authenticated
 using (
-  private.is_pet_household_owner(pet_id)
-  or ( logged_by = (select auth.uid()) and created_at > now() - interval '24 hours' )
+  private.is_pet_household_member(pet_id)
+  and ( private.is_pet_household_owner(pet_id)
+        or ( logged_by = (select auth.uid()) and created_at > now() - interval '24 hours' ) )
 );
 ```
 
-The `logged_at` bounds apply to Owners too. An Owner backdating beyond 24 hours is precisely the move
-that retroactively silences a Missed Feed Alert that has already been pushed.
+The `logged_at` **ceiling** (`logged_at <= now()`) applies to Owners too: a future-dated log is a
+data-integrity problem regardless of who makes it, since it breaks the slot matcher and day grouping.
+The `logged_at` **floor** (`>= now() - interval '24 hours'`) does not — it applies to the Contributor
+branch only. An Owner can now backdate an existing log arbitrarily far into the past, including past a
+slot whose Missed Feed Alert has already fired, retroactively silencing an alert that has already been
+pushed. This reverses the reasoning the floor was originally built on (an Owner backdating beyond 24
+hours was meant to be exactly the move this bound prevented). It is a deliberate decision by the repo
+owner (2026-07-25), not an oversight: Owner trust is taken to extend to backdating, and the
+alert-silencing consequence is accepted.
 
-`private.is_pet_household_member(pet_id)` is a conjunct over the whole UPDATE `with check`, not a
-third alternative alongside the two branches. The Contributor branch names only `logged_by` and
-`created_at`, so on its own it says nothing about where the post-update row lands — a Contributor
-could log a feed on their own pet and then rewrite `pet_id` to a pet in a household they have never
-belonged to, planting a row in a stranger's feeding history. The membership conjunct pins the
-destination. Owner implies member, so it costs the Owner branch nothing.
+`private.is_pet_household_member(pet_id)` is a conjunct over both UPDATE and DELETE — in `using` as
+well as `with check` — not a third alternative alongside the two branches. The Contributor branch
+names only `logged_by` and `created_at`, so on its own it says nothing about which household the row
+belongs to. For UPDATE, without the conjunct a Contributor could log a feed on their own pet and then
+rewrite `pet_id` to a pet in a household they have never belonged to, planting a row in a stranger's
+feeding history. For DELETE, which has no `with check` to backstop it, the same gap meant a user with
+no `household_members` row at all could issue an unfiltered `delete from feed_logs` and remove their
+own recent rows from a household they had been removed from. The membership conjunct in `using` closes
+both. Owner implies member, so it costs the Owner branch nothing.
 
 ## Slot matching
 
