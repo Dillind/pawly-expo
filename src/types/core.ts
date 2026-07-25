@@ -40,3 +40,26 @@ export type UserProfile = {
   lastName: string | null;
   avatarUrl: string | null;
 };
+
+export type HouseholdRole = 'owner' | 'contributor';
+
+export type Household = {
+  id: string;
+  timezone: string;
+  graceWindowMinutes: number;
+  role: HouseholdRole;
+  isOwner: boolean;
+};
+
+export type Pet = {
+  id: string;
+  name: string;
+  photoUrl: string | null;
+};
+
+export type HouseholdMember = {
+  userId: string;
+  role: HouseholdRole;
+  firstName: string | null;
+  lastName: string | null;
+};
