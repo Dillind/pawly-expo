@@ -6,7 +6,7 @@ description: >
   the design decisions are settled and the task says what to build. Do NOT use
   for design, brainstorming, or open-ended debugging — those belong in the main
   session at higher effort.
-model: inherit
+model: claude-opus-5
 effort: low
 skills:
   - superpowers:executing-plans

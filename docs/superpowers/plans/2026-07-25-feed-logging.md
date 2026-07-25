@@ -787,6 +787,18 @@ Co-Authored-By: Claude <noreply@anthropic.com>"
 **Interfaces:**
 - Produces: default-exported `BaseSheet` taking `{ sheetRef: RefObject<TrueSheet | null>; children: ReactNode; title?: string; detents?: SheetDetent[]; scrollable?: boolean; onDismiss?: () => void }`. Tasks 8–10 present sheets through `sheetRef.current?.present()` and dismiss with `sheetRef.current?.dismiss()`, both of which return promises and are therefore called as `void sheetRef.current?.present()`.
 
+- [ ] **Step 0: Establish a working native build first**
+
+```bash
+nvm use && bun run ios
+```
+
+Expected: the app builds and launches on the simulator. **Do not proceed until it does.**
+
+`ios/` is gitignored (`.gitignore:43`), so `bun run ios` generates the native project from config rather than building a checked-in one. If that generated project is stale or broken for any reason unrelated to this plan, the failure will appear *after* TrueSheet is installed and will look like TrueSheet caused it. Ten minutes here saves an hour of debugging the wrong thing.
+
+If this step fails, stop and report — the failure belongs to the existing project setup, not to this task.
+
 - [ ] **Step 1: Install the package**
 
 ```bash
@@ -1167,6 +1179,23 @@ Co-Authored-By: Claude <noreply@anthropic.com>"
   - `useFeedLog(logId: string | undefined)` — key `['feed-log', logId]`.
   - `useLogFeed(petId)`, `useUpdateFeedLog(petId)`, `useDeleteFeedLog(petId)` from `@/hooks/use-feed-log-mutations`.
   - `feedLogErrorMessage(error: unknown): string` from `@/lib/feed-log-errors`.
+
+- [ ] **Step 0: Confirm the RPC's actual column names**
+
+This repo has no generated `database.types.ts`, so the eight `SlotState` fields below are hand-written while Task 3's SQL defines them independently. Nothing links the two. A mismatch produces `undefined` at runtime — not a type error, and not a lint error.
+
+Run against the project:
+
+```sql
+select * from public.pet_slot_states(
+  (select id from public.pets limit 1),
+  current_date
+);
+```
+
+Expected columns, exactly: `schedule_id`, `scheduled_time`, `label`, `scheduled_at`, `state`, `satisfying_log_id`, `satisfied_at`, `satisfied_by`.
+
+Zero rows is a perfectly good result — the column headers are what matters here, not the data. If any name differs from the list above, **stop**: Task 3's function and this task's types have diverged, and the fix belongs in whichever of the two is wrong. Do not paper over it by renaming the TypeScript field.
 
 - [ ] **Step 1: Add the row types**
 
