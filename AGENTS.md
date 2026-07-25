@@ -32,6 +32,22 @@ bun run spellcheck  # cspell across ts/tsx/md/sql
 
 There is **no test setup yet** (no test runner, no `test` script). Don't assume tests exist; if adding them, set up the runner first and note it here.
 
+## Branches
+
+Every feature or non-trivial change gets a branch, named **before** work starts — never commit
+straight to `main`:
+
+```
+<type>/PAW-<nnn>-<kebab-case-slug>     e.g. feat/PAW-001-feed-logging
+```
+
+`<type>` is the commit-type vocabulary (`feat`, `fix`, `chore`, `docs`, `refactor`); the ticket ID
+is uppercase and zero-padded to three digits. Git refnames forbid spaces and `[`, so brackets never
+appear in a branch name — only in the PR title (`[PAW-001] Add feed logging`).
+
+IDs come from git history, not an external tracker: `git fetch --all --prune`, then take the highest
+existing `PAW-nnn` and add one. Full command and PR conventions live in the `create-pr` skill.
+
 ## Toolchain
 
 - **Package manager: bun.** `bun.lock` is the only lockfile; `package-lock.json` was deleted (it was stale and still listed the removed `phosphor-react-native`). Don't reintroduce npm/yarn/pnpm lockfiles — `packageManager` in `package.json` pins the version.

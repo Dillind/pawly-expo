@@ -7,6 +7,42 @@ description: Create a pull request for the pawly-expo repository. Always invoke 
 
 Creates a GitHub pull request using the project's PR template, derived entirely from what has actually been committed to the branch.
 
+## Branch naming
+
+Every feature or non-trivial change gets its own branch, named **before** work starts:
+
+```
+<type>/PAW-<nnn>-<kebab-case-slug>
+
+feat/PAW-001-feed-logging
+fix/PAW-014-missed-feed-timezone
+chore/PAW-022-bump-expo-57
+```
+
+- `<type>` matches the commit-type vocabulary: `feat`, `fix`, `chore`, `docs`, `refactor`.
+- Ticket ID is **uppercase**, zero-padded to three digits.
+- Slug is kebab-case, matching the repo's file naming.
+- Git refnames forbid spaces and `[` — never try to put brackets in a branch name. Brackets appear in the PR *title* only.
+
+### Allocating the next ID
+
+IDs are derived from git history, not from an external tracker. Take the highest existing `PAW-nnn` and add one:
+
+```bash
+{ git branch -a --format='%(refname:short)'
+  git log --all --format='%s'
+  gh pr list --state all --limit 200 --json title,headRefName -q '.[].title,.[].headRefName' 2>/dev/null
+} | grep -oE 'PAW-[0-9]+' | sort -t- -k2 -n | tail -1
+```
+
+Empty output means none exist yet — start at `PAW-001`. Run this against a **fetched** repo (`git fetch --all --prune` first) so a teammate's pushed branch isn't missed and the same ID handed out twice.
+
+If the user supplies an ID explicitly, use theirs — don't re-derive.
+
+### Never commit straight to `main`
+
+If work has already landed on `main` uncommitted, branch first, then commit. Small doc-only or config touch-ups are the exception; anything a reviewer would want to read gets a branch.
+
 ## Core Rule: committed changes only
 
 Base EVERY section of the PR description on the output of these three commands:
@@ -66,7 +102,9 @@ Bad: "Test the feature." Good: "1. Sign in with an account that has no household
 
 ## Step 3: Construct the PR title
 
-Keep it under 70 characters. A short, descriptive summary of the change — this project doesn't use ticket/issue tracking, so no ticket prefix.
+Format: `[PAW-XXX] Short descriptive summary`, under 70 characters including the prefix.
+
+Take the ticket ID from the branch name — do not allocate a new one at PR time. If the branch has no `PAW-XXX` in it (an older branch, or one created before this convention), leave the prefix off rather than inventing an ID.
 
 ## Step 4: Push and create the PR
 
