@@ -21,21 +21,25 @@ Before naming things or discussing the domain, skim `CONTEXT.md`. Before changin
 ## Commands
 
 ```bash
-npm start          # Expo dev server (or: expo start)
-npm run ios        # Run on iOS simulator
-npm run android    # Run on Android emulator
-npm run web        # Run on web
-npm run lint       # ESLint (eslint-config-expo)
-npm run typecheck  # tsc --noEmit
+bun start           # Expo dev server (or: expo start)
+bun run ios         # Run on iOS simulator
+bun run android     # Run on Android emulator
+bun run web         # Run on web
+bun run lint        # ESLint (eslint-config-expo)
+bun run typecheck   # tsc --noEmit
+bun run spellcheck  # cspell across ts/tsx/md/sql
 ```
 
 There is **no test setup yet** (no test runner, no `test` script). Don't assume tests exist; if adding them, set up the runner first and note it here.
 
+## Toolchain
+
+- **Package manager: bun.** `bun.lock` is the only lockfile; `package-lock.json` was deleted (it was stale and still listed the removed `phosphor-react-native`). Don't reintroduce npm/yarn/pnpm lockfiles — `packageManager` in `package.json` pins the version.
+- **Node: 24**, pinned in `.nvmrc`. Run `nvm use` in the repo. The `engines` floor is 22.18.0 because `cspell` requires it — on Node 20 the spelling gate silently cannot run at all.
+
 ## Adding dependencies
 
-Always use **`npx expo install <package>`** so the version matches SDK 57. Do not hand-pick versions with a raw `add`/`install` for Expo-ecosystem packages.
-
-> Note: **two lockfiles are currently committed** — `bun.lock` and `package-lock.json`. `bun.lock` is the live one (last updated with the Lucide change); `package-lock.json` is stale and still lists the removed `phosphor-react-native`. Treat `bun.lock` as authoritative until this is resolved — see "Open questions" below.
+Always use **`bunx expo install <package>`** so the version matches SDK 57. Do not hand-pick versions with a raw `bun add` for Expo-ecosystem packages.
 
 ## Project layout
 
@@ -202,8 +206,8 @@ All user-facing text uses **Australian/British English** (colour, organise, canc
 ### Code style
 
 - Prettier: 100-char width, single quotes, **no trailing commas**, `bracketSameLine: true`, no tabs (`.prettierrc.json`).
-- ESLint via `eslint-config-expo` (flat config). Run `npm run lint` before finishing.
-- Spelling is checked with cspell (`cspell.json`); add project words there rather than disabling.
+- ESLint via `eslint-config-expo` (flat config). Run `bun run lint` before finishing.
+- Spelling is checked with cspell (`bun run spellcheck`); add project words to `cspell.json` rather than disabling. The locale is `en,en-GB` deliberately — prose is British (`colour`), but code identifiers are American (`backgroundColor`, `colors`), so both dictionaries have to be active.
 
 ### Comments
 
@@ -218,6 +222,6 @@ This project keeps a live domain model. When you introduce or sharpen a domain t
 Keep this list honest and current:
 
 - **Auth:** not implemented — routing uses a placeholder flag; Supabase auth pending.
-- **Package manager / lockfile:** two are committed (`bun.lock`, `package-lock.json`) and they disagree. Pick one manager and delete the other lockfile; the `npm run …` script names in this file assume npm, while `bun.lock` is the one actually being kept up to date.
+- ~~**Package manager / lockfile**~~ — resolved: bun, single `bun.lock`. See Toolchain above.
 - **Backend:** Supabase (and Sentry/PostHog/RevenueCat/Canny) are decided but **not installed** — see TECH_STACK status column before importing them.
 - **Palette:** the proposed brand palette in PRODUCT_BRIEF differs from the neutral palette currently in `theme.ts`; reconcile in a design session.
