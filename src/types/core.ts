@@ -63,3 +63,34 @@ export type HouseholdMember = {
   firstName: string | null;
   lastName: string | null;
 };
+
+export type SlotStateValue = 'fed' | 'due' | 'missed' | 'upcoming';
+
+export type FeedingScheduleLabel = 'morning' | 'lunch' | 'dinner' | 'custom';
+
+export type SlotState = {
+  scheduleId: string;
+  /** Postgres `time`, e.g. "07:00:00". */
+  scheduledTime: string;
+  label: FeedingScheduleLabel;
+  scheduledAt: string;
+  state: SlotStateValue;
+  satisfyingLogId: string | null;
+  satisfiedAt: string | null;
+  satisfiedBy: string | null;
+};
+
+export type FeedLogAuthor = {
+  firstName: string | null;
+  lastName: string | null;
+};
+
+export type FeedLog = {
+  id: string;
+  petId: string;
+  loggedBy: string | null;
+  loggedAt: string;
+  notes: string | null;
+  createdAt: string;
+  author: FeedLogAuthor | null;
+};
