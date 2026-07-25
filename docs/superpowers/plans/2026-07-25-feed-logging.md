@@ -311,8 +311,10 @@ Co-Authored-By: Claude <noreply@anthropic.com>"
 
 The RLS gets its own task, and its own verification step, because RLS denials are where the previous two plans lost the most time. Nothing after this task should be debugging a policy.
 
+> **This task is complete, and the SQL below is its consolidated end state — not the SQL that was first written.** Task 2 shipped as five migrations (`20260725090000` table + first policies, `…090200` membership conjunct in the UPDATE check, `…090300` column grants + DELETE fix + policy renames, `…090400` TRUNCATE/TRIGGER/REFERENCES revoke, `…090500` Owner backdating exemption on INSERT), because two rounds of review found holes in the original policies. Step 1's block is the schema as it now stands live; Steps 2–5 are kept as the historical recipe and their single-migration framing no longer matches reality. Re-executing this task verbatim would produce a migration whose filename lies about its contents — read `.superpowers/sdd/task-2-report.md` for what actually happened.
+
 **Files:**
-- Create: `supabase/migrations/20260725090000_feed_logs.sql`
+- Created: `supabase/migrations/20260725090000_feed_logs.sql`, plus `…090200`, `…090300`, `…090400`, `…090500` (see banner above)
 
 **Interfaces:**
 - Consumes: `private.is_pet_household_member(uuid)` and `private.is_pet_household_owner(uuid)` — both already exist from `20260723090000_pet_household_onboarding.sql` and are reused **unchanged**.
@@ -362,16 +364,31 @@ revoke insert, update on public.feed_logs from authenticated;
 grant insert (pet_id, logged_by, logged_at, notes) on public.feed_logs to authenticated;
 grant update (logged_at, notes) on public.feed_logs to authenticated;
 
+-- Supabase grants every table in `public` to `authenticated` by default, which
+-- includes three privileges that sit outside both the column grants above and
+-- RLS. TRUNCATE is the one that matters: it bypasses row level security
+-- completely, so `truncate public.feed_logs` erases every household's history
+-- with no policy consulted, and the column grants are worth nothing while it
+-- stands. TRIGGER is an execution surface on rows the caller cannot write;
+-- REFERENCES leaks row existence through constraint violations. None is
+-- reachable through PostgREST today, so this is defence in depth rather than a
+-- patched hole -- the grant layer is what should hold when a policy is wrong.
+revoke truncate, trigger, references on public.feed_logs from authenticated;
+
 create policy "feed_logs_select" on public.feed_logs for select to authenticated
 using ( private.is_pet_household_member(pet_id) );
 
-create policy "Members can log feeds for their household's pets"
-on public.feed_logs for insert to authenticated
+-- The Owner backdating exemption covers creating a log as well as editing one.
+-- Applying the floor here but not in UPDATE bought nothing: an Owner blocked
+-- from creating a log dated three days ago could create one dated now and edit
+-- it back arbitrarily far. All the asymmetry did was fail the honest route.
+create policy "feed_logs_insert" on public.feed_logs for insert to authenticated
 with check (
   private.is_pet_household_member(pet_id)
   and logged_by = (select auth.uid())
   and logged_at <= now()
-  and logged_at >= now() - interval '24 hours'
+  and ( private.is_pet_household_owner(pet_id)
+        or logged_at >= now() - interval '24 hours' )
 );
 
 -- The membership conjunct sits in both `using` and `with check`, not only as a
@@ -410,6 +427,8 @@ using (
 - [ ] **Step 2: Apply the migration**
 
 Call `mcp__plugin_supabase_supabase__apply_migration` with `project_id: "dofjrttcyjtzvqyttqdo"`, `name: "feed_logs"`, `query`: the full SQL from Step 1.
+
+*(As shipped: five `apply_migration` calls, not one — see the banner at the top of this task. Note also that `apply_migration` stamps its own version, so no on-disk filename matches its row in `supabase_migrations.schema_migrations`; that mismatch is recorded as an open decision for Dylan.)*
 
 - [ ] **Step 3: Verify the table, the policies and the advisors**
 
@@ -476,6 +495,8 @@ rollback;
 
 Expected: this **fails** with `new row violates row-level security policy for table "feed_logs"` (SQLSTATE `42501`). A failure here is the pass condition. If it succeeds instead, the `logged_at >= now() - interval '24 hours'` clause is missing from the INSERT policy's `with check`.
 
+> **Superseded.** As written this probe now passes by *succeeding*, which makes it useless as a gate. It selects `user_id from household_members limit 1`, and the only member of the only household is an **Owner** — who is deliberately exempt from the backdating floor (`…090500`). To test the floor the probe must impersonate a **Contributor**. The six INSERT probes actually run against the final policy, with a Contributor fixture created and rolled back, are recorded in `.superpowers/sdd/task-2-report.md`.
+
 Record both outcomes by ticking this step; do not move on with either probe unexplained.
 
 - [ ] **Step 5: Commit**
@@ -485,12 +506,15 @@ git add supabase/migrations/20260725090000_feed_logs.sql
 git commit -m "feat: add feed_logs table and its row level security
 
 The 24-hour edit and backdating bounds live in the policies rather than a
-CHECK constraint because Postgres rejects now() inside CHECK. They apply to
-Owners as well as Contributors: an Owner backdating past 24 hours is exactly
-the move that retroactively silences an already-pushed Missed Feed Alert.
+CHECK constraint because Postgres rejects now() inside CHECK. The backdating
+floor binds Contributors; Owners are exempt from it on both creating and
+editing a log. The no-future ceiling binds everyone, because a future
+logged_at breaks the slot matcher rather than merely being untrusted.
 
 Co-Authored-By: Claude <noreply@anthropic.com>"
 ```
+
+*(As shipped: five commits, `afc6c4a` through the close-out, staging five migration files plus this spec and plan. The message above is the historical Step-1 message with its Owner claim corrected — it described bounds that no longer exist.)*
 
 ---
 

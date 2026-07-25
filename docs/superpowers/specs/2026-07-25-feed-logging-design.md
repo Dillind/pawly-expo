@@ -41,7 +41,7 @@ Settled in design sessions and recorded here for the first time:
 | Activity rows | Feed Logs only. Missed Feeds appear as a per-day header count, not as rows. |
 | Deletion | Hard delete. Undo and "delete this log" are the same operation. |
 | Double Feed trigger | Slot-based only, exactly as CONTEXT.md defines it. |
-| Backdating | At most 24 hours back, never in the future. |
+| Backdating | Contributors: at most 24 hours back. Owners: no floor, on both creating and editing a log. Never in the future, for anyone. |
 
 ### Why Activity lists logs only
 
@@ -73,6 +73,12 @@ is a second rule that the cron does not share.
 Unbounded backdating lets someone retroactively satisfy a slot whose Missed Feed Alert has already
 fired, so the push and the app disagree. Capping at 24 hours still covers the real case — fed at
 23:00, logged at 00:10 the next day.
+
+This reasoning holds for **Contributors only**. The floor was lifted for Owners on 2026-07-25, which
+means an Owner *can* produce exactly the disagreement described above; the row-level security section
+below records that decision and the consequence accepted with it. The no-future **ceiling** is not
+part of this trade-off and binds everyone — it exists because a future `logged_at` breaks the slot
+matcher and day grouping, which is a data-integrity problem rather than a question of trust.
 
 ## Data model
 
@@ -126,16 +132,31 @@ revoke insert, update on public.feed_logs from authenticated;
 grant insert (pet_id, logged_by, logged_at, notes) on public.feed_logs to authenticated;
 grant update (logged_at, notes) on public.feed_logs to authenticated;
 
+-- Supabase grants every table in `public` to `authenticated` by default, which
+-- includes three privileges that sit outside both the column grants above and
+-- RLS. TRUNCATE is the one that matters: it bypasses row level security
+-- completely, so `truncate public.feed_logs` erases every household's history
+-- with no policy consulted, and the column grants are worth nothing while it
+-- stands. TRIGGER is an execution surface on rows the caller cannot write;
+-- REFERENCES leaks row existence through constraint violations. None is
+-- reachable through PostgREST today, so this is defence in depth rather than a
+-- patched hole -- the grant layer is what should hold when a policy is wrong.
+revoke truncate, trigger, references on public.feed_logs from authenticated;
+
 create policy "feed_logs_select" on public.feed_logs for select to authenticated
 using ( private.is_pet_household_member(pet_id) );
 
-create policy "Members can log feeds for their household's pets"
-on public.feed_logs for insert to authenticated
+-- The Owner backdating exemption covers creating a log as well as editing one.
+-- Applying the floor here but not in UPDATE bought nothing: an Owner blocked
+-- from creating a log dated three days ago could create one dated now and edit
+-- it back arbitrarily far. All the asymmetry did was fail the honest route.
+create policy "feed_logs_insert" on public.feed_logs for insert to authenticated
 with check (
   private.is_pet_household_member(pet_id)
   and logged_by = (select auth.uid())
   and logged_at <= now()
-  and logged_at >= now() - interval '24 hours'
+  and ( private.is_pet_household_owner(pet_id)
+        or logged_at >= now() - interval '24 hours' )
 );
 
 -- The membership conjunct sits in both `using` and `with check`, not only as a
@@ -174,7 +195,8 @@ using (
 The `logged_at` **ceiling** (`logged_at <= now()`) applies to Owners too: a future-dated log is a
 data-integrity problem regardless of who makes it, since it breaks the slot matcher and day grouping.
 The `logged_at` **floor** (`>= now() - interval '24 hours'`) does not — it applies to the Contributor
-branch only. An Owner can now backdate an existing log arbitrarily far into the past, including past a
+branch only, on **both INSERT and UPDATE**: an Owner may create a backdated log outright, not merely
+edit an existing one backwards. An Owner can therefore place a log arbitrarily far into the past, including past a
 slot whose Missed Feed Alert has already fired, retroactively silencing an alert that has already been
 pushed. This reverses the reasoning the floor was originally built on (an Owner backdating beyond 24
 hours was meant to be exactly the move this bound prevented). It is a deliberate decision by the repo
