@@ -56,17 +56,28 @@ export function useLogFeed(petId: string | undefined) {
  * The update payload names only logged_at and notes -- the client's UPDATE
  * grant is narrowed to exactly those two columns, so pet_id, logged_by,
  * created_at and id can never appear here.
+ *
+ * `loggedAt` and `notes` are both optional and only the ones actually passed
+ * are written. The feed-log correction sheet relies on this: a notes-only
+ * edit must never touch logged_at, even by re-writing its current value --
+ * the UI's Today/Yesterday control cannot represent every date the database
+ * accepts (Owners have no backdating floor), so it must not be able to move
+ * a date it cannot faithfully redisplay. Sending nothing at all (no key
+ * changed) is the caller's bug to avoid, not this hook's to guard against --
+ * Postgres accepts a no-op `update set` fine.
  */
 export function useUpdateFeedLog(petId: string | undefined) {
   const invalidate = useInvalidateFeedData(petId);
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (input: { logId: string; loggedAt: string; notes: string | null }) => {
-      const { error } = await supabase
-        .from('feed_logs')
-        .update({ logged_at: input.loggedAt, notes: input.notes })
-        .eq('id', input.logId);
+    mutationFn: async (input: { logId: string; loggedAt?: string; notes?: string | null }) => {
+      const patch: { logged_at?: string; notes?: string | null } = {};
+
+      if (input.loggedAt !== undefined) patch.logged_at = input.loggedAt;
+      if (input.notes !== undefined) patch.notes = input.notes;
+
+      const { error } = await supabase.from('feed_logs').update(patch).eq('id', input.logId);
 
       if (error) throw error;
     },
