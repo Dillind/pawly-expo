@@ -380,9 +380,14 @@ using (
   private.is_pet_household_owner(pet_id)
   or ( logged_by = (select auth.uid()) and created_at > now() - interval '24 hours' )
 )
+-- The membership conjunct is what stops a Contributor rewriting pet_id: the
+-- other branch names only logged_by and created_at, so without it the
+-- post-update row need not belong to a household the caller is in at all.
+
 with check (
-  ( private.is_pet_household_owner(pet_id)
-    or ( logged_by = (select auth.uid()) and created_at > now() - interval '24 hours' ) )
+  private.is_pet_household_member(pet_id)
+  and ( private.is_pet_household_owner(pet_id)
+        or ( logged_by = (select auth.uid()) and created_at > now() - interval '24 hours' ) )
   and logged_at <= now()
   and logged_at >= now() - interval '24 hours'
 );

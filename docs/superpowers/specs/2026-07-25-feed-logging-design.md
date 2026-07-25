@@ -132,8 +132,9 @@ using (
   or ( logged_by = (select auth.uid()) and created_at > now() - interval '24 hours' )
 )
 with check (
-  ( private.is_pet_household_owner(pet_id)
-    or ( logged_by = (select auth.uid()) and created_at > now() - interval '24 hours' ) )
+  private.is_pet_household_member(pet_id)
+  and ( private.is_pet_household_owner(pet_id)
+        or ( logged_by = (select auth.uid()) and created_at > now() - interval '24 hours' ) )
   and logged_at <= now()
   and logged_at >= now() - interval '24 hours'
 );
@@ -148,6 +149,13 @@ using (
 
 The `logged_at` bounds apply to Owners too. An Owner backdating beyond 24 hours is precisely the move
 that retroactively silences a Missed Feed Alert that has already been pushed.
+
+`private.is_pet_household_member(pet_id)` is a conjunct over the whole UPDATE `with check`, not a
+third alternative alongside the two branches. The Contributor branch names only `logged_by` and
+`created_at`, so on its own it says nothing about where the post-update row lands — a Contributor
+could log a feed on their own pet and then rewrite `pet_id` to a pet in a household they have never
+belonged to, planting a row in a stranger's feeding history. The membership conjunct pins the
+destination. Owner implies member, so it costs the Owner branch nothing.
 
 ## Slot matching
 
