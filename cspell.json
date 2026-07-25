@@ -10,7 +10,13 @@
     "Uniwind",
     "Pressable",
     "Parralax",
-    "supabase"
+    "supabase",
+    "TrueSheet",
+    "lodev",
+    "detent",
+    "detents",
+    "gorhom",
+    "PostgREST"
   ],
   "ignoreRegExpList": [
     "/Author.+/",

@@ -35,7 +35,7 @@ There is **no test setup yet** (no test runner, no `test` script). Don't assume 
 
 Always use **`npx expo install <package>`** so the version matches SDK 57. Do not hand-pick versions with a raw `add`/`install` for Expo-ecosystem packages.
 
-> Note: there is currently **no lockfile** committed (no `pnpm-lock.yaml` / `package-lock.json` / `yarn.lock`). Confirm the intended package manager and commit a lockfile — see "Open questions" below.
+> Note: **two lockfiles are currently committed** — `bun.lock` and `package-lock.json`. `bun.lock` is the live one (last updated with the Lucide change); `package-lock.json` is stale and still lists the removed `phosphor-react-native`. Treat `bun.lock` as authoritative until this is resolved — see "Open questions" below.
 
 ## Project layout
 
@@ -161,9 +161,31 @@ Never import from `lucide-react-native` anywhere except `icon-map.ts` — that's
 Custom theme tokens — **no component library, no NativeWind/Tailwind** (see [ADR 0004](./docs/adr/0004-custom-theme-no-component-library.md)). Full guide in [docs/THEMING.md](./docs/THEMING.md). In short:
 
 - Colours via `useTheme()` (from `@/hooks/use-theme`) — returns the active light/dark palette. Never hard-code colour strings.
-- Styles via `useThemedStyles((colors) => ({ ... }))`.
+- Styles via a module-level `makeStyles` factory + `useStyles(makeStyles)` — see Theming above. `useThemedStyles` is **deprecated**; it still works and a couple of older components still call it, but don't write new code against it.
 - Text via the `AppText` primitive; spacing via `Spacing` from `@/constants/theme`.
 - `global.css` exists **only** for web font CSS variables — it is not Tailwind; do not delete it.
+
+### Sheets
+
+Bottom sheets are the default way to present secondary content — confirmations, quick forms, detail views. They use **`@lodev09/react-native-true-sheet`**, which wraps the real native sheet on each platform (`UISheetPresentationController` on iOS, `BottomSheetDialog` on Android). See [ADR 0010](./docs/adr/0010-truesheet-over-expo-router-form-sheets.md) for why this over Expo Router's built-in `formSheet`.
+
+**Sheets are components, not routes.** A sheet lives next to the thing that opens it and is presented imperatively through a ref.
+
+```tsx
+const logSheetRef = useRef<TrueSheet | null>(null);
+
+<MainButton text="Log a feed" onPress={() => void logSheetRef.current?.present()} />
+<LogFeedSheet sheetRef={logSheetRef} />   // sibling, not a child
+```
+
+Rules:
+
+- **Always build on `BaseSheet`** (`src/components/bottom-sheets/base-sheet.tsx`). The only value import of `TrueSheet` is inside `base-sheet.tsx` — everywhere else import it as a **type** only, for the ref (`import type { TrueSheet } from '@lodev09/react-native-true-sheet'`). Same reasoning as the `Icon` allow-list: one place owns the primitive.
+- **Theme at render.** `backgroundColor` is a native prop, so read it from `useTheme()` inside the component. Never capture colours at module scope — that silently breaks dark mode, since the sheet is drawn natively.
+- **Hooks never take a sheet ref.** A hook does the work and returns state; the call site dismisses. `useLogout()` returns `{ logout, isLoading }` and knows nothing about sheets — keep it that way.
+- **`detents`:** maximum of 3, sorted smallest to largest. Use `['auto']` for content-sized confirmations, `['auto', 0.6, 1]` (the `BaseSheet` default) for anything scrollable.
+- **Deep links reach sheets via their host screen**, because a sheet has no URL. Route to the screen with a param (`/activity?logId=…`), present from an effect once the data has loaded, then clear the param so back-navigation behaves. This is how notification taps open a specific record.
+- Prefer an **inline** picker inside a sheet over `react-native-modal-datetime-picker` — stacking a modal on top of a native sheet is a rough edge on iOS.
 
 ### Platform & device
 
@@ -196,6 +218,6 @@ This project keeps a live domain model. When you introduce or sharpen a domain t
 Keep this list honest and current:
 
 - **Auth:** not implemented — routing uses a placeholder flag; Supabase auth pending.
-- **Package manager / lockfile:** none committed; decide and commit one.
+- **Package manager / lockfile:** two are committed (`bun.lock`, `package-lock.json`) and they disagree. Pick one manager and delete the other lockfile; the `npm run …` script names in this file assume npm, while `bun.lock` is the one actually being kept up to date.
 - **Backend:** Supabase (and Sentry/PostHog/RevenueCat/Canny) are decided but **not installed** — see TECH_STACK status column before importing them.
 - **Palette:** the proposed brand palette in PRODUCT_BRIEF differs from the neutral palette currently in `theme.ts`; reconcile in a design session.

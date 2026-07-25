@@ -26,7 +26,8 @@ Mobile app — iOS first, Android to follow. Built with Expo (React Native) + Ex
 | Lists | `@legendapp/list` | Installed | Virtualised lists (activity feed / history) |
 | Dates | `dayjs` | Installed | Timestamp formatting |
 | Toasts | `sonner-native` | Installed | Configured in root layout |
-| Icons | `phosphor-react-native` + `react-native-svg` | Installed | Native SVG icons; use `size` prop, not `width`/`height` |
+| Icons | `lucide-react-native` + `react-native-svg` | Installed | Never imported directly — always via the `Icon` primitive and the allow-list in `src/constants/icon-map.ts`. See [ADR 0008](./adr/0008-lucide-icon-library-typed-icon-map.md) (replaced `phosphor-react-native`) |
+| Sheets | `@lodev09/react-native-true-sheet` | **Planned** | Native sheets (`UISheetPresentationController` / `BottomSheetDialog`), presented imperatively via `BaseSheet`. See [ADR 0010](./adr/0010-truesheet-over-expo-router-form-sheets.md) |
 | Haptics / media | `expo-haptics`, `expo-image`, `expo-image-picker`, `expo-camera` | Installed | Micro-interactions and pet photos |
 | Notifications | `expo-notifications` | Installed | Feed-logged + missed-feed pushes (see `usePushNotifications`) |
 | Secure storage | `expo-secure-store` | Installed | Config plugin present, not currently used for auth — see ADR 0005 |

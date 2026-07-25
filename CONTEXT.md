@@ -45,12 +45,20 @@ _Avoid_: Meal, feeding time.
 A record that a pet was fed — who fed it (`logged_by`), when (`logged_at`, adjustable/backdatable), and optional notes. The core action of the app.
 _Avoid_: Feed event, meal record, entry.
 
+**Activity**:
+The household's chronological history of Feed Logs. The word for this history, in both the product and the UI.
+_Avoid_: **Feed** (reserved for the act of feeding — a Feed Log, a Missed Feed), timeline, stream, news feed. Naming this surface "the feed" invites the social-stream product that PRODUCT_BRIEF puts explicitly out of scope.
+
 **Grace Window**:
-The interval after a Scheduled Time within which a Feed Log still counts as satisfying that slot. Configured per household (default 60 minutes).
+The interval either side of a Scheduled Time within which a Feed Log counts as Satisfying that slot — symmetric, so a 60-minute window makes 06:00–08:00 satisfy an 07:00 slot. Feeding early is as ordinary as feeding late, and an early feed must never leave a slot looking unfed. Configured per household (default 60 minutes).
 _Avoid_: Buffer, tolerance, timeout.
 
+**Satisfying Feed**:
+The Feed Log that fulfils a given Scheduled Time: the one nearest that slot among the logs falling inside its Grace Window. A slot has at most one Satisfying Feed, and a Feed Log satisfies at most one slot. A log outside every Grace Window satisfies nothing — it is a valid, recorded feed that simply belongs to no slot (a snack, an extra feed).
+_Avoid_: Matching feed, qualifying log.
+
 **Missed Feed**:
-A Scheduled Time with no satisfying Feed Log by (Scheduled Time + Grace Window). Triggers a Missed Feed Alert to the whole household.
+A Scheduled Time with no Satisfying Feed by (Scheduled Time + Grace Window). Triggers a Missed Feed Alert to the whole household.
 _Avoid_: Skipped feed, overdue meal.
 
 ## Notifications
