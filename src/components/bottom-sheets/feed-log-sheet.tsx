@@ -14,6 +14,7 @@ import type { AppTheme } from '@/constants/theme';
 import { useFeedLog } from '@/hooks/use-feed-log';
 import { useDeleteFeedLog, useUpdateFeedLog } from '@/hooks/use-feed-log-mutations';
 import { useHousehold } from '@/hooks/use-household';
+import { formatAuthorName } from '@/hooks/use-household-members';
 import { useStyles } from '@/hooks/use-styles';
 import {
   composeLoggedAt,
@@ -85,9 +86,7 @@ const FeedLogSheet = ({ sheetRef, logId, petId }: Props) => {
       dayInTimezone(log.loggedAt, timezone) === yesterdayInTimezone(timezone))
   );
 
-  const authorName = log?.author
-    ? [log.author.firstName, log.author.lastName].filter(Boolean).join(' ') || 'Member'
-    : 'Removed member';
+  const authorName = formatAuthorName(log?.author);
 
   const onSave = (patch: SavePatch) => {
     if (!log) return;

@@ -2,6 +2,7 @@ import AppText from '@/components/core/app-text';
 import Icon from '@/components/core/icon';
 import PressableOpacity from '@/components/core/pressable-opacity';
 import type { AppTheme } from '@/constants/theme';
+import { formatAuthorName } from '@/hooks/use-household-members';
 import { useStyles } from '@/hooks/use-styles';
 import { formatTimeOfDay } from '@/lib/dates';
 import type { FeedLog } from '@/types/core';
@@ -16,9 +17,7 @@ type Props = {
 const FeedLogRow = ({ log, timezone, onPress }: Props) => {
   const styles = useStyles(makeStyles);
 
-  const authorName = log.author
-    ? [log.author.firstName, log.author.lastName].filter(Boolean).join(' ') || 'Member'
-    : 'Removed member';
+  const authorName = formatAuthorName(log.author);
 
   return (
     <PressableOpacity style={styles.row} onPress={onPress}>
