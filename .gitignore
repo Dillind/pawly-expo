@@ -43,4 +43,14 @@ example
 /ios
 /android
 
+.agents
+.claude
+.cursor
+.superpowers
+.vscode
 
+# docs
+.docs/adr
+.docs/superpowers
+
+.mcp

@@ -31,6 +31,7 @@ const SignIn = () => {
   const onSubmit = handleSubmit(async (values) => {
     try {
       await AuthService.signInWithPassword(values);
+      toast.success('Signed in successfully');
     } catch (error) {
       toast.error('Could not sign in', {
         description: error instanceof Error ? error.message : 'Check your details and try again'
@@ -121,15 +122,6 @@ const SignIn = () => {
                 </AppText>
               </PressableOpacity>
             </Link>
-
-            {__DEV__ && (
-              <MainButton
-                text="Sign in as test account"
-                variant="text"
-                isDisabled={isSubmitting}
-                onPress={handleTestSignIn}
-              />
-            )}
           </View>
         </FormProvider>
       </ScrollView>

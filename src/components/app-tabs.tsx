@@ -6,23 +6,21 @@ export default function AppTabs() {
 
   return (
     <NativeTabs
-      backgroundColor={theme.colors.background}
-      indicatorColor={theme.colors.backgroundElement}
-      labelStyle={{ selected: { color: theme.colors.text } }}>
-      <NativeTabs.Trigger name="index">
+      disableTransparentOnScrollEdge={true}
+      tintColor={theme.colors.textSecondary}
+      minimizeBehavior="onScrollDown">
+      <NativeTabs.Trigger name="home">
         <NativeTabs.Trigger.Label>Home</NativeTabs.Trigger.Label>
-        <NativeTabs.Trigger.Icon
-          src={require('@/assets/images/tabIcons/home.png')}
-          renderingMode="template"
-        />
+        <NativeTabs.Trigger.Icon sf={'house.fill'} />
+      </NativeTabs.Trigger>
+      <NativeTabs.Trigger name="activity">
+        <NativeTabs.Trigger.Label>Activity</NativeTabs.Trigger.Label>
+        <NativeTabs.Trigger.Icon sf={'list.bullet'} />
       </NativeTabs.Trigger>
 
-      <NativeTabs.Trigger name="explore">
-        <NativeTabs.Trigger.Label>Explore</NativeTabs.Trigger.Label>
-        <NativeTabs.Trigger.Icon
-          src={require('@/assets/images/tabIcons/explore.png')}
-          renderingMode="template"
-        />
+      <NativeTabs.Trigger name="profile">
+        <NativeTabs.Trigger.Label>Profile</NativeTabs.Trigger.Label>
+        <NativeTabs.Trigger.Icon sf={'person.fill'} />
       </NativeTabs.Trigger>
     </NativeTabs>
   );
