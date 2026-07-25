@@ -1,0 +1,25 @@
+-- 20260725090300 narrowed feed_logs writes to `update (logged_at, notes)` and
+-- `insert (pet_id, logged_by, logged_at, notes)`, but left three table-level
+-- privileges that Supabase grants to `authenticated` by default on every table in
+-- `public`. All three sit outside the column grants and outside RLS:
+--
+--   TRUNCATE   bypasses row level security completely. `truncate public.feed_logs`
+--              removes every household's feeding history in one statement, and no
+--              policy on this table is consulted. This is the reason the revoke
+--              exists; the column grants above are worth nothing while it stands.
+--   TRIGGER    lets a caller attach a trigger to the table, which is an execution
+--              surface on rows they cannot otherwise write.
+--   REFERENCES lets a caller create a foreign key against it, which leaks the
+--              existence of rows through constraint violations.
+--
+-- None of the three is reachable through PostgREST today -- it exposes no verb
+-- that emits TRUNCATE, and DDL is not routable -- so this is defence in depth
+-- rather than a patched hole. It is revoked anyway because the grant layer is
+-- meant to be the thing that holds when a policy is wrong, and a privilege no
+-- client can name is a privilege no client needs.
+--
+-- Note: these defaults are on every table in this schema, not just feed_logs.
+-- Auditing households / pets / household_members / users is deliberately NOT done
+-- here -- it is a schema-wide decision, not part of feed logging.
+
+revoke truncate, trigger, references on public.feed_logs from authenticated;
