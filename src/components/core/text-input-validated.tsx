@@ -6,7 +6,7 @@ import type { AppTheme, ThemeColor } from '@/constants/theme';
 import { useStyles } from '@/hooks/use-styles';
 import { useTheme } from '@/hooks/use-theme';
 import FieldError from '@/lib/form/components/field-error';
-import React, { useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import { useFormContext, useFormState } from 'react-hook-form';
 import {
   StyleProp,
@@ -97,10 +97,11 @@ const TextInputValidated = React.forwardRef<TextInputRef, Props>(
     const form = useFormContext();
     const { errors } = useFormState({ control: form?.control, name });
 
-    const styles = useStyles(
-      (currentTheme) => makeStyles(currentTheme, borderColor, backgroundColor),
+    const makeThemedStyles = useCallback(
+      (currentTheme: AppTheme) => makeStyles(currentTheme, borderColor, backgroundColor),
       [borderColor, backgroundColor]
     );
+    const styles = useStyles(makeThemedStyles);
 
     const input = (
       <View style={styles.inputHost}>

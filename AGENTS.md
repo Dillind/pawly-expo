@@ -63,7 +63,7 @@ src/
 │   ├── core/                 # Shared primitives (AppText, MainButton, inputs, ...)
 │   └── ui/                   # Larger composed UI pieces
 ├── constants/                # theme.ts (tokens), enums, primitives
-├── hooks/                    # use-theme, use-themed-styles, use-push-notifications, ...
+├── hooks/                    # use-theme, use-styles, use-push-notifications, ...
 ├── lib/                      # haptics, styles/shadows, form/ helpers
 ├── utils/                    # platform, linking, external-link
 └── types/                    # shared TS types (core.ts); database.types.ts (generated, planned)
@@ -73,7 +73,7 @@ src/
 
 ### Naming & imports
 
-- **Files and folders are `kebab-case`** (`app-text.tsx`, `use-themed-styles.ts`). Do not introduce `PascalCase`/`camelCase` filenames.
+- **Files and folders are `kebab-case`** (`app-text.tsx`, `use-push-notifications.ts`). Do not introduce `PascalCase`/`camelCase` filenames.
 - **Path aliases:** `@/*` → `src/*`, `@/assets/*` → `assets/*` (see `tsconfig.json`). Prefer `@/` imports over deep relative paths.
 - Components are typically default-exported; hooks/utilities named-exported (follow the surrounding file).
 
@@ -135,6 +135,19 @@ Expo Router (file-based). Auth is enforced with `Stack.Protected` guards in `src
 
 `react-hook-form` + **Zod** (`@hookform/resolvers`). Use the shared validated inputs in `src/components/core/` (e.g. `TextInputValidated`, `DatePickerValidated`) which read from `useFormContext` and render `FieldError`. No ad-hoc controlled inputs. Zod schemas are the single validation contract (also used by Edge Functions).
 
+**Reading a field value: use `useWatch({ control, name })`, never `watch()`.** `watch()` subscribes
+by mutating during render and returns a fresh value each call, which React Compiler (enabled via
+`app.json` → `experiments.reactCompiler`) cannot memoise — it silently opts the component out of memoisation
+and can serve stale reads. `useWatch` is a proper subscription hook and memoises correctly.
+
+```tsx
+// Do this
+const petType = useWatch({ control, name: 'petType' });
+
+// Not this
+const petType = watch('petType');
+```
+
 ### Icons
 
 Icons come from `lucide-react-native` (backed by `react-native-svg`), but **never import a Lucide icon directly in a screen or component.** Always go through the shared `Icon` primitive at `src/components/core/icon.tsx`, which reads from the explicit allow-list in `src/constants/icon-map.ts`:
@@ -165,7 +178,7 @@ Never import from `lucide-react-native` anywhere except `icon-map.ts` — that's
 Custom theme tokens — **no component library, no NativeWind/Tailwind** (see [ADR 0004](./docs/adr/0004-custom-theme-no-component-library.md)). Full guide in [docs/THEMING.md](./docs/THEMING.md). In short:
 
 - Colours via `useTheme()` (from `@/hooks/use-theme`) — returns the active light/dark palette. Never hard-code colour strings.
-- Styles via a module-level `makeStyles` factory + `useStyles(makeStyles)` — see Theming above. `useThemedStyles` is **deprecated**; it still works and a couple of older components still call it, but don't write new code against it.
+- Styles via a module-level `makeStyles` factory + `useStyles(makeStyles)` — see Theming above. `useStyles` takes no `deps`: the factory itself is the cache key, so wrap it in `useCallback` when it closes over props.
 - Text via the `AppText` primitive; spacing via `Spacing` from `@/constants/theme`.
 - `global.css` exists **only** for web font CSS variables — it is not Tailwind; do not delete it.
 

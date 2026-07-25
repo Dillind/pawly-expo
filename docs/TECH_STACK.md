@@ -17,7 +17,7 @@ Mobile app — iOS first, Android to follow. Built with Expo (React Native) + Ex
 |---|---|---|---|
 | Framework | Expo SDK 57 (RN 0.86, React 19.2) | Installed | Current SDK; EAS handles build/deploy |
 | UI components | Custom RN primitives (`src/components/core/`) + Expo Router native tabs (`unstable-native-tabs`) | Installed | Bespoke `Pressable`/`View`-based components; see [ADR 0004](./adr/0004-custom-theme-no-component-library.md) — no component library, no `@expo/ui` |
-| Styling | Custom theme tokens (`src/constants/theme.ts`) via `useTheme()` / `useThemedStyles()` | Installed | Bespoke native feel; **no NativeWind/Tailwind**. See THEMING.md and ADR 0004 |
+| Styling | Custom theme tokens (`src/constants/theme.ts`) via `useTheme()` / `useStyles(makeStyles)` | Installed | Bespoke native feel; **no NativeWind/Tailwind**. See THEMING.md and ADR 0004 |
 | Routing | Expo Router (file-based, route groups, `Stack.Protected` guards) | Installed | Idiomatic Expo; `(public)` vs `(protected)` groups |
 | State: local | `useState` / `useReducer` | Installed | Component-level state |
 | State: global | Zustand | Installed | Lightweight, no boilerplate |

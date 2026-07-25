@@ -69,11 +69,15 @@ const makeStyles = ({ colors, spacing }: AppTheme) =>
   });
 ```
 
-Pass extra deps when styles depend on props:
+When styles depend on props, wrap the factory in `useCallback` so it stays a stable cache key:
 
 ```tsx
 const MyComponent = ({ highlighted }: { highlighted: boolean }) => {
-  const styles = useStyles((theme) => makeStyles(theme, highlighted), [highlighted]);
+  const makeThemedStyles = useCallback(
+    (theme: AppTheme) => makeStyles(theme, highlighted),
+    [highlighted]
+  );
+  const styles = useStyles(makeThemedStyles);
 
   return <View style={styles.container} />;
 };
@@ -92,7 +96,8 @@ const makeStyles = ({ colors, isDark }: AppTheme, highlighted: boolean) =>
 
 `useStyles` is a React hook — call it **inside** a component, not at module scope.
 
-> `useThemedStyles()` still works but is deprecated. Prefer the `makeStyles` pattern above.
+> `useStyles` takes no `deps` argument: `makeStyles` **is** the cache key. An inline arrow is
+> still correct, it just recomputes every render. `useThemedStyles()` has been removed.
 
 Use `spacing` from the theme (or `Spacing` from `@/constants/theme`) instead of magic numbers:
 

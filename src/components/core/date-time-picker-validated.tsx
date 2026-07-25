@@ -1,13 +1,14 @@
 import AppText from '@/components/core/app-text';
 import Icon from '@/components/core/icon';
 import PressableOpacity from '@/components/core/pressable-opacity';
-import { useThemedStyles } from '@/hooks/use-themed-styles';
+import type { AppTheme } from '@/constants/theme';
+import { useStyles } from '@/hooks/use-styles';
 import FieldError from '@/lib/form/components/field-error';
 import dayjs from 'dayjs';
 import customParseFormat from 'dayjs/plugin/customParseFormat';
 import { useState } from 'react';
 import { useFormContext, useFormState } from 'react-hook-form';
-import { View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
 import IndicatedText from './indicated-text';
 
@@ -55,21 +56,7 @@ const DateTimePickerValidated = ({
   const form = useFormContext();
   const { errors } = useFormState({ control: form?.control, name });
   const isError = name && errors?.[name]?.message;
-  const styles = useThemedStyles((colors) => ({
-    container: {},
-    pickerContainer: {
-      borderRadius: 8,
-      borderWidth: 1,
-      borderColor: colors.textSecondary,
-      alignItems: 'center',
-      flexDirection: 'row',
-      justifyContent: 'space-between',
-      height: 46,
-      paddingHorizontal: 12,
-      gap: 12,
-      backgroundColor: colors.background
-    }
-  }));
+  const styles = useStyles(makeStyles);
 
   const date = selectedDate ? dayjs(selectedDate, storeFormat[mode]).toDate() : new Date();
 
@@ -116,5 +103,22 @@ const DateTimePickerValidated = ({
     </View>
   );
 };
+
+const makeStyles = ({ colors }: AppTheme) =>
+  StyleSheet.create({
+    container: {},
+    pickerContainer: {
+      borderRadius: 8,
+      borderWidth: 1,
+      borderColor: colors.textSecondary,
+      alignItems: 'center',
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      height: 46,
+      paddingHorizontal: 12,
+      gap: 12,
+      backgroundColor: colors.background
+    }
+  });
 
 export default DateTimePickerValidated;

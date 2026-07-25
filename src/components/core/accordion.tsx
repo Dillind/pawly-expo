@@ -1,7 +1,8 @@
 import AppText from '@/components/core/app-text';
 import Icon from '@/components/core/icon';
 import PressableOpacity from '@/components/core/pressable-opacity';
-import { useThemedStyles } from '@/hooks/use-themed-styles';
+import type { AppTheme } from '@/constants/theme';
+import { useStyles } from '@/hooks/use-styles';
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { LayoutChangeEvent, StyleSheet, View } from 'react-native';
 import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
@@ -48,12 +49,7 @@ type AccordionItemProps = {
 };
 
 export const AccordionItem = ({ id, title, icon, children }: AccordionItemProps) => {
-  const themedStyles = useThemedStyles((colors) => ({
-    headerRule: {
-      height: StyleSheet.hairlineWidth,
-      backgroundColor: colors.textSecondary
-    }
-  }));
+  const themedStyles = useStyles(makeItemStyles);
   const { openId, setOpenId } = useAccordionContext();
   const isOpen = openId === id;
 
@@ -136,13 +132,7 @@ type AccordionBulletRowProps = {
 };
 
 export const AccordionBulletRow = ({ label, isLast = false }: AccordionBulletRowProps) => {
-  const themedStyles = useThemedStyles((colors) => ({
-    rowRule: {
-      height: StyleSheet.hairlineWidth,
-      backgroundColor: colors.textSecondary,
-      marginLeft: 8
-    }
-  }));
+  const themedStyles = useStyles(makeBulletRowStyles);
 
   return (
     <View>
@@ -156,6 +146,23 @@ export const AccordionBulletRow = ({ label, isLast = false }: AccordionBulletRow
     </View>
   );
 };
+
+const makeItemStyles = ({ colors }: AppTheme) =>
+  StyleSheet.create({
+    headerRule: {
+      height: StyleSheet.hairlineWidth,
+      backgroundColor: colors.textSecondary
+    }
+  });
+
+const makeBulletRowStyles = ({ colors }: AppTheme) =>
+  StyleSheet.create({
+    rowRule: {
+      height: StyleSheet.hairlineWidth,
+      backgroundColor: colors.textSecondary,
+      marginLeft: 8
+    }
+  });
 
 const layoutStyles = StyleSheet.create({
   group: {
