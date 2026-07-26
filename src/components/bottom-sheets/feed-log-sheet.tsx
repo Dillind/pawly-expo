@@ -1,5 +1,6 @@
 import BaseSheet from '@/components/bottom-sheets/base-sheet';
 import AppText from '@/components/core/app-text';
+import DateTimePickerValidated from '@/components/core/date-time-picker-validated';
 import MainButton from '@/components/core/main-button';
 import PressableOpacity from '@/components/core/pressable-opacity';
 import TextInputValidated from '@/components/core/text-input-validated';
@@ -201,6 +202,13 @@ function EditableLogForm({ log, timezone, isOwner, isSaving, onSave }: EditableL
 
   const { control, handleSubmit, formState } = form;
 
+  // Destructured during render on purpose. formState is a Proxy that only
+  // subscribes to the keys read while rendering, so reading dirtyFields
+  // solely inside the submit callback leaves it permanently empty. With
+  // mode: 'onBlur' a text field masked this by forcing a formState update on
+  // blur; the time spinner never blurs, so every save silently did nothing.
+  const { dirtyFields } = formState;
+
   const onSubmit = handleSubmit((values) => {
     // The single most important rule in this sheet: never send a field the
     // user did not actually touch. dirtyFields is react-hook-form's own
@@ -210,11 +218,11 @@ function EditableLogForm({ log, timezone, isOwner, isSaving, onSave }: EditableL
     // present.
     const patch: SavePatch = {};
 
-    if (formState.dirtyFields.day || formState.dirtyFields.time) {
+    if (dirtyFields.day || dirtyFields.time) {
       patch.loggedAt = composeLoggedAt(values.day, values.time, timezone);
     }
 
-    if (formState.dirtyFields.notes) {
+    if (dirtyFields.notes) {
       patch.notes = values.notes.trim().length > 0 ? values.notes.trim() : null;
     }
 
@@ -248,15 +256,14 @@ function EditableLogForm({ log, timezone, isOwner, isSaving, onSave }: EditableL
         <Controller
           control={control}
           name="time"
-          render={({ field: { onChange, onBlur, value } }) => (
-            <TextInputValidated
+          render={({ field: { onChange, value } }) => (
+            <DateTimePickerValidated
               name="time"
               label="Time fed"
-              value={value}
-              onChangeText={onChange}
-              onBlur={onBlur}
-              placeholder="07:30"
-              keyboardType="numbers-and-punctuation"
+              mode="time"
+              isInline
+              selectedDate={value}
+              setSelectedDate={onChange}
             />
           )}
         />
@@ -314,8 +321,12 @@ function NotesOnlyForm({ log, isSaving, onSave }: NotesOnlyFormProps) {
 
   const { control, handleSubmit, formState } = form;
 
+  // Read during render so the formState Proxy actually subscribes -- see the
+  // same destructure in EditableLogForm above.
+  const { dirtyFields } = formState;
+
   const onSubmit = handleSubmit((values) => {
-    if (!formState.dirtyFields.notes) return;
+    if (!dirtyFields.notes) return;
 
     onSave({ notes: values.notes.trim().length > 0 ? values.notes.trim() : null });
   });
