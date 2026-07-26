@@ -261,7 +261,6 @@ function EditableLogForm({ log, timezone, isOwner, isSaving, onSave }: EditableL
               name="time"
               label="Time fed"
               mode="time"
-              isInline
               selectedDate={value}
               setSelectedDate={onChange}
             />
