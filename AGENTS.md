@@ -21,21 +21,42 @@ Before naming things or discussing the domain, skim `CONTEXT.md`. Before changin
 ## Commands
 
 ```bash
-npm start          # Expo dev server (or: expo start)
-npm run ios        # Run on iOS simulator
-npm run android    # Run on Android emulator
-npm run web        # Run on web
-npm run lint       # ESLint (eslint-config-expo)
-npm run typecheck  # tsc --noEmit
+bun start           # Expo dev server (or: expo start)
+bun run ios         # Run on iOS simulator
+bun run android     # Run on Android emulator
+bun run web         # Run on web
+bun run lint        # ESLint (eslint-config-expo)
+bun run typecheck   # tsc --noEmit
+bun run spellcheck  # cspell across ts/tsx/md/sql
 ```
 
 There is **no test setup yet** (no test runner, no `test` script). Don't assume tests exist; if adding them, set up the runner first and note it here.
 
+## Branches
+
+Every feature or non-trivial change gets a branch, named **before** work starts — never commit
+straight to `main`:
+
+```
+<type>/PAW-<nnn>-<kebab-case-slug>     e.g. feat/PAW-001-feed-logging
+```
+
+`<type>` is the commit-type vocabulary (`feat`, `fix`, `chore`, `docs`, `refactor`); the ticket ID
+is uppercase and zero-padded to three digits. Git refnames forbid spaces and `[`, so brackets never
+appear in a branch name — only in the PR title (`[PAW-001] Add feed logging`).
+
+IDs come from git history, not an external tracker: `git fetch --all --prune`, then take the highest
+existing `PAW-nnn` and add one. Full command and PR conventions live in the `create-pr` skill.
+
+## Toolchain
+
+- **Package manager: bun.** `bun.lock` is the only lockfile; `package-lock.json` was deleted (it was stale and still listed the removed `phosphor-react-native`). Don't reintroduce npm/yarn/pnpm lockfiles — `packageManager` in `package.json` pins the version.
+- **Node: 24**, pinned with [Volta](https://volta.sh) (`volta.node` in `package.json`). Install Volta once (`curl https://get.volta.sh | bash`) and the correct Node is selected automatically inside this repo — no `nvm use`, and it works in non-interactive shells, CI, and agent tool calls, which is precisely where `.nvmrc` silently does nothing. `.nvmrc` is kept for anyone still on nvm; the two must be bumped together.
+- The `engines` floor is 22.18.0 because `cspell` requires it — on Node 20 the spelling gate doesn't just fail, it cannot run at all, so `bun run spellcheck` exits non-zero for a reason that has nothing to do with spelling.
+
 ## Adding dependencies
 
-Always use **`npx expo install <package>`** so the version matches SDK 57. Do not hand-pick versions with a raw `add`/`install` for Expo-ecosystem packages.
-
-> Note: there is currently **no lockfile** committed (no `pnpm-lock.yaml` / `package-lock.json` / `yarn.lock`). Confirm the intended package manager and commit a lockfile — see "Open questions" below.
+Always use **`bunx expo install <package>`** so the version matches SDK 57. Do not hand-pick versions with a raw `bun add` for Expo-ecosystem packages.
 
 ## Project layout
 
@@ -59,7 +80,7 @@ src/
 │   ├── core/                 # Shared primitives (AppText, MainButton, inputs, ...)
 │   └── ui/                   # Larger composed UI pieces
 ├── constants/                # theme.ts (tokens), enums, primitives
-├── hooks/                    # use-theme, use-themed-styles, use-push-notifications, ...
+├── hooks/                    # use-theme, use-styles, use-push-notifications, ...
 ├── lib/                      # haptics, styles/shadows, form/ helpers
 ├── utils/                    # platform, linking, external-link
 └── types/                    # shared TS types (core.ts); database.types.ts (generated, planned)
@@ -67,9 +88,18 @@ src/
 
 ## Conventions
 
+### Before changing any UI
+
+Invoke both skills **before** writing UI code — not after, not to review what you already wrote:
+
+- **`/frontend-design`** — design judgement: hierarchy, spacing, states, what the screen is actually for.
+- **`/expo-native-ui`** — the SDK 57 native surface, so the answer is the platform's component rather than a hand-rolled approximation of it.
+
+This applies to any change to layout, styling, copy, navigation, screen composition, or a new component — including "small" ones. It does not apply to pure data/query/migration work with no visible surface.
+
 ### Naming & imports
 
-- **Files and folders are `kebab-case`** (`app-text.tsx`, `use-themed-styles.ts`). Do not introduce `PascalCase`/`camelCase` filenames.
+- **Files and folders are `kebab-case`** (`app-text.tsx`, `use-push-notifications.ts`). Do not introduce `PascalCase`/`camelCase` filenames.
 - **Path aliases:** `@/*` → `src/*`, `@/assets/*` → `assets/*` (see `tsconfig.json`). Prefer `@/` imports over deep relative paths.
 - Components are typically default-exported; hooks/utilities named-exported (follow the surrounding file).
 
@@ -131,6 +161,34 @@ Expo Router (file-based). Auth is enforced with `Stack.Protected` guards in `src
 
 `react-hook-form` + **Zod** (`@hookform/resolvers`). Use the shared validated inputs in `src/components/core/` (e.g. `TextInputValidated`, `DatePickerValidated`) which read from `useFormContext` and render `FieldError`. No ad-hoc controlled inputs. Zod schemas are the single validation contract (also used by Edge Functions).
 
+**Reading a field value: use `useWatch({ control, name })`, never `watch()`.** `watch()` subscribes
+by mutating during render and returns a fresh value each call, which React Compiler (enabled via
+`app.json` → `experiments.reactCompiler`) cannot memoise — it silently opts the component out of memoisation
+and can serve stale reads. `useWatch` is a proper subscription hook and memoises correctly.
+
+```tsx
+// Do this
+const petType = useWatch({ control, name: 'petType' });
+
+// Not this
+const petType = watch('petType');
+```
+
+#### Dates and times
+
+**Any time a user sets or corrects is entered through `DateTimePickerValidated`** (`src/components/core/date-time-picker-validated.tsx`) with `mode="time"`, which renders the native wheel (`display="spinner"`, 216pt on iOS). Never a text field, never a masked `HH:mm` input, never a custom wheel.
+
+```tsx
+<DateTimePickerValidated mode="time" label="Time fed" selectedDate={value} setSelectedDate={onChange} />
+```
+
+The component already owns the storage/display split — it stores `HH:mm` and displays `h:mm A`, so call sites never format. `mode="date"` gets the inline calendar; that pairing is deliberate and lives in one place.
+
+Two live consequences:
+
+- `feed-log-sheet.tsx` currently takes the corrected time through a `TextInputValidated` with a `numbers-and-punctuation` keyboard. That is the pattern this rule outlaws; it changes when the sheet is renamed in PAW-001.
+- Inside a sheet this stacks a modal on a native sheet, which the Sheets rule below flags as a rough edge on iOS. The picker still wins — **verify on device**, and if the presentation misbehaves, render the same `mode="time"` spinner inline within the sheet. Reverting to a text input is not the fallback.
+
 ### Icons
 
 Icons come from `lucide-react-native` (backed by `react-native-svg`), but **never import a Lucide icon directly in a screen or component.** Always go through the shared `Icon` primitive at `src/components/core/icon.tsx`, which reads from the explicit allow-list in `src/constants/icon-map.ts`:
@@ -146,7 +204,15 @@ import Icon from '@/components/core/icon';
 - **`size`** — defaults to `16`.
 - **`color`** — a `ThemeColor` key (`'text'`, `'textSecondary'`, etc., same set `AppText` uses), defaults to `'text'`.
 - **`strokeWidth`** — optional passthrough; omit to use Lucide's own default (`2`).
-- `Icon` is decorative by default (hidden from the accessibility tree) — it does not accept an `accessibilityLabel`. Icon-only tappable controls should use `IconButton` (owns the tap target and requires a label) once it exists; don't bolt accessibility props onto `Icon` itself.
+- `Icon` is decorative by default (hidden from the accessibility tree) — it does not accept an `accessibilityLabel`. Icon-only tappable controls must use `IconButton` (`src/components/core/icon-button.tsx`), which owns the 44pt tap target and takes a **required** `accessibilityLabel`; don't bolt accessibility props onto `Icon` itself.
+
+```tsx
+<IconButton name="plus" accessibilityLabel="Log a feed" size={28} onPress={onLogPress} />
+```
+
+Unlike `MainButton`, it never stretches to fill its parent — it is a fixed circular target (`alignSelf: 'center'`). Variants are `primary` / `secondary` / `ghost` / `glass`; the first two draw the glyph in `onPrimary`, `ghost` in `text`, and `glass` in `primary` (white on clear glass is invisible over a light background).
+
+`glass` is the one variant that does not use `PressableOpacity`: it renders a `GlassView` with `isInteractive`, so the material itself provides the press response. Layering the usual opacity fade on top would fight it — see [ADR 0011](./docs/adr/0011-liquid-glass-progressive-enhancement.md), which also requires the `isLiquidGlassAvailable()` fallback the variant already carries.
 
 **Adding a new icon:**
 
@@ -161,13 +227,45 @@ Never import from `lucide-react-native` anywhere except `icon-map.ts` — that's
 Custom theme tokens — **no component library, no NativeWind/Tailwind** (see [ADR 0004](./docs/adr/0004-custom-theme-no-component-library.md)). Full guide in [docs/THEMING.md](./docs/THEMING.md). In short:
 
 - Colours via `useTheme()` (from `@/hooks/use-theme`) — returns the active light/dark palette. Never hard-code colour strings.
-- Styles via `useThemedStyles((colors) => ({ ... }))`.
+- Styles via a module-level `makeStyles` factory + `useStyles(makeStyles)` — see Theming above. `useStyles` takes no `deps`: the factory itself is the cache key, so wrap it in `useCallback` when it closes over props.
 - Text via the `AppText` primitive; spacing via `Spacing` from `@/constants/theme`.
 - `global.css` exists **only** for web font CSS variables — it is not Tailwind; do not delete it.
 
+### Sheets
+
+Bottom sheets are the default way to present secondary content — confirmations, quick forms, detail views. They use **`@lodev09/react-native-true-sheet`**, which wraps the real native sheet on each platform (`UISheetPresentationController` on iOS, `BottomSheetDialog` on Android). See [ADR 0010](./docs/adr/0010-truesheet-over-expo-router-form-sheets.md) for why this over Expo Router's built-in `formSheet`.
+
+**Sheets are components, not routes.** A sheet lives next to the thing that opens it and is presented imperatively through a ref.
+
+```tsx
+const logSheetRef = useRef<TrueSheet | null>(null);
+
+<MainButton text="Log a feed" onPress={() => void logSheetRef.current?.present()} />
+<LogFeedSheet sheetRef={logSheetRef} />   // sibling, not a child
+```
+
+Rules:
+
+- **Always build on `BaseSheet`** (`src/components/bottom-sheets/base-sheet.tsx`). The only value import of `TrueSheet` is inside `base-sheet.tsx` — everywhere else import it as a **type** only, for the ref (`import type { TrueSheet } from '@lodev09/react-native-true-sheet'`). Same reasoning as the `Icon` allow-list: one place owns the primitive.
+- **Theme at render.** `backgroundColor` is a native prop, so read it from `useTheme()` inside the component. Never capture colours at module scope — that silently breaks dark mode, since the sheet is drawn natively.
+- **Hooks never take a sheet ref.** A hook does the work and returns state; the call site dismisses. `useLogout()` returns `{ logout, isLoading }` and knows nothing about sheets — keep it that way.
+- **`detents`:** maximum of 3, sorted smallest to largest. Use `['auto']` for content-sized confirmations, `['auto', 0.6, 1]` (the `BaseSheet` default) for anything scrollable.
+- **Deep links reach sheets via their host screen**, because a sheet has no URL. Route to the screen with a param (`/activity?logId=…`), present from an effect once the data has loaded, then clear the param so back-navigation behaves. This is how notification taps open a specific record.
+- Prefer an **inline** picker inside a sheet over `react-native-modal-datetime-picker` — stacking a modal on top of a native sheet is a rough edge on iOS. This is about *presentation*, not about the control: a time input is always the `mode="time"` spinner (see Dates and times above), inline if the modal misbehaves.
+
+### Popovers (not sheets)
+
+**"Sheet" means the native presentation described above — nothing else.** A control that is drawn in-app and anchored to whatever opened it is a **popover**, and it must not be named, filed, or described as a sheet. `ActionPopover` (`src/components/ui/action-popover.tsx`) is the one that exists: a floating glass menu with a `plus` trigger, secondary `ActionPopoverItem` rows, and a single emphasised `primaryAction`.
+
+- **The trigger is owned by the popover, not placed separately.** Both surfaces live inside one `GlassContainer` so the material fuses as the bubble grows out of the button. Splitting them breaks the effect.
+- **The fuse depends on the laid-out gap, not just `GlassContainer spacing`.** Measured on iOS 26: at an 8pt gap the surfaces grow a connecting neck, at 16pt they stay separate — with the same `spacing` either way. Changing the container's `gap` means re-checking on a device.
+- **`primaryAction` is a separate prop from `actions`** so "there is exactly one primary" is enforced by the type rather than by convention.
+- **Present sheets after the popover has closed, not alongside.** They are different presentation systems; a native sheet raised while the overlay is still up gets swallowed by iOS.
+- **Vertical placement is a fixed offset** (`BottomTabInset`), because expo-router's native tabs expose no way to read the tab bar's height — `useBottomTabBarHeight` throws outside a JS tab navigator. This is why `minimizeBehavior` is off in `app-tabs.tsx`: a bar that changes height would leave the popover visibly detached.
+
 ### Platform & device
 
-Use `isIOS` / `isAndroid` from `@/utils/platform`. Use the haptics helpers in `@/lib/haptics` (`hapticLight`, etc.) rather than calling `expo-haptics` directly.
+Use `isIOS` / `isAndroid` / `isWeb` from `@/utils/platform`. Use the haptics helpers in `@/lib/haptics` (`hapticLight`, etc.) rather than calling `expo-haptics` directly.
 
 ### Notifications
 
@@ -180,8 +278,8 @@ All user-facing text uses **Australian/British English** (colour, organise, canc
 ### Code style
 
 - Prettier: 100-char width, single quotes, **no trailing commas**, `bracketSameLine: true`, no tabs (`.prettierrc.json`).
-- ESLint via `eslint-config-expo` (flat config). Run `npm run lint` before finishing.
-- Spelling is checked with cspell (`cspell.json`); add project words there rather than disabling.
+- ESLint via `eslint-config-expo` (flat config). Run `bun run lint` before finishing.
+- Spelling is checked with cspell (`bun run spellcheck`); add project words to `cspell.json` rather than disabling. The locale is `en,en-GB` deliberately — prose is British (`colour`), but code identifiers are American (`backgroundColor`, `colors`), so both dictionaries have to be active.
 
 ### Comments
 
@@ -196,6 +294,6 @@ This project keeps a live domain model. When you introduce or sharpen a domain t
 Keep this list honest and current:
 
 - **Auth:** not implemented — routing uses a placeholder flag; Supabase auth pending.
-- **Package manager / lockfile:** none committed; decide and commit one.
+- ~~**Package manager / lockfile**~~ — resolved: bun, single `bun.lock`. See Toolchain above.
 - **Backend:** Supabase (and Sentry/PostHog/RevenueCat/Canny) are decided but **not installed** — see TECH_STACK status column before importing them.
 - **Palette:** the proposed brand palette in PRODUCT_BRIEF differs from the neutral palette currently in `theme.ts`; reconcile in a design session.

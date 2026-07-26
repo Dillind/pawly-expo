@@ -51,6 +51,7 @@ const getConfig = ({ config }: ConfigContext): ExpoConfig => {
         }
       ],
       'expo-image',
+      '@react-native-community/datetimepicker',
       [
         'expo-image-picker',
         {

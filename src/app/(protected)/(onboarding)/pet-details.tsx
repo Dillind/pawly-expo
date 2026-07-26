@@ -15,7 +15,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { Image } from 'expo-image';
 import * as ImagePicker from 'expo-image-picker';
 import { useRouter } from 'expo-router';
-import { Controller, FormProvider, useForm } from 'react-hook-form';
+import { Controller, FormProvider, useForm, useWatch } from 'react-hook-form';
 import { ScrollView, StyleSheet, View } from 'react-native';
 
 const sexOptions = ['male', 'female'];
@@ -42,11 +42,10 @@ const PetDetails = () => {
     control,
     handleSubmit,
     setValue,
-    watch,
     formState: { isSubmitting }
   } = form;
 
-  const photoUri = watch('photoUri');
+  const photoUri = useWatch({ control, name: 'photoUri' });
 
   const pickPhoto = async () => {
     const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();

@@ -18,7 +18,7 @@ import { useAuthStore } from '@/stores/auth-store';
 import { useOnboardingStore } from '@/stores/onboarding-store';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useQueryClient } from '@tanstack/react-query';
-import { Controller, FormProvider, useForm } from 'react-hook-form';
+import { Controller, FormProvider, useForm, useWatch } from 'react-hook-form';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { toast } from 'sonner-native';
 
@@ -45,12 +45,11 @@ const FeedingSchedule = () => {
   const {
     control,
     handleSubmit,
-    watch,
     setValue,
     formState: { isSubmitting }
   } = form;
 
-  const watchedFeedingTimes = watch('feedingTimes');
+  const watchedFeedingTimes = useWatch({ control, name: 'feedingTimes' });
 
   const addFeedingTime = () => {
     setValue('feedingTimes', [...watchedFeedingTimes, { time: '15:00', label: 'custom' }]);

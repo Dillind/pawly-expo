@@ -31,22 +31,13 @@ const SignIn = () => {
   const onSubmit = handleSubmit(async (values) => {
     try {
       await AuthService.signInWithPassword(values);
+      toast.success('Signed in successfully');
     } catch (error) {
       toast.error('Could not sign in', {
         description: error instanceof Error ? error.message : 'Check your details and try again'
       });
     }
   });
-
-  const handleTestSignIn = () => {
-    const email = process.env.EXPO_PUBLIC_TEST_ACCOUNT_EMAIL;
-    const password = process.env.EXPO_PUBLIC_TEST_ACCOUNT_PASSWORD;
-    if (!email || !password) return;
-
-    form.setValue('email', email);
-    form.setValue('password', password);
-    void onSubmit();
-  };
 
   return (
     <View style={{ flex: 1 }}>
@@ -121,15 +112,6 @@ const SignIn = () => {
                 </AppText>
               </PressableOpacity>
             </Link>
-
-            {__DEV__ && (
-              <MainButton
-                text="Sign in as test account"
-                variant="text"
-                isDisabled={isSubmitting}
-                onPress={handleTestSignIn}
-              />
-            )}
           </View>
         </FormProvider>
       </ScrollView>

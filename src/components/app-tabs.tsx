@@ -5,24 +5,22 @@ export default function AppTabs() {
   const theme = useTheme();
 
   return (
-    <NativeTabs
-      backgroundColor={theme.colors.background}
-      indicatorColor={theme.colors.backgroundElement}
-      labelStyle={{ selected: { color: theme.colors.text } }}>
-      <NativeTabs.Trigger name="index">
+    // `minimizeBehavior` is deliberately absent: a minimising tab bar changes
+    // height, and the floating ActionPopover has to sit above it at a fixed
+    // offset because native tabs expose no way to read that height.
+    <NativeTabs disableTransparentOnScrollEdge={true} tintColor={theme.colors.primary}>
+      <NativeTabs.Trigger name="home">
         <NativeTabs.Trigger.Label>Home</NativeTabs.Trigger.Label>
-        <NativeTabs.Trigger.Icon
-          src={require('@/assets/images/tabIcons/home.png')}
-          renderingMode="template"
-        />
+        <NativeTabs.Trigger.Icon sf={'house.fill'} />
+      </NativeTabs.Trigger>
+      <NativeTabs.Trigger name="activity">
+        <NativeTabs.Trigger.Label>Activity</NativeTabs.Trigger.Label>
+        <NativeTabs.Trigger.Icon sf={'list.bullet'} />
       </NativeTabs.Trigger>
 
-      <NativeTabs.Trigger name="explore">
-        <NativeTabs.Trigger.Label>Explore</NativeTabs.Trigger.Label>
-        <NativeTabs.Trigger.Icon
-          src={require('@/assets/images/tabIcons/explore.png')}
-          renderingMode="template"
-        />
+      <NativeTabs.Trigger name="profile">
+        <NativeTabs.Trigger.Label>Profile</NativeTabs.Trigger.Label>
+        <NativeTabs.Trigger.Icon sf={'person.fill'} />
       </NativeTabs.Trigger>
     </NativeTabs>
   );
