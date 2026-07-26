@@ -51,7 +51,8 @@ existing `PAW-nnn` and add one. Full command and PR conventions live in the `cre
 ## Toolchain
 
 - **Package manager: bun.** `bun.lock` is the only lockfile; `package-lock.json` was deleted (it was stale and still listed the removed `phosphor-react-native`). Don't reintroduce npm/yarn/pnpm lockfiles — `packageManager` in `package.json` pins the version.
-- **Node: 24**, pinned in `.nvmrc`. Run `nvm use` in the repo. The `engines` floor is 22.18.0 because `cspell` requires it — on Node 20 the spelling gate silently cannot run at all.
+- **Node: 24**, pinned with [Volta](https://volta.sh) (`volta.node` in `package.json`). Install Volta once (`curl https://get.volta.sh | bash`) and the correct Node is selected automatically inside this repo — no `nvm use`, and it works in non-interactive shells, CI, and agent tool calls, which is precisely where `.nvmrc` silently does nothing. `.nvmrc` is kept for anyone still on nvm; the two must be bumped together.
+- The `engines` floor is 22.18.0 because `cspell` requires it — on Node 20 the spelling gate doesn't just fail, it cannot run at all, so `bun run spellcheck` exits non-zero for a reason that has nothing to do with spelling.
 
 ## Adding dependencies
 

@@ -18,15 +18,11 @@ export type MainLegendListProps<T> = Omit<
   data: readonly T[] | null | undefined;
   renderItem: (props: LegendListRenderItemProps<T>) => ReactNode;
   ref?: Ref<LegendListRef>;
-  /** Paged fetch. Wired to `onEndReached`; ignored while `isLoadingMore` is true. */
   onLoadMore?: () => void;
   isLoadingMore?: boolean;
-  /** First-load spinner. Renders in place of the list, so the empty state never flashes first. */
   isLoading?: boolean;
-  /** Renders `ErrorState` in place of the list. Needs `onRetry` to be actionable. */
   isError?: boolean;
   onRetry?: () => void;
-  /** Overrides the loading-more spinner when supplied. */
   ListFooterComponent?: ReactElement | null;
 };
 
@@ -95,9 +91,6 @@ const MainLegendList = <T,>({
         keyExtractor ??
         ((item: T, index: number) => String((item as { id?: string | number })?.id ?? index))
       }
-      // Guarded here rather than at every call site: LegendList fires
-      // onEndReached again on each settle near the end, so an unguarded
-      // handler requests the same page repeatedly while the first is in flight.
       onEndReached={onLoadMore ? () => !isLoadingMore && onLoadMore() : undefined}
       onEndReachedThreshold={onEndReachedThreshold}
       showsVerticalScrollIndicator={showsVerticalScrollIndicator}

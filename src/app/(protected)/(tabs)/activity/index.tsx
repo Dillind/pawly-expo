@@ -84,13 +84,20 @@ const Activity = () => {
     return result;
   }, [data, timezone]);
 
+  const renderItem = ({ item }: LegendListRenderItemProps<ActivityItem>) => {
+    if (!timezone) return null;
+
+    return item.kind === 'header' ? (
+      <ActivityDayHeader day={item.day} petId={pet?.id} timezone={timezone} />
+    ) : (
+      <FeedLogRow log={item.log} timezone={timezone} onPress={() => {}} />
+    );
+  };
+
   return (
     <SafeAreaView style={styles.safeArea} edges={['top']}>
       <MainLegendList<ActivityItem>
         data={items}
-        // The Household timezone gates every row, so no timezone is still
-        // loading -- rendering the list without it would date feeds off the
-        // device clock.
         isLoading={isLoading || !timezone}
         isError={isError}
         onRetry={() => {
@@ -113,22 +120,7 @@ const Activity = () => {
             action={<MainButton text="Log a feed" href="/home" />}
           />
         }
-        renderItem={({ item }: LegendListRenderItemProps<ActivityItem>) => {
-          if (!timezone) return null;
-
-          return item.kind === 'header' ? (
-            <ActivityDayHeader day={item.day} petId={pet?.id} timezone={timezone} />
-          ) : (
-            <FeedLogRow
-              log={item.log}
-              timezone={timezone}
-              onPress={() => {
-                setActiveLogId(item.log.id);
-                void sheetRef.current?.present();
-              }}
-            />
-          );
-        }}
+        renderItem={renderItem}
       />
 
       <FeedLogSheet sheetRef={sheetRef} logId={activeLogId} petId={pet?.id} />
