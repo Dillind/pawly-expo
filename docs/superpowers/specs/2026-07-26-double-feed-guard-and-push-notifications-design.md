@@ -2,7 +2,8 @@
 
 **Status:** approved, not yet implemented
 **Date:** 2026-07-26
-**Branches:** `feat/PAW-001-feed-logging` (part 1), `feat/PAW-002-push-notifications` (part 2)
+**Branches:** `feat/PAW-002-double-feed-guard` (part 1),
+`feat/PAW-003-push-notifications` (part 2)
 
 Two pieces of work, designed together because they interlock, sliced into two branches because they
 ship separately.
@@ -457,25 +458,30 @@ Layout and on-device claims are **measured** via argent's `describe`, never asse
 
 ## Sequencing
 
-**`feat/PAW-001-feed-logging`** (current branch, uncommitted work in tree)
+**`feat/PAW-001-feed-logging`** (current branch)
 
-1. Commit the existing `ActionPopover` work.
-2. `log_feed` RPC and the hypothetical-assignment derivation, including the drop-and-recreate of
+1. ~~Commit the existing `ActionPopover` work.~~ Done, as `59b0d7f`.
+2. `FeedLogRow onPress` and a pressable fed `SlotRow` — reaching the correction sheet, which the
+   Double Feed guard no longer blocks. Ships here rather than with the guard.
+3. The corrected time moves onto the native `mode="time"` spinner.
+4. PR.
+
+**`feat/PAW-002-double-feed-guard`** (off `main` after PAW-001 merges)
+
+5. `log_feed` RPC and the hypothetical-assignment derivation, including the drop-and-recreate of
    `private.slot_states` and `public.pet_slot_states`.
-3. `log-feed-sheet.tsx` with the inline Double Feed warning; rename `feed-log-sheet.tsx` to
+6. `log-feed-sheet.tsx` with the inline Double Feed warning; rename `feed-log-sheet.tsx` to
    `feed-log-detail-sheet.tsx`; delete `double-feed-sheet.tsx`; rewire both `ActionPopover` primary
    actions.
-4. `FeedLogRow onPress` and a pressable fed `SlotRow`.
-5. PR.
 
-**`feat/PAW-002-push-notifications`** (off `main` after PAW-001 merges)
+**`feat/PAW-003-push-notifications`** (off `main` after PAW-002 merges)
 
-6. `eas init` and `projectId`; APNs credentials and a rebuilt dev client once enrolment is active.
-7. `push_tokens`, the preference columns, `alert_kind`, `alerts`, both triggers, `pg_net`, the
+7. `eas init` and `projectId`; APNs credentials and a rebuilt dev client once enrolment is active.
+8. `push_tokens`, the preference columns, `alert_kind`, `alerts`, both triggers, `pg_net`, the
    `send-alerts` Edge Function.
-8. `usePushNotifications` rewritten and mounted; the priming sheet; the Profile section; the
+9. `usePushNotifications` rewritten and mounted; the priming sheet; the Profile section; the
    "who will be notified" line added to `log-feed-sheet.tsx`.
-9. End-to-end verification with a second account.
+10. End-to-end verification with a second account.
 
 ## Documentation to update
 
@@ -492,8 +498,29 @@ Layout and on-device claims are **measured** via argent's `describe`, never asse
   receipts ~15 minutes after sending, which catches failures tickets do not. Add a receipts sweep when
   `pg_cron` is installed for the missed-feed engine — a schedule entry against machinery that will
   already exist. **Come back to this.**
-- **Four test feed logs in the dev database.** Predate this work. They need a decision before PAW-001
-  is PR'd; they are not to be deleted without review.
+- **Four test feed logs and a nonsense schedule in the dev database.** All four
+  logs are 26 July, Bailey, no notes, not backdated. Three (3:05, 3:19, 3:20 pm)
+  fall outside every Grace Window and are useful fixtures for the snack case;
+  the fourth (4:25 pm) satisfies dinner. The schedule itself is test data —
+  `lunch` 12:00, `morning` 13:00, `dinner` 17:00, 60-minute window — so Home
+  renders "Morning — 1:00 PM". The overlapping lunch/morning windows make the
+  spec's worked counter-example (a log equidistant between two slots) reachable
+  without constructing anything, so both are kept deliberately. Fix the schedule
+  through the app once editing a schedule exists.
+  The fourth log's time was moved during PAW-001's on-device verification and now
+  sits at Brisbane 2026-07-25 23:38 with the notes `Notes only edit`; it no longer
+  satisfies dinner. Nothing was deleted and the count is still 4.
+- **Times display in UTC, not the household's timezone.** Measured on device
+  during PAW-001: a log stored `2026-07-25 13:38+00` renders as "1:38 PM" where
+  `Australia/Brisbane` should give "11:38 PM". The write path is correct —
+  `composeLoggedAt` resolves the entered time in the household zone and stores the
+  right instant — so this is read-side only, in `formatTimeOfDay` /
+  `timeInTimezone` / `dayInTimezone`, all of which call `dayjs(...).tz(zone)`.
+  The most likely cause is Hermes shipping without the full ICU data that dayjs's
+  timezone plugin needs, in which case `.tz()` silently returns UTC rather than
+  throwing. It predates PAW-001 and is out of its scope, but it misstates every
+  time in the app and mislabels day boundaries for a travelling member, so it
+  wants its own ticket before anything ships.
 - **The sub-iOS-26 glass fallback is unverified.** ADR 0011's fallback passes typecheck but no build
   has ever run on an 18.6 simulator. Deferred to its own check before any real release.
 - **`disableTransparentOnScrollEdge`** in `app-tabs.tsx` is questionable now that `minimizeBehavior` is
