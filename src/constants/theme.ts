@@ -15,6 +15,8 @@ export const COLORS = {
     textSecondary: '#60646C',
     error: '#CE3C39',
     primary: '#0F7173',
+    primaryMuted: 'rgba(15, 113, 115, 0.15)',
+    onPrimary: '#ffffff',
     accent: '#6E44FF'
   },
   dark: {
@@ -25,6 +27,8 @@ export const COLORS = {
     textSecondary: '#B0B4BA',
     error: '#CE3C39',
     primary: '#14A8AF',
+    primaryMuted: 'rgba(20, 168, 175, 0.22)',
+    onPrimary: '#ffffff',
     accent: '#6E44FF'
   }
 } as const;
@@ -94,5 +98,21 @@ export const Spacing = {
   six: 64
 } as const;
 
-export const BottomTabInset = Platform.select({ ios: 50, android: 80 }) ?? 0;
+export const Radius = {
+  /** Icon tiles: squircle -- clearly neither circle nor square. */
+  tile: 12,
+  /** Cards and the action popover bubble. */
+  card: 24,
+  /** Fully round; used for circular tap targets. */
+  full: 100
+} as const;
+
+/**
+ * Height the bottom tab bar occupies, safe area included.
+ *
+ * Measured off the running iOS 26 tab bar (its reported frame is 0.095 of an
+ * 868pt screen), not guessed -- expo-router's native tabs expose no hook for
+ * this, so anything floating above the bar depends on this number being right.
+ */
+export const BottomTabInset = Platform.select({ ios: 84, android: 80 }) ?? 0;
 export const MaxContentWidth = 800;

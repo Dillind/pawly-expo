@@ -180,7 +180,15 @@ import Icon from '@/components/core/icon';
 - **`size`** — defaults to `16`.
 - **`color`** — a `ThemeColor` key (`'text'`, `'textSecondary'`, etc., same set `AppText` uses), defaults to `'text'`.
 - **`strokeWidth`** — optional passthrough; omit to use Lucide's own default (`2`).
-- `Icon` is decorative by default (hidden from the accessibility tree) — it does not accept an `accessibilityLabel`. Icon-only tappable controls should use `IconButton` (owns the tap target and requires a label) once it exists; don't bolt accessibility props onto `Icon` itself.
+- `Icon` is decorative by default (hidden from the accessibility tree) — it does not accept an `accessibilityLabel`. Icon-only tappable controls must use `IconButton` (`src/components/core/icon-button.tsx`), which owns the 44pt tap target and takes a **required** `accessibilityLabel`; don't bolt accessibility props onto `Icon` itself.
+
+```tsx
+<IconButton name="plus" accessibilityLabel="Log a feed" size={28} onPress={onLogPress} />
+```
+
+Unlike `MainButton`, it never stretches to fill its parent — it is a fixed circular target (`alignSelf: 'center'`). Variants are `primary` / `secondary` / `ghost` / `glass`; the first two draw the glyph in `onPrimary`, `ghost` in `text`, and `glass` in `primary` (white on clear glass is invisible over a light background).
+
+`glass` is the one variant that does not use `PressableOpacity`: it renders a `GlassView` with `isInteractive`, so the material itself provides the press response. Layering the usual opacity fade on top would fight it — see [ADR 0011](./docs/adr/0011-liquid-glass-progressive-enhancement.md), which also requires the `isLiquidGlassAvailable()` fallback the variant already carries.
 
 **Adding a new icon:**
 
@@ -220,6 +228,16 @@ Rules:
 - **`detents`:** maximum of 3, sorted smallest to largest. Use `['auto']` for content-sized confirmations, `['auto', 0.6, 1]` (the `BaseSheet` default) for anything scrollable.
 - **Deep links reach sheets via their host screen**, because a sheet has no URL. Route to the screen with a param (`/activity?logId=…`), present from an effect once the data has loaded, then clear the param so back-navigation behaves. This is how notification taps open a specific record.
 - Prefer an **inline** picker inside a sheet over `react-native-modal-datetime-picker` — stacking a modal on top of a native sheet is a rough edge on iOS.
+
+### Popovers (not sheets)
+
+**"Sheet" means the native presentation described above — nothing else.** A control that is drawn in-app and anchored to whatever opened it is a **popover**, and it must not be named, filed, or described as a sheet. `ActionPopover` (`src/components/ui/action-popover.tsx`) is the one that exists: a floating glass menu with a `plus` trigger, secondary `ActionPopoverItem` rows, and a single emphasised `primaryAction`.
+
+- **The trigger is owned by the popover, not placed separately.** Both surfaces live inside one `GlassContainer` so the material fuses as the bubble grows out of the button. Splitting them breaks the effect.
+- **The fuse depends on the laid-out gap, not just `GlassContainer spacing`.** Measured on iOS 26: at an 8pt gap the surfaces grow a connecting neck, at 16pt they stay separate — with the same `spacing` either way. Changing the container's `gap` means re-checking on a device.
+- **`primaryAction` is a separate prop from `actions`** so "there is exactly one primary" is enforced by the type rather than by convention.
+- **Present sheets after the popover has closed, not alongside.** They are different presentation systems; a native sheet raised while the overlay is still up gets swallowed by iOS.
+- **Vertical placement is a fixed offset** (`BottomTabInset`), because expo-router's native tabs expose no way to read the tab bar's height — `useBottomTabBarHeight` throws outside a JS tab navigator. This is why `minimizeBehavior` is off in `app-tabs.tsx`: a bar that changes height would leave the popover visibly detached.
 
 ### Platform & device
 

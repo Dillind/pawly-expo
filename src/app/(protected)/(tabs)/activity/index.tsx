@@ -2,10 +2,14 @@ import FeedLogSheet from '@/components/bottom-sheets/feed-log-sheet';
 import EmptyState from '@/components/core/empty-state';
 import MainButton from '@/components/core/main-button';
 import MainLegendList from '@/components/core/main-legend-list';
+import ScreenView from '@/components/layout/screen-view';
+import ActionPopover from '@/components/ui/action-popover';
 import ActivityDayHeader from '@/components/ui/activity-day-header';
 import FeedLogRow from '@/components/ui/feed-log-row';
+import { CREATE_ACTIONS } from '@/components/ui/create-actions';
 import type { AppTheme } from '@/constants/theme';
 import { useFeedLog } from '@/hooks/use-feed-log';
+import { useLogFeed } from '@/hooks/use-feed-log-mutations';
 import { useFeedLogs } from '@/hooks/use-feed-logs';
 import { useHousehold } from '@/hooks/use-household';
 import { usePet } from '@/hooks/use-pet';
@@ -18,12 +22,13 @@ import type { TrueSheet } from '@lodev09/react-native-true-sheet';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { StyleSheet } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { toast } from 'sonner-native';
 
 type ActivityItem = { kind: 'header'; day: string } | { kind: 'log'; log: FeedLog };
 
 const Activity = () => {
   const [activeLogId, setActiveLogId] = useState<string | undefined>(undefined);
+  const { logId } = useLocalSearchParams<{ logId?: string }>();
 
   const styles = useStyles(makeStyles);
   const router = useRouter();
@@ -39,7 +44,8 @@ const Activity = () => {
 
   const sheetRef = useRef<TrueSheet | null>(null);
 
-  const { logId } = useLocalSearchParams<{ logId?: string }>();
+  const logFeed = useLogFeed(pet?.id);
+
   const { data: deepLinkedLog } = useFeedLog(logId || undefined);
 
   // Mirroring the resolved query result into activeLogId here, during render,
@@ -95,7 +101,7 @@ const Activity = () => {
   };
 
   return (
-    <SafeAreaView style={styles.safeArea} edges={['top']}>
+    <ScreenView>
       <MainLegendList<ActivityItem>
         data={items}
         isLoading={isLoading || !timezone}
@@ -123,19 +129,33 @@ const Activity = () => {
         renderItem={renderItem}
       />
 
+      <ActionPopover
+        actions={CREATE_ACTIONS}
+        primaryAction={{
+          label: 'Log a feed',
+          isDisabled: !pet?.id || logFeed.isPending,
+          onPress: () => {
+            // Writes directly rather than presenting FeedLogSheet: that sheet
+            // reads an existing log by id and has no create mode.
+            logFeed.mutate(
+              {},
+              {
+                onSuccess: () => toast.success('Feed logged'),
+                onError: () => toast.error('Could not log that feed. Try again.')
+              }
+            );
+          }
+        }}
+      />
+
       <FeedLogSheet sheetRef={sheetRef} logId={activeLogId} petId={pet?.id} />
-    </SafeAreaView>
+    </ScreenView>
   );
 };
 
-const makeStyles = ({ colors, spacing }: AppTheme) =>
+const makeStyles = ({ spacing }: AppTheme) =>
   StyleSheet.create({
-    safeArea: {
-      flex: 1,
-      backgroundColor: colors.background
-    },
     listContent: {
-      paddingHorizontal: spacing.four,
       paddingBottom: spacing.six
     }
   });

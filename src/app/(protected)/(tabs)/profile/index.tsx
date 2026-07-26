@@ -1,30 +1,42 @@
+import AppText from '@/components/core/app-text';
 import MainButton from '@/components/core/main-button';
+import ScreenView from '@/components/layout/screen-view';
+import type { AppTheme } from '@/constants/theme';
 import { useLogout } from '@/hooks/use-logout';
-import { StyleSheet, Text, View } from 'react-native';
+import { useStyles } from '@/hooks/use-styles';
+import { ScrollView, StyleSheet, View } from 'react-native';
 
-const Index = () => {
+const Profile = () => {
+  const styles = useStyles(makeStyles);
   const { logout, isLoading } = useLogout();
 
   return (
-    <View style={styles.container}>
-      <Text>Profile</Text>
-      <MainButton
-        text="Sign out"
-        variant="secondary"
-        isLoading={isLoading}
-        isDisabled={isLoading}
-        onPress={() => void logout()}
-      />
-    </View>
+    <ScreenView>
+      <ScrollView contentContainerStyle={styles.content} contentInsetAdjustmentBehavior="always">
+        <AppText variant="header" size={32}>
+          Profile
+        </AppText>
+
+        <View>
+          <MainButton
+            text="Sign out"
+            variant="secondary"
+            isLoading={isLoading}
+            isDisabled={isLoading}
+            onPress={() => void logout()}
+          />
+        </View>
+      </ScrollView>
+    </ScreenView>
   );
 };
 
-export default Index;
+const makeStyles = ({ spacing }: AppTheme) =>
+  StyleSheet.create({
+    content: {
+      paddingVertical: spacing.four,
+      gap: spacing.three
+    }
+  });
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center'
-  }
-});
+export default Profile;

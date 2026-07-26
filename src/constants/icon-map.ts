@@ -9,7 +9,11 @@ import {
   Dot,
   Eye,
   EyeOff,
-  Utensils
+  PawPrint,
+  Plus,
+  UserPlus,
+  Utensils,
+  X
 } from 'lucide-react-native';
 
 export const iconMap = {
@@ -23,7 +27,11 @@ export const iconMap = {
   clock: Clock,
   check: Check,
   circleAlert: CircleAlert,
-  utensils: Utensils
+  plus: Plus,
+  utensils: Utensils,
+  userPlus: UserPlus,
+  pawPrint: PawPrint,
+  close: X
 } as const;
 
 export type IconName = keyof typeof iconMap;
