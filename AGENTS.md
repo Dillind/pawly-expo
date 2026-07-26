@@ -222,7 +222,7 @@ Rules:
 
 ### Platform & device
 
-Use `isIOS` / `isAndroid` from `@/utils/platform`. Use the haptics helpers in `@/lib/haptics` (`hapticLight`, etc.) rather than calling `expo-haptics` directly.
+Use `isIOS` / `isAndroid` / `isWeb` from `@/utils/platform`. Use the haptics helpers in `@/lib/haptics` (`hapticLight`, etc.) rather than calling `expo-haptics` directly.
 
 ### Notifications
 

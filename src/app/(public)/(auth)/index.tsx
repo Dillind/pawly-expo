@@ -39,16 +39,6 @@ const SignIn = () => {
     }
   });
 
-  const handleTestSignIn = () => {
-    const email = process.env.EXPO_PUBLIC_TEST_ACCOUNT_EMAIL;
-    const password = process.env.EXPO_PUBLIC_TEST_ACCOUNT_PASSWORD;
-    if (!email || !password) return;
-
-    form.setValue('email', email);
-    form.setValue('password', password);
-    void onSubmit();
-  };
-
   return (
     <View style={{ flex: 1 }}>
       <ScrollView
