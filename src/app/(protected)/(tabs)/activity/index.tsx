@@ -5,8 +5,8 @@ import MainLegendList from '@/components/core/main-legend-list';
 import ScreenView from '@/components/layout/screen-view';
 import ActionPopover from '@/components/ui/action-popover';
 import ActivityDayHeader from '@/components/ui/activity-day-header';
-import FeedLogRow from '@/components/ui/feed-log-row';
 import { CREATE_ACTIONS } from '@/components/ui/create-actions';
+import FeedLogRow from '@/components/ui/feed-log-row';
 import type { AppTheme } from '@/constants/theme';
 import { useFeedLog } from '@/hooks/use-feed-log';
 import { useLogFeed } from '@/hooks/use-feed-log-mutations';
@@ -96,7 +96,14 @@ const Activity = () => {
     return item.kind === 'header' ? (
       <ActivityDayHeader day={item.day} petId={pet?.id} timezone={timezone} />
     ) : (
-      <FeedLogRow log={item.log} timezone={timezone} onPress={() => {}} />
+      <FeedLogRow
+        log={item.log}
+        timezone={timezone}
+        onPress={() => {
+          setActiveLogId(item.log.id);
+          void sheetRef.current?.present();
+        }}
+      />
     );
   };
 
@@ -133,6 +140,7 @@ const Activity = () => {
         actions={CREATE_ACTIONS}
         primaryAction={{
           label: 'Log a feed',
+          icon: 'utensils',
           isDisabled: !pet?.id || logFeed.isPending,
           onPress: () => {
             // Writes directly rather than presenting FeedLogSheet: that sheet

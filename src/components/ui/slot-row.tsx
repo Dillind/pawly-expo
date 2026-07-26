@@ -1,5 +1,6 @@
 import AppText from '@/components/core/app-text';
 import Icon from '@/components/core/icon';
+import PressableOpacity from '@/components/core/pressable-opacity';
 import type { IconName } from '@/constants/icon-map';
 import type { AppTheme, ThemeColor } from '@/constants/theme';
 import { useStyles } from '@/hooks/use-styles';
@@ -11,6 +12,7 @@ type Props = {
   slot: SlotState;
   timezone: string;
   fedBy: string;
+  onPress?: () => void;
 };
 
 const slotLabelText: Record<FeedingScheduleLabel, string> = {
@@ -34,7 +36,7 @@ const stateColour: Record<SlotState['state'], ThemeColor> = {
   upcoming: 'textSecondary'
 };
 
-const SlotRow = ({ slot, timezone, fedBy }: Props) => {
+const SlotRow = ({ slot, timezone, fedBy, onPress }: Props) => {
   const styles = useStyles(makeStyles);
 
   const detail =
@@ -42,8 +44,8 @@ const SlotRow = ({ slot, timezone, fedBy }: Props) => {
       ? `${fedBy}, ${formatTimeOfDay(slot.satisfiedAt, timezone)}`
       : { fed: 'Fed', due: 'Due now', missed: 'Missed', upcoming: 'Upcoming' }[slot.state];
 
-  return (
-    <View style={styles.row}>
+  const body = (
+    <>
       <Icon name={stateIcon[slot.state]} size={18} color={stateColour[slot.state]} />
       <AppText size={16} style={styles.label}>
         {slotLabelText[slot.label]}
@@ -54,7 +56,17 @@ const SlotRow = ({ slot, timezone, fedBy }: Props) => {
       <AppText size={14} color={stateColour[slot.state]} style={styles.detail} align="right">
         {detail}
       </AppText>
-    </View>
+    </>
+  );
+
+  // Only a fed slot has a log to open. Every other state stays inert rather
+  // than pressable-and-silent, which reads as a bug.
+  if (!onPress) return <View style={styles.row}>{body}</View>;
+
+  return (
+    <PressableOpacity style={styles.row} onPress={onPress}>
+      {body}
+    </PressableOpacity>
   );
 };
 

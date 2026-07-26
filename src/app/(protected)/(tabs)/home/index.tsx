@@ -1,3 +1,4 @@
+import FeedLogSheet from '@/components/bottom-sheets/feed-log-sheet';
 import AppText from '@/components/core/app-text';
 import ErrorState from '@/components/core/error-state';
 import ScreenView from '@/components/layout/screen-view';
@@ -13,6 +14,8 @@ import { useSlotStates } from '@/hooks/use-slot-states';
 import { useStyles } from '@/hooks/use-styles';
 import { useLogFeed } from '@/hooks/use-feed-log-mutations';
 import { todayInTimezone } from '@/lib/dates';
+import type { TrueSheet } from '@lodev09/react-native-true-sheet';
+import { useRef, useState } from 'react';
 import { ActivityIndicator, ScrollView, StyleSheet, View } from 'react-native';
 import { toast } from 'sonner-native';
 
@@ -37,6 +40,9 @@ const Home = () => {
 
   const logFeed = useLogFeed(pet?.id);
 
+  const [activeLogId, setActiveLogId] = useState<string | undefined>(undefined);
+  const detailSheetRef = useRef<TrueSheet | null>(null);
+
   return (
     <ScreenView>
       <ScrollView contentContainerStyle={styles.content}>
@@ -58,14 +64,30 @@ const Home = () => {
           <ActivityIndicator />
         ) : (
           <View style={styles.slots}>
-            {slots?.map((slot) => (
-              <SlotRow
-                key={slot.scheduleId}
-                slot={slot}
-                timezone={timezone}
-                fedBy={memberDisplayName(members, slot.satisfiedBy)}
-              />
-            ))}
+            {slots?.map((slot) => {
+              // Captured in a const rather than read inside the closure: TS
+              // cannot narrow a property access through a callback, and the
+              // alternative is an `as string` cast that would outlive the
+              // guard if it were ever removed.
+              const logId = slot.state === 'fed' ? slot.satisfyingLogId : null;
+
+              return (
+                <SlotRow
+                  key={slot.scheduleId}
+                  slot={slot}
+                  timezone={timezone}
+                  fedBy={memberDisplayName(members, slot.satisfiedBy)}
+                  onPress={
+                    logId
+                      ? () => {
+                          setActiveLogId(logId);
+                          void detailSheetRef.current?.present();
+                        }
+                      : undefined
+                  }
+                />
+              );
+            })}
           </View>
         )}
       </ScrollView>
@@ -86,6 +108,8 @@ const Home = () => {
           }
         }}
       />
+
+      <FeedLogSheet sheetRef={detailSheetRef} logId={activeLogId} petId={pet?.id} />
     </ScreenView>
   );
 };

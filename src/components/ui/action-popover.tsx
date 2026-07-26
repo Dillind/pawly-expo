@@ -1,6 +1,7 @@
 import IconButton from '@/components/core/icon-button';
 import MainButton from '@/components/core/main-button';
 import ActionPopoverItem, { type ActionPopoverAction } from '@/components/ui/action-popover-item';
+import { IconName } from '@/constants/icon-map';
 import { BottomTabInset, Radius, type AppTheme } from '@/constants/theme';
 import { useStyles } from '@/hooks/use-styles';
 import { createShadowMedium } from '@/lib/styles/shadows';
@@ -24,6 +25,7 @@ type PrimaryAction = {
   label: string;
   onPress: () => void;
   isDisabled?: boolean;
+  icon?: IconName;
 };
 
 type Props = {
@@ -84,6 +86,7 @@ const ActionPopover = ({ actions, primaryAction, accessibilityLabel = 'Create' }
               <MainButton
                 text={primaryAction.label}
                 size="sm"
+                leftIcon={primaryAction.icon}
                 isDisabled={primaryAction.isDisabled}
                 onPress={runPrimary}
               />
