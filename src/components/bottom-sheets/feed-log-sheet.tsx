@@ -280,6 +280,8 @@ function EditableLogForm({ log, timezone, isOwner, isSaving, onSave }: EditableL
               placeholder="Half a scoop, plus her tablet"
               maxLength={FEED_LOG_NOTES_MAX_LENGTH}
               height={80}
+              isMultiline
+              showCharacterCount
             />
           )}
         />
@@ -346,6 +348,8 @@ function NotesOnlyForm({ log, isSaving, onSave }: NotesOnlyFormProps) {
               placeholder="Half a scoop, plus her tablet"
               maxLength={FEED_LOG_NOTES_MAX_LENGTH}
               height={80}
+              isMultiline
+              showCharacterCount
             />
           )}
         />

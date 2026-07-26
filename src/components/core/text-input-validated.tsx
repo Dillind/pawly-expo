@@ -5,6 +5,7 @@ import PressableOpacity from '@/components/core/pressable-opacity';
 import type { AppTheme, ThemeColor } from '@/constants/theme';
 import { useStyles } from '@/hooks/use-styles';
 import { useTheme } from '@/hooks/use-theme';
+import CharacterCount from '@/lib/form/components/character-count';
 import FieldError from '@/lib/form/components/field-error';
 import React, { useCallback, useState } from 'react';
 import { useFormContext, useFormState } from 'react-hook-form';
@@ -53,6 +54,9 @@ type Props = Pick<
   height?: number;
   backgroundColor?: ThemeColor;
   showFieldError?: boolean;
+  isMultiline?: boolean;
+  /** Renders "12/500" beneath the field. Needs `maxLength` to mean anything. */
+  showCharacterCount?: boolean;
 };
 
 const TextInputValidated = React.forwardRef<TextInputRef, Props>(
@@ -87,7 +91,9 @@ const TextInputValidated = React.forwardRef<TextInputRef, Props>(
       testID,
       onSubmitEditing,
       autoFocus,
-      autoCorrect = false
+      autoCorrect = false,
+      isMultiline = false,
+      showCharacterCount = false
     },
     ref
   ) => {
@@ -124,7 +130,13 @@ const TextInputValidated = React.forwardRef<TextInputRef, Props>(
           testID={testID}
           onSubmitEditing={onSubmitEditing}
           autoFocus={autoFocus}
-          style={[styles.textInput, styles.textInputText, { color: theme.colors.text }]}
+          multiline={isMultiline}
+          style={[
+            styles.textInput,
+            styles.textInputText,
+            isMultiline && styles.textInputMultiline,
+            { color: theme.colors.text }
+          ]}
         />
       </View>
     );
@@ -144,7 +156,8 @@ const TextInputValidated = React.forwardRef<TextInputRef, Props>(
             {description}
           </AppText>
         )}
-        <View style={[styles.textInputContainer, { height }]}>
+        <View
+          style={[styles.textInputContainer, isMultiline && styles.multilineContainer, { height }]}>
           {leftIcon && leftIcon}
           {onPress ? <PressableOpacity onPress={onPress}>{input}</PressableOpacity> : input}
           {rightIcon && rightIcon}
@@ -156,6 +169,9 @@ const TextInputValidated = React.forwardRef<TextInputRef, Props>(
             </PressableOpacity>
           )}
         </View>
+        {showCharacterCount && maxLength !== undefined && (
+          <CharacterCount value={value} max={maxLength} />
+        )}
         {name && showFieldError && (
           <FieldError marginTop={8} error={errors?.[name]?.message as string} />
         )}
@@ -173,6 +189,15 @@ const makeStyles = ({ colors }: AppTheme, borderColor: ThemeColor, backgroundCol
       borderWidth: 1,
       borderColor: colors[borderColor],
       backgroundColor: colors[backgroundColor]
+    },
+    // A multiline box is sized by `height`, so the text has to start at the
+    // top of it rather than sit vertically centred like a single-line field.
+    multilineContainer: {
+      alignItems: 'flex-start'
+    },
+    textInputMultiline: {
+      paddingVertical: 12,
+      textAlignVertical: 'top'
     },
     visibilityIcon: {
       paddingRight: 12,
