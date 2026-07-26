@@ -15,13 +15,80 @@ export { dayjs };
 
 const DAY_FORMAT = 'YYYY-MM-DD';
 
+/**
+ * Every zone-aware read below goes through Intl.DateTimeFormat.formatToParts
+ * rather than dayjs's `.tz()`. This is not a style preference -- dayjs's
+ * instance `.tz()` is broken under Hermes and fails silently.
+ *
+ * The plugin derives a zone's offset by formatting the date with
+ * `toLocaleString('en-US', { timeZone })` and re-parsing the result with
+ * `new Date(...)`. Hermes produces the string correctly ("7/25/2026,
+ * 11:38:00 PM") but its Date constructor only parses ISO 8601, so the
+ * re-parse yields Invalid Date. The offset becomes NaN, and the plugin's
+ * `if (!Number(s))` guard -- true for NaN, not just 0 -- falls through to
+ * `.utcOffset(0)`. Result: every `.tz()` call returns UTC, with no error.
+ *
+ * formatToParts itself is sound on Hermes and is what the plugin's *static*
+ * `dayjs.tz(string, format, zone)` path already uses, which is why
+ * composeLoggedAt below writes the right instant while reads were all UTC.
+ */
+const zonedFormatters = new Map<string, Intl.DateTimeFormat>();
+
+function zonedFormatter(zone: string): Intl.DateTimeFormat {
+  const cached = zonedFormatters.get(zone);
+  if (cached) return cached;
+
+  const formatter = new Intl.DateTimeFormat('en-US', {
+    timeZone: zone,
+    hour12: false,
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit'
+  });
+
+  zonedFormatters.set(zone, formatter);
+
+  return formatter;
+}
+
+type ZonedParts = { year: number; month: number; day: number; hour: number; minute: number };
+
+function zonedParts(date: Date, zone: string): ZonedParts {
+  const values: Record<string, number> = {};
+
+  for (const part of zonedFormatter(zone).formatToParts(date)) {
+    if (part.type !== 'literal') values[part.type] = parseInt(part.value, 10);
+  }
+
+  return {
+    year: values.year,
+    month: values.month,
+    day: values.day,
+    // `hour12: false` renders midnight as hour 24 on some engines, never 0.
+    hour: values.hour === 24 ? 0 : values.hour,
+    minute: values.minute
+  };
+}
+
+const pad = (value: number): string => String(value).padStart(2, '0');
+
+const formatDay = ({ year, month, day }: ZonedParts): string =>
+  `${year}-${pad(month)}-${pad(day)}`;
+
 /** Today's calendar day in the household's timezone, never the device's. */
 export function todayInTimezone(zone: string): string {
-  return dayjs().tz(zone).format(DAY_FORMAT);
+  return formatDay(zonedParts(new Date(), zone));
 }
 
 export function yesterdayInTimezone(zone: string): string {
-  return dayjs().tz(zone).subtract(1, 'day').format(DAY_FORMAT);
+  const today = zonedParts(new Date(), zone);
+  // Step back a calendar day on the zone's own wall-clock date, not by
+  // subtracting 24h from the instant -- across a DST boundary those differ.
+  const previous = new Date(Date.UTC(today.year, today.month - 1, today.day - 1));
+
+  return `${previous.getUTCFullYear()}-${pad(previous.getUTCMonth() + 1)}-${pad(previous.getUTCDate())}`;
 }
 
 /**
@@ -30,17 +97,21 @@ export function yesterdayInTimezone(zone: string): string {
  * day in Activity.
  */
 export function dayInTimezone(isoTimestamp: string, zone: string): string {
-  return dayjs(isoTimestamp).tz(zone).format(DAY_FORMAT);
+  return formatDay(zonedParts(new Date(isoTimestamp), zone));
 }
 
 /** 24-hour "HH:mm", the shape the correction form edits. */
 export function timeInTimezone(isoTimestamp: string, zone: string): string {
-  return dayjs(isoTimestamp).tz(zone).format('HH:mm');
+  const { hour, minute } = zonedParts(new Date(isoTimestamp), zone);
+
+  return `${pad(hour)}:${pad(minute)}`;
 }
 
 /** Display time, e.g. "7:12 AM". */
 export function formatTimeOfDay(isoTimestamp: string, zone: string): string {
-  return dayjs(isoTimestamp).tz(zone).format('h:mm A');
+  const { hour, minute } = zonedParts(new Date(isoTimestamp), zone);
+
+  return `${hour % 12 === 0 ? 12 : hour % 12}:${pad(minute)} ${hour < 12 ? 'AM' : 'PM'}`;
 }
 
 /** A Postgres `time` column arrives as "07:00:00"; show it as "7:00 AM". */
@@ -60,6 +131,10 @@ export function formatDayHeading(day: string, zone: string): string {
  * Rebuilds a timestamp from the correction form's day choice and "HH:mm"
  * entry, resolved in the household's timezone. Backdating is capped at 24
  * hours, so "today or yesterday" covers every case the RLS policy admits.
+ *
+ * Keeps dayjs.tz -- the *static* form, given a string, which resolves the
+ * offset through formatToParts and is unaffected by the Hermes Date-parsing
+ * fault described above. Do not rewrite it to `dayjs(...).tz(zone)`.
  */
 export function composeLoggedAt(day: 'today' | 'yesterday', time: string, zone: string): string {
   const calendarDay = day === 'today' ? todayInTimezone(zone) : yesterdayInTimezone(zone);
