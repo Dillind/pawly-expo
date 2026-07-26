@@ -1,7 +1,7 @@
 import FeedLogSheet from '@/components/bottom-sheets/feed-log-sheet';
 import EmptyState from '@/components/core/empty-state';
-import ErrorState from '@/components/core/error-state';
 import MainButton from '@/components/core/main-button';
+import MainLegendList from '@/components/core/main-legend-list';
 import ActivityDayHeader from '@/components/ui/activity-day-header';
 import FeedLogRow from '@/components/ui/feed-log-row';
 import type { AppTheme } from '@/constants/theme';
@@ -13,16 +13,18 @@ import { useRefreshOnFocus } from '@/hooks/use-refresh-on-focus';
 import { useStyles } from '@/hooks/use-styles';
 import { dayInTimezone } from '@/lib/dates';
 import type { FeedLog } from '@/types/core';
-import { LegendList, type LegendListRenderItemProps } from '@legendapp/list/react-native';
+import type { LegendListRenderItemProps } from '@legendapp/list/react-native';
 import type { TrueSheet } from '@lodev09/react-native-true-sheet';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { ActivityIndicator, StyleSheet } from 'react-native';
+import { StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 type ActivityItem = { kind: 'header'; day: string } | { kind: 'log'; log: FeedLog };
 
 const Activity = () => {
+  const [activeLogId, setActiveLogId] = useState<string | undefined>(undefined);
+
   const styles = useStyles(makeStyles);
   const router = useRouter();
 
@@ -36,11 +38,7 @@ const Activity = () => {
   useRefreshOnFocus(['feed-logs', pet?.id]);
 
   const sheetRef = useRef<TrueSheet | null>(null);
-  const [activeLogId, setActiveLogId] = useState<string | undefined>(undefined);
 
-  // A sheet has no URL, so a notification routes to this screen with a param.
-  // The log is fetched directly by id rather than paged for, because a
-  // notification tapped three weeks later points at a log nowhere near page 1.
   const { logId } = useLocalSearchParams<{ logId?: string }>();
   const { data: deepLinkedLog } = useFeedLog(logId || undefined);
 
@@ -86,39 +84,27 @@ const Activity = () => {
     return result;
   }, [data, timezone]);
 
-  if (isError) {
-    return (
-      <SafeAreaView style={styles.safeArea} edges={['top']}>
-        <ErrorState
-          onRetry={() => {
-            void refetch();
-          }}
-        />
-      </SafeAreaView>
-    );
-  }
-
-  if (isLoading || !timezone) {
-    return (
-      <SafeAreaView style={styles.safeArea} edges={['top']}>
-        <ActivityIndicator style={styles.loader} />
-      </SafeAreaView>
-    );
-  }
-
   return (
     <SafeAreaView style={styles.safeArea} edges={['top']}>
-      <LegendList
+      <MainLegendList<ActivityItem>
         data={items}
+        // The Household timezone gates every row, so no timezone is still
+        // loading -- rendering the list without it would date feeds off the
+        // device clock.
+        isLoading={isLoading || !timezone}
+        isError={isError}
+        onRetry={() => {
+          void refetch();
+        }}
+        onLoadMore={() => {
+          if (hasNextPage) void fetchNextPage();
+        }}
+        isLoadingMore={isFetchingNextPage}
         keyExtractor={(item) =>
           item.kind === 'header' ? `header-${item.day}` : `log-${item.log.id}`
         }
         estimatedItemSize={72}
         contentContainerStyle={styles.listContent}
-        onEndReachedThreshold={0.5}
-        onEndReached={() => {
-          if (hasNextPage && !isFetchingNextPage) void fetchNextPage();
-        }}
         ListEmptyComponent={
           <EmptyState
             icon="utensils"
@@ -127,11 +113,10 @@ const Activity = () => {
             action={<MainButton text="Log a feed" href="/home" />}
           />
         }
-        ListFooterComponent={
-          isFetchingNextPage ? <ActivityIndicator style={styles.loader} /> : null
-        }
-        renderItem={({ item }: LegendListRenderItemProps<ActivityItem>) =>
-          item.kind === 'header' ? (
+        renderItem={({ item }: LegendListRenderItemProps<ActivityItem>) => {
+          if (!timezone) return null;
+
+          return item.kind === 'header' ? (
             <ActivityDayHeader day={item.day} petId={pet?.id} timezone={timezone} />
           ) : (
             <FeedLogRow
@@ -142,8 +127,8 @@ const Activity = () => {
                 void sheetRef.current?.present();
               }}
             />
-          )
-        }
+          );
+        }}
       />
 
       <FeedLogSheet sheetRef={sheetRef} logId={activeLogId} petId={pet?.id} />
@@ -160,9 +145,6 @@ const makeStyles = ({ colors, spacing }: AppTheme) =>
     listContent: {
       paddingHorizontal: spacing.four,
       paddingBottom: spacing.six
-    },
-    loader: {
-      marginVertical: spacing.four
     }
   });
 
