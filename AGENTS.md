@@ -88,6 +88,15 @@ src/
 
 ## Conventions
 
+### Before changing any UI
+
+Invoke both skills **before** writing UI code — not after, not to review what you already wrote:
+
+- **`/frontend-design`** — design judgement: hierarchy, spacing, states, what the screen is actually for.
+- **`/expo-native-ui`** — the SDK 57 native surface, so the answer is the platform's component rather than a hand-rolled approximation of it.
+
+This applies to any change to layout, styling, copy, navigation, screen composition, or a new component — including "small" ones. It does not apply to pure data/query/migration work with no visible surface.
+
 ### Naming & imports
 
 - **Files and folders are `kebab-case`** (`app-text.tsx`, `use-push-notifications.ts`). Do not introduce `PascalCase`/`camelCase` filenames.
@@ -165,6 +174,21 @@ const petType = useWatch({ control, name: 'petType' });
 const petType = watch('petType');
 ```
 
+#### Dates and times
+
+**Any time a user sets or corrects is entered through `DateTimePickerValidated`** (`src/components/core/date-time-picker-validated.tsx`) with `mode="time"`, which renders the native wheel (`display="spinner"`, 216pt on iOS). Never a text field, never a masked `HH:mm` input, never a custom wheel.
+
+```tsx
+<DateTimePickerValidated mode="time" label="Time fed" selectedDate={value} setSelectedDate={onChange} />
+```
+
+The component already owns the storage/display split — it stores `HH:mm` and displays `h:mm A`, so call sites never format. `mode="date"` gets the inline calendar; that pairing is deliberate and lives in one place.
+
+Two live consequences:
+
+- `feed-log-sheet.tsx` currently takes the corrected time through a `TextInputValidated` with a `numbers-and-punctuation` keyboard. That is the pattern this rule outlaws; it changes when the sheet is renamed in PAW-001.
+- Inside a sheet this stacks a modal on a native sheet, which the Sheets rule below flags as a rough edge on iOS. The picker still wins — **verify on device**, and if the presentation misbehaves, render the same `mode="time"` spinner inline within the sheet. Reverting to a text input is not the fallback.
+
 ### Icons
 
 Icons come from `lucide-react-native` (backed by `react-native-svg`), but **never import a Lucide icon directly in a screen or component.** Always go through the shared `Icon` primitive at `src/components/core/icon.tsx`, which reads from the explicit allow-list in `src/constants/icon-map.ts`:
@@ -227,7 +251,7 @@ Rules:
 - **Hooks never take a sheet ref.** A hook does the work and returns state; the call site dismisses. `useLogout()` returns `{ logout, isLoading }` and knows nothing about sheets — keep it that way.
 - **`detents`:** maximum of 3, sorted smallest to largest. Use `['auto']` for content-sized confirmations, `['auto', 0.6, 1]` (the `BaseSheet` default) for anything scrollable.
 - **Deep links reach sheets via their host screen**, because a sheet has no URL. Route to the screen with a param (`/activity?logId=…`), present from an effect once the data has loaded, then clear the param so back-navigation behaves. This is how notification taps open a specific record.
-- Prefer an **inline** picker inside a sheet over `react-native-modal-datetime-picker` — stacking a modal on top of a native sheet is a rough edge on iOS.
+- Prefer an **inline** picker inside a sheet over `react-native-modal-datetime-picker` — stacking a modal on top of a native sheet is a rough edge on iOS. This is about *presentation*, not about the control: a time input is always the `mode="time"` spinner (see Dates and times above), inline if the modal misbehaves.
 
 ### Popovers (not sheets)
 
