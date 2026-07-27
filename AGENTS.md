@@ -153,6 +153,12 @@ Expo Router (file-based). Auth is enforced with `Stack.Protected` guards in `src
   export default useForgotPasswordStore;
   ```
 
+### Writing a feed log
+
+**A feed log is created only through the `log_feed` RPC** — never `supabase.from('feed_logs').insert(...)`. The Double Feed check and the insert happen in one transaction, so a check issued as its own round trip could tell two members at once that there is no double feed and let both of them write. The RPC also takes a per-pet advisory lock, because sharing a transaction alone does not serialise them — two concurrent callers would otherwise each derive their answer from a snapshot taken before the other's insert.
+
+`log_feed` returns either `{ status: 'logged' }` or `{ status: 'double_feed' }`, and in the second case **nothing was written** — calling again with `confirmed: true` writes unconditionally. Corrections and deletes still go through the table under the narrow column grants; only creation moved.
+
 ### Theming
 
 `useTheme()` returns `{ colors, isDark, spacing }`. For StyleSheets, define a module-level `makeStyles` factory and call `useStyles(makeStyles)` inside the component. See [docs/THEMING.md](./docs/THEMING.md).

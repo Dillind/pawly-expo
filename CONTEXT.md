@@ -70,5 +70,5 @@ The immediate push to all household members when a member logs a feed ("[Person]
 The push to all household members when a Missed Feed is detected server-side.
 
 **Double Feed**:
-Two feeds for effectively the same slot (the pet fed twice). The app warns at log time if a recent feed already covers the slot.
+A feed logged at a time falling inside at least one Grace Window, where recording it does not increase the number of Satisfying Feeds that day — two feeds for effectively the same slot. A feed outside every Grace Window is never a Double Feed: it is a snack, and a valid recorded feed that simply belongs to no slot. The app warns at log time and the member decides whether to record it anyway.
 _Avoid_: Duplicate feed, over-feed.
