@@ -53,7 +53,7 @@ type SavePatch = { loggedAt?: string; notes?: string | null };
 
 const dayOptions = ['today', 'yesterday'] as const;
 
-const FeedLogSheet = ({ sheetRef, logId, petId }: Props) => {
+const FeedLogDetailSheet = ({ sheetRef, logId, petId }: Props) => {
   const styles = useStyles(makeStyles);
   const { userId } = useAuthStore();
   const { data: household } = useHousehold();
@@ -390,4 +390,4 @@ const makeStyles = ({ colors, spacing }: AppTheme) =>
     }
   });
 
-export default FeedLogSheet;
+export default FeedLogDetailSheet;
