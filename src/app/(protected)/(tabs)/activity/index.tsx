@@ -1,4 +1,4 @@
-import FeedLogSheet from '@/components/bottom-sheets/feed-log-sheet';
+import FeedLogDetailSheet from '@/components/bottom-sheets/feed-log-detail-sheet';
 import EmptyState from '@/components/core/empty-state';
 import MainButton from '@/components/core/main-button';
 import MainLegendList from '@/components/core/main-legend-list';
@@ -143,8 +143,8 @@ const Activity = () => {
           icon: 'utensils',
           isDisabled: !pet?.id || logFeed.isPending,
           onPress: () => {
-            // Writes directly rather than presenting FeedLogSheet: that sheet
-            // reads an existing log by id and has no create mode.
+            // Writes directly rather than presenting FeedLogDetailSheet: that
+            // sheet reads an existing log by id and has no create mode.
             logFeed.mutate(
               {},
               {
@@ -156,7 +156,7 @@ const Activity = () => {
         }}
       />
 
-      <FeedLogSheet sheetRef={sheetRef} logId={activeLogId} petId={pet?.id} />
+      <FeedLogDetailSheet sheetRef={sheetRef} logId={activeLogId} petId={pet?.id} />
     </ScreenView>
   );
 };

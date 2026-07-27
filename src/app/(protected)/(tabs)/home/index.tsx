@@ -1,4 +1,4 @@
-import FeedLogSheet from '@/components/bottom-sheets/feed-log-sheet';
+import FeedLogDetailSheet from '@/components/bottom-sheets/feed-log-detail-sheet';
 import AppText from '@/components/core/app-text';
 import ErrorState from '@/components/core/error-state';
 import ScreenView from '@/components/layout/screen-view';
@@ -109,7 +109,7 @@ const Home = () => {
         }}
       />
 
-      <FeedLogSheet sheetRef={detailSheetRef} logId={activeLogId} petId={pet?.id} />
+      <FeedLogDetailSheet sheetRef={detailSheetRef} logId={activeLogId} petId={pet?.id} />
     </ScreenView>
   );
 };
