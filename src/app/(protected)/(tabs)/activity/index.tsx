@@ -1,4 +1,5 @@
 import FeedLogDetailSheet from '@/components/bottom-sheets/feed-log-detail-sheet';
+import LogFeedSheet from '@/components/bottom-sheets/log-feed-sheet';
 import EmptyState from '@/components/core/empty-state';
 import MainButton from '@/components/core/main-button';
 import MainLegendList from '@/components/core/main-legend-list';
@@ -9,7 +10,6 @@ import { CREATE_ACTIONS } from '@/components/ui/create-actions';
 import FeedLogRow from '@/components/ui/feed-log-row';
 import type { AppTheme } from '@/constants/theme';
 import { useFeedLog } from '@/hooks/use-feed-log';
-import { useLogFeed } from '@/hooks/use-feed-log-mutations';
 import { useFeedLogs } from '@/hooks/use-feed-logs';
 import { useHousehold } from '@/hooks/use-household';
 import { usePet } from '@/hooks/use-pet';
@@ -22,7 +22,6 @@ import type { TrueSheet } from '@lodev09/react-native-true-sheet';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { StyleSheet } from 'react-native';
-import { toast } from 'sonner-native';
 
 type ActivityItem = { kind: 'header'; day: string } | { kind: 'log'; log: FeedLog };
 
@@ -43,8 +42,7 @@ const Activity = () => {
   useRefreshOnFocus(['feed-logs', pet?.id]);
 
   const sheetRef = useRef<TrueSheet | null>(null);
-
-  const logFeed = useLogFeed(pet?.id);
+  const logSheetRef = useRef<TrueSheet | null>(null);
 
   const { data: deepLinkedLog } = useFeedLog(logId || undefined);
 
@@ -141,20 +139,14 @@ const Activity = () => {
         primaryAction={{
           label: 'Log a feed',
           icon: 'utensils',
-          isDisabled: !pet?.id || logFeed.isPending,
+          isDisabled: !pet?.id,
           onPress: () => {
-            // Writes directly rather than presenting FeedLogDetailSheet: that
-            // sheet reads an existing log by id and has no create mode.
-            logFeed.mutate(
-              {},
-              {
-                onSuccess: () => toast.success('Feed logged'),
-                onError: () => toast.error('Could not log that feed. Try again.')
-              }
-            );
+            void logSheetRef.current?.present();
           }
         }}
       />
+
+      <LogFeedSheet sheetRef={logSheetRef} />
 
       <FeedLogDetailSheet sheetRef={sheetRef} logId={activeLogId} petId={pet?.id} />
     </ScreenView>
