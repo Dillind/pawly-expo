@@ -190,9 +190,8 @@ const petType = watch('petType');
 
 The component already owns the storage/display split — it stores `HH:mm` and displays `h:mm A`, so call sites never format. `mode="date"` gets the inline calendar; that pairing is deliberate and lives in one place.
 
-Two live consequences:
+One live consequence:
 
-- `feed-log-sheet.tsx` currently takes the corrected time through a `TextInputValidated` with a `numbers-and-punctuation` keyboard. That is the pattern this rule outlaws; it changes when the sheet is renamed in PAW-001.
 - Inside a sheet this stacks a modal on a native sheet, which the Sheets rule below flags as a rough edge on iOS. The picker still wins — **verify on device**, and if the presentation misbehaves, render the same `mode="time"` spinner inline within the sheet. Reverting to a text input is not the fallback.
 
 ### Icons
