@@ -10,6 +10,14 @@
 -- before its own insert can tell both of them "no double feed" and let both of
 -- them write.
 --
+-- SUPERSEDED, comment-only correction: sharing one transaction is necessary but
+-- NOT sufficient. Under READ COMMITTED two concurrent callers each derive their
+-- answer from a snapshot taken before the other's insert, so both still return
+-- `logged`. 20260726090200 adds a per-pet advisory lock to actually serialise
+-- them and is the version now live -- read that file, not this one, for the
+-- current behaviour. Left in place rather than rewritten because this migration
+-- has already been applied.
+--
 -- security invoker, so RLS remains the real gate. The feed_logs INSERT policy,
 -- including the Contributor backdating floor and the Owner exemption, applies
 -- unchanged, and a caller who is not a member of the pet's household cannot
