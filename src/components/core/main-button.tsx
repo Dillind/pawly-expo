@@ -28,8 +28,12 @@ type MainButtonProps = {
   isDisabled?: boolean;
   variant?: 'primary' | 'secondary' | 'text';
   size?: 'sm' | 'md' | 'lg' | 'xs';
-  leftIcon?: React.ReactNode;
-  rightIcon?: React.ReactNode;
+  // ReactElement, not ReactNode: ReactNode admits a bare string, so passing an
+  // IconName here type-checked and then crashed at render with "Text strings
+  // must be rendered within a <Text> component" -- the icon is wrapped in a
+  // View, and a raw string cannot live there.
+  leftIcon?: React.ReactElement;
+  rightIcon?: React.ReactElement;
   hapticFeedback?: boolean;
 };
 
@@ -80,7 +84,6 @@ const MainButton: FunctionComponent<MainButtonProps> = ({
   };
 
   const { paddingVertical, paddingHorizontal, borderRadius, fontSize } = sizeStyles[size];
-  const hasIcons = Boolean(leftIcon) || Boolean(rightIcon);
 
   return (
     <AnimatedPressable
@@ -104,7 +107,7 @@ const MainButton: FunctionComponent<MainButtonProps> = ({
             style={styles.icon}
           />
         ) : (
-          hasIcons && leftIcon && <View style={styles.icon}>{leftIcon}</View>
+          leftIcon && <View style={styles.icon}>{leftIcon}</View>
         )}
         <Text
           style={[styles.label, styles[`${variant}Label` as keyof typeof styles], { fontSize }]}>
