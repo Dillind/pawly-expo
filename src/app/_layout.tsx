@@ -8,6 +8,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { Toaster } from 'sonner-native';
 
 import { useAuthSession } from '@/hooks/use-auth-session';
+import { usePushNotifications } from '@/hooks/use-push-notifications';
 import { useUserProfile } from '@/hooks/use-user-profile';
 import { useAuthStore } from '@/stores/auth-store';
 import { isWeb } from '@/utils/platform';
@@ -19,6 +20,7 @@ if (__DEV__) require('../../ReactotronConfig');
 const AuthGate = () => {
   useAuthSession();
   useUserProfile();
+  usePushNotifications();
   const { status } = useAuthStore();
 
   if (status === 'loading') return null;

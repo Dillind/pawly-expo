@@ -1,125 +1,81 @@
-import { isAndroid, isIOS } from '@/utils/platform';
-import Constants from 'expo-constants';
-import { EventSubscription } from 'expo-modules-core';
 import * as Notifications from 'expo-notifications';
 import { RelativePathString, useRouter } from 'expo-router';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useEffect, useRef } from 'react';
+import { AppState, type AppStateStatus } from 'react-native';
 
+import { useHousehold } from '@/hooks/use-household';
+import PushTokenService from '@/services/push-token.service';
+import { useAuthStore } from '@/stores/auth-store';
+
+// shouldShowAlert is deprecated in SDK 57, and setting it alongside
+// shouldShowBanner: false / shouldShowList: false is why a foregrounded
+// notification previously displayed NOTHING.
+//
+// Badges stay off in this pass: a badge count implies an inbox to clear, and
+// there isn't one yet.
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
-    shouldPlaySound: false,
-    shouldSetBadge: false,
-    shouldShowAlert: true,
-    shouldShowList: false,
-    shouldShowBanner: false
+    shouldShowBanner: true,
+    shouldShowList: true,
+    shouldPlaySound: true,
+    shouldSetBadge: false
   })
 });
 
-interface PushNotificationState {
-  expoPushToken?: Notifications.ExpoPushToken;
-  notification?: Notifications.Notification;
-}
-
-export const usePushNotifications = (): PushNotificationState => {
-  const [expoPushToken, setExpoPushToken] = useState<Notifications.ExpoPushToken | undefined>(
-    undefined
-  );
-  const [notification, setNotification] = useState<Notifications.Notification | undefined>(
-    undefined
-  );
-
+/**
+ * Mounted once, inside AuthGate in src/app/_layout.tsx -- the one place where
+ * a userId exists and the router is already mounted.
+ */
+export const usePushNotifications = () => {
   const router = useRouter();
+  const { status, userId } = useAuthStore();
+  const { data: household } = useHousehold();
 
-  const notificationListener = useRef<EventSubscription | undefined>(undefined);
-  const responseListener = useRef<EventSubscription | undefined>(undefined);
-  const isNavigatingRef = useRef(false);
+  const handledResponseId = useRef<string | null>(null);
 
-  async function registerForPushNotificationsAsync() {
-    let token;
-
-    if (isAndroid) {
-      await Notifications.setNotificationChannelAsync('default', {
-        name: 'default',
-        importance: Notifications.AndroidImportance.MAX,
-        vibrationPattern: [0, 250, 250, 250],
-        lightColor: '#FF231F7C'
-      });
-    }
-
-    if (isIOS) {
-      const { status: existingStatus } = await Notifications.getPermissionsAsync();
-
-      let finalStatus = existingStatus;
-
-      if (existingStatus !== 'granted') {
-        const { status } = await Notifications.requestPermissionsAsync();
-        finalStatus = status;
-      }
-
-      if (finalStatus !== 'granted') {
-        return;
-      }
-
-      try {
-        token = await Notifications.getExpoPushTokenAsync({
-          projectId: Constants.expoConfig?.extra?.eas?.projectId
-        });
-      } catch (error) {
-        console.error('Error getting push token:', error);
-        return;
-      }
-    }
-
-    return token;
-  }
-
-  const handleNotificationResponse = useCallback(
-    async (response: Notifications.NotificationResponse) => {
-      if (isNavigatingRef.current) return;
-
-      const data = response.notification.request.content.data;
-
-      if (!data?.screen) return;
-
-      isNavigatingRef.current = true;
-
-      try {
-        router.push({
-          pathname: data.screen as RelativePathString,
-          params: data.params as Record<string, string>
-        });
-      } catch (error) {
-        console.error('Error handling notification tap:', error);
-      } finally {
-        setTimeout(() => {
-          isNavigatingRef.current = false;
-        }, 1000);
-      }
-    },
-    [router]
-  );
+  // addNotificationResponseReceivedListener alone is NOT reliable for a tap
+  // that launches the app from terminated -- the listener attaches after the
+  // response has already been delivered. useLastNotificationResponse replays
+  // it. Deduplicating on the request identifier is what makes replay safe, and
+  // it removes the old isNavigatingRef setTimeout(..., 1000) hack.
+  const lastResponse = Notifications.useLastNotificationResponse();
 
   useEffect(() => {
-    registerForPushNotificationsAsync().then((token) => {
-      setExpoPushToken(token);
-    });
+    if (status !== 'signedIn' || !userId) return;
 
-    notificationListener.current = Notifications.addNotificationReceivedListener((notification) => {
-      setNotification(notification);
-    });
-
-    responseListener.current = Notifications.addNotificationResponseReceivedListener(
-      handleNotificationResponse
-    );
-
-    return () => {
-      notificationListener.current?.remove();
-      responseListener.current?.remove();
+    const attempt = () => {
+      void PushTokenService.register(userId).catch(() => {
+        // Non-fatal. A user without a token simply receives nothing; the app
+        // is fully usable, and the next foreground tries again.
+      });
     };
-  }, [handleNotificationResponse]);
 
-  return {
-    expoPushToken,
-    notification
-  };
+    attempt();
+
+    const subscription = AppState.addEventListener('change', (next: AppStateStatus) => {
+      if (next === 'active') attempt();
+    });
+
+    return () => subscription.remove();
+  }, [status, userId]);
+
+  useEffect(() => {
+    if (!lastResponse) return;
+
+    // A cold-start tap must not try to push /activity at the auth stack, and
+    // must not race the household query the destination screen depends on.
+    if (status !== 'signedIn' || !household) return;
+
+    const identifier = lastResponse.notification.request.identifier;
+    if (handledResponseId.current === identifier) return;
+    handledResponseId.current = identifier;
+
+    const data = lastResponse.notification.request.content.data;
+    if (!data?.screen) return;
+
+    router.push({
+      pathname: data.screen as RelativePathString,
+      params: data.params as Record<string, string>
+    });
+  }, [lastResponse, status, household, router]);
 };
