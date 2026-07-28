@@ -18,9 +18,14 @@ const FeedLogRow = ({ log, timezone, onPress }: Props) => {
   const styles = useStyles(makeStyles);
 
   const authorName = formatAuthorName(log.author);
+  const timeOfDay = formatTimeOfDay(log.loggedAt, timezone);
 
   return (
-    <PressableOpacity style={styles.row} onPress={onPress}>
+    <PressableOpacity
+      style={styles.row}
+      onPress={onPress}
+      accessibilityRole="button"
+      accessibilityLabel={`Edit feed logged by ${authorName} at ${timeOfDay}`}>
       <Icon name="utensils" size={18} color="primary" />
       <View style={styles.body}>
         <AppText size={16}>{authorName}</AppText>
@@ -30,9 +35,17 @@ const FeedLogRow = ({ log, timezone, onPress }: Props) => {
           </AppText>
         )}
       </View>
-      <AppText size={14} color="textSecondary">
-        {formatTimeOfDay(log.loggedAt, timezone)}
-      </AppText>
+      {/* Time and pencil are one trailing cluster at a tighter gap than the row's
+          own: at the row gap the pencil reads as a fourth free-floating item
+          rather than an affordance attached to this log. The pencil is
+          decorative -- the row is the tap target, so tapping the pencil opens
+          the sheet without a second 44pt target nested inside the first. */}
+      <View style={styles.trailing}>
+        <AppText size={14} color="textSecondary">
+          {timeOfDay}
+        </AppText>
+        <Icon name="pencil" size={16} color="textSecondary" />
+      </View>
     </PressableOpacity>
   );
 };
@@ -51,6 +64,11 @@ const makeStyles = ({ colors, spacing }: AppTheme) =>
     body: {
       flex: 1,
       gap: spacing.one
+    },
+    trailing: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: spacing.two
     }
   });
 

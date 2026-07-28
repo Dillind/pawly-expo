@@ -1,5 +1,5 @@
 import { supabase } from '@/lib/supabase/client';
-import { useAuthStore } from '@/stores/auth-store';
+import type { FeedingScheduleLabel } from '@/types/core';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useCallback } from 'react';
 
@@ -17,36 +17,80 @@ function useInvalidateFeedData(petId: string | undefined) {
   }, [queryClient, petId]);
 }
 
+export type LogFeedResult =
+  | { status: 'logged'; logId: string }
+  | {
+      status: 'double_feed';
+      slot: { label: FeedingScheduleLabel; scheduledTime: string };
+      existing: { id: string; loggedAt: string; loggedBy: string | null };
+    };
+
 /**
- * Writes are deliberately NOT optimistic. RLS can genuinely reject an insert,
+ * The RPC returns jsonb, which supabase-js hands back as `any`. Mapped here
+ * rather than cast at the call site so exactly one place knows the wire shape,
+ * and an unrecognised status fails loudly instead of rendering an empty
+ * warning.
+ */
+function mapLogFeedResult(data: unknown): LogFeedResult {
+  const payload = data as {
+    status?: string;
+    log_id?: string;
+    slot?: { label: FeedingScheduleLabel; scheduled_time: string };
+    existing?: { id: string; logged_at: string; logged_by: string | null };
+  };
+
+  if (payload.status === 'logged' && payload.log_id) {
+    return { status: 'logged', logId: payload.log_id };
+  }
+
+  if (payload.status === 'double_feed' && payload.slot && payload.existing) {
+    return {
+      status: 'double_feed',
+      slot: { label: payload.slot.label, scheduledTime: payload.slot.scheduled_time },
+      existing: {
+        id: payload.existing.id,
+        loggedAt: payload.existing.logged_at,
+        loggedBy: payload.existing.logged_by
+      }
+    };
+  }
+
+  throw new Error('Unrecognised log_feed response');
+}
+
+/**
+ * The only write path for a feed log. `log_feed` decides and inserts in one
+ * transaction, so two members logging the same slot at the same moment cannot
+ * both be told there is no double feed -- see the migration for why
+ * check-then-insert as two round trips was rejected.
+ *
+ * Writes are deliberately NOT optimistic. RLS can genuinely reject the insert,
  * and an optimistic row that silently rolls back is exactly the "the app said
  * the pet was fed when it wasn't" failure the product brief calls
- * trust-collapsing. The toast fires on success.
+ * trust-collapsing.
  *
- * The insert payload names only pet_id, logged_by and logged_at -- the
- * client's INSERT grant is narrowed to (pet_id, logged_by, logged_at, notes)
- * and cannot include id or created_at at all, even as undefined keys, so the
- * server-generated id is read back via .select() rather than supplied.
+ * A `double_feed` result means nothing was written. Calling again with
+ * `confirmed: true` writes unconditionally.
  */
 export function useLogFeed(petId: string | undefined) {
   const invalidate = useInvalidateFeedData(petId);
-  const { userId } = useAuthStore();
 
   return useMutation({
-    mutationFn: async (input: { loggedAt?: string }): Promise<string> => {
-      const { data, error } = await supabase
-        .from('feed_logs')
-        .insert({
-          pet_id: petId,
-          logged_by: userId,
-          logged_at: input.loggedAt ?? new Date().toISOString()
-        })
-        .select('id')
-        .single();
+    mutationFn: async (input: {
+      loggedAt?: string;
+      notes?: string | null;
+      confirmed?: boolean;
+    }): Promise<LogFeedResult> => {
+      const { data, error } = await supabase.rpc('log_feed', {
+        target_pet_id: petId,
+        target_logged_at: input.loggedAt ?? new Date().toISOString(),
+        target_notes: input.notes ?? null,
+        confirmed: input.confirmed ?? false
+      });
 
       if (error) throw error;
 
-      return data.id as string;
+      return mapLogFeedResult(data);
     },
     onSettled: invalidate
   });

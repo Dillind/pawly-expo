@@ -13,8 +13,8 @@ const notesField = z.string().max(FEED_LOG_NOTES_MAX_LENGTH, {
 
 /**
  * The correction form for a log made today or yesterday (household
- * timezone) -- see feed-log-sheet.tsx for why older logs never reach this
- * schema at all.
+ * timezone) -- see feed-log-detail-sheet.tsx for why older logs never
+ * reach this schema at all.
  *
  * Built per-caller from role and timezone rather than exported as a static
  * object, because the feed_logs RLS floor is role-dependent (design doc,
@@ -58,9 +58,10 @@ export type FeedLogFormValues = z.infer<ReturnType<typeof feedLogSchema>>;
 
 /**
  * The correction form for a log older than yesterday: the Today/Yesterday
- * control cannot represent its date, so feed-log-sheet.tsx renders that date
- * as read-only text and offers notes editing only. No day/time fields here
- * at all -- there is nothing for this schema to validate them against.
+ * control cannot represent its date, so feed-log-detail-sheet.tsx renders
+ * that date as read-only text and offers notes editing only. No day/time
+ * fields here at all -- there is nothing for this schema to validate them
+ * against.
  */
 export const feedLogNotesOnlySchema = z.object({ notes: notesField });
 

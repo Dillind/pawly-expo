@@ -1,4 +1,5 @@
-import FeedLogSheet from '@/components/bottom-sheets/feed-log-sheet';
+import FeedLogDetailSheet from '@/components/bottom-sheets/feed-log-detail-sheet';
+import LogFeedSheet from '@/components/bottom-sheets/log-feed-sheet';
 import AppText from '@/components/core/app-text';
 import ErrorState from '@/components/core/error-state';
 import ScreenView from '@/components/layout/screen-view';
@@ -12,12 +13,10 @@ import { usePet } from '@/hooks/use-pet';
 import { useRefreshOnFocus } from '@/hooks/use-refresh-on-focus';
 import { useSlotStates } from '@/hooks/use-slot-states';
 import { useStyles } from '@/hooks/use-styles';
-import { useLogFeed } from '@/hooks/use-feed-log-mutations';
 import { todayInTimezone } from '@/lib/dates';
 import type { TrueSheet } from '@lodev09/react-native-true-sheet';
 import { useRef, useState } from 'react';
 import { ActivityIndicator, ScrollView, StyleSheet, View } from 'react-native';
-import { toast } from 'sonner-native';
 
 const Home = () => {
   const styles = useStyles(makeStyles);
@@ -38,10 +37,9 @@ const Home = () => {
 
   useRefreshOnFocus(['slot-states', pet?.id]);
 
-  const logFeed = useLogFeed(pet?.id);
-
   const [activeLogId, setActiveLogId] = useState<string | undefined>(undefined);
   const detailSheetRef = useRef<TrueSheet | null>(null);
+  const logSheetRef = useRef<TrueSheet | null>(null);
 
   return (
     <ScreenView>
@@ -96,20 +94,16 @@ const Home = () => {
         actions={CREATE_ACTIONS}
         primaryAction={{
           label: 'Log a feed',
-          isDisabled: !pet?.id || logFeed.isPending,
+          isDisabled: !pet?.id,
           onPress: () => {
-            logFeed.mutate(
-              {},
-              {
-                onSuccess: () => toast.success(`Logged a feed for ${pet?.name ?? 'your pet'}`),
-                onError: () => toast.error('Could not log that feed. Try again.')
-              }
-            );
+            void logSheetRef.current?.present();
           }
         }}
       />
 
-      <FeedLogSheet sheetRef={detailSheetRef} logId={activeLogId} petId={pet?.id} />
+      <LogFeedSheet sheetRef={logSheetRef} />
+
+      <FeedLogDetailSheet sheetRef={detailSheetRef} logId={activeLogId} petId={pet?.id} />
     </ScreenView>
   );
 };

@@ -23,6 +23,7 @@
     "errcode",
     "frontmatter",
     "gorhom",
+    "hashtextextended",
     "legendapp",
     "lockfiles",
     "lodev",
@@ -51,7 +52,8 @@
     "svgs",
     "tablename",
     "timestamptz",
-    "worklets"
+    "worklets",
+    "xact"
   ],
   "ignoreRegExpList": [
     "/Author.+/",

@@ -10,6 +10,7 @@ import {
   Eye,
   EyeOff,
   PawPrint,
+  Pencil,
   Plus,
   UserPlus,
   Utensils,
@@ -29,6 +30,7 @@ export const iconMap = {
   circleAlert: CircleAlert,
   plus: Plus,
   utensils: Utensils,
+  pencil: Pencil,
   userPlus: UserPlus,
   pawPrint: PawPrint,
   close: X

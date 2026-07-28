@@ -1,3 +1,4 @@
+import Icon from '@/components/core/icon';
 import IconButton from '@/components/core/icon-button';
 import MainButton from '@/components/core/main-button';
 import ActionPopoverItem, { type ActionPopoverAction } from '@/components/ui/action-popover-item';
@@ -86,7 +87,11 @@ const ActionPopover = ({ actions, primaryAction, accessibilityLabel = 'Create' }
               <MainButton
                 text={primaryAction.label}
                 size="sm"
-                leftIcon={primaryAction.icon}
+                leftIcon={
+                  primaryAction.icon ? (
+                    <Icon name={primaryAction.icon} color="onPrimary" />
+                  ) : undefined
+                }
                 isDisabled={primaryAction.isDisabled}
                 onPress={runPrimary}
               />
