@@ -94,6 +94,7 @@ const Home = () => {
         actions={CREATE_ACTIONS}
         primaryAction={{
           label: 'Log a feed',
+          icon: 'utensils',
           isDisabled: !pet?.id,
           onPress: () => {
             void logSheetRef.current?.present();

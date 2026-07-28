@@ -5,7 +5,11 @@ export default function ProfileLayout() {
   return (
     <>
       <StatusBar style="dark" />
-      <Stack screenOptions={{ headerShown: false }} />
+      <Stack
+        screenOptions={{
+          headerTitle: 'Profile'
+        }}
+      />
     </>
   );
 }
