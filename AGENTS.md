@@ -274,7 +274,13 @@ Use `isIOS` / `isAndroid` / `isWeb` from `@/utils/platform`. Use the haptics hel
 
 ### Notifications
 
-Push handling lives in `use-push-notifications`. Two alert types (feed-logged, missed-feed) — see TECH_STACK and [ADR 0002](./docs/adr/0002-missed-feed-alert-engine.md).
+Push handling lives in `use-push-notifications`, mounted once inside `AuthGate` in `src/app/_layout.tsx`. Two alert types (feed-logged, missed-feed) — see TECH_STACK, [ADR 0002](./docs/adr/0002-missed-feed-alert-engine.md) and [ADR 0012](./docs/adr/0012-recipient-controlled-alert-delivery-and-the-outbox.md).
+
+**The only write path for a feed log is the `log_feed` RPC — never a table insert.** That was already true for the Double Feed guard; it now also decides whether anyone finds out. An after-insert trigger on `feed_logs` queues the `alerts` row, so a path that bypasses `log_feed` does not merely skip the guard, it silently sends no notification.
+
+**Delivery is the recipient's decision, never the sender's.** There is no per-log "notify?" control and there must not be one — see ADR 0012. A feed logged more than 30 minutes after it happened is recorded as a Suppressed Alert and not pushed, automatically.
+
+**Sending is an outbox, not a direct call.** `feed_logs` → trigger → `alerts` → trigger → `pg_net` → the `send-alerts` Edge Function, which resolves recipients at send time. Anything that needs to notify a household inserts an `alerts` row; it does not call the Edge Function.
 
 ### Localisation
 
