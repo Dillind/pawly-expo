@@ -5,10 +5,10 @@ import PressableOpacity from '@/components/core/pressable-opacity';
 import SegmentedControl from '@/components/core/segmented-control';
 import ScreenView from '@/components/layout/screen-view';
 import type { AppTheme } from '@/constants/theme';
-import type { ThemePreference } from '@/types/core';
 import { useLogout } from '@/hooks/use-logout';
 import { useStyles } from '@/hooks/use-styles';
 import { useThemeStore } from '@/stores/theme-store';
+import type { ThemePreference } from '@/types/core';
 import { useRouter } from 'expo-router';
 import { ScrollView, StyleSheet, View } from 'react-native';
 

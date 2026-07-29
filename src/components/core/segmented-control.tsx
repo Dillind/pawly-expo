@@ -19,12 +19,7 @@ type Props<T extends string> = {
   onChange: (value: T) => void;
 };
 
-const SegmentedControl = <T extends string>({
-  label,
-  options,
-  value,
-  onChange
-}: Props<T>) => {
+const SegmentedControl = <T extends string>({ label, options, value, onChange }: Props<T>) => {
   const styles = useStyles(makeStyles);
 
   const handlePress = (option: Option<T>) => {
