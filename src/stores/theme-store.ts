@@ -37,7 +37,7 @@ export const useThemeStore = create<State & Action>((set) => ({
     }
   },
   // First paint waits on this, so a storage failure must still mark hydration
-  // done or the app is gated forever on a value that is not a secret.
+  // done or the app never renders at all.
   hydrate: async () => {
     try {
       const stored = await AsyncStorage.getItem(STORAGE_KEY);

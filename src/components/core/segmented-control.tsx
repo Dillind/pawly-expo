@@ -13,8 +13,6 @@ type Option<T> = {
 };
 
 type Props<T extends string> = {
-  marginTop?: number;
-  marginBottom?: number;
   label?: string;
   options: Option<T>[];
   value: T;
@@ -22,8 +20,6 @@ type Props<T extends string> = {
 };
 
 const SegmentedControl = <T extends string>({
-  marginTop,
-  marginBottom,
   label,
   options,
   value,
@@ -39,7 +35,7 @@ const SegmentedControl = <T extends string>({
   };
 
   return (
-    <View style={[styles.container, { marginTop, marginBottom }]}>
+    <View style={styles.container}>
       {label ? (
         <AppText size={14} fontWeight="bold">
           {label}
