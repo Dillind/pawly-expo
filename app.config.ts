@@ -63,14 +63,16 @@ const getConfig = ({ config }: ConfigContext): ExpoConfig => {
       [
         'expo-font',
         {
+          // The package is scoped -- '@expo-google-fonts/inter'. Without the
+          // leading @ these resolve to nothing and prebuild fails outright.
+          // Order matches InterFontFamily in src/constants/theme.ts.
           fonts: [
-            'node_modules/expo-google-fonts/inter/700Bold/Inter_700Bold.ttf',
-            'node_modules/expo-google-fonts/inter/400Regular/Inter_400Regular.ttf',
-            'node_modules/expo-google-fonts/inter/500Medium/Inter_500Medium.ttf',
-            'node_modules/expo-google-fonts/inter/600SemiBold/Inter_600SemiBold.ttf',
-            'node_modules/expo-google-fonts/inter/700Bold/Inter_700Bold.ttf',
-            'node_modules/expo-google-fonts/inter/800ExtraBold/Inter_800ExtraBold.ttf',
-            'node_modules/expo-google-fonts/inter/900Black/Inter_900Black.ttf'
+            'node_modules/@expo-google-fonts/inter/400Regular/Inter_400Regular.ttf',
+            'node_modules/@expo-google-fonts/inter/500Medium/Inter_500Medium.ttf',
+            'node_modules/@expo-google-fonts/inter/600SemiBold/Inter_600SemiBold.ttf',
+            'node_modules/@expo-google-fonts/inter/700Bold/Inter_700Bold.ttf',
+            'node_modules/@expo-google-fonts/inter/800ExtraBold/Inter_800ExtraBold.ttf',
+            'node_modules/@expo-google-fonts/inter/900Black/Inter_900Black.ttf'
           ]
         }
       ],

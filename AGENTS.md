@@ -38,15 +38,21 @@ Every feature or non-trivial change gets a branch, named **before** work starts 
 straight to `main`:
 
 ```
-<type>/PAW-<nnn>-<kebab-case-slug>     e.g. feat/PAW-001-feed-logging
+<type>/CRU-<nnn>-<kebab-case-slug>     e.g. feat/CRU-004-home-missed-feeds
 ```
 
 `<type>` is the commit-type vocabulary (`feat`, `fix`, `chore`, `docs`, `refactor`); the ticket ID
 is uppercase and zero-padded to three digits. Git refnames forbid spaces and `[`, so brackets never
-appear in a branch name — only in the PR title (`[PAW-001] Add feed logging`).
+appear in a branch name — only in the PR title (`[CRU-004] Show missed feeds on Home`).
+
+The prefix was `PAW-` through `PAW-003`, when the app was called Pawly. `CRU-` picks up at 004 —
+**the numbering is continuous, only the prefix changed**, so there is exactly one ticket 004.
+Existing `PAW-` branches, commits and PR titles are history; never retroactively renumber them, and
+a PR for a `PAW-` branch keeps its `PAW-` title.
 
 IDs come from git history, not an external tracker: `git fetch --all --prune`, then take the highest
-existing `PAW-nnn` and add one. Full command and PR conventions live in the `create-pr` skill.
+existing `PAW-nnn` **or** `CRU-nnn` and add one — matching only `CRU-` would restart at 001. Full
+command and PR conventions live in the `create-pr` skill.
 
 ## Toolchain
 
