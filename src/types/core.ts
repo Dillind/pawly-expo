@@ -62,6 +62,8 @@ export type HouseholdMember = {
   role: HouseholdRole;
   firstName: string | null;
   lastName: string | null;
+  /** Whether this member has opted in to being told when a feed is logged. */
+  feedLoggedAlerts: boolean;
 };
 
 export type SlotStateValue = 'fed' | 'due' | 'missed' | 'upcoming';
