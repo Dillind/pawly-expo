@@ -2,6 +2,37 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
+## Status — 2026-07-29
+
+**The checkboxes below were never maintained; they are all unticked and none of them
+mean anything. Read this block instead.**
+
+- **Tasks 1–13: done and committed.** The server chain is verified against the live
+  database by SQL assertion: `log_feed` → `feed_logs` → queue trigger → `alerts` →
+  dispatch trigger → `pg_net`. The UI (Tasks 10–12) is written and passes
+  typecheck/lint/spellcheck but **has never run on a device**.
+- **Task 14 (end-to-end verification): not started, and it is the only thing left.**
+
+Remaining blockers, all needing a human:
+
+1. ~~`eas init`~~ — **done.** Project `3bd7aa83-b1be-43b3-97c2-a3b7d2a7f51c`, slug `crumpet`.
+2. **Dev client build** — `bunx eas build --profile development --platform ios`.
+   Prompts for Apple credentials. `eas.json` is already correct.
+3. **Vault secrets + `ALERT_DISPATCH_SECRET`** — not created. The two values must match
+   exactly or every dispatch 401s. Commands in Task 6 Step 1.
+4. **A second household member** — a service-role insert, since `household_members` is
+   founding-owner-only by RLS. **Must set `feed_logged_alerts = true` in the same
+   insert**; the column defaults to `false`, and omitting it produces a silent failure
+   indistinguishable from broken APNs. See Task 14 Step 1.
+
+Corrections to this document, already applied in the real migration but **not** fixed in
+the prose below — do not reintroduce them if you regenerate anything from here:
+
+- The dispatch trigger calls **`net.http_post`**, not `extensions.net.http_post`.
+- The app was renamed **Pawly → Crumpet** after this plan was written. Identifiers here
+  are current, but the ticket prefix moved to `CRU-` from 004 onward; this ticket stays
+  `PAW-003`.
+
 **Goal:** When a household member logs a feed, every other member who wants to know receives a push notification that opens the correction sheet for that log.
 
 **Architecture:** An outbox. `log_feed` inserts a `feed_logs` row; an after-insert trigger queues one `alerts` row per *event*; a second trigger calls the `send-alerts` Edge Function via `pg_net`. The function resolves recipients at send time (household members, minus the author, filtered by preference), collects their `push_tokens`, and posts to Expo. Recipients are resolved at send time rather than fan-out at queue time, so a preference changed between queue and delivery is respected.
