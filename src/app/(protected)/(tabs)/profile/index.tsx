@@ -1,13 +1,17 @@
 import AppText from '@/components/core/app-text';
+import Icon from '@/components/core/icon';
 import MainButton from '@/components/core/main-button';
+import PressableOpacity from '@/components/core/pressable-opacity';
 import ScreenView from '@/components/layout/screen-view';
 import type { AppTheme } from '@/constants/theme';
 import { useLogout } from '@/hooks/use-logout';
 import { useStyles } from '@/hooks/use-styles';
+import { useRouter } from 'expo-router';
 import { ScrollView, StyleSheet, View } from 'react-native';
 
 const Profile = () => {
   const styles = useStyles(makeStyles);
+  const router = useRouter();
   const { logout, isLoading } = useLogout();
 
   return (
@@ -16,6 +20,14 @@ const Profile = () => {
         <AppText variant="header" size={32}>
           Profile
         </AppText>
+
+        <PressableOpacity style={styles.row} onPress={() => router.push('/profile/notifications')}>
+          <Icon name="bell" size={18} color="textSecondary" />
+          <AppText size={16} style={styles.rowLabel}>
+            Notifications
+          </AppText>
+          <Icon name="caretRight" size={18} color="textSecondary" />
+        </PressableOpacity>
 
         <View>
           <MainButton
@@ -31,11 +43,23 @@ const Profile = () => {
   );
 };
 
-const makeStyles = ({ spacing }: AppTheme) =>
+const makeStyles = ({ colors, spacing }: AppTheme) =>
   StyleSheet.create({
     content: {
       paddingVertical: spacing.four,
       gap: spacing.three
+    },
+    row: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: spacing.three,
+      paddingVertical: spacing.three,
+      paddingHorizontal: spacing.three,
+      borderRadius: 12,
+      backgroundColor: colors.backgroundElement
+    },
+    rowLabel: {
+      flex: 1
     }
   });
 
