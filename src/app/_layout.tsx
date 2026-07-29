@@ -1,16 +1,18 @@
 import { focusManager, QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { DarkTheme, DefaultTheme, Stack, ThemeProvider } from 'expo-router';
 import { useEffect } from 'react';
-import { AppState, useColorScheme, type AppStateStatus } from 'react-native';
+import { AppState, type AppStateStatus } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { KeyboardProvider } from 'react-native-keyboard-controller';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { Toaster } from 'sonner-native';
 
 import { useAuthSession } from '@/hooks/use-auth-session';
+import { useColorScheme } from '@/hooks/use-color-scheme';
 import { usePushNotifications } from '@/hooks/use-push-notifications';
 import { useUserProfile } from '@/hooks/use-user-profile';
 import { useAuthStore } from '@/stores/auth-store';
+import { useThemeStore } from '@/stores/theme-store';
 import { isWeb } from '@/utils/platform';
 
 const queryClient = new QueryClient();
@@ -22,8 +24,9 @@ const AuthGate = () => {
   useUserProfile();
   usePushNotifications();
   const { status } = useAuthStore();
+  const { hasHydrated } = useThemeStore();
 
-  if (status === 'loading') return null;
+  if (status === 'loading' || !hasHydrated) return null;
 
   return (
     <Stack screenOptions={{ headerShown: false }}>
@@ -39,6 +42,11 @@ const AuthGate = () => {
 
 export default function RootLayout() {
   const colorScheme = useColorScheme();
+  const { hydrate } = useThemeStore();
+
+  useEffect(() => {
+    void hydrate();
+  }, [hydrate]);
 
   // TanStack's documented React Native pattern. useFocusEffect does not fire
   // when the app returns from the background, which is the case that matters

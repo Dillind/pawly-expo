@@ -40,6 +40,9 @@ export type ThemeMode = keyof typeof COLORS;
 export type ThemeColor = keyof typeof COLORS.light & keyof typeof COLORS.dark;
 export type ThemeColors = (typeof COLORS)[ThemeMode];
 
+/** What the Member chose on Profile, as opposed to the scheme it resolves to. */
+export type ThemePreference = ThemeMode | 'system';
+
 /** Resolved theme passed to components and `makeStyles` factories. */
 export type AppTheme = {
   colors: ThemeColors;
