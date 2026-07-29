@@ -85,11 +85,7 @@ const getConfig = ({ config }: ConfigContext): ExpoConfig => {
     ],
     extra: {
       eas: {
-        // BLOCKED: awaiting `bunx eas init`, which needs an interactive Expo
-        // login. Until this is a real id, getExpoPushTokenAsync throws and no
-        // device can register for push. This is unchanged from before -- both
-        // branches of the old ternary were empty too.
-        projectId: ''
+        projectId: '3bd7aa83-b1be-43b3-97c2-a3b7d2a7f51c'
       }
     }
   };
