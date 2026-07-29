@@ -3,13 +3,10 @@ import { ConfigContext, ExpoConfig } from 'expo/config';
 
 dotenv.config();
 
-// One EAS project, one slug, one identifier per platform. The previous
-// dev/prod split renamed things without isolating anything -- .env carries a
-// single EXPO_PUBLIC_SUPABASE_URL, so a "production" build talked to the same
-// database as dev. Two slugs would also mean two EAS projects, two APNs keys,
-// and push tokens scoped to whichever project issued them, which would force a
-// project column onto push_tokens for no benefit. Dev and prod separate by
-// build profile in eas.json instead.
+// One EAS project, one slug, one identifier per platform. Two slugs would mean
+// two EAS projects, two APNs keys, and push tokens scoped to whichever project
+// issued them -- forcing a project column onto push_tokens for no benefit. Dev
+// and prod separate by build profile in eas.json instead.
 const getConfig = ({ config }: ConfigContext): ExpoConfig => {
   return {
     ...config,
@@ -25,6 +22,7 @@ const getConfig = ({ config }: ConfigContext): ExpoConfig => {
       supportsTablet: false,
       bundleIdentifier: 'au.com.crumpet.ios',
       infoPlist: {
+        ITSAppUsesNonExemptEncryption: false,
         NSUserNotificationUsageDescription:
           '$(PRODUCT_NAME) sends reminders when you need to check in.'
       }
@@ -65,7 +63,6 @@ const getConfig = ({ config }: ConfigContext): ExpoConfig => {
         {
           // The package is scoped -- '@expo-google-fonts/inter'. Without the
           // leading @ these resolve to nothing and prebuild fails outright.
-          // Order matches InterFontFamily in src/constants/theme.ts.
           fonts: [
             'node_modules/@expo-google-fonts/inter/400Regular/Inter_400Regular.ttf',
             'node_modules/@expo-google-fonts/inter/500Medium/Inter_500Medium.ttf',
