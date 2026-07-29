@@ -29,6 +29,10 @@ Corrections to this document, already applied in the real migration but **not** 
 the prose below — do not reintroduce them if you regenerate anything from here:
 
 - The dispatch trigger calls **`net.http_post`**, not `extensions.net.http_post`.
+- **Task 13's priming sheet was built and then removed.** The permission ask is now the
+  bare OS prompt, raised from Home once the pet loads when the status is `UNDETERMINED`.
+  There is no `notification-priming-sheet.tsx` and no persisted "primed" flag — iOS
+  records the answer itself. Do not rebuild the sheet from the prose below.
 - The app was renamed **Pawly → Crumpet** after this plan was written. Identifiers here
   are current, but the ticket prefix moved to `CRU-` from 004 onward; this ticket stays
   `PAW-003`.
