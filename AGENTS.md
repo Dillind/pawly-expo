@@ -18,6 +18,29 @@ Expo changes fast and the model's training data is often stale. This project is 
 
 Before naming things or discussing the domain, skim `CONTEXT.md`. Before changing architecture, skim the ADRs.
 
+## How to write your replies
+
+This is about the chat, not the code. It applies to every message.
+
+Use plain language. Write short sentences. One idea per sentence.
+
+Do not compress. A sentence that packs three clauses together is harder to read than three
+sentences, even though it is shorter. Length is not the thing to optimise. Clarity is.
+
+Specifically:
+
+- Prefer a common word to a fancy one. "Use", not "utilise". "Stop", not "cease".
+- Break up long sentences. If a sentence needs a semicolon or a dash to hold it together, it is
+  probably two sentences.
+- Say the point first, then explain it. Do not build up to it.
+- Cut throat-clearing. "It is worth noting that X" is just "X".
+- Avoid stacked qualifiers. "This may potentially be somewhat risky" means "this is risky".
+- Do not stack nouns. "Notification permission prompt priming flow" is unreadable.
+- Explain a term the first time you use it, or use a simpler one.
+
+Being brief is good. Being dense is not. If you have cut a message down so far that the reader has
+to unpack it, you have gone too far — expand it back out into more, simpler sentences.
+
 ## Commands
 
 ```bash
