@@ -1,6 +1,5 @@
 import FeedLogDetailSheet from '@/components/bottom-sheets/feed-log-detail-sheet';
 import LogFeedSheet from '@/components/bottom-sheets/log-feed-sheet';
-import NotificationPrimingSheet from '@/components/bottom-sheets/notification-priming-sheet';
 import AppText from '@/components/core/app-text';
 import ErrorState from '@/components/core/error-state';
 import ScreenView from '@/components/layout/screen-view';
@@ -14,8 +13,8 @@ import { usePet } from '@/hooks/use-pet';
 import { useRefreshOnFocus } from '@/hooks/use-refresh-on-focus';
 import { useSlotStates } from '@/hooks/use-slot-states';
 import { useStyles } from '@/hooks/use-styles';
+import { useRequestNotificationPermission } from '@/hooks/use-notification-permission';
 import { todayInTimezone } from '@/lib/dates';
-import { hasPrimedNotifications, markNotificationsPrimed } from '@/lib/notification-priming';
 import type { TrueSheet } from '@lodev09/react-native-true-sheet';
 import * as Notifications from 'expo-notifications';
 import { useEffect, useRef, useState } from 'react';
@@ -43,30 +42,26 @@ const Home = () => {
   const [activeLogId, setActiveLogId] = useState<string | undefined>(undefined);
   const detailSheetRef = useRef<TrueSheet | null>(null);
   const logSheetRef = useRef<TrueSheet | null>(null);
-  const primingSheetRef = useRef<TrueSheet | null>(null);
-  const hasCheckedPriming = useRef(false);
+  const hasCheckedPermission = useRef(false);
+  const requestPermission = useRequestNotificationPermission();
 
-  // Priming lives here rather than in onboarding: create_household_and_pet
-  // makes the (onboarding) group unreachable, so a pitch raised there would sit
-  // before the schedule exists, where it can only promise something abstract.
-  // Waiting for the pet also keeps the pet's name out of the title's fallback.
+  // The ask lives here, not in onboarding: create_household_and_pet makes the
+  // (onboarding) group unreachable, so a prompt raised there would land before
+  // the schedule exists.
   useEffect(() => {
-    if (!pet?.id || hasCheckedPriming.current) return;
-    hasCheckedPriming.current = true;
+    if (!pet?.id || hasCheckedPermission.current) return;
+    hasCheckedPermission.current = true;
 
-    const maybePrime = async () => {
-      const [permissions, primed] = await Promise.all([
-        Notifications.getPermissionsAsync(),
-        hasPrimedNotifications()
-      ]);
+    const maybeRequest = async () => {
+      const permissions = await Notifications.getPermissionsAsync();
 
-      if (primed || permissions.status !== Notifications.PermissionStatus.UNDETERMINED) return;
+      if (permissions.status !== Notifications.PermissionStatus.UNDETERMINED) return;
 
-      void primingSheetRef.current?.present();
+      await requestPermission();
     };
 
-    void maybePrime();
-  }, [pet?.id]);
+    void maybeRequest();
+  }, [pet?.id, requestPermission]);
 
   return (
     <ScreenView>
@@ -90,10 +85,6 @@ const Home = () => {
         ) : (
           <View style={styles.slots}>
             {slots?.map((slot) => {
-              // Captured in a const rather than read inside the closure: TS
-              // cannot narrow a property access through a callback, and the
-              // alternative is an `as string` cast that would outlive the
-              // guard if it were ever removed.
               const logId = slot.state === 'fed' ? slot.satisfyingLogId : null;
 
               return (
@@ -130,15 +121,7 @@ const Home = () => {
       />
 
       <LogFeedSheet sheetRef={logSheetRef} />
-
       <FeedLogDetailSheet sheetRef={detailSheetRef} logId={activeLogId} petId={pet?.id} />
-
-      <NotificationPrimingSheet
-        sheetRef={primingSheetRef}
-        onDismiss={() => {
-          void markNotificationsPrimed();
-        }}
-      />
     </ScreenView>
   );
 };

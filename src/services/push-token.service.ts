@@ -8,14 +8,8 @@ const projectId = () => Constants.expoConfig?.extra?.eas?.projectId as string | 
 
 namespace PushTokenService {
   /**
-   * Registration and the OS permission prompt are separate decisions.
-   * Registration is attempted on every sign-in and every foreground; it
-   * returns null without prompting when permission has not been granted. The
-   * prompt is owned by the priming sheet.
-   *
-   * The previous hook assigned `token` only inside `if (isIOS)`, so Android
-   * could never register even once credentials existed. Platform now affects
-   * only the recorded value, not whether a token is obtained at all.
+   * Never prompts -- returns null when permission has not been granted. Called
+   * on every sign-in and every foreground.
    */
   export async function register(userId: string): Promise<string | null> {
     const { status } = await Notifications.getPermissionsAsync();

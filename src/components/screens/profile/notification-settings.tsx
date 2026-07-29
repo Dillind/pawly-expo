@@ -1,4 +1,3 @@
-import NotificationPrimingSheet from '@/components/bottom-sheets/notification-priming-sheet';
 import AppText from '@/components/core/app-text';
 import MainButton from '@/components/core/main-button';
 import ToggleSwitch from '@/components/core/toggle-switch';
@@ -6,14 +5,13 @@ import type { AppTheme } from '@/constants/theme';
 import { useNotificationPreferences } from '@/hooks/use-notification-preferences';
 import { usePet } from '@/hooks/use-pet';
 import { useStyles } from '@/hooks/use-styles';
-import { markNotificationsPrimed } from '@/lib/notification-priming';
-import type { TrueSheet } from '@lodev09/react-native-true-sheet';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import {
+  NOTIFICATION_PERMISSION_QUERY_KEY,
+  useRequestNotificationPermission
+} from '@/hooks/use-notification-permission';
+import { useQuery } from '@tanstack/react-query';
 import * as Notifications from 'expo-notifications';
-import { useRef } from 'react';
 import { ActivityIndicator, Linking, ScrollView, StyleSheet, View } from 'react-native';
-
-const PERMISSION_QUERY_KEY = ['notification-permission'];
 
 /**
  * What the household will and won't send this member.
@@ -29,8 +27,7 @@ const NotificationSettings = () => {
   const { data: pet } = usePet();
   const { data: preferences, isLoading, setFeedLoggedAlerts } = useNotificationPreferences();
 
-  const queryClient = useQueryClient();
-  const primingSheetRef = useRef<TrueSheet | null>(null);
+  const requestPermission = useRequestNotificationPermission();
 
   const petName = pet?.name ?? 'your pet';
 
@@ -40,7 +37,7 @@ const NotificationSettings = () => {
   // immediately. That matters here more than anywhere else in the app --
   // this screen is the one people leave for Settings and come straight back to.
   const { data: permission } = useQuery({
-    queryKey: PERMISSION_QUERY_KEY,
+    queryKey: NOTIFICATION_PERMISSION_QUERY_KEY,
     queryFn: () => Notifications.getPermissionsAsync()
   });
 
@@ -54,9 +51,9 @@ const NotificationSettings = () => {
             Turn on notifications to know the moment someone feeds {petName}.
           </AppText>
           <MainButton
-            text="Set up notifications"
+            text="Turn on notifications"
             onPress={() => {
-              void primingSheetRef.current?.present();
+              void requestPermission();
             }}
           />
         </View>
@@ -95,22 +92,12 @@ const NotificationSettings = () => {
   };
 
   return (
-    <>
-      <ScrollView
-        contentContainerStyle={styles.content}
-        contentInsetAdjustmentBehavior="automatic"
-        style={styles.screen}>
-        {renderBody()}
-      </ScrollView>
-
-      <NotificationPrimingSheet
-        sheetRef={primingSheetRef}
-        onDismiss={() => {
-          void markNotificationsPrimed();
-          void queryClient.invalidateQueries({ queryKey: PERMISSION_QUERY_KEY });
-        }}
-      />
-    </>
+    <ScrollView
+      contentContainerStyle={styles.content}
+      contentInsetAdjustmentBehavior="automatic"
+      style={styles.screen}>
+      {renderBody()}
+    </ScrollView>
   );
 };
 
