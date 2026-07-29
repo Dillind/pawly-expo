@@ -1,5 +1,6 @@
 import {
   Asterisk,
+  Bell,
   Calendar,
   Camera,
   Check,
@@ -33,6 +34,7 @@ export const iconMap = {
   pencil: Pencil,
   userPlus: UserPlus,
   pawPrint: PawPrint,
+  bell: Bell,
   close: X
 } as const;
 

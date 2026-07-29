@@ -1,5 +1,6 @@
 import FeedLogDetailSheet from '@/components/bottom-sheets/feed-log-detail-sheet';
 import LogFeedSheet from '@/components/bottom-sheets/log-feed-sheet';
+import NotificationPrimingSheet from '@/components/bottom-sheets/notification-priming-sheet';
 import AppText from '@/components/core/app-text';
 import ErrorState from '@/components/core/error-state';
 import ScreenView from '@/components/layout/screen-view';
@@ -14,8 +15,10 @@ import { useRefreshOnFocus } from '@/hooks/use-refresh-on-focus';
 import { useSlotStates } from '@/hooks/use-slot-states';
 import { useStyles } from '@/hooks/use-styles';
 import { todayInTimezone } from '@/lib/dates';
+import { hasPrimedNotifications, markNotificationsPrimed } from '@/lib/notification-priming';
 import type { TrueSheet } from '@lodev09/react-native-true-sheet';
-import { useRef, useState } from 'react';
+import * as Notifications from 'expo-notifications';
+import { useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, ScrollView, StyleSheet, View } from 'react-native';
 
 const Home = () => {
@@ -40,6 +43,30 @@ const Home = () => {
   const [activeLogId, setActiveLogId] = useState<string | undefined>(undefined);
   const detailSheetRef = useRef<TrueSheet | null>(null);
   const logSheetRef = useRef<TrueSheet | null>(null);
+  const primingSheetRef = useRef<TrueSheet | null>(null);
+  const hasCheckedPriming = useRef(false);
+
+  // Priming lives here rather than in onboarding: create_household_and_pet
+  // makes the (onboarding) group unreachable, so a pitch raised there would sit
+  // before the schedule exists, where it can only promise something abstract.
+  // Waiting for the pet also keeps the pet's name out of the title's fallback.
+  useEffect(() => {
+    if (!pet?.id || hasCheckedPriming.current) return;
+    hasCheckedPriming.current = true;
+
+    const maybePrime = async () => {
+      const [permissions, primed] = await Promise.all([
+        Notifications.getPermissionsAsync(),
+        hasPrimedNotifications()
+      ]);
+
+      if (primed || permissions.status !== Notifications.PermissionStatus.UNDETERMINED) return;
+
+      void primingSheetRef.current?.present();
+    };
+
+    void maybePrime();
+  }, [pet?.id]);
 
   return (
     <ScreenView>
@@ -105,6 +132,13 @@ const Home = () => {
       <LogFeedSheet sheetRef={logSheetRef} />
 
       <FeedLogDetailSheet sheetRef={detailSheetRef} logId={activeLogId} petId={pet?.id} />
+
+      <NotificationPrimingSheet
+        sheetRef={primingSheetRef}
+        onDismiss={() => {
+          void markNotificationsPrimed();
+        }}
+      />
     </ScreenView>
   );
 };
