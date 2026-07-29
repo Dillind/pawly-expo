@@ -2,17 +2,26 @@ import AppText from '@/components/core/app-text';
 import Icon from '@/components/core/icon';
 import MainButton from '@/components/core/main-button';
 import PressableOpacity from '@/components/core/pressable-opacity';
+import SegmentedControl from '@/components/core/segmented-control';
 import ScreenView from '@/components/layout/screen-view';
-import type { AppTheme } from '@/constants/theme';
+import type { AppTheme, ThemePreference } from '@/constants/theme';
 import { useLogout } from '@/hooks/use-logout';
 import { useStyles } from '@/hooks/use-styles';
+import { useThemeStore } from '@/stores/theme-store';
 import { useRouter } from 'expo-router';
 import { ScrollView, StyleSheet, View } from 'react-native';
+
+const appearanceOptions: { value: ThemePreference; label: string }[] = [
+  { value: 'system', label: 'System' },
+  { value: 'light', label: 'Light' },
+  { value: 'dark', label: 'Dark' }
+];
 
 const Profile = () => {
   const styles = useStyles(makeStyles);
   const router = useRouter();
   const { logout, isLoading } = useLogout();
+  const { preference, setPreference } = useThemeStore();
 
   return (
     <ScreenView>
@@ -28,6 +37,13 @@ const Profile = () => {
           </AppText>
           <Icon name="caretRight" size={18} color="textSecondary" />
         </PressableOpacity>
+
+        <SegmentedControl
+          label="Appearance"
+          options={appearanceOptions}
+          value={preference}
+          onChange={(next) => void setPreference(next)}
+        />
 
         <View>
           <MainButton
