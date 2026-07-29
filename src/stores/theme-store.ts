@@ -1,7 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { create } from 'zustand';
 
-import type { ThemePreference } from '@/constants/theme';
+import type { ThemePreference } from '@/types/core';
 
 const STORAGE_KEY = 'crumpet.themePreference';
 

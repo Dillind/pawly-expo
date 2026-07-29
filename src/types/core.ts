@@ -1,3 +1,4 @@
+import type { ThemeMode } from '@/constants/theme';
 import { Href } from 'expo-router';
 import { StyleProp, ViewStyle } from 'react-native';
 
@@ -96,3 +97,6 @@ export type FeedLog = {
   createdAt: string;
   author: FeedLogAuthor | null;
 };
+
+/** What the Member chose on Profile, as opposed to the scheme it resolves to. */
+export type ThemePreference = ThemeMode | 'system';
