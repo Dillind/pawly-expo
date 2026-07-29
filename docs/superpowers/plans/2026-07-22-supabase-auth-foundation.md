@@ -8,7 +8,7 @@
 
 **Architecture:** `auth.users` (Supabase-managed) is mirrored into `public.users` via a `SECURITY DEFINER` trigger populated from signup metadata. `households`/`household_members` are stood up now (empty of app-facing UI) so the RLS helper-function pattern (`is_household_member`, `is_household_owner`) exists from the first migration, ready for the pets/feed_logs schema in a later pass. Session persistence uses `@react-native-async-storage/async-storage` (not `expo-secure-store` — see ADR 0005). Auth state lives in a thin Zustand slice fed by a single `onAuthStateChange` subscription; the `public.users` profile row is fetched/cached via TanStack Query and mirrored into the same store for future imperative use (RevenueCat, PostHog, Sentry — not wired up in this plan, just left ready). Email verification uses Supabase's OTP-code flow, not magic links (see ADR 0006).
 
-**Tech Stack:** Expo SDK 57 / Expo Router, `@supabase/supabase-js` (already installed), `@react-native-async-storage/async-storage` (new), Zustand, TanStack Query, `react-hook-form` + Zod, Supabase CLI (via `npx supabase`) for migrations against the existing remote `pawly` project (ref `dofjrttcyjtzvqyttqdo`).
+**Tech Stack:** Expo SDK 57 / Expo Router, `@supabase/supabase-js` (already installed), `@react-native-async-storage/async-storage` (new), Zustand, TanStack Query, `react-hook-form` + Zod, Supabase CLI (via `npx supabase`) for migrations against the existing remote `crumpet` project (ref `dofjrttcyjtzvqyttqdo`).
 
 ## Global Constraints
 
@@ -186,7 +186,7 @@ npx supabase init
 
 Expected: creates `supabase/config.toml`, `supabase/.gitignore`, `supabase/migrations/` (empty). Accept the default prompts (VS Code settings, etc. — answer `N` if asked, not needed here).
 
-- [x] **Step 2: Manual step — Dylan links the CLI to the `pawly` project**
+- [x] **Step 2: Manual step — Dylan links the CLI to the `crumpet` project**
 
 This requires an interactive browser login and cannot be scripted. Dylan runs, in this repo's root:
 
@@ -336,7 +336,7 @@ create trigger on_auth_user_created
   for each row execute procedure public.handle_new_user();
 ```
 
-- [x] **Step 4: Apply the migration to the remote `pawly` project**
+- [x] **Step 4: Apply the migration to the remote `crumpet` project**
 
 Use the Supabase MCP tool (already connected, no additional auth needed) rather than `supabase db push`, since Step 2's interactive login may not have happened yet in an agent-driven run:
 
