@@ -1,6 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const PRIMED_KEY = 'pawly.hasPrimedNotifications';
+const PRIMED_KEY = 'crumpet.hasPrimedNotifications';
 
 /**
  * Whether the priming sheet has already been shown once.

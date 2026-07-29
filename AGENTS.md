@@ -8,7 +8,7 @@ Expo changes fast and the model's training data is often stale. This project is 
 
 ## What this project is
 
-**Pawly** — a pet-care coordination app (iOS first). A household shares responsibility for a pet; members log feeds, everyone gets notified, and the app flags missed feeds. Starts with dog feeding but is intentionally pet-general.
+**Crumpet** — a pet-care coordination app (iOS first). A household shares responsibility for a pet; members log feeds, everyone gets notified, and the app flags missed feeds. Starts with dog feeding but is intentionally pet-general.
 
 - **Product:** [docs/PRODUCT_BRIEF.md](./docs/PRODUCT_BRIEF.md)
 - **Tech stack (with install status):** [docs/TECH_STACK.md](./docs/TECH_STACK.md)

@@ -13,24 +13,24 @@ dotenv.config();
 const getConfig = ({ config }: ConfigContext): ExpoConfig => {
   return {
     ...config,
-    name: 'Pawly',
-    slug: 'pawly',
+    name: 'Crumpet',
+    slug: 'crumpet',
     version: '1.0.0',
     orientation: 'portrait',
-    scheme: 'pawlyapp',
+    scheme: 'crumpetapp',
     icon: './src/assets/images/icon.png',
     userInterfaceStyle: 'automatic',
     ios: {
       ...config.ios,
       supportsTablet: false,
-      bundleIdentifier: 'au.com.pawly.ios',
+      bundleIdentifier: 'au.com.crumpet.ios',
       infoPlist: {
         NSUserNotificationUsageDescription:
           '$(PRODUCT_NAME) sends reminders when you need to check in.'
       }
     },
     android: {
-      package: 'au.com.pawly.android',
+      package: 'au.com.crumpet.android',
       // googleServicesFile: './google-services.json',
       adaptiveIcon: {
         foregroundImage: './src/assets/images/icon.png',

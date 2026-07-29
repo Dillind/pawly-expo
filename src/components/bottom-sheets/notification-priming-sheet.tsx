@@ -15,7 +15,7 @@ type Props = {
 };
 
 /**
- * Asks for notification permission in Pawly's own words before iOS asks in its.
+ * Asks for notification permission in Crumpet's own words before iOS asks in its.
  * The OS dialog is one-shot -- a denial there is only recoverable through
  * Settings -- so the pitch has to be concrete about what arrives and what does
  * not.
@@ -31,7 +31,7 @@ const NotificationPrimingSheet = ({ sheetRef, onDismiss }: Props) => {
   const petName = pet?.name ?? 'your pet';
 
   const requestPermission = async () => {
-    // provideAppNotificationSettings is what puts a button inside Pawly's own
+    // provideAppNotificationSettings is what puts a button inside Crumpet's own
     // page in iOS Settings that deep-links back to Manage Notifications.
     // Without it that route is unreachable from Settings.
     await Notifications.requestPermissionsAsync({

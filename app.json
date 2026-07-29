@@ -1,11 +1,11 @@
 {
   "expo": {
-    "name": "pawly-expo",
-    "slug": "pawly-expo",
+    "name": "crumpet-expo",
+    "slug": "crumpet-expo",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "pawlyexpo",
+    "scheme": "crumpetexpo",
     "userInterfaceStyle": "automatic",
     "ios": {
       "icon": "./assets/expo.icon"

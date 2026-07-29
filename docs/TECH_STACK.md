@@ -1,4 +1,4 @@
-# Pawly — Tech Stack
+# Crumpet — Tech Stack
 
 > Status legend: **Installed** = in `package.json` and wired up · **Scaffolded** = present but not fully implemented · **Planned** = decided, not yet added.
 > Source of truth for versions is always `package.json`. This project runs **Expo SDK 57** (React Native 0.86, React 19.2). Read the exact v57 docs at https://docs.expo.dev/versions/v57.0.0/ before writing code.

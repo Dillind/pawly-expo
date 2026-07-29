@@ -1,5 +1,5 @@
 ---
-name: pawly-implementer
+name: crumpet-implementer
 description: >
   Executes a single, already-specified task from a written plan in
   docs/superpowers/plans/. Use when a plan exists and the work is mechanical:

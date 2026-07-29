@@ -78,7 +78,7 @@ const NotificationSettings = () => {
         {isDenied && (
           <View style={styles.section}>
             <AppText size={13} color="textSecondary">
-              Notifications are turned off for Pawly, so you won&apos;t hear when someone feeds{' '}
+              Notifications are turned off for Crumpet, so you won&apos;t hear when someone feeds{' '}
               {petName}.
             </AppText>
             <MainButton

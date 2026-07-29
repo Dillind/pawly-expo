@@ -13,7 +13,7 @@
 **Decisions made after the spec was written** (this plan overrides the spec where they conflict):
 
 1. One EAS project, not two. All four `isProd` ternaries in `app.config.ts` collapse.
-2. Bundle identifiers are `au.com.pawly.ios` and `au.com.pawly.android`.
+2. Bundle identifiers are `au.com.crumpet.ios` and `au.com.crumpet.android`.
 3. Preference column defaults are quiet: `feed_logged_alerts default false`, `missed_feed_alerts default true`. `create_household_and_pet` writes the founding owner's `true` explicitly.
 4. **Only the Feed Logged toggle ships.** `missed_feed_alerts` ships as a column, unexposed. The spec's "both toggles, live" is superseded — a toggle for an alert that cannot fire is the app lying about its own state.
 5. No master "All notifications" switch this pass. It arrives with the second category, as a real stored column checked server-side.
@@ -112,16 +112,16 @@ const isProd = APP_ENV === 'production';
 `appName` and `appSlug` are deleted. Then in the returned object:
 
 ```ts
-name: 'Pawly',
-slug: 'pawly',
+name: 'Crumpet',
+slug: 'crumpet',
 ```
 
 ```ts
-bundleIdentifier: 'au.com.pawly.ios',
+bundleIdentifier: 'au.com.crumpet.ios',
 ```
 
 ```ts
-package: 'au.com.pawly.android',
+package: 'au.com.crumpet.android',
 ```
 
 Leave `isProd` declared — Task 12 is free to use it for a future prod-only concern, and removing it now would be churn. If `bun run lint` reports it unused, delete the two lines and the `APP_ENV` line with it.
@@ -150,7 +150,7 @@ extra: {
 
 Run: `bunx expo config --type public | grep -A3 '"eas"'`
 
-Expected: `projectId` is the non-empty id from step 3, and `slug` is `pawly`.
+Expected: `projectId` is the non-empty id from step 3, and `slug` is `crumpet`.
 
 - [ ] **Step 6: Create `eas.json`**
 
@@ -189,7 +189,7 @@ Again interactive — credentials generation prompts for the Apple account. Tell
 
 > Run `! bunx eas build --profile development --platform ios`, then install the resulting build on the simulator.
 
-This is the step that generates the APNs key against `au.com.pawly.ios`, which is why Step 2 had to fix the identifier first.
+This is the step that generates the APNs key against `au.com.crumpet.ios`, which is why Step 2 had to fix the identifier first.
 
 - [ ] **Step 8: Verify and commit**
 
@@ -1422,7 +1422,7 @@ Structure, with copy fixed (Australian English, concrete not abstract):
 
 `detents={['auto']}` — this is a content-sized confirmation, not a scrollable form.
 
-`provideAppNotificationSettings: true` is what makes iOS show a button inside its own Settings page that deep-links back into Pawly's notification screen (Task 11). Without it that route is unreachable from Settings.
+`provideAppNotificationSettings: true` is what makes iOS show a button inside its own Settings page that deep-links back into Crumpet's notification screen (Task 11). Without it that route is unreachable from Settings.
 
 > `allowProvisional` was considered and rejected. It sidesteps the one-shot problem, but a provisional alert makes no sound and shows no banner — and "your partner just fed the dog" is worthless if you find it tomorrow.
 
@@ -1505,7 +1505,7 @@ Driven by `getPermissionsAsync()`, which returns `canAskAgain` and `ios.status`.
 | `AUTHORIZED` | one `ToggleSwitch` — **Feed Logged Alerts** / "Know when someone feeds {petName}." |
 | `DENIED` | the same toggle, **`isDisabled`**, plus one explanatory line and an **Open Settings** button. |
 
-Denied copy, exactly: *"Notifications are turned off for Pawly, so you won't hear when someone feeds {petName}."* — the consequence and nothing more. Button calls `Linking.openSettings()`.
+Denied copy, exactly: *"Notifications are turned off for Crumpet, so you won't hear when someone feeds {petName}."* — the consequence and nothing more. Button calls `Linking.openSettings()`.
 
 > Disabling the toggle is the point. A toggle reading "on" while iOS silently drops every push is the app lying about its own state — the trust failure PRODUCT_BRIEF says makes people delete it.
 >

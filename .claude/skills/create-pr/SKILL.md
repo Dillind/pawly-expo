@@ -1,9 +1,9 @@
 ---
 name: create-pr
-description: Create a pull request for the pawly-expo repository. Always invoke this skill when the user asks to open, raise, submit, or create a PR or pull request. This skill bases the description on ALL committed changes on the branch vs the base branch — not just recent commits, not uncommitted files, not conversation context. Use this even if the user hasn't explicitly said "use the PR skill" — anytime a PR is being created.
+description: Create a pull request for the crumpet-expo repository. Always invoke this skill when the user asks to open, raise, submit, or create a PR or pull request. This skill bases the description on ALL committed changes on the branch vs the base branch — not just recent commits, not uncommitted files, not conversation context. Use this even if the user hasn't explicitly said "use the PR skill" — anytime a PR is being created.
 ---
 
-# PR Creation — pawly-expo
+# PR Creation — crumpet-expo
 
 Creates a GitHub pull request using the project's PR template, derived entirely from what has actually been committed to the branch.
 

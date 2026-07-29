@@ -1,11 +1,11 @@
 # Household invites use a shareable revocable link/code, not server-sent email
 
-Owners invite people by generating a **shareable invite link** containing a revocable, expiring code (e.g. `https://pawly.app/invite/<code>`), which they send through their own channel (iMessage, WhatsApp). Tapping the link deep-links into the app (falling back to the App Store if not installed); after sign-up the invitee redeems the code and joins the household as a **contributor**. The raw code is also shown as a manual-entry fallback.
+Owners invite people by generating a **shareable invite link** containing a revocable, expiring code (e.g. `https://crumpet.app/invite/<code>`), which they send through their own channel (iMessage, WhatsApp). Tapping the link deep-links into the app (falling back to the App Store if not installed); after sign-up the invitee redeems the code and joins the household as a **contributor**. The raw code is also shown as a manual-entry fallback.
 
 ## Considered options
 
 - **Server-sent email invites** — invitee is emailed, signs up with that address, gets auto-joined. Rejected for v1: requires email-sending infrastructure and deliverability/spam handling, and couples joining to a specific email address.
-- **Shareable link/code** (chosen) — no email infrastructure, rides the owner's existing communication channel, and directly attacks the "invite friction" product risk. `expo-linking` and the `pawlyapp` scheme are already in place.
+- **Shareable link/code** (chosen) — no email infrastructure, rides the owner's existing communication channel, and directly attacks the "invite friction" product risk. `expo-linking` and the `crumpetapp` scheme are already in place.
 
 ## Consequences
 
