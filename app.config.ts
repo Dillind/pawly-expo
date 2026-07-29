@@ -46,7 +46,11 @@ const getConfig = ({ config }: ConfigContext): ExpoConfig => {
       [
         'expo-notifications',
         {
-          iosDisplayInForeground: true
+          // Routes FCMv1 messages to the channel created in
+          // push-token.service.ts. The plugin cannot create the channel or set
+          // its importance -- it only names which one to deliver to, so the two
+          // ids have to stay in step.
+          defaultChannel: 'default'
         }
       ],
       'expo-image',
