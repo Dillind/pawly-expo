@@ -1,6 +1,6 @@
-# Pawly — Product Brief
+# Crumpet — Product Brief
 
-> Pawly is a pet-care coordination app. It starts with dog feeding but the name and model are intentionally pet-general, leaving room for a broader "pet companion + household coordination" vision.
+> Crumpet is a pet-care coordination app. It starts with dog feeding but the model is intentionally pet-general, leaving room for a broader "pet companion + household coordination" vision. The name comes from the dog the app was built for; it is a mascot, not a scope limit.
 > Domain terminology is defined in [CONTEXT.md](../CONTEXT.md). Decisions are recorded in [docs/adr/](./adr/).
 
 ---

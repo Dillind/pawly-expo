@@ -1,3 +1,4 @@
+import type { ThemeMode } from '@/constants/theme';
 import { Href } from 'expo-router';
 import { StyleProp, ViewStyle } from 'react-native';
 
@@ -62,6 +63,8 @@ export type HouseholdMember = {
   role: HouseholdRole;
   firstName: string | null;
   lastName: string | null;
+  /** Whether this member has opted in to being told when a feed is logged. */
+  feedLoggedAlerts: boolean;
 };
 
 export type SlotStateValue = 'fed' | 'due' | 'missed' | 'upcoming';
@@ -94,3 +97,6 @@ export type FeedLog = {
   createdAt: string;
   author: FeedLogAuthor | null;
 };
+
+/** What the Member chose on Profile, as opposed to the scheme it resolves to. */
+export type ThemePreference = ThemeMode | 'system';

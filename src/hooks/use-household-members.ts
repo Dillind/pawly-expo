@@ -3,17 +3,21 @@ import { supabase } from '@/lib/supabase/client';
 import type { HouseholdMember } from '@/types/core';
 import { useQuery } from '@tanstack/react-query';
 
+type MembershipRow = {
+  user_id: string;
+  role: HouseholdMember['role'];
+  feed_logged_alerts: boolean;
+};
+
 async function fetchHouseholdMembers(householdId: string): Promise<HouseholdMember[]> {
   const { data: memberships, error: membershipsError } = await supabase
     .from('household_members')
-    .select('user_id, role')
+    .select('user_id, role, feed_logged_alerts')
     .eq('household_id', householdId);
 
   if (membershipsError) throw membershipsError;
 
-  const userIds = (memberships as { user_id: string; role: HouseholdMember['role'] }[]).map(
-    (membership) => membership.user_id
-  );
+  const userIds = (memberships as MembershipRow[]).map((membership) => membership.user_id);
 
   if (userIds.length === 0) return [];
 
@@ -30,14 +34,13 @@ async function fetchHouseholdMembers(householdId: string): Promise<HouseholdMemb
     )
   );
 
-  return (memberships as { user_id: string; role: HouseholdMember['role'] }[]).map(
-    (membership) => ({
-      userId: membership.user_id,
-      role: membership.role,
-      firstName: profileById.get(membership.user_id)?.first_name ?? null,
-      lastName: profileById.get(membership.user_id)?.last_name ?? null
-    })
-  );
+  return (memberships as MembershipRow[]).map((membership) => ({
+    userId: membership.user_id,
+    role: membership.role,
+    firstName: profileById.get(membership.user_id)?.first_name ?? null,
+    lastName: profileById.get(membership.user_id)?.last_name ?? null,
+    feedLoggedAlerts: membership.feed_logged_alerts
+  }));
 }
 
 export function useHouseholdMembers() {

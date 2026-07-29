@@ -4,7 +4,7 @@
 **Date:** 2026-07-25
 **Branch:** `feat/PAW-001-feed-logging`
 
-Logging a feed is the core action of Pawly. This spec covers the `feed_logs` table, the shared
+Logging a feed is the core action of Crumpet. This spec covers the `feed_logs` table, the shared
 slot-matching function, the log and correction flows, the Activity screen, and the Home screen that
 replaces the current placeholder.
 

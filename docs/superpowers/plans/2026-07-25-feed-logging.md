@@ -2,7 +2,7 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 >
-> **Do not begin execution until Dylan has explicitly confirmed he wants implementation to start**, per his usual process (plan on Opus, implement on Sonnet via the `pawly-implementer` subagent).
+> **Do not begin execution until Dylan has explicitly confirmed he wants implementation to start**, per his usual process (plan on Opus, implement on Sonnet via the `crumpet-implementer` subagent).
 
 **Goal:** Make logging a feed the working core of the app — a `feed_logs` table with its RLS, one shared slot-matching function in `private`, a Home screen showing today's slots and a "Log a feed" button, an Activity tab listing the household's feed history, and correction/deletion through a bottom sheet.
 
@@ -2971,7 +2971,7 @@ Then re-run steps 1–7 and confirm they now pass, plus `nvm use && bun run type
 
 - [ ] **Step 8: Manual QA — the deep link and the background refresh**
 
-- With the app running, open a browser or the simulator's URL handler and open `pawlyapp://activity?logId=<a real log id>` (get one with `mcp__plugin_supabase_supabase__execute_sql`: `select id from public.feed_logs order by logged_at desc limit 1;`). **Expected:** the Activity tab opens and the feed log sheet presents showing that log. Dismiss it, then navigate away and back — the sheet must **not** re-present, because the param was cleared.
+- With the app running, open a browser or the simulator's URL handler and open `crumpetapp://activity?logId=<a real log id>` (get one with `mcp__plugin_supabase_supabase__execute_sql`: `select id from public.feed_logs order by logged_at desc limit 1;`). **Expected:** the Activity tab opens and the feed log sheet presents showing that log. Dismiss it, then navigate away and back — the sheet must **not** re-present, because the param was cleared.
 - Background the app (simulator home button), then use `mcp__plugin_supabase_supabase__execute_sql` to insert a log directly:
   `insert into public.feed_logs (pet_id, logged_by, logged_at) select id, null, now() from public.pets limit 1;`
   Reopen the app. **Expected:** Home and Activity both show the new feed without a manual refresh — this is the `AppState` → `focusManager` bridge from Task 5, and it is the case `useFocusEffect` never covers.

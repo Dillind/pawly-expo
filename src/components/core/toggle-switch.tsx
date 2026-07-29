@@ -10,23 +10,39 @@ type Props = {
   label: string;
   description: string;
   value: boolean;
+  isDisabled?: boolean;
   onChange: (value: boolean) => void;
 };
 
-const ToggleSwitch = ({ marginBottom, marginTop, label, description, value, onChange }: Props) => {
+const ToggleSwitch = ({
+  marginBottom,
+  marginTop,
+  label,
+  description,
+  value,
+  isDisabled,
+  onChange
+}: Props) => {
   const theme = useTheme();
 
   return (
     <View style={[styles.container, { marginBottom, marginTop }]}>
       <View style={styles.textColumn}>
-        <AppText size={14} color="text" fontWeight="bold">
+        {/* Both lines drop to textSecondary when disabled so the row reads as
+            inert rather than merely unresponsive. */}
+        <AppText size={14} color={isDisabled ? 'textSecondary' : 'text'} fontWeight="bold">
           {label}
         </AppText>
         <AppText size={13} color="textSecondary" fontWeight="regular">
           {description}
         </AppText>
       </View>
-      <Switch value={value} onValueChange={onChange} trackColor={{ true: theme.colors.primary }} />
+      <Switch
+        value={value}
+        disabled={isDisabled}
+        onValueChange={onChange}
+        trackColor={{ true: theme.colors.primary }}
+      />
     </View>
   );
 };

@@ -1,6 +1,6 @@
-# Pawly — Domain Language
+# Crumpet — Domain Language
 
-The ubiquitous language for Pawly, a pet-care coordination app. This file is a glossary only — no implementation details. When code or conversation drifts from these terms, the terms win (or the glossary is updated deliberately). Architectural decisions live in [docs/adr/](./docs/adr/).
+The ubiquitous language for Crumpet, a pet-care coordination app. This file is a glossary only — no implementation details. When code or conversation drifts from these terms, the terms win (or the glossary is updated deliberately). Architectural decisions live in [docs/adr/](./docs/adr/).
 
 ## People & groups
 
@@ -63,11 +63,17 @@ _Avoid_: Skipped feed, overdue meal.
 
 ## Notifications
 
+**Alert**:
+A notification queued for the Members of a Household. Either a Feed Logged Alert or a Missed Feed Alert. An Alert is recorded whether or not it is delivered — muting silences the push, not the record.
+
 **Feed Logged Alert**:
-The immediate push to all household members when a member logs a feed ("[Person] fed [Pet]").
+The immediate push when a Member logs a feed ("[Person] fed [Pet]"). It goes to every Member of the Household except the author, unless that Member has turned Feed Logged Alerts off. Role plays no part in who receives it.
 
 **Missed Feed Alert**:
 The push to all household members when a Missed Feed is detected server-side.
+
+**Suppressed Alert**:
+An Alert that was recorded but deliberately not delivered, because the feed it describes was logged too long after it actually happened to be worth interrupting anyone. Distinct from a failed delivery.
 
 **Double Feed**:
 A feed logged at a time falling inside at least one Grace Window, where recording it does not increase the number of Satisfying Feeds that day — two feeds for effectively the same slot. A feed outside every Grace Window is never a Double Feed: it is a snack, and a valid recorded feed that simply belongs to no slot. The app warns at log time and the member decides whether to record it anyway.

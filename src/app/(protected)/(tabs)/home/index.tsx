@@ -13,9 +13,11 @@ import { usePet } from '@/hooks/use-pet';
 import { useRefreshOnFocus } from '@/hooks/use-refresh-on-focus';
 import { useSlotStates } from '@/hooks/use-slot-states';
 import { useStyles } from '@/hooks/use-styles';
+import { useRequestNotificationPermission } from '@/hooks/use-notification-permission';
 import { todayInTimezone } from '@/lib/dates';
 import type { TrueSheet } from '@lodev09/react-native-true-sheet';
-import { useRef, useState } from 'react';
+import * as Notifications from 'expo-notifications';
+import { useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, ScrollView, StyleSheet, View } from 'react-native';
 
 const Home = () => {
@@ -40,6 +42,26 @@ const Home = () => {
   const [activeLogId, setActiveLogId] = useState<string | undefined>(undefined);
   const detailSheetRef = useRef<TrueSheet | null>(null);
   const logSheetRef = useRef<TrueSheet | null>(null);
+  const hasCheckedPermission = useRef(false);
+  const requestPermission = useRequestNotificationPermission();
+
+  // The ask lives here, not in onboarding: create_household_and_pet makes the
+  // (onboarding) group unreachable, so a prompt raised there would land before
+  // the schedule exists.
+  useEffect(() => {
+    if (!pet?.id || hasCheckedPermission.current) return;
+    hasCheckedPermission.current = true;
+
+    const maybeRequest = async () => {
+      const permissions = await Notifications.getPermissionsAsync();
+
+      if (permissions.status !== Notifications.PermissionStatus.UNDETERMINED) return;
+
+      await requestPermission();
+    };
+
+    void maybeRequest();
+  }, [pet?.id, requestPermission]);
 
   return (
     <ScreenView>
@@ -63,10 +85,6 @@ const Home = () => {
         ) : (
           <View style={styles.slots}>
             {slots?.map((slot) => {
-              // Captured in a const rather than read inside the closure: TS
-              // cannot narrow a property access through a callback, and the
-              // alternative is an `as string` cast that would outlive the
-              // guard if it were ever removed.
               const logId = slot.state === 'fed' ? slot.satisfyingLogId : null;
 
               return (
@@ -94,6 +112,7 @@ const Home = () => {
         actions={CREATE_ACTIONS}
         primaryAction={{
           label: 'Log a feed',
+          icon: 'utensils',
           isDisabled: !pet?.id,
           onPress: () => {
             void logSheetRef.current?.present();
@@ -102,7 +121,6 @@ const Home = () => {
       />
 
       <LogFeedSheet sheetRef={logSheetRef} />
-
       <FeedLogDetailSheet sheetRef={detailSheetRef} logId={activeLogId} petId={pet?.id} />
     </ScreenView>
   );

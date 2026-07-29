@@ -1,4 +1,5 @@
 import { supabase } from '@/lib/supabase/client';
+import PushTokenService from '@/services/push-token.service';
 
 namespace AuthService {
   export async function signUp(params: {
@@ -41,6 +42,11 @@ namespace AuthService {
   }
 
   export async function signOut() {
+    // Before signOut, not after: deleting the row is an RLS-gated write that
+    // needs auth.uid(), and once the session is gone there is nothing to
+    // authorise it.
+    await PushTokenService.remove();
+
     const { error } = await supabase.auth.signOut();
 
     if (error) throw error;

@@ -200,7 +200,7 @@ the failure PRODUCT_BRIEF names as fatal — "notifications that are too noisy" 
 feature meant to prevent it. The engine needs a sent-record regardless, so building it now costs
 nothing extra and avoids ending up with two delivery paths.
 
-It also buys an audit trail (what did Pawly actually send this household last Tuesday?) and a place to
+It also buys an audit trail (what did Crumpet actually send this household last Tuesday?) and a place to
 retry from.
 
 ## Data model
@@ -400,14 +400,14 @@ Driven by `getPermissionsAsync()`, which returns `canAskAgain` and `ios.status`:
 | `AUTHORIZED` | both toggles, live |
 | `DENIED` | both toggles **disabled**, one explanatory line, an **Open Settings** button |
 
-The denied copy states the consequence and nothing more: *"Notifications are turned off for Pawly, so
+The denied copy states the consequence and nothing more: *"Notifications are turned off for Crumpet, so
 you won't hear when someone feeds Bailey."* plus `Linking.openSettings()`.
 
 Disabling the toggles is the point. A toggle reading "on" while iOS silently drops every push is the
 app lying about its own state — the same trust failure PRODUCT_BRIEF says makes people delete it.
 
 Apple's guideline 4.5.4 forbids *requiring* push for an app to function; it does not forbid telling
-someone their notifications are off and offering a route to Settings. Pawly is comfortably inside that
+someone their notifications are off and offering a route to Settings. Crumpet is comfortably inside that
 — logging, Activity, slots and correction all work with notifications off; only the alerts are lost.
 The lines not to cross: do not gate content behind it, do not imitate a system alert, do not nag.
 
@@ -415,7 +415,7 @@ Permission is re-read on foreground so returning from Settings updates the scree
 root layout already has an `AppState` listener to hang that off.
 
 `provideAppNotificationSettings` is included in the permission request, so iOS shows a button inside
-its own settings page that deep-links back into Pawly's notification screen.
+its own settings page that deep-links back into Crumpet's notification screen.
 
 ## Prerequisites
 

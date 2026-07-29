@@ -11,9 +11,14 @@ import {
 import type { AppTheme } from '@/constants/theme';
 import { useLogFeed, type LogFeedResult } from '@/hooks/use-feed-log-mutations';
 import { useHousehold } from '@/hooks/use-household';
-import { memberDisplayName, useHouseholdMembers } from '@/hooks/use-household-members';
+import {
+  formatAuthorName,
+  memberDisplayName,
+  useHouseholdMembers
+} from '@/hooks/use-household-members';
 import { usePet } from '@/hooks/use-pet';
 import { useStyles } from '@/hooks/use-styles';
+import { useAuthStore } from '@/stores/auth-store';
 import { formatScheduledTime, formatTimeOfDay } from '@/lib/dates';
 import { feedLogErrorMessage } from '@/lib/feed-log-errors';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -37,6 +42,26 @@ const slotLabelText: Record<Warning['slot']['label'], string> = {
 };
 
 /**
+ * Names who is actually about to hear about this feed. Delivery is the
+ * recipient's decision (ADR 0012), so this states what will happen rather than
+ * offering a lever over someone else's awareness.
+ *
+ * Returns null for an empty list: "Nobody will be notified" invites a fix for
+ * something that is not broken.
+ */
+function notifiedSentence(names: string[]): string | null {
+  if (names.length === 0) return null;
+  if (names.length === 1) return `${names[0]} will be notified`;
+  if (names.length === 2) return `${names[0]} and ${names[1]} will be notified`;
+
+  const remaining = names.length - 2;
+
+  return `${names[0]}, ${names[1]} and ${remaining} ${
+    remaining === 1 ? 'other' : 'others'
+  } will be notified`;
+}
+
+/**
  * Creates a feed log. The Double Feed warning renders INLINE rather than in a
  * second sheet, for two reasons: a native sheet raised while another
  * presentation is up gets swallowed by iOS, and the warning is about the thing
@@ -47,12 +72,21 @@ const LogFeedSheet = ({ sheetRef }: Props) => {
   const styles = useStyles(makeStyles);
   const [warning, setWarning] = useState<Warning | null>(null);
 
+  const { userId } = useAuthStore();
   const { data: pet } = usePet();
   const { data: household } = useHousehold();
   const { data: members = [] } = useHouseholdMembers();
 
   const logFeed = useLogFeed(pet?.id);
   const timezone = household?.timezone;
+
+  // First names, matching formatAuthorName -- the sheet has to agree with the
+  // notification, the Home slot row, the Activity row and the detail sheet.
+  const notified = notifiedSentence(
+    members
+      .filter((member) => member.userId !== userId && member.feedLoggedAlerts)
+      .map((member) => formatAuthorName(member))
+  );
 
   const form = useForm<FeedLogNotesOnlyFormValues>({
     resolver: zodResolver(feedLogNotesOnlySchema),
@@ -140,6 +174,12 @@ const LogFeedSheet = ({ sheetRef }: Props) => {
               />
             )}
           />
+
+          {notified && (
+            <AppText size={13} color="textSecondary">
+              {notified}
+            </AppText>
+          )}
 
           <MainButton
             text={warning ? 'Log anyway' : 'Log feed'}

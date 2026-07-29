@@ -8,7 +8,7 @@ Expo changes fast and the model's training data is often stale. This project is 
 
 ## What this project is
 
-**Pawly** — a pet-care coordination app (iOS first). A household shares responsibility for a pet; members log feeds, everyone gets notified, and the app flags missed feeds. Starts with dog feeding but is intentionally pet-general.
+**Crumpet** — a pet-care coordination app (iOS first). A household shares responsibility for a pet; members log feeds, everyone gets notified, and the app flags missed feeds. Starts with dog feeding but is intentionally pet-general.
 
 - **Product:** [docs/PRODUCT_BRIEF.md](./docs/PRODUCT_BRIEF.md)
 - **Tech stack (with install status):** [docs/TECH_STACK.md](./docs/TECH_STACK.md)
@@ -17,6 +17,29 @@ Expo changes fast and the model's training data is often stale. This project is 
 - **Architecture decisions:** [docs/adr/](./docs/adr/)
 
 Before naming things or discussing the domain, skim `CONTEXT.md`. Before changing architecture, skim the ADRs.
+
+## How to write your replies
+
+This is about the chat, not the code. It applies to every message.
+
+Use plain language. Write short sentences. One idea per sentence.
+
+Do not compress. A sentence that packs three clauses together is harder to read than three
+sentences, even though it is shorter. Length is not the thing to optimise. Clarity is.
+
+Specifically:
+
+- Prefer a common word to a fancy one. "Use", not "utilise". "Stop", not "cease".
+- Break up long sentences. If a sentence needs a semicolon or a dash to hold it together, it is
+  probably two sentences.
+- Say the point first, then explain it. Do not build up to it.
+- Cut throat-clearing. "It is worth noting that X" is just "X".
+- Avoid stacked qualifiers. "This may potentially be somewhat risky" means "this is risky".
+- Do not stack nouns. "Notification permission prompt priming flow" is unreadable.
+- Explain a term the first time you use it, or use a simpler one.
+
+Being brief is good. Being dense is not. If you have cut a message down so far that the reader has
+to unpack it, you have gone too far — expand it back out into more, simpler sentences.
 
 ## Commands
 
@@ -38,15 +61,21 @@ Every feature or non-trivial change gets a branch, named **before** work starts 
 straight to `main`:
 
 ```
-<type>/PAW-<nnn>-<kebab-case-slug>     e.g. feat/PAW-001-feed-logging
+<type>/CRU-<nnn>-<kebab-case-slug>     e.g. feat/CRU-004-home-missed-feeds
 ```
 
 `<type>` is the commit-type vocabulary (`feat`, `fix`, `chore`, `docs`, `refactor`); the ticket ID
 is uppercase and zero-padded to three digits. Git refnames forbid spaces and `[`, so brackets never
-appear in a branch name — only in the PR title (`[PAW-001] Add feed logging`).
+appear in a branch name — only in the PR title (`[CRU-004] Show missed feeds on Home`).
+
+The prefix was `PAW-` through `PAW-003`, when the app was called Pawly. `CRU-` picks up at 004 —
+**the numbering is continuous, only the prefix changed**, so there is exactly one ticket 004.
+Existing `PAW-` branches, commits and PR titles are history; never retroactively renumber them, and
+a PR for a `PAW-` branch keeps its `PAW-` title.
 
 IDs come from git history, not an external tracker: `git fetch --all --prune`, then take the highest
-existing `PAW-nnn` and add one. Full command and PR conventions live in the `create-pr` skill.
+existing `PAW-nnn` **or** `CRU-nnn` and add one — matching only `CRU-` would restart at 001. Full
+command and PR conventions live in the `create-pr` skill.
 
 ## Toolchain
 
@@ -185,7 +214,12 @@ const petType = watch('petType');
 **Any time a user sets or corrects is entered through `DateTimePickerValidated`** (`src/components/core/date-time-picker-validated.tsx`) with `mode="time"`, which renders the native wheel (`display="spinner"`, 216pt on iOS). Never a text field, never a masked `HH:mm` input, never a custom wheel.
 
 ```tsx
-<DateTimePickerValidated mode="time" label="Time fed" selectedDate={value} setSelectedDate={onChange} />
+<DateTimePickerValidated
+  mode="time"
+  label="Time fed"
+  selectedDate={value}
+  setSelectedDate={onChange}
+/>
 ```
 
 The component already owns the storage/display split — it stores `HH:mm` and displays `h:mm A`, so call sites never format. `mode="date"` gets the inline calendar; that pairing is deliberate and lives in one place.
@@ -256,7 +290,7 @@ Rules:
 - **Hooks never take a sheet ref.** A hook does the work and returns state; the call site dismisses. `useLogout()` returns `{ logout, isLoading }` and knows nothing about sheets — keep it that way.
 - **`detents`:** maximum of 3, sorted smallest to largest. Use `['auto']` for content-sized confirmations, `['auto', 0.6, 1]` (the `BaseSheet` default) for anything scrollable.
 - **Deep links reach sheets via their host screen**, because a sheet has no URL. Route to the screen with a param (`/activity?logId=…`), present from an effect once the data has loaded, then clear the param so back-navigation behaves. This is how notification taps open a specific record.
-- Prefer an **inline** picker inside a sheet over `react-native-modal-datetime-picker` — stacking a modal on top of a native sheet is a rough edge on iOS. This is about *presentation*, not about the control: a time input is always the `mode="time"` spinner (see Dates and times above), inline if the modal misbehaves.
+- Prefer an **inline** picker inside a sheet over `react-native-modal-datetime-picker` — stacking a modal on top of a native sheet is a rough edge on iOS. This is about _presentation_, not about the control: a time input is always the `mode="time"` spinner (see Dates and times above), inline if the modal misbehaves.
 
 ### Popovers (not sheets)
 
@@ -274,7 +308,13 @@ Use `isIOS` / `isAndroid` / `isWeb` from `@/utils/platform`. Use the haptics hel
 
 ### Notifications
 
-Push handling lives in `use-push-notifications`. Two alert types (feed-logged, missed-feed) — see TECH_STACK and [ADR 0002](./docs/adr/0002-missed-feed-alert-engine.md).
+Push handling lives in `use-push-notifications`, mounted once inside `AuthGate` in `src/app/_layout.tsx`. Two alert types (feed-logged, missed-feed) — see TECH_STACK, [ADR 0002](./docs/adr/0002-missed-feed-alert-engine.md) and [ADR 0012](./docs/adr/0012-recipient-controlled-alert-delivery-and-the-outbox.md).
+
+**The only write path for a feed log is the `log_feed` RPC — never a table insert.** That was already true for the Double Feed guard; it now also decides whether anyone finds out. An after-insert trigger on `feed_logs` queues the `alerts` row, so a path that bypasses `log_feed` does not merely skip the guard, it silently sends no notification.
+
+**Delivery is the recipient's decision, never the sender's.** There is no per-log "notify?" control and there must not be one — see ADR 0012. A feed logged more than 30 minutes after it happened is recorded as a Suppressed Alert and not pushed, automatically.
+
+**Sending is an outbox, not a direct call.** `feed_logs` → trigger → `alerts` → trigger → `pg_net` → the `send-alerts` Edge Function, which resolves recipients at send time. Anything that needs to notify a household inserts an `alerts` row; it does not call the Edge Function.
 
 ### Localisation
 
@@ -288,7 +328,38 @@ All user-facing text uses **Australian/British English** (colour, organise, canc
 
 ### Comments
 
-Don't comment self-explanatory code. Comment the **why** — non-obvious constraints, platform quirks, deliberate deviations. Never use comments to narrate a change.
+Comments matter, but this codebase has been over-commented — long block comments justifying
+ordinary code, and prose that re-states what the line already says. Default to fewer.
+
+**Do not comment self-explanatory code.** If the function name, the variable name, or the logic
+itself makes the intent clear, a comment is noise. Avoid:
+
+- Describing what a function does when the name already says it (`// Returns the user's name` above `getUserName()`)
+- Restating a line (`// Set loading to true` above `setLoading(true)`)
+- JSDoc blocks on simple components or hooks whose props and signature are obvious
+- Narrating a change (`// Now uses the RPC instead of an insert`) — that belongs in the commit message
+
+**Do comment the _why_** when a future reader could not reasonably infer it from the code:
+
+- A workaround for a platform bug or third-party library quirk
+- A special case that looks wrong but is intentional
+- Why an approach was chosen over the obvious alternative
+- A constraint imposed by an external system (API behaviour, OS limitation, Postgres semantics)
+
+Keep it to the shortest form that carries the reason — usually one or two lines. Reserve a long
+block comment for a genuinely load-bearing decision, and prefer an ADR when the explanation is
+really about architecture.
+
+```ts
+// Bad — noise, the code is obvious
+// Check if the user is logged in
+if (!token) return null;
+
+// Good — a platform constraint the code cannot show on its own
+// A response listener attaches after a cold-start tap has already been
+// delivered, so useLastNotificationResponse is what replays it.
+const lastResponse = Notifications.useLastNotificationResponse();
+```
 
 ## Domain modelling discipline
 

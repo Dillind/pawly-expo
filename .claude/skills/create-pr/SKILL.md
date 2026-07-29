@@ -1,9 +1,9 @@
 ---
 name: create-pr
-description: Create a pull request for the pawly-expo repository. Always invoke this skill when the user asks to open, raise, submit, or create a PR or pull request. This skill bases the description on ALL committed changes on the branch vs the base branch — not just recent commits, not uncommitted files, not conversation context. Use this even if the user hasn't explicitly said "use the PR skill" — anytime a PR is being created.
+description: Create a pull request for the crumpet-expo repository. Always invoke this skill when the user asks to open, raise, submit, or create a PR or pull request. This skill bases the description on ALL committed changes on the branch vs the base branch — not just recent commits, not uncommitted files, not conversation context. Use this even if the user hasn't explicitly said "use the PR skill" — anytime a PR is being created.
 ---
 
-# PR Creation — pawly-expo
+# PR Creation — crumpet-expo
 
 Creates a GitHub pull request using the project's PR template, derived entirely from what has actually been committed to the branch.
 
@@ -12,12 +12,18 @@ Creates a GitHub pull request using the project's PR template, derived entirely 
 Every feature or non-trivial change gets its own branch, named **before** work starts:
 
 ```
-<type>/PAW-<nnn>-<kebab-case-slug>
+<type>/CRU-<nnn>-<kebab-case-slug>
 
-feat/PAW-001-feed-logging
-fix/PAW-014-missed-feed-timezone
-chore/PAW-022-bump-expo-57
+feat/CRU-004-home-missed-feeds
+fix/CRU-014-missed-feed-timezone
+chore/CRU-022-bump-expo-57
 ```
+
+> The prefix was `PAW-` up to and including `PAW-003`, when the app was called
+> Pawly. `CRU-` starts at 004 — the **numbering is continuous**, only the prefix
+> changed, so there is exactly one ticket 004 and no ambiguity about ordering.
+> Existing `PAW-` branches, commits and PR titles are history and stay as they
+> are; never retroactively renumber them.
 
 - `<type>` matches the commit-type vocabulary: `feat`, `fix`, `chore`, `docs`, `refactor`.
 - Ticket ID is **uppercase**, zero-padded to three digits.
@@ -26,16 +32,16 @@ chore/PAW-022-bump-expo-57
 
 ### Allocating the next ID
 
-IDs are derived from git history, not from an external tracker. Take the highest existing `PAW-nnn` and add one:
+IDs are derived from git history, not from an external tracker. Take the highest existing number across **both** prefixes and add one — the sequence is shared, so a lookup that only matched `CRU-` would hand out 001 again:
 
 ```bash
 { git branch -a --format='%(refname:short)'
   git log --all --format='%s'
   gh pr list --state all --limit 200 --json title,headRefName -q '.[].title,.[].headRefName' 2>/dev/null
-} | grep -oE 'PAW-[0-9]+' | sort -t- -k2 -n | tail -1
+} | grep -oE '(PAW|CRU)-[0-9]+' | sort -t- -k2 -n | tail -1
 ```
 
-Empty output means none exist yet — start at `PAW-001`. Run this against a **fetched** repo (`git fetch --all --prune` first) so a teammate's pushed branch isn't missed and the same ID handed out twice.
+Whatever prefix that highest match carries, the **new** branch always uses `CRU-`. Empty output means none exist yet — start at `CRU-001`. Run this against a **fetched** repo (`git fetch --all --prune` first) so a teammate's pushed branch isn't missed and the same ID handed out twice.
 
 If the user supplies an ID explicitly, use theirs — don't re-derive.
 
@@ -102,9 +108,9 @@ Bad: "Test the feature." Good: "1. Sign in with an account that has no household
 
 ## Step 3: Construct the PR title
 
-Format: `[PAW-XXX] Short descriptive summary`, under 70 characters including the prefix.
+Format: `[CRU-XXX] Short descriptive summary`, under 70 characters including the prefix.
 
-Take the ticket ID from the branch name — do not allocate a new one at PR time. If the branch has no `PAW-XXX` in it (an older branch, or one created before this convention), leave the prefix off rather than inventing an ID.
+Take the ticket ID **and its prefix** from the branch name — do not allocate a new one at PR time, and do not "modernise" a `PAW-` branch into `CRU-`. A branch named `feat/PAW-003-push-notifications` gets the title `[PAW-003] …`; the title has to match the branch a reviewer is looking at. If the branch carries no ticket ID at all (an older branch, or one created before this convention), leave the prefix off rather than inventing an ID.
 
 ## Step 4: Push and create the PR
 

@@ -9,8 +9,7 @@ import { Colors, Spacing, type AppTheme, type ThemeMode } from '@/constants/them
 import { useColorScheme } from '@/hooks/use-color-scheme';
 
 export function useTheme(): AppTheme {
-  const scheme = useColorScheme();
-  const mode: ThemeMode = scheme === 'unspecified' ? 'light' : scheme;
+  const mode: ThemeMode = useColorScheme();
 
   return useMemo(
     () => ({

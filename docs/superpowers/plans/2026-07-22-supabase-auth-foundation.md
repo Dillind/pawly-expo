@@ -4,11 +4,11 @@
 >
 > **Do not begin execution until Dylan has explicitly confirmed he wants implementation to start.** This plan was written on Sonnet per his usual process (Opus for planning, Sonnet for implementation) — he's already aware this plan itself was drafted on Sonnet and said that's fine for this round, but future planning passes should default to Opus unless he says otherwise.
 
-**Goal:** Replace the placeholder `useState(false)` auth gate in `pawly-expo` with real Supabase email/password auth — sign up, OTP-code email verification, and sign in — backed by a migrated Postgres schema with RLS from day one. Forgot-password is deferred to a later, settings-adjacent pass (see Task 10's scope note) rather than built speculatively now.
+**Goal:** Replace the placeholder `useState(false)` auth gate in `crumpet-expo` with real Supabase email/password auth — sign up, OTP-code email verification, and sign in — backed by a migrated Postgres schema with RLS from day one. Forgot-password is deferred to a later, settings-adjacent pass (see Task 10's scope note) rather than built speculatively now.
 
 **Architecture:** `auth.users` (Supabase-managed) is mirrored into `public.users` via a `SECURITY DEFINER` trigger populated from signup metadata. `households`/`household_members` are stood up now (empty of app-facing UI) so the RLS helper-function pattern (`is_household_member`, `is_household_owner`) exists from the first migration, ready for the pets/feed_logs schema in a later pass. Session persistence uses `@react-native-async-storage/async-storage` (not `expo-secure-store` — see ADR 0005). Auth state lives in a thin Zustand slice fed by a single `onAuthStateChange` subscription; the `public.users` profile row is fetched/cached via TanStack Query and mirrored into the same store for future imperative use (RevenueCat, PostHog, Sentry — not wired up in this plan, just left ready). Email verification uses Supabase's OTP-code flow, not magic links (see ADR 0006).
 
-**Tech Stack:** Expo SDK 57 / Expo Router, `@supabase/supabase-js` (already installed), `@react-native-async-storage/async-storage` (new), Zustand, TanStack Query, `react-hook-form` + Zod, Supabase CLI (via `npx supabase`) for migrations against the existing remote `pawly` project (ref `dofjrttcyjtzvqyttqdo`).
+**Tech Stack:** Expo SDK 57 / Expo Router, `@supabase/supabase-js` (already installed), `@react-native-async-storage/async-storage` (new), Zustand, TanStack Query, `react-hook-form` + Zod, Supabase CLI (via `npx supabase`) for migrations against the existing remote `crumpet` project (ref `dofjrttcyjtzvqyttqdo`).
 
 ## Global Constraints
 
@@ -80,12 +80,12 @@ Sign-up confirmation and password reset both use Supabase's 6-digit One-Time-Pas
 
 ## Considered options
 
-- **Magic link (Supabase default)** — email contains a link that opens Safari, which hands back to the app via the `pawlyapp://` deep-link scheme already configured for household invites (ADR 0003). Rejected for v1: the RN client is configured with `detectSessionInUrl: false`, so a magic-link redirect needs the app to manually parse the incoming URL and call `exchangeCodeForSession` — extra plumbing, and an app-switch-to-Safari-and-back hand-off is a rougher mobile UX than staying in-app.
-- **OTP code** (chosen) — user types a 6-digit code into an in-app screen, verified via `supabase.auth.verifyOtp({ email, token, type })`. No browser hand-off, no deep-link parsing. Requires editing the "Confirm signup" and "Reset password" email templates in the Supabase dashboard to use `{{ .Token }}` instead of the default link (also where Pawly branding is added — see Task 3).
+- **Magic link (Supabase default)** — email contains a link that opens Safari, which hands back to the app via the `crumpetapp://` deep-link scheme already configured for household invites (ADR 0003). Rejected for v1: the RN client is configured with `detectSessionInUrl: false`, so a magic-link redirect needs the app to manually parse the incoming URL and call `exchangeCodeForSession` — extra plumbing, and an app-switch-to-Safari-and-back hand-off is a rougher mobile UX than staying in-app.
+- **OTP code** (chosen) — user types a 6-digit code into an in-app screen, verified via `supabase.auth.verifyOtp({ email, token, type })`. No browser hand-off, no deep-link parsing. Requires editing the "Confirm signup" and "Reset password" email templates in the Supabase dashboard to use `{{ .Token }}` instead of the default link (also where Crumpet branding is added — see Task 3).
 
 ## Consequences
 
-- `pawlyapp://` stays reserved for household invites only (ADR 0003); auth never needs deep-link handling.
+- `crumpetapp://` stays reserved for household invites only (ADR 0003); auth never needs deep-link handling.
 - Both signup and password-reset flows need an extra in-app "enter the code" screen (`sign-up/verify.tsx`, `forgot-password/verify.tsx`).
 - Supabase's built-in email sender is rate-limited and best-effort only, regardless of link-vs-code — a custom SMTP provider (Dylan's plan: AWS SES) is still required before real users sign up. Not a consequence of this decision specifically.
 ```
@@ -186,7 +186,7 @@ npx supabase init
 
 Expected: creates `supabase/config.toml`, `supabase/.gitignore`, `supabase/migrations/` (empty). Accept the default prompts (VS Code settings, etc. — answer `N` if asked, not needed here).
 
-- [x] **Step 2: Manual step — Dylan links the CLI to the `pawly` project**
+- [x] **Step 2: Manual step — Dylan links the CLI to the `crumpet` project**
 
 This requires an interactive browser login and cannot be scripted. Dylan runs, in this repo's root:
 
@@ -336,7 +336,7 @@ create trigger on_auth_user_created
   for each row execute procedure public.handle_new_user();
 ```
 
-- [x] **Step 4: Apply the migration to the remote `pawly` project**
+- [x] **Step 4: Apply the migration to the remote `crumpet` project**
 
 Use the Supabase MCP tool (already connected, no additional auth needed) rather than `supabase db push`, since Step 2's interactive login may not have happened yet in an agent-driven run:
 
@@ -480,10 +480,10 @@ Dashboard → Authentication → Providers → Email. Confirm "Confirm email" is
 
 - [x] **Step 2: Edit the "Confirm signup" template**
 
-Dashboard → Authentication → Emails → Templates → "Confirm signup". Replace the body so it uses `{{ .Token }}` instead of the default `{{ .ConfirmationURL }}` link, and add Pawly branding/copy, e.g.:
+Dashboard → Authentication → Emails → Templates → "Confirm signup". Replace the body so it uses `{{ .Token }}` instead of the default `{{ .ConfirmationURL }}` link, and add Crumpet branding/copy, e.g.:
 
 ```html
-<h2>Welcome to Pawly</h2>
+<h2>Welcome to Crumpet</h2>
 <p>Enter this code in the app to confirm your email address:</p>
 <h1>{{ .Token }}</h1>
 <p>This code expires shortly — if it's expired, request a new one from the app.</p>
@@ -1469,7 +1469,7 @@ Sign up with a real, checkable email address on the simulator. Confirm:
 
 - Submitting invalid fields (short password, missing name) shows Zod errors. ✅ verified live during this session (agent-driven testing).
 - Successful submit navigates to `/sign-up/verify` showing the email address. ✅ verified live.
-- The email arrives with a 6-digit code (not a link) and Pawly-branded copy. ✅ verified by Dylan, 2026-07-23, once Resend SMTP unblocked template editing.
+- The email arrives with a 6-digit code (not a link) and Crumpet-branded copy. ✅ verified by Dylan, 2026-07-23, once Resend SMTP unblocked template editing.
 - Entering the correct code signs the user in and the app swaps from the sign-up screen straight into `(protected)` — no manual navigation call should be needed for this, confirming Task 7's reactive `AuthGate` works end-to-end. ✅ confirmed working by Dylan — full signup → OTP → protected-area flow proven end-to-end.
 - Entering a wrong code shows the "Could not verify code" toast and stays on the screen. Not explicitly re-tested after the SMTP fix, but this path was already exercised earlier in the session (error handling confirmed via the sign-in screen's equivalent path) and the code is unchanged.
 

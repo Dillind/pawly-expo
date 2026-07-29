@@ -1,0 +1,151 @@
+import { useEffect, useState } from 'react';
+import { StyleSheet, View, type LayoutChangeEvent } from 'react-native';
+import Animated, {
+  ReduceMotion,
+  useAnimatedStyle,
+  useSharedValue,
+  withSpring
+} from 'react-native-reanimated';
+
+import { Spacing, type AppTheme } from '@/constants/theme';
+import { useStyles } from '@/hooks/use-styles';
+import { hapticLight } from '@/lib/haptics';
+
+import AppText from './app-text';
+import PressableOpacity from './pressable-opacity';
+
+type Option<T> = {
+  value: T;
+  label: string;
+};
+
+type Props<T extends string> = {
+  label?: string;
+  options: Option<T>[];
+  value: T;
+  onChange: (value: T) => void;
+};
+
+const TrackPadding = Spacing.one;
+const SegmentGap = Spacing.one;
+
+const ThumbSpring = {
+  damping: 20,
+  stiffness: 220,
+  mass: 0.6,
+  reduceMotion: ReduceMotion.System
+};
+
+const SegmentedControl = <T extends string>({ label, options, value, onChange }: Props<T>) => {
+  const styles = useStyles(makeStyles);
+  const [trackWidth, setTrackWidth] = useState(0);
+
+  const translateX = useSharedValue(0);
+  // The thumb must appear under the initial selection, not slide to it on mount.
+  const hasSettled = useSharedValue(false);
+
+  const selectedIndex = Math.max(
+    options.findIndex((option) => option.value === value),
+    0
+  );
+
+  const innerWidth = trackWidth - TrackPadding * 2;
+  const segmentWidth =
+    innerWidth > 0 ? (innerWidth - SegmentGap * (options.length - 1)) / options.length : 0;
+
+  useEffect(() => {
+    if (segmentWidth <= 0) return;
+
+    const target = selectedIndex * (segmentWidth + SegmentGap);
+
+    if (hasSettled.value) {
+      translateX.value = withSpring(target, ThumbSpring);
+    } else {
+      translateX.value = target;
+      hasSettled.value = true;
+    }
+  }, [hasSettled, segmentWidth, selectedIndex, translateX]);
+
+  const thumbStyle = useAnimatedStyle(() => ({
+    width: segmentWidth,
+    transform: [{ translateX: translateX.value }]
+  }));
+
+  const handleLayout = (event: LayoutChangeEvent) => {
+    setTrackWidth(event.nativeEvent.layout.width);
+  };
+
+  const handlePress = (option: Option<T>) => {
+    if (option.value === value) return;
+
+    void hapticLight();
+    onChange(option.value);
+  };
+
+  return (
+    <View style={styles.container}>
+      {label ? (
+        <AppText size={14} fontWeight="bold">
+          {label}
+        </AppText>
+      ) : null}
+      <View style={styles.track} onLayout={handleLayout}>
+        {segmentWidth > 0 ? <Animated.View style={[styles.thumb, thumbStyle]} /> : null}
+        {options.map((option) => {
+          const isSelected = option.value === value;
+
+          return (
+            <PressableOpacity
+              key={option.value}
+              accessibilityRole="button"
+              accessibilityLabel={option.label}
+              accessibilityState={{ selected: isSelected }}
+              style={styles.segment}
+              onPress={() => handlePress(option)}>
+              <AppText
+                size={14}
+                align="center"
+                fontWeight={isSelected ? 'bold' : 'regular'}
+                color={isSelected ? 'text' : 'textSecondary'}>
+                {option.label}
+              </AppText>
+            </PressableOpacity>
+          );
+        })}
+      </View>
+    </View>
+  );
+};
+
+const makeStyles = ({ colors, spacing }: AppTheme) =>
+  StyleSheet.create({
+    container: {
+      gap: spacing.two
+    },
+    track: {
+      flexDirection: 'row',
+      gap: SegmentGap,
+      padding: TrackPadding,
+      borderRadius: 12,
+      borderCurve: 'continuous',
+      backgroundColor: colors.backgroundElement
+    },
+    thumb: {
+      position: 'absolute',
+      top: TrackPadding,
+      bottom: TrackPadding,
+      left: TrackPadding,
+      borderRadius: 10,
+      borderCurve: 'continuous',
+      backgroundColor: colors.backgroundSelected
+    },
+    segment: {
+      flex: 1,
+      minHeight: 44,
+      justifyContent: 'center',
+      paddingHorizontal: spacing.two,
+      borderRadius: 10
+    }
+  });
+
+export default SegmentedControl;

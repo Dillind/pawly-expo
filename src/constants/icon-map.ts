@@ -1,9 +1,11 @@
 import {
   Asterisk,
+  Bell,
   Calendar,
   Camera,
   Check,
   ChevronDown,
+  ChevronRight,
   CircleAlert,
   Clock,
   Dot,
@@ -21,6 +23,7 @@ export const iconMap = {
   camera: Camera,
   asterisk: Asterisk,
   caretDown: ChevronDown,
+  caretRight: ChevronRight,
   dot: Dot,
   eye: Eye,
   eyeOff: EyeOff,
@@ -33,6 +36,7 @@ export const iconMap = {
   pencil: Pencil,
   userPlus: UserPlus,
   pawPrint: PawPrint,
+  bell: Bell,
   close: X
 } as const;
 

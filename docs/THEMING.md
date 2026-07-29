@@ -1,6 +1,6 @@
 # Theming
 
-Pawly uses a small, in-repo theme — **no component library and no NativeWind/Tailwind** (see [ADR 0004](./adr/0004-custom-theme-no-component-library.md)). Tokens live in `src/constants/theme.ts` and are consumed through `useTheme()` and `useStyles()`.
+Crumpet uses a small, in-repo theme — **no component library and no NativeWind/Tailwind** (see [ADR 0004](./adr/0004-custom-theme-no-component-library.md)). Tokens live in `src/constants/theme.ts` and are consumed through `useTheme()` and `useStyles()`.
 
 ## The theme object
 

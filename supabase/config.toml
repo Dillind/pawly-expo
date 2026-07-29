@@ -2,7 +2,7 @@
 # https://supabase.com/docs/guides/local-development/cli/config
 # A string used to distinguish different Supabase projects on the same host. Defaults to the
 # working directory name when running `supabase init`.
-project_id = "pawly-expo"
+project_id = "crumpet-expo"
 
 [api]
 enabled = true
@@ -412,3 +412,10 @@ enabled = true
 # declarative_schema_path = "./database"
 # JSON string passed through to pg-delta SQL formatting.
 # format_options = "{\"keywordCase\":\"upper\",\"indent\":2,\"maxWidth\":80,\"commaStyle\":\"trailing\"}"
+
+# Called by the DATABASE (an after-insert trigger on alerts via pg_net), not by
+# a signed-in user, so there is no JWT to verify. It authenticates on a shared
+# secret instead: ALERT_DISPATCH_SECRET as a function secret here, and the same
+# value in Vault as `alert_dispatch_secret` on the database side.
+[functions.send-alerts]
+verify_jwt = false

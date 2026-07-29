@@ -3,7 +3,7 @@
   "configVersion": 1,
   "workspaces": {
     "": {
-      "name": "pawly-expo",
+      "name": "crumpet-expo",
       "dependencies": {
         "@expo-google-fonts/inter": "^0.4.2",
         "@hookform/resolvers": "^5.4.0",
