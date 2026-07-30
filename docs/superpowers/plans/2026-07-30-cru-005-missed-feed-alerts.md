@@ -19,7 +19,7 @@
 - **Prettier:** 100-char width, single quotes, no trailing commas, `bracketSameLine: true`, no tabs.
 - **Every SQL function gets `set search_path = ''`** and fully-qualified names (`public.pets`, not `pets`).
 - **A new function in `private` is born with PUBLIC EXECUTE.** Always `revoke execute ... from public`. Never grant the sweep to `authenticated`.
-- **Comments explain _why_, not _what_.** Default to fewer. No narrating the change — that belongs in the commit message.
+- **Comments: write fewer than you want to.** This codebase has been over-commented and it is a standing complaint. Write **exactly** the comments the plan's code blocks show and not one more. Do not add a comment because a line looks important. Do not restate what the code says, do not write JSDoc on obvious signatures, and do not narrate the change — that is the commit message's job. If the reasoning is architectural it belongs in the ADR, not above the function.
 - **`bun run spellcheck` fails on Node 20** in non-interactive shells. Use:
   ```bash
   PATH="$HOME/.volta/tools/image/node/24.18.0/bin:$PATH" node node_modules/.bin/cspell --no-progress "**/*.{ts,tsx,md,sql}"
@@ -93,13 +93,12 @@ export type ExpoMessage = {
 
 Add below the existing `timeOfDay` helper.
 
-`scheduled_time` is a Postgres `time` — a wall-clock time in the household timezone with no date of its own. It must **not** go through `timeOfDay`, which converts an instant into a timezone. Converting a value that is already local would shift it.
-
-The label words are the lowercase set already used in `src/components/bottom-sheets/log-feed-sheet.tsx`. Three surfaces render one slot; they must not invent three names for it.
+Two things for the implementer to know, which is why the one comment below earns its place: `scheduled_time` is a Postgres `time`, already wall-clock in the household timezone, so it must not go through `timeOfDay` — that function applies a timezone, and applying one to a value that already has one shifts it. And the label words are copied from `src/components/bottom-sheets/log-feed-sheet.tsx` rather than invented.
 
 ```ts
 export type ScheduleLabel = 'morning' | 'lunch' | 'dinner' | 'custom';
 
+// Matches slotLabelText in log-feed-sheet.tsx.
 const slotLabelText: Record<ScheduleLabel, string> = {
   morning: 'morning',
   lunch: 'lunch',
@@ -107,9 +106,8 @@ const slotLabelText: Record<ScheduleLabel, string> = {
   custom: 'scheduled'
 };
 
-// A Postgres `time` ('07:00:00') is already wall-clock in the household
-// timezone, so this formats the string directly. Passing it through
-// timeOfDay would apply a timezone to a value that already has one.
+// A Postgres `time` is already wall-clock in the household timezone, so
+// timeOfDay would apply a second one.
 const wallClockTime = (time: string): string => {
   const [hoursText, minutes = '00'] = time.split(':');
   const hours = Number(hoursText);
@@ -131,18 +129,16 @@ export type MissedFeedInput = {
   scheduledTime: string;
 };
 
+// Names the absent log, never the absent meal -- see ADR 0013 and CONTEXT.md.
 export const buildMissedFeedMessage = (input: MissedFeedInput): Omit<ExpoMessage, 'to'> => ({
-  // Names the missing LOG, not a missing meal. The app only ever knows that
-  // nobody tapped Log; claiming the pet was not fed is the trust failure
-  // PRODUCT_BRIEF calls fatal, and it is wrong most of the time.
   title: `No one has logged ${input.petName}'s ${slotLabelText[input.label]} feed`,
   sound: 'default',
   body: `Due ${wallClockTime(input.scheduledTime)}`,
-  // Home is where you log, so a missed-feed tap lands there. A feed-logged
-  // tap goes to /activity because it opens the log it told you about.
   data: { screen: '/home', params: {} }
 });
 ```
+
+That one comment stays because the wording is a decision someone could "helpfully" rewrite to "Bailey hasn't been fed". Everything else in the function is self-evident.
 
 - [ ] **Step 4: Verify by hand**
 
@@ -212,21 +208,16 @@ export const resolveRecipientTokens = async (
     .eq(preferenceColumn, true);
 ```
 
-- [ ] **Step 2: Extend the doc comment**
+- [ ] **Step 2: Extend the doc comment by two lines**
 
-The existing block comment describes only the feed-logged rule. Add the second rule to it, keeping the existing text:
+The existing block comment states the feed-logged delivery rule. Add the missed-feed rule to it and change nothing else:
 
 ```ts
-/**
- * ...existing feed-logged paragraphs stay...
- *
  * A Missed Feed Alert goes to every member with Missed Feed Alerts on, with
- * nobody excluded -- there is no actor, because the whole point is that no
- * one acted. `missed_feed_alerts` defaults to true where `feed_logged_alerts`
- * defaults to false: feed-logged fires on every feed, three times a day
- * forever, while missed-feed only fires when something is actually off.
- */
+ * nobody excluded -- there is no actor, because the point is that no one acted.
 ```
+
+Do not restate the default values or explain them. That reasoning lives in the `alert_preferences` migration already.
 
 - [ ] **Step 3: Verify by reading**
 
@@ -262,7 +253,9 @@ git commit -m "fix: pick the alert preference column from the alert kind"
 
 This file exists so one place owns the fact that `alerts.subject_id` points at a `feed_logs.id` for one kind and a `feeding_schedules.id` for the other. `index.ts` should not have to know that.
 
-The `feed_logged` branch is the block being moved out of `index.ts` — same selects, same `deno-lint-ignore`, but `.single()` becomes `.maybeSingle()` so a deleted subject returns `null` rather than an error.
+The `feed_logged` branch is the block being moved out of `index.ts` — same selects, same `deno-lint-ignore`, and keep the existing `logged_by` comment verbatim. `.single()` becomes `.maybeSingle()` so a deleted subject returns `null` rather than an error.
+
+Note how short the doc comment is. Do not expand it.
 
 ```ts
 import type { SupabaseClient } from 'npm:@supabase/supabase-js@2';
@@ -280,12 +273,8 @@ type AlertSubject = {
 };
 
 /**
- * Resolves what an alert is ABOUT. subject_id is a feed_logs.id for
- * feed_logged and a feeding_schedules.id for missed_feed, and this is the one
- * place that knows it.
- *
- * Returns null when the row is gone -- a feed log deleted, or a Scheduled Time
- * an Owner removed, between the alert being queued and dispatched.
+ * subject_id is a feed_logs.id for feed_logged and a feeding_schedules.id for
+ * missed_feed. Null means the row is gone -- deleted between queue and dispatch.
  */
 export const buildMessageForAlert = async (
   client: SupabaseClient,
@@ -368,8 +357,7 @@ Then replace everything from the `if (alert.kind !== 'feed_logged')` line down t
 ```ts
   const content = await buildMessageForAlert(client, alert);
 
-  // The subject was deleted between queue and dispatch. Stamped rather than
-  // left pending: there is no version of this alert that can ever be sent.
+  // Stamped rather than left pending: this alert can never become sendable.
   if (!content) {
     await client
       .from('alerts')
@@ -456,30 +444,12 @@ git commit -m "feat: dispatch missed feed alerts from send-alerts"
 Create `supabase/migrations/20260730090000_sweep_missed_feeds.sql`:
 
 ```sql
--- Missed-feed detection. Inserts one alerts row per missed slot; the existing
--- alerts_dispatch trigger delivers it. Detection lives here rather than in an
--- Edge Function (as ADR 0002 originally said) because ADR 0012 split queueing
--- from delivery, and detection is queueing -- see ADR 0013.
+-- Missed-feed detection. See ADR 0013 for why this is a sweep and not an Edge
+-- Function, and CONTEXT.md for the Nudge Limit.
 --
--- Two filters keep this quiet, and both are load-bearing.
---
--- LOOKBACK. Only slots whose Grace Window closed in the last 30 minutes are
--- considered. Without it, the first run inserts an alert for every slot every
--- household has ever missed and pushes all of them at once. The cost is that a
--- sweep outage loses those alerts permanently: accepted, because a nudge about
--- breakfast arriving after lunch is noise rather than a safety net. 30 minutes
--- is two cadence intervals, so one skipped run still catches up.
---
--- NUDGE LIMIT. A household that sets a schedule and drifts away would
--- otherwise be nudged three times a day forever. After 3 missed-feed alerts
--- with no Feed Log in between, this pet goes quiet until someone logs a feed.
---
--- The reset point is feed_logs.created_at, and this is the ONE place in the
--- product that reads created_at instead of logged_at. Everywhere else the
--- question is when the pet ate, and ADR 0002 says logged_at. Here the question
--- is whether a human is still using the app: someone who backdates a log to
--- yesterday morning has just proved they are, but their logged_at is old, so
--- keying off it would leave them silenced.
+-- The lookback exists so the first run does not alert every slot every
+-- household has ever missed. Its cost is that a sweep outage loses those
+-- alerts, which is accepted: a nudge about breakfast is worthless by lunch.
 
 create or replace function private.sweep_missed_feeds()
 returns integer
@@ -507,13 +477,12 @@ begin
     from public.pets
     join public.households on households.id = pets.household_id
   loop
+    -- created_at, not logged_at: the question is whether a human is still using
+    -- the app, and someone backdating a log has just proved they are.
     select max(feed_logs.created_at) into last_log_created_at
     from public.feed_logs
     where feed_logs.pet_id = pet.pet_id;
 
-    -- Counted per pet, never per household: one dormant pet must not silence
-    -- another. The join is how a missed_feed alert reaches a pet at all --
-    -- subject_id is a feeding_schedules.id for this kind.
     select count(*) into nudges
     from public.alerts
     join public.feeding_schedules on feeding_schedules.id = alerts.subject_id
@@ -525,9 +494,7 @@ begin
       continue;
     end if;
 
-    -- Yesterday as well as today: a Scheduled Time is wall-clock with no date,
-    -- so a slot late in the local evening can have its window close after
-    -- local midnight, on the following local date.
+    -- Yesterday too: a late-evening slot's window can close after local midnight.
     foreach local_date in array array[
       (now() at time zone pet.timezone)::date - 1,
       (now() at time zone pet.timezone)::date
@@ -543,9 +510,7 @@ begin
           continue;
         end if;
 
-        -- alerts_idempotency_idx is unique on (kind, subject_id,
-        -- subject_date), which is what makes running this every 15 minutes
-        -- harmless by construction rather than by care.
+        -- on conflict is what makes the 15-minute cadence safe.
         insert into public.alerts (household_id, kind, subject_id, subject_date)
         values (pet.household_id, 'missed_feed', slot.schedule_id, local_date)
         on conflict (kind, subject_id, subject_date) do nothing;
@@ -556,9 +521,7 @@ begin
           nudges := nudges + 1;
           inserted_total := inserted_total + 1;
 
-          -- Re-checked as we insert, not once per pet: a pet sitting at 2 must
-          -- not insert three slots in one run and land at 5. Exits the slot
-          -- loop here, and the date loop immediately below.
+          -- Counted as we insert, so a pet at 2 cannot land at 5 in one run.
           exit when nudges >= nudge_limit;
         end if;
       end loop;
@@ -570,11 +533,7 @@ begin
   return inserted_total;
 end $$;
 
--- security definer, owned by postgres, so one call can see every household.
--- private.slot_states is security invoker and therefore runs as this owner.
---
--- Born with PUBLIC EXECUTE, like every function in this schema. Revoked, and
--- deliberately NOT granted to authenticated: no client calls this.
+-- Born with PUBLIC EXECUTE, and never granted to authenticated: no client calls this.
 revoke execute on function private.sweep_missed_feeds() from public;
 revoke execute on function private.sweep_missed_feeds() from anon, authenticated;
 ```
@@ -791,20 +750,12 @@ git commit -m "feat: add the missed feed sweep"
 Create `supabase/migrations/20260730090100_schedule_missed_feed_sweep.sql`:
 
 ```sql
--- Every 15 minutes. The cadence bounds alert latency: a slot whose Grace
--- Window closes at 08:00 is nudged somewhere in 08:00-08:15. The sweep's own
--- 30-minute lookback is deliberately two intervals wide, so one skipped run
--- still catches up.
---
--- pg_cron runs the job as the role that scheduled it, which for a migration is
--- postgres -- the owner of private.sweep_missed_feeds, and the reason one call
--- can see every household.
+-- The 15-minute cadence bounds alert latency; the sweep's 30-minute lookback is
+-- two intervals wide so one skipped run still catches up.
 
 create extension if not exists pg_cron;
 
--- cron.schedule replaces a job of the same name, but unschedule-first keeps
--- this migration re-runnable against a database where the job was created by
--- hand during development.
+-- Unschedule first so this stays re-runnable against a hand-created job.
 select cron.unschedule('sweep-missed-feeds')
 where exists (select 1 from cron.job where jobname = 'sweep-missed-feeds');
 
