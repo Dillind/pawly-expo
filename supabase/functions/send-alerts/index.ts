@@ -1,8 +1,9 @@
 import { createClient } from 'npm:@supabase/supabase-js@2';
 
 import { sendExpoMessages } from './expo.ts';
-import { buildFeedLoggedMessage, type ExpoMessage } from './message.ts';
+import { type ExpoMessage } from './message.ts';
 import { resolveRecipientTokens } from './recipients.ts';
+import { buildMessageForAlert } from './subjects.ts';
 
 // verify_jwt = false: this is called by the DATABASE, not by a user. It
 // authenticates on a shared secret instead -- held in Vault on the database
@@ -23,7 +24,9 @@ Deno.serve(async (request) => {
 
   const { data: alert, error: alertError } = await client
     .from('alerts')
-    .select('id, household_id, kind, subject_id, actor_id, sent_at, suppressed_reason')
+    .select(
+      'id, household_id, kind, subject_id, subject_date, actor_id, sent_at, suppressed_reason'
+    )
     .eq('id', alertId)
     .single();
 
@@ -32,21 +35,17 @@ Deno.serve(async (request) => {
   // Both are terminal states. Re-delivering a sent alert would be worse than
   // not delivering it at all.
   if (alert.sent_at || alert.suppressed_reason) return new Response('Already handled');
-  if (alert.kind !== 'feed_logged') return new Response('Unsupported kind');
 
-  const { data: log, error: logError } = await client
-    .from('feed_logs')
-    .select('id, logged_at, notes, logged_by, pets ( name, households ( timezone ) )')
-    .eq('id', alert.subject_id)
-    .single();
+  const content = await buildMessageForAlert(client, alert);
 
-  if (logError || !log) return new Response('Feed log not found', { status: 404 });
-
-  // logged_by is nullable with on delete set null -- a log can outlive its
-  // author, and buildFeedLoggedMessage renders that as "Member".
-  const { data: author } = log.logged_by
-    ? await client.from('users').select('first_name').eq('id', log.logged_by).maybeSingle()
-    : { data: null };
+  // Stamped rather than left pending: this alert can never become sendable.
+  if (!content) {
+    await client
+      .from('alerts')
+      .update({ sent_at: new Date().toISOString(), error: 'subject not found' })
+      .eq('id', alert.id);
+    return new Response('Alert subject not found');
+  }
 
   const tokens = await resolveRecipientTokens(client, alert);
 
@@ -61,20 +60,7 @@ Deno.serve(async (request) => {
     return new Response('No recipients');
   }
 
-  // deno-lint-ignore no-explicit-any
-  const pet = (log as any).pets;
-
-  const message: ExpoMessage = {
-    to: tokens,
-    ...buildFeedLoggedMessage({
-      authorFirstName: author?.first_name ?? null,
-      petName: pet.name,
-      loggedAt: log.logged_at,
-      householdTimezone: pet.households.timezone,
-      notes: log.notes,
-      logId: log.id
-    })
-  };
+  const message: ExpoMessage = { to: tokens, ...content };
 
   try {
     // One message with an array `to` returns one ticket per token, in order --
