@@ -148,6 +148,27 @@ export const formatAge = (birthdate: string | null, isApproximate: boolean): str
   const born = new Date(`${birthdate}T00:00:00`);
   const now = new Date();
 
+  const days = Math.floor((now.getTime() - born.getTime()) / (1000 * 60 * 60 * 24));
+
+  if (days < 0) return null;
+
+  if (days < 28) {
+    if (days === 0) return 'Newborn';
+
+    let value: string;
+
+    if (days < 7) {
+      value = `${days} day${days === 1 ? '' : 's'}`;
+    } else if (days < 14) {
+      value = '1 week';
+    } else {
+      const weeks = Math.floor(days / 7);
+      value = `${weeks} weeks`;
+    }
+
+    return isApproximate ? `About ${value}` : value;
+  }
+
   let months =
     (now.getFullYear() - born.getFullYear()) * 12 + (now.getMonth() - born.getMonth());
 
