@@ -152,7 +152,13 @@ export const formatAge = (birthdate: string | null, isApproximate: boolean): str
 
   if (days < 0) return null;
 
-  if (days < 28) {
+  let months =
+    (now.getFullYear() - born.getFullYear()) * 12 + (now.getMonth() - born.getMonth());
+
+  if (now.getDate() < born.getDate()) months -= 1;
+  if (months < 0) return null;
+
+  if (months < 1) {
     if (days === 0) return 'Newborn';
 
     let value: string;
@@ -163,17 +169,11 @@ export const formatAge = (birthdate: string | null, isApproximate: boolean): str
       value = '1 week';
     } else {
       const weeks = Math.floor(days / 7);
-      value = `${weeks} weeks`;
+      value = `${weeks} week${weeks === 1 ? '' : 's'}`;
     }
 
     return isApproximate ? `About ${value}` : value;
   }
-
-  let months =
-    (now.getFullYear() - born.getFullYear()) * 12 + (now.getMonth() - born.getMonth());
-
-  if (now.getDate() < born.getDate()) months -= 1;
-  if (months < 0) return null;
 
   const years = Math.floor(months / 12);
   const unit = years >= 1 ? years : months;
