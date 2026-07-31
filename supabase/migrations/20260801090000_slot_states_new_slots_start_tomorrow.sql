@@ -31,11 +31,18 @@ declare
   grace interval;
   day_start timestamptz;
   next_day_start timestamptz;
+  -- The hypothetical log's stand-in id. It never escapes to a caller:
+  -- log_feed reads satisfying_log_id only from the run WITHOUT a hypothetical,
+  -- and the public wrapper cannot pass one at all.
   hypothetical_log_id constant uuid := '00000000-0000-0000-0000-000000000001';
+  -- schedule_id (text) -> log_id (text)
   assignment jsonb := '{}'::jsonb;
+  -- the log ids already claimed by some slot
   claimed_logs jsonb := '[]'::jsonb;
   pair record;
 begin
+  -- All window arithmetic resolves in the household's timezone: Scheduled
+  -- Times are wall-clock times with no date of their own.
   select households.timezone, make_interval(mins => households.grace_window_minutes)
     into household_timezone, grace
   from public.pets
@@ -47,8 +54,16 @@ begin
   end if;
 
   day_start := target_date::timestamp at time zone household_timezone;
+  -- A local day is not always 24 hours (DST fall-back/spring-forward), so the
+  -- next local midnight has to be resolved with `at time zone` again rather
+  -- than by adding interval '1 day' to the already-resolved `day_start`.
   next_day_start := (target_date + 1)::timestamp at time zone household_timezone;
 
+  -- Greedy global assignment. Nearest pair first; skip a pair if either side
+  -- is already taken. Ties break toward the earlier slot, then the earlier
+  -- log; if two logs sit at the exact same instant equidistant from the same
+  -- slot, the log id is the final tiebreak, so the result never depends on
+  -- physical row order.
   for pair in
     with slots as (
       select
@@ -65,6 +80,8 @@ begin
         and feed_logs.logged_at >= day_start - grace
         and feed_logs.logged_at < next_day_start + grace
       union all
+      -- The hypothetical competes on exactly the same terms as a real log: it
+      -- can claim a slot, and it can lose one to a closer log.
       select hypothetical_log_id, hypothetical_at
       where hypothetical_at is not null
     )
@@ -86,6 +103,10 @@ begin
     claimed_logs := claimed_logs || to_jsonb(pair.log_id::text);
   end loop;
 
+  -- `state` is returned by the function rather than derived client-side:
+  -- deciding `missed` means comparing now() against scheduled_at + grace,
+  -- which is the window arithmetic ADR 0009 forbids reimplementing in
+  -- TypeScript.
   return query
   with slots as (
     select
@@ -103,6 +124,7 @@ begin
     slots.slot_label,
     slots.slot_at,
     case
+      -- Reads the map, not the join: the hypothetical has no feed_logs row.
       when assignment ? slots.slot_id::text then 'fed'
       when now() < slots.slot_at - grace then 'upcoming'
       when now() <= slots.slot_at + grace then 'due'
