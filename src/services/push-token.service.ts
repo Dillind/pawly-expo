@@ -34,7 +34,7 @@ namespace PushTokenService {
    * Never prompts -- returns null when permission has not been granted. Called
    * on every sign-in and every foreground.
    */
-  export async function register(userId: string): Promise<string | null> {
+  export async function register(): Promise<string | null> {
     // Before the permission check, not after: register runs on sign-in, ahead
     // of Home raising the prompt, and on Android 13+ the prompt does not appear
     // at all until a channel exists. Gating it behind `granted` would mean the
@@ -49,19 +49,13 @@ namespace PushTokenService {
 
     const { data: token } = await Notifications.getExpoPushTokenAsync({ projectId: id });
 
-    // The conflict clause handles two accounts on one phone: sign out, sign in
-    // as your partner to test, and the same token is reassigned rather than
-    // left as a stale row pushing one person's household alerts into another
-    // person's session.
-    const { error } = await supabase.from('push_tokens').upsert(
-      {
-        token,
-        user_id: userId,
-        platform: isIOS ? 'ios' : 'android',
-        last_seen_at: new Date().toISOString()
-      },
-      { onConflict: 'token' }
-    );
+    // Never a table write: push_tokens grants no SELECT, and an upsert needs it
+    // even when nothing conflicts. The RPC derives user_id from auth.uid(),
+    // which is why no user id is passed or needed here.
+    const { error } = await supabase.rpc('register_push_token', {
+      target_token: token,
+      target_platform: isIOS ? 'ios' : 'android'
+    });
 
     if (error) throw error;
 

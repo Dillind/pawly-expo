@@ -20,8 +20,9 @@ export const useRequestNotificationPermission = () => {
     // foreground, so a grant here would produce no token -- and no alerts --
     // until the app was next reopened.
     if (status === Notifications.PermissionStatus.GRANTED && userId) {
-      await PushTokenService.register(userId).catch(() => {
+      await PushTokenService.register().catch((error: unknown) => {
         // Non-fatal; the next foreground retries.
+        console.warn('[push] token registration failed after grant', error);
       });
     }
 

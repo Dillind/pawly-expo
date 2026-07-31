@@ -1,4 +1,5 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Appearance } from 'react-native';
 import { create } from 'zustand';
 
 import type { ThemePreference } from '@/types/core';
@@ -9,6 +10,10 @@ const permittedPreferences: ThemePreference[] = ['system', 'light', 'dark'];
 
 const parsePreference = (value: string | null): ThemePreference =>
   permittedPreferences.includes(value as ThemePreference) ? (value as ThemePreference) : 'system';
+
+const applyNativeAppearance = (preference: ThemePreference) => {
+  Appearance.setColorScheme(preference === 'system' ? 'unspecified' : preference);
+};
 
 type State = {
   preference: ThemePreference;
@@ -28,21 +33,23 @@ const initialState: State = {
 export const useThemeStore = create<State & Action>((set) => ({
   ...initialState,
   setPreference: async (preference) => {
+    applyNativeAppearance(preference);
     set({ preference });
 
     try {
       await AsyncStorage.setItem(STORAGE_KEY, preference);
-    } catch {
-      // The theme already changed; a failed write only costs the choice at next launch.
-    }
+    } catch {}
   },
-  // First paint waits on this, so a storage failure must still mark hydration
-  // done or the app never renders at all.
+
   hydrate: async () => {
     try {
       const stored = await AsyncStorage.getItem(STORAGE_KEY);
-      set({ preference: parsePreference(stored), hasHydrated: true });
+      const preference = parsePreference(stored);
+
+      applyNativeAppearance(preference);
+      set({ preference, hasHydrated: true });
     } catch {
+      applyNativeAppearance('system');
       set({ preference: 'system', hasHydrated: true });
     }
   }

@@ -51,7 +51,21 @@ bun run web         # Run on web
 bun run lint        # ESLint (eslint-config-expo)
 bun run typecheck   # tsc --noEmit
 bun run spellcheck  # cspell across ts/tsx/md/sql
+
+bun run build:dev         # EAS development build, iOS (simulator-capable)
+bun run build:preview     # EAS preview build, iOS
+bun run build:production  # EAS production build, iOS
 ```
+
+The build scripts always name a profile, deliberately. A bare `eas build` defaults to
+**production**, whose EAS environment holds no variables, so the build dies at
+`src/lib/supabase/client.ts` with "Missing EXPO_PUBLIC_SUPABASE_URL or
+EXPO_PUBLIC_SUPABASE_KEY". Only the `development` environment is populated — `.env` is
+gitignored and never reaches the builder, so anything the app reads from
+`process.env` has to exist as an EAS environment variable too (`eas env:list`).
+
+No `--auto-submit` until `submit.production` in `eas.json` is filled in, and no Android
+build scripts until FCM credentials exist.
 
 There is **no test setup yet** (no test runner, no `test` script). Don't assume tests exist; if adding them, set up the runner first and note it here.
 

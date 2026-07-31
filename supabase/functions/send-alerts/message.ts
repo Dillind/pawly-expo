@@ -16,7 +16,7 @@ export type ExpoMessage = {
   title: string;
   body: string;
   sound: 'default';
-  data: { screen: string; params: { logId: string } };
+  data: { screen: string; params: Record<string, string> };
 };
 
 // Matches formatAuthorName in src/hooks/use-household-members.ts. Every surface
@@ -38,6 +38,27 @@ const timeOfDay = (loggedAt: string, timezone: string): string =>
     .replace(/\s/g, ' ')
     .toLowerCase();
 
+export type ScheduleLabel = 'morning' | 'lunch' | 'dinner' | 'custom';
+
+// Matches slotLabelText in log-feed-sheet.tsx.
+const slotLabelText: Record<ScheduleLabel, string> = {
+  morning: 'morning',
+  lunch: 'lunch',
+  dinner: 'dinner',
+  custom: 'scheduled'
+};
+
+// A Postgres `time` is already wall-clock in the household timezone, so
+// timeOfDay would apply a second one.
+const wallClockTime = (time: string): string => {
+  const [hoursText, minutes = '00'] = time.split(':');
+  const hours = Number(hoursText);
+  const period = hours < 12 ? 'am' : 'pm';
+  const hour12 = hours % 12 === 0 ? 12 : hours % 12;
+
+  return `${hour12}:${minutes} ${period}`;
+};
+
 export const buildFeedLoggedMessage = (input: FeedLoggedInput): Omit<ExpoMessage, 'to'> => {
   const time = timeOfDay(input.loggedAt, input.householdTimezone);
   const trimmedNotes = input.notes?.trim();
@@ -54,3 +75,17 @@ export const buildFeedLoggedMessage = (input: FeedLoggedInput): Omit<ExpoMessage
     data: { screen: '/activity', params: { logId: input.logId } }
   };
 };
+
+export type MissedFeedInput = {
+  petName: string;
+  label: ScheduleLabel;
+  scheduledTime: string;
+};
+
+// Names the absent log, never the absent meal -- see ADR 0013 and CONTEXT.md.
+export const buildMissedFeedMessage = (input: MissedFeedInput): Omit<ExpoMessage, 'to'> => ({
+  title: `No one has logged ${input.petName}'s ${slotLabelText[input.label]} feed`,
+  sound: 'default',
+  body: `Due ${wallClockTime(input.scheduledTime)}`,
+  data: { screen: '/home', params: {} }
+});

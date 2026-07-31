@@ -3,10 +3,6 @@ import { ConfigContext, ExpoConfig } from 'expo/config';
 
 dotenv.config();
 
-// One EAS project, one slug, one identifier per platform. Two slugs would mean
-// two EAS projects, two APNs keys, and push tokens scoped to whichever project
-// issued them -- forcing a project column onto push_tokens for no benefit. Dev
-// and prod separate by build profile in eas.json instead.
 const getConfig = ({ config }: ConfigContext): ExpoConfig => {
   return {
     ...config,
@@ -46,10 +42,6 @@ const getConfig = ({ config }: ConfigContext): ExpoConfig => {
       [
         'expo-notifications',
         {
-          // Routes FCMv1 messages to the channel created in
-          // push-token.service.ts. The plugin cannot create the channel or set
-          // its importance -- it only names which one to deliver to, so the two
-          // ids have to stay in step.
           defaultChannel: 'default'
         }
       ],
@@ -65,8 +57,6 @@ const getConfig = ({ config }: ConfigContext): ExpoConfig => {
       [
         'expo-font',
         {
-          // The package is scoped -- '@expo-google-fonts/inter'. Without the
-          // leading @ these resolve to nothing and prebuild fails outright.
           fonts: [
             'node_modules/@expo-google-fonts/inter/400Regular/Inter_400Regular.ttf',
             'node_modules/@expo-google-fonts/inter/500Medium/Inter_500Medium.ttf',

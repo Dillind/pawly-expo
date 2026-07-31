@@ -5,6 +5,9 @@ import type { SupabaseClient } from 'npm:@supabase/supabase-js@2';
  * the household EXCEPT the author, unless that member has turned Feed Logged
  * Alerts off.
  *
+ * A Missed Feed Alert goes to every member with Missed Feed Alerts on, with
+ * nobody excluded -- there is no actor, because the point is that no one acted.
+ *
  * Role does not appear in the rule. Role-based routing was rejected because
  * ADR 0001 allows multiple Owners and the realistic v1 household is a couple
  * who are both Owners, so it would notify nobody. It is also the wrong axis:
@@ -17,13 +20,20 @@ import type { SupabaseClient } from 'npm:@supabase/supabase-js@2';
  */
 export const resolveRecipientTokens = async (
   client: SupabaseClient,
-  alert: { household_id: string; actor_id: string | null }
+  alert: {
+    household_id: string;
+    kind: 'feed_logged' | 'missed_feed';
+    actor_id: string | null;
+  }
 ): Promise<string[]> => {
+  const preferenceColumn =
+    alert.kind === 'missed_feed' ? 'missed_feed_alerts' : 'feed_logged_alerts';
+
   let query = client
     .from('household_members')
     .select('user_id')
     .eq('household_id', alert.household_id)
-    .eq('feed_logged_alerts', true);
+    .eq(preferenceColumn, true);
 
   // actor_id is null for missed_feed alerts, where nobody is excluded.
   if (alert.actor_id) {

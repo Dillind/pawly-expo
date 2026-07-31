@@ -44,9 +44,12 @@ export const usePushNotifications = () => {
     if (status !== 'signedIn' || !userId) return;
 
     const attempt = () => {
-      void PushTokenService.register(userId).catch(() => {
+      void PushTokenService.register().catch((error: unknown) => {
         // Non-fatal. A user without a token simply receives nothing; the app
-        // is fully usable, and the next foreground tries again.
+        // is fully usable, and the next foreground tries again. Logged rather
+        // than dropped -- a silent catch here once hid a 403 that made the
+        // whole feature dead, with an empty table and no error to work from.
+        console.warn('[push] token registration failed', error);
       });
     };
 
@@ -73,7 +76,7 @@ export const usePushNotifications = () => {
     const data = lastResponse.notification.request.content.data;
     if (!data?.screen) return;
 
-    router.push({
+    router.navigate({
       pathname: data.screen as RelativePathString,
       params: data.params as Record<string, string>
     });

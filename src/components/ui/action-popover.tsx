@@ -5,19 +5,12 @@ import ActionPopoverItem, { type ActionPopoverAction } from '@/components/ui/act
 import { IconName } from '@/constants/icon-map';
 import { BottomTabInset, Radius, type AppTheme } from '@/constants/theme';
 import { useStyles } from '@/hooks/use-styles';
+import { useTheme } from '@/hooks/use-theme';
 import { createShadowMedium } from '@/lib/styles/shadows';
 import { GlassContainer, GlassView, isLiquidGlassAvailable } from 'expo-glass-effect';
 import { useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 
-/**
- * Distance the glass surfaces merge across -- drives the fuse-on-open morph.
- *
- * This value alone is not sufficient: measured on iOS 26, the surfaces only
- * grow the connecting neck when the *laid-out gap between them* is small too
- * (8pt fuses, 16pt does not), regardless of what is passed here. Both numbers
- * matter, so don't raise the container's `gap` without re-checking on device.
- */
 const GLASS_MERGE_SPACING = 24;
 
 const FAB_SIZE = 56;
@@ -30,12 +23,7 @@ type PrimaryAction = {
 };
 
 type Props = {
-  /** Secondary rows, rendered above the primary action. */
   actions: ActionPopoverAction[];
-  /**
-   * The single emphasised action. Separate from `actions` so "there is exactly
-   * one primary" is enforced by the type rather than by convention.
-   */
   primaryAction: PrimaryAction;
   accessibilityLabel?: string;
 };
@@ -51,6 +39,7 @@ type Props = {
  */
 const ActionPopover = ({ actions, primaryAction, accessibilityLabel = 'Create' }: Props) => {
   const styles = useStyles(makeStyles);
+  const { isDark } = useTheme();
   const [isOpen, setIsOpen] = useState(false);
 
   const close = () => setIsOpen(false);
@@ -78,6 +67,7 @@ const ActionPopover = ({ actions, primaryAction, accessibilityLabel = 'Create' }
           {isOpen ? (
             <GlassView
               glassEffectStyle={{ style: 'regular', animate: true, animationDuration: 0.25 }}
+              colorScheme={isDark ? 'dark' : 'light'}
               style={styles.bubble}
               accessibilityViewIsModal>
               {actions.map((action) => (
