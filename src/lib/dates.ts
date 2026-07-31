@@ -141,3 +141,31 @@ export function composeLoggedAt(day: 'today' | 'yesterday', time: string, zone: 
 
   return dayjs.tz(`${calendarDay} ${time}`, `${DAY_FORMAT} HH:mm`, zone).toISOString();
 }
+
+export const formatAge = (birthdate: string | null, isApproximate: boolean): string | null => {
+  if (!birthdate) return null;
+
+  const born = new Date(`${birthdate}T00:00:00`);
+  const now = new Date();
+
+  let months =
+    (now.getFullYear() - born.getFullYear()) * 12 + (now.getMonth() - born.getMonth());
+
+  if (now.getDate() < born.getDate()) months -= 1;
+  if (months < 0) return null;
+
+  const years = Math.floor(months / 12);
+  const unit = years >= 1 ? years : months;
+  const noun = years >= 1 ? 'year' : 'month';
+  const value = `${unit} ${noun}${unit === 1 ? '' : 's'}`;
+
+  return isApproximate ? `About ${value}` : value;
+};
+
+export const formatDayAndDate = (date: Date, timezone: string): string =>
+  new Intl.DateTimeFormat('en-AU', {
+    weekday: 'long',
+    day: 'numeric',
+    month: 'long',
+    timeZone: timezone
+  }).format(date);
