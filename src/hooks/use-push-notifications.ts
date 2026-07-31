@@ -73,7 +73,7 @@ export const usePushNotifications = () => {
     const data = lastResponse.notification.request.content.data;
     if (!data?.screen) return;
 
-    router.push({
+    router.navigate({
       pathname: data.screen as RelativePathString,
       params: data.params as Record<string, string>
     });

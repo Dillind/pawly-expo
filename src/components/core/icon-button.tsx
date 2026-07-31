@@ -3,13 +3,14 @@ import PressableOpacity from '@/components/core/pressable-opacity';
 import type { IconName } from '@/constants/icon-map';
 import { Radius, type AppTheme } from '@/constants/theme';
 import { useStyles } from '@/hooks/use-styles';
+import { useTheme } from '@/hooks/use-theme';
 import { hapticLight } from '@/lib/haptics';
 import { GlassView, isLiquidGlassAvailable } from 'expo-glass-effect';
 import {
   ActivityIndicator,
   Pressable,
-  type StyleProp,
   StyleSheet,
+  type StyleProp,
   type ViewStyle
 } from 'react-native';
 
@@ -39,6 +40,7 @@ const IconButton = ({
   containerStyle
 }: Props) => {
   const styles = useStyles(makeStyles);
+  const { isDark } = useTheme();
 
   const isInactive = isDisabled || isLoading;
 
@@ -63,6 +65,7 @@ const IconButton = ({
     return (
       <GlassView
         isInteractive
+        colorScheme={isDark ? 'dark' : 'light'}
         style={[styles.base, styles.glass, isInactive && styles.disabled, containerStyle]}>
         <Pressable
           accessibilityRole="button"

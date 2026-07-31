@@ -46,3 +46,17 @@ Grace Window, "any feed in the window" matching, and keying off `logged_at`.
 - **Detection latency is bounded by the cadence.** A slot whose window closes at
   08:00 is nudged between 08:00 and 08:15.
 - **Debugging moves to `cron.job_run_details`** rather than Edge Function logs.
+- **The Nudge Limit counts alerts that reached someone**, not alerts that exist.
+  The count filters on `error is null`, so a row stamped `no recipients` — a
+  household where everyone has Missed Feed Alerts off — does not consume a
+  nudge. Counting those would mean muting burns the three nudges in silence,
+  and turning alerts back on delivers nothing until someone logs a feed. The cost is that a
+  fully muted household keeps accruing alert rows. That is bounded, not
+  unbounded: `alerts_idempotency_idx` allows one row per slot per local date,
+  so it is a few rows a day, each dispatched once and stamped.
+- **A malformed household timezone cannot take the run down.** `households.timezone`
+  is unconstrained text set by the client, and `now() at time zone` raises on a
+  bad value. The per-pet body therefore sits in its own exception block: a bad
+  row is logged with `raise warning` and skipped, and every other household
+  still gets its sweep. Without it, one bad row would cost every household
+  that cycle's alerts, silently, since nobody watches `cron.job_run_details`.
