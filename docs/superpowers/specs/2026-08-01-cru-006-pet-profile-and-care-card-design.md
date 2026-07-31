@@ -253,6 +253,36 @@ Bailey's dinner feed", twice, indistinguishably. Custom slots may repeat.
 All edits go through a Tray. All time inputs use `DateTimePickerValidated` with `mode="time"`, per
 AGENTS.md.
 
+## Code structure
+
+This ticket is large enough to produce god files if left alone. It must not.
+
+**One concern per file.** The pet detail route composes sections; it does not contain them. Each
+section is its own component under `src/components/screens/pet/` — header, bio, gallery strip, Care
+Card, medication list, schedule. The route file should read as a list of what is on the screen.
+
+**The Tray splits into three pieces**, because they change for different reasons: the sheet shell
+and its height animation, the step sequencing and back behaviour, and the individual step content.
+Step content lives with the feature that owns it, not inside the Tray.
+
+**Tiles are descriptors plus a renderer.** A tile descriptor file holds the list; `TileGrid` renders
+whatever it is given; `Tile` knows nothing about pets. This is what makes the deferred rearrangeable
+dashboard a data change later rather than a rewrite.
+
+**Hooks do one thing.** `usePetDetail` reads, `useUpdatePet` writes. Not a single hook returning
+both plus loading flags for four operations.
+
+**Derived values are utilities, not inline expressions.** Age from birthdate goes in `src/lib/`
+next to the existing date helpers, so Home, the pet header and any future share surface all format
+it identically. Anything computed in more than one place is a util by definition.
+
+**Validation is Zod schemas in `src/lib/form/`**, per AGENTS.md, shared with the inputs rather than
+restated per screen.
+
+**Comments follow AGENTS.md and default to fewer.** Comment the constraint a reader could not infer
+— a platform quirk, a Postgres semantic, why the obvious approach was rejected. Do not narrate what
+the code already says. This spec carries the reasoning; the code should not repeat it.
+
 ## Motion
 
 - Tiles enter with a stagger **once per app launch**, not per focus. Home is hit several times a day
@@ -262,10 +292,14 @@ AGENTS.md.
   checks.
 - `react-native-reanimated` 4.5.0 is installed; layout animations handle the stagger declaratively.
 
-**Open, needs a decision before implementation:** `createShadowSmall` uses `shadowRadius: 0` with a
-3pt offset — a hard-edged, neo-brutalist shadow. Most "clean dashboard" designs use soft diffuse
-elevation (radius 8–16, lower opacity). These are different visual languages and mixing them reads
-as accidental. Pick one for the tiles.
+**Shadows — resolved, and already done.** The scale was hard-edged: all three helpers used
+`shadowRadius: 0`, differing only in offset. That is a loud style choice, and it clashed with the
+soft elevation in the reference screenshots. The scale is now soft — radius 6/14/28 at opacity
+0.08/0.10/0.14. Tiles use `createShadowMedium`.
+
+Softening exposed a real bug, also fixed: shadows were drawn in `theme.textSecondary`, which is
+`#B0B4BA` in dark mode — a light colour on a black background, so dark mode painted a halo rather
+than a shadow. Both palettes now carry a `shadow` token.
 
 ## Free vs Pro
 

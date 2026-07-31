@@ -17,7 +17,8 @@ export const COLORS = {
     primary: '#0F7173',
     primaryMuted: 'rgba(15, 113, 115, 0.15)',
     onPrimary: '#ffffff',
-    accent: '#6E44FF'
+    accent: '#6E44FF',
+    shadow: '#0B0D12'
   },
   dark: {
     text: '#ffffff',
@@ -29,7 +30,8 @@ export const COLORS = {
     primary: '#14A8AF',
     primaryMuted: 'rgba(20, 168, 175, 0.22)',
     onPrimary: '#ffffff',
-    accent: '#6E44FF'
+    accent: '#6E44FF',
+    shadow: '#000000'
   }
 } as const;
 
