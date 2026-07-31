@@ -1,7 +1,7 @@
 import BaseSheet from '@/components/bottom-sheets/base-sheet';
 import TrayStep from '@/components/core/tray-step';
 import type { TrueSheet } from '@lodev09/react-native-true-sheet';
-import { createContext, useCallback, useContext, useMemo, useState } from 'react';
+import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import type { ReactNode, RefObject } from 'react';
 
 export type TrayStepDescriptor = {
@@ -40,32 +40,30 @@ const Tray = ({ sheetRef, steps, onDismiss }: Props) => {
     void sheetRef.current?.dismiss();
   }, [sheetRef]);
 
-  // 'auto' re-measures the swapped content, which is what animates the height
-  // between steps. Nested sheets are not an option -- iOS handles a modal
-  // stacked on a native sheet badly (AGENTS.md, ADR 0010).
-  const resize = useCallback(() => {
-    void sheetRef.current?.resize(0);
-  }, [sheetRef]);
-
   const controls = useMemo<TrayControls>(
     () => ({
       goTo: (stepId) => {
         setHistory((current) => [...current, stepId]);
-        resize();
       },
       back: () => {
         setHistory((current) => current.slice(0, -1));
-        resize();
       },
       close
     }),
-    [close, resize]
+    [close]
   );
 
   const handleDismiss = useCallback(() => {
     setHistory([]);
     onDismiss?.();
   }, [onDismiss]);
+
+  // setHistory is async, so a resize called inline from goTo/back would measure
+  // the outgoing step -- run it here, after the new step has rendered.
+  useEffect(() => {
+    // Index 0: detents={['auto']} on BaseSheet below has exactly one entry.
+    void sheetRef.current?.resize(0);
+  }, [activeId, sheetRef]);
 
   if (!active) return null;
 
@@ -74,7 +72,7 @@ const Tray = ({ sheetRef, steps, onDismiss }: Props) => {
       <BaseSheet sheetRef={sheetRef} detents={['auto']} onDismiss={handleDismiss}>
         <TrayStep
           title={active.title}
-          isFirst={history.length <= 1}
+          isFirst={history.length === 0}
           onBack={controls.back}
           onClose={close}>
           {active.render()}
