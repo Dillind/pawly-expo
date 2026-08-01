@@ -1,6 +1,7 @@
 import ErrorState from '@/components/core/error-state';
 import ScreenView from '@/components/layout/screen-view';
 import CareCardSection from '@/components/screens/pet/care-card-section';
+import GalleryStrip from '@/components/screens/pet/gallery-strip';
 import PetBio from '@/components/screens/pet/pet-bio';
 import PetHeader from '@/components/screens/pet/pet-header';
 import ScheduleSection from '@/components/screens/pet/schedule-section';
@@ -45,6 +46,8 @@ const PetDetail = () => {
           birthdateIsApproximate={pet.birthdateIsApproximate}
           photoUrl={pet.photoUrl}
         />
+
+        <GalleryStrip petId={pet.id} />
 
         <ScheduleSection petId={pet.id} />
 
