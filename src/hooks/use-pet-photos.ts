@@ -1,7 +1,7 @@
 import { supabase } from '@/lib/supabase/client';
 import { useQuery } from '@tanstack/react-query';
 
-export type PetPhoto = { id: string; url: string; sortOrder: number };
+export type PetPhoto = { id: string; url: string; storagePath: string; sortOrder: number };
 
 async function fetchPetPhotos(petId: string): Promise<PetPhoto[]> {
   const { data, error } = await supabase
@@ -16,6 +16,7 @@ async function fetchPetPhotos(petId: string): Promise<PetPhoto[]> {
   return data.map((row) => ({
     id: row.id,
     url: supabase.storage.from('pet-photos').getPublicUrl(row.storage_path).data.publicUrl,
+    storagePath: row.storage_path,
     sortOrder: row.sort_order
   }));
 }

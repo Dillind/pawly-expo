@@ -1,4 +1,5 @@
 import { supabase } from '@/lib/supabase/client';
+import { useAuthStore } from '@/stores/auth-store';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import * as Crypto from 'expo-crypto';
 
@@ -8,35 +9,34 @@ const invalidate = (queryClient: ReturnType<typeof useQueryClient>, petId: strin
 
 export function useAddPetPhoto(petId: string) {
   const queryClient = useQueryClient();
+  const { userId } = useAuthStore();
 
   return useMutation({
     mutationFn: async (localUri: string) => {
+      if (!userId) throw new Error('You need to sign in again before adding a photo');
+
       const response = await fetch(localUri);
+      if (!response.ok) throw new Error('Could not read the selected photo');
+
       const arrayBuffer = await response.arrayBuffer();
-      const path = `${petId}/${Crypto.randomUUID()}.jpg`;
+      if (arrayBuffer.byteLength === 0) throw new Error('The selected photo is empty');
+
+      const path = `${userId}/${petId}/${Crypto.randomUUID()}.jpg`;
 
       const { error: uploadError } = await supabase.storage
         .from('pet-photos')
         .upload(path, arrayBuffer, { contentType: 'image/jpeg' });
       if (uploadError) throw uploadError;
 
-      // New photos need a deterministic, increasing sort_order -- the column
-      // defaults to 0, and with two or more rows at 0 Postgres makes no
-      // ordering guarantee at all.
-      const { data: maxRow, error: maxError } = await supabase
-        .from('pet_photos')
-        .select('sort_order')
-        .eq('pet_id', petId)
-        .order('sort_order', { ascending: false })
-        .limit(1)
-        .maybeSingle();
-      if (maxError) throw maxError;
-      const sortOrder = (maxRow?.sort_order ?? -1) + 1;
+      const { error: insertError } = await supabase.rpc('add_pet_photo', {
+        p_pet_id: petId,
+        p_storage_path: path
+      });
 
-      const { error: insertError } = await supabase
-        .from('pet_photos')
-        .insert({ pet_id: petId, storage_path: path, sort_order: sortOrder });
-      if (insertError) throw insertError;
+      if (insertError) {
+        await supabase.storage.from('pet-photos').remove([path]);
+        throw insertError;
+      }
     },
     onSuccess: () => invalidate(queryClient, petId)
   });
@@ -46,20 +46,29 @@ export function useDeletePetPhoto(petId: string) {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ photoId, photoUrl }: { photoId: string; photoUrl: string }) => {
-      const { error } = await supabase.from('pet_photos').delete().eq('id', photoId);
-      if (error) throw error;
+    mutationFn: async ({
+      photoId,
+      photoUrl,
+      storagePath
+    }: {
+      photoId: string;
+      photoUrl: string;
+      storagePath: string;
+    }) => {
+      const { error: deleteRowError } = await supabase.rpc('delete_pet_photo', {
+        p_photo_id: photoId,
+        p_photo_url: photoUrl
+      });
+      if (deleteRowError) throw deleteRowError;
 
-      // photo_url is a copied URL, not a foreign key, so deleting the row
-      // behind the current cover would otherwise leave it pointing nowhere.
-      const { error: clearCoverError } = await supabase
-        .from('pets')
-        .update({ photo_url: null })
-        .eq('id', petId)
-        .eq('photo_url', photoUrl);
-      if (clearCoverError) throw clearCoverError;
+      const { error: deleteObjectError } = await supabase.storage
+        .from('pet-photos')
+        .remove([storagePath]);
+      if (deleteObjectError) {
+        throw new Error('The photo was removed, but its file could not be cleaned up');
+      }
     },
-    onSuccess: () => {
+    onSettled: () => {
       invalidate(queryClient, petId);
       void queryClient.invalidateQueries({ queryKey: ['pet-detail', petId] });
       void queryClient.invalidateQueries({ queryKey: ['pet'] });

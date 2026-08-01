@@ -1,6 +1,7 @@
 import AppText from '@/components/core/app-text';
 import DateTimePickerValidated from '@/components/core/date-time-picker-validated';
 import DropdownPickerValidated from '@/components/core/dropdown-picker-validated';
+import ErrorState from '@/components/core/error-state';
 import IconButton from '@/components/core/icon-button';
 import MainButton from '@/components/core/main-button';
 import Tray, { type TrayStepDescriptor } from '@/components/core/tray';
@@ -15,7 +16,7 @@ import type { TrueSheet } from '@lodev09/react-native-true-sheet';
 import dayjs from 'dayjs';
 import { useRef, useState } from 'react';
 import { Controller, FormProvider, useForm, useWatch } from 'react-hook-form';
-import { StyleSheet, View } from 'react-native';
+import { ActivityIndicator, StyleSheet, View } from 'react-native';
 
 const capitalize = (value: string) => value.charAt(0).toUpperCase() + value.slice(1);
 
@@ -122,7 +123,7 @@ const ScheduleSection = ({ petId }: Props) => {
   const styles = useStyles(makeStyles);
   const sheetRef = useRef<TrueSheet | null>(null);
   const [editingSlot, setEditingSlot] = useState<FeedingSlot | null>(null);
-  const { data: slots = [] } = useFeedingSchedules(petId);
+  const { data: slots = [], isLoading, isError, refetch } = useFeedingSchedules(petId);
 
   const openEdit = (slot: FeedingSlot | null) => {
     setEditingSlot(slot);
@@ -157,13 +158,20 @@ const ScheduleSection = ({ petId }: Props) => {
         />
       </View>
 
-      {slots.length === 0 && (
+      {isError ? (
+        <ErrorState
+          title="Couldn't load feed times"
+          onRetry={() => {
+            void refetch();
+          }}
+        />
+      ) : isLoading ? (
+        <ActivityIndicator />
+      ) : slots.length === 0 ? (
         <AppText color="textSecondary" size={14}>
           No feed times yet. Add one to get missed-feed alerts.
         </AppText>
-      )}
-
-      {slots.length > 0 && (
+      ) : (
         <View style={styles.list}>
           {slots.map((slot) => (
             <View key={slot.id} style={styles.slotRow}>

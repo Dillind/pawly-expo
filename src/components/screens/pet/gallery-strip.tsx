@@ -1,4 +1,5 @@
 import AppText from '@/components/core/app-text';
+import ErrorState from '@/components/core/error-state';
 import IconButton from '@/components/core/icon-button';
 import MainButton from '@/components/core/main-button';
 import Tray, { type TrayStepDescriptor } from '@/components/core/tray';
@@ -16,7 +17,7 @@ import type { TrueSheet } from '@lodev09/react-native-true-sheet';
 import { Image } from 'expo-image';
 import * as ImagePicker from 'expo-image-picker';
 import { useRef, useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 
 const PHOTO_CAP = 10;
 
@@ -93,7 +94,7 @@ type Props = { petId: string };
 const GalleryStrip = ({ petId }: Props) => {
   const styles = useStyles(makeStyles);
   const sheetRef = useRef<TrueSheet | null>(null);
-  const { data: photos } = usePetPhotos(petId);
+  const { data: photos, isLoading, isError, refetch } = usePetPhotos(petId);
   const addPhoto = useAddPetPhoto(petId);
   const deletePhoto = useDeletePetPhoto(petId);
   const setCoverPhoto = useSetCoverPhoto(petId);
@@ -156,7 +157,11 @@ const GalleryStrip = ({ petId }: Props) => {
     if (!selectedPhoto) return;
     setActionError(null);
     try {
-      await deletePhoto.mutateAsync({ photoId: selectedPhoto.id, photoUrl: selectedPhoto.url });
+      await deletePhoto.mutateAsync({
+        photoId: selectedPhoto.id,
+        photoUrl: selectedPhoto.url,
+        storagePath: selectedPhoto.storagePath
+      });
       void sheetRef.current?.dismiss();
     } catch (error) {
       setActionError(error instanceof Error ? error.message : 'Could not delete the photo');
@@ -198,6 +203,21 @@ const GalleryStrip = ({ petId }: Props) => {
     allSteps[entryStep],
     ...Object.values(allSteps).filter((step) => step.id !== entryStep)
   ];
+
+  if (isLoading) {
+    return <ActivityIndicator />;
+  }
+
+  if (isError) {
+    return (
+      <ErrorState
+        title="Couldn't load photos"
+        onRetry={() => {
+          void refetch();
+        }}
+      />
+    );
+  }
 
   return (
     <View style={styles.section}>

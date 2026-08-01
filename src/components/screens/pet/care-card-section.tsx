@@ -1,4 +1,5 @@
 import AppText from '@/components/core/app-text';
+import ErrorState from '@/components/core/error-state';
 import IconButton from '@/components/core/icon-button';
 import MainButton from '@/components/core/main-button';
 import TextInputValidated from '@/components/core/text-input-validated';
@@ -22,7 +23,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import type { TrueSheet } from '@lodev09/react-native-true-sheet';
 import { useRef, useState } from 'react';
 import { Controller, FormProvider, useForm, useWatch } from 'react-hook-form';
-import { StyleSheet, View } from 'react-native';
+import { ActivityIndicator, StyleSheet, View } from 'react-native';
 
 import MedicationList from './medication-list';
 
@@ -305,7 +306,7 @@ type Props = { petId: string };
 const CareCardSection = ({ petId }: Props) => {
   const styles = useStyles(makeStyles);
   const sheetRef = useRef<TrueSheet | null>(null);
-  const { data } = useCareCard(petId);
+  const { data, isLoading, isError, refetch } = useCareCard(petId);
   const deleteMedication = useDeleteMedication(petId);
 
   const [entryStep, setEntryStep] = useState<'overview' | 'edit-field' | 'edit-medication'>(
@@ -313,6 +314,7 @@ const CareCardSection = ({ petId }: Props) => {
   );
   const [selectedField, setSelectedField] = useState<FieldKey | null>(null);
   const [medicationTarget, setMedicationTarget] = useState<Medication | null>(null);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
 
   const card = data?.card ?? emptyCareCard(petId);
   const medications = data?.medications ?? [];
@@ -332,6 +334,30 @@ const CareCardSection = ({ petId }: Props) => {
     setEntryStep('edit-medication');
     void sheetRef.current?.present();
   };
+
+  const handleDeleteMedication = async (medication: Medication) => {
+    setDeleteError(null);
+    try {
+      await deleteMedication.mutateAsync(medication.id);
+    } catch (error) {
+      setDeleteError(error instanceof Error ? error.message : 'Could not remove the medication');
+    }
+  };
+
+  if (isLoading) {
+    return <ActivityIndicator />;
+  }
+
+  if (isError) {
+    return (
+      <ErrorState
+        title="Couldn't load the Care Card"
+        onRetry={() => {
+          void refetch();
+        }}
+      />
+    );
+  }
 
   const allSteps: Record<'overview' | 'edit-field' | 'edit-medication', TrayStepDescriptor> = {
     overview: {
@@ -404,11 +430,13 @@ const CareCardSection = ({ petId }: Props) => {
         </View>
       )}
 
+      <FieldError error={deleteError ?? undefined} />
+
       <MedicationList
         medications={medications}
         onAdd={() => openMedication(null)}
         onEdit={(medication) => openMedication(medication)}
-        onDelete={(medication) => void deleteMedication.mutateAsync(medication.id)}
+        onDelete={(medication) => void handleDeleteMedication(medication)}
         deletingMedicationId={
           deleteMedication.isPending ? (deleteMedication.variables ?? null) : null
         }
