@@ -73,6 +73,10 @@ export function useDeletePetPhoto(petId: string) {
       invalidate(queryClient, petId);
       void queryClient.invalidateQueries({ queryKey: ['pet-detail', petId] });
       void queryClient.invalidateQueries({ queryKey: ['pet'] });
+      // ['pet'] does NOT prefix-match ['pets']: TanStack compares key elements,
+      // not strings. Home's pets tile needs its own invalidation or it keeps
+      // showing the deleted photo.
+      void queryClient.invalidateQueries({ queryKey: ['pets'] });
     }
   });
 }
@@ -92,6 +96,7 @@ export function useSetCoverPhoto(petId: string) {
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ['pet-detail', petId] });
       void queryClient.invalidateQueries({ queryKey: ['pet'] });
+      void queryClient.invalidateQueries({ queryKey: ['pets'] });
     }
   });
 }
