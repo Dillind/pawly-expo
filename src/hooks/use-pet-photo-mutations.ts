@@ -46,11 +46,24 @@ export function useDeletePetPhoto(petId: string) {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (photoId: string) => {
+    mutationFn: async ({ photoId, photoUrl }: { photoId: string; photoUrl: string }) => {
       const { error } = await supabase.from('pet_photos').delete().eq('id', photoId);
       if (error) throw error;
+
+      // photo_url is a copied URL, not a foreign key, so deleting the row
+      // behind the current cover would otherwise leave it pointing nowhere.
+      const { error: clearCoverError } = await supabase
+        .from('pets')
+        .update({ photo_url: null })
+        .eq('id', petId)
+        .eq('photo_url', photoUrl);
+      if (clearCoverError) throw clearCoverError;
     },
-    onSuccess: () => invalidate(queryClient, petId)
+    onSuccess: () => {
+      invalidate(queryClient, petId);
+      void queryClient.invalidateQueries({ queryKey: ['pet-detail', petId] });
+      void queryClient.invalidateQueries({ queryKey: ['pet'] });
+    }
   });
 }
 

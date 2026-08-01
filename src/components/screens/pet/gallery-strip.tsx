@@ -101,11 +101,13 @@ const GalleryStrip = ({ petId }: Props) => {
   const [selectedPhoto, setSelectedPhoto] = useState<PetPhoto | null>(null);
   const [entryStep, setEntryStep] = useState<'actions' | 'confirm-delete'>('actions');
   const [actionError, setActionError] = useState<string | null>(null);
+  const [addError, setAddError] = useState<string | null>(null);
 
   const photoList = photos ?? [];
   const isAtCap = photoList.length >= PHOTO_CAP;
 
   const pickPhoto = async () => {
+    setAddError(null);
     const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (!permission.granted) return;
 
@@ -117,7 +119,11 @@ const GalleryStrip = ({ petId }: Props) => {
     });
 
     if (!result.canceled) {
-      await addPhoto.mutateAsync(result.assets[0].uri);
+      try {
+        await addPhoto.mutateAsync(result.assets[0].uri);
+      } catch (error) {
+        setAddError(error instanceof Error ? error.message : 'Could not add the photo');
+      }
     }
   };
 
@@ -150,7 +156,7 @@ const GalleryStrip = ({ petId }: Props) => {
     if (!selectedPhoto) return;
     setActionError(null);
     try {
-      await deletePhoto.mutateAsync(selectedPhoto.id);
+      await deletePhoto.mutateAsync({ photoId: selectedPhoto.id, photoUrl: selectedPhoto.url });
       void sheetRef.current?.dismiss();
     } catch (error) {
       setActionError(error instanceof Error ? error.message : 'Could not delete the photo');
@@ -237,6 +243,8 @@ const GalleryStrip = ({ petId }: Props) => {
           {"You've reached 10 photos."}
         </AppText>
       )}
+
+      <FieldError error={addError ?? undefined} />
 
       <Tray
         sheetRef={sheetRef}
