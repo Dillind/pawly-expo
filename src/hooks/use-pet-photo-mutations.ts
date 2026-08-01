@@ -1,4 +1,5 @@
 import { supabase } from '@/lib/supabase/client';
+import StorageService from '@/services/storage.service';
 import { useAuthStore } from '@/stores/auth-store';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import * as Crypto from 'expo-crypto';
@@ -91,6 +92,36 @@ export function useSetCoverPhoto(petId: string) {
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ['pet-detail', petId] });
       void queryClient.invalidateQueries({ queryKey: ['pet'] });
+    }
+  });
+}
+
+/**
+ * Replaces the pet's profile photo. This writes `pets.photo_url` only — the
+ * cover is a single image, deliberately not a gallery row, which is the same
+ * shape onboarding sets it in.
+ */
+export function useChangePetPhoto(petId: string) {
+  const queryClient = useQueryClient();
+  const { userId } = useAuthStore();
+
+  return useMutation({
+    mutationFn: async (localUri: string) => {
+      if (!userId) throw new Error('You need to sign in again before changing the photo');
+
+      const publicUrl = await StorageService.uploadPetPhoto({ userId, localUri });
+
+      const { error } = await supabase
+        .from('pets')
+        .update({ photo_url: publicUrl })
+        .eq('id', petId);
+
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ['pet-detail', petId] });
+      void queryClient.invalidateQueries({ queryKey: ['pet'] });
+      void queryClient.invalidateQueries({ queryKey: ['pets'] });
     }
   });
 }

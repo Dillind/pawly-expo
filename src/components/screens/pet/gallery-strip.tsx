@@ -110,7 +110,13 @@ const GalleryStrip = ({ petId }: Props) => {
   const pickPhoto = async () => {
     setAddError(null);
     const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
-    if (!permission.granted) return;
+
+    // A silent return here reads as a dead button: the user taps, nothing
+    // happens, and nothing explains why.
+    if (!permission.granted) {
+      setAddError('Allow photo access in Settings to add photos.');
+      return;
+    }
 
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ['images'],

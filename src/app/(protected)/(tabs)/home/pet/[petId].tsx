@@ -9,7 +9,7 @@ import SectionCard from '@/components/screens/pet/section-card';
 import type { AppTheme } from '@/constants/theme';
 import { usePetDetail } from '@/hooks/use-pet-detail';
 import { useStyles } from '@/hooks/use-styles';
-import { useLocalSearchParams } from 'expo-router';
+import { Stack, useLocalSearchParams } from 'expo-router';
 import { ActivityIndicator, ScrollView, StyleSheet } from 'react-native';
 
 const PetDetail = () => {
@@ -17,7 +17,9 @@ const PetDetail = () => {
   const styles = useStyles(makeStyles);
   const { data: pet, isLoading, isError, refetch } = usePetDetail(petId);
 
-  if (isError) {
+  // A disabled query never leaves `pending`, so without this a missing petId
+  // spins forever instead of saying anything.
+  if (!petId || isError) {
     return (
       <ScreenView>
         <ErrorState
@@ -39,8 +41,13 @@ const PetDetail = () => {
 
   return (
     <ScreenView>
+      {/* headerTitle, not title: the layout sets a headerTitle placeholder and
+          headerTitle wins over title, so setting title here does nothing. */}
+      <Stack.Screen options={{ headerTitle: pet.name }} />
+
       <ScrollView contentContainerStyle={styles.content}>
         <PetHeader
+          petId={pet.id}
           name={pet.name}
           breed={pet.breed}
           birthdate={pet.birthdate}
