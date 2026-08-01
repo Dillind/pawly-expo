@@ -165,8 +165,7 @@ const GalleryStrip = ({ petId }: Props) => {
     try {
       await deletePhoto.mutateAsync({
         photoId: selectedPhoto.id,
-        photoUrl: selectedPhoto.url,
-        storagePath: selectedPhoto.storagePath
+        photoUrl: selectedPhoto.url
       });
       void sheetRef.current?.dismiss();
     } catch (error) {

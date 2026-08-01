@@ -50,7 +50,7 @@ const PetHeader = ({ petId, name, breed, birthdate, birthdateIsApproximate, phot
     if (result.canceled) return;
 
     try {
-      await changePhoto.mutateAsync(result.assets[0].uri);
+      await changePhoto.mutateAsync({ localUri: result.assets[0].uri, previousUrl: photoUrl });
     } catch (caught) {
       setError(caught instanceof Error ? caught.message : 'Could not change the photo');
     }
