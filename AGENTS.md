@@ -148,7 +148,7 @@ This applies to any change to layout, styling, copy, navigation, screen composit
 
 ### Navigation
 
-Expo Router (file-based). Auth is enforced with `Stack.Protected` guards in `src/app/_layout.tsx`; routes are split into `(public)` and `(protected)` groups. The authenticated area uses Expo Router **native tabs** (`expo-router/unstable-native-tabs`), not a JS tab bar. Auth is currently gated by a placeholder `useState(false)` — real Supabase auth is not yet wired.
+Expo Router (file-based). Auth is enforced with `Stack.Protected` guards in `src/app/_layout.tsx`; routes are split into `(public)` and `(protected)` groups. The authenticated area uses Expo Router **native tabs** (`expo-router/unstable-native-tabs`), not a JS tab bar. Auth is wired with real Supabase authentication via `useAuthSession` and `useAuthStore`.
 
 ### State
 
@@ -306,6 +306,19 @@ Rules:
 - **Deep links reach sheets via their host screen**, because a sheet has no URL. Route to the screen with a param (`/activity?logId=…`), present from an effect once the data has loaded, then clear the param so back-navigation behaves. This is how notification taps open a specific record.
 - Prefer an **inline** picker inside a sheet over `react-native-modal-datetime-picker` — stacking a modal on top of a native sheet is a rough edge on iOS. This is about _presentation_, not about the control: a time input is always the `mode="time"` spinner (see Dates and times above), inline if the modal misbehaves.
 
+### Trays
+
+A **Tray** is the standard presentation for a sequenced edit — several small steps in one flow, like
+editing the feeding schedule. It's built on `Tray` (`src/components/core/tray.tsx`), which is one
+`BaseSheet` whose content swaps per step and whose height animates to match. See
+[ADR 0014](./docs/adr/0014-tray-is-one-sheet-with-swapping-content.md) for why it's one sheet and not
+one sheet per step.
+
+- **Never nest sheets for a multi-step flow.** A tray is the answer whenever a flow would otherwise
+  need to present a second sheet from inside the first.
+- **One concept per step.** Each `TrayStep` should ask for or show one thing. If a step needs its own
+  scroll or its own loading state, it's probably two steps.
+
 ### Popovers (not sheets)
 
 **"Sheet" means the native presentation described above — nothing else.** A control that is drawn in-app and anchored to whatever opened it is a **popover**, and it must not be named, filed, or described as a sheet. `ActionPopover` (`src/components/ui/action-popover.tsx`) is the one that exists: a floating glass menu with a `plus` trigger, secondary `ActionPopoverItem` rows, and a single emphasised `primaryAction`.
@@ -383,7 +396,7 @@ This project keeps a live domain model. When you introduce or sharpen a domain t
 
 Keep this list honest and current:
 
-- **Auth:** not implemented — routing uses a placeholder flag; Supabase auth pending.
+- ~~**Auth**~~ — resolved: real Supabase auth, gated with `Stack.Protected` in `src/app/_layout.tsx`.
 - ~~**Package manager / lockfile**~~ — resolved: bun, single `bun.lock`. See Toolchain above.
 - **Backend:** Supabase (and Sentry/PostHog/RevenueCat/Canny) are decided but **not installed** — see TECH_STACK status column before importing them.
 - **Palette:** the proposed brand palette in PRODUCT_BRIEF differs from the neutral palette currently in `theme.ts`; reconcile in a design session.

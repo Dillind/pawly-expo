@@ -13,6 +13,7 @@ type Props = {
   detents?: SheetDetent[];
   scrollable?: boolean;
   onDismiss?: () => void;
+  onPresent?: () => void;
 };
 
 /**
@@ -33,7 +34,8 @@ const BaseSheet = ({
   title,
   detents = ['auto', 0.6, 1],
   scrollable = false,
-  onDismiss
+  onDismiss,
+  onPresent
 }: Props) => {
   const theme = useTheme();
   const styles = useStyles(makeStyles);
@@ -46,7 +48,8 @@ const BaseSheet = ({
       cornerRadius={20}
       grabber={true}
       scrollable={scrollable}
-      onDidDismiss={onDismiss}>
+      onDidDismiss={onDismiss}
+      onDidPresent={onPresent}>
       <View style={styles.content}>
         {title && (
           <AppText variant="header" size={20}>

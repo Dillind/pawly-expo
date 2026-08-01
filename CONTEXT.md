@@ -33,6 +33,10 @@ _Avoid_: Referral, share link.
 An animal cared for by a household (v1: one dog per household in the UI; the model supports many). Stores a birthdate, not a fixed age.
 _Avoid_: Animal, dog (the product is pet-general even though v1 targets dogs).
 
+**Care Card**:
+The information a Member needs in order to look after a Pet when they are not the usual carer — allergies, medications and how to give them, vet and emergency vet contacts, microchip and insurance numbers, feeding amounts and notes. A handover document, not a medical record: it holds what a Contributor needs today, never dated clinical history like vaccination or surgery records, which the vet already keeps.
+_Avoid_: Health record, medical history, health section (all promise clinical history the Care Card deliberately does not hold).
+
 **Feeding Schedule**:
 The set of expected daily feed times for a pet (e.g. 07:00, 12:00, 17:00), each expressed as a wall-clock time interpreted in the household's timezone.
 _Avoid_: Meal plan, routine.

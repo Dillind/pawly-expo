@@ -141,3 +141,52 @@ export function composeLoggedAt(day: 'today' | 'yesterday', time: string, zone: 
 
   return dayjs.tz(`${calendarDay} ${time}`, `${DAY_FORMAT} HH:mm`, zone).toISOString();
 }
+
+export const formatAge = (birthdate: string | null, isApproximate: boolean): string | null => {
+  if (!birthdate) return null;
+
+  const born = new Date(`${birthdate}T00:00:00`);
+  const now = new Date();
+
+  const days = Math.floor((now.getTime() - born.getTime()) / (1000 * 60 * 60 * 24));
+
+  if (days < 0) return null;
+
+  let months =
+    (now.getFullYear() - born.getFullYear()) * 12 + (now.getMonth() - born.getMonth());
+
+  if (now.getDate() < born.getDate()) months -= 1;
+  if (months < 0) return null;
+
+  if (months < 1) {
+    if (days === 0) return 'Newborn';
+
+    let value: string;
+
+    if (days < 7) {
+      value = `${days} day${days === 1 ? '' : 's'}`;
+    } else if (days < 14) {
+      value = '1 week';
+    } else {
+      const weeks = Math.floor(days / 7);
+      value = `${weeks} week${weeks === 1 ? '' : 's'}`;
+    }
+
+    return isApproximate ? `About ${value}` : value;
+  }
+
+  const years = Math.floor(months / 12);
+  const unit = years >= 1 ? years : months;
+  const noun = years >= 1 ? 'year' : 'month';
+  const value = `${unit} ${noun}${unit === 1 ? '' : 's'}`;
+
+  return isApproximate ? `About ${value}` : value;
+};
+
+export const formatDayAndDate = (date: Date, timezone: string): string =>
+  new Intl.DateTimeFormat('en-AU', {
+    weekday: 'long',
+    day: 'numeric',
+    month: 'long',
+    timeZone: timezone
+  }).format(date);

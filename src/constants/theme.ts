@@ -9,15 +9,19 @@ import { Platform } from 'react-native';
 export const COLORS = {
   light: {
     text: '#000000',
-    background: '#ffffff',
-    backgroundElement: '#F0F0F3',
-    backgroundSelected: '#E0E1E6',
+    // Light mode is a grouped-list field, not a white page: cards are white and
+    // the page behind them is tinted. On a white page a white card has only its
+    // shadow to separate it, and at our shadow weight that reads as nothing.
+    background: '#F1F2F5',
+    backgroundElement: '#FFFFFF',
+    backgroundSelected: '#E4E6EB',
     textSecondary: '#60646C',
     error: '#CE3C39',
     primary: '#0F7173',
     primaryMuted: 'rgba(15, 113, 115, 0.15)',
     onPrimary: '#ffffff',
-    accent: '#6E44FF'
+    accent: '#6E44FF',
+    shadow: '#0B0D12'
   },
   dark: {
     text: '#ffffff',
@@ -29,7 +33,8 @@ export const COLORS = {
     primary: '#14A8AF',
     primaryMuted: 'rgba(20, 168, 175, 0.22)',
     onPrimary: '#ffffff',
-    accent: '#6E44FF'
+    accent: '#6E44FF',
+    shadow: '#000000'
   }
 } as const;
 

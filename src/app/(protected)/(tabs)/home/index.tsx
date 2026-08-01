@@ -6,7 +6,9 @@ import ScreenView from '@/components/layout/screen-view';
 import ActionPopover from '@/components/ui/action-popover';
 import { CREATE_ACTIONS } from '@/components/ui/create-actions';
 import SlotRow from '@/components/ui/slot-row';
-import type { AppTheme } from '@/constants/theme';
+import TileGrid from '@/components/ui/tile-grid';
+import { buildHomeTiles } from '@/components/ui/home-tiles';
+import { BottomTabInset, type AppTheme } from '@/constants/theme';
 import { useHousehold } from '@/hooks/use-household';
 import { memberDisplayName, useHouseholdMembers } from '@/hooks/use-household-members';
 import { usePet } from '@/hooks/use-pet';
@@ -14,7 +16,7 @@ import { useRefreshOnFocus } from '@/hooks/use-refresh-on-focus';
 import { useSlotStates } from '@/hooks/use-slot-states';
 import { useStyles } from '@/hooks/use-styles';
 import { useRequestNotificationPermission } from '@/hooks/use-notification-permission';
-import { todayInTimezone } from '@/lib/dates';
+import { formatDayAndDate, todayInTimezone } from '@/lib/dates';
 import type { TrueSheet } from '@lodev09/react-native-true-sheet';
 import * as Notifications from 'expo-notifications';
 import { useEffect, useRef, useState } from 'react';
@@ -66,12 +68,14 @@ const Home = () => {
   return (
     <ScreenView>
       <ScrollView contentContainerStyle={styles.content}>
+        {timezone && (
+          <AppText size={14} color="textSecondary">
+            {formatDayAndDate(new Date(), timezone)}
+          </AppText>
+        )}
+
         <AppText variant="header" size={32}>
           {pet?.name ?? ' '}
-        </AppText>
-
-        <AppText size={16} color="textSecondary">
-          Today
         </AppText>
 
         {isError ? (
@@ -106,6 +110,8 @@ const Home = () => {
             })}
           </View>
         )}
+
+        <TileGrid tiles={buildHomeTiles(pet?.id)} />
       </ScrollView>
 
       <ActionPopover
@@ -130,7 +136,9 @@ const makeStyles = ({ spacing }: AppTheme) =>
   StyleSheet.create({
     content: {
       flexGrow: 1,
-      paddingVertical: spacing.four,
+      paddingTop: spacing.four,
+      // The tab bar and the create button both float over the content.
+      paddingBottom: BottomTabInset + spacing.four,
       gap: spacing.three
     },
     slots: {
