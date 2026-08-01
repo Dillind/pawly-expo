@@ -1,6 +1,7 @@
 import ErrorState from '@/components/core/error-state';
 import ScreenView from '@/components/layout/screen-view';
 import PetHeader from '@/components/screens/pet/pet-header';
+import ScheduleSection from '@/components/screens/pet/schedule-section';
 import type { AppTheme } from '@/constants/theme';
 import { usePetDetail } from '@/hooks/use-pet-detail';
 import { useStyles } from '@/hooks/use-styles';
@@ -42,6 +43,8 @@ const PetDetail = () => {
           birthdateIsApproximate={pet.birthdateIsApproximate}
           photoUrl={pet.photoUrl}
         />
+
+        <ScheduleSection petId={pet.id} />
       </ScrollView>
     </ScreenView>
   );
