@@ -21,6 +21,7 @@
   },
   "dependencies": {
     "@expo-google-fonts/inter": "^0.4.2",
+    "@expo/ui": "~57.0.8",
     "@hookform/resolvers": "^5.4.0",
     "@legendapp/list": "^3.3.0",
     "@lodev09/react-native-true-sheet": "^3.11.9",
