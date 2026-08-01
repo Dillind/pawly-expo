@@ -32,6 +32,7 @@ type Props = {
 
 const Tray = ({ sheetRef, steps, onDismiss }: Props) => {
   const [history, setHistory] = useState<string[]>([]);
+  const [isPresented, setIsPresented] = useState(false);
 
   const activeId = history[history.length - 1] ?? steps[0]?.id;
   const active = steps.find((step) => step.id === activeId) ?? steps[0];
@@ -53,23 +54,34 @@ const Tray = ({ sheetRef, steps, onDismiss }: Props) => {
     [close]
   );
 
+  const handlePresent = useCallback(() => {
+    setIsPresented(true);
+  }, []);
+
   const handleDismiss = useCallback(() => {
+    setIsPresented(false);
     setHistory([]);
     onDismiss?.();
   }, [onDismiss]);
 
   // setHistory is async, so a resize called inline from goTo/back would measure
-  // the outgoing step -- run it here, after the new step has rendered.
+  // the outgoing step -- run it here, after the new step has rendered. Resizing
+  // before the sheet is presented rejects with "No sheet found with tag N".
   useEffect(() => {
+    if (!isPresented) return;
     // Index 0: detents={['auto']} on BaseSheet below has exactly one entry.
     void sheetRef.current?.resize(0);
-  }, [activeId, sheetRef]);
+  }, [activeId, isPresented, sheetRef]);
 
   if (!active) return null;
 
   return (
     <TrayContext.Provider value={controls}>
-      <BaseSheet sheetRef={sheetRef} detents={['auto']} onDismiss={handleDismiss}>
+      <BaseSheet
+        sheetRef={sheetRef}
+        detents={['auto']}
+        onDismiss={handleDismiss}
+        onPresent={handlePresent}>
         <TrayStep
           title={active.title}
           isFirst={history.length === 0}
