@@ -15,6 +15,7 @@ import {
   PawPrint,
   Pencil,
   Plus,
+  Trash2,
   UserPlus,
   Utensils,
   X
@@ -39,7 +40,8 @@ export const iconMap = {
   userPlus: UserPlus,
   pawPrint: PawPrint,
   bell: Bell,
-  close: X
+  close: X,
+  trash: Trash2
 } as const;
 
 export type IconName = keyof typeof iconMap;
