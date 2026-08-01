@@ -93,7 +93,10 @@ const PetHeader = ({ petId, name, breed, birthdate, birthdateIsApproximate, phot
 
 const makeStyles = ({ spacing, colors }: AppTheme) =>
   StyleSheet.create({
-    container: { gap: spacing.two, alignItems: 'center' },
+    container: {
+      gap: spacing.two,
+      alignItems: 'center'
+    },
     photo: {
       width: 120,
       height: 120,

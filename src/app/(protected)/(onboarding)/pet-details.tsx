@@ -9,7 +9,6 @@ import TextDescriptionHeader from '@/components/layout/text-description-header';
 import { petDetailsSchema, type PetDetailsFormValues } from '@/constants/schemas/pet-details';
 import type { AppTheme } from '@/constants/theme';
 import { useStyles } from '@/hooks/use-styles';
-import { hapticLight } from '@/lib/haptics';
 import { useOnboardingStore } from '@/stores/onboarding-store';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Image } from 'expo-image';
@@ -64,7 +63,6 @@ const PetDetails = () => {
   };
 
   const onSubmit = handleSubmit((values) => {
-    hapticLight();
     setPetDetails(values);
     router.push('/feeding-schedule');
   });

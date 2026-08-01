@@ -17,8 +17,6 @@ const PetDetail = () => {
   const styles = useStyles(makeStyles);
   const { data: pet, isLoading, isError, refetch } = usePetDetail(petId);
 
-  // A disabled query never leaves `pending`, so without this a missing petId
-  // spins forever instead of saying anything.
   if (!petId || isError) {
     return (
       <ScreenView>
@@ -41,8 +39,6 @@ const PetDetail = () => {
 
   return (
     <ScreenView>
-      {/* headerTitle, not title: the layout sets a headerTitle placeholder and
-          headerTitle wins over title, so setting title here does nothing. */}
       <Stack.Screen options={{ headerTitle: pet.name }} />
 
       <ScrollView contentContainerStyle={styles.content}>
@@ -78,8 +74,6 @@ const makeStyles = ({ spacing }: AppTheme) =>
     content: {
       flexGrow: 1,
       paddingTop: spacing.four,
-      // The native tab bar floats over the content, so the last section needs
-      // to be able to scroll clear of it rather than stopping underneath.
       paddingBottom: BottomTabInset + spacing.four,
       gap: spacing.three
     }

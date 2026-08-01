@@ -5,17 +5,17 @@ import ErrorState from '@/components/core/error-state';
 import ScreenView from '@/components/layout/screen-view';
 import ActionPopover from '@/components/ui/action-popover';
 import { CREATE_ACTIONS } from '@/components/ui/create-actions';
+import { buildHomeTiles } from '@/components/ui/home-tiles';
 import SlotRow from '@/components/ui/slot-row';
 import TileGrid from '@/components/ui/tile-grid';
-import { buildHomeTiles } from '@/components/ui/home-tiles';
 import { BottomTabInset, type AppTheme } from '@/constants/theme';
 import { useHousehold } from '@/hooks/use-household';
 import { memberDisplayName, useHouseholdMembers } from '@/hooks/use-household-members';
+import { useRequestNotificationPermission } from '@/hooks/use-notification-permission';
 import { usePet } from '@/hooks/use-pet';
 import { useRefreshOnFocus } from '@/hooks/use-refresh-on-focus';
 import { useSlotStates } from '@/hooks/use-slot-states';
 import { useStyles } from '@/hooks/use-styles';
-import { useRequestNotificationPermission } from '@/hooks/use-notification-permission';
 import { formatDayAndDate, todayInTimezone } from '@/lib/dates';
 import type { TrueSheet } from '@lodev09/react-native-true-sheet';
 import * as Notifications from 'expo-notifications';
@@ -137,7 +137,6 @@ const makeStyles = ({ spacing }: AppTheme) =>
     content: {
       flexGrow: 1,
       paddingTop: spacing.four,
-      // The tab bar and the create button both float over the content.
       paddingBottom: BottomTabInset + spacing.four,
       gap: spacing.three
     },
