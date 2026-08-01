@@ -52,11 +52,11 @@ const EditStep = ({ petId, bio, onDone }: EditStepProps) => {
           render={({ field: { onChange } }) => (
             <TextInputValidated
               name="bio"
+              placeholder="Loves the dog park, and a belly rub after dinner."
               value={bioValue ?? ''}
               onChangeText={onChange}
               isMultiline
               height={120}
-              placeholder="Add a few words about this pet"
             />
           )}
         />

@@ -44,6 +44,21 @@ const FIELD_LABELS: Record<FieldKey, string> = {
   notes: 'Notes'
 };
 
+// An example beats an instruction: the placeholder shows the shape of a good
+// answer, which is what a Contributor reading this in a hurry needs.
+const FIELD_PLACEHOLDERS: Record<FieldKey, string> = {
+  allergies: 'Chicken, and grass seeds in summer',
+  vetName: 'Northcote Vet Clinic',
+  vetPhone: '03 9482 1234',
+  emergencyVetName: 'Melbourne Animal Emergency',
+  emergencyVetPhone: '03 9370 5555',
+  microchipNumber: '956000012345678',
+  insuranceProvider: 'Petplan',
+  insurancePolicyNumber: 'PP-4821993',
+  feedingNotes: 'Half a scoop, soaked for five minutes',
+  notes: 'Nervous around bikes. Lead stays on near the road.'
+};
+
 const MULTILINE_FIELDS: ReadonlySet<FieldKey> = new Set(['allergies', 'feedingNotes', 'notes']);
 
 const FIELD_GROUPS: FieldGroup[] = [
@@ -151,6 +166,7 @@ const FieldEditStep = ({ petId, card, field }: FieldEditStepProps) => {
             <TextInputValidated
               name={field}
               label={FIELD_LABELS[field]}
+              placeholder={FIELD_PLACEHOLDERS[field]}
               value={value ?? ''}
               onChangeText={onChange}
               isMultiline={MULTILINE_FIELDS.has(field)}
@@ -232,6 +248,7 @@ const MedicationEditStep = ({ petId, medication }: MedicationEditStepProps) => {
           name="name"
           render={({ field: { onChange } }) => (
             <TextInputValidated
+              placeholder="Apoquel"
               name="name"
               label="Name"
               value={name ?? ''}
@@ -244,6 +261,7 @@ const MedicationEditStep = ({ petId, medication }: MedicationEditStepProps) => {
           name="dose"
           render={({ field: { onChange } }) => (
             <TextInputValidated
+              placeholder="16mg, one tablet"
               name="dose"
               label="Dose"
               value={dose ?? ''}
@@ -256,6 +274,7 @@ const MedicationEditStep = ({ petId, medication }: MedicationEditStepProps) => {
           name="scheduleText"
           render={({ field: { onChange } }) => (
             <TextInputValidated
+              placeholder="Every morning with food"
               name="scheduleText"
               label="When"
               value={scheduleText ?? ''}
@@ -268,6 +287,7 @@ const MedicationEditStep = ({ petId, medication }: MedicationEditStepProps) => {
           name="instructions"
           render={({ field: { onChange } }) => (
             <TextInputValidated
+              placeholder="Hide it in cheese. She will spit it out otherwise."
               name="instructions"
               label="How"
               value={instructions ?? ''}

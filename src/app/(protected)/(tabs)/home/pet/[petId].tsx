@@ -6,7 +6,7 @@ import PetBio from '@/components/screens/pet/pet-bio';
 import PetHeader from '@/components/screens/pet/pet-header';
 import ScheduleSection from '@/components/screens/pet/schedule-section';
 import SectionCard from '@/components/screens/pet/section-card';
-import type { AppTheme } from '@/constants/theme';
+import { BottomTabInset, type AppTheme } from '@/constants/theme';
 import { usePetDetail } from '@/hooks/use-pet-detail';
 import { useStyles } from '@/hooks/use-styles';
 import { Stack, useLocalSearchParams } from 'expo-router';
@@ -75,7 +75,14 @@ const PetDetail = () => {
 
 const makeStyles = ({ spacing }: AppTheme) =>
   StyleSheet.create({
-    content: { flexGrow: 1, paddingVertical: spacing.four, gap: spacing.three }
+    content: {
+      flexGrow: 1,
+      paddingTop: spacing.four,
+      // The native tab bar floats over the content, so the last section needs
+      // to be able to scroll clear of it rather than stopping underneath.
+      paddingBottom: BottomTabInset + spacing.four,
+      gap: spacing.three
+    }
   });
 
 export default PetDetail;

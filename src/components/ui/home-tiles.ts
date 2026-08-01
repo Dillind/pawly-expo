@@ -17,7 +17,7 @@ export const buildHomeTiles = (petId: string | undefined): TileDescriptor[] =>
           id: 'pets',
           label: 'Pets',
           icon: 'pawPrint',
-          span: 2,
+          span: 1,
           href: `/home/pet/${petId}`,
           art: 'petStack'
         }

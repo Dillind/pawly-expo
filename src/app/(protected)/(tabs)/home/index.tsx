@@ -8,7 +8,7 @@ import { CREATE_ACTIONS } from '@/components/ui/create-actions';
 import SlotRow from '@/components/ui/slot-row';
 import TileGrid from '@/components/ui/tile-grid';
 import { buildHomeTiles } from '@/components/ui/home-tiles';
-import type { AppTheme } from '@/constants/theme';
+import { BottomTabInset, type AppTheme } from '@/constants/theme';
 import { useHousehold } from '@/hooks/use-household';
 import { memberDisplayName, useHouseholdMembers } from '@/hooks/use-household-members';
 import { usePet } from '@/hooks/use-pet';
@@ -136,7 +136,9 @@ const makeStyles = ({ spacing }: AppTheme) =>
   StyleSheet.create({
     content: {
       flexGrow: 1,
-      paddingVertical: spacing.four,
+      paddingTop: spacing.four,
+      // The tab bar and the create button both float over the content.
+      paddingBottom: BottomTabInset + spacing.four,
       gap: spacing.three
     },
     slots: {
