@@ -148,7 +148,7 @@ This applies to any change to layout, styling, copy, navigation, screen composit
 
 ### Navigation
 
-Expo Router (file-based). Auth is enforced with `Stack.Protected` guards in `src/app/_layout.tsx`; routes are split into `(public)` and `(protected)` groups. The authenticated area uses Expo Router **native tabs** (`expo-router/unstable-native-tabs`), not a JS tab bar. Auth is currently gated by a placeholder `useState(false)` — real Supabase auth is not yet wired.
+Expo Router (file-based). Auth is enforced with `Stack.Protected` guards in `src/app/_layout.tsx`; routes are split into `(public)` and `(protected)` groups. The authenticated area uses Expo Router **native tabs** (`expo-router/unstable-native-tabs`), not a JS tab bar. Auth is wired with real Supabase authentication via `useAuthSession` and `useAuthStore`.
 
 ### State
 
