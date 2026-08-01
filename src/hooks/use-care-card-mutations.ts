@@ -6,24 +6,31 @@ const invalidate = (queryClient: ReturnType<typeof useQueryClient>, petId: strin
   void queryClient.invalidateQueries({ queryKey: ['care-card', petId] });
 };
 
+const CARE_CARD_COLUMNS: Record<keyof CareCardInput, string> = {
+  allergies: 'allergies',
+  vetName: 'vet_name',
+  vetPhone: 'vet_phone',
+  emergencyVetName: 'emergency_vet_name',
+  emergencyVetPhone: 'emergency_vet_phone',
+  microchipNumber: 'microchip_number',
+  insuranceProvider: 'insurance_provider',
+  insurancePolicyNumber: 'insurance_policy_number',
+  feedingNotes: 'feeding_notes',
+  notes: 'notes'
+};
+
 export function useUpsertCareCard(petId: string) {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (input: CareCardInput) => {
-      const row = {
-        pet_id: petId,
-        allergies: input.allergies,
-        vet_name: input.vetName,
-        vet_phone: input.vetPhone,
-        emergency_vet_name: input.emergencyVetName,
-        emergency_vet_phone: input.emergencyVetPhone,
-        microchip_number: input.microchipNumber,
-        insurance_provider: input.insuranceProvider,
-        insurance_policy_number: input.insurancePolicyNumber,
-        feeding_notes: input.feedingNotes,
-        notes: input.notes
-      };
+    // Only the edited fields are written -- an upsert built from a full
+    // in-memory snapshot would clobber a concurrent edit to a different
+    // field made by another household member while this sheet was open.
+    mutationFn: async (patch: Partial<CareCardInput>) => {
+      const row: Record<string, string | null> = { pet_id: petId };
+      for (const key of Object.keys(patch) as (keyof CareCardInput)[]) {
+        row[CARE_CARD_COLUMNS[key]] = patch[key] || null;
+      }
 
       const { error } = await supabase.from('care_cards').upsert(row, { onConflict: 'pet_id' });
       if (error) throw error;
@@ -37,13 +44,31 @@ export function useUpsertMedication(petId: string) {
 
   return useMutation({
     mutationFn: async (input: MedicationInput & { id?: string; sortOrder?: number }) => {
+      let sortOrder = input.sortOrder;
+
+      // New medications need a deterministic, increasing sort_order --
+      // the column defaults to 0, and with two or more rows at 0 Postgres
+      // makes no ordering guarantee at all. Derive the next value from the
+      // current max rather than requiring every call site to supply one.
+      if (!input.id && sortOrder === undefined) {
+        const { data: maxRow, error: maxError } = await supabase
+          .from('care_card_medications')
+          .select('sort_order')
+          .eq('pet_id', petId)
+          .order('sort_order', { ascending: false })
+          .limit(1)
+          .maybeSingle();
+        if (maxError) throw maxError;
+        sortOrder = (maxRow?.sort_order ?? -1) + 1;
+      }
+
       const row = {
         pet_id: petId,
         name: input.name,
-        dose: input.dose,
-        schedule_text: input.scheduleText,
-        instructions: input.instructions,
-        ...(input.sortOrder !== undefined ? { sort_order: input.sortOrder } : {})
+        dose: input.dose || null,
+        schedule_text: input.scheduleText || null,
+        instructions: input.instructions || null,
+        ...(sortOrder !== undefined ? { sort_order: sortOrder } : {})
       };
 
       const { error } = input.id

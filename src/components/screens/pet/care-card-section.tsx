@@ -133,7 +133,7 @@ const FieldEditStep = ({ petId, card, field }: FieldEditStepProps) => {
   const onSubmit = handleSubmit(async (values) => {
     setSubmitError(null);
     try {
-      await upsertCareCard.mutateAsync({ ...values, [field]: values[field] || null });
+      await upsertCareCard.mutateAsync({ [field]: values[field] || null });
       close();
     } catch (error) {
       setSubmitError(error instanceof Error ? error.message : 'Could not save the care card');
@@ -199,7 +199,13 @@ const MedicationEditStep = ({ petId, medication }: MedicationEditStepProps) => {
   const onSubmit = handleSubmit(async (values) => {
     setSubmitError(null);
     try {
-      await upsertMedication.mutateAsync({ ...values, id: medication?.id });
+      await upsertMedication.mutateAsync({
+        name: values.name,
+        dose: values.dose || null,
+        scheduleText: values.scheduleText || null,
+        instructions: values.instructions || null,
+        id: medication?.id
+      });
       close();
     } catch (error) {
       setSubmitError(error instanceof Error ? error.message : 'Could not save the medication');
@@ -403,7 +409,9 @@ const CareCardSection = ({ petId }: Props) => {
         onAdd={() => openMedication(null)}
         onEdit={(medication) => openMedication(medication)}
         onDelete={(medication) => void deleteMedication.mutateAsync(medication.id)}
-        isDeleting={deleteMedication.isPending}
+        deletingMedicationId={
+          deleteMedication.isPending ? (deleteMedication.variables ?? null) : null
+        }
       />
 
       <Tray

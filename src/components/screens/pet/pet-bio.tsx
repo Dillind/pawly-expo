@@ -36,7 +36,7 @@ const EditStep = ({ petId, bio, onDone }: EditStepProps) => {
   const onSubmit = handleSubmit(async (values) => {
     setSubmitError(null);
     try {
-      await updatePet.mutateAsync({ bio: values.bio });
+      await updatePet.mutateAsync({ bio: values.bio || null });
       onDone();
     } catch (error) {
       setSubmitError(error instanceof Error ? error.message : 'Could not save the bio');

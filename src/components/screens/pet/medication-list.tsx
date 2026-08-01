@@ -10,10 +10,10 @@ type Props = {
   onAdd: () => void;
   onEdit: (medication: Medication) => void;
   onDelete: (medication: Medication) => void;
-  isDeleting: boolean;
+  deletingMedicationId: string | null;
 };
 
-const MedicationList = ({ medications, onAdd, onEdit, onDelete, isDeleting }: Props) => {
+const MedicationList = ({ medications, onAdd, onEdit, onDelete, deletingMedicationId }: Props) => {
   const styles = useStyles(makeStyles);
 
   return (
@@ -65,6 +65,7 @@ const MedicationList = ({ medications, onAdd, onEdit, onDelete, isDeleting }: Pr
                   accessibilityLabel={`Edit ${medication.name}`}
                   variant="ghost"
                   size={18}
+                  isDisabled={deletingMedicationId === medication.id}
                   onPress={() => onEdit(medication)}
                 />
                 <IconButton
@@ -72,7 +73,7 @@ const MedicationList = ({ medications, onAdd, onEdit, onDelete, isDeleting }: Pr
                   accessibilityLabel={`Remove ${medication.name}`}
                   variant="ghost"
                   size={18}
-                  isDisabled={isDeleting}
+                  isDisabled={deletingMedicationId === medication.id}
                   onPress={() => onDelete(medication)}
                 />
               </View>

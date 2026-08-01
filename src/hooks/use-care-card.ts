@@ -23,6 +23,7 @@ export type Medication = {
   scheduleText: string | null;
   instructions: string | null;
   sortOrder: number;
+  createdAt: string;
 };
 
 async function fetchCareCard(petId: string): Promise<CareCard | null> {
@@ -55,9 +56,13 @@ async function fetchCareCard(petId: string): Promise<CareCard | null> {
 async function fetchMedications(petId: string): Promise<Medication[]> {
   const { data, error } = await supabase
     .from('care_card_medications')
-    .select('id, pet_id, name, dose, schedule_text, instructions, sort_order')
+    .select('id, pet_id, name, dose, schedule_text, instructions, sort_order, created_at')
     .eq('pet_id', petId)
-    .order('sort_order', { ascending: true });
+    // sort_order alone is not unique (every row defaults to 0), so Postgres
+    // makes no ordering guarantee between ties -- created_at breaks the tie
+    // deterministically.
+    .order('sort_order', { ascending: true })
+    .order('created_at', { ascending: true });
 
   if (error) throw error;
 
@@ -68,7 +73,8 @@ async function fetchMedications(petId: string): Promise<Medication[]> {
     dose: row.dose,
     scheduleText: row.schedule_text,
     instructions: row.instructions,
-    sortOrder: row.sort_order
+    sortOrder: row.sort_order,
+    createdAt: row.created_at
   }));
 }
 
