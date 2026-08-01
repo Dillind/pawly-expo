@@ -5,6 +5,7 @@ import GalleryStrip from '@/components/screens/pet/gallery-strip';
 import PetBio from '@/components/screens/pet/pet-bio';
 import PetHeader from '@/components/screens/pet/pet-header';
 import ScheduleSection from '@/components/screens/pet/schedule-section';
+import SectionCard from '@/components/screens/pet/section-card';
 import type { AppTheme } from '@/constants/theme';
 import { usePetDetail } from '@/hooks/use-pet-detail';
 import { useStyles } from '@/hooks/use-styles';
@@ -49,11 +50,17 @@ const PetDetail = () => {
 
         <GalleryStrip petId={pet.id} />
 
-        <ScheduleSection petId={pet.id} />
+        <SectionCard>
+          <ScheduleSection petId={pet.id} />
+        </SectionCard>
 
-        <PetBio petId={pet.id} name={pet.name} bio={pet.bio} />
+        <SectionCard>
+          <PetBio petId={pet.id} name={pet.name} bio={pet.bio} />
+        </SectionCard>
 
-        <CareCardSection petId={pet.id} />
+        <SectionCard>
+          <CareCardSection petId={pet.id} />
+        </SectionCard>
       </ScrollView>
     </ScreenView>
   );
@@ -61,7 +68,7 @@ const PetDetail = () => {
 
 const makeStyles = ({ spacing }: AppTheme) =>
   StyleSheet.create({
-    content: { flexGrow: 1, paddingVertical: spacing.four, gap: spacing.four }
+    content: { flexGrow: 1, paddingVertical: spacing.four, gap: spacing.three }
   });
 
 export default PetDetail;

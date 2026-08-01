@@ -35,7 +35,7 @@ const TileGrid = ({ tiles }: Props) => {
               : undefined
           }
           style={tile.span === 2 ? styles.full : styles.half}>
-          <Tile label={tile.label} icon={tile.icon} href={tile.href} />
+          <Tile label={tile.label} icon={tile.icon} href={tile.href} art={tile.art} />
         </Animated.View>
       ))}
     </View>
@@ -45,7 +45,10 @@ const TileGrid = ({ tiles }: Props) => {
 const makeStyles = ({ spacing }: AppTheme) =>
   StyleSheet.create({
     grid: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.three },
-    half: { flexBasis: '48%', flexGrow: 1 },
+    // No flexGrow: a span-1 tile stays half width even when it is the only one
+    // in the row. Growing it made a lone tile fill the row and stop reading as
+    // a tile at all.
+    half: { flexBasis: '48%' },
     full: { flexBasis: '100%' }
   });
 
