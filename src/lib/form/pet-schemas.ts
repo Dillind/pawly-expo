@@ -8,3 +8,9 @@ export const slotSchema = z.object({
 });
 
 export type SlotInput = z.infer<typeof slotSchema>;
+
+export const bioSchema = z.object({
+  bio: z.string().max(500, 'Keep it under 500 characters').nullable()
+});
+
+export type BioInput = z.infer<typeof bioSchema>;

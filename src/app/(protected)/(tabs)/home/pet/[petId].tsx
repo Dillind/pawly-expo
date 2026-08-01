@@ -1,5 +1,6 @@
 import ErrorState from '@/components/core/error-state';
 import ScreenView from '@/components/layout/screen-view';
+import PetBio from '@/components/screens/pet/pet-bio';
 import PetHeader from '@/components/screens/pet/pet-header';
 import ScheduleSection from '@/components/screens/pet/schedule-section';
 import type { AppTheme } from '@/constants/theme';
@@ -45,6 +46,8 @@ const PetDetail = () => {
         />
 
         <ScheduleSection petId={pet.id} />
+
+        <PetBio petId={pet.id} name={pet.name} bio={pet.bio} />
       </ScrollView>
     </ScreenView>
   );

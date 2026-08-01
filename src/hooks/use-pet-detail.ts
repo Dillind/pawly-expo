@@ -8,12 +8,13 @@ export type PetDetail = {
   birthdate: string | null;
   birthdateIsApproximate: boolean;
   photoUrl: string | null;
+  bio: string | null;
 };
 
 async function fetchPetDetail(petId: string): Promise<PetDetail> {
   const { data, error } = await supabase
     .from('pets')
-    .select('id, name, breed, birthdate, birthdate_is_approximate, photo_url')
+    .select('id, name, breed, birthdate, birthdate_is_approximate, photo_url, bio')
     .eq('id', petId)
     .single();
 
@@ -25,7 +26,8 @@ async function fetchPetDetail(petId: string): Promise<PetDetail> {
     breed: data.breed,
     birthdate: data.birthdate,
     birthdateIsApproximate: data.birthdate_is_approximate,
-    photoUrl: data.photo_url
+    photoUrl: data.photo_url,
+    bio: data.bio
   };
 }
 
