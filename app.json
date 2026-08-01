@@ -1,13 +1,14 @@
 {
   "expo": {
-    "name": "crumpet-expo",
+    "name": "Crumpet",
     "slug": "crumpet-expo",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "crumpetexpo",
+    "scheme": "crumpetapp",
     "userInterfaceStyle": "automatic",
     "ios": {
+      "bundleIdentifier": "au.com.crumpet.ios",
       "icon": "./assets/expo.icon"
     },
     "android": {
