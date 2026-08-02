@@ -7,12 +7,11 @@ import { petDetailsEditSchema, type PetDetailsEditValues } from '@/constants/sch
 import type { AppTheme } from '@/constants/theme';
 import { useStyles } from '@/hooks/use-styles';
 import { useUpdatePet } from '@/hooks/use-update-pet';
-import FieldError from '@/lib/form/components/field-error';
 import type { PetSex } from '@/types/core';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useState } from 'react';
 import { Controller, FormProvider, useForm } from 'react-hook-form';
 import { StyleSheet, View } from 'react-native';
+import { toast } from 'sonner-native';
 
 const sexOptions = ['male', 'female'];
 
@@ -33,7 +32,6 @@ type Props = {
 const EditPetDetails = ({ petId, details, onDone }: Props) => {
   const styles = useStyles(makeStyles);
   const updatePet = useUpdatePet(petId);
-  const [submitError, setSubmitError] = useState<string | null>(null);
 
   const form = useForm<PetDetailsEditValues>({
     resolver: zodResolver(petDetailsEditSchema),
@@ -48,20 +46,27 @@ const EditPetDetails = ({ petId, details, onDone }: Props) => {
   });
   const { control, handleSubmit } = form;
 
-  const onSubmit = handleSubmit(async (values) => {
-    setSubmitError(null);
-    try {
-      await updatePet.mutateAsync({
+  const onSubmit = handleSubmit((values) => {
+    updatePet.mutate(
+      {
         name: values.name,
         breed: values.breed,
         sex: values.sex,
         birthdate: values.birthdate,
         birthdate_is_approximate: values.birthdateIsApproximate
-      });
-      onDone();
-    } catch (error) {
-      setSubmitError(error instanceof Error ? error.message : 'Could not save the details');
-    }
+      },
+      {
+        onSuccess: () => {
+          toast.success('Pet details updated');
+          onDone();
+        },
+        onError: (error) => {
+          toast.error('Could not update pet details', {
+            description: error instanceof Error ? error.message : 'Try again in a moment'
+          });
+        }
+      }
+    );
   });
 
   return (
@@ -139,8 +144,6 @@ const EditPetDetails = ({ petId, details, onDone }: Props) => {
             />
           )}
         />
-
-        <FieldError error={submitError ?? undefined} />
 
         <MainButton
           text={updatePet.isPending ? 'Saving…' : 'Save'}
