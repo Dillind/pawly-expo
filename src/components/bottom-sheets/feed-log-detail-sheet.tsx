@@ -5,6 +5,7 @@ import MainButton from '@/components/core/main-button';
 import PressableOpacity from '@/components/core/pressable-opacity';
 import TextInputValidated from '@/components/core/text-input-validated';
 import { SuccessMessage } from '@/constants/enums';
+import { FEED_LOG_DAY_OPTIONS } from '@/constants/options';
 import {
   FEED_LOG_NOTES_MAX_LENGTH,
   feedLogNotesOnlySchema,
@@ -51,8 +52,6 @@ type Props = {
  * present here.
  */
 type SavePatch = { loggedAt?: string; notes?: string | null };
-
-const dayOptions = ['today', 'yesterday'] as const;
 
 const FeedLogDetailSheet = ({ sheetRef, logId, petId }: Props) => {
   const styles = useStyles(makeStyles);
@@ -240,13 +239,13 @@ function EditableLogForm({ log, timezone, isOwner, isSaving, onSave }: EditableL
           name="day"
           render={({ field: { onChange, value } }) => (
             <View style={styles.dayRow}>
-              {dayOptions.map((option) => (
+              {FEED_LOG_DAY_OPTIONS.map(({ value: option, label }) => (
                 <PressableOpacity
                   key={option}
                   style={[styles.dayChip, value === option && styles.dayChipSelected]}
                   onPress={() => onChange(option)}>
                   <AppText size={14} color={value === option ? 'text' : 'textSecondary'}>
-                    {option === 'today' ? 'Today' : 'Yesterday'}
+                    {label}
                   </AppText>
                 </PressableOpacity>
               ))}

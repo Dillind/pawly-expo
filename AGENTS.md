@@ -140,6 +140,27 @@ Invoke both skills **before** writing UI code — not after, not to review what 
 
 This applies to any change to layout, styling, copy, navigation, screen composition, or a new component — including "small" ones. It does not apply to pure data/query/migration work with no visible surface.
 
+### Constants and selectable options
+
+**Module-level constant data is `CONSTANT_CASE`** — `SEX_OPTIONS`, `SIZE_STYLES`, `PHOTO_CAP`. This
+is for fixed data only. Instances and derived values keep `camelCase` (`queryClient`, the `styles`
+returned by `StyleSheet.create`, `isIOS`/`isAndroid`/`isWeb`).
+
+**Anything selectable is `Option<T>`** (`src/types/core.ts`):
+
+```ts
+export type Option<T = string> = { value: T; label: string };
+```
+
+`value` is what gets stored, `label` is what the user reads. Keeping them apart is what stops a
+stored enum being rendered raw, or a display string being written to a column. The lists live in
+`src/constants/options.ts` and are typed to the domain — `Option<PetSex>[]`, not `string[]` — so
+`DropdownPickerValidated` infers `T` and the call site needs no cast. Read a label back with
+`optionLabel(SEX_OPTIONS, sex)` from `@/utils/options` rather than a second hand-kept map.
+
+`DropdownPickerValidated` has an **`.ios.tsx` variant** backed by a real SwiftUI menu. Change both
+or iOS silently keeps the old behaviour — the fallback file is not what runs on device.
+
 ### Naming & imports
 
 - **Files and folders are `kebab-case`** (`app-text.tsx`, `use-push-notifications.ts`). Do not introduce `PascalCase`/`camelCase` filenames.

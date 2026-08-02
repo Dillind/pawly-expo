@@ -6,6 +6,7 @@ import PressableOpacity from '@/components/core/pressable-opacity';
 import TextInputValidated from '@/components/core/text-input-validated';
 import ToggleSwitch from '@/components/core/toggle-switch';
 import TextDescriptionHeader from '@/components/layout/text-description-header';
+import { SEX_OPTIONS } from '@/constants/options';
 import { petDetailsSchema, type PetDetailsFormValues } from '@/constants/schemas/pet-details';
 import type { AppTheme } from '@/constants/theme';
 import { useStyles } from '@/hooks/use-styles';
@@ -16,8 +17,6 @@ import * as ImagePicker from 'expo-image-picker';
 import { useRouter } from 'expo-router';
 import { Controller, FormProvider, useForm, useWatch } from 'react-hook-form';
 import { ScrollView, StyleSheet, View } from 'react-native';
-
-const sexOptions = ['male', 'female'];
 
 const PetDetails = () => {
   const styles = useStyles(makeStyles);
@@ -132,10 +131,9 @@ const PetDetails = () => {
                   name="sex"
                   label="Sex"
                   isLabelIndicated
-                  items={sexOptions}
+                  options={SEX_OPTIONS}
                   value={value}
-                  onChange={(next) => onChange(next as PetDetailsFormValues['sex'])}
-                  getText={(item) => (item === 'male' ? 'Male' : 'Female')}
+                  onChange={onChange}
                 />
               )}
             />

@@ -4,17 +4,16 @@ import MainButton from '@/components/core/main-button';
 import TextInputValidated from '@/components/core/text-input-validated';
 import ToggleSwitch from '@/components/core/toggle-switch';
 import { ErrorMessage, SuccessMessage } from '@/constants/enums';
+import { SEX_OPTIONS } from '@/constants/options';
 import { petDetailsEditSchema, type PetDetailsEditValues } from '@/constants/schemas/pet-details';
 import type { AppTheme } from '@/constants/theme';
 import { useUpdatePet } from '@/hooks/queries/use-update-pet';
+import type { PetSex } from '@/types/core';
 import { useStyles } from '@/hooks/use-styles';
 import { showErrorToast, showSuccessToast } from '@/lib/toast';
-import type { PetSex } from '@/types/core';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Controller, FormProvider, useForm } from 'react-hook-form';
 import { StyleSheet, View } from 'react-native';
-
-const sexOptions = ['male', 'female'];
 
 export type EditablePetDetails = {
   name: string;
@@ -110,10 +109,9 @@ const EditPetDetails = ({ petId, details, onDone }: Props) => {
             <DropdownPickerValidated
               name="sex"
               label="Sex"
-              items={sexOptions}
+              options={SEX_OPTIONS}
               value={value ?? ''}
-              onChange={(next) => onChange(next as PetSex)}
-              getText={(item) => (item === 'male' ? 'Male' : 'Female')}
+              onChange={onChange}
             />
           )}
         />

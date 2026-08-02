@@ -9,8 +9,8 @@ import {
   feedingScheduleSchema,
   type FeedingScheduleFormValues
 } from '@/constants/schemas/feeding-schedule';
+import { FEEDING_SCHEDULE_LABEL_OPTIONS, TIMEZONE_OPTIONS } from '@/constants/options';
 import type { AppTheme } from '@/constants/theme';
-import { COMMON_TIMEZONES } from '@/constants/timezones';
 import { useStyles } from '@/hooks/use-styles';
 import FieldError from '@/lib/form/components/field-error';
 import { showErrorToast, showSuccessToast } from '@/lib/toast';
@@ -22,14 +22,6 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useQueryClient } from '@tanstack/react-query';
 import { Controller, FormProvider, useForm, useWatch } from 'react-hook-form';
 import { ScrollView, StyleSheet, View } from 'react-native';
-
-const timezoneItems = COMMON_TIMEZONES.includes(
-  Intl.DateTimeFormat().resolvedOptions().timeZone as (typeof COMMON_TIMEZONES)[number]
-)
-  ? [...COMMON_TIMEZONES]
-  : [Intl.DateTimeFormat().resolvedOptions().timeZone, ...COMMON_TIMEZONES];
-
-const labelOptions = ['morning', 'lunch', 'dinner', 'custom'];
 
 const FeedingSchedule = () => {
   const styles = useStyles(makeStyles);
@@ -119,10 +111,9 @@ const FeedingSchedule = () => {
               <DropdownPickerValidated
                 name="timezone"
                 label="Timezone"
-                items={timezoneItems}
+                options={TIMEZONE_OPTIONS}
                 value={value}
                 onChange={onChange}
-                getText={(item) => item.replace(/_/g, ' ')}
               />
             )}
           />
@@ -148,12 +139,9 @@ const FeedingSchedule = () => {
                   name={`feedingTimes.${index}.label`}
                   render={({ field: { onChange, value } }) => (
                     <DropdownPickerValidated
-                      items={labelOptions}
+                      options={FEEDING_SCHEDULE_LABEL_OPTIONS}
                       value={value}
-                      onChange={(next) =>
-                        onChange(next as FeedingScheduleFormValues['feedingTimes'][number]['label'])
-                      }
-                      getText={(item) => item.charAt(0).toUpperCase() + item.slice(1)}
+                      onChange={onChange}
                       wrapperStyle={styles.labelDropdown}
                     />
                   )}

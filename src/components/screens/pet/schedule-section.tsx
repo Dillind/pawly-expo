@@ -6,11 +6,12 @@ import IconButton from '@/components/core/icon-button';
 import MainButton from '@/components/core/main-button';
 import Tray, { type TrayStepDescriptor } from '@/components/core/tray';
 import { ErrorMessage, SuccessMessage } from '@/constants/enums';
+import { FEEDING_SCHEDULE_LABEL_OPTIONS } from '@/constants/options';
 import type { AppTheme } from '@/constants/theme';
 import { useFeedingSchedules } from '@/hooks/queries/use-feeding-schedules';
 import { useDeleteSlot, useUpsertSlot } from '@/hooks/queries/use-schedule-mutations';
 import { useStyles } from '@/hooks/use-styles';
-import { SCHEDULE_LABELS, slotSchema, type SlotInput } from '@/lib/form/pet-schemas';
+import { slotSchema, type SlotInput } from '@/lib/form/pet-schemas';
 import { showErrorToast, showSuccessToast } from '@/lib/toast';
 import type { FeedingSlot } from '@/services/feeding-schedule.service';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -83,10 +84,9 @@ const EditStep = ({ petId, slot, onDone }: EditStepProps) => {
             <DropdownPickerValidated
               name="label"
               label="Feed"
-              items={[...SCHEDULE_LABELS]}
+              options={FEEDING_SCHEDULE_LABEL_OPTIONS}
               value={value}
-              onChange={(next) => onChange(next as SlotInput['label'])}
-              getText={capitalize}
+              onChange={onChange}
             />
           )}
         />

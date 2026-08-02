@@ -4,22 +4,23 @@ import type { AppTheme } from '@/constants/theme';
 import { Radius } from '@/constants/theme';
 import { useStyles } from '@/hooks/use-styles';
 import FieldError from '@/lib/form/components/field-error';
+import type { Option } from '@/types/core';
+import { optionLabel } from '@/utils/options';
 import { Host, Picker, Text } from '@expo/ui/swift-ui';
 import { pickerStyle, tag } from '@expo/ui/swift-ui/modifiers';
 import { useFormContext } from 'react-hook-form';
 import { StyleProp, StyleSheet, View, ViewStyle } from 'react-native';
 
-type Props = {
+type Props<T extends string> = {
   marginTop?: number;
   marginBottom?: number;
-  items: string[];
-  value: string;
-  onChange: (value: string) => void;
+  options: Option<T>[];
+  value: T | '';
+  onChange: (value: T) => void;
   isDisabled?: boolean;
   label?: string;
   placeholder?: string;
   isLabelIndicated?: boolean;
-  getText?: (item: string) => string;
   description?: string;
   name?: string;
   /** Accepted for parity with the fallback; SwiftUI places the menu itself. */
@@ -34,27 +35,26 @@ type Props = {
  * clipped by the sheet instead of floating over it. A native menu is presented
  * by UIKit in its own window and has no such problem.
  */
-const DropdownPickerValidated = ({
+const DropdownPickerValidated = <T extends string>({
   placeholder,
   isDisabled,
   marginBottom,
   marginTop,
-  items,
+  options,
   onChange,
   value,
   isLabelIndicated,
   label,
-  getText,
   description,
   name,
   wrapperStyle,
   showFieldError = true
-}: Props) => {
+}: Props<T>) => {
   const form = useFormContext();
   const errors = form?.formState?.errors;
   const styles = useStyles(makeStyles);
 
-  const selectedText = value ? (getText ? getText(value) : value) : (placeholder ?? 'Select');
+  const selectedText = optionLabel(options, value) ?? placeholder ?? 'Select';
 
   return (
     <View style={[wrapperStyle, { marginBottom, marginTop }]}>
@@ -80,11 +80,11 @@ const DropdownPickerValidated = ({
             label={selectedText}
             selection={value}
             onSelectionChange={(selection) => {
-              if (!isDisabled) onChange(selection);
+              if (!isDisabled) onChange(selection as T);
             }}>
-            {items.map((item) => (
-              <Text key={item} modifiers={[tag(item)]}>
-                {getText ? getText(item) : item}
+            {options.map((option) => (
+              <Text key={option.value} modifiers={[tag(option.value)]}>
+                {option.label}
               </Text>
             ))}
           </Picker>

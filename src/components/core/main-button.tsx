@@ -37,7 +37,7 @@ type MainButtonProps = {
   hapticFeedback?: boolean;
 };
 
-const sizeStyles = {
+const SIZE_STYLES = {
   xs: { paddingVertical: 8, paddingHorizontal: 12, borderRadius: 24, fontSize: 14 },
   sm: { paddingVertical: 12, paddingHorizontal: 18, borderRadius: 24, fontSize: 16 },
   md: { paddingVertical: 12, paddingHorizontal: 24, borderRadius: 100, fontSize: 18 },
@@ -83,7 +83,7 @@ const MainButton: FunctionComponent<MainButtonProps> = ({
     pressed.value = withTiming(0, { duration: PRESS_DURATION_MS });
   };
 
-  const { paddingVertical, paddingHorizontal, borderRadius, fontSize } = sizeStyles[size];
+  const { paddingVertical, paddingHorizontal, borderRadius, fontSize } = SIZE_STYLES[size];
 
   return (
     <AnimatedPressable

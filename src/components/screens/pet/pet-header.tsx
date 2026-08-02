@@ -3,6 +3,7 @@ import IconButton from '@/components/core/icon-button';
 import Tray, { type TrayStepDescriptor } from '@/components/core/tray';
 import EditPetDetails from '@/components/screens/pet/edit-pet-details';
 import { ErrorMessage, SuccessMessage } from '@/constants/enums';
+import { SEX_OPTIONS } from '@/constants/options';
 import type { AppTheme } from '@/constants/theme';
 import { Radius } from '@/constants/theme';
 import { useHousehold } from '@/hooks/queries/use-household';
@@ -10,14 +11,13 @@ import { useChangePetPhoto } from '@/hooks/queries/use-pet-photo-mutations';
 import { useStyles } from '@/hooks/use-styles';
 import { formatAge } from '@/lib/dates';
 import { showErrorToast, showSuccessToast } from '@/lib/toast';
+import { optionLabel } from '@/utils/options';
 import type { PetSex } from '@/types/core';
 import type { TrueSheet } from '@lodev09/react-native-true-sheet';
 import { Image } from 'expo-image';
 import * as ImagePicker from 'expo-image-picker';
 import { useRef } from 'react';
 import { ActivityIndicator, StyleSheet, View } from 'react-native';
-
-const sexLabels: Record<PetSex, string> = { male: 'Male', female: 'Female' };
 
 type Props = {
   petId: string;
@@ -44,7 +44,7 @@ const PetHeader = ({
   const { data: household } = useHousehold();
 
   const age = formatAge(birthdate, birthdateIsApproximate);
-  const subtitle = [breed, sex ? sexLabels[sex] : null, age].filter(Boolean).join(' · ');
+  const subtitle = [breed, optionLabel(SEX_OPTIONS, sex), age].filter(Boolean).join(' · ');
 
   const steps: TrayStepDescriptor[] = [
     {
