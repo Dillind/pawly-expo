@@ -51,6 +51,9 @@ bun run web         # Run on web
 bun run lint        # ESLint (eslint-config-expo)
 bun run typecheck   # tsc --noEmit
 bun run spellcheck  # cspell across ts/tsx/md/sql
+bun run test        # Jest, single run
+bun run test:watch  # Jest, watch mode
+bun run check       # all four above, in order, stopping at the first failure
 
 bun run build:dev         # EAS development build, iOS (simulator-capable)
 bun run build:preview     # EAS preview build, iOS
@@ -67,7 +70,38 @@ gitignored and never reaches the builder, so anything the app reads from
 No `--auto-submit` until `submit.production` in `eas.json` is filled in, and no Android
 build scripts until FCM credentials exist.
 
-There is **no test setup yet** (no test runner, no `test` script). Don't assume tests exist; if adding them, set up the runner first and note it here.
+## Tests
+
+`jest-expo` + `@testing-library/react-native`. **Run `bun run check` before finishing** — it is
+typecheck, lint, spellcheck and test in one, and stops at the first failure.
+
+Tests live in a top-level **`tests/` mirroring `src/`**, so the path tells you what is covered:
+
+```
+tests/lib/dates.test.ts              covers  src/lib/dates.ts
+tests/services/pet.service.test.ts   covers  src/services/pet.service.ts
+```
+
+Name them `<name>.test.ts`. No `__tests__` folders, and nothing beside the source file.
+
+**What is worth testing here:** pure logic (`lib/dates.ts`, `utils/`), the Zod schemas, and the
+row↔domain mapping in services. A service test mocks `@/lib/supabase/client` and asserts the
+columns — `PetService.update` turning `birthdateIsApproximate` into `birthdate_is_approximate` is
+locked down precisely because that leaked into component code once already.
+
+**What a unit test here cannot tell you**, and do not pretend otherwise:
+
+- **The SQL.** `slot_states`, `log_feed`, the Grace Window arithmetic and the missed-feed sweep are
+  the real logic of this app and they live in Postgres. Jest cannot reach any of it. That wants
+  pgTAP against a local `supabase db reset`.
+- **Anything native.** TrueSheet, the SwiftUI picker in `dropdown-picker-validated.ios.tsx`, native
+  tabs. Jest renders mocks. A test that calls `onValueChange` on a mocked `Switch` passes happily
+  while the real control is dead on device — which is exactly the state of the Feed Logged Alerts
+  toggle. Verify native surfaces on a device with Argent, not in Jest.
+
+Timezone helpers are asserted against fixed instants and pass under any device clock — the suite is
+run under `TZ=UTC`, `America/New_York` and `Pacific/Kiritimati`. Keep it that way: a test that only
+passes in Melbourne is testing the machine, not the code.
 
 ## Branches
 
