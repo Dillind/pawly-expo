@@ -68,7 +68,7 @@ const NotificationSettings = () => {
       <View style={styles.section}>
         <ToggleSwitch
           label="Feed Logged Alerts"
-          description={`Know when someone feeds ${petName}.`}
+          description={`Know when someone feeds a pet`}
           value={preferences?.feedLoggedAlerts ?? false}
           isDisabled={isDenied}
           onChange={(value) =>
