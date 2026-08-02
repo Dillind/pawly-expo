@@ -1,4 +1,3 @@
-import { ErrorMessage, SuccessMessage } from '@/constants/enums';
 import AppText from '@/components/core/app-text';
 import DateTimePickerValidated from '@/components/core/date-time-picker-validated';
 import DropdownPickerValidated from '@/components/core/dropdown-picker-validated';
@@ -6,19 +5,20 @@ import ErrorState from '@/components/core/error-state';
 import IconButton from '@/components/core/icon-button';
 import MainButton from '@/components/core/main-button';
 import Tray, { type TrayStepDescriptor } from '@/components/core/tray';
+import { ErrorMessage, SuccessMessage } from '@/constants/enums';
 import type { AppTheme } from '@/constants/theme';
 import { useFeedingSchedules } from '@/hooks/queries/use-feeding-schedules';
-import type { FeedingSlot } from '@/services/feeding-schedule.service';
 import { useDeleteSlot, useUpsertSlot } from '@/hooks/queries/use-schedule-mutations';
 import { useStyles } from '@/hooks/use-styles';
 import { SCHEDULE_LABELS, slotSchema, type SlotInput } from '@/lib/form/pet-schemas';
+import { showErrorToast, showSuccessToast } from '@/lib/toast';
+import type { FeedingSlot } from '@/services/feeding-schedule.service';
 import { zodResolver } from '@hookform/resolvers/zod';
 import type { TrueSheet } from '@lodev09/react-native-true-sheet';
 import dayjs from 'dayjs';
 import { useRef, useState } from 'react';
 import { Controller, FormProvider, useForm, useWatch } from 'react-hook-form';
 import { ActivityIndicator, StyleSheet, View } from 'react-native';
-import { showErrorToast, showSuccessToast } from '@/lib/toast';
 
 const capitalize = (value: string) => value.charAt(0).toUpperCase() + value.slice(1);
 
@@ -36,7 +36,7 @@ const EditStep = ({ petId, slot, onDone }: EditStepProps) => {
   const form = useForm<SlotInput>({
     resolver: zodResolver(slotSchema),
     defaultValues: {
-      label: (slot?.label as SlotInput['label']) ?? 'custom',
+      label: slot?.label ?? 'custom',
       scheduledTime: slot?.scheduledTime ?? '17:00'
     }
   });

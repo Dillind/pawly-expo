@@ -1,10 +1,10 @@
-import { SuccessMessage } from '@/constants/enums';
 import BaseSheet from '@/components/bottom-sheets/base-sheet';
 import AppText from '@/components/core/app-text';
 import DateTimePickerValidated from '@/components/core/date-time-picker-validated';
 import MainButton from '@/components/core/main-button';
 import PressableOpacity from '@/components/core/pressable-opacity';
 import TextInputValidated from '@/components/core/text-input-validated';
+import { SuccessMessage } from '@/constants/enums';
 import {
   FEED_LOG_NOTES_MAX_LENGTH,
   feedLogNotesOnlySchema,
@@ -16,7 +16,6 @@ import type { AppTheme } from '@/constants/theme';
 import { useFeedLog } from '@/hooks/queries/use-feed-log';
 import { useDeleteFeedLog, useUpdateFeedLog } from '@/hooks/queries/use-feed-log-mutations';
 import { useHousehold } from '@/hooks/queries/use-household';
-import { formatAuthorName } from '@/utils/members';
 import { useStyles } from '@/hooks/use-styles';
 import {
   composeLoggedAt,
@@ -29,14 +28,15 @@ import {
   yesterdayInTimezone
 } from '@/lib/dates';
 import { feedLogErrorMessage } from '@/lib/feed-log-errors';
+import { showErrorToast, showSuccessToast } from '@/lib/toast';
 import { useAuthStore } from '@/stores/auth-store';
 import type { FeedLog } from '@/types/core';
+import { formatAuthorName } from '@/utils/members';
 import { zodResolver } from '@hookform/resolvers/zod';
 import type { TrueSheet } from '@lodev09/react-native-true-sheet';
 import { useMemo, type RefObject } from 'react';
 import { Controller, FormProvider, useForm } from 'react-hook-form';
 import { ActivityIndicator, StyleSheet, View } from 'react-native';
-import { showErrorToast, showSuccessToast } from '@/lib/toast';
 
 type Props = {
   sheetRef: RefObject<TrueSheet | null>;

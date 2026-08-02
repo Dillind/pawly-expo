@@ -1,20 +1,20 @@
-import { ErrorMessage, SuccessMessage } from '@/constants/enums';
 import AppText from '@/components/core/app-text';
 import IconButton from '@/components/core/icon-button';
 import MainButton from '@/components/core/main-button';
 import TextInputValidated from '@/components/core/text-input-validated';
 import Tray, { type TrayStepDescriptor } from '@/components/core/tray';
+import { ErrorMessage, SuccessMessage } from '@/constants/enums';
 import type { AppTheme } from '@/constants/theme';
 import { useHousehold } from '@/hooks/queries/use-household';
-import { useStyles } from '@/hooks/use-styles';
 import { useUpdatePet } from '@/hooks/queries/use-update-pet';
+import { useStyles } from '@/hooks/use-styles';
 import { bioSchema, type BioInput } from '@/lib/form/pet-schemas';
+import { showErrorToast, showSuccessToast } from '@/lib/toast';
 import { zodResolver } from '@hookform/resolvers/zod';
 import type { TrueSheet } from '@lodev09/react-native-true-sheet';
 import { useRef } from 'react';
 import { Controller, FormProvider, useForm, useWatch } from 'react-hook-form';
 import { StyleSheet, View } from 'react-native';
-import { showErrorToast, showSuccessToast } from '@/lib/toast';
 
 type EditStepProps = {
   petId: string;

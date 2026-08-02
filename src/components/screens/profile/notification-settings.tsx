@@ -1,19 +1,19 @@
-import { ErrorMessage, SuccessMessage } from '@/constants/enums';
 import AppText from '@/components/core/app-text';
 import MainButton from '@/components/core/main-button';
 import ToggleSwitch from '@/components/core/toggle-switch';
+import { ErrorMessage, SuccessMessage } from '@/constants/enums';
 import type { AppTheme } from '@/constants/theme';
 import { useNotificationPreferences } from '@/hooks/queries/use-notification-preferences';
 import { usePet } from '@/hooks/queries/use-pet';
-import { useStyles } from '@/hooks/use-styles';
 import {
   NOTIFICATION_PERMISSION_QUERY_KEY,
   useRequestNotificationPermission
 } from '@/hooks/use-notification-permission';
+import { useStyles } from '@/hooks/use-styles';
+import { showErrorToast, showSuccessToast } from '@/lib/toast';
 import { useQuery } from '@tanstack/react-query';
 import * as Notifications from 'expo-notifications';
 import { ActivityIndicator, Linking, ScrollView, StyleSheet, View } from 'react-native';
-import { showErrorToast, showSuccessToast } from '@/lib/toast';
 
 /**
  * What the household will and won't send this member.

@@ -1,17 +1,17 @@
-import { ErrorMessage } from '@/constants/enums';
 import MainButton from '@/components/core/main-button';
 import TextInputValidated from '@/components/core/text-input-validated';
 import TextDescriptionHeader from '@/components/layout/text-description-header';
+import { ErrorMessage } from '@/constants/enums';
 import { verifyOtpSchema, type VerifyOtpFormValues } from '@/constants/schemas/verify-otp';
 import type { AppTheme } from '@/constants/theme';
 import { useStyles } from '@/hooks/use-styles';
 import { hapticLight } from '@/lib/haptics';
+import { showErrorToast } from '@/lib/toast';
 import AuthService from '@/services/auth.service';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useLocalSearchParams } from 'expo-router';
 import { Controller, FormProvider, useForm } from 'react-hook-form';
 import { ScrollView, StyleSheet, View } from 'react-native';
-import { showErrorToast } from '@/lib/toast';
 
 const VerifySignUp = () => {
   const styles = useStyles(makeStyles);

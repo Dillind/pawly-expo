@@ -1,5 +1,5 @@
-import HouseholdService from '@/services/household.service';
 import { useHousehold } from '@/hooks/queries/use-household';
+import HouseholdService from '@/services/household.service';
 import { useQuery } from '@tanstack/react-query';
 
 export function useHouseholdMembers() {

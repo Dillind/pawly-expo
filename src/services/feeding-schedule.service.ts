@@ -2,7 +2,11 @@ import type { SlotInput } from '@/lib/form/pet-schemas';
 import { supabase } from '@/lib/supabase/client';
 import type { FeedingScheduleLabel, SlotState, SlotStateValue } from '@/types/core';
 
-export type FeedingSlot = { id: string; scheduledTime: string; label: string };
+export type FeedingSlot = {
+  id: string;
+  scheduledTime: string;
+  label: FeedingScheduleLabel;
+};
 
 const DUPLICATE_LABEL = '23505';
 

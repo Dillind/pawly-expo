@@ -1,13 +1,12 @@
-import { ErrorMessage, SuccessMessage } from '@/constants/enums';
 import AppText from '@/components/core/app-text';
 import ErrorState from '@/components/core/error-state';
 import IconButton from '@/components/core/icon-button';
 import MainButton from '@/components/core/main-button';
 import TextInputValidated from '@/components/core/text-input-validated';
 import Tray, { useTray, type TrayStepDescriptor } from '@/components/core/tray';
+import { ErrorMessage, SuccessMessage } from '@/constants/enums';
 import type { AppTheme } from '@/constants/theme';
 import { useCareCard } from '@/hooks/queries/use-care-card';
-import type { CareCard, Medication } from '@/services/care-card.service';
 import {
   useDeleteMedication,
   useUpsertCareCard,
@@ -20,12 +19,13 @@ import {
   type CareCardInput,
   type MedicationInput
 } from '@/lib/form/pet-schemas';
+import { showErrorToast, showSuccessToast } from '@/lib/toast';
+import type { CareCard, Medication } from '@/services/care-card.service';
 import { zodResolver } from '@hookform/resolvers/zod';
 import type { TrueSheet } from '@lodev09/react-native-true-sheet';
 import { useRef, useState } from 'react';
 import { Controller, FormProvider, useForm, useWatch } from 'react-hook-form';
 import { ActivityIndicator, StyleSheet, View } from 'react-native';
-import { showErrorToast, showSuccessToast } from '@/lib/toast';
 
 import MedicationList from './medication-list';
 

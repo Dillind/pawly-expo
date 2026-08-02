@@ -1,25 +1,25 @@
-import { ErrorMessage, SuccessMessage } from '@/constants/enums';
 import AppText from '@/components/core/app-text';
 import ErrorState from '@/components/core/error-state';
 import IconButton from '@/components/core/icon-button';
 import MainButton from '@/components/core/main-button';
 import Tray, { type TrayStepDescriptor } from '@/components/core/tray';
+import { ErrorMessage, SuccessMessage } from '@/constants/enums';
 import type { AppTheme } from '@/constants/theme';
 import { Radius } from '@/constants/theme';
-import { usePetPhotos } from '@/hooks/queries/use-pet-photos';
-import type { PetPhoto } from '@/services/pet-photo.service';
 import {
   useAddPetPhoto,
   useDeletePetPhoto,
   useSetCoverPhoto
 } from '@/hooks/queries/use-pet-photo-mutations';
+import { usePetPhotos } from '@/hooks/queries/use-pet-photos';
 import { useStyles } from '@/hooks/use-styles';
+import { showErrorToast, showSuccessToast } from '@/lib/toast';
+import type { PetPhoto } from '@/services/pet-photo.service';
 import type { TrueSheet } from '@lodev09/react-native-true-sheet';
 import { Image } from 'expo-image';
 import * as ImagePicker from 'expo-image-picker';
 import { useRef, useState } from 'react';
 import { ActivityIndicator, Pressable, ScrollView, StyleSheet, View } from 'react-native';
-import { showErrorToast, showSuccessToast } from '@/lib/toast';
 
 const PHOTO_CAP = 10;
 

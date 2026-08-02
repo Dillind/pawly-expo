@@ -1,8 +1,8 @@
 import AppText from '@/components/core/app-text';
 import IconButton from '@/components/core/icon-button';
 import type { AppTheme } from '@/constants/theme';
-import type { Medication } from '@/services/care-card.service';
 import { useStyles } from '@/hooks/use-styles';
+import type { Medication } from '@/services/care-card.service';
 import { StyleSheet, View } from 'react-native';
 
 type Props = {

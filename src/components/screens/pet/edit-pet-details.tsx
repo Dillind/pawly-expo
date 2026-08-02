@@ -1,18 +1,18 @@
-import { ErrorMessage, SuccessMessage } from '@/constants/enums';
 import DateTimePickerValidated from '@/components/core/date-time-picker-validated';
 import DropdownPickerValidated from '@/components/core/dropdown-picker-validated';
 import MainButton from '@/components/core/main-button';
 import TextInputValidated from '@/components/core/text-input-validated';
 import ToggleSwitch from '@/components/core/toggle-switch';
+import { ErrorMessage, SuccessMessage } from '@/constants/enums';
 import { petDetailsEditSchema, type PetDetailsEditValues } from '@/constants/schemas/pet-details';
 import type { AppTheme } from '@/constants/theme';
-import { useStyles } from '@/hooks/use-styles';
 import { useUpdatePet } from '@/hooks/queries/use-update-pet';
+import { useStyles } from '@/hooks/use-styles';
+import { showErrorToast, showSuccessToast } from '@/lib/toast';
 import type { PetSex } from '@/types/core';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Controller, FormProvider, useForm } from 'react-hook-form';
 import { StyleSheet, View } from 'react-native';
-import { showErrorToast, showSuccessToast } from '@/lib/toast';
 
 const sexOptions = ['male', 'female'];
 

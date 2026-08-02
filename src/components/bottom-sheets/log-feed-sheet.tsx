@@ -10,21 +10,21 @@ import {
 } from '@/constants/schemas/feed-log';
 import type { AppTheme } from '@/constants/theme';
 import { useLogFeed } from '@/hooks/queries/use-feed-log-mutations';
-import type { LogFeedResult } from '@/services/feed-log.service';
 import { useHousehold } from '@/hooks/queries/use-household';
 import { useHouseholdMembers } from '@/hooks/queries/use-household-members';
-import { formatAuthorName, memberDisplayName } from '@/utils/members';
 import { usePet } from '@/hooks/queries/use-pet';
 import { useStyles } from '@/hooks/use-styles';
-import { useAuthStore } from '@/stores/auth-store';
 import { formatScheduledTime, formatTimeOfDay } from '@/lib/dates';
 import { feedLogErrorMessage } from '@/lib/feed-log-errors';
+import { showErrorToast, showSuccessToast } from '@/lib/toast';
+import type { LogFeedResult } from '@/services/feed-log.service';
+import { useAuthStore } from '@/stores/auth-store';
+import { formatAuthorName, memberDisplayName } from '@/utils/members';
 import { zodResolver } from '@hookform/resolvers/zod';
 import type { TrueSheet } from '@lodev09/react-native-true-sheet';
 import { useState, type RefObject } from 'react';
 import { Controller, FormProvider, useForm } from 'react-hook-form';
 import { StyleSheet, View } from 'react-native';
-import { showErrorToast, showSuccessToast } from '@/lib/toast';
 
 type Props = {
   sheetRef: RefObject<TrueSheet | null>;
