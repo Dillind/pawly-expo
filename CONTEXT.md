@@ -33,6 +33,10 @@ _Avoid_: Referral, share link.
 An animal cared for by a household (v1: one dog per household in the UI; the model supports many). Stores a birthdate, not a fixed age.
 _Avoid_: Animal, dog (the product is pet-general even though v1 targets dogs).
 
+**Pet Details**:
+The facts that identify a Pet rather than describe its care — name, breed, sex and birthdate, together with whether that birthdate is only approximate. Captured when the Pet is added and changeable afterwards by an Owner. Age is not among them: it is read from the birthdate, so a Pet's age is always current and "1 year" is a reading rather than a stored value.
+_Avoid_: Pet profile (the whole pet screen, Details and Care Card included), bio (the free-text About), pet info.
+
 **Care Card**:
 The information a Member needs in order to look after a Pet when they are not the usual carer — allergies, medications and how to give them, vet and emergency vet contacts, microchip and insurance numbers, feeding amounts and notes. A handover document, not a medical record: it holds what a Contributor needs today, never dated clinical history like vaccination or surgery records, which the vet already keeps.
 _Avoid_: Health record, medical history, health section (all promise clinical history the Care Card deliberately does not hold).

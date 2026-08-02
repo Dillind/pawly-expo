@@ -4,6 +4,7 @@ import MainButton from '@/components/core/main-button';
 import TextInputValidated from '@/components/core/text-input-validated';
 import Tray, { type TrayStepDescriptor } from '@/components/core/tray';
 import type { AppTheme } from '@/constants/theme';
+import { useHousehold } from '@/hooks/use-household';
 import { useStyles } from '@/hooks/use-styles';
 import { useUpdatePet } from '@/hooks/use-update-pet';
 import FieldError from '@/lib/form/components/field-error';
@@ -79,6 +80,7 @@ type Props = { petId: string; name: string; bio: string | null };
 const PetBio = ({ petId, name, bio }: Props) => {
   const styles = useStyles(makeStyles);
   const sheetRef = useRef<TrueSheet | null>(null);
+  const { data: household } = useHousehold();
 
   const steps: TrayStepDescriptor[] = [
     {
@@ -96,13 +98,15 @@ const PetBio = ({ petId, name, bio }: Props) => {
         <AppText variant="header" size={20}>
           About
         </AppText>
-        <IconButton
-          name="pencil"
-          accessibilityLabel="Edit bio"
-          variant="ghost"
-          size={18}
-          onPress={() => void sheetRef.current?.present()}
-        />
+        {household?.isOwner && (
+          <IconButton
+            name="pencil"
+            accessibilityLabel="Edit bio"
+            variant="ghost"
+            size={18}
+            onPress={() => void sheetRef.current?.present()}
+          />
+        )}
       </View>
 
       {bio ? (

@@ -1,7 +1,15 @@
 import { supabase } from '@/lib/supabase/client';
+import type { PetSex } from '@/types/core';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 
-export type PetPatch = { name?: string; breed?: string | null; bio?: string | null };
+export type PetPatch = {
+  name?: string;
+  breed?: string | null;
+  bio?: string | null;
+  sex?: PetSex;
+  birthdate?: string | null;
+  birthdate_is_approximate?: boolean;
+};
 
 export function useUpdatePet(petId: string) {
   const queryClient = useQueryClient();

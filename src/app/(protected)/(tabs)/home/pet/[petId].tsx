@@ -46,6 +46,7 @@ const PetDetail = () => {
           petId={pet.id}
           name={pet.name}
           breed={pet.breed}
+          sex={pet.sex}
           birthdate={pet.birthdate}
           birthdateIsApproximate={pet.birthdateIsApproximate}
           photoUrl={pet.photoUrl}

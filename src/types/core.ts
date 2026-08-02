@@ -52,6 +52,8 @@ export type Household = {
   isOwner: boolean;
 };
 
+export type PetSex = 'male' | 'female';
+
 export type Pet = {
   id: string;
   name: string;
