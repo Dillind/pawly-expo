@@ -1,0 +1,14 @@
+import HouseholdService from '@/services/household.service';
+import { useHousehold } from '@/hooks/queries/use-household';
+import { useQuery } from '@tanstack/react-query';
+
+export function useHouseholdMembers() {
+  const { data: household } = useHousehold();
+  const householdId = household?.id;
+
+  return useQuery({
+    queryKey: ['household-members', householdId],
+    queryFn: () => HouseholdService.listMembers(householdId as string),
+    enabled: Boolean(householdId)
+  });
+}

@@ -1,20 +1,21 @@
+import { ErrorMessage, SuccessMessage } from '@/constants/enums';
 import AppText from '@/components/core/app-text';
 import IconButton from '@/components/core/icon-button';
 import Tray, { type TrayStepDescriptor } from '@/components/core/tray';
 import EditPetDetails from '@/components/screens/pet/edit-pet-details';
 import type { AppTheme } from '@/constants/theme';
 import { Radius } from '@/constants/theme';
-import { useHousehold } from '@/hooks/use-household';
-import { useChangePetPhoto } from '@/hooks/use-pet-photo-mutations';
+import { useHousehold } from '@/hooks/queries/use-household';
+import { useChangePetPhoto } from '@/hooks/queries/use-pet-photo-mutations';
 import { useStyles } from '@/hooks/use-styles';
 import { formatAge } from '@/lib/dates';
-import FieldError from '@/lib/form/components/field-error';
 import type { PetSex } from '@/types/core';
 import type { TrueSheet } from '@lodev09/react-native-true-sheet';
 import { Image } from 'expo-image';
 import * as ImagePicker from 'expo-image-picker';
-import { useRef, useState } from 'react';
+import { useRef } from 'react';
 import { ActivityIndicator, StyleSheet, View } from 'react-native';
+import { showErrorToast, showSuccessToast } from '@/lib/toast';
 
 const sexLabels: Record<PetSex, string> = { male: 'Male', female: 'Female' };
 
@@ -38,8 +39,7 @@ const PetHeader = ({
   photoUrl
 }: Props) => {
   const styles = useStyles(makeStyles);
-  const changePhoto = useChangePetPhoto(petId);
-  const [error, setError] = useState<string | null>(null);
+  const { mutate: changePhoto, isPending: isChangingPhoto } = useChangePetPhoto(petId);
   const sheetRef = useRef<TrueSheet | null>(null);
   const { data: household } = useHousehold();
 
@@ -61,14 +61,12 @@ const PetHeader = ({
   ];
 
   const pickPhoto = async () => {
-    setError(null);
-
     const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
 
     // A silent return here reads as a dead button: the user taps, nothing
     // happens, and nothing explains why.
     if (!permission.granted) {
-      setError('Allow photo access in Settings to change the photo.');
+      showErrorToast(ErrorMessage.PhotoAccessDenied);
       return;
     }
 
@@ -81,11 +79,17 @@ const PetHeader = ({
 
     if (result.canceled) return;
 
-    try {
-      await changePhoto.mutateAsync({ localUri: result.assets[0].uri, previousUrl: photoUrl });
-    } catch (caught) {
-      setError(caught instanceof Error ? caught.message : 'Could not change the photo');
-    }
+    changePhoto(
+      { localUri: result.assets[0].uri, previousUrl: photoUrl },
+      {
+        onSuccess: () => {
+          showSuccessToast(SuccessMessage.PetPhotoUpdated);
+        },
+        onError: (caught) => {
+          showErrorToast(ErrorMessage.PetPhotoUpdateFailed);
+        }
+      }
+    );
   };
 
   return (
@@ -94,7 +98,7 @@ const PetHeader = ({
         <Image source={photoUrl} style={styles.photo} contentFit="cover" transition={200} />
 
         <View style={styles.editWell}>
-          {changePhoto.isPending ? (
+          {isChangingPhoto ? (
             <ActivityIndicator />
           ) : (
             <IconButton
@@ -129,8 +133,6 @@ const PetHeader = ({
           {subtitle}
         </AppText>
       )}
-
-      <FieldError error={error ?? undefined} />
 
       <Tray sheetRef={sheetRef} steps={steps} />
     </View>

@@ -41,6 +41,19 @@ namespace AuthService {
     return data;
   }
 
+  export async function getSessionUserId(): Promise<string | undefined> {
+    const { data } = await supabase.auth.getSession();
+    return data.session?.user.id;
+  }
+
+  export function onAuthStateChange(handler: (userId: string | undefined) => void) {
+    const {
+      data: { subscription }
+    } = supabase.auth.onAuthStateChange((_event, session) => handler(session?.user.id));
+
+    return subscription;
+  }
+
   export async function signOut() {
     // Before signOut, not after: deleting the row is an RLS-gated write that
     // needs auth.uid(), and once the session is gone there is nothing to

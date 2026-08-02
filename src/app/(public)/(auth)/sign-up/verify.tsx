@@ -1,3 +1,4 @@
+import { ErrorMessage } from '@/constants/enums';
 import MainButton from '@/components/core/main-button';
 import TextInputValidated from '@/components/core/text-input-validated';
 import TextDescriptionHeader from '@/components/layout/text-description-header';
@@ -10,7 +11,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useLocalSearchParams } from 'expo-router';
 import { Controller, FormProvider, useForm } from 'react-hook-form';
 import { ScrollView, StyleSheet, View } from 'react-native';
-import { toast } from 'sonner-native';
+import { showErrorToast } from '@/lib/toast';
 
 const VerifySignUp = () => {
   const styles = useStyles(makeStyles);
@@ -36,9 +37,7 @@ const VerifySignUp = () => {
       // which the root layout's AuthGate reacts to and swaps to (protected) itself.
       await AuthService.verifySignUpOtp({ email, token: values.token });
     } catch (error) {
-      toast.error('Could not verify code', {
-        description: error instanceof Error ? error.message : 'Check the code and try again'
-      });
+      showErrorToast(ErrorMessage.VerificationFailed, error instanceof Error ? error.message : 'Check the code and try again');
     }
   });
 

@@ -1,9 +1,10 @@
+import { ErrorMessage, SuccessMessage } from '@/constants/enums';
 import AppText from '@/components/core/app-text';
 import MainButton from '@/components/core/main-button';
 import ToggleSwitch from '@/components/core/toggle-switch';
 import type { AppTheme } from '@/constants/theme';
-import { useNotificationPreferences } from '@/hooks/use-notification-preferences';
-import { usePet } from '@/hooks/use-pet';
+import { useNotificationPreferences } from '@/hooks/queries/use-notification-preferences';
+import { usePet } from '@/hooks/queries/use-pet';
 import { useStyles } from '@/hooks/use-styles';
 import {
   NOTIFICATION_PERMISSION_QUERY_KEY,
@@ -12,6 +13,7 @@ import {
 import { useQuery } from '@tanstack/react-query';
 import * as Notifications from 'expo-notifications';
 import { ActivityIndicator, Linking, ScrollView, StyleSheet, View } from 'react-native';
+import { showErrorToast, showSuccessToast } from '@/lib/toast';
 
 /**
  * What the household will and won't send this member.
@@ -69,7 +71,18 @@ const NotificationSettings = () => {
           description={`Know when someone feeds ${petName}.`}
           value={preferences?.feedLoggedAlerts ?? false}
           isDisabled={isDenied}
-          onChange={setFeedLoggedAlerts}
+          onChange={(value) =>
+            setFeedLoggedAlerts(value, {
+              onSuccess: () => {
+                showSuccessToast(
+                  value ? SuccessMessage.FeedLoggedAlertsOn : SuccessMessage.FeedLoggedAlertsOff
+                );
+              },
+              onError: () => {
+                showErrorToast(ErrorMessage.NotificationSettingsUpdateFailed);
+              }
+            })
+          }
         />
 
         {isDenied && (

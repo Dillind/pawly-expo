@@ -1,3 +1,4 @@
+import { ErrorMessage, SuccessMessage } from '@/constants/enums';
 import AppText from '@/components/core/app-text';
 import ErrorState from '@/components/core/error-state';
 import IconButton from '@/components/core/icon-button';
@@ -5,29 +6,29 @@ import MainButton from '@/components/core/main-button';
 import Tray, { type TrayStepDescriptor } from '@/components/core/tray';
 import type { AppTheme } from '@/constants/theme';
 import { Radius } from '@/constants/theme';
-import { type PetPhoto, usePetPhotos } from '@/hooks/use-pet-photos';
+import { usePetPhotos } from '@/hooks/queries/use-pet-photos';
+import type { PetPhoto } from '@/services/pet-photo.service';
 import {
   useAddPetPhoto,
   useDeletePetPhoto,
   useSetCoverPhoto
-} from '@/hooks/use-pet-photo-mutations';
+} from '@/hooks/queries/use-pet-photo-mutations';
 import { useStyles } from '@/hooks/use-styles';
-import FieldError from '@/lib/form/components/field-error';
 import type { TrueSheet } from '@lodev09/react-native-true-sheet';
 import { Image } from 'expo-image';
 import * as ImagePicker from 'expo-image-picker';
 import { useRef, useState } from 'react';
 import { ActivityIndicator, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { showErrorToast, showSuccessToast } from '@/lib/toast';
 
 const PHOTO_CAP = 10;
 
 type ActionsStepProps = {
   photo: PetPhoto;
-  onSetCover: () => Promise<void>;
-  onDelete: () => Promise<void>;
+  onSetCover: () => void;
+  onDelete: () => void;
   isSettingCover: boolean;
   isDeleting: boolean;
-  error: string | null;
 };
 
 const ActionsStep = ({
@@ -35,8 +36,7 @@ const ActionsStep = ({
   onSetCover,
   onDelete,
   isSettingCover,
-  isDeleting,
-  error
+  isDeleting
 }: ActionsStepProps) => {
   const styles = useStyles(makeStyles);
 
@@ -44,46 +44,41 @@ const ActionsStep = ({
     <View style={styles.actionsStep}>
       <Image source={photo.url} style={styles.actionsPreview} contentFit="cover" transition={200} />
 
-      <FieldError error={error ?? undefined} />
-
       <MainButton
         text={isSettingCover ? 'Setting…' : 'Set as cover photo'}
         isLoading={isSettingCover}
         isDisabled={isSettingCover || isDeleting}
-        onPress={() => void onSetCover()}
+        onPress={onSetCover}
       />
       <MainButton
         text={isDeleting ? 'Removing…' : 'Delete photo'}
         variant="text"
         isLoading={isDeleting}
         isDisabled={isSettingCover || isDeleting}
-        onPress={() => void onDelete()}
+        onPress={onDelete}
       />
     </View>
   );
 };
 
 type ConfirmDeleteStepProps = {
-  onDelete: () => Promise<void>;
+  onDelete: () => void;
   isDeleting: boolean;
-  error: string | null;
 };
 
-const ConfirmDeleteStep = ({ onDelete, isDeleting, error }: ConfirmDeleteStepProps) => {
+const ConfirmDeleteStep = ({ onDelete, isDeleting }: ConfirmDeleteStepProps) => {
   const styles = useStyles(makeStyles);
 
   return (
     <View style={styles.actionsStep}>
       <AppText size={16}>Delete this photo?</AppText>
 
-      <FieldError error={error ?? undefined} />
-
       <MainButton
         text={isDeleting ? 'Removing…' : 'Delete photo'}
         variant="secondary"
         isLoading={isDeleting}
         isDisabled={isDeleting}
-        onPress={() => void onDelete()}
+        onPress={onDelete}
       />
     </View>
   );
@@ -95,26 +90,23 @@ const GalleryStrip = ({ petId }: Props) => {
   const styles = useStyles(makeStyles);
   const sheetRef = useRef<TrueSheet | null>(null);
   const { data: photos, isLoading, isError, refetch } = usePetPhotos(petId);
-  const addPhoto = useAddPetPhoto(petId);
-  const deletePhoto = useDeletePetPhoto(petId);
-  const setCoverPhoto = useSetCoverPhoto(petId);
+  const { mutate: addPhoto, isPending: isAdding } = useAddPetPhoto(petId);
+  const { mutate: deletePhoto, isPending: isDeleting } = useDeletePetPhoto(petId);
+  const { mutate: setCoverPhoto, isPending: isSettingCover } = useSetCoverPhoto(petId);
 
   const [selectedPhoto, setSelectedPhoto] = useState<PetPhoto | null>(null);
   const [entryStep, setEntryStep] = useState<'actions' | 'confirm-delete'>('actions');
-  const [actionError, setActionError] = useState<string | null>(null);
-  const [addError, setAddError] = useState<string | null>(null);
 
   const photoList = photos ?? [];
   const isAtCap = photoList.length >= PHOTO_CAP;
 
   const pickPhoto = async () => {
-    setAddError(null);
     const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
 
     // A silent return here reads as a dead button: the user taps, nothing
     // happens, and nothing explains why.
     if (!permission.granted) {
-      setAddError('Allow photo access in Settings to add photos.');
+      showErrorToast(ErrorMessage.PhotoAccessDenied);
       return;
     }
 
@@ -125,52 +117,59 @@ const GalleryStrip = ({ petId }: Props) => {
       quality: 0.8
     });
 
-    if (!result.canceled) {
-      try {
-        await addPhoto.mutateAsync(result.assets[0].uri);
-      } catch (error) {
-        setAddError(error instanceof Error ? error.message : 'Could not add the photo');
+    if (result.canceled) return;
+
+    addPhoto(result.assets[0].uri, {
+      onSuccess: () => {
+        showSuccessToast(SuccessMessage.PhotoAdded);
+      },
+      onError: () => {
+        showErrorToast(ErrorMessage.PhotoAddFailed);
       }
-    }
+    });
   };
 
   const openActions = (photo: PetPhoto) => {
     setSelectedPhoto(photo);
     setEntryStep('actions');
-    setActionError(null);
     void sheetRef.current?.present();
   };
 
   const openConfirmDelete = (photo: PetPhoto) => {
     setSelectedPhoto(photo);
     setEntryStep('confirm-delete');
-    setActionError(null);
     void sheetRef.current?.present();
   };
 
-  const handleSetCover = async () => {
+  const handleSetCover = () => {
     if (!selectedPhoto) return;
-    setActionError(null);
-    try {
-      await setCoverPhoto.mutateAsync(selectedPhoto.url);
-      void sheetRef.current?.dismiss();
-    } catch (error) {
-      setActionError(error instanceof Error ? error.message : 'Could not set the cover photo');
-    }
+
+    setCoverPhoto(selectedPhoto.url, {
+      onSuccess: () => {
+        showSuccessToast(SuccessMessage.CoverPhotoUpdated);
+        void sheetRef.current?.dismiss();
+      },
+      onError: () => {
+        showErrorToast(ErrorMessage.CoverPhotoUpdateFailed);
+      }
+    });
   };
 
-  const handleDelete = async () => {
+  const handleDelete = () => {
     if (!selectedPhoto) return;
-    setActionError(null);
-    try {
-      await deletePhoto.mutateAsync({
-        photoId: selectedPhoto.id,
-        photoUrl: selectedPhoto.url
-      });
-      void sheetRef.current?.dismiss();
-    } catch (error) {
-      setActionError(error instanceof Error ? error.message : 'Could not delete the photo');
-    }
+
+    deletePhoto(
+      { photoId: selectedPhoto.id, photoUrl: selectedPhoto.url },
+      {
+        onSuccess: () => {
+          showSuccessToast(SuccessMessage.PhotoDeleted);
+          void sheetRef.current?.dismiss();
+        },
+        onError: () => {
+          showErrorToast(ErrorMessage.PhotoDeleteFailed);
+        }
+      }
+    );
   };
 
   const allSteps: Record<'actions' | 'confirm-delete', TrayStepDescriptor> = {
@@ -183,9 +182,8 @@ const GalleryStrip = ({ petId }: Props) => {
             photo={selectedPhoto}
             onSetCover={handleSetCover}
             onDelete={handleDelete}
-            isSettingCover={setCoverPhoto.isPending}
-            isDeleting={deletePhoto.isPending}
-            error={actionError}
+            isSettingCover={isSettingCover}
+            isDeleting={isDeleting}
           />
         ) : null
     },
@@ -195,8 +193,7 @@ const GalleryStrip = ({ petId }: Props) => {
       render: () => (
         <ConfirmDeleteStep
           onDelete={handleDelete}
-          isDeleting={deletePhoto.isPending}
-          error={actionError}
+          isDeleting={isDeleting}
         />
       )
     }
@@ -257,8 +254,8 @@ const GalleryStrip = ({ petId }: Props) => {
           accessibilityLabel="Add a photo"
           variant="ghost"
           size={22}
-          isDisabled={isAtCap || addPhoto.isPending}
-          isLoading={addPhoto.isPending}
+          isDisabled={isAtCap || isAdding}
+          isLoading={isAdding}
           onPress={() => void pickPhoto()}
         />
       </ScrollView>
@@ -269,15 +266,12 @@ const GalleryStrip = ({ petId }: Props) => {
         </AppText>
       )}
 
-      <FieldError error={addError ?? undefined} />
-
       <Tray
         sheetRef={sheetRef}
         steps={steps}
         onDismiss={() => {
           setEntryStep('actions');
           setSelectedPhoto(null);
-          setActionError(null);
         }}
       />
     </View>

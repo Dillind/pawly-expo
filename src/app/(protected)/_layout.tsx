@@ -1,4 +1,4 @@
-import { useHasHousehold } from '@/hooks/use-has-household';
+import { useHasHousehold } from '@/hooks/queries/use-has-household';
 import { Stack } from 'expo-router';
 
 export default function ProtectedLayout() {

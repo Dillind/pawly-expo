@@ -1,3 +1,4 @@
+import { ErrorMessage, SuccessMessage } from '@/constants/enums';
 import AppText from '@/components/core/app-text';
 import DateTimePickerValidated from '@/components/core/date-time-picker-validated';
 import DropdownPickerValidated from '@/components/core/dropdown-picker-validated';
@@ -6,10 +7,10 @@ import IconButton from '@/components/core/icon-button';
 import MainButton from '@/components/core/main-button';
 import Tray, { type TrayStepDescriptor } from '@/components/core/tray';
 import type { AppTheme } from '@/constants/theme';
-import { type FeedingSlot, useFeedingSchedules } from '@/hooks/use-feeding-schedules';
-import { useDeleteSlot, useUpsertSlot } from '@/hooks/use-schedule-mutations';
+import { useFeedingSchedules } from '@/hooks/queries/use-feeding-schedules';
+import type { FeedingSlot } from '@/services/feeding-schedule.service';
+import { useDeleteSlot, useUpsertSlot } from '@/hooks/queries/use-schedule-mutations';
 import { useStyles } from '@/hooks/use-styles';
-import FieldError from '@/lib/form/components/field-error';
 import { SCHEDULE_LABELS, slotSchema, type SlotInput } from '@/lib/form/pet-schemas';
 import { zodResolver } from '@hookform/resolvers/zod';
 import type { TrueSheet } from '@lodev09/react-native-true-sheet';
@@ -17,6 +18,7 @@ import dayjs from 'dayjs';
 import { useRef, useState } from 'react';
 import { Controller, FormProvider, useForm, useWatch } from 'react-hook-form';
 import { ActivityIndicator, StyleSheet, View } from 'react-native';
+import { showErrorToast, showSuccessToast } from '@/lib/toast';
 
 const capitalize = (value: string) => value.charAt(0).toUpperCase() + value.slice(1);
 
@@ -28,9 +30,8 @@ type EditStepProps = {
 
 const EditStep = ({ petId, slot, onDone }: EditStepProps) => {
   const styles = useStyles(makeStyles);
-  const upsertSlot = useUpsertSlot(petId);
-  const deleteSlot = useDeleteSlot(petId);
-  const [submitError, setSubmitError] = useState<string | null>(null);
+  const { mutate: upsertSlot, isPending: isSaving } = useUpsertSlot(petId);
+  const { mutate: deleteSlot, isPending: isDeleting } = useDeleteSlot(petId);
 
   const form = useForm<SlotInput>({
     resolver: zodResolver(slotSchema),
@@ -43,25 +44,33 @@ const EditStep = ({ petId, slot, onDone }: EditStepProps) => {
 
   const scheduledTime = useWatch({ control, name: 'scheduledTime' });
 
-  const onSubmit = handleSubmit(async (values) => {
-    setSubmitError(null);
-    try {
-      await upsertSlot.mutateAsync({ ...values, id: slot?.id });
-      onDone();
-    } catch (error) {
-      setSubmitError(error instanceof Error ? error.message : 'Could not save the feed time');
-    }
+  const onSubmit = handleSubmit((values) => {
+    upsertSlot(
+      { ...values, id: slot?.id },
+      {
+        onSuccess: () => {
+          showSuccessToast(slot ? SuccessMessage.FeedTimeUpdated : SuccessMessage.FeedTimeAdded);
+          onDone();
+        },
+        onError: () => {
+          showErrorToast(ErrorMessage.FeedTimeSaveFailed);
+        }
+      }
+    );
   });
 
-  const onDelete = async () => {
+  const onDelete = () => {
     if (!slot) return;
-    setSubmitError(null);
-    try {
-      await deleteSlot.mutateAsync(slot.id);
-      onDone();
-    } catch (error) {
-      setSubmitError(error instanceof Error ? error.message : 'Could not remove the feed time');
-    }
+
+    deleteSlot(slot.id, {
+      onSuccess: () => {
+        showSuccessToast(SuccessMessage.FeedTimeRemoved);
+        onDone();
+      },
+      onError: () => {
+        showErrorToast(ErrorMessage.FeedTimeRemoveFailed);
+      }
+    });
   };
 
   return (
@@ -72,6 +81,7 @@ const EditStep = ({ petId, slot, onDone }: EditStepProps) => {
           name="label"
           render={({ field: { onChange, value } }) => (
             <DropdownPickerValidated
+              name="label"
               label="Feed"
               items={[...SCHEDULE_LABELS]}
               value={value}
@@ -86,6 +96,7 @@ const EditStep = ({ petId, slot, onDone }: EditStepProps) => {
           name="scheduledTime"
           render={({ field: { onChange } }) => (
             <DateTimePickerValidated
+              name="scheduledTime"
               mode="time"
               label="Time fed"
               selectedDate={scheduledTime}
@@ -94,21 +105,19 @@ const EditStep = ({ petId, slot, onDone }: EditStepProps) => {
           )}
         />
 
-        <FieldError error={submitError ?? undefined} />
-
         <MainButton
-          text={upsertSlot.isPending ? 'Saving…' : 'Save'}
-          isLoading={upsertSlot.isPending}
-          isDisabled={upsertSlot.isPending || deleteSlot.isPending}
+          text={isSaving ? 'Saving…' : 'Save'}
+          isLoading={isSaving}
+          isDisabled={isSaving || isDeleting}
           onPress={() => void onSubmit()}
         />
 
         {slot && (
           <MainButton
-            text={deleteSlot.isPending ? 'Removing…' : 'Remove this feed'}
+            text={isDeleting ? 'Removing…' : 'Remove this feed'}
             variant="text"
-            isLoading={deleteSlot.isPending}
-            isDisabled={upsertSlot.isPending || deleteSlot.isPending}
+            isLoading={isDeleting}
+            isDisabled={isSaving || isDeleting}
             onPress={() => void onDelete()}
           />
         )}

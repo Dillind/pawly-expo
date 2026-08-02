@@ -1,3 +1,4 @@
+import { ErrorMessage, SuccessMessage } from '@/constants/enums';
 import AppText from '@/components/core/app-text';
 import DateTimePickerValidated from '@/components/core/date-time-picker-validated';
 import DropdownPickerValidated from '@/components/core/dropdown-picker-validated';
@@ -12,15 +13,15 @@ import type { AppTheme } from '@/constants/theme';
 import { COMMON_TIMEZONES } from '@/constants/timezones';
 import { useStyles } from '@/hooks/use-styles';
 import FieldError from '@/lib/form/components/field-error';
-import { supabase } from '@/lib/supabase/client';
-import StorageService from '@/services/storage.service';
+import OnboardingService from '@/services/onboarding.service';
+import PetPhotoService from '@/services/pet-photo.service';
 import { useAuthStore } from '@/stores/auth-store';
 import { useOnboardingStore } from '@/stores/onboarding-store';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useQueryClient } from '@tanstack/react-query';
 import { Controller, FormProvider, useForm, useWatch } from 'react-hook-form';
 import { ScrollView, StyleSheet, View } from 'react-native';
-import { toast } from 'sonner-native';
+import { showErrorToast, showSuccessToast } from '@/lib/toast';
 
 const timezoneItems = COMMON_TIMEZONES.includes(
   Intl.DateTimeFormat().resolvedOptions().timeZone as (typeof COMMON_TIMEZONES)[number]
@@ -64,9 +65,7 @@ const FeedingSchedule = () => {
 
   const onSubmit = handleSubmit(async (values) => {
     if (!petDetails || !userId) {
-      toast.error('Something went wrong', {
-        description: 'Missing pet details, go back and try again'
-      });
+      showErrorToast(ErrorMessage.MissingPetDetails);
       return;
     }
 
@@ -74,32 +73,30 @@ const FeedingSchedule = () => {
 
     try {
       const photoUrl = petDetails.photoUri
-        ? await StorageService.uploadPetPhoto({ userId, localUri: petDetails.photoUri })
+        ? await PetPhotoService.uploadCover({ userId, localUri: petDetails.photoUri })
         : null;
 
-      const { error } = await supabase.rpc('create_household_and_pet', {
-        household_timezone: values.timezone,
-        pet_name: petDetails.name,
-        pet_breed: petDetails.breed,
-        pet_sex: petDetails.sex,
-        pet_birthdate: petDetails.birthdate,
-        pet_birthdate_is_approximate: petDetails.birthdateIsApproximate,
-        pet_photo_url: photoUrl,
-        feeding_times: values.feedingTimes.map((feedingTime) => ({
+      await OnboardingService.createHouseholdAndPet({
+        timezone: values.timezone,
+        pet: {
+          name: petDetails.name,
+          breed: petDetails.breed,
+          sex: petDetails.sex,
+          birthdate: petDetails.birthdate,
+          birthdateIsApproximate: petDetails.birthdateIsApproximate,
+          photoUrl
+        },
+        feedingTimes: values.feedingTimes.map((feedingTime) => ({
           scheduledTime: feedingTime.time,
           label: feedingTime.label
         }))
       });
 
-      if (error) throw error;
-
       resetOnboarding();
       queryClient.invalidateQueries({ queryKey: ['has-household', userId] });
-      toast.success('Pet profile completed successfully');
+      showSuccessToast(SuccessMessage.OnboardingCompleted);
     } catch (error) {
-      toast.error('Could not finish setup', {
-        description: error instanceof Error ? error.message : 'Try again'
-      });
+      showErrorToast(ErrorMessage.OnboardingFailed, error instanceof Error ? error.message : 'Try again');
     }
   });
 

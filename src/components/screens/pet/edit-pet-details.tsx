@@ -1,3 +1,4 @@
+import { ErrorMessage, SuccessMessage } from '@/constants/enums';
 import DateTimePickerValidated from '@/components/core/date-time-picker-validated';
 import DropdownPickerValidated from '@/components/core/dropdown-picker-validated';
 import MainButton from '@/components/core/main-button';
@@ -6,12 +7,12 @@ import ToggleSwitch from '@/components/core/toggle-switch';
 import { petDetailsEditSchema, type PetDetailsEditValues } from '@/constants/schemas/pet-details';
 import type { AppTheme } from '@/constants/theme';
 import { useStyles } from '@/hooks/use-styles';
-import { useUpdatePet } from '@/hooks/use-update-pet';
+import { useUpdatePet } from '@/hooks/queries/use-update-pet';
 import type { PetSex } from '@/types/core';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Controller, FormProvider, useForm } from 'react-hook-form';
 import { StyleSheet, View } from 'react-native';
-import { toast } from 'sonner-native';
+import { showErrorToast, showSuccessToast } from '@/lib/toast';
 
 const sexOptions = ['male', 'female'];
 
@@ -31,7 +32,7 @@ type Props = {
 
 const EditPetDetails = ({ petId, details, onDone }: Props) => {
   const styles = useStyles(makeStyles);
-  const updatePet = useUpdatePet(petId);
+  const { mutate: updatePet, isPending: isSaving } = useUpdatePet(petId);
 
   const form = useForm<PetDetailsEditValues>({
     resolver: zodResolver(petDetailsEditSchema),
@@ -47,23 +48,21 @@ const EditPetDetails = ({ petId, details, onDone }: Props) => {
   const { control, handleSubmit } = form;
 
   const onSubmit = handleSubmit((values) => {
-    updatePet.mutate(
+    updatePet(
       {
         name: values.name,
         breed: values.breed,
         sex: values.sex,
         birthdate: values.birthdate,
-        birthdate_is_approximate: values.birthdateIsApproximate
+        birthdateIsApproximate: values.birthdateIsApproximate
       },
       {
         onSuccess: () => {
-          toast.success('Pet details updated');
+          showSuccessToast(SuccessMessage.PetDetailsUpdated);
           onDone();
         },
-        onError: (error) => {
-          toast.error('Could not update pet details', {
-            description: error instanceof Error ? error.message : 'Try again in a moment'
-          });
+        onError: () => {
+          showErrorToast(ErrorMessage.PetDetailsUpdateFailed);
         }
       }
     );
@@ -146,9 +145,9 @@ const EditPetDetails = ({ petId, details, onDone }: Props) => {
         />
 
         <MainButton
-          text={updatePet.isPending ? 'Saving…' : 'Save'}
-          isLoading={updatePet.isPending}
-          isDisabled={updatePet.isPending}
+          text={isSaving ? 'Saving…' : 'Save'}
+          isLoading={isSaving}
+          isDisabled={isSaving}
           onPress={() => void onSubmit()}
         />
       </View>

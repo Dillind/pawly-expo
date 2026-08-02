@@ -1,3 +1,4 @@
+import { ErrorMessage, SuccessMessage } from '@/constants/enums';
 import AppText from '@/components/core/app-text';
 import MainButton from '@/components/core/main-button';
 import PressableOpacity from '@/components/core/pressable-opacity';
@@ -11,7 +12,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { Link } from 'expo-router';
 import { Controller, FormProvider, useForm } from 'react-hook-form';
 import { ScrollView, StyleSheet, View } from 'react-native';
-import { toast } from 'sonner-native';
+import { showErrorToast, showSuccessToast } from '@/lib/toast';
 
 const SignIn = () => {
   const styles = useStyles(makeStyles);
@@ -31,11 +32,9 @@ const SignIn = () => {
   const onSubmit = handleSubmit(async (values) => {
     try {
       await AuthService.signInWithPassword(values);
-      toast.success('Signed in successfully');
+      showSuccessToast(SuccessMessage.SignedIn);
     } catch (error) {
-      toast.error('Could not sign in', {
-        description: error instanceof Error ? error.message : 'Check your details and try again'
-      });
+      showErrorToast(ErrorMessage.SignInFailed, error instanceof Error ? error.message : 'Check your details and try again');
     }
   });
 

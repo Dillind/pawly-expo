@@ -1,3 +1,4 @@
+import { SuccessMessage } from '@/constants/enums';
 import BaseSheet from '@/components/bottom-sheets/base-sheet';
 import AppText from '@/components/core/app-text';
 import DateTimePickerValidated from '@/components/core/date-time-picker-validated';
@@ -12,10 +13,10 @@ import {
   type FeedLogNotesOnlyFormValues
 } from '@/constants/schemas/feed-log';
 import type { AppTheme } from '@/constants/theme';
-import { useFeedLog } from '@/hooks/use-feed-log';
-import { useDeleteFeedLog, useUpdateFeedLog } from '@/hooks/use-feed-log-mutations';
-import { useHousehold } from '@/hooks/use-household';
-import { formatAuthorName } from '@/hooks/use-household-members';
+import { useFeedLog } from '@/hooks/queries/use-feed-log';
+import { useDeleteFeedLog, useUpdateFeedLog } from '@/hooks/queries/use-feed-log-mutations';
+import { useHousehold } from '@/hooks/queries/use-household';
+import { formatAuthorName } from '@/utils/members';
 import { useStyles } from '@/hooks/use-styles';
 import {
   composeLoggedAt,
@@ -35,7 +36,7 @@ import type { TrueSheet } from '@lodev09/react-native-true-sheet';
 import { useMemo, type RefObject } from 'react';
 import { Controller, FormProvider, useForm } from 'react-hook-form';
 import { ActivityIndicator, StyleSheet, View } from 'react-native';
-import { toast } from 'sonner-native';
+import { showErrorToast, showSuccessToast } from '@/lib/toast';
 
 type Props = {
   sheetRef: RefObject<TrueSheet | null>;
@@ -58,8 +59,8 @@ const FeedLogDetailSheet = ({ sheetRef, logId, petId }: Props) => {
   const { userId } = useAuthStore();
   const { data: household } = useHousehold();
   const { data: log, isLoading } = useFeedLog(logId);
-  const updateFeedLog = useUpdateFeedLog(petId);
-  const deleteFeedLog = useDeleteFeedLog(petId);
+  const { mutate: updateFeedLog, isPending: isSaving } = useUpdateFeedLog(petId);
+  const { mutate: deleteFeedLog, isPending: isDeleting } = useDeleteFeedLog(petId);
 
   const timezone = household?.timezone;
 
@@ -92,15 +93,15 @@ const FeedLogDetailSheet = ({ sheetRef, logId, petId }: Props) => {
   const onSave = (patch: SavePatch) => {
     if (!log) return;
 
-    updateFeedLog.mutate(
+    updateFeedLog(
       { logId: log.id, ...patch },
       {
         onSuccess: () => {
-          toast.success('Feed updated');
+          showSuccessToast(SuccessMessage.FeedUpdated);
           void sheetRef.current?.dismiss();
         },
         onError: (error) => {
-          toast.error(feedLogErrorMessage(error));
+          showErrorToast(feedLogErrorMessage(error));
         }
       }
     );
@@ -109,15 +110,15 @@ const FeedLogDetailSheet = ({ sheetRef, logId, petId }: Props) => {
   const onDelete = () => {
     if (!log) return;
 
-    deleteFeedLog.mutate(
+    deleteFeedLog(
       { logId: log.id },
       {
         onSuccess: () => {
-          toast.success('Feed deleted');
+          showSuccessToast(SuccessMessage.FeedDeleted);
           void sheetRef.current?.dismiss();
         },
         onError: (error) => {
-          toast.error(feedLogErrorMessage(error));
+          showErrorToast(feedLogErrorMessage(error));
         }
       }
     );
@@ -144,14 +145,14 @@ const FeedLogDetailSheet = ({ sheetRef, logId, petId }: Props) => {
                   log={log}
                   timezone={timezone}
                   isOwner={household?.isOwner ?? false}
-                  isSaving={updateFeedLog.isPending}
+                  isSaving={isSaving}
                   onSave={onSave}
                 />
               ) : (
                 <NotesOnlyForm
                   key={log.id}
                   log={log}
-                  isSaving={updateFeedLog.isPending}
+                  isSaving={isSaving}
                   onSave={onSave}
                 />
               )}
@@ -159,8 +160,8 @@ const FeedLogDetailSheet = ({ sheetRef, logId, petId }: Props) => {
               <MainButton
                 text="Delete this log"
                 variant="secondary"
-                isLoading={deleteFeedLog.isPending}
-                isDisabled={updateFeedLog.isPending || deleteFeedLog.isPending}
+                isLoading={isDeleting}
+                isDisabled={isSaving || isDeleting}
                 onPress={onDelete}
               />
             </>

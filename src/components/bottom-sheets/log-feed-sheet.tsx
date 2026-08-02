@@ -9,14 +9,12 @@ import {
   type FeedLogNotesOnlyFormValues
 } from '@/constants/schemas/feed-log';
 import type { AppTheme } from '@/constants/theme';
-import { useLogFeed, type LogFeedResult } from '@/hooks/use-feed-log-mutations';
-import { useHousehold } from '@/hooks/use-household';
-import {
-  formatAuthorName,
-  memberDisplayName,
-  useHouseholdMembers
-} from '@/hooks/use-household-members';
-import { usePet } from '@/hooks/use-pet';
+import { useLogFeed } from '@/hooks/queries/use-feed-log-mutations';
+import type { LogFeedResult } from '@/services/feed-log.service';
+import { useHousehold } from '@/hooks/queries/use-household';
+import { useHouseholdMembers } from '@/hooks/queries/use-household-members';
+import { formatAuthorName, memberDisplayName } from '@/utils/members';
+import { usePet } from '@/hooks/queries/use-pet';
 import { useStyles } from '@/hooks/use-styles';
 import { useAuthStore } from '@/stores/auth-store';
 import { formatScheduledTime, formatTimeOfDay } from '@/lib/dates';
@@ -26,7 +24,7 @@ import type { TrueSheet } from '@lodev09/react-native-true-sheet';
 import { useState, type RefObject } from 'react';
 import { Controller, FormProvider, useForm } from 'react-hook-form';
 import { StyleSheet, View } from 'react-native';
-import { toast } from 'sonner-native';
+import { showErrorToast, showSuccessToast } from '@/lib/toast';
 
 type Props = {
   sheetRef: RefObject<TrueSheet | null>;
@@ -77,7 +75,7 @@ const LogFeedSheet = ({ sheetRef }: Props) => {
   const { data: household } = useHousehold();
   const { data: members = [] } = useHouseholdMembers();
 
-  const logFeed = useLogFeed(pet?.id);
+  const { mutate: logFeed, isPending: isLogging } = useLogFeed(pet?.id);
   const timezone = household?.timezone;
 
   // First names, matching formatAuthorName -- the sheet has to agree with the
@@ -97,7 +95,7 @@ const LogFeedSheet = ({ sheetRef }: Props) => {
   const { control, handleSubmit, reset } = form;
 
   const submit = (notes: string, confirmed: boolean) => {
-    logFeed.mutate(
+    logFeed(
       { notes: notes.trim().length > 0 ? notes.trim() : null, confirmed },
       {
         onSuccess: (result) => {
@@ -108,11 +106,11 @@ const LogFeedSheet = ({ sheetRef }: Props) => {
             return;
           }
 
-          toast.success(`Logged a feed for ${pet?.name ?? 'your pet'}`);
+          showSuccessToast(`Logged a feed for ${pet?.name ?? 'your pet'}`);
           void sheetRef.current?.dismiss();
         },
         onError: (error) => {
-          toast.error(feedLogErrorMessage(error));
+          showErrorToast(feedLogErrorMessage(error));
         }
       }
     );
@@ -183,8 +181,8 @@ const LogFeedSheet = ({ sheetRef }: Props) => {
 
           <MainButton
             text={warning ? 'Log anyway' : 'Log feed'}
-            isLoading={logFeed.isPending}
-            isDisabled={!pet?.id || logFeed.isPending}
+            isLoading={isLogging}
+            isDisabled={!pet?.id || isLogging}
             onPress={() => {
               void onSubmit();
             }}

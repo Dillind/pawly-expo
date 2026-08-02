@@ -196,6 +196,83 @@ Expo Router (file-based). Auth is enforced with `Stack.Protected` guards in `src
   export default useForgotPasswordStore;
   ```
 
+**Where a remote call lives — services, then query hooks. Never Supabase in a component.**
+
+```
+src/services/*.service.ts    the Supabase call + row<->domain mapping. No React, no TanStack.
+src/hooks/queries/*.ts       useQuery / useMutation over a service. Query keys, invalidation.
+src/hooks/*.ts               everything else (use-theme, use-styles, use-debounce, ...)
+```
+
+A service is a `namespace XService` of exported async functions with a default export — follow
+`auth.service.ts`. **The service owns snake_case**: a column name must never reach a component, so
+`PetService.update()` takes `{ birthdateIsApproximate }` and writes `birthdate_is_approximate`
+itself. Domain types (`PetDetail`, `CareCard`, `FeedingSlot`, `PetPhoto`) are exported from the
+service that produces them.
+
+`import { supabase }` outside `src/services/` is the smell to look for. There is exactly one
+exception, `src/lib/supabase/client.ts`, which creates it.
+
+**TanStack Query — always destructure the hook's result, and rename as you go:**
+
+```tsx
+// Do this
+const { mutate: deleteSlot, isPending: isDeleting } = useDeleteSlot(petId);
+
+// Not this
+const deleteSlot = useDeleteSlot(petId);
+// ...later: deleteSlot.mutate(id), deleteSlot.isPending
+```
+
+The call site then reads `deleteSlot(id)` and `isDeleting`, not `deleteSlot.mutate(id)` and
+`deleteSlot.isPending`. Rename `isPending` per mutation (`isSaving`, `isDeleting`) — a component
+holding two mutations otherwise has two fields with the same name. Queries follow the same rule:
+`const { data: slots = [], isLoading, isError, refetch } = useFeedingSchedules(petId)`.
+
+### Telling the user what happened
+
+Three different things, three different surfaces. Do not mix them up.
+
+- **Form validation → inline.** Zod/react-hook-form errors render under the offending field. The
+  validated inputs (`TextInputValidated`, `DropdownPickerValidated`, `DateTimePickerValidated`) do
+  this themselves via `useFormContext` — but only when the input is given a **`name`** prop. An
+  input without `name` silently cannot show its own error.
+- **API failure → toast.** Network dropped, RLS denied the write, Postgres threw. Not attributable
+  to a field, and the user cannot fix it by retyping.
+- **Success → toast.** Every mutation confirms it landed.
+
+Toasts go through `@/lib/toast` (`showSuccessToast`, `showErrorToast`, `showInfoToast`) — never
+import `toast` from `sonner-native` outside that file. The optional second argument is a
+description; use it only for text a user can act on. Do **not** pass a raw `error.message` from
+Supabase or Postgres into it: `new row violates row-level security policy` is a developer string,
+and showing it is worse than showing nothing.
+
+**The message itself comes from `SuccessMessage` / `ErrorMessage` in `@/constants/enums`**, never a
+string literal at the call site. One file holds every sentence the app can say, so wording stays
+consistent and changing it is one edit. Entries are named by subject and outcome
+(`PetDetailsUpdated`, `FeedTimeRemoveFailed`) and read "&lt;Subject&gt; &lt;past-tense verb&gt;" — five
+near-identical trays on the pet screen must not all confirm with the same sentence, because the
+toast is the only thing telling a member which sheet they just saved. A message that genuinely
+needs a runtime value (`Logged a feed for ${pet.name}`) is the exception, not the excuse.
+
+Put the toast in the **per-call** `onSuccess`/`onError` passed to `mutate`, not in the hook's own
+`onSuccess`. The hook owns cache invalidation and is often shared by more than one screen, so the
+message belongs to the call site:
+
+```tsx
+updatePet(patch, {
+  onSuccess: () => {
+    showSuccessToast('Pet details updated');
+    onDone();
+  },
+  onError: () => showErrorToast('Could not update pet details')
+});
+```
+
+Exceptions worth knowing: a success toast is redundant where navigation already confirms the result
+(sign-up moves to the verify screen), and `PushTokenService.register` deliberately stays silent —
+see the comment in `use-push-notifications.ts`.
+
 ### Writing a feed log
 
 **A feed log is created only through the `log_feed` RPC** — never `supabase.from('feed_logs').insert(...)`. The Double Feed check and the insert happen in one transaction, so a check issued as its own round trip could tell two members at once that there is no double feed and let both of them write. The RPC also takes a per-pet advisory lock, because sharing a transaction alone does not serialise them — two concurrent callers would otherwise each derive their answer from a snapshot taken before the other's insert.
