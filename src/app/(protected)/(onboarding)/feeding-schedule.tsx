@@ -88,7 +88,7 @@ const FeedingSchedule = () => {
       queryClient.invalidateQueries({ queryKey: ['has-household', userId] });
       showSuccessToast(SuccessMessage.OnboardingCompleted);
     } catch (error) {
-      showErrorToast(ErrorMessage.OnboardingFailed, error instanceof Error ? error.message : 'Try again');
+      showErrorToast(ErrorMessage.OnboardingFailed);
     }
   });
 

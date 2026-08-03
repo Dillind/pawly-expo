@@ -2,6 +2,7 @@ import MainButton from '@/components/core/main-button';
 import TextInputValidated from '@/components/core/text-input-validated';
 import TextDescriptionHeader from '@/components/layout/text-description-header';
 import { ErrorMessage } from '@/constants/enums';
+import { userFacingMessage } from '@/lib/errors';
 import { signUpSchema, type SignUpFormValues } from '@/constants/schemas/sign-up';
 import type { AppTheme } from '@/constants/theme';
 import { useStyles } from '@/hooks/use-styles';
@@ -36,7 +37,7 @@ const SignUp = () => {
       await AuthService.signUp(values);
       router.push({ pathname: '/sign-up/verify', params: { email: values.email } });
     } catch (error) {
-      showErrorToast(ErrorMessage.SignUpFailed, error instanceof Error ? error.message : 'Check your details and try again');
+      showErrorToast(ErrorMessage.SignUpFailed, userFacingMessage(error, 'Check your details and try again'));
     }
   });
 

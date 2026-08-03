@@ -1,3 +1,4 @@
+import { UserFacingError } from '@/lib/errors';
 import { supabase } from '@/lib/supabase/client';
 import PushTokenService from '@/services/push-token.service';
 
@@ -19,7 +20,7 @@ namespace AuthService {
       }
     });
 
-    if (error) throw error;
+    if (error) throw new UserFacingError(error.message);
     return data;
   }
 
@@ -30,14 +31,14 @@ namespace AuthService {
       type: 'signup'
     });
 
-    if (error) throw error;
+    if (error) throw new UserFacingError(error.message);
     return data;
   }
 
   export async function signInWithPassword(params: { email: string; password: string }) {
     const { data, error } = await supabase.auth.signInWithPassword(params);
 
-    if (error) throw error;
+    if (error) throw new UserFacingError(error.message);
     return data;
   }
 
@@ -62,7 +63,7 @@ namespace AuthService {
 
     const { error } = await supabase.auth.signOut();
 
-    if (error) throw error;
+    if (error) throw new UserFacingError(error.message);
   }
 }
 

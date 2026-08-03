@@ -1,3 +1,4 @@
+import { UserFacingError } from '@/lib/errors';
 import type { SlotInput } from '@/lib/form/pet-schemas';
 import { supabase } from '@/lib/supabase/client';
 import type { FeedingScheduleLabel, SlotState, SlotStateValue } from '@/types/core';
@@ -51,7 +52,9 @@ namespace FeedingScheduleService {
     // The partial unique index on (pet_id, label) surfaces here as a raw
     // Postgres error otherwise -- translate it into copy the form can show.
     if (error?.code === DUPLICATE_LABEL) {
-      throw new Error(`There is already a ${input.label} feed. Edit that one instead.`);
+      throw new UserFacingError(
+        `There is already a ${input.label} feed. Edit that one instead.`
+      );
     }
 
     if (error) throw error;

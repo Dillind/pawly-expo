@@ -2,6 +2,7 @@ import MainButton from '@/components/core/main-button';
 import TextInputValidated from '@/components/core/text-input-validated';
 import TextDescriptionHeader from '@/components/layout/text-description-header';
 import { ErrorMessage } from '@/constants/enums';
+import { userFacingMessage } from '@/lib/errors';
 import { verifyOtpSchema, type VerifyOtpFormValues } from '@/constants/schemas/verify-otp';
 import type { AppTheme } from '@/constants/theme';
 import { useStyles } from '@/hooks/use-styles';
@@ -37,7 +38,7 @@ const VerifySignUp = () => {
       // which the root layout's AuthGate reacts to and swaps to (protected) itself.
       await AuthService.verifySignUpOtp({ email, token: values.token });
     } catch (error) {
-      showErrorToast(ErrorMessage.VerificationFailed, error instanceof Error ? error.message : 'Check the code and try again');
+      showErrorToast(ErrorMessage.VerificationFailed, userFacingMessage(error, 'Check the code and try again'));
     }
   });
 

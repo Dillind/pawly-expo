@@ -1,4 +1,5 @@
 import { ErrorMessage, SuccessMessage } from '@/constants/enums';
+import { userFacingMessage } from '@/lib/errors';
 import { showErrorToast, showSuccessToast } from '@/lib/toast';
 import AuthService from '@/services/auth.service';
 import { useCallback, useState } from 'react';
@@ -12,7 +13,7 @@ export function useLogout() {
       await AuthService.signOut();
       showSuccessToast(SuccessMessage.SignedOut);
     } catch (error) {
-      showErrorToast(ErrorMessage.SignOutFailed, error instanceof Error ? error.message : 'Try again');
+      showErrorToast(ErrorMessage.SignOutFailed, userFacingMessage(error, 'Try again'));
     } finally {
       setIsLoading(false);
     }

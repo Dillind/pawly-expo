@@ -13,6 +13,7 @@ import {
 } from '@/hooks/queries/use-pet-photo-mutations';
 import { usePetPhotos } from '@/hooks/queries/use-pet-photos';
 import { useStyles } from '@/hooks/use-styles';
+import { userFacingMessage } from '@/lib/errors';
 import { showErrorToast, showSuccessToast } from '@/lib/toast';
 import type { PetPhoto } from '@/services/pet-photo.service';
 import type { TrueSheet } from '@lodev09/react-native-true-sheet';
@@ -123,8 +124,8 @@ const GalleryStrip = ({ petId }: Props) => {
       onSuccess: () => {
         showSuccessToast(SuccessMessage.PhotoAdded);
       },
-      onError: () => {
-        showErrorToast(ErrorMessage.PhotoAddFailed);
+      onError: (error) => {
+        showErrorToast(userFacingMessage(error, ErrorMessage.PhotoAddFailed));
       }
     });
   };
@@ -165,8 +166,8 @@ const GalleryStrip = ({ petId }: Props) => {
           showSuccessToast(SuccessMessage.PhotoDeleted);
           void sheetRef.current?.dismiss();
         },
-        onError: () => {
-          showErrorToast(ErrorMessage.PhotoDeleteFailed);
+        onError: (error) => {
+          showErrorToast(userFacingMessage(error, ErrorMessage.PhotoDeleteFailed));
         }
       }
     );

@@ -44,7 +44,7 @@ export function AnimatedSplashOverlay() {
   );
 }
 
-const KEYFRAME = new Keyframe({
+const keyframe = new Keyframe({
   0: {
     transform: [{ scale: INITIAL_SCALE_FACTOR }]
   },
@@ -54,7 +54,7 @@ const KEYFRAME = new Keyframe({
   }
 });
 
-const LOGO_KEYFRAME = new Keyframe({
+const logoKeyframe = new Keyframe({
   0: {
     transform: [{ scale: 1.3 }],
     opacity: 0
@@ -71,7 +71,7 @@ const LOGO_KEYFRAME = new Keyframe({
   }
 });
 
-const GLOW_KEYFRAME = new Keyframe({
+const glowKeyframe = new Keyframe({
   0: {
     transform: [{ rotateZ: '0deg' }]
   },
@@ -83,12 +83,12 @@ const GLOW_KEYFRAME = new Keyframe({
 export function AnimatedIcon() {
   return (
     <View style={styles.iconContainer}>
-      <Animated.View entering={GLOW_KEYFRAME.duration(60 * 1000 * 4)} style={styles.glow}>
+      <Animated.View entering={glowKeyframe.duration(60 * 1000 * 4)} style={styles.glow}>
         <Image style={styles.glow} source={require('@/assets/images/logo-glow.png')} />
       </Animated.View>
 
-      <Animated.View entering={KEYFRAME.duration(DURATION)} style={styles.background} />
-      <Animated.View style={styles.imageContainer} entering={LOGO_KEYFRAME.duration(DURATION)}>
+      <Animated.View entering={keyframe.duration(DURATION)} style={styles.background} />
+      <Animated.View style={styles.imageContainer} entering={logoKeyframe.duration(DURATION)}>
         <Image style={styles.image} source={require('@/assets/images/expo-logo.png')} />
       </Animated.View>
     </View>

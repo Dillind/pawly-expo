@@ -1,3 +1,4 @@
+import { UserFacingError } from '@/lib/errors';
 import { supabase } from '@/lib/supabase/client';
 import * as Crypto from 'expo-crypto';
 
@@ -44,10 +45,10 @@ namespace PetPhotoService {
     localUri: string;
   }): Promise<void> {
     const response = await fetch(params.localUri);
-    if (!response.ok) throw new Error('Could not read the selected photo');
+    if (!response.ok) throw new UserFacingError('Could not read the selected photo');
 
     const arrayBuffer = await response.arrayBuffer();
-    if (arrayBuffer.byteLength === 0) throw new Error('The selected photo is empty');
+    if (arrayBuffer.byteLength === 0) throw new UserFacingError('The selected photo is empty');
 
     const path = `${params.userId}/${params.petId}/${Crypto.randomUUID()}.jpg`;
 
@@ -78,7 +79,7 @@ namespace PetPhotoService {
 
     const { error: deleteObjectError } = await supabase.storage.from(BUCKET).remove([storagePath]);
     if (deleteObjectError) {
-      throw new Error('The photo was removed, but its file could not be cleaned up');
+      throw new UserFacingError('The photo was removed, but its file could not be cleaned up');
     }
   }
 

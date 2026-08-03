@@ -11,6 +11,7 @@ import type { AppTheme } from '@/constants/theme';
 import { useFeedingSchedules } from '@/hooks/queries/use-feeding-schedules';
 import { useDeleteSlot, useUpsertSlot } from '@/hooks/queries/use-schedule-mutations';
 import { useStyles } from '@/hooks/use-styles';
+import { userFacingMessage } from '@/lib/errors';
 import { slotSchema, type SlotInput } from '@/lib/form/pet-schemas';
 import { showErrorToast, showSuccessToast } from '@/lib/toast';
 import type { FeedingSlot } from '@/services/feeding-schedule.service';
@@ -53,8 +54,8 @@ const EditStep = ({ petId, slot, onDone }: EditStepProps) => {
           showSuccessToast(slot ? SuccessMessage.FeedTimeUpdated : SuccessMessage.FeedTimeAdded);
           onDone();
         },
-        onError: () => {
-          showErrorToast(ErrorMessage.FeedTimeSaveFailed);
+        onError: (error) => {
+          showErrorToast(userFacingMessage(error, ErrorMessage.FeedTimeSaveFailed));
         }
       }
     );

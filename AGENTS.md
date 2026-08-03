@@ -302,6 +302,18 @@ description; use it only for text a user can act on. Do **not** pass a raw `erro
 Supabase or Postgres into it: `new row violates row-level security policy` is a developer string,
 and showing it is worse than showing nothing.
 
+That does not mean discarding the error. A service that has already *translated* a failure into
+copy — "There is already a dinner feed. Edit that one instead." — throws
+**`UserFacingError`** (`@/lib/errors`), and the call site unwraps it:
+
+```tsx
+onError: (error) => showErrorToast(userFacingMessage(error, ErrorMessage.FeedTimeSaveFailed))
+```
+
+`userFacingMessage` returns the service's own words when it wrote them for a person, and the call
+site's fallback for anything else. Ignoring the error entirely is the mistake in the other
+direction: it throws away the one message that told the user what to do about it.
+
 **The message itself comes from `SuccessMessage` / `ErrorMessage` in `@/constants/enums`**, never a
 string literal at the call site. One file holds every sentence the app can say, so wording stays
 consistent and changing it is one edit. Entries are named by subject and outcome

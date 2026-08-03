@@ -10,6 +10,7 @@ import { useHousehold } from '@/hooks/queries/use-household';
 import { useChangePetPhoto } from '@/hooks/queries/use-pet-photo-mutations';
 import { useStyles } from '@/hooks/use-styles';
 import { formatAge } from '@/lib/dates';
+import { userFacingMessage } from '@/lib/errors';
 import { showErrorToast, showSuccessToast } from '@/lib/toast';
 import { optionLabel } from '@/utils/options';
 import type { PetSex } from '@/types/core';
@@ -85,8 +86,8 @@ const PetHeader = ({
         onSuccess: () => {
           showSuccessToast(SuccessMessage.PetPhotoUpdated);
         },
-        onError: (caught) => {
-          showErrorToast(ErrorMessage.PetPhotoUpdateFailed);
+        onError: (error) => {
+          showErrorToast(userFacingMessage(error, ErrorMessage.PetPhotoUpdateFailed));
         }
       }
     );

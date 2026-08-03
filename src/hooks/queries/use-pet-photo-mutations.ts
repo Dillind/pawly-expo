@@ -1,3 +1,4 @@
+import { UserFacingError } from '@/lib/errors';
 import PetPhotoService from '@/services/pet-photo.service';
 import PetService from '@/services/pet.service';
 import { useAuthStore } from '@/stores/auth-store';
@@ -17,7 +18,7 @@ export function useAddPetPhoto(petId: string) {
 
   return useMutation({
     mutationFn: (localUri: string) => {
-      if (!userId) throw new Error('You need to sign in again before adding a photo');
+      if (!userId) throw new UserFacingError('You need to sign in again before adding a photo');
 
       return PetPhotoService.add({ petId, userId, localUri });
     },
@@ -59,7 +60,7 @@ export function useChangePetPhoto(petId: string) {
 
   return useMutation({
     mutationFn: async ({ localUri, previousUrl }: ChangePetPhotoInput) => {
-      if (!userId) throw new Error('You need to sign in again before changing the photo');
+      if (!userId) throw new UserFacingError('You need to sign in again before changing the photo');
 
       const publicUrl = await PetPhotoService.uploadCover({ userId, localUri });
       await PetService.setPhotoUrl(petId, publicUrl);

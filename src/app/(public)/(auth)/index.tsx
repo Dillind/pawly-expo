@@ -4,6 +4,7 @@ import PressableOpacity from '@/components/core/pressable-opacity';
 import TextInputValidated from '@/components/core/text-input-validated';
 import TextDescriptionHeader from '@/components/layout/text-description-header';
 import { ErrorMessage, SuccessMessage } from '@/constants/enums';
+import { userFacingMessage } from '@/lib/errors';
 import { signInSchema, type SignInFormValues } from '@/constants/schemas/sign-in';
 import type { AppTheme } from '@/constants/theme';
 import { useStyles } from '@/hooks/use-styles';
@@ -34,7 +35,7 @@ const SignIn = () => {
       await AuthService.signInWithPassword(values);
       showSuccessToast(SuccessMessage.SignedIn);
     } catch (error) {
-      showErrorToast(ErrorMessage.SignInFailed, error instanceof Error ? error.message : 'Check your details and try again');
+      showErrorToast(ErrorMessage.SignInFailed, userFacingMessage(error, 'Check your details and try again'));
     }
   });
 
