@@ -51,6 +51,7 @@ export enum SuccessMessage {
  */
 export enum ErrorMessage {
   BioUpdateFailed = 'Could not update bio',
+  CameraAccessDenied = 'Allow camera access in Settings to take a photo',
   CareCardUpdateFailed = 'Could not update the Care Card',
   CoverPhotoUpdateFailed = 'Could not set the cover photo',
   FeedTimeRemoveFailed = 'Could not remove the feed time',
@@ -62,7 +63,6 @@ export enum ErrorMessage {
   OnboardingFailed = 'Could not finish setup',
   PetDetailsUpdateFailed = 'Could not update pet details',
   PetPhotoUpdateFailed = 'Could not change the photo',
-  PhotoAccessDenied = 'Allow photo access in Settings to continue',
   PhotoAddFailed = 'Could not add the photo',
   PhotoDeleteFailed = 'Could not delete the photo',
   SignInFailed = 'Could not sign in',

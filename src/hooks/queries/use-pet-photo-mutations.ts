@@ -32,7 +32,7 @@ export function useDeletePetPhoto(petId: string) {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (input: { photoId: string; photoUrl: string }) => PetPhotoService.remove(input),
+    mutationFn: (data: { photoId: string; photoUrl: string }) => PetPhotoService.remove(data),
     onSettled: () => {
       void queryClient.invalidateQueries({ queryKey: ['pet-photos', petId] });
       invalidateCover(queryClient, petId);

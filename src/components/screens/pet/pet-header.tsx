@@ -1,3 +1,4 @@
+import PhotoSourceSheet from '@/components/bottom-sheets/photo-source-sheet';
 import AppText from '@/components/core/app-text';
 import IconButton from '@/components/core/icon-button';
 import Tray, { type TrayStepDescriptor } from '@/components/core/tray';
@@ -16,7 +17,6 @@ import { optionLabel } from '@/utils/options';
 import type { PetSex } from '@/types/core';
 import type { TrueSheet } from '@lodev09/react-native-true-sheet';
 import { Image } from 'expo-image';
-import * as ImagePicker from 'expo-image-picker';
 import { useRef } from 'react';
 import { ActivityIndicator, StyleSheet, View } from 'react-native';
 
@@ -42,6 +42,7 @@ const PetHeader = ({
   const styles = useStyles(makeStyles);
   const { mutate: changePhoto, isPending: isChangingPhoto } = useChangePetPhoto(petId);
   const sheetRef = useRef<TrueSheet | null>(null);
+  const photoSheetRef = useRef<TrueSheet | null>(null);
   const { data: household } = useHousehold();
 
   const age = formatAge(birthdate, birthdateIsApproximate);
@@ -61,38 +62,6 @@ const PetHeader = ({
     }
   ];
 
-  const pickPhoto = async () => {
-    const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
-
-    // A silent return here reads as a dead button: the user taps, nothing
-    // happens, and nothing explains why.
-    if (!permission.granted) {
-      showErrorToast(ErrorMessage.PhotoAccessDenied);
-      return;
-    }
-
-    const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ['images'],
-      allowsEditing: true,
-      aspect: [1, 1],
-      quality: 0.8
-    });
-
-    if (result.canceled) return;
-
-    changePhoto(
-      { localUri: result.assets[0].uri, previousUrl: photoUrl },
-      {
-        onSuccess: () => {
-          showSuccessToast(SuccessMessage.PetPhotoUpdated);
-        },
-        onError: (error) => {
-          showErrorToast(userFacingMessage(error, ErrorMessage.PetPhotoUpdateFailed));
-        }
-      }
-    );
-  };
-
   return (
     <View style={styles.container}>
       <View>
@@ -107,7 +76,7 @@ const PetHeader = ({
               accessibilityLabel="Change photo"
               variant="primary"
               size={18}
-              onPress={() => void pickPhoto()}
+              onPress={() => void photoSheetRef.current?.present()}
             />
           )}
         </View>
@@ -136,6 +105,21 @@ const PetHeader = ({
       )}
 
       <Tray sheetRef={sheetRef} steps={steps} />
+
+      <PhotoSourceSheet
+        sheetRef={photoSheetRef}
+        title="Change photo"
+        onPicked={(localUri) =>
+          changePhoto(
+            { localUri, previousUrl: photoUrl },
+            {
+              onSuccess: () => showSuccessToast(SuccessMessage.PetPhotoUpdated),
+              onError: (error) =>
+                showErrorToast(userFacingMessage(error, ErrorMessage.PetPhotoUpdateFailed))
+            }
+          )
+        }
+      />
     </View>
   );
 };

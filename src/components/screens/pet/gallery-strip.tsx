@@ -1,3 +1,4 @@
+import PhotoSourceSheet from '@/components/bottom-sheets/photo-source-sheet';
 import AppText from '@/components/core/app-text';
 import ErrorState from '@/components/core/error-state';
 import IconButton from '@/components/core/icon-button';
@@ -18,7 +19,6 @@ import { showErrorToast, showSuccessToast } from '@/lib/toast';
 import type { PetPhoto } from '@/services/pet-photo.service';
 import type { TrueSheet } from '@lodev09/react-native-true-sheet';
 import { Image } from 'expo-image';
-import * as ImagePicker from 'expo-image-picker';
 import { useRef, useState } from 'react';
 import { ActivityIndicator, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 
@@ -90,6 +90,7 @@ type Props = { petId: string };
 const GalleryStrip = ({ petId }: Props) => {
   const styles = useStyles(makeStyles);
   const sheetRef = useRef<TrueSheet | null>(null);
+  const photoSheetRef = useRef<TrueSheet | null>(null);
   const { data: photos, isLoading, isError, refetch } = usePetPhotos(petId);
   const { mutate: addPhoto, isPending: isAdding } = useAddPetPhoto(petId);
   const { mutate: deletePhoto, isPending: isDeleting } = useDeletePetPhoto(petId);
@@ -100,35 +101,6 @@ const GalleryStrip = ({ petId }: Props) => {
 
   const photoList = photos ?? [];
   const isAtCap = photoList.length >= PHOTO_CAP;
-
-  const pickPhoto = async () => {
-    const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
-
-    // A silent return here reads as a dead button: the user taps, nothing
-    // happens, and nothing explains why.
-    if (!permission.granted) {
-      showErrorToast(ErrorMessage.PhotoAccessDenied);
-      return;
-    }
-
-    const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ['images'],
-      allowsEditing: true,
-      aspect: [1, 1],
-      quality: 0.8
-    });
-
-    if (result.canceled) return;
-
-    addPhoto(result.assets[0].uri, {
-      onSuccess: () => {
-        showSuccessToast(SuccessMessage.PhotoAdded);
-      },
-      onError: (error) => {
-        showErrorToast(userFacingMessage(error, ErrorMessage.PhotoAddFailed));
-      }
-    });
-  };
 
   const openActions = (photo: PetPhoto) => {
     setSelectedPhoto(photo);
@@ -191,12 +163,7 @@ const GalleryStrip = ({ petId }: Props) => {
     'confirm-delete': {
       id: 'confirm-delete',
       title: 'Delete photo',
-      render: () => (
-        <ConfirmDeleteStep
-          onDelete={handleDelete}
-          isDeleting={isDeleting}
-        />
-      )
+      render: () => <ConfirmDeleteStep onDelete={handleDelete} isDeleting={isDeleting} />
     }
   };
 
@@ -257,7 +224,7 @@ const GalleryStrip = ({ petId }: Props) => {
           size={22}
           isDisabled={isAtCap || isAdding}
           isLoading={isAdding}
-          onPress={() => void pickPhoto()}
+          onPress={() => void photoSheetRef.current?.present()}
         />
       </ScrollView>
 
@@ -266,6 +233,16 @@ const GalleryStrip = ({ petId }: Props) => {
           {"You've reached 10 photos."}
         </AppText>
       )}
+
+      <PhotoSourceSheet
+        sheetRef={photoSheetRef}
+        onPicked={(localUri) =>
+          addPhoto(localUri, {
+            onSuccess: () => showSuccessToast(SuccessMessage.PhotoAdded),
+            onError: (error) => showErrorToast(userFacingMessage(error, ErrorMessage.PhotoAddFailed))
+          })
+        }
+      />
 
       <Tray
         sheetRef={sheetRef}
@@ -281,15 +258,23 @@ const GalleryStrip = ({ petId }: Props) => {
 
 const makeStyles = ({ spacing, colors }: AppTheme) =>
   StyleSheet.create({
-    section: { gap: spacing.two },
-    strip: { flexDirection: 'row', alignItems: 'center', gap: spacing.two },
+    section: {
+      gap: spacing.two
+    },
+    strip: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: spacing.two
+    },
     thumbnail: {
       width: 72,
       height: 72,
       borderRadius: Radius.tile,
       backgroundColor: colors.backgroundElement
     },
-    actionsStep: { gap: spacing.three },
+    actionsStep: {
+      gap: spacing.three
+    },
     actionsPreview: {
       width: '100%',
       aspectRatio: 1,
