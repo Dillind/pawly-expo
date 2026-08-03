@@ -1,7 +1,7 @@
 import AppText from '@/components/core/app-text';
 import MainButton from '@/components/core/main-button';
 import ToggleSwitch from '@/components/core/toggle-switch';
-import { ErrorMessage, SuccessMessage } from '@/constants/enums';
+import { ErrorMessage } from '@/constants/enums';
 import type { AppTheme } from '@/constants/theme';
 import { useNotificationPreferences } from '@/hooks/queries/use-notification-preferences';
 import { usePet } from '@/hooks/queries/use-pet';
@@ -10,7 +10,7 @@ import {
   useRequestNotificationPermission
 } from '@/hooks/use-notification-permission';
 import { useStyles } from '@/hooks/use-styles';
-import { showErrorToast, showSuccessToast } from '@/lib/toast';
+import { showErrorToast } from '@/lib/toast';
 import { useQuery } from '@tanstack/react-query';
 import * as Notifications from 'expo-notifications';
 import { ActivityIndicator, Linking, ScrollView, StyleSheet, View } from 'react-native';
@@ -73,11 +73,6 @@ const NotificationSettings = () => {
           isDisabled={isDenied}
           onChange={(value) =>
             setFeedLoggedAlerts(value, {
-              onSuccess: () => {
-                showSuccessToast(
-                  value ? SuccessMessage.FeedLoggedAlertsOn : SuccessMessage.FeedLoggedAlertsOff
-                );
-              },
               onError: () => {
                 showErrorToast(ErrorMessage.NotificationSettingsUpdateFailed);
               }

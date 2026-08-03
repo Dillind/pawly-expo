@@ -8,9 +8,6 @@ export type ChangePetPhotoInput = { localUri: string; previousUrl: string | null
 const invalidateCover = (queryClient: ReturnType<typeof useQueryClient>, petId: string) => {
   void queryClient.invalidateQueries({ queryKey: ['pet-detail', petId] });
   void queryClient.invalidateQueries({ queryKey: ['pet'] });
-  // ['pet'] does NOT prefix-match ['pets']: TanStack compares key elements, not
-  // strings. Home's pets tile needs its own invalidation or it keeps showing
-  // the deleted photo.
   void queryClient.invalidateQueries({ queryKey: ['pets'] });
 };
 
