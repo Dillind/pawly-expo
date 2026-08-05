@@ -12,7 +12,6 @@ import type { AppTheme } from '@/constants/theme';
 import { useLogFeed } from '@/hooks/queries/use-feed-log-mutations';
 import { useHousehold } from '@/hooks/queries/use-household';
 import { useHouseholdMembers } from '@/hooks/queries/use-household-members';
-import { usePet } from '@/hooks/queries/use-pet';
 import { useStyles } from '@/hooks/use-styles';
 import { formatScheduledTime, formatTimeOfDay } from '@/lib/dates';
 import { feedLogErrorMessage } from '@/lib/feed-log-errors';
@@ -28,6 +27,8 @@ import { StyleSheet, View } from 'react-native';
 
 type Props = {
   sheetRef: RefObject<TrueSheet | null>;
+  petId: string | undefined;
+  petName: string | undefined;
 };
 
 type Warning = Extract<LogFeedResult, { status: 'double_feed' }>;
@@ -66,16 +67,15 @@ function notifiedSentence(names: string[]): string | null {
  * the user is already looking at -- pushing it onto another surface would lose
  * the notes they just typed.
  */
-const LogFeedSheet = ({ sheetRef }: Props) => {
+const LogFeedSheet = ({ sheetRef, petId, petName }: Props) => {
   const styles = useStyles(makeStyles);
   const [warning, setWarning] = useState<Warning | null>(null);
 
   const { userId } = useAuthStore();
-  const { data: pet } = usePet();
   const { data: household } = useHousehold();
   const { data: members = [] } = useHouseholdMembers();
 
-  const { mutate: logFeed, isPending: isLogging } = useLogFeed(pet?.id);
+  const { mutate: logFeed, isPending: isLogging } = useLogFeed(petId);
   const timezone = household?.timezone;
 
   // First names, matching formatAuthorName -- the sheet has to agree with the
@@ -106,7 +106,7 @@ const LogFeedSheet = ({ sheetRef }: Props) => {
             return;
           }
 
-          showSuccessToast(`Logged a feed for ${pet?.name ?? 'your pet'}`);
+          showSuccessToast(`Logged a feed for ${petName ?? 'your pet'}`);
           void sheetRef.current?.dismiss();
         },
         onError: (error) => {
@@ -140,7 +140,7 @@ const LogFeedSheet = ({ sheetRef }: Props) => {
       <FormProvider {...form}>
         <View style={styles.content}>
           <AppText size={14} color="textSecondary">
-            {pet?.name ?? 'Your pet'} · now
+            {petName ?? 'Your pet'} · now
           </AppText>
 
           {warning && timezone && (
@@ -183,7 +183,7 @@ const LogFeedSheet = ({ sheetRef }: Props) => {
           <MainButton
             text={warning ? 'Log anyway' : 'Log feed'}
             isLoading={isLogging}
-            isDisabled={!pet?.id || isLogging}
+            isDisabled={!petId || isLogging}
             onPress={() => {
               void onSubmit();
             }}

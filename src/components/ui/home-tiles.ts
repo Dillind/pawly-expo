@@ -10,16 +10,17 @@ export type TileDescriptor = {
   art?: TileArt;
 };
 
-export const buildHomeTiles = (petId: string | undefined): TileDescriptor[] =>
-  petId
-    ? [
-        {
-          id: 'pets',
-          label: 'Pets',
-          icon: 'pawPrint',
-          span: 1,
-          href: `/home/pet/${petId}`,
-          art: 'petStack'
-        }
-      ]
-    : [];
+/**
+ * The Pets tile manages the set of pets. Opening one goes through its section
+ * header on Home instead, which is why this no longer needs a pet's id.
+ */
+export const HOME_TILES: TileDescriptor[] = [
+  {
+    id: 'pets',
+    label: 'Pets',
+    icon: 'pawPrint',
+    span: 1,
+    href: '/home/pets',
+    art: 'petStack'
+  }
+];

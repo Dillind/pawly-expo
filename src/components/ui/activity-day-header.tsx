@@ -1,38 +1,27 @@
 import AppText from '@/components/core/app-text';
 import type { AppTheme } from '@/constants/theme';
-import { useSlotStates } from '@/hooks/queries/use-slot-states';
 import { useStyles } from '@/hooks/use-styles';
 import { formatDayHeading } from '@/lib/dates';
 import { StyleSheet, View } from 'react-native';
 
 type Props = {
   day: string;
-  petId: string | undefined;
   timezone: string;
 };
 
 /**
- * Missed Feeds are not rows in this list — they are a count on the day header,
- * which is what keeps pagination a cursor over one table instead of a merge of
- * two sources per day.
+ * The "Fed 2 of 3" count this used to carry read as the whole household's, but
+ * came from one pet's slots. Rather than sum a per-pet query the list cannot
+ * call once per pet, the count is gone until Activity itself is reworked.
  */
-const ActivityDayHeader = ({ day, petId, timezone }: Props) => {
+const ActivityDayHeader = ({ day, timezone }: Props) => {
   const styles = useStyles(makeStyles);
-  const { data: slots } = useSlotStates(petId, day);
-
-  const fedCount = slots?.filter((slot) => slot.state === 'fed').length ?? 0;
-  const totalCount = slots?.length ?? 0;
 
   return (
     <View style={styles.header}>
       <AppText size={16} fontWeight="bold">
         {formatDayHeading(day, timezone)}
       </AppText>
-      {totalCount > 0 && (
-        <AppText size={14} color={fedCount < totalCount ? 'error' : 'textSecondary'}>
-          Fed {fedCount} of {totalCount}
-        </AppText>
-      )}
     </View>
   );
 };

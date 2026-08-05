@@ -1,5 +1,6 @@
 import { supabase } from '@/lib/supabase/client';
-import type { Pet, PetSex } from '@/types/core';
+import PetPhotoService from '@/services/pet-photo.service';
+import type { FeedingScheduleLabel, Pet, PetSex } from '@/types/core';
 
 export type PetDetail = {
   id: string;
@@ -10,6 +11,16 @@ export type PetDetail = {
   birthdateIsApproximate: boolean;
   photoUrl: string | null;
   bio: string | null;
+};
+
+export type AddPetInput = {
+  name: string;
+  breed: string;
+  sex: PetSex;
+  birthdate: string;
+  birthdateIsApproximate: boolean;
+  photoUrl: string | null;
+  feedingTimes: { scheduledTime: string; label: FeedingScheduleLabel }[];
 };
 
 export type PetPatch = {
@@ -26,20 +37,6 @@ const LIST_COLUMNS = 'id, name, photo_url';
 const DETAIL_COLUMNS = 'id, name, breed, sex, birthdate, birthdate_is_approximate, photo_url, bio';
 
 namespace PetService {
-  export async function getForHousehold(householdId: string): Promise<Pet> {
-    const { data, error } = await supabase
-      .from('pets')
-      .select(LIST_COLUMNS)
-      .eq('household_id', householdId)
-      .order('created_at', { ascending: true })
-      .limit(1)
-      .single();
-
-    if (error) throw error;
-
-    return { id: data.id, name: data.name, photoUrl: data.photo_url };
-  }
-
   export async function listForHousehold(householdId: string): Promise<Pet[]> {
     const { data, error } = await supabase
       .from('pets')
@@ -91,6 +88,54 @@ namespace PetService {
 
   export async function setPhotoUrl(petId: string, publicUrl: string): Promise<void> {
     const { error } = await supabase.from('pets').update({ photo_url: publicUrl }).eq('id', petId);
+    if (error) throw error;
+  }
+
+  export async function add(input: AddPetInput): Promise<Pet> {
+    const { data, error } = await supabase
+      .rpc('add_pet', {
+        pet_name: input.name,
+        pet_breed: input.breed,
+        pet_sex: input.sex,
+        pet_birthdate: input.birthdate,
+        pet_birthdate_is_approximate: input.birthdateIsApproximate,
+        pet_photo_url: input.photoUrl,
+        feeding_times: input.feedingTimes
+      })
+      .single();
+
+    if (error) throw error;
+
+    // The RPC returns a pets row, which supabase-js types as unknown without
+    // generated database types. Same treatment as mapLogFeedResult.
+    const row = data as { id: string; name: string; photo_url: string | null };
+
+    return { id: row.id, name: row.name, photoUrl: row.photo_url };
+  }
+
+  /**
+   * Schedules, feed logs, the Care Card and photo rows all cascade with the pet.
+   * The files those photo rows point at do not, and once the rows are gone
+   * nothing knows the paths -- so storage is cleared first, while they are still
+   * readable. Every step of that is best effort: an orphaned file is a cost, a
+   * pet that cannot be removed is a bug.
+   */
+  export async function remove(petId: string): Promise<void> {
+    try {
+      const [cover, photos] = await Promise.all([
+        supabase.from('pets').select('photo_url').eq('id', petId).single(),
+        PetPhotoService.list(petId)
+      ]);
+
+      await Promise.all([
+        PetPhotoService.removeByPublicUrl(cover.data?.photo_url ?? null),
+        ...photos.map((photo) => PetPhotoService.removeByPublicUrl(photo.url))
+      ]);
+    } catch (error) {
+      console.error(error);
+    }
+
+    const { error } = await supabase.from('pets').delete().eq('id', petId);
     if (error) throw error;
   }
 }

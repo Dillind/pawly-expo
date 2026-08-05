@@ -1,7 +1,7 @@
 import Icon from '@/components/core/icon';
 import PressableOpacity from '@/components/core/pressable-opacity';
 import type { IconName } from '@/constants/icon-map';
-import { Radius, type AppTheme } from '@/constants/theme';
+import { Radius, type AppTheme, type ThemeColor } from '@/constants/theme';
 import { useStyles } from '@/hooks/use-styles';
 import { useTheme } from '@/hooks/use-theme';
 import { hapticLight } from '@/lib/haptics';
@@ -21,7 +21,10 @@ type Props = {
   accessibilityLabel: string;
   onPress?: () => void;
   variant?: 'primary' | 'secondary' | 'ghost' | 'glass';
+  /** Overrides the glyph colour the variant would pick. Destructive ghosts use `error`. */
+  color?: ThemeColor;
   size?: number;
+  strokeWidth?: number;
   isLoading?: boolean;
   isDisabled?: boolean;
   hapticFeedback?: boolean;
@@ -33,7 +36,9 @@ const IconButton = ({
   accessibilityLabel,
   onPress,
   variant = 'primary',
+  color,
   size = 24,
+  strokeWidth,
   isLoading = false,
   isDisabled = false,
   hapticFeedback = true,
@@ -50,12 +55,13 @@ const IconButton = ({
     onPress?.();
   };
 
-  const glyphColor = variant === 'ghost' ? 'text' : variant === 'glass' ? 'primary' : 'onPrimary';
+  const glyphColor =
+    color ?? (variant === 'ghost' ? 'text' : variant === 'glass' ? 'primary' : 'onPrimary');
 
   const content = isLoading ? (
     <ActivityIndicator size="small" color={variant === 'primary' ? '#ffffff' : undefined} />
   ) : (
-    <Icon name={name} size={size} color={glyphColor} />
+    <Icon name={name} size={size} color={glyphColor} strokeWidth={strokeWidth} />
   );
 
   // Glass owns its own press response via `isInteractive` -- the material

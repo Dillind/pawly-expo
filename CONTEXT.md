@@ -30,7 +30,7 @@ _Avoid_: Referral, share link.
 ## Pets & care
 
 **Pet**:
-An animal cared for by a household (v1: one dog per household in the UI; the model supports many). Stores a birthdate, not a fixed age.
+An animal cared for by a household. A household may hold several, and Home shows each one's feed times for today. Stores a birthdate, not a fixed age.
 _Avoid_: Animal, dog (the product is pet-general even though v1 targets dogs).
 
 **Pet Details**:

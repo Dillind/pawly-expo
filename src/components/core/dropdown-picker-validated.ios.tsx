@@ -6,8 +6,9 @@ import { useStyles } from '@/hooks/use-styles';
 import FieldError from '@/lib/form/components/field-error';
 import type { Option } from '@/types/core';
 import { optionLabel } from '@/utils/options';
+import { useTheme } from '@/hooks/use-theme';
 import { Host, Picker, Text } from '@expo/ui/swift-ui';
-import { pickerStyle, tag } from '@expo/ui/swift-ui/modifiers';
+import { foregroundStyle, pickerStyle, tag } from '@expo/ui/swift-ui/modifiers';
 import { useFormContext } from 'react-hook-form';
 import { StyleProp, StyleSheet, View, ViewStyle } from 'react-native';
 
@@ -53,8 +54,10 @@ const DropdownPickerValidated = <T extends string>({
   const form = useFormContext();
   const errors = form?.formState?.errors;
   const styles = useStyles(makeStyles);
+  const { colors } = useTheme();
 
   const selectedText = optionLabel(options, value) ?? placeholder ?? 'Select';
+  const hasValue = Boolean(value);
 
   return (
     <View style={[wrapperStyle, { marginBottom, marginTop }]}>
@@ -76,7 +79,12 @@ const DropdownPickerValidated = <T extends string>({
       <View style={[styles.field, isDisabled && styles.fieldDisabled]}>
         <Host matchContents>
           <Picker
-            modifiers={[pickerStyle('menu')]}
+            // A menu picker draws its label and chevron in the accent colour --
+            // blue text in a row of black-text inputs. This puts it back.
+            modifiers={[
+              pickerStyle('menu'),
+              foregroundStyle(hasValue ? colors.text : colors.textSecondary)
+            ]}
             label={selectedText}
             selection={value}
             onSelectionChange={(selection) => {

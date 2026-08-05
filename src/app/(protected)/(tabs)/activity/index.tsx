@@ -8,11 +8,11 @@ import ActionPopover from '@/components/ui/action-popover';
 import ActivityDayHeader from '@/components/ui/activity-day-header';
 import { CREATE_ACTIONS } from '@/components/ui/create-actions';
 import FeedLogRow from '@/components/ui/feed-log-row';
-import type { AppTheme } from '@/constants/theme';
+import { ScreenGutter, type AppTheme } from '@/constants/theme';
 import { useFeedLog } from '@/hooks/queries/use-feed-log';
 import { useFeedLogs } from '@/hooks/queries/use-feed-logs';
 import { useHousehold } from '@/hooks/queries/use-household';
-import { usePet } from '@/hooks/queries/use-pet';
+import { usePets } from '@/hooks/queries/use-pets';
 import { useRefreshOnFocus } from '@/hooks/use-refresh-on-focus';
 import { useStyles } from '@/hooks/use-styles';
 import { dayInTimezone } from '@/lib/dates';
@@ -27,19 +27,26 @@ type ActivityItem = { kind: 'header'; day: string } | { kind: 'log'; log: FeedLo
 
 const Activity = () => {
   const [activeLogId, setActiveLogId] = useState<string | undefined>(undefined);
+  const [activePetId, setActivePetId] = useState<string | undefined>(undefined);
   const { logId } = useLocalSearchParams<{ logId?: string }>();
 
   const styles = useStyles(makeStyles);
   const router = useRouter();
 
   const { data: household } = useHousehold();
-  const { data: pet } = usePet();
+  const { data: pets = [] } = usePets();
   const timezone = household?.timezone;
 
-  const { data, isLoading, isError, refetch, fetchNextPage, hasNextPage, isFetchingNextPage } =
-    useFeedLogs(pet?.id);
+  const petIds = useMemo(() => pets.map((pet) => pet.id), [pets]);
+  const petNames = useMemo(
+    () => new Map(pets.map((pet) => [pet.id, pet.name])),
+    [pets]
+  );
 
-  useRefreshOnFocus(['feed-logs', pet?.id]);
+  const { data, isLoading, isError, refetch, fetchNextPage, hasNextPage, isFetchingNextPage } =
+    useFeedLogs(petIds);
+
+  useRefreshOnFocus(['feed-logs']);
 
   const sheetRef = useRef<TrueSheet | null>(null);
   const logSheetRef = useRef<TrueSheet | null>(null);
@@ -54,6 +61,7 @@ const Activity = () => {
   // than a loop, since the second render sees them equal and skips it.
   if (deepLinkedLog && deepLinkedLog.id !== activeLogId) {
     setActiveLogId(deepLinkedLog.id);
+    setActivePetId(deepLinkedLog.petId);
   }
 
   useEffect(() => {
@@ -92,13 +100,15 @@ const Activity = () => {
     if (!timezone) return null;
 
     return item.kind === 'header' ? (
-      <ActivityDayHeader day={item.day} petId={pet?.id} timezone={timezone} />
+      <ActivityDayHeader day={item.day} timezone={timezone} />
     ) : (
       <FeedLogRow
         log={item.log}
+        petName={petNames.size > 1 ? petNames.get(item.log.petId) : undefined}
         timezone={timezone}
         onPress={() => {
           setActiveLogId(item.log.id);
+          setActivePetId(item.log.petId);
           void sheetRef.current?.present();
         }}
       />
@@ -139,16 +149,23 @@ const Activity = () => {
         primaryAction={{
           label: 'Log a feed',
           icon: 'utensils',
-          isDisabled: !pet?.id,
+          // Activity has no pet context, so with several pets there is nothing
+          // to log against without asking. Home's per-pet sections are the entry
+          // point instead.
+          isDisabled: pets.length !== 1,
           onPress: () => {
             void logSheetRef.current?.present();
           }
         }}
       />
 
-      <LogFeedSheet sheetRef={logSheetRef} />
+      <LogFeedSheet sheetRef={logSheetRef} petId={pets[0]?.id} petName={pets[0]?.name} />
 
-      <FeedLogDetailSheet sheetRef={sheetRef} logId={activeLogId} petId={pet?.id} />
+      <FeedLogDetailSheet
+        sheetRef={sheetRef}
+        logId={activeLogId}
+        petId={activePetId}
+      />
     </ScreenView>
   );
 };
@@ -156,6 +173,7 @@ const Activity = () => {
 const makeStyles = ({ spacing }: AppTheme) =>
   StyleSheet.create({
     listContent: {
+      paddingHorizontal: ScreenGutter,
       paddingBottom: spacing.six
     }
   });
