@@ -8,11 +8,11 @@ import type { AppTheme } from '@/constants/theme';
 import { useLogout } from '@/hooks/use-logout';
 import { useStyles } from '@/hooks/use-styles';
 import { useThemeStore } from '@/stores/theme-store';
-import type { ThemePreference } from '@/types/core';
+import type { Option, ThemePreference } from '@/types/core';
 import { useRouter } from 'expo-router';
 import { ScrollView, StyleSheet, View } from 'react-native';
 
-const appearanceOptions: { value: ThemePreference; label: string }[] = [
+const APPEARANCE_OPTIONS: Option<ThemePreference>[] = [
   { value: 'system', label: 'System' },
   { value: 'light', label: 'Light' },
   { value: 'dark', label: 'Dark' }
@@ -41,7 +41,7 @@ const Profile = () => {
 
         <SegmentedControl
           label="Appearance"
-          options={appearanceOptions}
+          options={APPEARANCE_OPTIONS}
           value={preference}
           onChange={(next) => void setPreference(next)}
         />

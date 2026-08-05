@@ -16,11 +16,6 @@ export type FontWeight = 'regular' | 'bold';
 
 export type ImageFolderType = 'example';
 
-export type DropdownItem<T extends string | number | null> = {
-  label: string;
-  value: T;
-};
-
 export type NavigationProps = {
   label: string;
   value: string;
@@ -52,11 +47,6 @@ export type Household = {
   isOwner: boolean;
 };
 
-/**
- * One choice in any selectable list. `value` is what the app stores, `label` is
- * what the user reads — keeping them apart is what stops a stored enum from
- * being rendered raw, or a display string from being written to a column.
- */
 export type Option<T = string> = {
   value: T;
   label: string;

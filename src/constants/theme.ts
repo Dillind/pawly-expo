@@ -52,17 +52,24 @@ export type AppTheme = {
   spacing: typeof Spacing;
 };
 
-/**
- * Inter font family names registered via the expo-font plugin in app.config.ts.
- */
-export const InterFontFamily = {
-  regular: 'Inter_400Regular',
-  medium: 'Inter_500Medium',
-  semiBold: 'Inter_600SemiBold',
-  bold: 'Inter_700Bold',
-  extraBold: 'Inter_800ExtraBold',
-  black: 'Inter_900Black'
-} as const;
+export const InterFontFamily = Platform.select({
+  ios: {
+    regular: 'Inter-Regular',
+    medium: 'Inter-Medium',
+    semiBold: 'Inter-SemiBold',
+    bold: 'Inter-Bold',
+    extraBold: 'Inter-ExtraBold',
+    black: 'Inter-Black'
+  },
+  default: {
+    regular: 'Inter_400Regular',
+    medium: 'Inter_500Medium',
+    semiBold: 'Inter_600SemiBold',
+    bold: 'Inter_700Bold',
+    extraBold: 'Inter_800ExtraBold',
+    black: 'Inter_900Black'
+  }
+})!;
 
 export type InterFontFamilyWeight = keyof typeof InterFontFamily;
 
