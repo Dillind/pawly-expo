@@ -1,4 +1,4 @@
-import { supabase } from '@/lib/supabase/client';
+import AuthService from '@/services/auth.service';
 import { useAuthStore } from '@/stores/auth-store';
 import { useEffect } from 'react';
 
@@ -11,15 +11,9 @@ export function useAuthSession() {
   const { setSession } = useAuthStore();
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data }) => {
-      setSession(data.session?.user.id);
-    });
+    void AuthService.getSessionUserId().then(setSession);
 
-    const {
-      data: { subscription }
-    } = supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session?.user.id);
-    });
+    const subscription = AuthService.onAuthStateChange(setSession);
 
     return () => subscription.unsubscribe();
   }, [setSession]);

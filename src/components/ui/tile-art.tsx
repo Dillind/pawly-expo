@@ -1,5 +1,5 @@
 import PetStack from '@/components/ui/pet-stack';
-import { usePets } from '@/hooks/use-pets';
+import { usePets } from '@/hooks/queries/use-pets';
 
 /**
  * Resolves a descriptor's `art` key to the component that draws it. Tiles stay

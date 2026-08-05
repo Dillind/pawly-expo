@@ -1,6 +1,6 @@
 import AppText from '@/components/core/app-text';
 import type { AppTheme } from '@/constants/theme';
-import { useSlotStates } from '@/hooks/use-slot-states';
+import { useSlotStates } from '@/hooks/queries/use-slot-states';
 import { useStyles } from '@/hooks/use-styles';
 import { formatDayHeading } from '@/lib/dates';
 import { StyleSheet, View } from 'react-native';

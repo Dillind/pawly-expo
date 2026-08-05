@@ -1,3 +1,4 @@
+import PhotoSourceSheet from '@/components/bottom-sheets/photo-source-sheet';
 import DateTimePickerValidated from '@/components/core/date-time-picker-validated';
 import DropdownPickerValidated from '@/components/core/dropdown-picker-validated';
 import Icon from '@/components/core/icon';
@@ -6,18 +7,18 @@ import PressableOpacity from '@/components/core/pressable-opacity';
 import TextInputValidated from '@/components/core/text-input-validated';
 import ToggleSwitch from '@/components/core/toggle-switch';
 import TextDescriptionHeader from '@/components/layout/text-description-header';
+import { SEX_OPTIONS } from '@/constants/options';
 import { petDetailsSchema, type PetDetailsFormValues } from '@/constants/schemas/pet-details';
 import type { AppTheme } from '@/constants/theme';
 import { useStyles } from '@/hooks/use-styles';
 import { useOnboardingStore } from '@/stores/onboarding-store';
 import { zodResolver } from '@hookform/resolvers/zod';
+import type { TrueSheet } from '@lodev09/react-native-true-sheet';
 import { Image } from 'expo-image';
-import * as ImagePicker from 'expo-image-picker';
 import { useRouter } from 'expo-router';
+import { useRef } from 'react';
 import { Controller, FormProvider, useForm, useWatch } from 'react-hook-form';
 import { ScrollView, StyleSheet, View } from 'react-native';
-
-const sexOptions = ['male', 'female'];
 
 const PetDetails = () => {
   const styles = useStyles(makeStyles);
@@ -45,22 +46,7 @@ const PetDetails = () => {
   } = form;
 
   const photoUri = useWatch({ control, name: 'photoUri' });
-
-  const pickPhoto = async () => {
-    const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
-    if (!permission.granted) return;
-
-    const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ['images'],
-      allowsEditing: true,
-      aspect: [1, 1],
-      quality: 0.8
-    });
-
-    if (!result.canceled) {
-      setValue('photoUri', result.assets[0].uri);
-    }
-  };
+  const photoSheetRef = useRef<TrueSheet | null>(null);
 
   const onSubmit = handleSubmit((values) => {
     setPetDetails(values);
@@ -79,7 +65,9 @@ const PetDetails = () => {
         />
 
         <FormProvider {...form}>
-          <PressableOpacity style={styles.photoPicker} onPress={pickPhoto}>
+          <PressableOpacity
+            style={styles.photoPicker}
+            onPress={() => void photoSheetRef.current?.present()}>
             {photoUri ? (
               <Image source={{ uri: photoUri }} style={styles.photo} />
             ) : (
@@ -132,10 +120,9 @@ const PetDetails = () => {
                   name="sex"
                   label="Sex"
                   isLabelIndicated
-                  items={sexOptions}
+                  options={SEX_OPTIONS}
                   value={value}
-                  onChange={(next) => onChange(next as PetDetailsFormValues['sex'])}
-                  getText={(item) => (item === 'male' ? 'Male' : 'Female')}
+                  onChange={onChange}
                 />
               )}
             />
@@ -178,6 +165,8 @@ const PetDetails = () => {
           </View>
         </FormProvider>
       </ScrollView>
+
+      <PhotoSourceSheet sheetRef={photoSheetRef} onPicked={([uri]) => setValue('photoUri', uri)} />
     </View>
   );
 };

@@ -1,7 +1,8 @@
-import { MessageType } from '@/constants/enums';
+import { ErrorMessage, SuccessMessage } from '@/constants/enums';
+import { userFacingMessage } from '@/lib/errors';
+import { showErrorToast, showSuccessToast } from '@/lib/toast';
 import AuthService from '@/services/auth.service';
 import { useCallback, useState } from 'react';
-import { toast } from 'sonner-native';
 
 export function useLogout() {
   const [isLoading, setIsLoading] = useState(false);
@@ -10,11 +11,9 @@ export function useLogout() {
     setIsLoading(true);
     try {
       await AuthService.signOut();
-      toast.success(MessageType.SignOutSuccess);
+      showSuccessToast(SuccessMessage.SignedOut);
     } catch (error) {
-      toast.error(MessageType.SignOutError, {
-        description: error instanceof Error ? error.message : 'Try again'
-      });
+      showErrorToast(ErrorMessage.SignOutFailed, userFacingMessage(error, 'Try again'));
     } finally {
       setIsLoading(false);
     }

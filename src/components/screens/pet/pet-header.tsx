@@ -1,60 +1,63 @@
+import PhotoSourceSheet from '@/components/bottom-sheets/photo-source-sheet';
 import AppText from '@/components/core/app-text';
 import IconButton from '@/components/core/icon-button';
+import Tray, { type TrayStepDescriptor } from '@/components/core/tray';
+import EditPetDetails from '@/components/screens/pet/edit-pet-details';
+import { SEX_OPTIONS } from '@/constants/options';
 import type { AppTheme } from '@/constants/theme';
 import { Radius } from '@/constants/theme';
-import { useChangePetPhoto } from '@/hooks/use-pet-photo-mutations';
+import { useHousehold } from '@/hooks/queries/use-household';
+import { useChangePetPhoto } from '@/hooks/queries/use-pet-photo-mutations';
 import { useStyles } from '@/hooks/use-styles';
 import { formatAge } from '@/lib/dates';
-import FieldError from '@/lib/form/components/field-error';
+import { optionLabel } from '@/utils/options';
+import type { PetSex } from '@/types/core';
+import type { TrueSheet } from '@lodev09/react-native-true-sheet';
 import { Image } from 'expo-image';
-import * as ImagePicker from 'expo-image-picker';
-import { useState } from 'react';
+import { useRef } from 'react';
 import { ActivityIndicator, StyleSheet, View } from 'react-native';
 
 type Props = {
   petId: string;
   name: string;
   breed: string | null;
+  sex: PetSex | null;
   birthdate: string | null;
   birthdateIsApproximate: boolean;
   photoUrl: string | null;
 };
 
-const PetHeader = ({ petId, name, breed, birthdate, birthdateIsApproximate, photoUrl }: Props) => {
+const PetHeader = ({
+  petId,
+  name,
+  breed,
+  sex,
+  birthdate,
+  birthdateIsApproximate,
+  photoUrl
+}: Props) => {
   const styles = useStyles(makeStyles);
-  const changePhoto = useChangePetPhoto(petId);
-  const [error, setError] = useState<string | null>(null);
+  const { mutate: changePhoto, isPending: isChangingPhoto } = useChangePetPhoto(petId);
+  const sheetRef = useRef<TrueSheet | null>(null);
+  const photoSheetRef = useRef<TrueSheet | null>(null);
+  const { data: household } = useHousehold();
 
   const age = formatAge(birthdate, birthdateIsApproximate);
-  const subtitle = [breed, age].filter(Boolean).join(' · ');
+  const subtitle = [breed, optionLabel(SEX_OPTIONS, sex), age].filter(Boolean).join(' · ');
 
-  const pickPhoto = async () => {
-    setError(null);
-
-    const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
-
-    // A silent return here reads as a dead button: the user taps, nothing
-    // happens, and nothing explains why.
-    if (!permission.granted) {
-      setError('Allow photo access in Settings to change the photo.');
-      return;
+  const steps: TrayStepDescriptor[] = [
+    {
+      id: 'edit',
+      title: 'Edit details',
+      render: () => (
+        <EditPetDetails
+          petId={petId}
+          details={{ name, breed, sex, birthdate, birthdateIsApproximate }}
+          onDone={() => void sheetRef.current?.dismiss()}
+        />
+      )
     }
-
-    const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ['images'],
-      allowsEditing: true,
-      aspect: [1, 1],
-      quality: 0.8
-    });
-
-    if (result.canceled) return;
-
-    try {
-      await changePhoto.mutateAsync({ localUri: result.assets[0].uri, previousUrl: photoUrl });
-    } catch (caught) {
-      setError(caught instanceof Error ? caught.message : 'Could not change the photo');
-    }
-  };
+  ];
 
   return (
     <View style={styles.container}>
@@ -62,7 +65,7 @@ const PetHeader = ({ petId, name, breed, birthdate, birthdateIsApproximate, phot
         <Image source={photoUrl} style={styles.photo} contentFit="cover" transition={200} />
 
         <View style={styles.editWell}>
-          {changePhoto.isPending ? (
+          {isChangingPhoto ? (
             <ActivityIndicator />
           ) : (
             <IconButton
@@ -70,15 +73,27 @@ const PetHeader = ({ petId, name, breed, birthdate, birthdateIsApproximate, phot
               accessibilityLabel="Change photo"
               variant="primary"
               size={18}
-              onPress={() => void pickPhoto()}
+              onPress={() => void photoSheetRef.current?.present()}
             />
           )}
         </View>
       </View>
 
-      <AppText variant="header" size={28}>
-        {name}
-      </AppText>
+      <View style={styles.nameRow}>
+        <AppText variant="header" size={28}>
+          {name}
+        </AppText>
+
+        {household?.isOwner && (
+          <IconButton
+            name="pencil"
+            accessibilityLabel="Edit pet details"
+            variant="ghost"
+            size={18}
+            onPress={() => void sheetRef.current?.present()}
+          />
+        )}
+      </View>
 
       {subtitle.length > 0 && (
         <AppText size={15} color="textSecondary">
@@ -86,7 +101,13 @@ const PetHeader = ({ petId, name, breed, birthdate, birthdateIsApproximate, phot
         </AppText>
       )}
 
-      <FieldError error={error ?? undefined} />
+      <Tray sheetRef={sheetRef} steps={steps} />
+
+      <PhotoSourceSheet
+        sheetRef={photoSheetRef}
+        title="Change photo"
+        onPicked={([localUri]) => changePhoto({ localUri, previousUrl: photoUrl })}
+      />
     </View>
   );
 };
@@ -96,6 +117,11 @@ const makeStyles = ({ spacing, colors }: AppTheme) =>
     container: {
       gap: spacing.two,
       alignItems: 'center'
+    },
+    nameRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: spacing.one
     },
     photo: {
       width: 120,

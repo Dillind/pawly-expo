@@ -51,6 +51,9 @@ bun run web         # Run on web
 bun run lint        # ESLint (eslint-config-expo)
 bun run typecheck   # tsc --noEmit
 bun run spellcheck  # cspell across ts/tsx/md/sql
+bun run test        # Jest, single run
+bun run test:watch  # Jest, watch mode
+bun run check       # all four above, in order, stopping at the first failure
 
 bun run build:dev         # EAS development build, iOS (simulator-capable)
 bun run build:preview     # EAS preview build, iOS
@@ -67,7 +70,38 @@ gitignored and never reaches the builder, so anything the app reads from
 No `--auto-submit` until `submit.production` in `eas.json` is filled in, and no Android
 build scripts until FCM credentials exist.
 
-There is **no test setup yet** (no test runner, no `test` script). Don't assume tests exist; if adding them, set up the runner first and note it here.
+## Tests
+
+`jest-expo` + `@testing-library/react-native`. **Run `bun run check` before finishing** — it is
+typecheck, lint, spellcheck and test in one, and stops at the first failure.
+
+Tests live in a top-level **`tests/` mirroring `src/`**, so the path tells you what is covered:
+
+```
+tests/lib/dates.test.ts              covers  src/lib/dates.ts
+tests/services/pet.service.test.ts   covers  src/services/pet.service.ts
+```
+
+Name them `<name>.test.ts`. No `__tests__` folders, and nothing beside the source file.
+
+**What is worth testing here:** pure logic (`lib/dates.ts`, `utils/`), the Zod schemas, and the
+row↔domain mapping in services. A service test mocks `@/lib/supabase/client` and asserts the
+columns — `PetService.update` turning `birthdateIsApproximate` into `birthdate_is_approximate` is
+locked down precisely because that leaked into component code once already.
+
+**What a unit test here cannot tell you**, and do not pretend otherwise:
+
+- **The SQL.** `slot_states`, `log_feed`, the Grace Window arithmetic and the missed-feed sweep are
+  the real logic of this app and they live in Postgres. Jest cannot reach any of it. That wants
+  pgTAP against a local `supabase db reset`.
+- **Anything native.** TrueSheet, the SwiftUI picker in `dropdown-picker-validated.ios.tsx`, native
+  tabs. Jest renders mocks. A test that calls `onValueChange` on a mocked `Switch` passes happily
+  while the real control is dead on device — which is exactly the state of the Feed Logged Alerts
+  toggle. Verify native surfaces on a device with Argent, not in Jest.
+
+Timezone helpers are asserted against fixed instants and pass under any device clock — the suite is
+run under `TZ=UTC`, `America/New_York` and `Pacific/Kiritimati`. Keep it that way: a test that only
+passes in Melbourne is testing the machine, not the code.
 
 ## Branches
 
@@ -140,6 +174,27 @@ Invoke both skills **before** writing UI code — not after, not to review what 
 
 This applies to any change to layout, styling, copy, navigation, screen composition, or a new component — including "small" ones. It does not apply to pure data/query/migration work with no visible surface.
 
+### Constants and selectable options
+
+**Module-level constant data is `CONSTANT_CASE`** — `SEX_OPTIONS`, `SIZE_STYLES`, `PHOTO_CAP`. This
+is for fixed data only. Instances and derived values keep `camelCase` (`queryClient`, the `styles`
+returned by `StyleSheet.create`, `isIOS`/`isAndroid`/`isWeb`).
+
+**Anything selectable is `Option<T>`** (`src/types/core.ts`):
+
+```ts
+export type Option<T = string> = { value: T; label: string };
+```
+
+`value` is what gets stored, `label` is what the user reads. Keeping them apart is what stops a
+stored enum being rendered raw, or a display string being written to a column. The lists live in
+`src/constants/options.ts` and are typed to the domain — `Option<PetSex>[]`, not `string[]` — so
+`DropdownPickerValidated` infers `T` and the call site needs no cast. Read a label back with
+`optionLabel(SEX_OPTIONS, sex)` from `@/utils/options` rather than a second hand-kept map.
+
+`DropdownPickerValidated` has an **`.ios.tsx` variant** backed by a real SwiftUI menu. Change both
+or iOS silently keeps the old behaviour — the fallback file is not what runs on device.
+
 ### Naming & imports
 
 - **Files and folders are `kebab-case`** (`app-text.tsx`, `use-push-notifications.ts`). Do not introduce `PascalCase`/`camelCase` filenames.
@@ -195,6 +250,117 @@ Expo Router (file-based). Auth is enforced with `Stack.Protected` guards in `src
 
   export default useForgotPasswordStore;
   ```
+
+**Where a remote call lives — services, then query hooks. Never Supabase in a component.**
+
+```
+src/services/*.service.ts    the Supabase call + row<->domain mapping. No React, no TanStack.
+src/hooks/queries/*.ts       useQuery / useMutation over a service. Query keys, invalidation.
+src/hooks/*.ts               everything else (use-theme, use-styles, use-debounce, ...)
+```
+
+A service is a `namespace XService` of exported async functions with a default export — follow
+`auth.service.ts`. **The service owns snake_case**: a column name must never reach a component, so
+`PetService.update()` takes `{ birthdateIsApproximate }` and writes `birthdate_is_approximate`
+itself. Domain types (`PetDetail`, `CareCard`, `FeedingSlot`, `PetPhoto`) are exported from the
+service that produces them.
+
+`import { supabase }` outside `src/services/` is the smell to look for. There is exactly one
+exception, `src/lib/supabase/client.ts`, which creates it.
+
+**TanStack Query — always destructure the hook's result, and rename as you go:**
+
+```tsx
+// Do this
+const { mutate: deleteSlot, isPending: isDeleting } = useDeleteSlot(petId);
+
+// Not this
+const deleteSlot = useDeleteSlot(petId);
+// ...later: deleteSlot.mutate(id), deleteSlot.isPending
+```
+
+The call site then reads `deleteSlot(id)` and `isDeleting`, not `deleteSlot.mutate(id)` and
+`deleteSlot.isPending`. Rename `isPending` per mutation (`isSaving`, `isDeleting`) — a component
+holding two mutations otherwise has two fields with the same name. Queries follow the same rule:
+`const { data: slots = [], isLoading, isError, refetch } = useFeedingSchedules(petId)`.
+
+### Telling the user what happened
+
+Three different things, three different surfaces. Do not mix them up.
+
+- **Form validation → inline.** Zod/react-hook-form errors render under the offending field. The
+  validated inputs (`TextInputValidated`, `DropdownPickerValidated`, `DateTimePickerValidated`) do
+  this themselves via `useFormContext` — but only when the input is given a **`name`** prop. An
+  input without `name` silently cannot show its own error.
+- **API failure → toast.** Network dropped, RLS denied the write, Postgres threw. Not attributable
+  to a field, and the user cannot fix it by retyping.
+- **Success → toast.** Every mutation confirms it landed.
+
+Toasts go through `@/lib/toast` (`showSuccessToast`, `showErrorToast`, `showInfoToast`) — never
+import `toast` from `sonner-native` outside that file. The optional second argument is a
+description; use it only for text a user can act on. Do **not** pass a raw `error.message` from
+Supabase or Postgres into it: `new row violates row-level security policy` is a developer string,
+and showing it is worse than showing nothing.
+
+That does not mean discarding the error. A service that has already *translated* a failure into
+copy — "There is already a dinner feed. Edit that one instead." — throws
+**`UserFacingError`** (`@/lib/errors`), and `userFacingMessage(error, fallback)` unwraps it: the
+service's own words when it wrote them for a person, the fallback for anything else. Ignoring the
+error entirely is the mistake in the other direction: it throws away the one message that told the
+user what to do about it.
+
+**Every `onError` also does `console.error(error)`.** The toast is sanitised copy by design, so the
+driver's real message — the SQLSTATE, the constraint name, the network failure — survives nowhere
+else.
+
+**The message itself comes from `SuccessMessage` / `ErrorMessage` in `@/constants/enums`**, never a
+string literal at the call site. One file holds every sentence the app can say, so wording stays
+consistent and changing it is one edit. Entries are named by subject and outcome
+(`PetDetailsUpdated`, `FeedTimeRemoveFailed`) and read "&lt;Subject&gt; &lt;past-tense verb&gt;" — five
+near-identical trays on the pet screen must not all confirm with the same sentence, because the
+toast is the only thing telling a member which sheet they just saved. A message that genuinely
+needs a runtime value (`Logged a feed for ${pet.name}`) is the exception, not the excuse.
+
+**The toast belongs to the hook, not the call site.** Put a plain `onSuccess`/`onError` in
+`useMutation`. The call site then passes only the mutation's own arguments, and keeps an
+`onSuccess` only for something the hook cannot do — dismissing a sheet, calling `onDone()`,
+navigating:
+
+```tsx
+// In the hook
+return useMutation({
+  mutationFn: (patch: PetPatch) => PetService.update(petId, patch),
+  onSettled: () => invalidate(queryClient, petId),
+  onSuccess: () => showSuccessToast(SuccessMessage.PetDetailsUpdated),
+  onError: (error) => {
+    console.error(error);
+    showErrorToast(ErrorMessage.PetDetailsUpdateFailed);
+  }
+});
+
+// At the call site
+updatePet(patch, { onSuccess: onDone });
+```
+
+This is not only about repetition. **Callbacks passed to `mutate()` are dropped when the component
+unmounts before the mutation settles** — see `hasListeners()` in
+`@tanstack/query-core/.../mutationObserver.js`. A long upload on a screen the user navigates away
+from would otherwise fail silently. The hook's own callbacks always run.
+
+Both callbacks receive the variables as their second argument, which is how the add-vs-update split
+is made: `onSuccess: (_data, input) => showSuccessToast(input.id ? FeedTimeUpdated : FeedTimeAdded)`.
+
+**A hook with two call sites that need different wording takes the messages as an argument.**
+`useUpdatePet(petId, { success, failure })` is the only one — "Pet details updated" is not
+"Bio updated".
+
+Exceptions worth knowing:
+
+- **`useLogFeed` keeps its toasts at the call site.** A `double_feed` result is a *success* that
+  must not confirm anything, because nothing was written.
+- A success toast is redundant where navigation already confirms the result (sign-up moves to the
+  verify screen), and `PushTokenService.register` deliberately stays silent — see the comment in
+  `use-push-notifications.ts`.
 
 ### Writing a feed log
 

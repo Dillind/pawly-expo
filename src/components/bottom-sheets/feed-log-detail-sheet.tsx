@@ -4,6 +4,7 @@ import DateTimePickerValidated from '@/components/core/date-time-picker-validate
 import MainButton from '@/components/core/main-button';
 import PressableOpacity from '@/components/core/pressable-opacity';
 import TextInputValidated from '@/components/core/text-input-validated';
+import { FEED_LOG_DAY_OPTIONS } from '@/constants/options';
 import {
   FEED_LOG_NOTES_MAX_LENGTH,
   feedLogNotesOnlySchema,
@@ -12,10 +13,9 @@ import {
   type FeedLogNotesOnlyFormValues
 } from '@/constants/schemas/feed-log';
 import type { AppTheme } from '@/constants/theme';
-import { useFeedLog } from '@/hooks/use-feed-log';
-import { useDeleteFeedLog, useUpdateFeedLog } from '@/hooks/use-feed-log-mutations';
-import { useHousehold } from '@/hooks/use-household';
-import { formatAuthorName } from '@/hooks/use-household-members';
+import { useFeedLog } from '@/hooks/queries/use-feed-log';
+import { useDeleteFeedLog, useUpdateFeedLog } from '@/hooks/queries/use-feed-log-mutations';
+import { useHousehold } from '@/hooks/queries/use-household';
 import { useStyles } from '@/hooks/use-styles';
 import {
   composeLoggedAt,
@@ -27,15 +27,14 @@ import {
   todayInTimezone,
   yesterdayInTimezone
 } from '@/lib/dates';
-import { feedLogErrorMessage } from '@/lib/feed-log-errors';
 import { useAuthStore } from '@/stores/auth-store';
 import type { FeedLog } from '@/types/core';
+import { formatAuthorName } from '@/utils/members';
 import { zodResolver } from '@hookform/resolvers/zod';
 import type { TrueSheet } from '@lodev09/react-native-true-sheet';
 import { useMemo, type RefObject } from 'react';
 import { Controller, FormProvider, useForm } from 'react-hook-form';
 import { ActivityIndicator, StyleSheet, View } from 'react-native';
-import { toast } from 'sonner-native';
 
 type Props = {
   sheetRef: RefObject<TrueSheet | null>;
@@ -51,15 +50,13 @@ type Props = {
  */
 type SavePatch = { loggedAt?: string; notes?: string | null };
 
-const dayOptions = ['today', 'yesterday'] as const;
-
 const FeedLogDetailSheet = ({ sheetRef, logId, petId }: Props) => {
   const styles = useStyles(makeStyles);
   const { userId } = useAuthStore();
   const { data: household } = useHousehold();
   const { data: log, isLoading } = useFeedLog(logId);
-  const updateFeedLog = useUpdateFeedLog(petId);
-  const deleteFeedLog = useDeleteFeedLog(petId);
+  const { mutate: updateFeedLog, isPending: isSaving } = useUpdateFeedLog(petId);
+  const { mutate: deleteFeedLog, isPending: isDeleting } = useDeleteFeedLog(petId);
 
   const timezone = household?.timezone;
 
@@ -92,35 +89,16 @@ const FeedLogDetailSheet = ({ sheetRef, logId, petId }: Props) => {
   const onSave = (patch: SavePatch) => {
     if (!log) return;
 
-    updateFeedLog.mutate(
+    updateFeedLog(
       { logId: log.id, ...patch },
-      {
-        onSuccess: () => {
-          toast.success('Feed updated');
-          void sheetRef.current?.dismiss();
-        },
-        onError: (error) => {
-          toast.error(feedLogErrorMessage(error));
-        }
-      }
+      { onSuccess: () => void sheetRef.current?.dismiss() }
     );
   };
 
   const onDelete = () => {
     if (!log) return;
 
-    deleteFeedLog.mutate(
-      { logId: log.id },
-      {
-        onSuccess: () => {
-          toast.success('Feed deleted');
-          void sheetRef.current?.dismiss();
-        },
-        onError: (error) => {
-          toast.error(feedLogErrorMessage(error));
-        }
-      }
-    );
+    deleteFeedLog({ logId: log.id }, { onSuccess: () => void sheetRef.current?.dismiss() });
   };
 
   return (
@@ -144,23 +122,18 @@ const FeedLogDetailSheet = ({ sheetRef, logId, petId }: Props) => {
                   log={log}
                   timezone={timezone}
                   isOwner={household?.isOwner ?? false}
-                  isSaving={updateFeedLog.isPending}
+                  isSaving={isSaving}
                   onSave={onSave}
                 />
               ) : (
-                <NotesOnlyForm
-                  key={log.id}
-                  log={log}
-                  isSaving={updateFeedLog.isPending}
-                  onSave={onSave}
-                />
+                <NotesOnlyForm key={log.id} log={log} isSaving={isSaving} onSave={onSave} />
               )}
 
               <MainButton
                 text="Delete this log"
                 variant="secondary"
-                isLoading={deleteFeedLog.isPending}
-                isDisabled={updateFeedLog.isPending || deleteFeedLog.isPending}
+                isLoading={isDeleting}
+                isDisabled={isSaving || isDeleting}
                 onPress={onDelete}
               />
             </>
@@ -239,13 +212,13 @@ function EditableLogForm({ log, timezone, isOwner, isSaving, onSave }: EditableL
           name="day"
           render={({ field: { onChange, value } }) => (
             <View style={styles.dayRow}>
-              {dayOptions.map((option) => (
+              {FEED_LOG_DAY_OPTIONS.map(({ value: option, label }) => (
                 <PressableOpacity
                   key={option}
                   style={[styles.dayChip, value === option && styles.dayChipSelected]}
                   onPress={() => onChange(option)}>
                   <AppText size={14} color={value === option ? 'text' : 'textSecondary'}>
-                    {option === 'today' ? 'Today' : 'Yesterday'}
+                    {label}
                   </AppText>
                 </PressableOpacity>
               ))}

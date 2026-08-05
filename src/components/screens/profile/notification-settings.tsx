@@ -2,13 +2,13 @@ import AppText from '@/components/core/app-text';
 import MainButton from '@/components/core/main-button';
 import ToggleSwitch from '@/components/core/toggle-switch';
 import type { AppTheme } from '@/constants/theme';
-import { useNotificationPreferences } from '@/hooks/use-notification-preferences';
-import { usePet } from '@/hooks/use-pet';
-import { useStyles } from '@/hooks/use-styles';
+import { useNotificationPreferences } from '@/hooks/queries/use-notification-preferences';
+import { usePet } from '@/hooks/queries/use-pet';
 import {
   NOTIFICATION_PERMISSION_QUERY_KEY,
   useRequestNotificationPermission
 } from '@/hooks/use-notification-permission';
+import { useStyles } from '@/hooks/use-styles';
 import { useQuery } from '@tanstack/react-query';
 import * as Notifications from 'expo-notifications';
 import { ActivityIndicator, Linking, ScrollView, StyleSheet, View } from 'react-native';
@@ -66,10 +66,10 @@ const NotificationSettings = () => {
       <View style={styles.section}>
         <ToggleSwitch
           label="Feed Logged Alerts"
-          description={`Know when someone feeds ${petName}.`}
+          description={`Know when someone feeds a pet`}
           value={preferences?.feedLoggedAlerts ?? false}
           isDisabled={isDenied}
-          onChange={setFeedLoggedAlerts}
+          onChange={(value) => setFeedLoggedAlerts(value)}
         />
 
         {isDenied && (

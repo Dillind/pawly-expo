@@ -5,20 +5,20 @@ import MainButton from '@/components/core/main-button';
 import TextInputValidated from '@/components/core/text-input-validated';
 import Tray, { useTray, type TrayStepDescriptor } from '@/components/core/tray';
 import type { AppTheme } from '@/constants/theme';
-import { type CareCard, type Medication, useCareCard } from '@/hooks/use-care-card';
+import { useCareCard } from '@/hooks/queries/use-care-card';
 import {
   useDeleteMedication,
   useUpsertCareCard,
   useUpsertMedication
-} from '@/hooks/use-care-card-mutations';
+} from '@/hooks/queries/use-care-card-mutations';
 import { useStyles } from '@/hooks/use-styles';
-import FieldError from '@/lib/form/components/field-error';
 import {
   careCardSchema,
   medicationSchema,
   type CareCardInput,
   type MedicationInput
 } from '@/lib/form/pet-schemas';
+import type { CareCard, Medication } from '@/services/care-card.service';
 import { zodResolver } from '@hookform/resolvers/zod';
 import type { TrueSheet } from '@lodev09/react-native-true-sheet';
 import { useRef, useState } from 'react';
@@ -136,8 +136,7 @@ type FieldEditStepProps = { petId: string; card: CareCard; field: FieldKey };
 const FieldEditStep = ({ petId, card, field }: FieldEditStepProps) => {
   const styles = useStyles(makeStyles);
   const { close } = useTray();
-  const upsertCareCard = useUpsertCareCard(petId);
-  const [submitError, setSubmitError] = useState<string | null>(null);
+  const { mutate: upsertCareCard, isPending: isSaving } = useUpsertCareCard(petId);
 
   const form = useForm<CareCardInput>({
     resolver: zodResolver(careCardSchema),
@@ -146,14 +145,8 @@ const FieldEditStep = ({ petId, card, field }: FieldEditStepProps) => {
   const { control, handleSubmit } = form;
   const value = useWatch({ control, name: field });
 
-  const onSubmit = handleSubmit(async (values) => {
-    setSubmitError(null);
-    try {
-      await upsertCareCard.mutateAsync({ [field]: values[field] || null });
-      close();
-    } catch (error) {
-      setSubmitError(error instanceof Error ? error.message : 'Could not save the care card');
-    }
+  const onSubmit = handleSubmit((values) => {
+    upsertCareCard({ [field]: values[field] || null }, { onSuccess: close });
   });
 
   return (
@@ -175,12 +168,10 @@ const FieldEditStep = ({ petId, card, field }: FieldEditStepProps) => {
           )}
         />
 
-        <FieldError error={submitError ?? undefined} />
-
         <MainButton
-          text={upsertCareCard.isPending ? 'Saving…' : 'Save'}
-          isLoading={upsertCareCard.isPending}
-          isDisabled={upsertCareCard.isPending}
+          text={isSaving ? 'Saving…' : 'Save'}
+          isLoading={isSaving}
+          isDisabled={isSaving}
           onPress={() => void onSubmit()}
         />
       </View>
@@ -193,9 +184,8 @@ type MedicationEditStepProps = { petId: string; medication: Medication | null };
 const MedicationEditStep = ({ petId, medication }: MedicationEditStepProps) => {
   const styles = useStyles(makeStyles);
   const { close } = useTray();
-  const upsertMedication = useUpsertMedication(petId);
-  const deleteMedication = useDeleteMedication(petId);
-  const [submitError, setSubmitError] = useState<string | null>(null);
+  const { mutate: upsertMedication, isPending: isSavingMedication } = useUpsertMedication(petId);
+  const { mutate: deleteMedication, isPending: isDeletingMedication } = useDeleteMedication(petId);
 
   const form = useForm<MedicationInput>({
     resolver: zodResolver(medicationSchema),
@@ -213,31 +203,23 @@ const MedicationEditStep = ({ petId, medication }: MedicationEditStepProps) => {
   const scheduleText = useWatch({ control, name: 'scheduleText' });
   const instructions = useWatch({ control, name: 'instructions' });
 
-  const onSubmit = handleSubmit(async (values) => {
-    setSubmitError(null);
-    try {
-      await upsertMedication.mutateAsync({
+  const onSubmit = handleSubmit((values) => {
+    upsertMedication(
+      {
         name: values.name,
         dose: values.dose || null,
         scheduleText: values.scheduleText || null,
         instructions: values.instructions || null,
         id: medication?.id
-      });
-      close();
-    } catch (error) {
-      setSubmitError(error instanceof Error ? error.message : 'Could not save the medication');
-    }
+      },
+      { onSuccess: close }
+    );
   });
 
-  const onDelete = async () => {
+  const onDelete = () => {
     if (!medication) return;
-    setSubmitError(null);
-    try {
-      await deleteMedication.mutateAsync(medication.id);
-      close();
-    } catch (error) {
-      setSubmitError(error instanceof Error ? error.message : 'Could not remove the medication');
-    }
+
+    deleteMedication(medication.id, { onSuccess: close });
   };
 
   return (
@@ -298,21 +280,19 @@ const MedicationEditStep = ({ petId, medication }: MedicationEditStepProps) => {
           )}
         />
 
-        <FieldError error={submitError ?? undefined} />
-
         <MainButton
-          text={upsertMedication.isPending ? 'Saving…' : 'Save'}
-          isLoading={upsertMedication.isPending}
-          isDisabled={upsertMedication.isPending || deleteMedication.isPending}
+          text={isSavingMedication ? 'Saving…' : 'Save'}
+          isLoading={isSavingMedication}
+          isDisabled={isSavingMedication || isDeletingMedication}
           onPress={() => void onSubmit()}
         />
 
         {medication && (
           <MainButton
-            text={deleteMedication.isPending ? 'Removing…' : 'Remove this medication'}
+            text={isDeletingMedication ? 'Removing…' : 'Remove this medication'}
             variant="text"
-            isLoading={deleteMedication.isPending}
-            isDisabled={upsertMedication.isPending || deleteMedication.isPending}
+            isLoading={isDeletingMedication}
+            isDisabled={isSavingMedication || isDeletingMedication}
             onPress={() => void onDelete()}
           />
         )}
@@ -327,14 +307,17 @@ const CareCardSection = ({ petId }: Props) => {
   const styles = useStyles(makeStyles);
   const sheetRef = useRef<TrueSheet | null>(null);
   const { data, isLoading, isError, refetch } = useCareCard(petId);
-  const deleteMedication = useDeleteMedication(petId);
+  const {
+    mutate: deleteMedication,
+    isPending: isDeletingMedication,
+    variables: deletingId
+  } = useDeleteMedication(petId);
 
   const [entryStep, setEntryStep] = useState<'overview' | 'edit-field' | 'edit-medication'>(
     'overview'
   );
   const [selectedField, setSelectedField] = useState<FieldKey | null>(null);
   const [medicationTarget, setMedicationTarget] = useState<Medication | null>(null);
-  const [deleteError, setDeleteError] = useState<string | null>(null);
 
   const card = data?.card ?? emptyCareCard(petId);
   const medications = data?.medications ?? [];
@@ -355,13 +338,8 @@ const CareCardSection = ({ petId }: Props) => {
     void sheetRef.current?.present();
   };
 
-  const handleDeleteMedication = async (medication: Medication) => {
-    setDeleteError(null);
-    try {
-      await deleteMedication.mutateAsync(medication.id);
-    } catch (error) {
-      setDeleteError(error instanceof Error ? error.message : 'Could not remove the medication');
-    }
+  const handleDeleteMedication = (medication: Medication) => {
+    deleteMedication(medication.id);
   };
 
   if (isLoading) {
@@ -389,9 +367,7 @@ const CareCardSection = ({ petId }: Props) => {
       id: 'edit-field',
       title: selectedField ? FIELD_LABELS[selectedField] : 'Edit',
       render: () =>
-        selectedField ? (
-          <FieldEditStep petId={petId} card={card} field={selectedField} />
-        ) : null
+        selectedField ? <FieldEditStep petId={petId} card={card} field={selectedField} /> : null
     },
     'edit-medication': {
       id: 'edit-medication',
@@ -450,16 +426,12 @@ const CareCardSection = ({ petId }: Props) => {
         </View>
       )}
 
-      <FieldError error={deleteError ?? undefined} />
-
       <MedicationList
         medications={medications}
         onAdd={() => openMedication(null)}
         onEdit={(medication) => openMedication(medication)}
         onDelete={(medication) => void handleDeleteMedication(medication)}
-        deletingMedicationId={
-          deleteMedication.isPending ? (deleteMedication.variables ?? null) : null
-        }
+        deletingMedicationId={isDeletingMedication ? (deletingId ?? null) : null}
       />
 
       <Tray

@@ -31,7 +31,9 @@ const TileGrid = ({ tiles }: Props) => {
           key={tile.id}
           entering={
             shouldAnimate
-              ? FadeInDown.delay(index * 60).springify().reduceMotion(ReduceMotion.System)
+              ? FadeInDown.delay(index * 60)
+                  .springify()
+                  .reduceMotion(ReduceMotion.System)
               : undefined
           }
           style={tile.span === 2 ? styles.full : styles.half}>

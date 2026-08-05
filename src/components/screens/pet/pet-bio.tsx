@@ -3,14 +3,15 @@ import IconButton from '@/components/core/icon-button';
 import MainButton from '@/components/core/main-button';
 import TextInputValidated from '@/components/core/text-input-validated';
 import Tray, { type TrayStepDescriptor } from '@/components/core/tray';
+import { ErrorMessage, SuccessMessage } from '@/constants/enums';
 import type { AppTheme } from '@/constants/theme';
+import { useHousehold } from '@/hooks/queries/use-household';
+import { useUpdatePet } from '@/hooks/queries/use-update-pet';
 import { useStyles } from '@/hooks/use-styles';
-import { useUpdatePet } from '@/hooks/use-update-pet';
-import FieldError from '@/lib/form/components/field-error';
 import { bioSchema, type BioInput } from '@/lib/form/pet-schemas';
 import { zodResolver } from '@hookform/resolvers/zod';
 import type { TrueSheet } from '@lodev09/react-native-true-sheet';
-import { useRef, useState } from 'react';
+import { useRef } from 'react';
 import { Controller, FormProvider, useForm, useWatch } from 'react-hook-form';
 import { StyleSheet, View } from 'react-native';
 
@@ -22,8 +23,10 @@ type EditStepProps = {
 
 const EditStep = ({ petId, bio, onDone }: EditStepProps) => {
   const styles = useStyles(makeStyles);
-  const updatePet = useUpdatePet(petId);
-  const [submitError, setSubmitError] = useState<string | null>(null);
+  const { mutate: updatePet, isPending: isSaving } = useUpdatePet(petId, {
+    success: SuccessMessage.BioUpdated,
+    failure: ErrorMessage.BioUpdateFailed
+  });
 
   const form = useForm<BioInput>({
     resolver: zodResolver(bioSchema),
@@ -33,14 +36,8 @@ const EditStep = ({ petId, bio, onDone }: EditStepProps) => {
 
   const bioValue = useWatch({ control, name: 'bio' });
 
-  const onSubmit = handleSubmit(async (values) => {
-    setSubmitError(null);
-    try {
-      await updatePet.mutateAsync({ bio: values.bio || null });
-      onDone();
-    } catch (error) {
-      setSubmitError(error instanceof Error ? error.message : 'Could not save the bio');
-    }
+  const onSubmit = handleSubmit((values) => {
+    updatePet({ bio: values.bio || null }, { onSuccess: onDone });
   });
 
   return (
@@ -61,12 +58,10 @@ const EditStep = ({ petId, bio, onDone }: EditStepProps) => {
           )}
         />
 
-        <FieldError error={submitError ?? undefined} />
-
         <MainButton
-          text={updatePet.isPending ? 'Saving…' : 'Save'}
-          isLoading={updatePet.isPending}
-          isDisabled={updatePet.isPending}
+          text={isSaving ? 'Saving…' : 'Save'}
+          isLoading={isSaving}
+          isDisabled={isSaving}
           onPress={() => void onSubmit()}
         />
       </View>
@@ -79,6 +74,7 @@ type Props = { petId: string; name: string; bio: string | null };
 const PetBio = ({ petId, name, bio }: Props) => {
   const styles = useStyles(makeStyles);
   const sheetRef = useRef<TrueSheet | null>(null);
+  const { data: household } = useHousehold();
 
   const steps: TrayStepDescriptor[] = [
     {
@@ -96,13 +92,15 @@ const PetBio = ({ petId, name, bio }: Props) => {
         <AppText variant="header" size={20}>
           About
         </AppText>
-        <IconButton
-          name="pencil"
-          accessibilityLabel="Edit bio"
-          variant="ghost"
-          size={18}
-          onPress={() => void sheetRef.current?.present()}
-        />
+        {household?.isOwner && (
+          <IconButton
+            name="pencil"
+            accessibilityLabel="Edit bio"
+            variant="ghost"
+            size={18}
+            onPress={() => void sheetRef.current?.present()}
+          />
+        )}
       </View>
 
       {bio ? (

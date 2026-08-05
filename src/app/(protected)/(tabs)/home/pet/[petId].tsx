@@ -7,7 +7,7 @@ import PetHeader from '@/components/screens/pet/pet-header';
 import ScheduleSection from '@/components/screens/pet/schedule-section';
 import SectionCard from '@/components/screens/pet/section-card';
 import { BottomTabInset, type AppTheme } from '@/constants/theme';
-import { usePetDetail } from '@/hooks/use-pet-detail';
+import { usePetDetail } from '@/hooks/queries/use-pet-detail';
 import { useStyles } from '@/hooks/use-styles';
 import { Stack, useLocalSearchParams } from 'expo-router';
 import { ActivityIndicator, ScrollView, StyleSheet } from 'react-native';
@@ -46,6 +46,7 @@ const PetDetail = () => {
           petId={pet.id}
           name={pet.name}
           breed={pet.breed}
+          sex={pet.sex}
           birthdate={pet.birthdate}
           birthdateIsApproximate={pet.birthdateIsApproximate}
           photoUrl={pet.photoUrl}

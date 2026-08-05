@@ -2,7 +2,7 @@ import AppText from '@/components/core/app-text';
 import Icon from '@/components/core/icon';
 import PressableOpacity from '@/components/core/pressable-opacity';
 import type { AppTheme } from '@/constants/theme';
-import { formatAuthorName } from '@/hooks/use-household-members';
+import { formatAuthorName } from '@/utils/members';
 import { useStyles } from '@/hooks/use-styles';
 import { formatTimeOfDay } from '@/lib/dates';
 import type { FeedLog } from '@/types/core';

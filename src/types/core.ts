@@ -16,11 +16,6 @@ export type FontWeight = 'regular' | 'bold';
 
 export type ImageFolderType = 'example';
 
-export type DropdownItem<T extends string | number | null> = {
-  label: string;
-  value: T;
-};
-
 export type NavigationProps = {
   label: string;
   value: string;
@@ -51,6 +46,13 @@ export type Household = {
   role: HouseholdRole;
   isOwner: boolean;
 };
+
+export type Option<T = string> = {
+  value: T;
+  label: string;
+};
+
+export type PetSex = 'male' | 'female';
 
 export type Pet = {
   id: string;

@@ -1,6 +1,7 @@
 import AppText from '@/components/core/app-text';
 import Icon from '@/components/core/icon';
 import type { AppTheme } from '@/constants/theme';
+import type { Option } from '@/types/core';
 import { useStyles } from '@/hooks/use-styles';
 import FieldError from '@/lib/form/components/field-error';
 import { useFormContext } from 'react-hook-form';
@@ -8,17 +9,16 @@ import { StyleProp, StyleSheet, View, ViewStyle } from 'react-native';
 import { Dropdown } from 'react-native-element-dropdown';
 import IndicatedText from './indicated-text';
 
-type Props = {
+type Props<T extends string> = {
   marginTop?: number;
   marginBottom?: number;
-  items: string[];
-  value: string;
-  onChange: (value: string) => void;
+  options: Option<T>[];
+  value: T | '';
+  onChange: (value: T) => void;
   isDisabled?: boolean;
   label?: string;
   placeholder?: string;
   isLabelIndicated?: boolean;
-  getText?: (item: string) => string;
   description?: string;
   name?: string;
   dropdownPosition?: 'auto' | 'top' | 'bottom';
@@ -26,23 +26,22 @@ type Props = {
   showFieldError?: boolean;
 };
 
-const DropdownPickerValidated = ({
+const DropdownPickerValidated = <T extends string>({
   placeholder,
   isDisabled,
   marginBottom,
   marginTop,
-  items,
+  options,
   onChange,
   value,
   isLabelIndicated,
   label,
-  getText,
   description,
   name,
   dropdownPosition,
   wrapperStyle,
   showFieldError = true
-}: Props) => {
+}: Props<T>) => {
   const form = useFormContext();
   const errors = form?.formState?.errors;
   const styles = useStyles(makeStyles);
@@ -74,10 +73,7 @@ const DropdownPickerValidated = ({
         selectedTextStyle={styles.selectedTextStyle}
         containerStyle={styles.dropdownContainer}
         renderRightIcon={() => <Icon name="caretDown" size={16} />}
-        data={items.map((item) => ({
-          label: getText ? getText(item) : item,
-          value: item
-        }))}
+        data={options}
         renderItem={(item, isSelected) => (
           <View style={[styles.item, isSelected && styles.itemSelected]}>
             <AppText color="text" size={16}>
@@ -89,9 +85,7 @@ const DropdownPickerValidated = ({
         labelField="label"
         valueField="value"
         value={value}
-        onChange={(item) => {
-          onChange(item.value);
-        }}
+        onChange={(item) => onChange(item.value)}
       />
       {name && showFieldError && (
         <FieldError marginTop={8} error={errors?.[name]?.message as string} />
