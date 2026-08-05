@@ -304,15 +304,14 @@ and showing it is worse than showing nothing.
 
 That does not mean discarding the error. A service that has already *translated* a failure into
 copy — "There is already a dinner feed. Edit that one instead." — throws
-**`UserFacingError`** (`@/lib/errors`), and the call site unwraps it:
+**`UserFacingError`** (`@/lib/errors`), and `userFacingMessage(error, fallback)` unwraps it: the
+service's own words when it wrote them for a person, the fallback for anything else. Ignoring the
+error entirely is the mistake in the other direction: it throws away the one message that told the
+user what to do about it.
 
-```tsx
-onError: (error) => showErrorToast(userFacingMessage(error, ErrorMessage.FeedTimeSaveFailed))
-```
-
-`userFacingMessage` returns the service's own words when it wrote them for a person, and the call
-site's fallback for anything else. Ignoring the error entirely is the mistake in the other
-direction: it throws away the one message that told the user what to do about it.
+**Every `onError` also does `console.error(error)`.** The toast is sanitised copy by design, so the
+driver's real message — the SQLSTATE, the constraint name, the network failure — survives nowhere
+else.
 
 **The message itself comes from `SuccessMessage` / `ErrorMessage` in `@/constants/enums`**, never a
 string literal at the call site. One file holds every sentence the app can say, so wording stays
@@ -322,23 +321,46 @@ near-identical trays on the pet screen must not all confirm with the same senten
 toast is the only thing telling a member which sheet they just saved. A message that genuinely
 needs a runtime value (`Logged a feed for ${pet.name}`) is the exception, not the excuse.
 
-Put the toast in the **per-call** `onSuccess`/`onError` passed to `mutate`, not in the hook's own
-`onSuccess`. The hook owns cache invalidation and is often shared by more than one screen, so the
-message belongs to the call site:
+**The toast belongs to the hook, not the call site.** Put a plain `onSuccess`/`onError` in
+`useMutation`. The call site then passes only the mutation's own arguments, and keeps an
+`onSuccess` only for something the hook cannot do — dismissing a sheet, calling `onDone()`,
+navigating:
 
 ```tsx
-updatePet(patch, {
-  onSuccess: () => {
-    showSuccessToast('Pet details updated');
-    onDone();
-  },
-  onError: () => showErrorToast('Could not update pet details')
+// In the hook
+return useMutation({
+  mutationFn: (patch: PetPatch) => PetService.update(petId, patch),
+  onSettled: () => invalidate(queryClient, petId),
+  onSuccess: () => showSuccessToast(SuccessMessage.PetDetailsUpdated),
+  onError: (error) => {
+    console.error(error);
+    showErrorToast(ErrorMessage.PetDetailsUpdateFailed);
+  }
 });
+
+// At the call site
+updatePet(patch, { onSuccess: onDone });
 ```
 
-Exceptions worth knowing: a success toast is redundant where navigation already confirms the result
-(sign-up moves to the verify screen), and `PushTokenService.register` deliberately stays silent —
-see the comment in `use-push-notifications.ts`.
+This is not only about repetition. **Callbacks passed to `mutate()` are dropped when the component
+unmounts before the mutation settles** — see `hasListeners()` in
+`@tanstack/query-core/.../mutationObserver.js`. A long upload on a screen the user navigates away
+from would otherwise fail silently. The hook's own callbacks always run.
+
+Both callbacks receive the variables as their second argument, which is how the add-vs-update split
+is made: `onSuccess: (_data, input) => showSuccessToast(input.id ? FeedTimeUpdated : FeedTimeAdded)`.
+
+**A hook with two call sites that need different wording takes the messages as an argument.**
+`useUpdatePet(petId, { success, failure })` is the only one — "Pet details updated" is not
+"Bio updated".
+
+Exceptions worth knowing:
+
+- **`useLogFeed` keeps its toasts at the call site.** A `double_feed` result is a *success* that
+  must not confirm anything, because nothing was written.
+- A success toast is redundant where navigation already confirms the result (sign-up moves to the
+  verify screen), and `PushTokenService.register` deliberately stays silent — see the comment in
+  `use-push-notifications.ts`.
 
 ### Writing a feed log
 

@@ -1,3 +1,6 @@
+import { SuccessMessage } from '@/constants/enums';
+import { feedLogErrorMessage } from '@/lib/feed-log-errors';
+import { showErrorToast, showSuccessToast } from '@/lib/toast';
 import FeedLogService from '@/services/feed-log.service';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useCallback } from 'react';
@@ -21,6 +24,10 @@ function useInvalidateFeedData(petId: string | undefined) {
  * and an optimistic row that silently rolls back is exactly the "the app said
  * the pet was fed when it wasn't" failure the product brief calls
  * trust-collapsing.
+ *
+ * Toasts stay at the call site here, unlike every other mutation: a
+ * `double_feed` result is a success that must NOT confirm anything, because
+ * nothing was written.
  */
 export function useLogFeed(petId: string | undefined) {
   const invalidate = useInvalidateFeedData(petId);
@@ -42,6 +49,11 @@ export function useUpdateFeedLog(petId: string | undefined) {
     onSettled: (_data, _error, variables) => {
       invalidate();
       void queryClient.invalidateQueries({ queryKey: ['feed-log', variables.logId] });
+    },
+    onSuccess: () => showSuccessToast(SuccessMessage.FeedUpdated),
+    onError: (error) => {
+      console.error(error);
+      showErrorToast(feedLogErrorMessage(error));
     }
   });
 }
@@ -61,6 +73,11 @@ export function useDeleteFeedLog(petId: string | undefined) {
     onSettled: (_data, _error, variables) => {
       invalidate();
       void queryClient.invalidateQueries({ queryKey: ['feed-log', variables.logId] });
+    },
+    onSuccess: () => showSuccessToast(SuccessMessage.FeedDeleted),
+    onError: (error) => {
+      console.error(error);
+      showErrorToast(feedLogErrorMessage(error));
     }
   });
 }

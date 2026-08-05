@@ -4,7 +4,6 @@ import DateTimePickerValidated from '@/components/core/date-time-picker-validate
 import MainButton from '@/components/core/main-button';
 import PressableOpacity from '@/components/core/pressable-opacity';
 import TextInputValidated from '@/components/core/text-input-validated';
-import { SuccessMessage } from '@/constants/enums';
 import { FEED_LOG_DAY_OPTIONS } from '@/constants/options';
 import {
   FEED_LOG_NOTES_MAX_LENGTH,
@@ -28,8 +27,6 @@ import {
   todayInTimezone,
   yesterdayInTimezone
 } from '@/lib/dates';
-import { feedLogErrorMessage } from '@/lib/feed-log-errors';
-import { showErrorToast, showSuccessToast } from '@/lib/toast';
 import { useAuthStore } from '@/stores/auth-store';
 import type { FeedLog } from '@/types/core';
 import { formatAuthorName } from '@/utils/members';
@@ -94,33 +91,14 @@ const FeedLogDetailSheet = ({ sheetRef, logId, petId }: Props) => {
 
     updateFeedLog(
       { logId: log.id, ...patch },
-      {
-        onSuccess: () => {
-          showSuccessToast(SuccessMessage.FeedUpdated);
-          void sheetRef.current?.dismiss();
-        },
-        onError: (error) => {
-          showErrorToast(feedLogErrorMessage(error));
-        }
-      }
+      { onSuccess: () => void sheetRef.current?.dismiss() }
     );
   };
 
   const onDelete = () => {
     if (!log) return;
 
-    deleteFeedLog(
-      { logId: log.id },
-      {
-        onSuccess: () => {
-          showSuccessToast(SuccessMessage.FeedDeleted);
-          void sheetRef.current?.dismiss();
-        },
-        onError: (error) => {
-          showErrorToast(feedLogErrorMessage(error));
-        }
-      }
-    );
+    deleteFeedLog({ logId: log.id }, { onSuccess: () => void sheetRef.current?.dismiss() });
   };
 
   return (
@@ -148,12 +126,7 @@ const FeedLogDetailSheet = ({ sheetRef, logId, petId }: Props) => {
                   onSave={onSave}
                 />
               ) : (
-                <NotesOnlyForm
-                  key={log.id}
-                  log={log}
-                  isSaving={isSaving}
-                  onSave={onSave}
-                />
+                <NotesOnlyForm key={log.id} log={log} isSaving={isSaving} onSave={onSave} />
               )}
 
               <MainButton

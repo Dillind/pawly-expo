@@ -44,15 +44,11 @@ const PetAvatar = ({ pet, index, shouldAnimate }: AvatarProps) => {
   // left to right rather than appearing all at once.
   const animatedStyle = useAnimatedStyle(() => ({
     opacity: progress.value,
-    transform: [
-      { translateX: (1 - progress.value) * -14 },
-      { scale: 0.8 + 0.2 * progress.value }
-    ]
+    transform: [{ translateX: (1 - progress.value) * -14 }, { scale: 0.8 + 0.2 * progress.value }]
   }));
 
   return (
-    <Animated.View
-      style={[styles.avatar, index > 0 && { marginLeft: OVERLAP }, animatedStyle]}>
+    <Animated.View style={[styles.avatar, index > 0 && { marginLeft: OVERLAP }, animatedStyle]}>
       {pet.photoUrl ? (
         <Image source={pet.photoUrl} style={styles.photo} contentFit="cover" transition={200} />
       ) : (

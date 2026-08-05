@@ -145,10 +145,7 @@ namespace CareCardService {
   }
 
   export async function deleteMedication(medicationId: string): Promise<void> {
-    const { error } = await supabase
-      .from('care_card_medications')
-      .delete()
-      .eq('id', medicationId);
+    const { error } = await supabase.from('care_card_medications').delete().eq('id', medicationId);
     if (error) throw error;
   }
 }

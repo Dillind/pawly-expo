@@ -10,7 +10,6 @@ import type { AppTheme } from '@/constants/theme';
 import { useUpdatePet } from '@/hooks/queries/use-update-pet';
 import type { PetSex } from '@/types/core';
 import { useStyles } from '@/hooks/use-styles';
-import { showErrorToast, showSuccessToast } from '@/lib/toast';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Controller, FormProvider, useForm } from 'react-hook-form';
 import { StyleSheet, View } from 'react-native';
@@ -31,7 +30,10 @@ type Props = {
 
 const EditPetDetails = ({ petId, details, onDone }: Props) => {
   const styles = useStyles(makeStyles);
-  const { mutate: updatePet, isPending: isSaving } = useUpdatePet(petId);
+  const { mutate: updatePet, isPending: isSaving } = useUpdatePet(petId, {
+    success: SuccessMessage.PetDetailsUpdated,
+    failure: ErrorMessage.PetDetailsUpdateFailed
+  });
 
   const form = useForm<PetDetailsEditValues>({
     resolver: zodResolver(petDetailsEditSchema),
@@ -55,15 +57,7 @@ const EditPetDetails = ({ petId, details, onDone }: Props) => {
         birthdate: values.birthdate,
         birthdateIsApproximate: values.birthdateIsApproximate
       },
-      {
-        onSuccess: () => {
-          showSuccessToast(SuccessMessage.PetDetailsUpdated);
-          onDone();
-        },
-        onError: () => {
-          showErrorToast(ErrorMessage.PetDetailsUpdateFailed);
-        }
-      }
+      { onSuccess: onDone }
     );
   });
 

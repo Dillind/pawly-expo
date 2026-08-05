@@ -52,9 +52,7 @@ namespace FeedingScheduleService {
     // The partial unique index on (pet_id, label) surfaces here as a raw
     // Postgres error otherwise -- translate it into copy the form can show.
     if (error?.code === DUPLICATE_LABEL) {
-      throw new UserFacingError(
-        `There is already a ${input.label} feed. Edit that one instead.`
-      );
+      throw new UserFacingError(`There is already a ${input.label} feed. Edit that one instead.`);
     }
 
     if (error) throw error;

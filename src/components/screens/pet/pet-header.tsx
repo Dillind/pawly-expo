@@ -3,7 +3,6 @@ import AppText from '@/components/core/app-text';
 import IconButton from '@/components/core/icon-button';
 import Tray, { type TrayStepDescriptor } from '@/components/core/tray';
 import EditPetDetails from '@/components/screens/pet/edit-pet-details';
-import { ErrorMessage, SuccessMessage } from '@/constants/enums';
 import { SEX_OPTIONS } from '@/constants/options';
 import type { AppTheme } from '@/constants/theme';
 import { Radius } from '@/constants/theme';
@@ -11,8 +10,6 @@ import { useHousehold } from '@/hooks/queries/use-household';
 import { useChangePetPhoto } from '@/hooks/queries/use-pet-photo-mutations';
 import { useStyles } from '@/hooks/use-styles';
 import { formatAge } from '@/lib/dates';
-import { userFacingMessage } from '@/lib/errors';
-import { showErrorToast, showSuccessToast } from '@/lib/toast';
 import { optionLabel } from '@/utils/options';
 import type { PetSex } from '@/types/core';
 import type { TrueSheet } from '@lodev09/react-native-true-sheet';
@@ -109,16 +106,7 @@ const PetHeader = ({
       <PhotoSourceSheet
         sheetRef={photoSheetRef}
         title="Change photo"
-        onPicked={(localUri) =>
-          changePhoto(
-            { localUri, previousUrl: photoUrl },
-            {
-              onSuccess: () => showSuccessToast(SuccessMessage.PetPhotoUpdated),
-              onError: (error) =>
-                showErrorToast(userFacingMessage(error, ErrorMessage.PetPhotoUpdateFailed))
-            }
-          )
-        }
+        onPicked={([localUri]) => changePhoto({ localUri, previousUrl: photoUrl })}
       />
     </View>
   );

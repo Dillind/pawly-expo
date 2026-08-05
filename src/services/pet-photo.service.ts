@@ -83,10 +83,7 @@ namespace PetPhotoService {
     }
   }
 
-  export async function uploadCover(params: {
-    userId: string;
-    localUri: string;
-  }): Promise<string> {
+  export async function uploadCover(params: { userId: string; localUri: string }): Promise<string> {
     const response = await fetch(params.localUri);
     const arrayBuffer = await response.arrayBuffer();
     const path = `${params.userId}/${Crypto.randomUUID()}.jpg`;

@@ -7,7 +7,7 @@ import type { IconName } from '@/constants/icon-map';
 import { Radius, type AppTheme } from '@/constants/theme';
 import { useStyles } from '@/hooks/use-styles';
 import { showErrorToast } from '@/lib/toast';
-import { pickPhotoFromLibrary, takePhotoWithCamera } from '@/lib/photo';
+import { pickPhotoFromLibrary, pickPhotosFromLibrary, takePhotoWithCamera } from '@/lib/photo';
 import type { TrueSheet } from '@lodev09/react-native-true-sheet';
 import type { RefObject } from 'react';
 import { StyleSheet, View } from 'react-native';
@@ -30,7 +30,9 @@ const SourceRow = ({ icon, label, onPress }: SourceRowProps) => {
 type Props = {
   sheetRef: RefObject<TrueSheet | null>;
   title?: string;
-  onPicked: (uri: string) => void;
+  /** Set to open the library in multi-select. Omit for the single picker, which crops to a square. */
+  selectionLimit?: number;
+  onPicked: (uris: string[]) => void;
 };
 
 /**
@@ -41,20 +43,32 @@ type Props = {
  * a native sheet is still up stacks two presentations, which iOS handles badly
  * -- the same reason the popover closes before a sheet is presented.
  */
-const PhotoSourceSheet = ({ sheetRef, title = 'Add a photo', onPicked }: Props) => {
+const PhotoSourceSheet = ({ sheetRef, title = 'Add a photo', selectionLimit, onPicked }: Props) => {
   const styles = useStyles(makeStyles);
 
-  const choose = async (source: () => Promise<string | null>) => {
+  const choose = async (source: () => Promise<string[]>) => {
     await sheetRef.current?.dismiss();
 
     try {
-      const uri = await source();
-      if (uri) onPicked(uri);
+      const uris = await source();
+      if (uris.length > 0) onPicked(uris);
     } catch (error) {
       showErrorToast(
         error instanceof Error ? error.message : 'Could not open the camera or photo library'
       );
     }
+  };
+
+  const takePhoto = async () => {
+    const uri = await takePhotoWithCamera();
+    return uri ? [uri] : [];
+  };
+
+  const chooseFromLibrary = async () => {
+    if (selectionLimit !== undefined) return pickPhotosFromLibrary(selectionLimit);
+
+    const uri = await pickPhotoFromLibrary();
+    return uri ? [uri] : [];
   };
 
   return (
@@ -76,15 +90,13 @@ const PhotoSourceSheet = ({ sheetRef, title = 'Add a photo', onPicked }: Props) 
       <View style={styles.divider} />
 
       <View style={styles.rows}>
-        <SourceRow
-          icon="camera"
-          label="Take Photo"
-          onPress={() => void choose(takePhotoWithCamera)}
-        />
+        <SourceRow icon="camera" label="Take Photo" onPress={() => void choose(takePhoto)} />
         <SourceRow
           icon="image"
-          label="Choose Image"
-          onPress={() => void choose(pickPhotoFromLibrary)}
+          label={
+            selectionLimit !== undefined && selectionLimit > 1 ? 'Choose Images' : 'Choose Image'
+          }
+          onPress={() => void choose(chooseFromLibrary)}
         />
       </View>
     </BaseSheet>

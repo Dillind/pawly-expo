@@ -1,5 +1,5 @@
 import { UserFacingError } from '@/lib/errors';
-import { pickPhotoFromLibrary, takePhotoWithCamera } from '@/lib/photo';
+import { pickPhotoFromLibrary, pickPhotosFromLibrary, takePhotoWithCamera } from '@/lib/photo';
 import * as ImagePicker from 'expo-image-picker';
 
 jest.mock('expo-image-picker', () => ({
@@ -37,6 +37,47 @@ describe('pickPhotoFromLibrary', () => {
     picker.launchImageLibraryAsync.mockResolvedValue({ canceled: true, assets: null });
 
     await expect(pickPhotoFromLibrary()).resolves.toBeNull();
+  });
+});
+
+describe('pickPhotosFromLibrary', () => {
+  it('opens the picker in multi-select, capped at the limit it was given', async () => {
+    picker.launchImageLibraryAsync.mockResolvedValue({ canceled: true, assets: null });
+
+    await pickPhotosFromLibrary(4);
+
+    expect(picker.launchImageLibraryAsync).toHaveBeenCalledWith(
+      expect.objectContaining({ allowsMultipleSelection: true, selectionLimit: 4 })
+    );
+  });
+
+  it('never asks to crop, which the platform cannot combine with multi-select', async () => {
+    picker.launchImageLibraryAsync.mockResolvedValue({ canceled: true, assets: null });
+
+    await pickPhotosFromLibrary(10);
+
+    expect(picker.launchImageLibraryAsync).toHaveBeenCalledWith(
+      expect.not.objectContaining({ allowsEditing: true })
+    );
+  });
+
+  it('returns every chosen uri, in the order they were picked', async () => {
+    picker.launchImageLibraryAsync.mockResolvedValue({
+      canceled: false,
+      assets: [{ uri: 'file:///one.jpg' }, { uri: 'file:///two.jpg' }, { uri: 'file:///three.jpg' }]
+    } as never);
+
+    await expect(pickPhotosFromLibrary(10)).resolves.toEqual([
+      'file:///one.jpg',
+      'file:///two.jpg',
+      'file:///three.jpg'
+    ]);
+  });
+
+  it('returns an empty array when the user backs out', async () => {
+    picker.launchImageLibraryAsync.mockResolvedValue({ canceled: true, assets: null });
+
+    await expect(pickPhotosFromLibrary(10)).resolves.toEqual([]);
   });
 });
 

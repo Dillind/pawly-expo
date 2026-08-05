@@ -74,8 +74,7 @@ function zonedParts(date: Date, zone: string): ZonedParts {
 
 const pad = (value: number): string => String(value).padStart(2, '0');
 
-const formatDay = ({ year, month, day }: ZonedParts): string =>
-  `${year}-${pad(month)}-${pad(day)}`;
+const formatDay = ({ year, month, day }: ZonedParts): string => `${year}-${pad(month)}-${pad(day)}`;
 
 /** Today's calendar day in the household's timezone, never the device's. */
 export function todayInTimezone(zone: string): string {
@@ -152,8 +151,7 @@ export const formatAge = (birthdate: string | null, isApproximate: boolean): str
 
   if (days < 0) return null;
 
-  let months =
-    (now.getFullYear() - born.getFullYear()) * 12 + (now.getMonth() - born.getMonth());
+  let months = (now.getFullYear() - born.getFullYear()) * 12 + (now.getMonth() - born.getMonth());
 
   if (now.getDate() < born.getDate()) months -= 1;
   if (months < 0) return null;

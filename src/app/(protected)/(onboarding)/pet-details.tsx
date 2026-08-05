@@ -166,10 +166,7 @@ const PetDetails = () => {
         </FormProvider>
       </ScrollView>
 
-      <PhotoSourceSheet
-        sheetRef={photoSheetRef}
-        onPicked={(uri) => setValue('photoUri', uri)}
-      />
+      <PhotoSourceSheet sheetRef={photoSheetRef} onPicked={([uri]) => setValue('photoUri', uri)} />
     </View>
   );
 };

@@ -41,6 +41,7 @@ export enum SuccessMessage {
   PetPhotoUpdated = 'Photo updated',
   PhotoAdded = 'Photo added',
   PhotoDeleted = 'Photo deleted',
+  PhotosAdded = 'Photos added',
   SignedIn = 'Signed in',
   SignedOut = 'Signed out'
 }
@@ -65,6 +66,7 @@ export enum ErrorMessage {
   PetPhotoUpdateFailed = 'Could not change the photo',
   PhotoAddFailed = 'Could not add the photo',
   PhotoDeleteFailed = 'Could not delete the photo',
+  PhotosAddFailed = 'Could not add all of the photos',
   SignInFailed = 'Could not sign in',
   SignOutFailed = 'Failed to sign out',
   SignUpFailed = 'Could not sign up',

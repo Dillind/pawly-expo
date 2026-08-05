@@ -5,15 +5,12 @@ import ErrorState from '@/components/core/error-state';
 import IconButton from '@/components/core/icon-button';
 import MainButton from '@/components/core/main-button';
 import Tray, { type TrayStepDescriptor } from '@/components/core/tray';
-import { ErrorMessage, SuccessMessage } from '@/constants/enums';
 import { FEEDING_SCHEDULE_LABEL_OPTIONS } from '@/constants/options';
 import type { AppTheme } from '@/constants/theme';
 import { useFeedingSchedules } from '@/hooks/queries/use-feeding-schedules';
 import { useDeleteSlot, useUpsertSlot } from '@/hooks/queries/use-schedule-mutations';
 import { useStyles } from '@/hooks/use-styles';
-import { userFacingMessage } from '@/lib/errors';
 import { slotSchema, type SlotInput } from '@/lib/form/pet-schemas';
-import { showErrorToast, showSuccessToast } from '@/lib/toast';
 import type { FeedingSlot } from '@/services/feeding-schedule.service';
 import { zodResolver } from '@hookform/resolvers/zod';
 import type { TrueSheet } from '@lodev09/react-native-true-sheet';
@@ -47,32 +44,13 @@ const EditStep = ({ petId, slot, onDone }: EditStepProps) => {
   const scheduledTime = useWatch({ control, name: 'scheduledTime' });
 
   const onSubmit = handleSubmit((values) => {
-    upsertSlot(
-      { ...values, id: slot?.id },
-      {
-        onSuccess: () => {
-          showSuccessToast(slot ? SuccessMessage.FeedTimeUpdated : SuccessMessage.FeedTimeAdded);
-          onDone();
-        },
-        onError: (error) => {
-          showErrorToast(userFacingMessage(error, ErrorMessage.FeedTimeSaveFailed));
-        }
-      }
-    );
+    upsertSlot({ ...values, id: slot?.id }, { onSuccess: onDone });
   });
 
   const onDelete = () => {
     if (!slot) return;
 
-    deleteSlot(slot.id, {
-      onSuccess: () => {
-        showSuccessToast(SuccessMessage.FeedTimeRemoved);
-        onDone();
-      },
-      onError: () => {
-        showErrorToast(ErrorMessage.FeedTimeRemoveFailed);
-      }
-    });
+    deleteSlot(slot.id, { onSuccess: onDone });
   };
 
   return (

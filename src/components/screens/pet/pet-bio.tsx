@@ -9,7 +9,6 @@ import { useHousehold } from '@/hooks/queries/use-household';
 import { useUpdatePet } from '@/hooks/queries/use-update-pet';
 import { useStyles } from '@/hooks/use-styles';
 import { bioSchema, type BioInput } from '@/lib/form/pet-schemas';
-import { showErrorToast, showSuccessToast } from '@/lib/toast';
 import { zodResolver } from '@hookform/resolvers/zod';
 import type { TrueSheet } from '@lodev09/react-native-true-sheet';
 import { useRef } from 'react';
@@ -24,7 +23,10 @@ type EditStepProps = {
 
 const EditStep = ({ petId, bio, onDone }: EditStepProps) => {
   const styles = useStyles(makeStyles);
-  const { mutate: updatePet, isPending: isSaving } = useUpdatePet(petId);
+  const { mutate: updatePet, isPending: isSaving } = useUpdatePet(petId, {
+    success: SuccessMessage.BioUpdated,
+    failure: ErrorMessage.BioUpdateFailed
+  });
 
   const form = useForm<BioInput>({
     resolver: zodResolver(bioSchema),
@@ -35,18 +37,7 @@ const EditStep = ({ petId, bio, onDone }: EditStepProps) => {
   const bioValue = useWatch({ control, name: 'bio' });
 
   const onSubmit = handleSubmit((values) => {
-    updatePet(
-      { bio: values.bio || null },
-      {
-        onSuccess: () => {
-          showSuccessToast(SuccessMessage.BioUpdated);
-          onDone();
-        },
-        onError: () => {
-          showErrorToast(ErrorMessage.BioUpdateFailed);
-        }
-      }
-    );
+    updatePet({ bio: values.bio || null }, { onSuccess: onDone });
   });
 
   return (

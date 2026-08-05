@@ -1,4 +1,6 @@
-import { UserFacingError } from '@/lib/errors';
+import { ErrorMessage, SuccessMessage } from '@/constants/enums';
+import { UserFacingError, userFacingMessage } from '@/lib/errors';
+import { showErrorToast, showSuccessToast } from '@/lib/toast';
 import PetPhotoService from '@/services/pet-photo.service';
 import PetService from '@/services/pet.service';
 import { useAuthStore } from '@/stores/auth-store';
@@ -12,18 +14,35 @@ const invalidateCover = (queryClient: ReturnType<typeof useQueryClient>, petId: 
   void queryClient.invalidateQueries({ queryKey: ['pets'] });
 };
 
-export function useAddPetPhoto(petId: string) {
+/** Sequential: `add_pet_photo` derives `sort_order` from existing rows, so concurrent calls race. */
+export function useAddPetPhotos(petId: string) {
   const queryClient = useQueryClient();
   const { userId } = useAuthStore();
 
   return useMutation({
-    mutationFn: (localUri: string) => {
+    mutationFn: async (localUris: string[]) => {
       if (!userId) throw new UserFacingError('You need to sign in again before adding a photo');
 
-      return PetPhotoService.add({ petId, userId, localUri });
+      for (const localUri of localUris) {
+        await PetPhotoService.add({ petId, userId, localUri });
+      }
     },
-    onSuccess: () => {
+    onSettled: () => {
       void queryClient.invalidateQueries({ queryKey: ['pet-photos', petId] });
+    },
+    onSuccess: (_data, localUris) => {
+      showSuccessToast(
+        localUris.length === 1 ? SuccessMessage.PhotoAdded : SuccessMessage.PhotosAdded
+      );
+    },
+    onError: (error, localUris) => {
+      console.error(error);
+      showErrorToast(
+        userFacingMessage(
+          error,
+          localUris.length === 1 ? ErrorMessage.PhotoAddFailed : ErrorMessage.PhotosAddFailed
+        )
+      );
     }
   });
 }
@@ -36,6 +55,11 @@ export function useDeletePetPhoto(petId: string) {
     onSettled: () => {
       void queryClient.invalidateQueries({ queryKey: ['pet-photos', petId] });
       invalidateCover(queryClient, petId);
+    },
+    onSuccess: () => showSuccessToast(SuccessMessage.PhotoDeleted),
+    onError: (error) => {
+      console.error(error);
+      showErrorToast(userFacingMessage(error, ErrorMessage.PhotoDeleteFailed));
     }
   });
 }
@@ -45,7 +69,12 @@ export function useSetCoverPhoto(petId: string) {
 
   return useMutation({
     mutationFn: (publicUrl: string) => PetService.setPhotoUrl(petId, publicUrl),
-    onSuccess: () => invalidateCover(queryClient, petId)
+    onSettled: () => invalidateCover(queryClient, petId),
+    onSuccess: () => showSuccessToast(SuccessMessage.CoverPhotoUpdated),
+    onError: (error) => {
+      console.error(error);
+      showErrorToast(ErrorMessage.CoverPhotoUpdateFailed);
+    }
   });
 }
 
@@ -66,6 +95,11 @@ export function useChangePetPhoto(petId: string) {
       await PetService.setPhotoUrl(petId, publicUrl);
       await PetPhotoService.removeByPublicUrl(previousUrl);
     },
-    onSuccess: () => invalidateCover(queryClient, petId)
+    onSettled: () => invalidateCover(queryClient, petId),
+    onSuccess: () => showSuccessToast(SuccessMessage.PetPhotoUpdated),
+    onError: (error) => {
+      console.error(error);
+      showErrorToast(userFacingMessage(error, ErrorMessage.PetPhotoUpdateFailed));
+    }
   });
 }

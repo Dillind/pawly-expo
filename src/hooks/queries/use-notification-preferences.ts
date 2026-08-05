@@ -1,4 +1,6 @@
+import { ErrorMessage } from '@/constants/enums';
 import { useHousehold } from '@/hooks/queries/use-household';
+import { showErrorToast } from '@/lib/toast';
 import HouseholdService from '@/services/household.service';
 import { useAuthStore } from '@/stores/auth-store';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
@@ -34,6 +36,10 @@ export function useNotificationPreferences() {
       }),
     onSettled: () => {
       void queryClient.invalidateQueries({ queryKey });
+    },
+    onError: (error) => {
+      console.error(error);
+      showErrorToast(ErrorMessage.NotificationSettingsUpdateFailed);
     }
   });
 

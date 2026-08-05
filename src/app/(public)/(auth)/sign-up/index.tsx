@@ -37,7 +37,10 @@ const SignUp = () => {
       await AuthService.signUp(values);
       router.push({ pathname: '/sign-up/verify', params: { email: values.email } });
     } catch (error) {
-      showErrorToast(ErrorMessage.SignUpFailed, userFacingMessage(error, 'Check your details and try again'));
+      showErrorToast(
+        ErrorMessage.SignUpFailed,
+        userFacingMessage(error, 'Check your details and try again')
+      );
     }
   });
 

@@ -1,4 +1,6 @@
+import { ErrorMessage, SuccessMessage } from '@/constants/enums';
 import type { CareCardInput, MedicationInput } from '@/lib/form/pet-schemas';
+import { showErrorToast, showSuccessToast } from '@/lib/toast';
 import CareCardService from '@/services/care-card.service';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 
@@ -11,7 +13,12 @@ export function useUpsertCareCard(petId: string) {
 
   return useMutation({
     mutationFn: (patch: Partial<CareCardInput>) => CareCardService.upsertCard(petId, patch),
-    onSuccess: () => invalidate(queryClient, petId)
+    onSettled: () => invalidate(queryClient, petId),
+    onSuccess: () => showSuccessToast(SuccessMessage.CareCardUpdated),
+    onError: (error) => {
+      console.error(error);
+      showErrorToast(ErrorMessage.CareCardUpdateFailed);
+    }
   });
 }
 
@@ -21,7 +28,16 @@ export function useUpsertMedication(petId: string) {
   return useMutation({
     mutationFn: (input: MedicationInput & { id?: string; sortOrder?: number }) =>
       CareCardService.upsertMedication(petId, input),
-    onSuccess: () => invalidate(queryClient, petId)
+    onSettled: () => invalidate(queryClient, petId),
+    onSuccess: (_data, input) => {
+      showSuccessToast(
+        input.id ? SuccessMessage.MedicationUpdated : SuccessMessage.MedicationAdded
+      );
+    },
+    onError: (error) => {
+      console.error(error);
+      showErrorToast(ErrorMessage.MedicationSaveFailed);
+    }
   });
 }
 
@@ -30,6 +46,11 @@ export function useDeleteMedication(petId: string) {
 
   return useMutation({
     mutationFn: (medicationId: string) => CareCardService.deleteMedication(medicationId),
-    onSuccess: () => invalidate(queryClient, petId)
+    onSettled: () => invalidate(queryClient, petId),
+    onSuccess: () => showSuccessToast(SuccessMessage.MedicationRemoved),
+    onError: (error) => {
+      console.error(error);
+      showErrorToast(ErrorMessage.MedicationRemoveFailed);
+    }
   });
 }

@@ -38,7 +38,10 @@ const VerifySignUp = () => {
       // which the root layout's AuthGate reacts to and swaps to (protected) itself.
       await AuthService.verifySignUpOtp({ email, token: values.token });
     } catch (error) {
-      showErrorToast(ErrorMessage.VerificationFailed, userFacingMessage(error, 'Check the code and try again'));
+      showErrorToast(
+        ErrorMessage.VerificationFailed,
+        userFacingMessage(error, 'Check the code and try again')
+      );
     }
   });
 

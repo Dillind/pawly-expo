@@ -35,7 +35,10 @@ const SignIn = () => {
       await AuthService.signInWithPassword(values);
       showSuccessToast(SuccessMessage.SignedIn);
     } catch (error) {
-      showErrorToast(ErrorMessage.SignInFailed, userFacingMessage(error, 'Check your details and try again'));
+      showErrorToast(
+        ErrorMessage.SignInFailed,
+        userFacingMessage(error, 'Check your details and try again')
+      );
     }
   });
 

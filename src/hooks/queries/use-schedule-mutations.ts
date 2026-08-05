@@ -1,4 +1,7 @@
+import { ErrorMessage, SuccessMessage } from '@/constants/enums';
+import { userFacingMessage } from '@/lib/errors';
 import type { SlotInput } from '@/lib/form/pet-schemas';
+import { showErrorToast, showSuccessToast } from '@/lib/toast';
 import FeedingScheduleService from '@/services/feeding-schedule.service';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 
@@ -13,7 +16,14 @@ export function useUpsertSlot(petId: string) {
   return useMutation({
     mutationFn: (input: SlotInput & { id?: string }) =>
       FeedingScheduleService.upsertSlot(petId, input),
-    onSuccess: () => invalidate(queryClient, petId)
+    onSettled: () => invalidate(queryClient, petId),
+    onSuccess: (_data, input) => {
+      showSuccessToast(input.id ? SuccessMessage.FeedTimeUpdated : SuccessMessage.FeedTimeAdded);
+    },
+    onError: (error) => {
+      console.error(error);
+      showErrorToast(userFacingMessage(error, ErrorMessage.FeedTimeSaveFailed));
+    }
   });
 }
 
@@ -22,6 +32,11 @@ export function useDeleteSlot(petId: string) {
 
   return useMutation({
     mutationFn: (slotId: string) => FeedingScheduleService.deleteSlot(slotId),
-    onSuccess: () => invalidate(queryClient, petId)
+    onSettled: () => invalidate(queryClient, petId),
+    onSuccess: () => showSuccessToast(SuccessMessage.FeedTimeRemoved),
+    onError: (error) => {
+      console.error(error);
+      showErrorToast(ErrorMessage.FeedTimeRemoveFailed);
+    }
   });
 }

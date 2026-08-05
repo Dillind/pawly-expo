@@ -20,9 +20,7 @@ namespace OnboardingService {
    * the pet and its schedule are created in a single transaction, so a failure
    * part-way cannot leave a user with a household they are not a member of.
    */
-  export async function createHouseholdAndPet(
-    input: CreateHouseholdAndPetInput
-  ): Promise<void> {
+  export async function createHouseholdAndPet(input: CreateHouseholdAndPetInput): Promise<void> {
     const { error } = await supabase.rpc('create_household_and_pet', {
       household_timezone: input.timezone,
       pet_name: input.pet.name,

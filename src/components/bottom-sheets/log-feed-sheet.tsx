@@ -110,6 +110,7 @@ const LogFeedSheet = ({ sheetRef }: Props) => {
           void sheetRef.current?.dismiss();
         },
         onError: (error) => {
+          console.error(error);
           showErrorToast(feedLogErrorMessage(error));
         }
       }

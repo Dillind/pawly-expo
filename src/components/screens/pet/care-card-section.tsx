@@ -4,7 +4,6 @@ import IconButton from '@/components/core/icon-button';
 import MainButton from '@/components/core/main-button';
 import TextInputValidated from '@/components/core/text-input-validated';
 import Tray, { useTray, type TrayStepDescriptor } from '@/components/core/tray';
-import { ErrorMessage, SuccessMessage } from '@/constants/enums';
 import type { AppTheme } from '@/constants/theme';
 import { useCareCard } from '@/hooks/queries/use-care-card';
 import {
@@ -19,7 +18,6 @@ import {
   type CareCardInput,
   type MedicationInput
 } from '@/lib/form/pet-schemas';
-import { showErrorToast, showSuccessToast } from '@/lib/toast';
 import type { CareCard, Medication } from '@/services/care-card.service';
 import { zodResolver } from '@hookform/resolvers/zod';
 import type { TrueSheet } from '@lodev09/react-native-true-sheet';
@@ -148,18 +146,7 @@ const FieldEditStep = ({ petId, card, field }: FieldEditStepProps) => {
   const value = useWatch({ control, name: field });
 
   const onSubmit = handleSubmit((values) => {
-    upsertCareCard(
-      { [field]: values[field] || null },
-      {
-        onSuccess: () => {
-          showSuccessToast(SuccessMessage.CareCardUpdated);
-          close();
-        },
-        onError: () => {
-          showErrorToast(ErrorMessage.CareCardUpdateFailed);
-        }
-      }
-    );
+    upsertCareCard({ [field]: values[field] || null }, { onSuccess: close });
   });
 
   return (
@@ -225,30 +212,14 @@ const MedicationEditStep = ({ petId, medication }: MedicationEditStepProps) => {
         instructions: values.instructions || null,
         id: medication?.id
       },
-      {
-        onSuccess: () => {
-          showSuccessToast(medication ? SuccessMessage.MedicationUpdated : SuccessMessage.MedicationAdded);
-          close();
-        },
-        onError: () => {
-          showErrorToast(ErrorMessage.MedicationSaveFailed);
-        }
-      }
+      { onSuccess: close }
     );
   });
 
   const onDelete = () => {
     if (!medication) return;
 
-    deleteMedication(medication.id, {
-      onSuccess: () => {
-        showSuccessToast(SuccessMessage.MedicationRemoved);
-        close();
-      },
-      onError: () => {
-        showErrorToast(ErrorMessage.MedicationRemoveFailed);
-      }
-    });
+    deleteMedication(medication.id, { onSuccess: close });
   };
 
   return (
@@ -368,14 +339,7 @@ const CareCardSection = ({ petId }: Props) => {
   };
 
   const handleDeleteMedication = (medication: Medication) => {
-    deleteMedication(medication.id, {
-      onSuccess: () => {
-        showSuccessToast(SuccessMessage.MedicationRemoved);
-      },
-      onError: () => {
-        showErrorToast(ErrorMessage.MedicationRemoveFailed);
-      }
-    });
+    deleteMedication(medication.id);
   };
 
   if (isLoading) {
@@ -403,9 +367,7 @@ const CareCardSection = ({ petId }: Props) => {
       id: 'edit-field',
       title: selectedField ? FIELD_LABELS[selectedField] : 'Edit',
       render: () =>
-        selectedField ? (
-          <FieldEditStep petId={petId} card={card} field={selectedField} />
-        ) : null
+        selectedField ? <FieldEditStep petId={petId} card={card} field={selectedField} /> : null
     },
     'edit-medication': {
       id: 'edit-medication',
@@ -469,9 +431,7 @@ const CareCardSection = ({ petId }: Props) => {
         onAdd={() => openMedication(null)}
         onEdit={(medication) => openMedication(medication)}
         onDelete={(medication) => void handleDeleteMedication(medication)}
-        deletingMedicationId={
-          isDeletingMedication ? (deletingId ?? null) : null
-        }
+        deletingMedicationId={isDeletingMedication ? (deletingId ?? null) : null}
       />
 
       <Tray
