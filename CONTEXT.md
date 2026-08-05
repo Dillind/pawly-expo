@@ -16,16 +16,20 @@ _Avoid_: User (a User is the account; a Member is that account's place in a hous
 A member role with full control: edit/delete anything in the household, manage the schedule, manage pets, and manage members. A household may have more than one Owner. Highest permission level.
 _Avoid_: Admin, manager.
 
+**Household Creator**:
+The User who created a Household. Not a role and not a rank — every Owner has the same powers, except that only the Creator may delete the Household outright or manage its subscription. If the Creator leaves while other Owners remain, the title passes to the longest-standing of them.
+_Avoid_: Primary Owner, super owner, admin (all read as a permission level above Owner, which does not exist).
+
 **Contributor**:
 A member role that can log feeds and edit/delete only their own recent feed logs — nothing else. This is the role a partner, housemate, dog walker, or pet sitter joins as.
 _Avoid_: Helper, guest, viewer, collaborator.
 
 **User**:
-An authenticated account (email/password). A User may be a Member of a household. Distinct from Member.
+An authenticated account (email/password). A User may be a Member of at most one household. Distinct from Member — a role belongs to a Member, so a User with no household has no role at all, rather than a default one.
 
 **Invite**:
-A shareable, revocable, expiring link/code an Owner generates so someone can join the household as a Contributor.
-_Avoid_: Referral, share link.
+A single-use, revocable, expiring code an Owner generates so one other person can join the household as a Contributor. One Invite per person invited, so each can be revoked on its own and each shows whether it has been used. The Owner shares it as plain text through their own channel; the invitee types it in during onboarding. There is no link that carries the code across installing the app.
+_Avoid_: Referral, share link, invite link (there isn't one).
 
 ## Pets & care
 

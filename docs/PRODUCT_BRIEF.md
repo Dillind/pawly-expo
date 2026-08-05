@@ -50,6 +50,7 @@ A pet owner who shares responsibility with at least one other person — partner
 - **Medication reminders** — high value for older pets, easy to add later.
 - **Apple Sign-In + Google SSO** — Apple Sign-In becomes mandatory the moment any other OAuth provider is added on iOS. Add both together.
 - **Extended history and analytics** — paywall candidate.
+- **Belonging to more than one household** — v1 enforces exactly one (`unique (user_id)`). Needs an active-household switcher and every query re-keyed on it. Paywall candidate; the professional pet sitter is the buyer.
 - **Custom notification schedules / per-schedule grace windows** — paywall candidate.
 
 ### Out of Scope
@@ -73,7 +74,11 @@ A pet owner who shares responsibility with at least one other person — partner
 **Freemium — a genuinely useful free tier, paywall for power features.** Modelled on Hevy: the free tier is worth coming back to, not crippled.
 
 - **Free:** core feeding log, household coordination (small household — cap to finalise; see open question), push notifications, one pet, basic history (30 days).
-- **Paid:** multiple pets, unlimited history, calendar view, weight tracking, custom notification schedules, priority support, exclusive app icons.
+- **Paid:** multiple pets, unlimited history, calendar view, weight tracking, custom notification schedules, belonging to more than one household, priority support, exclusive app icons.
+
+**One member pays, the whole household benefits.** Per-seat pricing isn't a choice we're declining — Apple's subscriptions carry no quantity, so it isn't buildable. See [ADR 0018](./adr/0018-subscription-is-household-scoped.md). If household size should ever affect price, the lever is a member cap on the free tier, not seats.
+
+**Belonging to more than one household is the one Pro feature with a different buyer.** An Owner pays for pets and history. A professional pet sitter pays to sit for several households at once — see [ADR 0017](./adr/0017-household-lifecycle-creator-and-departure.md).
 
 **No paywall in v1.** Get RevenueCat initialised and ready; don't flip the switch until real users are asking for more.
 

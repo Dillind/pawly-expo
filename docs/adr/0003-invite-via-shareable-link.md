@@ -1,4 +1,13 @@
+---
+status: superseded by [ADR 0016](./0016-invites-redeem-by-manual-code.md)
+---
+
 # Household invites use a shareable revocable link/code, not server-sent email
+
+> **Superseded in part.** The rejection of server-sent email invites still stands, as does the
+> requirement that codes be revocable and expiring. The delivery mechanism does not: there is no deep
+> link and no App Store fallback carrying the code across an install. The invitee types the code in
+> onboarding. See [ADR 0016](./0016-invites-redeem-by-manual-code.md).
 
 Owners invite people by generating a **shareable invite link** containing a revocable, expiring code (e.g. `https://crumpet.app/invite/<code>`), which they send through their own channel (iMessage, WhatsApp). Tapping the link deep-links into the app (falling back to the App Store if not installed); after sign-up the invitee redeems the code and joins the household as a **contributor**. The raw code is also shown as a manual-entry fallback.
 
