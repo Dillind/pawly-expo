@@ -131,7 +131,9 @@ const LogConfirmStep = ({
       </AppText>
 
       <MainButton text="Log anyway" isLoading={isLogging} onPress={onResolveDouble} />
-      <MainButton text="Cancel" variant="secondary" isDisabled={isLogging} onPress={onCancel} />
+      {/* `secondary` is bound to colors.error -- it is the destructive variant,
+          and Cancel is the safe way out of this step. */}
+      <MainButton text="Cancel" variant="text" isDisabled={isLogging} onPress={onCancel} />
     </View>
   );
 };
