@@ -39,6 +39,10 @@ const HeaderIconButton = ({
   />
 );
 
+// Matched to the native back button, measured on the simulator. iOS fits its
+// glass circle to the view it is given and the bar adds ~4pt horizontally, so
+// 36 wide comes out 40 round. The minimums are restated or IconButton's 44pt
+// square wins and the circle becomes a capsule.
 const styles = StyleSheet.create({
   container: {
     width: 36,

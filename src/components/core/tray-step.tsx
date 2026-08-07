@@ -7,13 +7,14 @@ import { StyleSheet, View } from 'react-native';
 
 type Props = {
   title: string;
+  header?: () => ReactNode;
   isFirst: boolean;
   onBack: () => void;
   onClose: () => void;
   children: ReactNode;
 };
 
-const TrayStep = ({ title, isFirst, onBack, onClose, children }: Props) => {
+const TrayStep = ({ title, header, isFirst, onBack, onClose, children }: Props) => {
   const styles = useStyles(makeStyles);
 
   return (
@@ -27,9 +28,15 @@ const TrayStep = ({ title, isFirst, onBack, onClose, children }: Props) => {
           onPress={isFirst ? onClose : onBack}
         />
 
-        <AppText variant="header" size={18}>
-          {title}
-        </AppText>
+        {header ? (
+          <View style={styles.headerContent} accessibilityLabel={title}>
+            {header()}
+          </View>
+        ) : (
+          <AppText variant="header" size={18}>
+            {title}
+          </AppText>
+        )}
       </View>
 
       {children}
@@ -40,7 +47,8 @@ const TrayStep = ({ title, isFirst, onBack, onClose, children }: Props) => {
 const makeStyles = ({ spacing }: AppTheme) =>
   StyleSheet.create({
     container: { gap: spacing.three },
-    header: { flexDirection: 'row', alignItems: 'center', gap: spacing.two }
+    header: { flexDirection: 'row', alignItems: 'center', gap: spacing.two },
+    headerContent: { flex: 1, flexDirection: 'row', alignItems: 'center', gap: spacing.two }
   });
 
 export default TrayStep;

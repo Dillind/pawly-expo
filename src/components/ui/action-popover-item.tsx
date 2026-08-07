@@ -14,7 +14,6 @@ export type ActionPopoverAction = {
   icon: IconName;
   title: string;
   subtitle?: string;
-  /** A destination, for rows that navigate. ActionPopover pushes it after closing. */
   href?: Href;
   onPress?: () => void;
   isDisabled?: boolean;

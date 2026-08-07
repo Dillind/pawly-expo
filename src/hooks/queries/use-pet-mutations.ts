@@ -10,9 +10,8 @@ export function useAddPet() {
   return useMutation<Pet, Error, AddPetInput>({
     mutationFn: (input) => PetService.add(input),
     onSettled: () => {
-      // Prefix key, and `all` rather than the default `active`: the screen that
-      // added the pet is not the screen that lists them, so the list's observer
-      // may well be unmounted at this moment and would otherwise stay stale.
+      // `all`, not the default `active`: the screen that adds a pet is not the
+      // one that lists them, so the list's observer is often unmounted here.
       void queryClient.invalidateQueries({ queryKey: ['pets'], refetchType: 'all' });
       void queryClient.invalidateQueries({ queryKey: ['slot-states'], refetchType: 'all' });
     },

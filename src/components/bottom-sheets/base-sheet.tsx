@@ -16,18 +16,6 @@ type Props = {
   onPresent?: () => void;
 };
 
-/**
- * The only file in the app that imports TrueSheet as a value (ADR 0010).
- * Everywhere else imports it as a type, for the ref.
- *
- * backgroundColor is handed to native code, so it is read from useTheme() on
- * every render. A module-scope colour constant produces a sheet that ignores
- * dark mode while the JS content inside it adapts — half the sheet themes
- * correctly, which is a particularly confusing bug to chase.
- *
- * Android caps at 3 detents, so the ['auto', 0.6, 1] default is already at the
- * platform limit.
- */
 const BaseSheet = ({
   sheetRef,
   children,

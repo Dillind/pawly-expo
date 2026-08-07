@@ -37,7 +37,7 @@ const TileGrid = ({ tiles }: Props) => {
               : undefined
           }
           style={tile.span === 2 ? styles.full : styles.half}>
-          <Tile label={tile.label} icon={tile.icon} href={tile.href} art={tile.art} />
+          <Tile label={tile.label} subtitle={tile.subtitle} icon={tile.icon} href={tile.href} />
         </Animated.View>
       ))}
     </View>

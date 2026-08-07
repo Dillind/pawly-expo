@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "wirekitty": {
+      "type": "http",
+      "url": "https://mcp.wirekitty.dev/mcp"
+    }
+  }
+}
