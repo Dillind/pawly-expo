@@ -27,14 +27,6 @@ function loggedText(pet: Pet, label: FeedingScheduleLabel): string {
   return word ? `Logged ${pet.name}'s ${word}` : `Logged a feed for ${pet.name}`;
 }
 
-function countsAsText(pet: Pet, label: FeedingScheduleLabel): string {
-  const word = LABEL_WORD[label];
-
-  return word
-    ? `Logged — this counts as ${pet.name}'s ${word}`
-    : `Logged — this counts as a scheduled feed`;
-}
-
 function alreadyLoggedText(
   pet: Pet,
   warning: DoubleFeed,
@@ -128,19 +120,6 @@ export function useLogFlow({ members, timezone, onConfirmNeeded, onWritten }: Op
     [ask, onConfirmNeeded, write]
   );
 
-  const pickExtra = useCallback(
-    (pet: Pet, slots: SlotState[]) => {
-      const claimed = slots.find((slot) => slot.state === 'due');
-
-      write(
-        pet,
-        new Date().toISOString(),
-        claimed ? countsAsText(pet, claimed.label) : 'Logged as an extra feed'
-      );
-    },
-    [write]
-  );
-
   const resolveLate = useCallback(
     (when: 'now' | 'scheduled') => {
       if (!confirm) return;
@@ -159,5 +138,5 @@ export function useLogFlow({ members, timezone, onConfirmNeeded, onWritten }: Op
 
   const cancel = useCallback(() => setConfirm(null), []);
 
-  return { confirm, confirmToken, isLogging, pickSlot, pickExtra, resolveLate, cancel };
+  return { confirm, confirmToken, isLogging, pickSlot, resolveLate, cancel };
 }

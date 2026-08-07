@@ -33,7 +33,6 @@ type Props = {
   isOnlyPet: boolean;
   onOpenLog: (logId: string) => void;
   onPickSlot: (pet: Pet, slot: SlotState) => void;
-  onPickExtra: (pet: Pet, slots: SlotState[]) => void;
   onLogPress: () => void;
 };
 
@@ -65,7 +64,6 @@ const PetSection = ({
   isOnlyPet,
   onOpenLog,
   onPickSlot,
-  onPickExtra,
   onLogPress
 }: Props) => {
   const styles = useStyles(makeStyles);
@@ -126,8 +124,7 @@ const PetSection = ({
           </View>
         )}
 
-        {/* Nothing outstanding, so the fast path has nothing to be fast about.
-            An extra feed still goes through the popover. */}
+        {/* Nothing outstanding, so the fast path has nothing to be fast about. */}
         {isAllLogged ? (
           <Icon name="check" size={20} color="primary" />
         ) : (
@@ -170,7 +167,6 @@ const PetSection = ({
                 isNested
                 onOpenLog={onOpenLog}
                 onPickSlot={(slot) => onPickSlot(pet, slot)}
-                onPickExtra={() => onPickExtra(pet, slots)}
               />
             )}
           </Animated.View>

@@ -83,7 +83,6 @@ const TimeStep = ({
       members={members}
       onOpenLog={onOpenLog}
       onPickSlot={(slot) => flow.pickSlot(pet, slot)}
-      onPickExtra={() => flow.pickExtra(pet, slots)}
     />
   );
 };

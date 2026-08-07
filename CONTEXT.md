@@ -66,7 +66,7 @@ The Feed Log that fulfils a given Scheduled Time: the one nearest that slot amon
 _Avoid_: Matching feed, qualifying log.
 
 **Extra Feed**:
-A Feed Log that satisfies no Scheduled Time — it fell outside every Grace Window. A real, recorded feed that simply belongs to nowhere on the schedule: a mid-afternoon snack, or a feed given so late that the slot it was meant for has already closed. A Member creates one by choosing "Something else" rather than a Scheduled Time.
+A Feed Log that satisfies no Scheduled Time — it fell outside every Grace Window. A real, recorded feed that belongs nowhere on the schedule. There is no way to create one deliberately: it is what a Member gets when they record a late feed at the time it actually happened, after the Grace Window has closed.
 _Avoid_: Snack (guesses at the food, and misses the late-feed case), unscheduled feed, ad-hoc feed.
 
 **Missed Feed**:

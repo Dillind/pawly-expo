@@ -123,10 +123,6 @@ const Home = () => {
               setLogPet(pickedPet);
               flow.pickSlot(pickedPet, slot);
             }}
-            onPickExtra={(pickedPet, slots) => {
-              setLogPet(pickedPet);
-              flow.pickExtra(pickedPet, slots);
-            }}
             onLogPress={() => {
               setLogPet(pet);
               void logTrayRef.current?.present();
