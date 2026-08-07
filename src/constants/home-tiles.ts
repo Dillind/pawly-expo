@@ -1,13 +1,4 @@
-import type { IconName } from '@/constants/icon-map';
-
-export type TileDescriptor = {
-  id: string;
-  label: string;
-  subtitle?: string;
-  icon: IconName;
-  span: 1 | 2;
-  href: string;
-};
+import type { TileDescriptor } from '@/components/ui/tile-grid';
 
 /** The Pets tile manages the set of pets. Opening one goes through its row on Home. */
 export const HOME_TILES: TileDescriptor[] = [
