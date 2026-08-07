@@ -188,3 +188,16 @@ export const formatDayAndDate = (date: Date, timezone: string): string =>
     month: 'long',
     timeZone: timezone
   }).format(date);
+
+/**
+ * "7 August 2026". Carries the year because it stamps a shared Care Card, and a
+ * sitter holding a printout needs to know whether it is from this trip or last
+ * year's -- which a weekday and a month cannot tell them.
+ */
+export const formatDateWithYear = (date: Date, timezone: string): string =>
+  new Intl.DateTimeFormat('en-AU', {
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+    timeZone: timezone
+  }).format(date);

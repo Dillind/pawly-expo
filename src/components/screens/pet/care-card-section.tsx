@@ -4,6 +4,14 @@ import IconButton from '@/components/core/icon-button';
 import MainButton from '@/components/core/main-button';
 import TextInputValidated from '@/components/core/text-input-validated';
 import Tray, { useTray, type TrayStepDescriptor } from '@/components/core/tray';
+import {
+  CARE_CARD_FIELD_LABELS,
+  CARE_CARD_FIELD_PLACEHOLDERS,
+  CARE_CARD_FIELDS,
+  CARE_CARD_MULTILINE_FIELDS,
+  CARE_CARD_SECTIONS,
+  type CareCardField
+} from '@/constants/care-card-fields';
 import type { AppTheme } from '@/constants/theme';
 import { useCareCard } from '@/hooks/queries/use-care-card';
 import {
@@ -27,78 +35,20 @@ import { ActivityIndicator, StyleSheet, View } from 'react-native';
 
 import MedicationList from './medication-list';
 
-type FieldKey = keyof CareCardInput;
+type FieldKey = CareCardField;
 
-type FieldGroup = { heading: string; fields: FieldKey[] };
-
-const FIELD_LABELS: Record<FieldKey, string> = {
-  allergies: 'Allergies',
-  vetName: 'Vet name',
-  vetPhone: 'Vet phone',
-  emergencyVetName: 'Emergency vet name',
-  emergencyVetPhone: 'Emergency vet phone',
-  microchipNumber: 'Microchip number',
-  insuranceProvider: 'Insurance provider',
-  insurancePolicyNumber: 'Insurance policy number',
-  feedingNotes: 'Feeding notes',
-  notes: 'Notes'
-};
-
-// An example beats an instruction: the placeholder shows the shape of a good
-// answer, which is what a Contributor reading this in a hurry needs.
-const FIELD_PLACEHOLDERS: Record<FieldKey, string> = {
-  allergies: 'Chicken, and grass seeds in summer',
-  vetName: 'Northcote Vet Clinic',
-  vetPhone: '03 9482 1234',
-  emergencyVetName: 'Melbourne Animal Emergency',
-  emergencyVetPhone: '03 9370 5555',
-  microchipNumber: '956000012345678',
-  insuranceProvider: 'Petplan',
-  insurancePolicyNumber: 'PP-4821993',
-  feedingNotes: 'Half a scoop, soaked for five minutes',
-  notes: 'Nervous around bikes. Lead stays on near the road.'
-};
-
-const MULTILINE_FIELDS: ReadonlySet<FieldKey> = new Set(['allergies', 'feedingNotes', 'notes']);
-
-const FIELD_GROUPS: FieldGroup[] = [
-  { heading: 'Allergies', fields: ['allergies'] },
-  { heading: 'Vet', fields: ['vetName', 'vetPhone'] },
-  { heading: 'Emergency', fields: ['emergencyVetName', 'emergencyVetPhone'] },
-  {
-    heading: 'Identification',
-    fields: ['microchipNumber', 'insuranceProvider', 'insurancePolicyNumber']
-  },
-  { heading: 'Feeding', fields: ['feedingNotes'] },
-  { heading: 'Notes', fields: ['notes'] }
-];
+const FIELD_LABELS = CARE_CARD_FIELD_LABELS;
+const FIELD_PLACEHOLDERS = CARE_CARD_FIELD_PLACEHOLDERS;
+const MULTILINE_FIELDS = CARE_CARD_MULTILINE_FIELDS;
+const FIELD_GROUPS = CARE_CARD_SECTIONS;
 
 const emptyCareCard = (petId: string): CareCard => ({
   petId,
-  allergies: null,
-  vetName: null,
-  vetPhone: null,
-  emergencyVetName: null,
-  emergencyVetPhone: null,
-  microchipNumber: null,
-  insuranceProvider: null,
-  insurancePolicyNumber: null,
-  feedingNotes: null,
-  notes: null
+  ...(Object.fromEntries(CARE_CARD_FIELDS.map((field) => [field, null])) as CareCardInput)
 });
 
-const toInput = (card: CareCard): CareCardInput => ({
-  allergies: card.allergies,
-  vetName: card.vetName,
-  vetPhone: card.vetPhone,
-  emergencyVetName: card.emergencyVetName,
-  emergencyVetPhone: card.emergencyVetPhone,
-  microchipNumber: card.microchipNumber,
-  insuranceProvider: card.insuranceProvider,
-  insurancePolicyNumber: card.insurancePolicyNumber,
-  feedingNotes: card.feedingNotes,
-  notes: card.notes
-});
+const toInput = (card: CareCard): CareCardInput =>
+  Object.fromEntries(CARE_CARD_FIELDS.map((field) => [field, card[field]])) as CareCardInput;
 
 type OverviewStepProps = { card: CareCard; onSelectField: (field: FieldKey) => void };
 
@@ -109,9 +59,9 @@ const OverviewStep = ({ card, onSelectField }: OverviewStepProps) => {
   return (
     <View style={styles.overview}>
       {FIELD_GROUPS.map((group) => (
-        <View key={group.heading} style={styles.overviewGroup}>
+        <View key={group.title} style={styles.overviewGroup}>
           <AppText color="textSecondary" size={13}>
-            {group.heading}
+            {group.title}
           </AppText>
           {group.fields.map((field) => (
             <AppText
@@ -409,9 +359,9 @@ const CareCardSection = ({ petId }: Props) => {
         <View style={styles.groups}>
           {FIELD_GROUPS.filter((group) => group.fields.some((field) => Boolean(card[field]))).map(
             (group) => (
-              <View key={group.heading} style={styles.group}>
+              <View key={group.title} style={styles.group}>
                 <AppText color="textSecondary" size={13}>
-                  {group.heading}
+                  {group.title}
                 </AppText>
                 {group.fields
                   .filter((field) => Boolean(card[field]))

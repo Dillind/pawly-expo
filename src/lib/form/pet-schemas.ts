@@ -17,14 +17,20 @@ export type BioInput = z.infer<typeof bioSchema>;
 
 export const careCardSchema = z.object({
   allergies: z.string().nullable(),
+  behaviourNotes: z.string().nullable(),
   vetName: z.string().nullable(),
   vetPhone: z.string().nullable(),
   emergencyVetName: z.string().nullable(),
   emergencyVetPhone: z.string().nullable(),
+  ownerPhone: z.string().nullable(),
+  backupContactName: z.string().nullable(),
+  backupContactPhone: z.string().nullable(),
   microchipNumber: z.string().nullable(),
   insuranceProvider: z.string().nullable(),
   insurancePolicyNumber: z.string().nullable(),
   feedingNotes: z.string().nullable(),
+  walkRoutine: z.string().nullable(),
+  whereThingsAre: z.string().nullable(),
   notes: z.string().nullable()
 });
 

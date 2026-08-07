@@ -4,14 +4,20 @@ import { supabase } from '@/lib/supabase/client';
 export type CareCard = {
   petId: string;
   allergies: string | null;
+  behaviourNotes: string | null;
   vetName: string | null;
   vetPhone: string | null;
   emergencyVetName: string | null;
   emergencyVetPhone: string | null;
+  ownerPhone: string | null;
+  backupContactName: string | null;
+  backupContactPhone: string | null;
   microchipNumber: string | null;
   insuranceProvider: string | null;
   insurancePolicyNumber: string | null;
   feedingNotes: string | null;
+  walkRoutine: string | null;
+  whereThingsAre: string | null;
   notes: string | null;
 };
 
@@ -28,41 +34,53 @@ export type Medication = {
 
 const CARE_CARD_COLUMNS: Record<keyof CareCardInput, string> = {
   allergies: 'allergies',
+  behaviourNotes: 'behaviour_notes',
   vetName: 'vet_name',
   vetPhone: 'vet_phone',
   emergencyVetName: 'emergency_vet_name',
   emergencyVetPhone: 'emergency_vet_phone',
+  ownerPhone: 'owner_phone',
+  backupContactName: 'backup_contact_name',
+  backupContactPhone: 'backup_contact_phone',
   microchipNumber: 'microchip_number',
   insuranceProvider: 'insurance_provider',
   insurancePolicyNumber: 'insurance_policy_number',
   feedingNotes: 'feeding_notes',
+  walkRoutine: 'walk_routine',
+  whereThingsAre: 'where_things_are',
   notes: 'notes'
 };
+
+const SELECTED_COLUMNS = ['pet_id', ...Object.values(CARE_CARD_COLUMNS)].join(', ');
 
 namespace CareCardService {
   export async function getCard(petId: string): Promise<CareCard | null> {
     const { data, error } = await supabase
       .from('care_cards')
-      .select(
-        'pet_id, allergies, vet_name, vet_phone, emergency_vet_name, emergency_vet_phone, microchip_number, insurance_provider, insurance_policy_number, feeding_notes, notes'
-      )
+      .select(SELECTED_COLUMNS)
       .eq('pet_id', petId)
-      .maybeSingle();
+      .maybeSingle<Record<string, string | null>>();
 
     if (error) throw error;
     if (!data) return null;
 
     return {
-      petId: data.pet_id,
+      petId: data.pet_id as string,
       allergies: data.allergies,
+      behaviourNotes: data.behaviour_notes,
       vetName: data.vet_name,
       vetPhone: data.vet_phone,
       emergencyVetName: data.emergency_vet_name,
       emergencyVetPhone: data.emergency_vet_phone,
+      ownerPhone: data.owner_phone,
+      backupContactName: data.backup_contact_name,
+      backupContactPhone: data.backup_contact_phone,
       microchipNumber: data.microchip_number,
       insuranceProvider: data.insurance_provider,
       insurancePolicyNumber: data.insurance_policy_number,
       feedingNotes: data.feeding_notes,
+      walkRoutine: data.walk_routine,
+      whereThingsAre: data.where_things_are,
       notes: data.notes
     };
   }
