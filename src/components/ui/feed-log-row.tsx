@@ -10,11 +10,13 @@ import { StyleSheet, View } from 'react-native';
 
 type Props = {
   log: FeedLog;
+  /** Only passed when the household has several pets — otherwise it is noise. */
+  petName?: string;
   timezone: string;
   onPress: () => void;
 };
 
-const FeedLogRow = ({ log, timezone, onPress }: Props) => {
+const FeedLogRow = ({ log, petName, timezone, onPress }: Props) => {
   const styles = useStyles(makeStyles);
 
   const authorName = formatAuthorName(log.author);
@@ -25,10 +27,12 @@ const FeedLogRow = ({ log, timezone, onPress }: Props) => {
       style={styles.row}
       onPress={onPress}
       accessibilityRole="button"
-      accessibilityLabel={`Edit feed logged by ${authorName} at ${timeOfDay}`}>
+      accessibilityLabel={`Edit feed logged by ${authorName}${
+        petName ? ` for ${petName}` : ''
+      } at ${timeOfDay}`}>
       <Icon name="utensils" size={18} color="primary" />
       <View style={styles.body}>
-        <AppText size={16}>{authorName}</AppText>
+        <AppText size={16}>{petName ? `${authorName} fed ${petName}` : authorName}</AppText>
         {log.notes && (
           <AppText size={14} color="textSecondary" numberOfLines={2}>
             {log.notes}

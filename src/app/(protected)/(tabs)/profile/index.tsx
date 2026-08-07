@@ -3,6 +3,7 @@ import Icon from '@/components/core/icon';
 import MainButton from '@/components/core/main-button';
 import PressableOpacity from '@/components/core/pressable-opacity';
 import SegmentedControl from '@/components/core/segmented-control';
+import ScreenScrollView from '@/components/layout/screen-scroll-view';
 import ScreenView from '@/components/layout/screen-view';
 import type { AppTheme } from '@/constants/theme';
 import { useLogout } from '@/hooks/use-logout';
@@ -10,7 +11,7 @@ import { useStyles } from '@/hooks/use-styles';
 import { useThemeStore } from '@/stores/theme-store';
 import type { Option, ThemePreference } from '@/types/core';
 import { useRouter } from 'expo-router';
-import { ScrollView, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 
 const APPEARANCE_OPTIONS: Option<ThemePreference>[] = [
   { value: 'system', label: 'System' },
@@ -26,7 +27,7 @@ const Profile = () => {
 
   return (
     <ScreenView>
-      <ScrollView contentContainerStyle={styles.content} contentInsetAdjustmentBehavior="always">
+      <ScreenScrollView contentContainerStyle={styles.content} contentInsetAdjustmentBehavior="always">
         <AppText variant="header" size={32}>
           Profile
         </AppText>
@@ -55,7 +56,7 @@ const Profile = () => {
             onPress={() => void logout()}
           />
         </View>
-      </ScrollView>
+      </ScreenScrollView>
     </ScreenView>
   );
 };

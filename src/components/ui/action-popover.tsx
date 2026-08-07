@@ -8,6 +8,7 @@ import { useStyles } from '@/hooks/use-styles';
 import { useTheme } from '@/hooks/use-theme';
 import { createShadowMedium } from '@/lib/styles/shadows';
 import { GlassContainer, GlassView, isLiquidGlassAvailable } from 'expo-glass-effect';
+import { useRouter } from 'expo-router';
 import { useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 
@@ -41,6 +42,7 @@ const ActionPopover = ({ actions, primaryAction, accessibilityLabel = 'Create' }
   const styles = useStyles(makeStyles);
   const { isDark } = useTheme();
   const [isOpen, setIsOpen] = useState(false);
+  const router = useRouter();
 
   const close = () => setIsOpen(false);
 
@@ -49,6 +51,14 @@ const ActionPopover = ({ actions, primaryAction, accessibilityLabel = 'Create' }
     // Presented after dismissal rather than alongside it: a native sheet
     // presented while this overlay is still up gets swallowed by iOS.
     requestAnimationFrame(primaryAction.onPress);
+  };
+
+  const runAction = (action: ActionPopoverAction) => {
+    close();
+    requestAnimationFrame(() => {
+      if (action.href) router.push(action.href);
+      else action.onPress?.();
+    });
   };
 
   return (
@@ -71,7 +81,11 @@ const ActionPopover = ({ actions, primaryAction, accessibilityLabel = 'Create' }
               style={styles.bubble}
               accessibilityViewIsModal>
               {actions.map((action) => (
-                <ActionPopoverItem key={action.title} {...action} />
+                <ActionPopoverItem
+                  key={action.title}
+                  {...action}
+                  onPress={() => runAction(action)}
+                />
               ))}
 
               <MainButton

@@ -5,6 +5,7 @@ import type { IconName } from '@/constants/icon-map';
 import { Radius, type AppTheme } from '@/constants/theme';
 import { useStyles } from '@/hooks/use-styles';
 import { hapticLight } from '@/lib/haptics';
+import type { Href } from 'expo-router';
 import { StyleSheet, View } from 'react-native';
 
 const TILE_SIZE = 40;
@@ -13,6 +14,7 @@ export type ActionPopoverAction = {
   icon: IconName;
   title: string;
   subtitle?: string;
+  href?: Href;
   onPress?: () => void;
   isDisabled?: boolean;
 };

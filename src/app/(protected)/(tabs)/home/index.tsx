@@ -1,58 +1,73 @@
 import FeedLogDetailSheet from '@/components/bottom-sheets/feed-log-detail-sheet';
-import LogFeedSheet from '@/components/bottom-sheets/log-feed-sheet';
+import LogFeedTray from '@/components/bottom-sheets/log-feed-tray';
 import AppText from '@/components/core/app-text';
+import EmptyState from '@/components/core/empty-state';
 import ErrorState from '@/components/core/error-state';
+import MainButton from '@/components/core/main-button';
+import ScreenScrollView from '@/components/layout/screen-scroll-view';
 import ScreenView from '@/components/layout/screen-view';
+import PetSection from '@/components/screens/home/pet-section';
 import ActionPopover from '@/components/ui/action-popover';
-import { CREATE_ACTIONS } from '@/components/ui/create-actions';
-import { buildHomeTiles } from '@/components/ui/home-tiles';
-import SlotRow from '@/components/ui/slot-row';
 import TileGrid from '@/components/ui/tile-grid';
+import { CREATE_ACTIONS } from '@/constants/create-actions';
+import { HOME_TILES } from '@/constants/home-tiles';
 import { BottomTabInset, type AppTheme } from '@/constants/theme';
 import { useHousehold } from '@/hooks/queries/use-household';
 import { useHouseholdMembers } from '@/hooks/queries/use-household-members';
-import { memberDisplayName } from '@/utils/members';
+import { usePets } from '@/hooks/queries/use-pets';
+import { useLogFlow } from '@/hooks/use-log-flow';
 import { useRequestNotificationPermission } from '@/hooks/use-notification-permission';
-import { usePet } from '@/hooks/queries/use-pet';
 import { useRefreshOnFocus } from '@/hooks/use-refresh-on-focus';
-import { useSlotStates } from '@/hooks/queries/use-slot-states';
 import { useStyles } from '@/hooks/use-styles';
 import { formatDayAndDate, todayInTimezone } from '@/lib/dates';
+import type { Pet } from '@/types/core';
 import type { TrueSheet } from '@lodev09/react-native-true-sheet';
 import * as Notifications from 'expo-notifications';
 import { useEffect, useRef, useState } from 'react';
-import { ActivityIndicator, ScrollView, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, StyleSheet } from 'react-native';
+import Animated, { LinearTransition } from 'react-native-reanimated';
 
 const Home = () => {
+  const [activeLogId, setActiveLogId] = useState<string | undefined>(undefined);
+  const [activePetId, setActivePetId] = useState<string | undefined>(undefined);
+  const [logPet, setLogPet] = useState<Pet | undefined>(undefined);
   const styles = useStyles(makeStyles);
 
   const { data: household } = useHousehold();
-  const { data: pet } = usePet();
+  const { data: pets = [], isLoading, isError, refetch } = usePets();
   const { data: members = [] } = useHouseholdMembers();
 
   const timezone = household?.timezone;
   const today = timezone ? todayInTimezone(timezone) : undefined;
 
-  const {
-    data: slots,
-    isLoading,
-    isError,
-    refetch
-  } = useSlotStates(pet?.id, today, { live: true });
-
-  useRefreshOnFocus(['slot-states', pet?.id]);
-
-  const [activeLogId, setActiveLogId] = useState<string | undefined>(undefined);
+  useRefreshOnFocus(['slot-states']);
   const detailSheetRef = useRef<TrueSheet | null>(null);
-  const logSheetRef = useRef<TrueSheet | null>(null);
+  const logTrayRef = useRef<TrueSheet | null>(null);
   const hasCheckedPermission = useRef(false);
   const requestPermission = useRequestNotificationPermission();
 
-  // The ask lives here, not in onboarding: create_household_and_pet makes the
-  // (onboarding) group unreachable, so a prompt raised there would land before
-  // the schedule exists.
+  const flow = useLogFlow({
+    members,
+    timezone,
+    onConfirmNeeded: () => {
+      void logTrayRef.current?.present();
+    },
+    onWritten: () => {
+      void logTrayRef.current?.dismiss();
+    }
+  });
+
+  const openLog = (logId: string, petId: string) => {
+    setActiveLogId(logId);
+    setActivePetId(petId);
+    void detailSheetRef.current?.present();
+  };
+
+  const hasPets = pets.length > 0;
+  const isOnlyPet = pets.length === 1;
+
   useEffect(() => {
-    if (!pet?.id || hasCheckedPermission.current) return;
+    if (!hasPets || hasCheckedPermission.current) return;
     hasCheckedPermission.current = true;
 
     const maybeRequest = async () => {
@@ -64,71 +79,107 @@ const Home = () => {
     };
 
     void maybeRequest();
-  }, [pet?.id, requestPermission]);
+  }, [hasPets, requestPermission]);
+
+  const renderBody = () => {
+    if (isError) {
+      return (
+        <ErrorState
+          onRetry={() => {
+            void refetch();
+          }}
+        />
+      );
+    }
+
+    if (isLoading || !timezone || !today) return <ActivityIndicator />;
+
+    if (!hasPets) {
+      return (
+        <EmptyState
+          icon="pawPrint"
+          title="No pets yet"
+          description="Add a pet to start tracking feeds."
+          action={<MainButton text="Add a pet" href="/home/add-pet" />}
+        />
+      );
+    }
+
+    return (
+      // Animated so the sections below an expanding one slide rather than jump.
+      <Animated.View style={styles.sections} layout={LinearTransition.duration(220)}>
+        {pets.map((pet) => (
+          <PetSection
+            key={pet.id}
+            pet={pet}
+            timezone={timezone}
+            today={today}
+            members={members}
+            isOnlyPet={isOnlyPet}
+            onOpenLog={(logId) => openLog(logId, pet.id)}
+            // Named before the pick so that if a confirm follows, backing out
+            // of it lands on this pet's list rather than the pet picker.
+            onPickSlot={(pickedPet, slot) => {
+              setLogPet(pickedPet);
+              flow.pickSlot(pickedPet, slot);
+            }}
+            onLogPress={() => {
+              setLogPet(pet);
+              void logTrayRef.current?.present();
+            }}
+          />
+        ))}
+      </Animated.View>
+    );
+  };
 
   return (
     <ScreenView>
-      <ScrollView contentContainerStyle={styles.content}>
+      <ScreenScrollView contentContainerStyle={styles.content}>
         {timezone && (
           <AppText size={14} color="textSecondary">
             {formatDayAndDate(new Date(), timezone)}
           </AppText>
         )}
 
-        <AppText variant="header" size={32}>
-          {pet?.name ?? ' '}
-        </AppText>
-
-        {isError ? (
-          <ErrorState
-            onRetry={() => {
-              void refetch();
-            }}
-          />
-        ) : isLoading || !timezone ? (
-          <ActivityIndicator />
-        ) : (
-          <View style={styles.slots}>
-            {slots?.map((slot) => {
-              const logId = slot.state === 'fed' ? slot.satisfyingLogId : null;
-
-              return (
-                <SlotRow
-                  key={slot.scheduleId}
-                  slot={slot}
-                  timezone={timezone}
-                  fedBy={memberDisplayName(members, slot.satisfiedBy)}
-                  onPress={
-                    logId
-                      ? () => {
-                          setActiveLogId(logId);
-                          void detailSheetRef.current?.present();
-                        }
-                      : undefined
-                  }
-                />
-              );
-            })}
-          </View>
+        {hasPets && (
+          <AppText variant="header" size={32}>
+            Today
+          </AppText>
         )}
 
-        <TileGrid tiles={buildHomeTiles(pet?.id)} />
-      </ScrollView>
+        {renderBody()}
+
+        <TileGrid tiles={HOME_TILES} />
+      </ScreenScrollView>
 
       <ActionPopover
         actions={CREATE_ACTIONS}
         primaryAction={{
           label: 'Log a feed',
           icon: 'utensils',
-          isDisabled: !pet?.id,
+          isDisabled: !hasPets,
           onPress: () => {
-            void logSheetRef.current?.present();
+            setLogPet(undefined);
+            void logTrayRef.current?.present();
           }
         }}
       />
 
-      <LogFeedSheet sheetRef={logSheetRef} />
-      <FeedLogDetailSheet sheetRef={detailSheetRef} logId={activeLogId} petId={pet?.id} />
+      {timezone && today && (
+        <LogFeedTray
+          sheetRef={logTrayRef}
+          pets={pets}
+          timezone={timezone}
+          today={today}
+          members={members}
+          pet={logPet}
+          flow={flow}
+          onOpenLog={(logId) => openLog(logId, logPet?.id ?? pets[0]?.id)}
+        />
+      )}
+
+      <FeedLogDetailSheet sheetRef={detailSheetRef} logId={activeLogId} petId={activePetId} />
     </ScreenView>
   );
 };
@@ -141,8 +192,8 @@ const makeStyles = ({ spacing }: AppTheme) =>
       paddingBottom: BottomTabInset + spacing.four,
       gap: spacing.three
     },
-    slots: {
-      gap: spacing.two
+    sections: {
+      gap: spacing.four
     }
   });
 

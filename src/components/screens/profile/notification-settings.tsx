@@ -3,7 +3,6 @@ import MainButton from '@/components/core/main-button';
 import ToggleSwitch from '@/components/core/toggle-switch';
 import type { AppTheme } from '@/constants/theme';
 import { useNotificationPreferences } from '@/hooks/queries/use-notification-preferences';
-import { usePet } from '@/hooks/queries/use-pet';
 import {
   NOTIFICATION_PERMISSION_QUERY_KEY,
   useRequestNotificationPermission
@@ -24,12 +23,9 @@ import { ActivityIndicator, Linking, ScrollView, StyleSheet, View } from 'react-
  */
 const NotificationSettings = () => {
   const styles = useStyles(makeStyles);
-  const { data: pet } = usePet();
   const { data: preferences, isLoading, setFeedLoggedAlerts } = useNotificationPreferences();
 
   const requestPermission = useRequestNotificationPermission();
-
-  const petName = pet?.name ?? 'your pet';
 
   // The OS permission is read through Query rather than useState + an AppState
   // listener so it re-reads on foreground for free: the root layout already
@@ -48,7 +44,7 @@ const NotificationSettings = () => {
       return (
         <View style={styles.section}>
           <AppText size={14} color="textSecondary">
-            Turn on notifications to know the moment someone feeds {petName}.
+            Turn on notifications to know the moment someone feeds a pet.
           </AppText>
           <MainButton
             text="Turn on notifications"
@@ -75,8 +71,8 @@ const NotificationSettings = () => {
         {isDenied && (
           <View style={styles.section}>
             <AppText size={13} color="textSecondary">
-              Notifications are turned off for Crumpet, so you won&apos;t hear when someone feeds{' '}
-              {petName}.
+              Notifications are turned off for Crumpet, so you won&apos;t hear when someone feeds
+              a pet.
             </AppText>
             <MainButton
               text="Open Settings"

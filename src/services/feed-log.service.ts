@@ -73,11 +73,14 @@ function mapLogFeedResult(data: unknown): LogFeedResult {
 }
 
 namespace FeedLogService {
-  export async function listPage(petId: string, cursor: FeedLogsCursor | null): Promise<FeedLog[]> {
+  export async function listPage(
+    petIds: string[],
+    cursor: FeedLogsCursor | null
+  ): Promise<FeedLog[]> {
     let query = supabase
       .from('feed_logs')
       .select(FEED_LOG_SELECT)
-      .eq('pet_id', petId)
+      .in('pet_id', petIds)
       .order('logged_at', { ascending: false })
       .order('id', { ascending: false })
       .limit(FEED_LOGS_PAGE_SIZE);

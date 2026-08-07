@@ -1,10 +1,19 @@
-import type { TileDescriptor } from '@/components/ui/home-tiles';
 import Tile from '@/components/ui/tile';
+import type { IconName } from '@/constants/icon-map';
 import type { AppTheme } from '@/constants/theme';
 import { useStyles } from '@/hooks/use-styles';
 import { useEffect } from 'react';
 import { StyleSheet, View } from 'react-native';
 import Animated, { FadeInDown, ReduceMotion } from 'react-native-reanimated';
+
+export type TileDescriptor = {
+  id: string;
+  label: string;
+  subtitle?: string;
+  icon: IconName;
+  span: 1 | 2;
+  href: string;
+};
 
 type Props = {
   tiles: TileDescriptor[];
@@ -37,7 +46,7 @@ const TileGrid = ({ tiles }: Props) => {
               : undefined
           }
           style={tile.span === 2 ? styles.full : styles.half}>
-          <Tile label={tile.label} icon={tile.icon} href={tile.href} art={tile.art} />
+          <Tile label={tile.label} subtitle={tile.subtitle} icon={tile.icon} href={tile.href} />
         </Animated.View>
       ))}
     </View>

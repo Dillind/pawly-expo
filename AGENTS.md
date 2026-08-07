@@ -286,7 +286,7 @@ holding two mutations otherwise has two fields with the same name. Queries follo
 
 ### Telling the user what happened
 
-Three different things, three different surfaces. Do not mix them up.
+Four different things, four different surfaces. Do not mix them up.
 
 - **Form validation → inline.** Zod/react-hook-form errors render under the offending field. The
   validated inputs (`TextInputValidated`, `DropdownPickerValidated`, `DateTimePickerValidated`) do
@@ -295,6 +295,63 @@ Three different things, three different surfaces. Do not mix them up.
 - **API failure → toast.** Network dropped, RLS denied the write, Postgres threw. Not attributable
   to a field, and the user cannot fix it by retyping.
 - **Success → toast.** Every mutation confirms it landed.
+- **A decision that has to be made now → alert.** See below.
+
+### Alerts
+
+`Alert.alert` from `react-native`, which is `UIAlertController` on iOS. There is no wrapper — the
+platform component is the component.
+
+Apple's [Alerts guidance](https://developer.apple.com/design/human-interface-guidelines/alerts) is
+the rule here, and the parts that decide the call are:
+
+> "An alert gives people critical information they need right away."
+>
+> "Alerts give people important information, but they interrupt the current task to do so."
+>
+> "Use an action sheet — not an alert — to offer choices related to an intentional action."
+
+So, in this codebase:
+
+**Use an alert when all of these hold.** Miss any one and it is the wrong surface.
+
+1. **It reports something the user did not know**, discovered while carrying out what they asked
+   for — a collision, a destructive consequence, an irreversible step.
+2. **It is a response to an action, not a stage of one.** The user has already tapped the thing;
+   the app is interrupting. A question you always ask on the way through a flow is a step, not an
+   alert.
+3. **Two buttons is enough**, one of which is Cancel. Three is the hard ceiling and already a sign
+   the answer is a different surface.
+4. **The whole message fits in one short sentence.** If the explanation needs a paragraph, or the
+   options need explaining individually, the alert cannot carry it.
+
+**Never use an alert** for a routine undoable action, for anything merely informative (that is a
+toast), for a validation error (that is inline), or to offer a choice between options that each
+need explaining — Apple sends that to an action sheet, and if the options need text *underneath*
+them, neither works and it becomes a step in a `Tray`.
+
+**Writing them:**
+
+- **Title**: specific and complete, no verb needed — "Already logged", "Delete this photo?". Not
+  "Warning", not "Are you sure?".
+- **Message**: optional, and only if it adds something the title cannot. One sentence naming the
+  facts the decision turns on — who, what, when.
+- **Buttons**: name the action, never "OK" — "Log anyway", "Delete", "Remove". The cancelling
+  button is always titled exactly **"Cancel"** and always carries `style: 'cancel'`, which is what
+  makes iOS render it as the emphasised, safe default.
+- **`style: 'destructive'`** is for losing data, not merely for the consequential choice. Writing a
+  duplicate Feed Log is not destructive; deleting a Pet is.
+- **Emphasis is `isPreferred`, not colour.** A native alert takes no theme tokens — iOS draws it,
+  and `AlertButton` offers only the three `style` values plus `isPreferred`, which maps to
+  `UIAlertController.preferredAction` and renders that button **bold**. That is the whole of
+  primary-versus-secondary here. Put it on **Cancel** whenever the other button has a consequence,
+  so the consequential one has to be chosen rather than fallen into. If a decision genuinely needs
+  branded buttons, that is the signal it was never an alert — build it as a `Tray` step.
+
+Live examples: the Double Feed collision in `use-log-flow.ts`, removing a Pet in
+`home/pet/[petId].tsx`, deleting a photo in `gallery-strip.tsx`. The counter-example worth reading
+is `late-feed-step.tsx` — it asks a question and is deliberately **not** an alert, because each of
+its two options needs a sentence of consequence underneath it (ADR 0016).
 
 Toasts go through `@/lib/toast` (`showSuccessToast`, `showErrorToast`, `showInfoToast`) — never
 import `toast` from `sonner-native` outside that file. The optional second argument is a
@@ -553,6 +610,20 @@ if (!token) return null;
 // delivered, so useLastNotificationResponse is what replays it.
 const lastResponse = Notifications.useLastNotificationResponse();
 ```
+
+## Agent skills
+
+### Issue tracker
+
+GitHub Issues on `Dillind/pawly-expo`, via the `gh` CLI. See [docs/agents/issue-tracker.md](./docs/agents/issue-tracker.md).
+
+### Triage labels
+
+The five canonical roles, unchanged. See [docs/agents/triage-labels.md](./docs/agents/triage-labels.md).
+
+### Domain docs
+
+Single-context — `CONTEXT.md` and `docs/adr/` at the root. See [docs/agents/domain.md](./docs/agents/domain.md).
 
 ## Domain modelling discipline
 

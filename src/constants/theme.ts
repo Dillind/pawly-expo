@@ -127,4 +127,14 @@ export const Radius = {
  * this, so anything floating above the bar depends on this number being right.
  */
 export const BottomTabInset = Platform.select({ ios: 84, android: 80 }) ?? 0;
+
+/**
+ * The gutter between screen content and the screen edge.
+ *
+ * Applied by ScreenScrollView on the *content container*, never on the frame --
+ * padding on the frame insets the scroll view itself, which pulls the scroll
+ * indicator off the edge and makes full-bleed content impossible. Exported so a
+ * deliberately full-bleed child can re-indent its own text back to this line.
+ */
+export const ScreenGutter = Spacing.four;
 export const MaxContentWidth = 800;
