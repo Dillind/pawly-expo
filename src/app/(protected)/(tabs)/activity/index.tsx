@@ -56,6 +56,8 @@ const Activity = () => {
   const logTrayRef = useRef<TrueSheet | null>(null);
 
   const flow = useLogFlow({
+    members,
+    timezone,
     onConfirmNeeded: () => {
       void logTrayRef.current?.present();
     },

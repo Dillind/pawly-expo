@@ -1,15 +1,17 @@
 import { useLogFeed } from '@/hooks/queries/use-feed-log-mutations';
+import { formatTimeOfDay } from '@/lib/dates';
 import { feedLogErrorMessage } from '@/lib/feed-log-errors';
 import { showErrorToast, showSuccessToast } from '@/lib/toast';
 import type { LogFeedResult } from '@/services/feed-log.service';
-import type { FeedingScheduleLabel, Pet, SlotState } from '@/types/core';
+import type { FeedingScheduleLabel, HouseholdMember, Pet, SlotState } from '@/types/core';
+import { memberDisplayName } from '@/utils/members';
 import { useCallback, useState } from 'react';
+import { Alert } from 'react-native';
 
 type DoubleFeed = Extract<LogFeedResult, { status: 'double_feed' }>;
 
-export type LogConfirm =
-  | { kind: 'late'; pet: Pet; slot: SlotState }
-  | { kind: 'double'; pet: Pet; loggedAt: string; successText: string; warning: DoubleFeed };
+/** A Double Feed is not here -- it is an alert. See AGENTS.md, Alerts. */
+export type LogConfirm = { kind: 'late'; pet: Pet; slot: SlotState };
 
 /** `custom` has no word a sentence can use, so those feeds stay unnamed. */
 const LABEL_WORD: Record<FeedingScheduleLabel, string | null> = {
@@ -33,8 +35,23 @@ function countsAsText(pet: Pet, label: FeedingScheduleLabel): string {
     : `Logged — this counts as a scheduled feed`;
 }
 
+function alreadyLoggedText(
+  pet: Pet,
+  warning: DoubleFeed,
+  members: HouseholdMember[],
+  timezone: string
+): string {
+  const who = memberDisplayName(members, warning.existing.loggedBy);
+  const word = LABEL_WORD[warning.slot.label];
+  const what = word ? `${pet.name}'s ${word}` : `a feed for ${pet.name}`;
+
+  return `${who} logged ${what} at ${formatTimeOfDay(warning.existing.loggedAt, timezone)}.`;
+}
+
 type Options = {
-  /** A question has to be asked, so the host should raise the tray. */
+  members: HouseholdMember[];
+  timezone: string | undefined;
+  /** A question has to be asked on its own step, so the host should raise the tray. */
   onConfirmNeeded: () => void;
   /** A feed was actually written. */
   onWritten: () => void;
@@ -44,10 +61,10 @@ type Options = {
  * Owns everything between tapping a Scheduled Time and a row appearing.
  *
  * Lives above both hosts — the Home card renders the list inline, the tray
- * renders the same list as a step — so a pick made in either place can raise
- * the same confirm step.
+ * renders the same list as a step — so a pick made in either place reaches the
+ * same question.
  */
-export function useLogFlow({ onConfirmNeeded, onWritten }: Options) {
+export function useLogFlow({ members, timezone, onConfirmNeeded, onWritten }: Options) {
   const [confirm, setConfirm] = useState<LogConfirm | null>(null);
   // Bumped on every question asked. The tray navigates on this rather than on
   // `confirm` going non-null, so backing out and picking the same row again
@@ -58,19 +75,28 @@ export function useLogFlow({ onConfirmNeeded, onWritten }: Options) {
     setConfirm(next);
     setConfirmToken((token) => token + 1);
   }, []);
+
   const { mutate: logFeed, isPending: isLogging } = useLogFeed();
 
   const write = useCallback(
-    (pet: Pet, loggedAt: string, successText: string, confirmed = false) => {
+    function run(pet: Pet, loggedAt: string, successText: string, confirmed = false) {
       logFeed(
         { petId: pet.id, loggedAt, confirmed },
         {
           onSuccess: (result) => {
             if (result.status === 'double_feed') {
-              // Nothing was written. Re-issued with confirmed: true if the
-              // user says to.
-              ask({ kind: 'double', pet, loggedAt, successText, warning: result });
-              onConfirmNeeded();
+              setConfirm(null);
+              Alert.alert(
+                'Already logged',
+                timezone ? alreadyLoggedText(pet, result, members, timezone) : undefined,
+                [
+                  { text: 'Cancel', style: 'cancel', isPreferred: true },
+                  {
+                    text: 'Log anyway',
+                    onPress: () => run(pet, loggedAt, successText, true)
+                  }
+                ]
+              );
               return;
             }
 
@@ -86,13 +112,11 @@ export function useLogFlow({ onConfirmNeeded, onWritten }: Options) {
         }
       );
     },
-    [ask, logFeed, onConfirmNeeded, onWritten]
+    [logFeed, members, onWritten, timezone]
   );
 
   const pickSlot = useCallback(
     (pet: Pet, slot: SlotState) => {
-      // Inside the Grace Window, so `now` and the Scheduled Time mean the same
-      // thing and there is nothing to ask.
       if (slot.state === 'due') {
         write(pet, new Date().toISOString(), loggedText(pet, slot.label));
         return;
@@ -106,8 +130,6 @@ export function useLogFlow({ onConfirmNeeded, onWritten }: Options) {
 
   const pickExtra = useCallback(
     (pet: Pet, slots: SlotState[]) => {
-      // Whatever the matcher will claim this log for. `due` is the server's own
-      // answer to "is now inside this window", so nothing is recomputed here.
       const claimed = slots.find((slot) => slot.state === 'due');
 
       write(
@@ -121,7 +143,7 @@ export function useLogFlow({ onConfirmNeeded, onWritten }: Options) {
 
   const resolveLate = useCallback(
     (when: 'now' | 'scheduled') => {
-      if (confirm?.kind !== 'late') return;
+      if (!confirm) return;
 
       const { pet, slot } = confirm;
 
@@ -135,22 +157,7 @@ export function useLogFlow({ onConfirmNeeded, onWritten }: Options) {
     [confirm, write]
   );
 
-  const resolveDouble = useCallback(() => {
-    if (confirm?.kind !== 'double') return;
-
-    write(confirm.pet, confirm.loggedAt, confirm.successText, true);
-  }, [confirm, write]);
-
   const cancel = useCallback(() => setConfirm(null), []);
 
-  return {
-    confirm,
-    confirmToken,
-    isLogging,
-    pickSlot,
-    pickExtra,
-    resolveLate,
-    resolveDouble,
-    cancel
-  };
+  return { confirm, confirmToken, isLogging, pickSlot, pickExtra, resolveLate, cancel };
 }

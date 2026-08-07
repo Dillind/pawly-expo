@@ -2,7 +2,7 @@ import AppText from '@/components/core/app-text';
 import Icon from '@/components/core/icon';
 import PressableOpacity from '@/components/core/pressable-opacity';
 import Tray, { useTray, type TrayStepDescriptor } from '@/components/core/tray';
-import LogConfirmStep from '@/components/screens/home/log-confirm-step';
+import LateFeedStep from '@/components/screens/home/late-feed-step';
 import PetAvatar from '@/components/screens/home/pet-avatar';
 import ScheduledTimeList from '@/components/ui/scheduled-time-list';
 import type { AppTheme } from '@/constants/theme';
@@ -88,12 +88,12 @@ const TimeStep = ({
   );
 };
 
-/** Moves the tray onto the confirm step whenever the flow asks a question. */
-const ConfirmNavigator = ({ token }: { token: number }) => {
+/** Moves the tray onto the late-feed step when the flow asks. */
+const WhenNavigator = ({ token }: { token: number }) => {
   const { goTo } = useTray();
 
   useEffect(() => {
-    if (token > 0) goTo('confirm');
+    if (token > 0) goTo('when');
   }, [token, goTo]);
 
   return null;
@@ -113,10 +113,8 @@ const PetHeading = ({ pet }: { pet: Pet }) => {
 };
 
 /**
- * The sheet half of logging a feed. It is raised only when the app has
- * something to ask -- which pet, which Scheduled Time, or a confirmation. A
- * pick made on an expanded Home card that needs none of those writes without
- * ever presenting this.
+ * Raised only when there is something to ask: which pet, which Scheduled Time,
+ * or when a late feed happened. A pick needing none of those writes without it.
  */
 const LogFeedTray = ({
   sheetRef,
@@ -150,28 +148,22 @@ const LogFeedTray = ({
     )
   };
 
-  const confirmStep: TrayStepDescriptor = {
-    id: 'confirm',
-    title: flow.confirm?.kind === 'double' ? 'Already logged' : 'When was this feed?',
+  const whenStep: TrayStepDescriptor = {
+    id: 'when',
+    title: 'When was this feed?',
     render: () =>
       flow.confirm ? (
-        <LogConfirmStep
+        <LateFeedStep
           confirm={flow.confirm}
           timezone={timezone}
-          members={members}
           isLogging={flow.isLogging}
           onResolveLate={flow.resolveLate}
-          onResolveDouble={flow.resolveDouble}
-          onCancel={() => {
-            flow.cancel();
-            void sheetRef.current?.dismiss();
-          }}
         />
       ) : null
   };
 
   const steps: TrayStepDescriptor[] = active
-    ? [timeStep, confirmStep]
+    ? [timeStep, whenStep]
     : [
         {
           id: 'pet',
@@ -179,7 +171,7 @@ const LogFeedTray = ({
           render: () => <PetPickerStep pets={pets} onSelect={setSelected} />
         },
         timeStep,
-        confirmStep
+        whenStep
       ];
 
   return (
@@ -190,7 +182,7 @@ const LogFeedTray = ({
         setSelected(undefined);
         flow.cancel();
       }}>
-      <ConfirmNavigator token={flow.confirmToken} />
+      <WhenNavigator token={flow.confirmToken} />
     </Tray>
   );
 };

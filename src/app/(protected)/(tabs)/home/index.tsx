@@ -47,6 +47,8 @@ const Home = () => {
   const requestPermission = useRequestNotificationPermission();
 
   const flow = useLogFlow({
+    members,
+    timezone,
     onConfirmNeeded: () => {
       void logTrayRef.current?.present();
     },
