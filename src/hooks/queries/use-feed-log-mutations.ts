@@ -29,13 +29,25 @@ function useInvalidateFeedData(petId: string | undefined) {
  * `double_feed` result is a success that must NOT confirm anything, because
  * nothing was written.
  */
-export function useLogFeed(petId: string | undefined) {
-  const invalidate = useInvalidateFeedData(petId);
+export function useLogFeed() {
+  const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (input: { loggedAt?: string; notes?: string | null; confirmed?: boolean }) =>
-      FeedLogService.log(petId as string, input),
-    onSettled: invalidate
+    mutationFn: ({
+      petId,
+      ...input
+    }: {
+      petId: string;
+      loggedAt?: string;
+      notes?: string | null;
+      confirmed?: boolean;
+    }) => FeedLogService.log(petId, input),
+    // The pet comes from the payload rather than the hook, so one instance
+    // serves a Home screen holding several pets.
+    onSettled: (_data, _error, variables) => {
+      void queryClient.invalidateQueries({ queryKey: ['slot-states', variables.petId] });
+      void queryClient.invalidateQueries({ queryKey: ['feed-logs', variables.petId] });
+    }
   });
 }
 

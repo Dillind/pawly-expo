@@ -12,6 +12,8 @@ type Props = {
   slot: SlotState;
   timezone: string;
   fedBy: string;
+  /** Inside a card already. Drops its own fill so the two do not stack. */
+  isNested?: boolean;
   onPress?: () => void;
 };
 
@@ -36,13 +38,15 @@ const stateColour: Record<SlotState['state'], ThemeColor> = {
   upcoming: 'textSecondary'
 };
 
-const SlotRow = ({ slot, timezone, fedBy, onPress }: Props) => {
+const SlotRow = ({ slot, timezone, fedBy, isNested = false, onPress }: Props) => {
   const styles = useStyles(makeStyles);
+  const rowStyle = [styles.row, isNested && styles.nested];
 
   const detail =
     slot.state === 'fed' && slot.satisfiedAt
       ? `${fedBy}, ${formatTimeOfDay(slot.satisfiedAt, timezone)}`
-      : { fed: 'Fed', due: 'Due now', missed: 'Missed', upcoming: 'Upcoming' }[slot.state];
+      : // "Not logged", never "Missed" -- CONTEXT.md, Not Logged.
+        { fed: 'Fed', due: 'Due now', missed: 'Not logged', upcoming: 'Upcoming' }[slot.state];
 
   const body = (
     <>
@@ -59,12 +63,12 @@ const SlotRow = ({ slot, timezone, fedBy, onPress }: Props) => {
     </>
   );
 
-  // Only a fed slot has a log to open. Every other state stays inert rather
-  // than pressable-and-silent, which reads as a bug.
-  if (!onPress) return <View style={styles.row}>{body}</View>;
+  // `upcoming` has no onPress: its Scheduled Time is in the future and RLS
+  // rejects a logged_at later than now(), so a tap could write nothing.
+  if (!onPress) return <View style={rowStyle}>{body}</View>;
 
   return (
-    <PressableOpacity style={styles.row} onPress={onPress}>
+    <PressableOpacity style={rowStyle} accessibilityRole="button" onPress={onPress}>
       {body}
     </PressableOpacity>
   );
@@ -80,6 +84,12 @@ const makeStyles = ({ colors, spacing }: AppTheme) =>
       paddingHorizontal: spacing.three,
       borderRadius: 12,
       backgroundColor: colors.backgroundElement
+    },
+    nested: {
+      paddingHorizontal: 0,
+      paddingVertical: spacing.two,
+      borderRadius: 0,
+      backgroundColor: 'transparent'
     },
     label: {
       minWidth: 72

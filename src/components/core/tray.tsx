@@ -7,6 +7,8 @@ import type { ReactNode, RefObject } from 'react';
 export type TrayStepDescriptor = {
   id: string;
   title: string;
+  /** Replaces the title text in the header. `title` is still what assistive tech reads. */
+  header?: () => ReactNode;
   render: () => ReactNode;
 };
 
@@ -28,9 +30,11 @@ type Props = {
   sheetRef: RefObject<TrueSheet | null>;
   steps: TrayStepDescriptor[];
   onDismiss?: () => void;
+  /** Renders inside the context but outside the sheet — navigation effects only. */
+  children?: ReactNode;
 };
 
-const Tray = ({ sheetRef, steps, onDismiss }: Props) => {
+const Tray = ({ sheetRef, steps, onDismiss, children }: Props) => {
   const [history, setHistory] = useState<string[]>([]);
   const [isPresented, setIsPresented] = useState(false);
 
@@ -77,6 +81,7 @@ const Tray = ({ sheetRef, steps, onDismiss }: Props) => {
 
   return (
     <TrayContext.Provider value={controls}>
+      {children}
       <BaseSheet
         sheetRef={sheetRef}
         detents={['auto']}
@@ -84,6 +89,7 @@ const Tray = ({ sheetRef, steps, onDismiss }: Props) => {
         onPresent={handlePresent}>
         <TrayStep
           title={active.title}
+          header={active.header}
           isFirst={history.length === 0}
           onBack={controls.back}
           onClose={close}>

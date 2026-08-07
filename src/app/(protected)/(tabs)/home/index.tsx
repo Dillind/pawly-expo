@@ -1,5 +1,5 @@
 import FeedLogDetailSheet from '@/components/bottom-sheets/feed-log-detail-sheet';
-import LogFeedSheet from '@/components/bottom-sheets/log-feed-sheet';
+import LogFeedTray from '@/components/bottom-sheets/log-feed-tray';
 import AppText from '@/components/core/app-text';
 import EmptyState from '@/components/core/empty-state';
 import ErrorState from '@/components/core/error-state';
@@ -16,6 +16,7 @@ import { useHousehold } from '@/hooks/queries/use-household';
 import { useHouseholdMembers } from '@/hooks/queries/use-household-members';
 import { usePets } from '@/hooks/queries/use-pets';
 import { useRequestNotificationPermission } from '@/hooks/use-notification-permission';
+import { useLogFlow } from '@/hooks/use-log-flow';
 import { useRefreshOnFocus } from '@/hooks/use-refresh-on-focus';
 import { useStyles } from '@/hooks/use-styles';
 import { formatDayAndDate, todayInTimezone } from '@/lib/dates';
@@ -23,7 +24,8 @@ import type { Pet } from '@/types/core';
 import type { TrueSheet } from '@lodev09/react-native-true-sheet';
 import * as Notifications from 'expo-notifications';
 import { useEffect, useRef, useState } from 'react';
-import { ActivityIndicator, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, StyleSheet } from 'react-native';
+import Animated, { LinearTransition } from 'react-native-reanimated';
 
 const Home = () => {
   const [activeLogId, setActiveLogId] = useState<string | undefined>(undefined);
@@ -40,14 +42,27 @@ const Home = () => {
 
   useRefreshOnFocus(['slot-states']);
   const detailSheetRef = useRef<TrueSheet | null>(null);
-  const logSheetRef = useRef<TrueSheet | null>(null);
+  const logTrayRef = useRef<TrueSheet | null>(null);
   const hasCheckedPermission = useRef(false);
   const requestPermission = useRequestNotificationPermission();
 
+  const flow = useLogFlow({
+    onConfirmNeeded: () => {
+      void logTrayRef.current?.present();
+    },
+    onWritten: () => {
+      void logTrayRef.current?.dismiss();
+    }
+  });
+
+  const openLog = (logId: string, petId: string) => {
+    setActiveLogId(logId);
+    setActivePetId(petId);
+    void detailSheetRef.current?.present();
+  };
+
   const hasPets = pets.length > 0;
   const isOnlyPet = pets.length === 1;
-
-  const popoverPet = isOnlyPet ? pets[0] : undefined;
 
   useEffect(() => {
     if (!hasPets || hasCheckedPermission.current) return;
@@ -89,7 +104,8 @@ const Home = () => {
     }
 
     return (
-      <View style={styles.sections}>
+      // Animated so the sections below an expanding one slide rather than jump.
+      <Animated.View style={styles.sections} layout={LinearTransition.duration(220)}>
         {pets.map((pet) => (
           <PetSection
             key={pet.id}
@@ -98,18 +114,24 @@ const Home = () => {
             today={today}
             members={members}
             isOnlyPet={isOnlyPet}
-            onSlotPress={(logId) => {
-              setActiveLogId(logId);
-              setActivePetId(pet.id);
-              void detailSheetRef.current?.present();
+            onOpenLog={(logId) => openLog(logId, pet.id)}
+            // Named before the pick so that if a confirm follows, backing out
+            // of it lands on this pet's list rather than the pet picker.
+            onPickSlot={(pickedPet, slot) => {
+              setLogPet(pickedPet);
+              flow.pickSlot(pickedPet, slot);
+            }}
+            onPickExtra={(pickedPet, slots) => {
+              setLogPet(pickedPet);
+              flow.pickExtra(pickedPet, slots);
             }}
             onLogPress={() => {
               setLogPet(pet);
-              void logSheetRef.current?.present();
+              void logTrayRef.current?.present();
             }}
           />
         ))}
-      </View>
+      </Animated.View>
     );
   };
 
@@ -122,7 +144,7 @@ const Home = () => {
           </AppText>
         )}
 
-        {hasPets && !isOnlyPet && (
+        {hasPets && (
           <AppText variant="header" size={32}>
             Today
           </AppText>
@@ -138,15 +160,26 @@ const Home = () => {
         primaryAction={{
           label: 'Log a feed',
           icon: 'utensils',
-          isDisabled: !popoverPet,
+          isDisabled: !hasPets,
           onPress: () => {
-            setLogPet(popoverPet);
-            void logSheetRef.current?.present();
+            setLogPet(undefined);
+            void logTrayRef.current?.present();
           }
         }}
       />
 
-      <LogFeedSheet sheetRef={logSheetRef} petId={logPet?.id} petName={logPet?.name} />
+      {timezone && today && (
+        <LogFeedTray
+          sheetRef={logTrayRef}
+          pets={pets}
+          timezone={timezone}
+          today={today}
+          members={members}
+          pet={logPet}
+          flow={flow}
+          onOpenLog={(logId) => openLog(logId, logPet?.id ?? pets[0]?.id)}
+        />
+      )}
 
       <FeedLogDetailSheet sheetRef={detailSheetRef} logId={activeLogId} petId={activePetId} />
     </ScreenView>

@@ -45,9 +45,9 @@ _Avoid_: Health record, medical history, health section (all promise clinical hi
 The set of expected daily feed times for a pet (e.g. 07:00, 12:00, 17:00), each expressed as a wall-clock time interpreted in the household's timezone.
 _Avoid_: Meal plan, routine.
 
-**Scheduled Time** (or **Slot**):
-A single expected feed time within a Feeding Schedule.
-_Avoid_: Meal, feeding time.
+**Scheduled Time**:
+A single expected feed time within a Feeding Schedule. **Slot** is the internal synonym and stays in code — it names an empty container that may or may not get filled, which is why `slot_states` and the slot matcher are called what they are. Prose and conversation use Scheduled Time; a Member reads neither, only the label and the time ("Crumpet's morning feed").
+_Avoid_: Meal, feeding time, and "slot" outside code.
 
 **Feed Log**:
 A record that a pet was fed — who fed it (`logged_by`), when (`logged_at`, adjustable/backdatable), and optional notes. The core action of the app.
@@ -65,9 +65,17 @@ _Avoid_: Buffer, tolerance, timeout.
 The Feed Log that fulfils a given Scheduled Time: the one nearest that slot among the logs falling inside its Grace Window. A slot has at most one Satisfying Feed, and a Feed Log satisfies at most one slot. A log outside every Grace Window satisfies nothing — it is a valid, recorded feed that simply belongs to no slot (a snack, an extra feed).
 _Avoid_: Matching feed, qualifying log.
 
+**Extra Feed**:
+A Feed Log that satisfies no Scheduled Time — it fell outside every Grace Window. A real, recorded feed that simply belongs to nowhere on the schedule: a mid-afternoon snack, or a feed given so late that the slot it was meant for has already closed. A Member creates one by choosing "Something else" rather than a Scheduled Time.
+_Avoid_: Snack (guesses at the food, and misses the late-feed case), unscheduled feed, ad-hoc feed.
+
 **Missed Feed**:
-A Scheduled Time with no Satisfying Feed by (Scheduled Time + Grace Window). Triggers a Missed Feed Alert to the whole household.
-_Avoid_: Skipped feed, overdue meal.
+A Scheduled Time with no Satisfying Feed by (Scheduled Time + Grace Window). Triggers a Missed Feed Alert to the whole household. **An internal term** — it names the condition in code, alerts and ADRs, and is never shown to a Member. What the app actually knows is that nobody tapped Log, and most of the time the pet was fed; a screen reading "Missed" tells a person their pet did not eat, which is the claim PRODUCT_BRIEF calls fatal. The label a Member reads is **Not Logged**.
+_Avoid_: Skipped feed, overdue meal, and "Missed" as user-facing copy.
+
+**Not Logged**:
+The user-facing label for a Missed Feed — the Scheduled Time has no Satisfying Feed. It describes the record, not the animal, and it names its own remedy: not logged, so log it. Correcting one is ordinary, not an admission of neglect: a Member backdates `logged_at` to when the feed actually happened, and the slot is then genuinely satisfied.
+_Avoid_: Missed, skipped, overdue, late.
 
 ## Notifications
 
