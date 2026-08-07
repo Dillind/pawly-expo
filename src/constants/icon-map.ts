@@ -18,6 +18,8 @@ import {
   PawPrint,
   Pencil,
   Plus,
+  RotateCw,
+  Share,
   Trash2,
   UserPlus,
   Utensils,
@@ -47,7 +49,9 @@ export const iconMap = {
   pawPrint: PawPrint,
   bell: Bell,
   close: X,
-  trash: Trash2
+  trash: Trash2,
+  flip: RotateCw,
+  share: Share
 } as const;
 
 export type IconName = keyof typeof iconMap;

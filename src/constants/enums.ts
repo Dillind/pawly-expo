@@ -55,6 +55,8 @@ export enum SuccessMessage {
 export enum ErrorMessage {
   BioUpdateFailed = 'Could not update bio',
   CameraAccessDenied = 'Allow camera access in Settings to take a photo',
+  CareCardShareFailed = 'Could not make the Care Card PDF',
+  CareCardShareUnavailable = 'This device has nowhere to share the PDF to',
   CareCardUpdateFailed = 'Could not update the Care Card',
   CoverPhotoUpdateFailed = 'Could not set the cover photo',
   FeedTimeRemoveFailed = 'Could not remove the feed time',

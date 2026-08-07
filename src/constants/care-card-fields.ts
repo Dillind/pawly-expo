@@ -1,4 +1,5 @@
 import type { CareCardInput } from '@/lib/form/pet-schemas';
+import type { CareCard } from '@/services/care-card.service';
 
 export type CareCardField = keyof CareCardInput;
 
@@ -119,3 +120,12 @@ export const CARE_CARD_SECTIONS: CareCardSection[] = [
 export const CARE_CARD_FIELDS: CareCardField[] = CARE_CARD_SECTIONS.flatMap(
   (section) => section.fields
 );
+
+/**
+ * A pet with no Care Card row yet reads the same as one whose fields are all
+ * blank, so nothing downstream has to branch on null.
+ */
+export const emptyCareCard = (petId: string): CareCard => ({
+  petId,
+  ...(Object.fromEntries(CARE_CARD_FIELDS.map((field) => [field, null])) as CareCardInput)
+});
