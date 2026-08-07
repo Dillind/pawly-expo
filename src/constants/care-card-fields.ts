@@ -31,7 +31,7 @@ export const CARE_CARD_FIELD_LABELS: Record<CareCardField, string> = {
   feedingNotes: 'Feeding notes',
   walkRoutine: 'Walks and toileting',
   whereThingsAre: 'Where things are kept',
-  notes: 'Anything else'
+  notes: 'Notes'
 };
 
 // An example beats an instruction: the placeholder shows the shape of a good

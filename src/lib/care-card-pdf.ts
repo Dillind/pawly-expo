@@ -126,7 +126,10 @@ const petPage = (pet: CareCardPdfPet, generatedOn: string, isLast: boolean): str
     `</div><div class="stamp"><p>Care Card</p><p>${escapeHtml(generatedOn)}</p></div></header>` +
     body +
     empty +
-    `<footer>Crumpet &middot; ${escapeHtml(generatedOn)}. Check with the owner before relying on anything here.</footer>` +
+    // Names the pet, not the app. On a multi-pet PDF this is the only thing on
+    // a continuation page saying whose card you are holding.
+    `<footer>${escapeHtml(pet.name)} &middot; ${escapeHtml(generatedOn)} &middot; ` +
+    `Check with the owner before relying on anything here.</footer>` +
     `</article>`
   );
 };
@@ -179,11 +182,15 @@ const STYLES = `
     page-break-inside: avoid;
   }
   .panel .value { font-weight: 600; }
-  .block { margin-bottom: 18px; page-break-inside: avoid; }
-  .row { display: flex; gap: 12px; padding: 3px 0; align-items: baseline; }
+  /* No page-break-inside here on purpose: forbidding it pushed whole sections
+     to the next page and left a third of the first one blank. A section may
+     split; the emergency panel and a single medication may not. */
+  .block { margin-bottom: 18px; }
+  .block h2 { page-break-after: avoid; }
+  .row { display: flex; gap: 12px; padding: 3px 0; align-items: baseline; page-break-inside: avoid; }
   .label { flex: 0 0 34%; color: #60646C; font-size: 9.5pt; }
   .value { flex: 1; }
-  .med { padding: 5px 0; border-top: 0.5pt solid #DDDDDD; }
+  .med { padding: 5px 0; border-top: 0.5pt solid #DDDDDD; page-break-inside: avoid; }
   .med:first-of-type { border-top: none; }
   .med-name { font-weight: 700; }
   .med-detail { color: #60646C; font-size: 10pt; }

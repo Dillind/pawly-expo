@@ -131,6 +131,14 @@ describe('buildCareCardHtml', () => {
 
     expect(html).toContain('This Care Card is empty');
   });
+
+  it('names the pet in each footer, not the app', () => {
+    // Regression: the footer said "Crumpet" (the app) on every page, so on a
+    // multi-pet PDF a continuation page named the wrong animal.
+    const html = build([pet({ name: 'Biscuit' })]);
+
+    expect(html).toContain('<footer>Biscuit &middot; 7 August 2026');
+  });
 });
 
 describe('careCardFileName', () => {
