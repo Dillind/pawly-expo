@@ -1,9 +1,14 @@
-import type { CareCardInput, MedicationInput } from '@/lib/form/pet-schemas';
+import type {
+  CareCardContactInput,
+  CareCardInput,
+  MedicationInput
+} from '@/lib/form/pet-schemas';
 import { supabase } from '@/lib/supabase/client';
 
 export type CareCard = {
   petId: string;
   allergies: string | null;
+  behaviourNotes: string | null;
   vetName: string | null;
   vetPhone: string | null;
   emergencyVetName: string | null;
@@ -12,8 +17,22 @@ export type CareCard = {
   insuranceProvider: string | null;
   insurancePolicyNumber: string | null;
   feedingNotes: string | null;
+  walkRoutine: string | null;
+  whereThingsAre: string | null;
   notes: string | null;
 };
+
+export type CareCardContact = {
+  id: string;
+  petId: string;
+  name: string;
+  phone: string | null;
+  sortOrder: number;
+  createdAt: string;
+};
+
+/** A Care Card holds at most three, enforced in the UI and by a trigger. */
+export const MAX_CARE_CARD_CONTACTS = 3;
 
 export type Medication = {
   id: string;
@@ -28,6 +47,7 @@ export type Medication = {
 
 const CARE_CARD_COLUMNS: Record<keyof CareCardInput, string> = {
   allergies: 'allergies',
+  behaviourNotes: 'behaviour_notes',
   vetName: 'vet_name',
   vetPhone: 'vet_phone',
   emergencyVetName: 'emergency_vet_name',
@@ -36,25 +56,28 @@ const CARE_CARD_COLUMNS: Record<keyof CareCardInput, string> = {
   insuranceProvider: 'insurance_provider',
   insurancePolicyNumber: 'insurance_policy_number',
   feedingNotes: 'feeding_notes',
+  walkRoutine: 'walk_routine',
+  whereThingsAre: 'where_things_are',
   notes: 'notes'
 };
+
+const SELECTED_COLUMNS = ['pet_id', ...Object.values(CARE_CARD_COLUMNS)].join(', ');
 
 namespace CareCardService {
   export async function getCard(petId: string): Promise<CareCard | null> {
     const { data, error } = await supabase
       .from('care_cards')
-      .select(
-        'pet_id, allergies, vet_name, vet_phone, emergency_vet_name, emergency_vet_phone, microchip_number, insurance_provider, insurance_policy_number, feeding_notes, notes'
-      )
+      .select(SELECTED_COLUMNS)
       .eq('pet_id', petId)
-      .maybeSingle();
+      .maybeSingle<Record<string, string | null>>();
 
     if (error) throw error;
     if (!data) return null;
 
     return {
-      petId: data.pet_id,
+      petId: data.pet_id as string,
       allergies: data.allergies,
+      behaviourNotes: data.behaviour_notes,
       vetName: data.vet_name,
       vetPhone: data.vet_phone,
       emergencyVetName: data.emergency_vet_name,
@@ -63,8 +86,69 @@ namespace CareCardService {
       insuranceProvider: data.insurance_provider,
       insurancePolicyNumber: data.insurance_policy_number,
       feedingNotes: data.feeding_notes,
+      walkRoutine: data.walk_routine,
+      whereThingsAre: data.where_things_are,
       notes: data.notes
     };
+  }
+
+  export async function listContacts(petId: string): Promise<CareCardContact[]> {
+    const { data, error } = await supabase
+      .from('care_card_contacts')
+      .select('id, pet_id, name, phone, sort_order, created_at')
+      .eq('pet_id', petId)
+      // sort_order alone is not unique, so created_at breaks the tie
+      // deterministically -- same reasoning as medications.
+      .order('sort_order', { ascending: true })
+      .order('created_at', { ascending: true });
+
+    if (error) throw error;
+
+    return data.map((row) => ({
+      id: row.id,
+      petId: row.pet_id,
+      name: row.name,
+      phone: row.phone,
+      sortOrder: row.sort_order,
+      createdAt: row.created_at
+    }));
+  }
+
+  export async function upsertContact(
+    petId: string,
+    input: CareCardContactInput & { id?: string }
+  ): Promise<void> {
+    const row = { pet_id: petId, name: input.name, phone: input.phone };
+
+    if (input.id) {
+      const { error } = await supabase
+        .from('care_card_contacts')
+        .update(row)
+        .eq('id', input.id);
+      if (error) throw error;
+      return;
+    }
+
+    // New contacts need a deterministic, increasing sort_order -- the column
+    // defaults to 0, and with two rows at 0 Postgres guarantees no ordering.
+    const { data: maxRow, error: maxError } = await supabase
+      .from('care_card_contacts')
+      .select('sort_order')
+      .eq('pet_id', petId)
+      .order('sort_order', { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    if (maxError) throw maxError;
+
+    const { error } = await supabase
+      .from('care_card_contacts')
+      .insert({ ...row, sort_order: (maxRow?.sort_order ?? -1) + 1 });
+    if (error) throw error;
+  }
+
+  export async function deleteContact(contactId: string): Promise<void> {
+    const { error } = await supabase.from('care_card_contacts').delete().eq('id', contactId);
+    if (error) throw error;
   }
 
   export async function listMedications(petId: string): Promise<Medication[]> {

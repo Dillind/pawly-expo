@@ -97,16 +97,27 @@ describe('composeLoggedAt', () => {
 });
 
 describe('formatAge', () => {
+  // toISOString would give the UTC day, but formatAge reads a birthdate as
+  // local midnight. Anywhere east of Greenwich the two disagree for part of
+  // every day, and these helpers were then a day out -- passing or failing on
+  // the clock rather than on the code.
+  const asLocalDay = (date: Date): string =>
+    [
+      date.getFullYear(),
+      String(date.getMonth() + 1).padStart(2, '0'),
+      String(date.getDate()).padStart(2, '0')
+    ].join('-');
+
   const daysAgo = (days: number): string => {
     const date = new Date();
     date.setDate(date.getDate() - days);
-    return date.toISOString().slice(0, 10);
+    return asLocalDay(date);
   };
 
   const monthsAgo = (months: number): string => {
     const date = new Date();
     date.setMonth(date.getMonth() - months);
-    return date.toISOString().slice(0, 10);
+    return asLocalDay(date);
   };
 
   it('returns null without a birthdate', () => {

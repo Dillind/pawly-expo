@@ -131,7 +131,7 @@ const FeedLogDetailSheet = ({ sheetRef, logId, petId }: Props) => {
 
               <MainButton
                 text="Delete this log"
-                variant="secondary"
+                variant="destructive"
                 isLoading={isDeleting}
                 isDisabled={isSaving || isDeleting}
                 onPress={onDelete}

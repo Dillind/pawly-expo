@@ -48,6 +48,12 @@ export default function HomeLayout() {
             headerBackButtonDisplayMode: 'minimal'
           }}
         />
+        {/* Full-screen, not a sheet: nine keyboard-heavy steps need the whole
+            safe area, and nothing behind it is useful context. */}
+        <Stack.Screen
+          name="pet/care-card-editor"
+          options={{ presentation: 'fullScreenModal', headerShown: false, animation: 'slide_from_bottom' }}
+        />
       </Stack>
     </>
   );

@@ -488,7 +488,7 @@ import Icon from '@/components/core/icon';
 
 Unlike `MainButton`, it never stretches to fill its parent — it is a fixed circular target (`alignSelf: 'center'`). Variants are `primary` / `secondary` / `ghost` / `glass`; the first two draw the glyph in `onPrimary`, `ghost` in `text`, and `glass` in `primary` (white on clear glass is invisible over a light background).
 
-`glass` is the one variant that does not use `PressableOpacity`: it renders a `GlassView` with `isInteractive`, so the material itself provides the press response. Layering the usual opacity fade on top would fight it — see [ADR 0011](./docs/adr/0011-liquid-glass-progressive-enhancement.md), which also requires the `isLiquidGlassAvailable()` fallback the variant already carries.
+`glass` is the one variant that does not use `PressableOpacity`: it renders a `GlassView` with `isInteractive`, so the material itself provides the press response. Layering the usual opacity fade on top would fight it — see [ADR 0011](./docs/adr/0011-liquid-glass-progressive-enhancement.md), which also requires the `hasGlass` fallback the variant already carries — below iOS 26 it drops back to the opaque `PressableOpacity` path, because there is no material to deform.
 
 **Adding a new icon:**
 

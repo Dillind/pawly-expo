@@ -2,6 +2,7 @@ import PhotoSourceSheet from '@/components/bottom-sheets/photo-source-sheet';
 import AppText from '@/components/core/app-text';
 import IconButton from '@/components/core/icon-button';
 import Tray, { type TrayStepDescriptor } from '@/components/core/tray';
+import CareCard from '@/components/screens/pet/care-card';
 import EditPetDetails from '@/components/screens/pet/edit-pet-details';
 import { SEX_OPTIONS } from '@/constants/options';
 import type { AppTheme } from '@/constants/theme';
@@ -61,22 +62,31 @@ const PetHeader = ({
 
   return (
     <View style={styles.container}>
-      <View>
-        <Image source={photoUrl} style={styles.photo} contentFit="cover" transition={200} />
+      <View style={styles.identityRow}>
+        <View>
+          <Image source={photoUrl} style={styles.photo} contentFit="cover" transition={200} />
 
-        <View style={styles.editWell}>
-          {isChangingPhoto ? (
-            <ActivityIndicator />
-          ) : (
-            <IconButton
-              name="camera"
-              accessibilityLabel="Change photo"
-              variant="primary"
-              size={18}
-              onPress={() => void photoSheetRef.current?.present()}
-            />
-          )}
+          <View style={styles.editWell}>
+            {isChangingPhoto ? (
+              <ActivityIndicator />
+            ) : (
+              <IconButton
+                name="camera"
+                accessibilityLabel="Change photo"
+                variant="primary"
+                size={18}
+                onPress={() => void photoSheetRef.current?.present()}
+              />
+            )}
+          </View>
         </View>
+
+        <CareCard
+          petId={petId}
+          petName={name}
+          petSubtitle={subtitle.length > 0 ? subtitle : null}
+          photoUrl={photoUrl}
+        />
       </View>
 
       <View style={styles.nameRow}>
@@ -117,6 +127,13 @@ const makeStyles = ({ spacing, colors }: AppTheme) =>
     container: {
       gap: spacing.two,
       alignItems: 'center'
+    },
+    // The Care Card sits with the pet's identity rather than in the run of
+    // sections below -- it is the pet's document, not another section.
+    identityRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: spacing.three
     },
     nameRow: {
       flexDirection: 'row',

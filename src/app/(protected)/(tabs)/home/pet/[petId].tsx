@@ -2,7 +2,6 @@ import ErrorState from '@/components/core/error-state';
 import HeaderIconButton from '@/components/core/header-icon-button';
 import ScreenScrollView from '@/components/layout/screen-scroll-view';
 import ScreenView from '@/components/layout/screen-view';
-import CareCardSection from '@/components/screens/pet/care-card-section';
 import GalleryStrip from '@/components/screens/pet/gallery-strip';
 import PetBio from '@/components/screens/pet/pet-bio';
 import PetHeader from '@/components/screens/pet/pet-header';
@@ -99,10 +98,6 @@ const PetDetail = () => {
 
         <SectionCard>
           <PetBio petId={pet.id} name={pet.name} bio={pet.bio} />
-        </SectionCard>
-
-        <SectionCard>
-          <CareCardSection petId={pet.id} />
         </SectionCard>
       </ScreenScrollView>
     </ScreenView>

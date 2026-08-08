@@ -9,6 +9,8 @@ import {
   ChevronRight,
   ChevronUp,
   CircleAlert,
+  CircleQuestionMark,
+  ClipboardList,
   Clock,
   Dot,
   Eye,
@@ -18,6 +20,8 @@ import {
   PawPrint,
   Pencil,
   Plus,
+  FlipHorizontal2,
+  Share,
   Trash2,
   UserPlus,
   Utensils,
@@ -47,7 +51,11 @@ export const iconMap = {
   pawPrint: PawPrint,
   bell: Bell,
   close: X,
-  trash: Trash2
+  trash: Trash2,
+  flip: FlipHorizontal2,
+  share: Share,
+  help: CircleQuestionMark,
+  clipboardList: ClipboardList
 } as const;
 
 export type IconName = keyof typeof iconMap;

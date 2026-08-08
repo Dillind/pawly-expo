@@ -50,7 +50,7 @@ const Profile = () => {
         <View>
           <MainButton
             text="Sign out"
-            variant="secondary"
+            variant="destructive"
             isLoading={isLoading}
             isDisabled={isLoading}
             onPress={() => void logout()}
