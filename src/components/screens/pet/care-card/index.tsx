@@ -16,8 +16,7 @@ type Props = {
 
 const CareCard = ({ petId, petName, petSubtitle, photoUrl }: Props) => {
   const router = useRouter();
-  const { card, medications, contacts, filledCount, isFilled, isLoading } =
-    useCareCardData(petId);
+  const { card, medications, contacts, isFilled, isLoading } = useCareCardData(petId);
   const { shareCareCard, isSharing } = useShareCareCard();
 
   const [origin, setOrigin] = useState<TileFrame | null>(null);
@@ -59,7 +58,6 @@ const CareCard = ({ petId, petName, petSubtitle, photoUrl }: Props) => {
           card={card}
           medications={medications}
           contacts={contacts}
-          filledCount={filledCount}
           origin={origin}
           isSharing={isSharing}
           onClose={() => setOrigin(null)}

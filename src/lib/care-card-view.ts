@@ -18,9 +18,11 @@ export const EMERGENCY_FIELDS: CareCardField[] = [
   'emergencyVetPhone'
 ];
 
-export type CareCardRow = { label: string; value: string };
+/** `id` keys the row: two contacts can share a name, so the label cannot. */
+export type CareCardRow = { id: string; label: string; value: string };
 
 export type CareCardMedicationEntry = {
+  id: string;
   name: string;
   /** Dose and schedule joined, or null when neither was given. */
   detail: string | null;
@@ -37,7 +39,11 @@ export const hasValue = (value: string | null | undefined): value is string =>
 const fieldRows = (card: CareCard, fields: CareCardField[]): CareCardRow[] =>
   fields
     .filter((field) => hasValue(card[field]))
-    .map((field) => ({ label: CARE_CARD_FIELD_LABELS[field], value: card[field] as string }));
+    .map((field) => ({
+      id: field,
+      label: CARE_CARD_FIELD_LABELS[field],
+      value: card[field] as string
+    }));
 
 /**
  * The one ordering both the printed page and the on-screen card follow, so what
@@ -53,6 +59,7 @@ export const careCardBlocks = (
   // Contacts lead: a person to ring beats a clinic's opening hours.
   const emergencyRows = [
     ...contacts.map((contact) => ({
+      id: contact.id,
       label: contact.name,
       value: contact.phone ?? 'No number given'
     })),
@@ -75,6 +82,7 @@ export const careCardBlocks = (
       id: 'medications',
       title: 'Medications',
       items: medications.map((medication) => ({
+        id: medication.id,
         name: medication.name,
         detail:
           [medication.dose, medication.scheduleText].filter(hasValue).join(' · ') || null,

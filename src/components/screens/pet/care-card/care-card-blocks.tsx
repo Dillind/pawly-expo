@@ -38,7 +38,7 @@ const CareCardBlocks = ({ blocks, tone }: Props) => {
 
           {block.kind === 'medications'
             ? block.items.map((medication) => (
-                <View key={medication.name} style={styles.row}>
+                <View key={medication.id} style={styles.row}>
                   <AppText color={colors.text} size={15}>
                     {medication.name}
                   </AppText>
@@ -55,7 +55,7 @@ const CareCardBlocks = ({ blocks, tone }: Props) => {
                 </View>
               ))
             : block.rows.map((row) => (
-                <View key={row.label} style={styles.row}>
+                <View key={row.id} style={styles.row}>
                   <AppText color={colors.label} size={11} style={styles.rowLabel}>
                     {row.label}
                   </AppText>

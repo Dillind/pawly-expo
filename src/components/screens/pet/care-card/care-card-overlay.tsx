@@ -39,7 +39,6 @@ type Props = {
   card: CareCard;
   medications: Medication[];
   contacts: CareCardContact[];
-  filledCount: number;
   /** Window coordinates of the tile this grows out of. */
   origin: TileFrame;
   isSharing: boolean;
@@ -56,7 +55,6 @@ const CareCardOverlay = ({
   card,
   medications,
   contacts,
-  filledCount,
   origin,
   isSharing,
   onClose,
@@ -130,9 +128,13 @@ const CareCardOverlay = ({
   }));
 
   const blocks = careCardBlocks(card, medications, contacts);
-  const summary = filledCount
+  // Counted off the blocks, not off the filled field count: a card carrying only
+  // medications or contacts has no filled fields but is far from empty, and
+  // the medications block is listed on its own rather than as a section.
+  const sectionCount = blocks.filter((block) => block.kind !== 'medications').length;
+  const summary = blocks.length
     ? [
-        countLabel(blocks.length, 'section'),
+        sectionCount ? countLabel(sectionCount, 'section') : null,
         medications.length ? countLabel(medications.length, 'medication') : null
       ]
         .filter(Boolean)
@@ -155,7 +157,7 @@ const CareCardOverlay = ({
             photoUrl={photoUrl}
             summary={summary}
             isSharing={isSharing}
-            isShareDisabled={isSharing || filledCount === 0}
+            isShareDisabled={isSharing || blocks.length === 0}
             onFlip={toggleFlip}
             onEdit={onEdit}
             onShare={onShare}

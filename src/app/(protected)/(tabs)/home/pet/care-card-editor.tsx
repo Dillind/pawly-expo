@@ -12,8 +12,10 @@ import SectionStep from '@/components/screens/pet/care-card-steps/section-step';
 import { CARE_CARD_STEPS } from '@/constants/care-card-fields';
 import { Radius, Spacing, type AppTheme } from '@/constants/theme';
 import { useCareCardData } from '@/hooks/queries/use-care-card';
+import { useHousehold } from '@/hooks/queries/use-household';
 import { useShareCareCard } from '@/hooks/use-share-care-card';
 import { useStyles } from '@/hooks/use-styles';
+import { formatDateWithYear } from '@/lib/dates';
 import { hapticLight } from '@/lib/haptics';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -36,6 +38,7 @@ const CareCardEditor = () => {
 
   const { card, medications, contacts, isLoading } = useCareCardData(petId);
   const { shareCareCard, isSharing } = useShareCareCard();
+  const { data: household } = useHousehold();
 
   const [stepIndex, setStepIndex] = useState(0);
   const helpRef = useRef<CareCardHelpHandle | null>(null);
@@ -58,11 +61,10 @@ const CareCardEditor = () => {
   // step -- hence no "discard changes?" prompt.
   const close = () => router.back();
 
-  const generatedOn = new Date().toLocaleDateString('en-AU', {
-    day: 'numeric',
-    month: 'long',
-    year: 'numeric'
-  });
+  // The household's timezone, matching the stamp useShareCareCard puts on the
+  // PDF -- the device's own clock can name a different day near midnight.
+  const zone = household?.timezone ?? Intl.DateTimeFormat().resolvedOptions().timeZone;
+  const generatedOn = formatDateWithYear(new Date(), zone);
 
   return (
     // Manual inset: as a fullScreenModal the safe-area provider reports a top

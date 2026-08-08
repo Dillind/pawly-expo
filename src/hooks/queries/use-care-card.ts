@@ -42,7 +42,6 @@ export function useCareCardData(petId: string) {
     card,
     medications,
     contacts,
-    filledCount,
     isFilled: filledCount > 0 || medications.length > 0 || contacts.length > 0
   };
 }

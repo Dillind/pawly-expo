@@ -67,7 +67,7 @@ const BaseModal = ({
       swipeDirection={isSwipeDismissible ? 'down' : undefined}
       onSwipeComplete={isSwipeDismissible ? onClose : undefined}
       onBackdropPress={isBackdropDismissible ? onClose : undefined}
-      onBackButtonPress={onClose}
+      onBackButtonPress={isBackdropDismissible ? onClose : undefined}
       onModalHide={onDismissed}>
       {variant === 'bare' ? (
         children
