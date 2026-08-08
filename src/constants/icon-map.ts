@@ -9,6 +9,8 @@ import {
   ChevronRight,
   ChevronUp,
   CircleAlert,
+  CircleQuestionMark,
+  ClipboardList,
   Clock,
   Dot,
   Eye,
@@ -51,7 +53,9 @@ export const iconMap = {
   close: X,
   trash: Trash2,
   flip: FlipHorizontal2,
-  share: Share
+  share: Share,
+  help: CircleQuestionMark,
+  clipboardList: ClipboardList
 } as const;
 
 export type IconName = keyof typeof iconMap;

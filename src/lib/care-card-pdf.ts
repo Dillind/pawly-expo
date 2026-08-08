@@ -1,9 +1,5 @@
-import {
-  CARE_CARD_FIELD_LABELS,
-  CARE_CARD_SECTIONS,
-  type CareCardField
-} from '@/constants/care-card-fields';
-import type { CareCard, Medication } from '@/services/care-card.service';
+import { careCardBlocks, hasValue, type CareCardBlock } from '@/lib/care-card-view';
+import type { CareCard, CareCardContact, Medication } from '@/services/care-card.service';
 
 export type CareCardPdfPet = {
   name: string;
@@ -12,28 +8,13 @@ export type CareCardPdfPet = {
   ageLabel: string | null;
   card: CareCard;
   medications: Medication[];
+  contacts?: CareCardContact[];
 };
 
 export type CareCardPdfOptions = {
   /** Pre-formatted by the caller so this stays pure and timezone-free. */
   generatedOn: string;
 };
-
-/**
- * The fields lifted out of their sections and into the panel at the top of the
- * page. A sitter reaching for this document at 2am is looking for one of these,
- * and making them hunt through "Paperwork" to find the vet's number is the
- * whole failure this document exists to prevent.
- */
-const EMERGENCY_FIELDS: CareCardField[] = [
-  'vetName',
-  'vetPhone',
-  'emergencyVetName',
-  'emergencyVetPhone',
-  'ownerPhone',
-  'backupContactName',
-  'backupContactPhone'
-];
 
 const escapeHtml = (value: string): string =>
   value
@@ -47,73 +28,39 @@ const escapeHtml = (value: string): string =>
 const escapeMultiline = (value: string): string =>
   escapeHtml(value).replace(/\r?\n/g, '<br />');
 
-const hasValue = (value: string | null | undefined): value is string =>
-  typeof value === 'string' && value.trim().length > 0;
-
 const fieldRow = (label: string, value: string): string =>
   `<div class="row"><div class="label">${escapeHtml(label)}</div>` +
   `<div class="value">${escapeMultiline(value)}</div></div>`;
 
-const emergencyPanel = (card: CareCard): string => {
-  const rows = EMERGENCY_FIELDS.filter((field) => hasValue(card[field])).map((field) =>
-    fieldRow(CARE_CARD_FIELD_LABELS[field], card[field] as string)
-  );
-
-  if (rows.length === 0) return '';
-
-  return `<section class="panel"><h2>If something goes wrong</h2>${rows.join('')}</section>`;
-};
-
-const medicationBlock = (medications: Medication[]): string => {
-  if (medications.length === 0) return '';
-
-  const items = medications
-    .map((medication) => {
-      const detail = [
-        hasValue(medication.dose) ? medication.dose : null,
-        hasValue(medication.scheduleText) ? medication.scheduleText : null
-      ]
-        .filter(hasValue)
-        .map(escapeHtml)
-        .join(' &middot; ');
-
-      const instructions = hasValue(medication.instructions)
-        ? `<div class="value">${escapeMultiline(medication.instructions)}</div>`
-        : '';
-
-      return (
-        `<div class="med"><div class="med-name">${escapeHtml(medication.name)}</div>` +
-        (detail ? `<div class="med-detail">${detail}</div>` : '') +
-        `${instructions}</div>`
-      );
-    })
-    .join('');
-
-  return `<section class="block"><h2>Medications</h2>${items}</section>`;
-};
-
-const sectionBlocks = (card: CareCard): string =>
-  CARE_CARD_SECTIONS.map((section) => {
-    // The emergency panel already carries these, and repeating them lower down
-    // makes the page look longer than it is.
-    const fields = section.fields.filter(
-      (field) => !EMERGENCY_FIELDS.includes(field) && hasValue(card[field])
-    );
-
-    if (fields.length === 0) return '';
-
-    const rows = fields
-      .map((field) => fieldRow(CARE_CARD_FIELD_LABELS[field], card[field] as string))
+const renderBlock = (block: CareCardBlock): string => {
+  if (block.kind === 'medications') {
+    const items = block.items
+      .map(
+        (medication) =>
+          `<div class="med"><div class="med-name">${escapeHtml(medication.name)}</div>` +
+          (medication.detail
+            ? `<div class="med-detail">${escapeHtml(medication.detail).replace(/ · /g, ' &middot; ')}</div>`
+            : '') +
+          (medication.instructions
+            ? `<div class="value">${escapeMultiline(medication.instructions)}</div>`
+            : '') +
+          `</div>`
+      )
       .join('');
 
-    return `<section class="block"><h2>${escapeHtml(section.title)}</h2>${rows}</section>`;
-  }).join('');
+    return `<section class="block"><h2>${escapeHtml(block.title)}</h2>${items}</section>`;
+  }
+
+  const rows = block.rows.map((row) => fieldRow(row.label, row.value)).join('');
+  const className = block.isEmergency ? 'panel' : 'block';
+
+  return `<section class="${className}"><h2>${escapeHtml(block.title)}</h2>${rows}</section>`;
+};
 
 const petPage = (pet: CareCardPdfPet, generatedOn: string, isLast: boolean): string => {
   const subtitle = [pet.breed, pet.ageLabel].filter(hasValue).map(escapeHtml).join(' &middot; ');
 
-  const body =
-    emergencyPanel(pet.card) + medicationBlock(pet.medications) + sectionBlocks(pet.card);
+  const body = careCardBlocks(pet.card, pet.medications, pet.contacts).map(renderBlock).join('');
 
   const empty = body
     ? ''

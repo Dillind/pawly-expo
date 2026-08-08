@@ -26,7 +26,12 @@ type MainButtonProps = {
   onPress?: () => void;
   href?: Href;
   isDisabled?: boolean;
-  variant?: 'primary' | 'secondary' | 'text';
+  /**
+   * `secondary` is drawn in `error` -- it is the destructive button, despite
+   * the name. `neutral` is the quiet companion to `primary`: Back, Cancel,
+   * anything paired with the action that matters.
+   */
+  variant?: 'primary' | 'secondary' | 'neutral' | 'text';
   size?: 'sm' | 'md' | 'lg' | 'xs';
   // ReactElement, not ReactNode: ReactNode admits a bare string, so passing an
   // IconName here type-checked and then crashed at render with "Text strings
@@ -132,6 +137,9 @@ const makeStyles = ({ colors }: AppTheme) =>
     secondary: {
       backgroundColor: colors.error
     },
+    neutral: {
+      backgroundColor: colors.backgroundSelected
+    },
     text: {
       backgroundColor: 'transparent'
     },
@@ -156,6 +164,9 @@ const makeStyles = ({ colors }: AppTheme) =>
     },
     secondaryLabel: {
       color: '#ffffff'
+    },
+    neutralLabel: {
+      color: colors.text
     },
     textLabel: {
       color: colors.primary

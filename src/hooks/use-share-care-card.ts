@@ -34,7 +34,8 @@ export function useShareCareCard() {
       breed: detail.breed,
       ageLabel: formatAge(detail.birthdate, detail.birthdateIsApproximate),
       card: careCard.card ?? emptyCareCard(petId),
-      medications: careCard.medications
+      medications: careCard.medications,
+      contacts: careCard.contacts
     };
   };
 

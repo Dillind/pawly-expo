@@ -22,9 +22,6 @@ export const CARE_CARD_FIELD_LABELS: Record<CareCardField, string> = {
   vetPhone: 'Vet phone',
   emergencyVetName: 'Emergency vet',
   emergencyVetPhone: 'Emergency vet phone',
-  ownerPhone: 'Your phone',
-  backupContactName: 'Backup contact',
-  backupContactPhone: 'Backup phone',
   microchipNumber: 'Microchip number',
   insuranceProvider: 'Insurance provider',
   insurancePolicyNumber: 'Insurance policy number',
@@ -43,9 +40,6 @@ export const CARE_CARD_FIELD_PLACEHOLDERS: Record<CareCardField, string> = {
   vetPhone: '03 9482 1234',
   emergencyVetName: 'Melbourne Animal Emergency',
   emergencyVetPhone: '03 9370 5555',
-  ownerPhone: '0412 345 678',
-  backupContactName: 'Priya next door',
-  backupContactPhone: '0433 221 100',
   microchipNumber: '956000012345678',
   insuranceProvider: 'Petplan',
   insurancePolicyNumber: 'PP-4821993',
@@ -66,9 +60,7 @@ export const CARE_CARD_MULTILINE_FIELDS: ReadonlySet<CareCardField> = new Set([
 
 export const CARE_CARD_PHONE_FIELDS: ReadonlySet<CareCardField> = new Set([
   'vetPhone',
-  'emergencyVetPhone',
-  'ownerPhone',
-  'backupContactPhone'
+  'emergencyVetPhone'
 ]);
 
 export const CARE_CARD_SECTIONS: CareCardSection[] = [
@@ -77,12 +69,6 @@ export const CARE_CARD_SECTIONS: CareCardSection[] = [
     title: 'If something goes wrong',
     blurb: 'The numbers to ring, and which one answers at 2am.',
     fields: ['vetName', 'vetPhone', 'emergencyVetName', 'emergencyVetPhone']
-  },
-  {
-    id: 'reaching-you',
-    title: 'Reaching you',
-    blurb: "How a sitter gets hold of you, and who to try when they can't.",
-    fields: ['ownerPhone', 'backupContactName', 'backupContactPhone']
   },
   {
     id: 'watch-for',
@@ -120,6 +106,32 @@ export const CARE_CARD_SECTIONS: CareCardSection[] = [
 export const CARE_CARD_FIELDS: CareCardField[] = CARE_CARD_SECTIONS.flatMap(
   (section) => section.fields
 );
+
+export type CareCardStep =
+  | { kind: 'section'; id: string; title: string; section: CareCardSection }
+  | { kind: 'reaching-you'; id: 'reaching-you'; title: string }
+  | { kind: 'medications'; id: 'medications'; title: string }
+  | { kind: 'review'; id: 'review'; title: string };
+
+const sectionStep = (id: string): CareCardStep => {
+  const section = CARE_CARD_SECTIONS.find((candidate) => candidate.id === id);
+  if (!section) throw new Error(`Unknown Care Card section: ${id}`);
+  return { kind: 'section', id: section.id, title: section.title, section };
+};
+
+/** The editor's order, not the printed one: an owner fills in the easy things first. */
+export const CARE_CARD_STEPS: CareCardStep[] = [
+  // Its own kind: a contacts list rather than card fields.
+  { kind: 'reaching-you', id: 'reaching-you', title: 'Reaching you' },
+  sectionStep('emergency'),
+  sectionStep('watch-for'),
+  { kind: 'medications', id: 'medications', title: 'Medications' },
+  sectionStep('eating'),
+  sectionStep('around-the-house'),
+  sectionStep('paperwork'),
+  sectionStep('anything-else'),
+  { kind: 'review', id: 'review', title: 'Ready to hand over' }
+];
 
 /**
  * A pet with no Care Card row yet reads the same as one whose fields are all

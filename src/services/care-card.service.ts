@@ -1,4 +1,8 @@
-import type { CareCardInput, MedicationInput } from '@/lib/form/pet-schemas';
+import type {
+  CareCardContactInput,
+  CareCardInput,
+  MedicationInput
+} from '@/lib/form/pet-schemas';
 import { supabase } from '@/lib/supabase/client';
 
 export type CareCard = {
@@ -9,9 +13,6 @@ export type CareCard = {
   vetPhone: string | null;
   emergencyVetName: string | null;
   emergencyVetPhone: string | null;
-  ownerPhone: string | null;
-  backupContactName: string | null;
-  backupContactPhone: string | null;
   microchipNumber: string | null;
   insuranceProvider: string | null;
   insurancePolicyNumber: string | null;
@@ -20,6 +21,18 @@ export type CareCard = {
   whereThingsAre: string | null;
   notes: string | null;
 };
+
+export type CareCardContact = {
+  id: string;
+  petId: string;
+  name: string;
+  phone: string | null;
+  sortOrder: number;
+  createdAt: string;
+};
+
+/** A Care Card holds at most three, enforced in the UI and by a trigger. */
+export const MAX_CARE_CARD_CONTACTS = 3;
 
 export type Medication = {
   id: string;
@@ -39,9 +52,6 @@ const CARE_CARD_COLUMNS: Record<keyof CareCardInput, string> = {
   vetPhone: 'vet_phone',
   emergencyVetName: 'emergency_vet_name',
   emergencyVetPhone: 'emergency_vet_phone',
-  ownerPhone: 'owner_phone',
-  backupContactName: 'backup_contact_name',
-  backupContactPhone: 'backup_contact_phone',
   microchipNumber: 'microchip_number',
   insuranceProvider: 'insurance_provider',
   insurancePolicyNumber: 'insurance_policy_number',
@@ -72,9 +82,6 @@ namespace CareCardService {
       vetPhone: data.vet_phone,
       emergencyVetName: data.emergency_vet_name,
       emergencyVetPhone: data.emergency_vet_phone,
-      ownerPhone: data.owner_phone,
-      backupContactName: data.backup_contact_name,
-      backupContactPhone: data.backup_contact_phone,
       microchipNumber: data.microchip_number,
       insuranceProvider: data.insurance_provider,
       insurancePolicyNumber: data.insurance_policy_number,
@@ -83,6 +90,65 @@ namespace CareCardService {
       whereThingsAre: data.where_things_are,
       notes: data.notes
     };
+  }
+
+  export async function listContacts(petId: string): Promise<CareCardContact[]> {
+    const { data, error } = await supabase
+      .from('care_card_contacts')
+      .select('id, pet_id, name, phone, sort_order, created_at')
+      .eq('pet_id', petId)
+      // sort_order alone is not unique, so created_at breaks the tie
+      // deterministically -- same reasoning as medications.
+      .order('sort_order', { ascending: true })
+      .order('created_at', { ascending: true });
+
+    if (error) throw error;
+
+    return data.map((row) => ({
+      id: row.id,
+      petId: row.pet_id,
+      name: row.name,
+      phone: row.phone,
+      sortOrder: row.sort_order,
+      createdAt: row.created_at
+    }));
+  }
+
+  export async function upsertContact(
+    petId: string,
+    input: CareCardContactInput & { id?: string }
+  ): Promise<void> {
+    const row = { pet_id: petId, name: input.name, phone: input.phone };
+
+    if (input.id) {
+      const { error } = await supabase
+        .from('care_card_contacts')
+        .update(row)
+        .eq('id', input.id);
+      if (error) throw error;
+      return;
+    }
+
+    // New contacts need a deterministic, increasing sort_order -- the column
+    // defaults to 0, and with two rows at 0 Postgres guarantees no ordering.
+    const { data: maxRow, error: maxError } = await supabase
+      .from('care_card_contacts')
+      .select('sort_order')
+      .eq('pet_id', petId)
+      .order('sort_order', { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    if (maxError) throw maxError;
+
+    const { error } = await supabase
+      .from('care_card_contacts')
+      .insert({ ...row, sort_order: (maxRow?.sort_order ?? -1) + 1 });
+    if (error) throw error;
+  }
+
+  export async function deleteContact(contactId: string): Promise<void> {
+    const { error } = await supabase.from('care_card_contacts').delete().eq('id', contactId);
+    if (error) throw error;
   }
 
   export async function listMedications(petId: string): Promise<Medication[]> {

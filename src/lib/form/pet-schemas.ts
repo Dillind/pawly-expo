@@ -22,9 +22,6 @@ export const careCardSchema = z.object({
   vetPhone: z.string().nullable(),
   emergencyVetName: z.string().nullable(),
   emergencyVetPhone: z.string().nullable(),
-  ownerPhone: z.string().nullable(),
-  backupContactName: z.string().nullable(),
-  backupContactPhone: z.string().nullable(),
   microchipNumber: z.string().nullable(),
   insuranceProvider: z.string().nullable(),
   insurancePolicyNumber: z.string().nullable(),
@@ -41,5 +38,11 @@ export const medicationSchema = z.object({
   instructions: z.string().nullable()
 });
 
+export const careCardContactSchema = z.object({
+  name: z.string().trim().min(1, "Add the person's name"),
+  phone: z.string().trim().min(1, 'Add a number for them')
+});
+
 export type CareCardInput = z.infer<typeof careCardSchema>;
+export type CareCardContactInput = z.infer<typeof careCardContactSchema>;
 export type MedicationInput = z.infer<typeof medicationSchema>;
