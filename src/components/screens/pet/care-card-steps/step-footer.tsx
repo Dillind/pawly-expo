@@ -33,7 +33,7 @@ const StepFooter = ({
       {!isFirst && (
         <MainButton
           text={backLabel}
-          variant="neutral"
+          variant="secondary"
           containerStyle={styles.button}
           isDisabled={isBusy}
           onPress={onBack}

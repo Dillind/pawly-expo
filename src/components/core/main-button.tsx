@@ -26,12 +26,7 @@ type MainButtonProps = {
   onPress?: () => void;
   href?: Href;
   isDisabled?: boolean;
-  /**
-   * `secondary` is drawn in `error` -- it is the destructive button, despite
-   * the name. `neutral` is the quiet companion to `primary`: Back, Cancel,
-   * anything paired with the action that matters.
-   */
-  variant?: 'primary' | 'secondary' | 'neutral' | 'text';
+  variant?: 'primary' | 'secondary' | 'destructive' | 'text';
   size?: 'sm' | 'md' | 'lg' | 'xs';
   // ReactElement, not ReactNode: ReactNode admits a bare string, so passing an
   // IconName here type-checked and then crashed at render with "Text strings
@@ -108,7 +103,7 @@ const MainButton: FunctionComponent<MainButtonProps> = ({
         {isLoading ? (
           <ActivityIndicator
             size="small"
-            color={variant === 'primary' ? '#ffffff' : undefined}
+            color={variant === 'primary' || variant === 'destructive' ? '#ffffff' : undefined}
             style={styles.icon}
           />
         ) : (
@@ -135,10 +130,10 @@ const makeStyles = ({ colors }: AppTheme) =>
       backgroundColor: colors.primary
     },
     secondary: {
-      backgroundColor: colors.error
-    },
-    neutral: {
       backgroundColor: colors.backgroundSelected
+    },
+    destructive: {
+      backgroundColor: colors.error
     },
     text: {
       backgroundColor: 'transparent'
@@ -163,10 +158,10 @@ const makeStyles = ({ colors }: AppTheme) =>
       color: '#ffffff'
     },
     secondaryLabel: {
-      color: '#ffffff'
-    },
-    neutralLabel: {
       color: colors.text
+    },
+    destructiveLabel: {
+      color: '#ffffff'
     },
     textLabel: {
       color: colors.primary

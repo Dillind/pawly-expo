@@ -117,7 +117,7 @@ const ReachingYouStep = ({ petId, contacts, onNext }: Props) => {
         ) : (
           <MainButton
             text="Add contact"
-            variant="neutral"
+            variant="secondary"
             leftIcon={<Icon name="plus" size={16} />}
             onPress={() => setEditing({ contact: null })}
           />

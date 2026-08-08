@@ -106,7 +106,7 @@ const MedicationsStep = ({ petId, medications, onBack, onNext }: Props) => {
 
         <MainButton
           text="Add a medication"
-          variant="neutral"
+          variant="secondary"
           leftIcon={<Icon name="plus" size={16} />}
           onPress={() => setEditing({ medication: null })}
         />
