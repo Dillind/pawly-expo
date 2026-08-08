@@ -18,7 +18,7 @@ import {
   PawPrint,
   Pencil,
   Plus,
-  RotateCw,
+  FlipHorizontal2,
   Share,
   Trash2,
   UserPlus,
@@ -50,7 +50,7 @@ export const iconMap = {
   bell: Bell,
   close: X,
   trash: Trash2,
-  flip: RotateCw,
+  flip: FlipHorizontal2,
   share: Share
 } as const;
 

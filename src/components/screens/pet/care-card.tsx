@@ -166,7 +166,12 @@ const CareCard = ({ petId, petName }: Props) => {
             <IconButton
               name="share"
               accessibilityLabel={`Share ${petName}'s Care Card`}
-              variant="secondary"
+              // Ghost with a tinted backing, not `secondary` -- that variant is
+              // drawn in `error`, and a red button for sharing reads as a
+              // warning. There is no white-on-primary variant to reach for.
+              variant="ghost"
+              color="onPrimary"
+              containerStyle={styles.shareButton}
               size={20}
               isLoading={isSharing}
               isDisabled={isSharing || filledCount === 0}
@@ -222,6 +227,9 @@ const makeStyles = ({ spacing, colors }: AppTheme) =>
     row: { gap: 1 },
     rowLabel: { letterSpacing: 1.1, textTransform: 'uppercase', opacity: 0.7 },
     footerRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.two },
+    // A wash of the card's own foreground, so the button belongs to the card
+    // rather than being a colour imported onto it.
+    shareButton: { backgroundColor: 'rgba(255, 255, 255, 0.18)' },
     caption: { flex: 1, opacity: 0.8 }
   });
 
