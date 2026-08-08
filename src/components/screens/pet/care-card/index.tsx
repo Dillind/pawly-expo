@@ -16,7 +16,7 @@ type Props = {
 
 const CareCard = ({ petId, petName, petSubtitle, photoUrl }: Props) => {
   const router = useRouter();
-  const { card, medications, contacts, isFilled, isLoading } = useCareCardData(petId);
+  const { card, medications, contacts, isLoading } = useCareCardData(petId);
   const { shareCareCard, isSharing } = useShareCareCard();
 
   const [origin, setOrigin] = useState<TileFrame | null>(null);
@@ -29,22 +29,14 @@ const CareCard = ({ petId, petName, petSubtitle, photoUrl }: Props) => {
     });
   };
 
-  // An empty tile skips the card: one that says "nothing here" is a speed bump.
-  const handleTilePress = (frame: TileFrame) => {
-    if (isFilled) {
-      setOrigin(frame);
-      return;
-    }
-    openEditor();
-  };
+  const handleTilePress = (frame: TileFrame) => setOrigin(frame);
 
   return (
     <>
       <CareCardTile
         petName={petName}
-        isFilled={isFilled}
-        // While loading the card reads as empty, which would wrongly open the
-        // editor for a card that does exist.
+        // A card opened mid-load reads as empty and would offer to start one
+        // that already exists.
         isDisabled={isLoading}
         isHidden={origin !== null}
         onPress={handleTilePress}

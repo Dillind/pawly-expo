@@ -1,5 +1,4 @@
 import { emptyCareCard } from '@/constants/care-card-fields';
-import { filledFieldCount } from '@/lib/care-card-view';
 import CareCardService from '@/services/care-card.service';
 import { queryOptions, useQuery } from '@tanstack/react-query';
 
@@ -28,20 +27,14 @@ export function useCareCard(petId: string | undefined) {
   });
 }
 
-/** Shared so the tile, the card and the editor cannot disagree on "empty". */
+/** Shared so the card and the editor cannot disagree on what a Pet has. */
 export function useCareCardData(petId: string) {
   const query = useCareCard(petId);
 
-  const card = query.data?.card ?? emptyCareCard(petId);
-  const medications = query.data?.medications ?? [];
-  const contacts = query.data?.contacts ?? [];
-  const filledCount = filledFieldCount(card);
-
   return {
     ...query,
-    card,
-    medications,
-    contacts,
-    isFilled: filledCount > 0 || medications.length > 0 || contacts.length > 0
+    card: query.data?.card ?? emptyCareCard(petId),
+    medications: query.data?.medications ?? [],
+    contacts: query.data?.contacts ?? []
   };
 }

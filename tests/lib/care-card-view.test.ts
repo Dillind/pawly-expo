@@ -1,5 +1,5 @@
 import { emptyCareCard } from '@/constants/care-card-fields';
-import { careCardBlocks, filledFieldCount } from '@/lib/care-card-view';
+import { careCardBlocks } from '@/lib/care-card-view';
 import type { CareCard, CareCardContact, Medication } from '@/services/care-card.service';
 
 const card = (overrides: Partial<CareCard> = {}): CareCard => ({
@@ -107,16 +107,5 @@ describe('careCardBlocks with contacts', () => {
     expect(block).toMatchObject({
       rows: [{ label: 'Priya' }, { label: 'Sam' }]
     });
-  });
-});
-
-describe('filledFieldCount', () => {
-  it('counts only fields carrying a value', () => {
-    expect(filledFieldCount(card())).toBe(0);
-    expect(filledFieldCount(card({ vetName: 'Northcote Vet', allergies: 'Chicken' }))).toBe(2);
-  });
-
-  it('does not count whitespace as filled in', () => {
-    expect(filledFieldCount(card({ notes: '   ' }))).toBe(0);
   });
 });

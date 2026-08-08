@@ -2,6 +2,7 @@ import AppText from '@/components/core/app-text';
 import Icon from '@/components/core/icon';
 import PressableOpacity from '@/components/core/pressable-opacity';
 import type { IconName } from '@/constants/icon-map';
+import type { FontWeight } from '@/types/core';
 import { Radius, type AppTheme } from '@/constants/theme';
 import { useStyles } from '@/hooks/use-styles';
 import { useTheme } from '@/hooks/use-theme';
@@ -14,6 +15,7 @@ type Props = {
   accessibilityLabel: string;
   variant: 'solid' | 'ghost';
   icon?: IconName;
+  fontWeight?: FontWeight;
   isLoading?: boolean;
   isDisabled?: boolean;
   onPress: () => void;
@@ -26,6 +28,7 @@ const CardActionButton = ({
   accessibilityLabel,
   variant,
   icon,
+  fontWeight = 'regular',
   isLoading = false,
   isDisabled = false,
   onPress
@@ -52,7 +55,7 @@ const CardActionButton = ({
       ) : (
         <>
           {icon && <Icon name={icon} size={16} color={labelColor} />}
-          <AppText color={labelColor} size={16}>
+          <AppText color={labelColor} size={16} fontWeight={fontWeight}>
             {text}
           </AppText>
         </>

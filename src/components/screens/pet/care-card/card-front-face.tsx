@@ -76,44 +76,59 @@ const CardFrontFace = ({
         </View>
       </View>
 
-      <View style={styles.footer}>
-        <PressableOpacity
-          style={styles.seeEverything}
-          accessibilityRole="button"
-          accessibilityLabel={`See everything on ${petName}'s Care Card`}
-          disabled={!summary}
-          onPress={onFlip}>
-          <AppText color="onPrimary" size={13} style={styles.muted}>
-            {summary ?? 'Nothing filled in yet'}
-          </AppText>
-          {summary && (
+      {summary ? (
+        <View style={styles.footer}>
+          <PressableOpacity
+            style={styles.seeEverything}
+            accessibilityRole="button"
+            accessibilityLabel={`See everything on ${petName}'s Care Card`}
+            onPress={onFlip}>
+            <AppText color="onPrimary" size={13} style={styles.muted}>
+              {summary}
+            </AppText>
             <View style={styles.seeEverythingLabel}>
               <AppText color="onPrimary" size={13}>
                 See everything
               </AppText>
               <Icon name="caretRight" size={14} color="onPrimary" />
             </View>
-          )}
-        </PressableOpacity>
+          </PressableOpacity>
 
-        <View style={styles.actions}>
-          <CardActionButton
-            text="Edit"
-            accessibilityLabel={`Edit ${petName}'s Care Card`}
-            variant="ghost"
-            onPress={onEdit}
-          />
-          <CardActionButton
-            text="Share"
-            accessibilityLabel={`Share ${petName}'s Care Card`}
-            variant="solid"
-            icon="share"
-            isLoading={isSharing}
-            isDisabled={isShareDisabled}
-            onPress={onShare}
-          />
+          <View style={styles.actions}>
+            <CardActionButton
+              text="Edit"
+              accessibilityLabel={`Edit ${petName}'s Care Card`}
+              variant="ghost"
+              onPress={onEdit}
+            />
+            <CardActionButton
+              text="Share"
+              accessibilityLabel={`Share ${petName}'s Care Card`}
+              variant="solid"
+              icon="share"
+              isLoading={isSharing}
+              isDisabled={isShareDisabled}
+              onPress={onShare}
+            />
+          </View>
         </View>
-      </View>
+      ) : (
+        <View style={styles.footer}>
+          <AppText color="onPrimary" size={13} align="center" style={styles.muted}>
+            Everything a sitter needs to look after {petName}, on one card you can hand over.
+          </AppText>
+
+          <View style={styles.actions}>
+            <CardActionButton
+              text="Get started"
+              accessibilityLabel={`Start ${petName}'s Care Card`}
+              variant="solid"
+              fontWeight="bold"
+              onPress={onEdit}
+            />
+          </View>
+        </View>
+      )}
     </>
   );
 };

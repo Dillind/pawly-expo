@@ -104,8 +104,3 @@ export const careCardBlocks = (
 
   return blocks;
 };
-
-/** Card fields only -- medications and contacts are counted separately. */
-export const filledFieldCount = (card: CareCard): number =>
-  CARE_CARD_SECTIONS.flatMap((section) => section.fields).filter((field) => hasValue(card[field]))
-    .length;
