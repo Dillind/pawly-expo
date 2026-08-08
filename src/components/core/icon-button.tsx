@@ -5,7 +5,8 @@ import { Radius, type AppTheme, type ThemeColor } from '@/constants/theme';
 import { useStyles } from '@/hooks/use-styles';
 import { useTheme } from '@/hooks/use-theme';
 import { hapticLight } from '@/lib/haptics';
-import { GlassView, isLiquidGlassAvailable } from 'expo-glass-effect';
+import { hasGlass } from '@/utils/platform';
+import { GlassView } from 'expo-glass-effect';
 import {
   ActivityIndicator,
   Pressable,
@@ -21,7 +22,6 @@ type Props = {
   accessibilityLabel: string;
   onPress?: () => void;
   variant?: 'primary' | 'secondary' | 'ghost' | 'glass';
-  /** Overrides the glyph colour the variant would pick. Destructive ghosts use `error`. */
   color?: ThemeColor;
   size?: number;
   strokeWidth?: number;
@@ -64,15 +64,12 @@ const IconButton = ({
     <Icon name={name} size={size} color={glyphColor} strokeWidth={strokeWidth} />
   );
 
-  // Glass owns its own press response via `isInteractive` -- the material
-  // deforms natively. Layering PressableOpacity's opacity fade on top fights
-  // it, and expo-glass-effect explicitly warns against animating opacity.
-  if (variant === 'glass') {
+  if (variant === 'glass' && hasGlass) {
     return (
       <GlassView
         isInteractive
         colorScheme={isDark ? 'dark' : 'light'}
-        style={[styles.base, styles.glass, isInactive && styles.disabled, containerStyle]}>
+        style={[styles.base, styles.glassSurface, isInactive && styles.disabled, containerStyle]}>
         <Pressable
           accessibilityRole="button"
           accessibilityLabel={accessibilityLabel}
@@ -109,10 +106,11 @@ const makeStyles = ({ colors }: AppTheme) =>
       justifyContent: 'center',
       borderRadius: Radius.full
     },
+    glassSurface: {
+      overflow: 'hidden'
+    },
     glass: {
-      // Below iOS 26 GlassView degrades to a plain, transparent View -- without
-      // a backing colour the button would be an invisible tap target.
-      backgroundColor: isLiquidGlassAvailable() ? undefined : colors.backgroundElement,
+      backgroundColor: colors.backgroundElement,
       overflow: 'hidden'
     },
     glassPressable: {

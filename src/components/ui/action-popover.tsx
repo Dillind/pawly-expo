@@ -7,7 +7,8 @@ import { BottomTabInset, Radius, type AppTheme } from '@/constants/theme';
 import { useStyles } from '@/hooks/use-styles';
 import { useTheme } from '@/hooks/use-theme';
 import { createShadowMedium } from '@/lib/styles/shadows';
-import { GlassContainer, GlassView, isLiquidGlassAvailable } from 'expo-glass-effect';
+import { hasGlass } from '@/utils/platform';
+import { GlassContainer, GlassView } from 'expo-glass-effect';
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
@@ -44,6 +45,24 @@ const ActionPopover = ({ actions, primaryAction, accessibilityLabel = 'Create' }
   const [isOpen, setIsOpen] = useState(false);
   const router = useRouter();
 
+  // Glass is the default. Below iOS 26 both surfaces would draw as transparent
+  // Views, so plain Views take over and the styles supply an opaque card --
+  // there is no material to fuse, and nothing to give a colour scheme to.
+  const Container = hasGlass ? GlassContainer : View;
+  const containerProps = hasGlass
+    ? { spacing: GLASS_MERGE_SPACING, style: styles.container }
+    : { style: styles.container };
+
+  const Bubble = hasGlass ? GlassView : View;
+  const bubbleProps = hasGlass
+    ? {
+        glassEffectStyle: { style: 'regular', animate: true, animationDuration: 0.25 } as const,
+        colorScheme: isDark ? ('dark' as const) : ('light' as const),
+        style: styles.bubble,
+        accessibilityViewIsModal: true
+      }
+    : { style: [styles.bubble, styles.bubbleFallback], accessibilityViewIsModal: true };
+
   const close = () => setIsOpen(false);
 
   const runPrimary = () => {
@@ -73,13 +92,9 @@ const ActionPopover = ({ actions, primaryAction, accessibilityLabel = 'Create' }
       ) : null}
 
       <View style={styles.anchor} pointerEvents="box-none">
-        <GlassContainer spacing={GLASS_MERGE_SPACING} style={styles.container}>
+        <Container {...containerProps}>
           {isOpen ? (
-            <GlassView
-              glassEffectStyle={{ style: 'regular', animate: true, animationDuration: 0.25 }}
-              colorScheme={isDark ? 'dark' : 'light'}
-              style={styles.bubble}
-              accessibilityViewIsModal>
+            <Bubble {...bubbleProps}>
               {actions.map((action) => (
                 <ActionPopoverItem
                   key={action.title}
@@ -99,7 +114,7 @@ const ActionPopover = ({ actions, primaryAction, accessibilityLabel = 'Create' }
                 isDisabled={primaryAction.isDisabled}
                 onPress={runPrimary}
               />
-            </GlassView>
+            </Bubble>
           ) : null}
 
           <IconButton
@@ -110,7 +125,7 @@ const ActionPopover = ({ actions, primaryAction, accessibilityLabel = 'Create' }
             containerStyle={styles.trigger}
             onPress={() => setIsOpen((open) => !open)}
           />
-        </GlassContainer>
+        </Container>
       </View>
     </>
   );
@@ -136,12 +151,12 @@ const makeStyles = ({ colors, spacing }: AppTheme) =>
       padding: spacing.three,
       gap: spacing.two,
       borderRadius: Radius.card,
-      overflow: 'hidden',
-      // Below iOS 26 GlassView renders as a transparent View, leaving the rows
-      // floating unbacked over the screen. The solid card is the fallback.
-      ...(isLiquidGlassAvailable()
-        ? null
-        : { backgroundColor: colors.backgroundElement, ...createShadowMedium(colors) })
+      overflow: 'hidden'
+    },
+    /** Without the material the rows would float unbacked over the screen. */
+    bubbleFallback: {
+      backgroundColor: colors.backgroundElement,
+      ...createShadowMedium(colors)
     },
     trigger: {
       width: FAB_SIZE,
