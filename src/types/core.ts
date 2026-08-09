@@ -41,6 +41,7 @@ export type HouseholdRole = 'owner' | 'contributor';
 
 export type Household = {
   id: string;
+  name: string;
   timezone: string;
   graceWindowMinutes: number;
   role: HouseholdRole;

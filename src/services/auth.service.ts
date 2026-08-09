@@ -42,6 +42,13 @@ namespace AuthService {
     return data;
   }
 
+  // The email is never duplicated into public.users -- auth.users is the only
+  // copy, so every surface that shows it reads the session.
+  export async function getSessionEmail(): Promise<string | undefined> {
+    const { data } = await supabase.auth.getSession();
+    return data.session?.user.email;
+  }
+
   export async function getSessionUserId(): Promise<string | undefined> {
     const { data } = await supabase.auth.getSession();
     return data.session?.user.id;

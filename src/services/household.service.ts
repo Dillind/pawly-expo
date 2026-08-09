@@ -29,7 +29,7 @@ namespace HouseholdService {
 
     const { data: household, error: householdError } = await supabase
       .from('households')
-      .select('id, timezone, grace_window_minutes')
+      .select('id, name, timezone, grace_window_minutes')
       .eq('id', membership.household_id)
       .single();
 
@@ -37,6 +37,7 @@ namespace HouseholdService {
 
     return {
       id: household.id,
+      name: household.name,
       timezone: household.timezone,
       graceWindowMinutes: household.grace_window_minutes,
       role: membership.role,

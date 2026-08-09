@@ -1,5 +1,11 @@
 import { COMMON_TIMEZONES } from '@/constants/timezones';
-import type { FeedingScheduleLabel, Option, PetSex } from '@/types/core';
+import type { FeedingScheduleLabel, Option, PetSex, ThemePreference } from '@/types/core';
+
+export const APPEARANCE_OPTIONS: Option<ThemePreference>[] = [
+  { value: 'system', label: 'System' },
+  { value: 'light', label: 'Light' },
+  { value: 'dark', label: 'Dark' }
+];
 
 export const SEX_OPTIONS: Option<PetSex>[] = [
   { value: 'male', label: 'Male' },
