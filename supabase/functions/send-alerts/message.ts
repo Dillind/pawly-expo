@@ -89,3 +89,56 @@ export const buildMissedFeedMessage = (input: MissedFeedInput): Omit<ExpoMessage
   body: `Due ${wallClockTime(input.scheduledTime)}`,
   data: { screen: '/home', params: {} }
 });
+
+// Roughly what fits on a lock screen before iOS truncates it anyway. Cutting it
+// here means the ellipsis lands on a word boundary rather than mid-syllable.
+const CAPTION_PREVIEW_LIMIT = 100;
+
+const truncate = (text: string, limit: number): string => {
+  if (text.length <= limit) return text;
+
+  const cut = text.slice(0, limit);
+  const lastSpace = cut.lastIndexOf(' ');
+
+  return `${(lastSpace > limit * 0.6 ? cut.slice(0, lastSpace) : cut).trimEnd()}…`;
+};
+
+export type PostInput = {
+  authorFirstName: string | null;
+  caption: string | null;
+  petNames: string[];
+  postId: string;
+};
+
+/**
+ * Caption first, deliberately.
+ *
+ * "Sarah posted a photo" makes you open the app to find out whether anything is
+ * wrong, which is the opposite of the reassurance this feature exists to give.
+ * Seeing "Sarah: beach day, he's shattered" on the lock screen IS the feature --
+ * the person who is away has what they wanted without unlocking anything.
+ *
+ * Only without a caption does a pet name earn its place, and only when exactly
+ * one pet is tagged: "a photo of Crumpet and Bailey" is worse than saying
+ * nothing, and tags are optional anyway.
+ */
+export const buildPostMessage = (input: PostInput): Omit<ExpoMessage, 'to'> => {
+  const author = authorName(input.authorFirstName);
+  const caption = input.caption?.trim();
+
+  const title = caption
+    ? `${author}: ${truncate(caption, CAPTION_PREVIEW_LIMIT)}`
+    : input.petNames.length === 1
+      ? `${author} posted a photo of ${input.petNames[0]}`
+      : `${author} posted a photo`;
+
+  return {
+    title,
+    sound: 'default',
+    // Empty rather than restating the title. iOS renders a lone title cleanly,
+    // and there is nothing second-tier to say -- the photo is the content and
+    // it is one tap away.
+    body: '',
+    data: { screen: '/household', params: { postId: input.postId } }
+  };
+};
