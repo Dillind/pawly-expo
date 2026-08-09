@@ -23,11 +23,6 @@ export default function AppTabs() {
             there is something new. */}
         {hasUnseenPosts && <NativeTabs.Trigger.Badge />}
       </NativeTabs.Trigger>
-      <NativeTabs.Trigger name="activity">
-        <NativeTabs.Trigger.Label>Activity</NativeTabs.Trigger.Label>
-        <NativeTabs.Trigger.Icon sf={'list.bullet'} />
-      </NativeTabs.Trigger>
-
       <NativeTabs.Trigger name="profile">
         <NativeTabs.Trigger.Label>Profile</NativeTabs.Trigger.Label>
         <NativeTabs.Trigger.Icon sf={'person.fill'} />

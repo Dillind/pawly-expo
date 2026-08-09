@@ -70,9 +70,10 @@ export const buildFeedLoggedMessage = (input: FeedLoggedInput): Omit<ExpoMessage
     // only notes count as none.
     body: trimmedNotes ? `${time} · ${trimmedNotes}` : time,
     // data.screen and data.params are the exact shape usePushNotifications
-    // reads, and /activity?logId=... is a deep link activity/index.tsx already
-    // handles -- so a tap lands on the correction sheet with no new routing.
-    data: { screen: '/activity', params: { logId: input.logId } }
+    // reads, and /home/activity?logId=... is a deep link home/activity.tsx
+    // already handles -- so a tap lands on the correction sheet with no new
+    // routing. This path must be redeployed whenever the route moves.
+    data: { screen: '/home/activity', params: { logId: input.logId } }
   };
 };
 

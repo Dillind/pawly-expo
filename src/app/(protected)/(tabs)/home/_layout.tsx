@@ -32,6 +32,15 @@ export default function HomeLayout() {
           }}
         />
         <Stack.Screen
+          name="activity"
+          options={{
+            headerShown: true,
+            headerTitle: 'Activity',
+            headerBackTitle: 'Home',
+            headerBackButtonDisplayMode: 'minimal'
+          }}
+        />
+        <Stack.Screen
           name="add-pet"
           options={{
             headerShown: true,
