@@ -201,3 +201,31 @@ export const formatDateWithYear = (date: Date, timezone: string): string =>
     year: 'numeric',
     timeZone: timezone
   }).format(date);
+
+/**
+ * "2h ago", "Yesterday", "3 Aug". Absolute once a post is old enough that a
+ * relative reading stops helping -- "13d ago" is arithmetic, a date is not.
+ *
+ * Deliberately NOT timezone-aware, unlike everything above it. A Feed Log's
+ * time is a claim about the pet's day and must resolve in the household's
+ * timezone; "how long ago" is a duration, and a duration is the same number of
+ * hours wherever the reader is standing.
+ */
+export function formatRelativeTime(isoTimestamp: string, now: Date = new Date()): string {
+  const then = new Date(isoTimestamp);
+  const minutes = Math.floor((now.getTime() - then.getTime()) / 60000);
+
+  // Clock skew, or a post backdated a few seconds into the future by a device
+  // running fast. "In 1 minute" would be absurd on something already written.
+  if (minutes < 1) return 'Just now';
+  if (minutes < 60) return `${minutes}m ago`;
+
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return `${hours}h ago`;
+
+  const days = Math.floor(hours / 24);
+  if (days === 1) return 'Yesterday';
+  if (days < 7) return `${days}d ago`;
+
+  return dayjs(then).format(then.getFullYear() === now.getFullYear() ? 'D MMM' : 'D MMM YYYY');
+}
