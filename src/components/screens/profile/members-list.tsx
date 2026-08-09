@@ -5,14 +5,15 @@ import SettingsRow from '@/components/core/settings-row';
 import SettingsSection from '@/components/core/settings-section';
 import ScreenScrollView from '@/components/layout/screen-scroll-view';
 import ScreenView from '@/components/layout/screen-view';
-import { BottomTabInset, Radius, type AppTheme } from '@/constants/theme';
+import { ROLE_OPTIONS } from '@/constants/options';
+import { BottomTabInset, Spacing, type AppTheme } from '@/constants/theme';
 import { useHouseholdMembers } from '@/hooks/queries/use-household-members';
 import { useStyles } from '@/hooks/use-styles';
-import type { HouseholdMember } from '@/types/core';
+import { fullName } from '@/utils/members';
+import { optionLabel } from '@/utils/options';
 import { ActivityIndicator, StyleSheet, View } from 'react-native';
 
-const memberName = (member: HouseholdMember) =>
-  [member.firstName, member.lastName].filter(Boolean).join(' ') || 'Member';
+const AVATAR_SIZE = 36;
 
 const MembersList = () => {
   const styles = useStyles(makeStyles);
@@ -39,22 +40,23 @@ const MembersList = () => {
       <ScreenScrollView
         contentContainerStyle={styles.content}
         contentInsetAdjustmentBehavior="automatic">
-        <View style={styles.card}>
-          {members.map((member, index) => (
-            <View key={member.userId}>
-              {index > 0 && <View style={styles.divider} />}
-              <View style={styles.row}>
-                <AvatarInitials firstName={member.firstName} lastName={member.lastName} size={36} />
-                <AppText size={16} style={styles.name} numberOfLines={1}>
-                  {memberName(member)}
-                </AppText>
-                <AppText size={14} color="textSecondary">
-                  {member.role === 'owner' ? 'Owner' : 'Contributor'}
-                </AppText>
-              </View>
+        <SettingsSection dividerInset={Spacing.three + AVATAR_SIZE + Spacing.three}>
+          {members.map((member) => (
+            <View key={member.userId} style={styles.row}>
+              <AvatarInitials
+                firstName={member.firstName}
+                lastName={member.lastName}
+                size={AVATAR_SIZE}
+              />
+              <AppText size={16} style={styles.name} numberOfLines={1}>
+                {fullName(member) || 'Member'}
+              </AppText>
+              <AppText size={14} color="textSecondary">
+                {optionLabel(ROLE_OPTIONS, member.role)}
+              </AppText>
             </View>
           ))}
-        </View>
+        </SettingsSection>
 
         <SettingsSection>
           <SettingsRow icon="userPlus" label="Invite a member" isSoon />
@@ -65,7 +67,7 @@ const MembersList = () => {
   );
 };
 
-const makeStyles = ({ colors, spacing }: AppTheme) =>
+const makeStyles = ({ spacing }: AppTheme) =>
   StyleSheet.create({
     loading: {
       paddingTop: spacing.five
@@ -74,13 +76,6 @@ const makeStyles = ({ colors, spacing }: AppTheme) =>
       paddingVertical: spacing.four,
       paddingBottom: BottomTabInset + spacing.four,
       gap: spacing.four
-    },
-    card: {
-      backgroundColor: colors.backgroundElement,
-      borderRadius: Radius.tile,
-      borderCurve: 'continuous',
-      paddingVertical: spacing.one,
-      overflow: 'hidden'
     },
     row: {
       flexDirection: 'row',
@@ -91,11 +86,6 @@ const makeStyles = ({ colors, spacing }: AppTheme) =>
     },
     name: {
       flex: 1
-    },
-    divider: {
-      height: StyleSheet.hairlineWidth,
-      backgroundColor: colors.background,
-      marginLeft: spacing.three + 36 + spacing.three
     }
   });
 

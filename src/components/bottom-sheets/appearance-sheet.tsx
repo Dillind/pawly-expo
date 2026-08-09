@@ -3,7 +3,7 @@ import AppText from '@/components/core/app-text';
 import Icon from '@/components/core/icon';
 import PressableOpacity from '@/components/core/pressable-opacity';
 import { APPEARANCE_OPTIONS } from '@/constants/options';
-import type { AppTheme } from '@/constants/theme';
+import { Radius, type AppTheme } from '@/constants/theme';
 import { useStyles } from '@/hooks/use-styles';
 import { useThemeStore } from '@/stores/theme-store';
 import type { ThemePreference } from '@/types/core';
@@ -50,7 +50,7 @@ const makeStyles = ({ colors, spacing }: AppTheme) =>
   StyleSheet.create({
     list: {
       backgroundColor: colors.backgroundElement,
-      borderRadius: 12,
+      borderRadius: Radius.tile,
       borderCurve: 'continuous',
       overflow: 'hidden'
     },

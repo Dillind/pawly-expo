@@ -6,18 +6,15 @@ import { BottomTabInset, type AppTheme } from '@/constants/theme';
 import { useSessionEmail } from '@/hooks/queries/use-session-email';
 import { useUserProfile } from '@/hooks/queries/use-user-profile';
 import { useStyles } from '@/hooks/use-styles';
+import { fullName } from '@/utils/members';
 import { StyleSheet } from 'react-native';
 
-// TODO: Delete account is required by App Store guideline 5.1.1(v) before
-// submission. Open question: what happens to a household when its last Owner
-// deletes. Agreed direction is to block until another Owner exists.
+// TODO: Delete account is an App Store 5.1.1(v) requirement -- see CRU-013.
 const AccountSettings = () => {
   const styles = useStyles(makeStyles);
 
   const { data: profile } = useUserProfile();
   const { data: email } = useSessionEmail();
-
-  const fullName = [profile?.firstName, profile?.lastName].filter(Boolean).join(' ');
 
   return (
     <ScreenView edges={[]}>
@@ -25,13 +22,13 @@ const AccountSettings = () => {
         contentContainerStyle={styles.content}
         contentInsetAdjustmentBehavior="automatic">
         <SettingsSection>
-          <SettingsRow icon="user" label="Name" value={fullName || undefined} isSoon />
+          <SettingsRow icon="user" label="Name" value={fullName(profile)} isSoon />
           <SettingsRow icon="mail" label="Email" value={email} />
           <SettingsRow icon="key" label="Update password" isSoon />
         </SettingsSection>
 
         <SettingsSection>
-          <SettingsRow icon="trash" label="Delete account" isSoon isDestructive />
+          <SettingsRow icon="trash" label="Delete account" variant="destructive" isSoon />
         </SettingsSection>
       </ScreenScrollView>
     </ScreenView>

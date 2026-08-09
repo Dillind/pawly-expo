@@ -5,23 +5,23 @@ import SettingsRow from '@/components/core/settings-row';
 import SettingsSection from '@/components/core/settings-section';
 import ScreenScrollView from '@/components/layout/screen-scroll-view';
 import ScreenView from '@/components/layout/screen-view';
+import { ErrorMessage } from '@/constants/enums';
 import { APPEARANCE_OPTIONS } from '@/constants/options';
 import { BottomTabInset, type AppTheme } from '@/constants/theme';
 import { useHousehold } from '@/hooks/queries/use-household';
 import { useHouseholdMembers } from '@/hooks/queries/use-household-members';
 import { useLogout } from '@/hooks/use-logout';
 import { useStyles } from '@/hooks/use-styles';
-import { buildSupportMailto } from '@/lib/support';
+import { APP_VERSION, supportMailtoForUser } from '@/lib/support';
+import { showErrorToast } from '@/lib/toast';
 import { useAuthStore } from '@/stores/auth-store';
 import { useThemeStore } from '@/stores/theme-store';
 import { openExternalURL } from '@/utils/linking';
 import { optionLabel } from '@/utils/options';
 import type { TrueSheet } from '@lodev09/react-native-true-sheet';
-import Constants from 'expo-constants';
-import * as Device from 'expo-device';
 import { useRouter } from 'expo-router';
 import { useRef } from 'react';
-import { Platform, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 
 const SettingsList = () => {
   const styles = useStyles(makeStyles);
@@ -31,20 +31,14 @@ const SettingsList = () => {
   const aboutSheetRef = useRef<TrueSheet | null>(null);
 
   const { preference } = useThemeStore();
-  const { logout } = useLogout();
+  const { logout, isLoading: isSigningOut } = useLogout();
   const { userId } = useAuthStore();
   const { data: household } = useHousehold();
   const { data: members = [] } = useHouseholdMembers();
 
-  const handleContactSupport = () => {
-    void openExternalURL(
-      buildSupportMailto({
-        version: Constants.expoConfig?.version ?? 'unknown',
-        device: Device.modelName ?? 'unknown',
-        osVersion: String(Platform.Version),
-        userId
-      })
-    );
+  const handleContactSupport = async () => {
+    const opened = await openExternalURL(supportMailtoForUser(userId));
+    if (!opened) showErrorToast(ErrorMessage.SupportEmailUnavailable);
   };
 
   return (
@@ -70,7 +64,7 @@ const SettingsList = () => {
           <SettingsRow
             icon="sunMoon"
             label="Appearance"
-            value={optionLabel(APPEARANCE_OPTIONS, preference) ?? undefined}
+            value={optionLabel(APPEARANCE_OPTIONS, preference)}
             onPress={() => void appearanceSheetRef.current?.present()}
           />
           <SettingsRow icon="sparkles" label="App Icon" isSoon />
@@ -78,7 +72,7 @@ const SettingsList = () => {
 
         {household?.isOwner && (
           <SettingsSection title="Household">
-            <SettingsRow icon="house" label="Household name" value={household.name} />
+            <SettingsRow icon="house" label="Household name" isSoon />
             <SettingsRow
               icon="users"
               label="Members"
@@ -92,7 +86,11 @@ const SettingsList = () => {
         )}
 
         <SettingsSection title="Help & Support">
-          <SettingsRow icon="mail" label="Contact Support" onPress={handleContactSupport} />
+          <SettingsRow
+            icon="mail"
+            label="Contact Support"
+            onPress={() => void handleContactSupport()}
+          />
           <SettingsRow icon="lightbulb" label="Request a feature" isSoon />
           <SettingsRow icon="star" label="Rate Crumpet" isSoon />
           <SettingsRow
@@ -107,14 +105,15 @@ const SettingsList = () => {
             <SettingsRow
               icon="logOut"
               label="Sign out"
-              isDestructive
+              variant="destructive"
+              isDisabled={isSigningOut}
               onPress={() => void logout()}
             />
           </SettingsSection>
         </View>
 
         <AppText size={12} color="textSecondary" align="center">
-          Version {Constants.expoConfig?.version ?? '—'}
+          Version {APP_VERSION}
         </AppText>
       </ScreenScrollView>
 

@@ -1,15 +1,19 @@
 import AppText from '@/components/core/app-text';
-import { Radius, type AppTheme } from '@/constants/theme';
+import { Radius, Spacing, type AppTheme } from '@/constants/theme';
 import { useStyles } from '@/hooks/use-styles';
 import { Children, type ReactNode } from 'react';
 import { StyleSheet, View } from 'react-native';
 
 type Props = {
   title?: string;
+  /** Left inset of the divider, so it starts under the row's text rather than its glyph. */
+  dividerInset?: number;
   children: ReactNode;
 };
 
-const SettingsSection = ({ title, children }: Props) => {
+const DEFAULT_DIVIDER_INSET = Spacing.three + 18 + Spacing.three;
+
+const SettingsSection = ({ title, dividerInset = DEFAULT_DIVIDER_INSET, children }: Props) => {
   const styles = useStyles(makeStyles);
   const rows = Children.toArray(children);
 
@@ -25,7 +29,7 @@ const SettingsSection = ({ title, children }: Props) => {
         {rows.map((row, index) => (
           // Index as key: section rows are a fixed literal list, never reordered.
           <View key={index}>
-            {index > 0 && <View style={styles.divider} />}
+            {index > 0 && <View style={[styles.divider, { marginLeft: dividerInset }]} />}
             {row}
           </View>
         ))}
@@ -51,8 +55,7 @@ const makeStyles = ({ colors, spacing }: AppTheme) =>
     },
     divider: {
       height: StyleSheet.hairlineWidth,
-      backgroundColor: colors.background,
-      marginLeft: spacing.three + 18 + spacing.three
+      backgroundColor: colors.background
     }
   });
 

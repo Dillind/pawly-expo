@@ -1,5 +1,16 @@
 import { COMMON_TIMEZONES } from '@/constants/timezones';
-import type { FeedingScheduleLabel, Option, PetSex, ThemePreference } from '@/types/core';
+import type {
+  FeedingScheduleLabel,
+  HouseholdRole,
+  Option,
+  PetSex,
+  ThemePreference
+} from '@/types/core';
+
+export const ROLE_OPTIONS: Option<HouseholdRole>[] = [
+  { value: 'owner', label: 'Owner' },
+  { value: 'contributor', label: 'Contributor' }
+];
 
 export const APPEARANCE_OPTIONS: Option<ThemePreference>[] = [
   { value: 'system', label: 'System' },

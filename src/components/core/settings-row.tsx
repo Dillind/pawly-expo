@@ -8,25 +8,37 @@ import { StyleSheet, View } from 'react-native';
 
 const ROW_HEIGHT = 44;
 
+export type SettingsRowVariant = 'default' | 'destructive';
+
 type Props = {
   icon: IconName;
   label: string;
   /** Right-hand value, e.g. the current appearance or an email address. */
-  value?: string;
-  /** Renders a Soon pill instead of a chevron, and makes the row inert. */
+  value?: string | null;
+  /** What the row is. Orthogonal to `isSoon`, which is whether it works yet. */
+  variant?: SettingsRowVariant;
   isSoon?: boolean;
-  isDestructive?: boolean;
+  isDisabled?: boolean;
   onPress?: () => void;
 };
 
-const SettingsRow = ({ icon, label, value, isSoon, isDestructive, onPress }: Props) => {
+const SettingsRow = ({
+  icon,
+  label,
+  value,
+  variant = 'default',
+  isSoon,
+  isDisabled,
+  onPress
+}: Props) => {
   const styles = useStyles(makeStyles);
 
-  const isPressable = Boolean(onPress) && !isSoon;
-  const tone = isSoon ? 'textSecondary' : isDestructive ? 'error' : 'text';
+  const isDestructive = variant === 'destructive';
+  const isPressable = Boolean(onPress) && !isSoon && !isDisabled;
+  const tone = isDestructive ? 'error' : isSoon ? 'textSecondary' : 'text';
 
   const body = (
-    <View style={styles.row}>
+    <View style={[styles.row, isDisabled && styles.disabled]}>
       <Icon name={icon} size={18} color={isDestructive ? 'error' : 'textSecondary'} />
       <AppText size={16} color={tone} style={styles.label} numberOfLines={1}>
         {label}
@@ -40,11 +52,12 @@ const SettingsRow = ({ icon, label, value, isSoon, isDestructive, onPress }: Pro
         </View>
       ) : (
         <>
-          {value !== undefined && (
+          {value && (
             <AppText size={14} color="textSecondary" numberOfLines={1} style={styles.value}>
               {value}
             </AppText>
           )}
+          {/* A destructive row acts in place, so a chevron would promise a screen. */}
           {isPressable && !isDestructive && (
             <Icon name="caretRight" size={16} color="textSecondary" />
           )}
@@ -70,6 +83,9 @@ const makeStyles = ({ colors, spacing }: AppTheme) =>
       gap: spacing.three,
       minHeight: ROW_HEIGHT,
       paddingHorizontal: spacing.three
+    },
+    disabled: {
+      opacity: 0.5
     },
     label: {
       flex: 1

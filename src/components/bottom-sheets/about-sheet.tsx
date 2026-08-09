@@ -5,8 +5,8 @@ import SettingsRow from '@/components/core/settings-row';
 import SettingsSection from '@/components/core/settings-section';
 import { Radius, type AppTheme } from '@/constants/theme';
 import { useStyles } from '@/hooks/use-styles';
+import { APP_VERSION } from '@/lib/support';
 import type { TrueSheet } from '@lodev09/react-native-true-sheet';
-import Constants from 'expo-constants';
 import type { RefObject } from 'react';
 import { StyleSheet, View } from 'react-native';
 
@@ -24,7 +24,6 @@ const STORY = [
 
 const AboutSheet = ({ sheetRef }: Props) => {
   const styles = useStyles(makeStyles);
-  const version = Constants.expoConfig?.version ?? '—';
 
   return (
     <BaseSheet sheetRef={sheetRef} detents={['auto', 0.9]} scrollable>
@@ -51,7 +50,7 @@ const AboutSheet = ({ sheetRef }: Props) => {
       </SettingsSection>
 
       <AppText size={13} color="textSecondary" align="center">
-        Version {version}
+        Version {APP_VERSION}
       </AppText>
     </BaseSheet>
   );

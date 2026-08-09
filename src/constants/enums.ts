@@ -79,6 +79,7 @@ export enum ErrorMessage {
   PhotoDeleteFailed = 'Could not delete the photo',
   PhotosAddFailed = 'Could not add all of the photos',
   SignInFailed = 'Could not sign in',
+  SupportEmailUnavailable = 'No email app to contact support from',
   SignOutFailed = 'Failed to sign out',
   SignUpFailed = 'Could not sign up',
   VerificationFailed = 'Could not verify code'
