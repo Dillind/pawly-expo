@@ -3,7 +3,7 @@ import MainButton from '@/components/core/main-button';
 import PressableOpacity from '@/components/core/pressable-opacity';
 import ScreenView from '@/components/layout/screen-view';
 import PostComposer, { type PostDraft } from '@/components/screens/household/post-composer';
-import { ScreenGutter, type AppTheme } from '@/constants/theme';
+import { ScreenGutter, Spacing, type AppTheme } from '@/constants/theme';
 import { useHousehold } from '@/hooks/queries/use-household';
 import { usePets } from '@/hooks/queries/use-pets';
 import { useCreatePost } from '@/hooks/queries/use-posts';
@@ -12,12 +12,14 @@ import { useAuthStore } from '@/stores/auth-store';
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
 import { Alert, KeyboardAvoidingView, Platform, StyleSheet, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const EMPTY_DRAFT: PostDraft = { localUri: null, caption: '', petIds: [] };
 
 const NewPost = () => {
   const styles = useStyles(makeStyles);
   const router = useRouter();
+  const insets = useSafeAreaInsets();
 
   const { userId } = useAuthStore();
   const { data: household } = useHousehold();
@@ -64,8 +66,8 @@ const NewPost = () => {
   };
 
   return (
-    <ScreenView edges={['top']}>
-      <View style={styles.header}>
+    <ScreenView edges={[]}>
+      <View style={[styles.header, { paddingTop: Math.max(insets.top, Spacing.three) }]}>
         <PressableOpacity onPress={cancel} accessibilityRole="button" disabled={isSharing}>
           <AppText size={16} color="primary">
             Cancel

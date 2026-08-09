@@ -8,7 +8,7 @@ import { useTheme } from '@/hooks/use-theme';
 import CharacterCount from '@/lib/form/components/character-count';
 import FieldError from '@/lib/form/components/field-error';
 import React, { useCallback, useState } from 'react';
-import { useFormContext, useFormState } from 'react-hook-form';
+import { useFormContext, useFormState, type Control } from 'react-hook-form';
 import {
   StyleProp,
   StyleSheet,
@@ -101,7 +101,6 @@ const TextInputValidated = React.forwardRef<TextInputRef, Props>(
 
     const theme = useTheme();
     const form = useFormContext();
-    const { errors } = useFormState({ control: form?.control, name });
 
     const makeThemedStyles = useCallback(
       (currentTheme: AppTheme) => makeStyles(currentTheme, borderColor, backgroundColor),
@@ -172,13 +171,17 @@ const TextInputValidated = React.forwardRef<TextInputRef, Props>(
         {showCharacterCount && maxLength !== undefined && (
           <CharacterCount value={value} max={maxLength} />
         )}
-        {name && showFieldError && (
-          <FieldError marginTop={8} error={errors?.[name]?.message as string} />
-        )}
+        {form && name && showFieldError && <SubscribedFieldError control={form.control} name={name} />}
       </View>
     );
   }
 );
+
+const SubscribedFieldError = ({ control, name }: { control: Control<any>; name: string }) => {
+  const { errors } = useFormState({ control, name });
+
+  return <FieldError marginTop={8} error={errors?.[name]?.message as string} />;
+};
 
 const makeStyles = ({ colors }: AppTheme, borderColor: ThemeColor, backgroundColor: ThemeColor) =>
   StyleSheet.create({

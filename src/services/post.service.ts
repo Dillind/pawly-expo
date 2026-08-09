@@ -31,7 +31,7 @@ export type PostsCursor = { occurredAt: string; id: string };
 // member leaves the household, which only costs them access.
 const POST_SELECT = `
   id, household_id, author_id, caption, occurred_at,
-  users(first_name, last_name),
+  users!posts_author_id_fkey(first_name, last_name),
   post_photos(storage_path, sort_order),
   post_pets(pets(id, name, photo_url)),
   post_likes(user_id)

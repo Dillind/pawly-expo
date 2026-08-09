@@ -5,7 +5,7 @@ import MainLegendList from '@/components/core/main-legend-list';
 import ScreenView from '@/components/layout/screen-view';
 import ActivityDayHeader from '@/components/ui/activity-day-header';
 import FeedLogRow from '@/components/ui/feed-log-row';
-import { ScreenGutter, type AppTheme } from '@/constants/theme';
+import { BottomTabInset, ScreenGutter, type AppTheme } from '@/constants/theme';
 import { useFeedLog } from '@/hooks/queries/use-feed-log';
 import { useFeedLogs } from '@/hooks/queries/use-feed-logs';
 import { useHousehold } from '@/hooks/queries/use-household';
@@ -153,7 +153,7 @@ const makeStyles = ({ spacing }: AppTheme) =>
   StyleSheet.create({
     listContent: {
       paddingHorizontal: ScreenGutter,
-      paddingBottom: spacing.six
+      paddingBottom: BottomTabInset + spacing.four
     }
   });
 

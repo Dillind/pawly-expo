@@ -97,7 +97,8 @@ const PostComposer = ({ pets, draft, onChange }: Props) => {
       <ScrollView
         style={styles.scroll}
         contentContainerStyle={styles.content}
-        keyboardShouldPersistTaps="handled">
+        keyboardShouldPersistTaps="handled"
+        keyboardDismissMode="on-drag">
         <PressableOpacity
           style={styles.photoSlot}
           onPress={choosePhotoSource}
