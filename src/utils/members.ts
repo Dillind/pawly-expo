@@ -19,6 +19,15 @@ export function formatAuthorName(
   return author.firstName ?? 'Member';
 }
 
+/** Both names where there is room for both, e.g. the Profile header and Members list. */
+export function fullName(
+  person: { firstName: string | null; lastName: string | null } | null | undefined
+): string {
+  if (!person) return '';
+
+  return [person.firstName, person.lastName].filter(Boolean).join(' ');
+}
+
 export function memberDisplayName(
   members: HouseholdMember[],
   userId: string | null | undefined

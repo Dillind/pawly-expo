@@ -1,7 +1,10 @@
 import AppText from '@/components/core/app-text';
 import MainButton from '@/components/core/main-button';
+import SettingsSection from '@/components/core/settings-section';
 import ToggleSwitch from '@/components/core/toggle-switch';
-import type { AppTheme } from '@/constants/theme';
+import ScreenScrollView from '@/components/layout/screen-scroll-view';
+import ScreenView from '@/components/layout/screen-view';
+import { BottomTabInset, type AppTheme } from '@/constants/theme';
 import { useNotificationPreferences } from '@/hooks/queries/use-notification-preferences';
 import {
   NOTIFICATION_PERMISSION_QUERY_KEY,
@@ -10,7 +13,7 @@ import {
 import { useStyles } from '@/hooks/use-styles';
 import { useQuery } from '@tanstack/react-query';
 import * as Notifications from 'expo-notifications';
-import { ActivityIndicator, Linking, ScrollView, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, Linking, StyleSheet, View } from 'react-native';
 
 /**
  * What the household will and won't send this member.
@@ -59,14 +62,18 @@ const NotificationSettings = () => {
     const isDenied = permission.status !== Notifications.PermissionStatus.GRANTED;
 
     return (
-      <View style={styles.section}>
-        <ToggleSwitch
-          label="Feed Logged Alerts"
-          description={`Know when someone feeds a pet`}
-          value={preferences?.feedLoggedAlerts ?? false}
-          isDisabled={isDenied}
-          onChange={(value) => setFeedLoggedAlerts(value)}
-        />
+      <>
+        <SettingsSection title="Feeds">
+          <View style={styles.toggleRow}>
+            <ToggleSwitch
+              label="Feed Logged Alerts"
+              description="Know when someone feeds a pet"
+              value={preferences?.feedLoggedAlerts ?? false}
+              isDisabled={isDenied}
+              onChange={(value) => setFeedLoggedAlerts(value)}
+            />
+          </View>
+        </SettingsSection>
 
         {isDenied && (
           <View style={styles.section}>
@@ -83,32 +90,34 @@ const NotificationSettings = () => {
             />
           </View>
         )}
-      </View>
+      </>
     );
   };
 
   return (
-    <ScrollView
-      contentContainerStyle={styles.content}
-      contentInsetAdjustmentBehavior="automatic"
-      style={styles.screen}>
-      {renderBody()}
-    </ScrollView>
+    <ScreenView edges={[]}>
+      <ScreenScrollView
+        contentContainerStyle={styles.content}
+        contentInsetAdjustmentBehavior="automatic">
+        {renderBody()}
+      </ScreenScrollView>
+    </ScreenView>
   );
 };
 
-const makeStyles = ({ colors, spacing }: AppTheme) =>
+const makeStyles = ({ spacing }: AppTheme) =>
   StyleSheet.create({
-    screen: {
-      flex: 1,
-      backgroundColor: colors.background
-    },
     content: {
-      padding: spacing.four,
+      paddingVertical: spacing.four,
+      paddingBottom: BottomTabInset + spacing.four,
       gap: spacing.four
     },
     section: {
       gap: spacing.three
+    },
+    toggleRow: {
+      paddingHorizontal: spacing.three,
+      paddingVertical: spacing.two
     }
   });
 

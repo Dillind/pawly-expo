@@ -106,7 +106,11 @@ const makeStyles = ({ colors }: AppTheme) =>
       justifyContent: 'center',
       borderRadius: Radius.full
     },
+    // GlassView fits itself to the view it is given, so the minimums alone let
+    // it stretch to its parent's height and the circle becomes a capsule.
     glassSurface: {
+      width: MIN_TAP_TARGET,
+      height: MIN_TAP_TARGET,
       overflow: 'hidden'
     },
     glass: {

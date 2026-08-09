@@ -9,16 +9,12 @@ export default function ProfileLayout() {
   return (
     <>
       <StatusBar style={isDark ? 'light' : 'dark'} />
-      <Stack>
+      <Stack screenOptions={{ headerBackButtonDisplayMode: 'minimal' }}>
         <Stack.Screen name="index" options={{ headerShown: false }} />
-        <Stack.Screen
-          name="notifications"
-          options={{
-            headerTitle: 'Notifications',
-            headerBackTitle: 'Profile',
-            headerBackButtonDisplayMode: 'minimal'
-          }}
-        />
+        <Stack.Screen name="settings/index" options={{ headerTitle: 'Settings' }} />
+        <Stack.Screen name="settings/account" options={{ headerTitle: 'Account' }} />
+        <Stack.Screen name="settings/notifications" options={{ headerTitle: 'Notifications' }} />
+        <Stack.Screen name="settings/members" options={{ headerTitle: 'Members' }} />
       </Stack>
     </>
   );
