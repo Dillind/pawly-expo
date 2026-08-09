@@ -118,15 +118,22 @@ export function useToggleLike(householdId: string, userId: string | undefined) {
 /**
  * Drives the dot on the Household tab.
  *
- * Polls rather than subscribes: a dot that is a few seconds stale costs
- * nothing, and the push notification is what actually tells someone a post
- * arrived. Realtime here would be a socket per member for a red circle.
+ * Polls rather than subscribes, and that is the cheaper option on the client,
+ * not the lazier one. Supabase Realtime is a WebSocket held open for the life
+ * of the session with periodic heartbeats, and it counts against the project's
+ * concurrent-connection limit. One `exists` query a minute costs a request that
+ * returns a boolean, holds nothing open, and stops dead when the app is
+ * backgrounded. A socket kept alive to deliver a red circle is the more
+ * expensive of the two.
+ *
+ * The push notification is what actually tells someone a post arrived. This
+ * only decides whether a dot is showing when they happen to be looking.
  */
-export function useHasUnseenPosts(householdId: string | undefined, userId: string | undefined) {
+export function useHasUnseenPosts(householdId: string | undefined) {
   return useQuery({
-    queryKey: ['posts-unseen', householdId, userId],
-    queryFn: () => PostService.hasUnseen({ householdId: householdId!, userId: userId! }),
-    enabled: Boolean(householdId && userId),
+    queryKey: ['posts-unseen', householdId],
+    queryFn: () => PostService.hasUnseen(householdId!),
+    enabled: Boolean(householdId),
     refetchInterval: 60_000
   });
 }
@@ -136,8 +143,7 @@ export function useMarkPostsSeen(householdId: string | undefined, userId: string
 
   return useMutation({
     mutationFn: () => PostService.markSeen({ householdId: householdId!, userId: userId! }),
-    onSuccess: () =>
-      queryClient.invalidateQueries({ queryKey: ['posts-unseen', householdId, userId] }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['posts-unseen', householdId] }),
     // Silent by design. Nobody asked for this write; it is a side effect of
     // opening a tab, and a failed one just means the dot lingers.
     onError: (error) => console.error(error)

@@ -201,33 +201,18 @@ namespace PostService {
     if (error) throw error;
   }
 
-  /** Drives the tab dot. Null `posts_last_seen_at` means never opened. */
-  export async function hasUnseen(params: {
-    householdId: string;
-    userId: string;
-  }): Promise<boolean> {
-    const { data: membership, error: membershipError } = await supabase
-      .from('household_members')
-      .select('posts_last_seen_at')
-      .eq('household_id', params.householdId)
-      .eq('user_id', params.userId)
-      .maybeSingle();
+  /**
+   * Drives the tab dot. One RPC, not two selects and a comparison in JS -- the
+   * comparison is a `where` clause, and this runs on a minute's interval.
+   */
+  export async function hasUnseen(householdId: string): Promise<boolean> {
+    const { data, error } = await supabase.rpc('has_unseen_posts', {
+      target_household_id: householdId
+    });
 
-    if (membershipError) throw membershipError;
+    if (error) throw error;
 
-    const { data: newest, error: newestError } = await supabase
-      .from('posts')
-      .select('occurred_at')
-      .eq('household_id', params.householdId)
-      .order('occurred_at', { ascending: false })
-      .limit(1)
-      .maybeSingle();
-
-    if (newestError) throw newestError;
-    if (!newest) return false;
-
-    const lastSeen = membership?.posts_last_seen_at;
-    return !lastSeen || newest.occurred_at > lastSeen;
+    return data ?? false;
   }
 }
 
