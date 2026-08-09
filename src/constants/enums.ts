@@ -49,8 +49,6 @@ export enum SuccessMessage {
   PhotosAdded = 'Photos added',
   PostDeleted = 'Post deleted',
   PostShared = 'Post shared',
-  PostAlertsOff = 'Post Alerts off',
-  PostAlertsOn = 'Post Alerts on',
   SignedIn = 'Signed in',
   SignedOut = 'Signed out'
 }

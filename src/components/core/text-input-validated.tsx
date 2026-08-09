@@ -8,7 +8,7 @@ import { useTheme } from '@/hooks/use-theme';
 import CharacterCount from '@/lib/form/components/character-count';
 import FieldError from '@/lib/form/components/field-error';
 import React, { useCallback, useState } from 'react';
-import { useFormContext, useFormState, type Control } from 'react-hook-form';
+import { useFormContext, useFormState, type Control, type FieldValues } from 'react-hook-form';
 import {
   StyleProp,
   StyleSheet,
@@ -177,7 +177,13 @@ const TextInputValidated = React.forwardRef<TextInputRef, Props>(
   }
 );
 
-const SubscribedFieldError = ({ control, name }: { control: Control<any>; name: string }) => {
+const SubscribedFieldError = ({
+  control,
+  name
+}: {
+  control: Control<FieldValues>;
+  name: string;
+}) => {
   const { errors } = useFormState({ control, name });
 
   return <FieldError marginTop={8} error={errors?.[name]?.message as string} />;

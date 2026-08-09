@@ -76,12 +76,9 @@ function mapPostRow(row: PostRow, viewerId: string | null): Post {
 namespace PostService {
   export async function list(params: {
     householdId: string;
+    viewerId: string | null;
     cursor?: PostsCursor;
   }): Promise<{ posts: Post[]; nextCursor: PostsCursor | null }> {
-    const {
-      data: { user }
-    } = await supabase.auth.getUser();
-
     let query = supabase
       .from('posts')
       .select(POST_SELECT)
@@ -104,7 +101,10 @@ namespace PostService {
     const { data, error } = await query;
     if (error) throw error;
 
-    const posts = (data as unknown as PostRow[]).map((row) => mapPostRow(row, user?.id ?? null));
+    // The client has no generated Database types, so PostgREST's select parser
+    // cannot tell a to-one embed from a to-many and infers `users` and `pets`
+    // as arrays. They arrive as objects. Only `unknown` bridges that.
+    const posts = (data as unknown as PostRow[]).map((row) => mapPostRow(row, params.viewerId));
     const last = posts.at(-1);
 
     return {
@@ -121,7 +121,6 @@ namespace PostService {
     userId: string;
     localUri: string;
     caption?: string | null;
-    occurredAt?: string | null;
     petIds?: string[];
   }): Promise<void> {
     const resizedUri = await resizeForUpload(params.localUri);
@@ -142,7 +141,6 @@ namespace PostService {
       target_household_id: params.householdId,
       photo_storage_path: path,
       post_caption: params.caption ?? null,
-      post_occurred_at: params.occurredAt ?? null,
       tagged_pet_ids: params.petIds ?? []
     });
 

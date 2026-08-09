@@ -2,19 +2,21 @@ import AppText from '@/components/core/app-text';
 import MainButton from '@/components/core/main-button';
 import PressableOpacity from '@/components/core/pressable-opacity';
 import ScreenView from '@/components/layout/screen-view';
-import PostComposer, { type PostDraft } from '@/components/screens/household/post-composer';
+import PostComposer from '@/components/screens/household/post-composer';
+import { postSchema, type PostFormValues } from '@/constants/schemas/post';
 import { ScreenGutter, Spacing, type AppTheme } from '@/constants/theme';
 import { useHousehold } from '@/hooks/queries/use-household';
 import { usePets } from '@/hooks/queries/use-pets';
 import { useCreatePost } from '@/hooks/queries/use-posts';
 import { useStyles } from '@/hooks/use-styles';
 import { useAuthStore } from '@/stores/auth-store';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter } from 'expo-router';
-import { useState } from 'react';
+import { FormProvider, useForm, useWatch } from 'react-hook-form';
 import { Alert, KeyboardAvoidingView, Platform, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-const EMPTY_DRAFT: PostDraft = { localUri: null, caption: '', petIds: [] };
+const EMPTY_DRAFT: PostFormValues = { localUri: '', caption: '', petIds: [] };
 
 const NewPost = () => {
   const styles = useStyles(makeStyles);
@@ -25,11 +27,19 @@ const NewPost = () => {
   const { data: household } = useHousehold();
   const { data: pets = [] } = usePets();
 
-  const [draft, setDraft] = useState<PostDraft>(EMPTY_DRAFT);
+  const form = useForm<PostFormValues>({
+    resolver: zodResolver(postSchema),
+    defaultValues: EMPTY_DRAFT,
+    mode: 'onChange'
+  });
 
-  const { mutate: createPost, isPending: isSharing } = useCreatePost(household?.id ?? '');
+  const { control, handleSubmit } = form;
+  const localUri = useWatch({ control, name: 'localUri' });
+  const caption = useWatch({ control, name: 'caption' });
 
-  const hasContent = Boolean(draft.localUri) || draft.caption.trim().length > 0;
+  const { mutate: createPost, isPending: isSharing } = useCreatePost(household?.id);
+
+  const hasContent = Boolean(localUri) || caption.trim().length > 0;
 
   /**
    * Cancel IS the discard -- there is no draft to keep and no "Discard post"
@@ -44,26 +54,26 @@ const NewPost = () => {
     }
 
     Alert.alert('Discard post?', undefined, [
-      { text: 'Keep editing', style: 'cancel', isPreferred: true },
+      { text: 'Cancel', style: 'cancel', isPreferred: true },
       { text: 'Discard', style: 'destructive', onPress: () => router.back() }
     ]);
   };
 
-  const share = () => {
-    if (!draft.localUri || !userId || !household?.id) return;
+  const share = handleSubmit((values) => {
+    if (!userId || !household?.id) return;
 
     createPost(
       {
         userId,
-        localUri: draft.localUri,
-        caption: draft.caption.trim() || null,
-        petIds: draft.petIds
+        localUri: values.localUri,
+        caption: values.caption.trim() || null,
+        petIds: values.petIds
       },
       // Only the navigation lives here. The toast belongs to the hook, so an
       // upload that outlives this screen still reports.
       { onSuccess: () => router.back() }
     );
-  };
+  });
 
   return (
     <ScreenView edges={[]}>
@@ -80,18 +90,22 @@ const NewPost = () => {
 
         <MainButton
           text="Post"
-          onPress={share}
+          onPress={() => {
+            void share();
+          }}
           isLoading={isSharing}
           // A photo is required: a caption on its own is a message, and the
           // moment those exist people expect replies, which v1 does not have.
-          isDisabled={!draft.localUri}
+          isDisabled={!localUri}
         />
       </View>
 
       <KeyboardAvoidingView
         style={styles.body}
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-        <PostComposer pets={pets} draft={draft} onChange={setDraft} />
+        <FormProvider {...form}>
+          <PostComposer pets={pets} />
+        </FormProvider>
       </KeyboardAvoidingView>
     </ScreenView>
   );

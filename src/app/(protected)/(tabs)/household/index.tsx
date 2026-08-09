@@ -44,12 +44,12 @@ const Household = () => {
     fetchNextPage,
     hasNextPage,
     isFetchingNextPage
-  } = usePosts(householdId);
+  } = usePosts(householdId, userId ?? undefined);
 
   useRefreshOnFocus(['posts']);
 
-  const { mutate: toggleLike } = useToggleLike(householdId ?? '', userId ?? undefined);
-  const { mutate: deletePost } = useDeletePost(householdId ?? '');
+  const { mutate: toggleLike } = useToggleLike(householdId, userId ?? undefined);
+  const { mutate: deletePost } = useDeletePost(householdId);
   const { mutate: markSeen } = useMarkPostsSeen(householdId, userId ?? undefined);
 
   // Clearing the dot is a side effect of arriving, not of the data loading, so

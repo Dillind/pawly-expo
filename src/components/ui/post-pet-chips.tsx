@@ -1,9 +1,9 @@
 import AppText from '@/components/core/app-text';
+import PetAvatar from '@/components/core/pet-avatar';
 import PressableOpacity from '@/components/core/pressable-opacity';
 import { Radius, type AppTheme } from '@/constants/theme';
 import { useStyles } from '@/hooks/use-styles';
 import type { PostPetTag } from '@/services/post.service';
-import { Image } from 'expo-image';
 import { useRouter } from 'expo-router';
 import { StyleSheet, View } from 'react-native';
 
@@ -33,11 +33,7 @@ const PostPetChips = ({ pets }: Props) => {
           onPress={() => router.push(`/home/pet/${pet.id}`)}
           accessibilityRole="button"
           accessibilityLabel={`View ${pet.name}`}>
-          {pet.photoUrl ? (
-            <Image source={{ uri: pet.photoUrl }} style={styles.avatar} contentFit="cover" />
-          ) : (
-            <View style={[styles.avatar, styles.avatarFallback]} />
-          )}
+          <PetAvatar photoUrl={pet.photoUrl} size={AVATAR} />
           <AppText size={13} color="textSecondary">
             {pet.name}
           </AppText>
@@ -64,14 +60,6 @@ const makeStyles = ({ colors, spacing }: AppTheme) =>
       paddingLeft: spacing.one,
       borderRadius: Radius.full,
       backgroundColor: colors.backgroundElement
-    },
-    avatar: {
-      width: AVATAR,
-      height: AVATAR,
-      borderRadius: AVATAR / 2
-    },
-    avatarFallback: {
-      backgroundColor: colors.backgroundSelected
     }
   });
 

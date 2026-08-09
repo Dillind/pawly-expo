@@ -2,12 +2,12 @@ import BaseSheet from '@/components/bottom-sheets/base-sheet';
 import AppText from '@/components/core/app-text';
 import Icon from '@/components/core/icon';
 import MainButton from '@/components/core/main-button';
+import PetAvatar from '@/components/core/pet-avatar';
 import PressableOpacity from '@/components/core/pressable-opacity';
-import { Radius, type AppTheme } from '@/constants/theme';
+import { type AppTheme } from '@/constants/theme';
 import { useStyles } from '@/hooks/use-styles';
 import type { Pet } from '@/types/core';
 import type { TrueSheet } from '@lodev09/react-native-true-sheet';
-import { Image } from 'expo-image';
 import type { RefObject } from 'react';
 import { StyleSheet, View } from 'react-native';
 
@@ -49,13 +49,7 @@ const TagPetsSheet = ({ sheetRef, pets, selectedPetIds, onToggle, onDone }: Prop
               accessibilityRole="checkbox"
               accessibilityState={{ checked: isSelected }}
               accessibilityLabel={pet.name}>
-              {pet.photoUrl ? (
-                <Image source={{ uri: pet.photoUrl }} style={styles.avatar} contentFit="cover" />
-              ) : (
-                <View style={[styles.avatar, styles.avatarFallback]}>
-                  <Icon name="pawPrint" size={18} color="textSecondary" />
-                </View>
-              )}
+              <PetAvatar photoUrl={pet.photoUrl} size={AVATAR} />
               <AppText size={16} style={styles.name}>
                 {pet.name}
               </AppText>
@@ -70,7 +64,7 @@ const TagPetsSheet = ({ sheetRef, pets, selectedPetIds, onToggle, onDone }: Prop
   );
 };
 
-const makeStyles = ({ colors, spacing }: AppTheme) =>
+const makeStyles = ({ spacing }: AppTheme) =>
   StyleSheet.create({
     list: {
       gap: spacing.one
@@ -80,16 +74,6 @@ const makeStyles = ({ colors, spacing }: AppTheme) =>
       alignItems: 'center',
       gap: spacing.two,
       paddingVertical: spacing.two
-    },
-    avatar: {
-      width: AVATAR,
-      height: AVATAR,
-      borderRadius: Radius.full,
-      alignItems: 'center',
-      justifyContent: 'center'
-    },
-    avatarFallback: {
-      backgroundColor: colors.backgroundElement
     },
     name: {
       flex: 1

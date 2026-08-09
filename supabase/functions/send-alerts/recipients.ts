@@ -38,10 +38,6 @@ export const resolveRecipientTokens = async (
     actor_id: string | null;
   }
 ): Promise<string[]> => {
-  // A map rather than a ternary chain. The old `missed_feed ? ... : feed_logged`
-  // silently defaulted every unknown kind to the feed_logged preference, so
-  // adding `post` to the enum quietly checked the wrong column. A Record keyed
-  // on AlertKind makes the next kind a compile error instead.
   const preferenceColumn = PREFERENCE_COLUMN[alert.kind];
 
   let query = client

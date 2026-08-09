@@ -34,8 +34,15 @@ Feed Log would fill it three times a day for free.
 ## Decision
 
 **A Post is its own object.** It is not an enriched Feed Log, it does not write to `feed_logs`, and
-`log_feed` is untouched. A Post carries one required photo, an optional caption, and an
-`occurred_at` the author may backdate up to seven days.
+`log_feed` is untouched. A Post carries one required photo and an optional caption.
+
+**A Post is always posted now.** Unlike a Feed Log, it carries no author-set time. The column is
+`occurred_at` and the insert policy admits a seven-day window, because the schema was written
+expecting a backdating control — but there is no such control and v1 does not offer one. A Feed Log
+is a record of something that happened at a particular time, so getting that time right is the
+whole point of correcting one. A photo is not a record; nobody browsing the stream needs to know
+whether it was taken this morning or on Tuesday. The window stays in the policy so adding the
+control later is a UI change rather than a migration.
 
 **A Post is scoped to the Household, permanently.** Visibility follows household membership and
 nothing else. There is no `visibility` column, no audience model, and no per-post privacy control.
@@ -56,9 +63,11 @@ missed-feed sweep are untouched by anything in this ADR, and a bug in one cannot
 
 Delivery follows ADR 0012: an insert queues an `alerts` row and the outbox decides. One rule differs
 deliberately. A Feed Log older than 30 minutes at insert becomes a Suppressed Alert, because a stale
-"Sarah fed Bailey" is noise about something already handled. **A backdated Post still pushes** — a
-photo from three days ago is still a photo you want to see. Same mechanism, opposite answer,
-because the content is not the same kind of thing.
+"Sarah fed Bailey" is noise about something already handled. **A Post has no age check at all** —
+`queue_post_alert` does not look at the clock. With posts always posted now that costs nothing, and
+it is the right answer in advance of a backdating control: a photo from three days ago is still a
+photo you want to see. Same mechanism, opposite answer, because the content is not the same kind of
+thing.
 
 Moderation is membership. The author deletes their own Post, an Owner deletes any, and removing a
 member is the block. There is no report button, because there is nobody to report to and offering

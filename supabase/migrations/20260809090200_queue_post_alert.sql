@@ -58,9 +58,6 @@ execute function public.queue_post_alert();
 -- `public`, which PostgREST exposes, so without this it is reachable at
 -- /rest/v1/rpc/queue_post_alert by anon -- as SECURITY DEFINER, meaning it
 -- would insert an alerts row on behalf of the definer for any household_id the
--- caller cared to name. The security advisor flagged it immediately.
---
--- 20260728110915 did exactly this for queue_feed_logged_alert. The precedent
--- was there and this missed it; the revoke belongs next to every definer
--- trigger function from now on.
+-- caller cared to name. Every SECURITY DEFINER trigger function in `public`
+-- needs this revoke.
 revoke execute on function public.queue_post_alert() from public, anon, authenticated;

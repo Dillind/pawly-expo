@@ -102,9 +102,10 @@ _Avoid_: Duplicate feed, over-feed.
 ## Sharing
 
 **Post**:
-A photo a Member shares with their Household — one required image, an optional caption, and the
-time it happened. Authored deliberately and unrelated to feeding: a walk, a nap, a "she's fine,
-look at her". A Post is never a Feed Log and never satisfies a Scheduled Time. See
+A photo a Member shares with their Household — one required image and an optional caption. Always
+posted now: unlike a Feed Log, a Post carries no author-set time. Authored deliberately and
+unrelated to feeding: a walk, a nap, a "she's fine, look at her". A Post is never a Feed Log and
+never satisfies a Scheduled Time. See
 [ADR 0017](./docs/adr/0017-household-scoped-posts-are-their-own-object.md).
 _Avoid_: Update, moment, story, and above all **feed** — the word belongs to feeding, and calling a
 Post surface "the feed" is what ADR 0017 exists to prevent.
@@ -127,6 +128,6 @@ Household.
 _Avoid_: Mention, subject, "posting to a pet".
 
 **Like**:
-A Member's single, toggleable acknowledgement of a Post. One per Member per Post, counted and
+A Member's single, reversible acknowledgement of a Post. One per Member per Post, counted and
 attributable. Never notifies anyone — a Like is not worth an interruption.
 _Avoid_: Reaction (implies a set to choose from), favourite, heart, upvote.

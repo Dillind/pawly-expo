@@ -20,88 +20,95 @@ type AlertSubject = {
  * missed_feed, and a posts.id for post. Null means the row is gone -- deleted
  * between queue and dispatch.
  *
- * Every kind gets its own branch and the last one is explicit rather than a
- * fallthrough. The `post` kind was added to alert_kind before this function
- * knew about it, and the old `if feed_logged / else missed_feed` shape sent
- * post alerts looking for a feeding schedule with a post's id -- found nothing,
- * stamped "subject not found", and delivered silence. A switch on the kind
- * fails loudly at the type level the next time a kind is added.
+ * The switch is exhaustive: the default branch assigns the kind to `never`, so
+ * adding a fourth alert_kind fails to compile rather than being silently
+ * handled as a missed feed.
  */
 export const buildMessageForAlert = async (
   client: SupabaseClient,
   alert: AlertSubject
 ): Promise<Omit<ExpoMessage, 'to'> | null> => {
-  if (alert.kind === 'post') {
-    const { data: post } = await client
-      .from('posts')
-      .select('id, caption, author_id, post_pets ( pets ( name ) )')
-      .eq('id', alert.subject_id)
-      .maybeSingle();
+  switch (alert.kind) {
+    case 'post': {
+      const { data: post } = await client
+        .from('posts')
+        .select('id, caption, author_id, post_pets ( pets ( name ) )')
+        .eq('id', alert.subject_id)
+        .maybeSingle();
 
-    if (!post) return null;
+      if (!post) return null;
 
-    // author_id is nullable with on delete set null, same as logged_by: a post
-    // outlives its author's account and renders as "Member".
-    const { data: author } = post.author_id
-      ? await client.from('users').select('first_name').eq('id', post.author_id).maybeSingle()
-      : { data: null };
+      // author_id is nullable with on delete set null, same as logged_by: a post
+      // outlives its author's account and renders as "Member".
+      const { data: author } = post.author_id
+        ? await client.from('users').select('first_name').eq('id', post.author_id).maybeSingle()
+        : { data: null };
 
-    // deno-lint-ignore no-explicit-any
-    const petNames = ((post as any).post_pets ?? [])
       // deno-lint-ignore no-explicit-any
-      .map((tag: any) => tag.pets?.name)
-      .filter((name: string | undefined): name is string => Boolean(name));
+      const petNames = ((post as any).post_pets ?? [])
+        // deno-lint-ignore no-explicit-any
+        .map((tag: any) => tag.pets?.name)
+        .filter((name: string | undefined): name is string => Boolean(name));
 
-    return buildPostMessage({
-      authorFirstName: author?.first_name ?? null,
-      caption: post.caption,
-      petNames,
-      postId: post.id
-    });
+      return buildPostMessage({
+        authorFirstName: author?.first_name ?? null,
+        caption: post.caption,
+        petNames,
+        postId: post.id
+      });
+    }
+
+    case 'feed_logged': {
+      const { data: log } = await client
+        .from('feed_logs')
+        .select('id, logged_at, notes, logged_by, pets ( name, households ( timezone ) )')
+        .eq('id', alert.subject_id)
+        .maybeSingle();
+
+      if (!log) return null;
+
+      // logged_by is nullable with on delete set null -- a log can outlive its
+      // author, and buildFeedLoggedMessage renders that as "Member".
+      const { data: author } = log.logged_by
+        ? await client.from('users').select('first_name').eq('id', log.logged_by).maybeSingle()
+        : { data: null };
+
+      // deno-lint-ignore no-explicit-any
+      const pet = (log as any).pets;
+
+      return buildFeedLoggedMessage({
+        authorFirstName: author?.first_name ?? null,
+        petName: pet.name,
+        loggedAt: log.logged_at,
+        householdTimezone: pet.households.timezone,
+        notes: log.notes,
+        logId: log.id
+      });
+    }
+
+    case 'missed_feed': {
+      const { data: slot } = await client
+        .from('feeding_schedules')
+        .select('scheduled_time, label, pets ( name )')
+        .eq('id', alert.subject_id)
+        .maybeSingle();
+
+      if (!slot) return null;
+
+      // deno-lint-ignore no-explicit-any
+      const pet = (slot as any).pets;
+
+      return buildMissedFeedMessage({
+        petName: pet.name,
+        label: slot.label as ScheduleLabel,
+        scheduledTime: slot.scheduled_time
+      });
+    }
+
+    default: {
+      const unhandled: never = alert.kind;
+      console.error(`Unhandled alert kind: ${String(unhandled)}`);
+      return null;
+    }
   }
-
-  if (alert.kind === 'feed_logged') {
-    const { data: log } = await client
-      .from('feed_logs')
-      .select('id, logged_at, notes, logged_by, pets ( name, households ( timezone ) )')
-      .eq('id', alert.subject_id)
-      .maybeSingle();
-
-    if (!log) return null;
-
-    // logged_by is nullable with on delete set null -- a log can outlive its
-    // author, and buildFeedLoggedMessage renders that as "Member".
-    const { data: author } = log.logged_by
-      ? await client.from('users').select('first_name').eq('id', log.logged_by).maybeSingle()
-      : { data: null };
-
-    // deno-lint-ignore no-explicit-any
-    const pet = (log as any).pets;
-
-    return buildFeedLoggedMessage({
-      authorFirstName: author?.first_name ?? null,
-      petName: pet.name,
-      loggedAt: log.logged_at,
-      householdTimezone: pet.households.timezone,
-      notes: log.notes,
-      logId: log.id
-    });
-  }
-
-  const { data: slot } = await client
-    .from('feeding_schedules')
-    .select('scheduled_time, label, pets ( name )')
-    .eq('id', alert.subject_id)
-    .maybeSingle();
-
-  if (!slot) return null;
-
-  // deno-lint-ignore no-explicit-any
-  const pet = (slot as any).pets;
-
-  return buildMissedFeedMessage({
-    petName: pet.name,
-    label: slot.label as ScheduleLabel,
-    scheduledTime: slot.scheduled_time
-  });
 };

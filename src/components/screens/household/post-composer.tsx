@@ -3,29 +3,21 @@ import AppText from '@/components/core/app-text';
 import Icon from '@/components/core/icon';
 import PressableOpacity from '@/components/core/pressable-opacity';
 import TextInputValidated from '@/components/core/text-input-validated';
+import { CAPTION_MAX, type PostFormValues } from '@/constants/schemas/post';
 import { Radius, ScreenGutter, type AppTheme } from '@/constants/theme';
 import { useStyles } from '@/hooks/use-styles';
+import { userFacingMessage } from '@/lib/errors';
 import { pickPhotoFromLibrary, takePhotoWithCamera } from '@/lib/photo';
 import { showErrorToast } from '@/lib/toast';
-import { userFacingMessage } from '@/lib/errors';
 import type { Pet } from '@/types/core';
 import type { TrueSheet } from '@lodev09/react-native-true-sheet';
 import { Image } from 'expo-image';
 import { useRef, useState } from 'react';
+import { Controller, useFormContext, useWatch } from 'react-hook-form';
 import { ActionSheetIOS, Platform, ScrollView, StyleSheet, View } from 'react-native';
-
-export const CAPTION_MAX = 280;
-
-export type PostDraft = {
-  localUri: string | null;
-  caption: string;
-  petIds: string[];
-};
 
 type Props = {
   pets: Pet[];
-  draft: PostDraft;
-  onChange: (draft: PostDraft) => void;
 };
 
 /**
@@ -33,9 +25,13 @@ type Props = {
  * guard; this owns the fields and nothing else, so the same form could be
  * reused if a post ever gets an edit screen.
  */
-const PostComposer = ({ pets, draft, onChange }: Props) => {
+const PostComposer = ({ pets }: Props) => {
   const styles = useStyles(makeStyles);
   const tagSheetRef = useRef<TrueSheet | null>(null);
+
+  const { control, setValue } = useFormContext<PostFormValues>();
+  const localUri = useWatch({ control, name: 'localUri' });
+  const petIds = useWatch({ control, name: 'petIds' });
 
   const [isPicking, setIsPicking] = useState(false);
 
@@ -47,7 +43,7 @@ const PostComposer = ({ pets, draft, onChange }: Props) => {
       const uri = await pick();
       // Null means the user backed out of the picker. Cancelling is not an
       // error and must not clear a photo they already chose.
-      if (uri) onChange({ ...draft, localUri: uri });
+      if (uri) setValue('localUri', uri, { shouldValidate: true, shouldDirty: true });
     } catch (error) {
       console.error(error);
       showErrorToast(userFacingMessage(error, 'Could not open the photo picker'));
@@ -80,15 +76,14 @@ const PostComposer = ({ pets, draft, onChange }: Props) => {
   };
 
   const togglePet = (petId: string) =>
-    onChange({
-      ...draft,
-      petIds: draft.petIds.includes(petId)
-        ? draft.petIds.filter((id) => id !== petId)
-        : [...draft.petIds, petId]
-    });
+    setValue(
+      'petIds',
+      petIds.includes(petId) ? petIds.filter((id) => id !== petId) : [...petIds, petId],
+      { shouldDirty: true }
+    );
 
   const taggedNames = pets
-    .filter((pet) => draft.petIds.includes(pet.id))
+    .filter((pet) => petIds.includes(pet.id))
     .map((pet) => pet.name)
     .join(', ');
 
@@ -103,17 +98,15 @@ const PostComposer = ({ pets, draft, onChange }: Props) => {
           style={styles.photoSlot}
           onPress={choosePhotoSource}
           accessibilityRole="button"
-          accessibilityLabel={draft.localUri ? 'Change the photo' : 'Add a photo'}>
-          {draft.localUri ? (
-            <Image source={{ uri: draft.localUri }} style={styles.photo} contentFit="cover" />
+          accessibilityLabel={localUri ? 'Change the photo' : 'Add a photo'}>
+          {localUri ? (
+            <Image source={{ uri: localUri }} style={styles.photo} contentFit="cover" />
           ) : (
             <View style={styles.placeholder}>
               <Icon name="imagePlus" size={32} color="textSecondary" />
               <AppText size={15} color="textSecondary">
                 Add a photo
               </AppText>
-              {/* Says what the picker is about to do, so a square crop is not a
-                  surprise sprung on them mid-flow. */}
               <AppText size={13} color="textSecondary">
                 Square — you frame it when you pick
               </AppText>
@@ -121,14 +114,22 @@ const PostComposer = ({ pets, draft, onChange }: Props) => {
           )}
         </PressableOpacity>
 
-        <TextInputValidated
-          value={draft.caption}
-          onChangeText={(caption) => onChange({ ...draft, caption })}
-          placeholder="Say something about this photo… (optional)"
-          isMultiline
-          maxLength={CAPTION_MAX}
-          showCharacterCount
-          height={110}
+        <Controller
+          control={control}
+          name="caption"
+          render={({ field: { onChange, onBlur, value } }) => (
+            <TextInputValidated
+              name="caption"
+              value={value}
+              onChangeText={onChange}
+              onBlur={onBlur}
+              placeholder="Say something about this photo… (optional)"
+              isMultiline
+              maxLength={CAPTION_MAX}
+              showCharacterCount
+              height={110}
+            />
+          )}
         />
 
         <PressableOpacity
@@ -151,7 +152,7 @@ const PostComposer = ({ pets, draft, onChange }: Props) => {
       <TagPetsSheet
         sheetRef={tagSheetRef}
         pets={pets}
-        selectedPetIds={draft.petIds}
+        selectedPetIds={petIds}
         onToggle={togglePet}
         onDone={() => void tagSheetRef.current?.dismiss()}
       />

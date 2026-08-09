@@ -3,14 +3,18 @@ import { showErrorToast, showSuccessToast } from '@/lib/toast';
 import PostService, { type Post, type PostsCursor } from '@/services/post.service';
 import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
-const postsKey = (householdId: string) => ['posts', householdId];
+const postsKey = (householdId: string | undefined) => ['posts', householdId];
 
 /** The Household stream. Cursor on `(occurred_at, id) desc`. */
-export function usePosts(householdId: string | undefined) {
+export function usePosts(householdId: string | undefined, viewerId: string | undefined) {
   return useInfiniteQuery({
-    queryKey: postsKey(householdId ?? ''),
+    queryKey: postsKey(householdId),
     queryFn: ({ pageParam }) =>
-      PostService.list({ householdId: householdId!, cursor: pageParam ?? undefined }),
+      PostService.list({
+        householdId: householdId!,
+        viewerId: viewerId ?? null,
+        cursor: pageParam ?? undefined
+      }),
     initialPageParam: null as PostsCursor | null,
     getNextPageParam: (lastPage) => lastPage.nextCursor,
     select: (data) => data.pages.flatMap((page) => page.posts),
@@ -18,7 +22,7 @@ export function usePosts(householdId: string | undefined) {
   });
 }
 
-export function useCreatePost(householdId: string) {
+export function useCreatePost(householdId: string | undefined) {
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -26,9 +30,8 @@ export function useCreatePost(householdId: string) {
       userId: string;
       localUri: string;
       caption?: string | null;
-      occurredAt?: string | null;
       petIds?: string[];
-    }) => PostService.create({ householdId, ...input }),
+    }) => PostService.create({ householdId: householdId!, ...input }),
     onSettled: () => queryClient.invalidateQueries({ queryKey: postsKey(householdId) }),
     onSuccess: () => showSuccessToast(SuccessMessage.PostShared),
     onError: (error) => {
@@ -38,7 +41,7 @@ export function useCreatePost(householdId: string) {
   });
 }
 
-export function useDeletePost(householdId: string) {
+export function useDeletePost(householdId: string | undefined) {
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -64,7 +67,7 @@ type PostsData = { pages: PostsPage[]; pageParams: unknown[] };
  * happen" without interrupting anyone; the real error still reaches the
  * console.
  */
-export function useToggleLike(householdId: string, userId: string | undefined) {
+export function useToggleLike(householdId: string | undefined, userId: string | undefined) {
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -107,11 +110,9 @@ export function useToggleLike(householdId: string, userId: string | undefined) {
       if (context?.previous) {
         queryClient.setQueryData(postsKey(householdId), context.previous);
       }
-    },
-
-    // Not onSettled: refetching after every tap would undo the point of the
-    // optimistic update. The rollback above is what keeps a failure honest.
-    onSuccess: () => {}
+    }
+    // Deliberately no onSettled: refetching after every tap would undo the
+    // point of the optimistic update. The rollback above keeps a failure honest.
   });
 }
 
