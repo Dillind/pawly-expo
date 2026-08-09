@@ -54,8 +54,8 @@ A record that a pet was fed — who fed it (`logged_by`), when (`logged_at`, adj
 _Avoid_: Feed event, meal record, entry.
 
 **Activity**:
-The household's chronological history of Feed Logs. The word for this history, in both the product and the UI.
-_Avoid_: **Feed** (reserved for the act of feeding — a Feed Log, a Missed Feed), timeline, stream, news feed. Naming this surface "the feed" invites the social-stream product that PRODUCT_BRIEF puts explicitly out of scope.
+A Pet's chronological history of Feed Logs. The word for this history, in both the product and the UI. It is not a Household-wide surface and does not own a tab — "when did Bailey last eat" is the question people ask, so the history is read per Pet.
+_Avoid_: **Feed** (reserved for the act of feeding — a Feed Log, a Missed Feed), timeline, stream, news feed. Naming this surface "the feed" invites the public social product PRODUCT_BRIEF still puts out of scope. Do not confuse Activity with the Household surface: Activity is feeding history, the Household tab holds Posts.
 
 **Grace Window**:
 The interval either side of a Scheduled Time within which a Feed Log counts as Satisfying that slot — symmetric, so a 60-minute window makes 06:00–08:00 satisfy an 07:00 slot. Feeding early is as ordinary as feeding late, and an early feed must never leave a slot looking unfed. Configured per household (default 60 minutes).
@@ -98,3 +98,35 @@ An Alert that was recorded but deliberately not delivered, because the feed it d
 **Double Feed**:
 A feed logged at a time falling inside at least one Grace Window, where recording it does not increase the number of Satisfying Feeds that day — two feeds for effectively the same slot. A feed outside every Grace Window is never a Double Feed: it is a snack, and a valid recorded feed that simply belongs to no slot. The app warns at log time and the member decides whether to record it anyway.
 _Avoid_: Duplicate feed, over-feed.
+
+## Sharing
+
+**Post**:
+A photo a Member shares with their Household — one required image, an optional caption, and the
+time it happened. Authored deliberately and unrelated to feeding: a walk, a nap, a "she's fine,
+look at her". A Post is never a Feed Log and never satisfies a Scheduled Time. See
+[ADR 0017](./docs/adr/0017-household-scoped-posts-are-their-own-object.md).
+_Avoid_: Update, moment, story, and above all **feed** — the word belongs to feeding, and calling a
+Post surface "the feed" is what ADR 0017 exists to prevent.
+
+**Household** (the surface):
+The tab holding the Household's Posts, newest first. The same word as the group it belongs to —
+the audience is the name. Visible only to Members.
+_Avoid_: Feed, timeline, stream, news feed, social, wall.
+
+> **Provisional — this name is under review, not settled.** It knowingly gives "Household" a second
+> meaning alongside the group defined above, which is the kind of drift this glossary exists to
+> prevent. It also sits next to the Home tab, and it promises the household's people while
+> delivering their photos (members and invites live in Profile). Candidates if it changes: Shared,
+> Album. Deferred deliberately so it does not block CRU-011 — revisit before the tab ships to users.
+
+**Pet Tag**:
+An optional mark on a Post saying which Pets are in the photo. Several may be tagged, or none.
+A tag describes the content; it never changes who can see the Post, which is always the whole
+Household.
+_Avoid_: Mention, subject, "posting to a pet".
+
+**Like**:
+A Member's single, toggleable acknowledgement of a Post. One per Member per Post, counted and
+attributable. Never notifies anyone — a Like is not worth an interruption.
+_Avoid_: Reaction (implies a set to choose from), favourite, heart, upvote.
