@@ -1,23 +1,18 @@
 import FeedLogDetailSheet from '@/components/bottom-sheets/feed-log-detail-sheet';
-import LogFeedTray from '@/components/bottom-sheets/log-feed-tray';
 import EmptyState from '@/components/core/empty-state';
 import MainButton from '@/components/core/main-button';
 import MainLegendList from '@/components/core/main-legend-list';
 import ScreenView from '@/components/layout/screen-view';
-import ActionPopover from '@/components/ui/action-popover';
 import ActivityDayHeader from '@/components/ui/activity-day-header';
 import FeedLogRow from '@/components/ui/feed-log-row';
-import { CREATE_ACTIONS } from '@/constants/create-actions';
 import { ScreenGutter, type AppTheme } from '@/constants/theme';
 import { useFeedLog } from '@/hooks/queries/use-feed-log';
 import { useFeedLogs } from '@/hooks/queries/use-feed-logs';
 import { useHousehold } from '@/hooks/queries/use-household';
-import { useHouseholdMembers } from '@/hooks/queries/use-household-members';
 import { usePets } from '@/hooks/queries/use-pets';
-import { useLogFlow } from '@/hooks/use-log-flow';
 import { useRefreshOnFocus } from '@/hooks/use-refresh-on-focus';
 import { useStyles } from '@/hooks/use-styles';
-import { dayInTimezone, todayInTimezone } from '@/lib/dates';
+import { dayInTimezone } from '@/lib/dates';
 import type { FeedLog } from '@/types/core';
 import type { LegendListRenderItemProps } from '@legendapp/list/react-native';
 import type { TrueSheet } from '@lodev09/react-native-true-sheet';
@@ -37,9 +32,7 @@ const Activity = () => {
 
   const { data: household } = useHousehold();
   const { data: pets = [] } = usePets();
-  const { data: members = [] } = useHouseholdMembers();
   const timezone = household?.timezone;
-  const today = timezone ? todayInTimezone(timezone) : undefined;
 
   const petIds = useMemo(() => pets.map((pet) => pet.id), [pets]);
   const petNames = useMemo(
@@ -53,18 +46,6 @@ const Activity = () => {
   useRefreshOnFocus(['feed-logs']);
 
   const sheetRef = useRef<TrueSheet | null>(null);
-  const logTrayRef = useRef<TrueSheet | null>(null);
-
-  const flow = useLogFlow({
-    members,
-    timezone,
-    onConfirmNeeded: () => {
-      void logTrayRef.current?.present();
-    },
-    onWritten: () => {
-      void logTrayRef.current?.dismiss();
-    }
-  });
 
   const { data: deepLinkedLog } = useFeedLog(logId || undefined);
 
@@ -158,33 +139,6 @@ const Activity = () => {
         }
         renderItem={renderItem}
       />
-
-      <ActionPopover
-        actions={CREATE_ACTIONS}
-        primaryAction={{
-          label: 'Log a feed',
-          icon: 'utensils',
-          isDisabled: pets.length === 0,
-          onPress: () => {
-            void logTrayRef.current?.present();
-          }
-        }}
-      />
-
-      {timezone && today && (
-        <LogFeedTray
-          sheetRef={logTrayRef}
-          pets={pets}
-          timezone={timezone}
-          today={today}
-          members={members}
-          flow={flow}
-          onOpenLog={(openedLogId) => {
-            setActiveLogId(openedLogId);
-            void sheetRef.current?.present();
-          }}
-        />
-      )}
 
       <FeedLogDetailSheet
         sheetRef={sheetRef}

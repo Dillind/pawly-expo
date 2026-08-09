@@ -26,7 +26,7 @@ import { ActivityIndicator, Linking, StyleSheet, View } from 'react-native';
  */
 const NotificationSettings = () => {
   const styles = useStyles(makeStyles);
-  const { data: preferences, isLoading, setFeedLoggedAlerts } = useNotificationPreferences();
+  const { data: preferences, isLoading, setPreference } = useNotificationPreferences();
 
   const requestPermission = useRequestNotificationPermission();
 
@@ -47,7 +47,7 @@ const NotificationSettings = () => {
       return (
         <View style={styles.section}>
           <AppText size={14} color="textSecondary">
-            Turn on notifications to know the moment someone feeds a pet.
+            Turn on notifications to know the moment someone feeds a pet or shares a photo.
           </AppText>
           <MainButton
             text="Turn on notifications"
@@ -70,7 +70,19 @@ const NotificationSettings = () => {
               description="Know when someone feeds a pet"
               value={preferences?.feedLoggedAlerts ?? false}
               isDisabled={isDenied}
-              onChange={(value) => setFeedLoggedAlerts(value)}
+              onChange={(value) => setPreference({ preference: 'feedLoggedAlerts', value })}
+            />
+          </View>
+        </SettingsSection>
+
+        <SettingsSection title="Posts">
+          <View style={styles.toggleRow}>
+            <ToggleSwitch
+              label="Post Alerts"
+              description="Know when someone shares a photo"
+              value={preferences?.postAlerts ?? false}
+              isDisabled={isDenied}
+              onChange={(value) => setPreference({ preference: 'postAlerts', value })}
             />
           </View>
         </SettingsSection>
@@ -79,7 +91,7 @@ const NotificationSettings = () => {
           <View style={styles.section}>
             <AppText size={13} color="textSecondary">
               Notifications are turned off for Crumpet, so you won&apos;t hear when someone feeds
-              a pet.
+              a pet or shares a photo.
             </AppText>
             <MainButton
               text="Open Settings"

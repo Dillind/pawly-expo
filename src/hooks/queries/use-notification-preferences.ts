@@ -1,7 +1,7 @@
 import { ErrorMessage } from '@/constants/enums';
 import { useHousehold } from '@/hooks/queries/use-household';
 import { showErrorToast } from '@/lib/toast';
-import HouseholdService from '@/services/household.service';
+import HouseholdService, { type AlertPreference } from '@/services/household.service';
 import { useAuthStore } from '@/stores/auth-store';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
@@ -28,10 +28,11 @@ export function useNotificationPreferences() {
   });
 
   const mutation = useMutation({
-    mutationFn: (value: boolean) =>
-      HouseholdService.setFeedLoggedAlerts({
+    mutationFn: ({ preference, value }: { preference: AlertPreference; value: boolean }) =>
+      HouseholdService.setAlertPreference({
         householdId: householdId as string,
         userId: userId as string,
+        preference,
         value
       }),
     onSettled: () => {
@@ -47,7 +48,7 @@ export function useNotificationPreferences() {
     data: query.data,
     isLoading: query.isLoading,
     isError: query.isError,
-    setFeedLoggedAlerts: mutation.mutate,
+    setPreference: mutation.mutate,
     isSaving: mutation.isPending
   };
 }
