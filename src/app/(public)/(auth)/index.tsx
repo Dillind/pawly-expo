@@ -115,6 +115,14 @@ const SignIn = () => {
                 </AppText>
               </PressableOpacity>
             </Link>
+
+            <Link href="/sign-up" asChild>
+              <PressableOpacity style={styles.forgotPassword}>
+                <AppText color="primary" size={16} align="center">
+                  Create an account
+                </AppText>
+              </PressableOpacity>
+            </Link>
           </View>
         </FormProvider>
       </ScrollView>
