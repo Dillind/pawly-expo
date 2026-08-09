@@ -9,5 +9,13 @@ export const HOME_TILES: TileDescriptor[] = [
     icon: 'pawPrint',
     span: 1,
     href: '/home/pets'
+  },
+  {
+    id: 'activity',
+    label: 'Activity',
+    subtitle: 'Feed history',
+    icon: 'list',
+    span: 1,
+    href: '/home/activity'
   }
 ];

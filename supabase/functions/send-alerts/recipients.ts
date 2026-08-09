@@ -1,5 +1,7 @@
 import type { SupabaseClient } from 'npm:@supabase/supabase-js@2';
 
+import type { AlertKind } from './subjects.ts';
+
 /**
  * The delivery rule (ADR 0012): a Feed Logged Alert goes to every member of
  * the household EXCEPT the author, unless that member has turned Feed Logged
@@ -14,20 +16,29 @@ import type { SupabaseClient } from 'npm:@supabase/supabase-js@2';
  * the midday dog walker is precisely the person who most needs to know the dog
  * was already fed at 7am.
  *
+ * A Post Alert follows the feed_logged shape: everyone except the author, minus
+ * anyone with Post Alerts off. The author is excluded for the obvious reason --
+ * they are holding the phone they just posted from.
+ *
  * Resolution happens HERE, at send time, rather than being fanned out when the
  * alert was queued -- so a preference changed between queue and delivery is
  * respected.
  */
+const PREFERENCE_COLUMN: Record<AlertKind, string> = {
+  feed_logged: 'feed_logged_alerts',
+  missed_feed: 'missed_feed_alerts',
+  post: 'post_alerts'
+};
+
 export const resolveRecipientTokens = async (
   client: SupabaseClient,
   alert: {
     household_id: string;
-    kind: 'feed_logged' | 'missed_feed';
+    kind: AlertKind;
     actor_id: string | null;
   }
 ): Promise<string[]> => {
-  const preferenceColumn =
-    alert.kind === 'missed_feed' ? 'missed_feed_alerts' : 'feed_logged_alerts';
+  const preferenceColumn = PREFERENCE_COLUMN[alert.kind];
 
   let query = client
     .from('household_members')

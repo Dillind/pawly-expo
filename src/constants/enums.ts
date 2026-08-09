@@ -47,6 +47,8 @@ export enum SuccessMessage {
   PhotoAdded = 'Photo added',
   PhotoDeleted = 'Photo deleted',
   PhotosAdded = 'Photos added',
+  PostDeleted = 'Post deleted',
+  PostShared = 'Post shared',
   SignedIn = 'Signed in',
   SignedOut = 'Signed out'
 }
@@ -78,6 +80,8 @@ export enum ErrorMessage {
   PhotoAddFailed = 'Could not add the photo',
   PhotoDeleteFailed = 'Could not delete the photo',
   PhotosAddFailed = 'Could not add all of the photos',
+  PostDeleteFailed = 'Could not delete the post',
+  PostShareFailed = 'Could not share the post',
   SignInFailed = 'Could not sign in',
   SupportEmailUnavailable = 'No email app to contact support from',
   SignOutFailed = 'Failed to sign out',

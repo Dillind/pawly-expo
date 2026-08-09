@@ -1,7 +1,10 @@
 import { supabase } from '@/lib/supabase/client';
 import type { Household, HouseholdMember } from '@/types/core';
 
-export type NotificationPreferences = { feedLoggedAlerts: boolean };
+export type NotificationPreferences = { feedLoggedAlerts: boolean; postAlerts: boolean };
+
+/** The preferences a member can actually change. missed_feed_alerts is not one — see use-notification-preferences. */
+export type AlertPreference = keyof NotificationPreferences;
 
 type MembershipRow = {
   user_id: string;
@@ -97,24 +100,34 @@ namespace HouseholdService {
   ): Promise<NotificationPreferences> {
     const { data, error } = await supabase
       .from('household_members')
-      .select('feed_logged_alerts')
+      .select('feed_logged_alerts, post_alerts')
       .eq('household_id', householdId)
       .eq('user_id', userId)
       .single();
 
     if (error) throw error;
 
-    return { feedLoggedAlerts: data.feed_logged_alerts };
+    return { feedLoggedAlerts: data.feed_logged_alerts, postAlerts: data.post_alerts };
   }
 
-  export async function setFeedLoggedAlerts(params: {
+  // household_members takes COLUMN-level update grants, so a new preference
+  // column is invisible to writes until it is named in a `grant update (col)`.
+  // The failure is silent: the write reports success and the value reverts on
+  // the next refetch.
+  const PREFERENCE_COLUMN: Record<AlertPreference, string> = {
+    feedLoggedAlerts: 'feed_logged_alerts',
+    postAlerts: 'post_alerts'
+  };
+
+  export async function setAlertPreference(params: {
     householdId: string;
     userId: string;
+    preference: AlertPreference;
     value: boolean;
   }): Promise<void> {
     const { error } = await supabase
       .from('household_members')
-      .update({ feed_logged_alerts: params.value })
+      .update({ [PREFERENCE_COLUMN[params.preference]]: params.value })
       .eq('household_id', params.householdId)
       .eq('user_id', params.userId);
 

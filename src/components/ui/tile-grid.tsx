@@ -55,12 +55,17 @@ const TileGrid = ({ tiles }: Props) => {
 
 const makeStyles = ({ spacing }: AppTheme) =>
   StyleSheet.create({
-    grid: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.three },
+    grid: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      rowGap: spacing.three,
+      marginHorizontal: -spacing.two
+    },
     // No flexGrow: a span-1 tile stays half width even when it is the only one
     // in the row. Growing it made a lone tile fill the row and stop reading as
     // a tile at all.
-    half: { flexBasis: '48%' },
-    full: { flexBasis: '100%' }
+    half: { flexBasis: '50%', paddingHorizontal: spacing.two },
+    full: { flexBasis: '100%', paddingHorizontal: spacing.two }
   });
 
 export default TileGrid;

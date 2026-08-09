@@ -1,6 +1,6 @@
 # Crumpet — Product Brief
 
-> Crumpet is a pet-care coordination app. It starts with dog feeding but the model is intentionally pet-general, leaving room for a broader "pet companion + household coordination" vision. The name comes from the dog the app was built for; it is a mascot, not a scope limit.
+> **Pet care, coordinated — feeding, records, and the people who help.** Crumpet starts with dog feeding but the model is intentionally pet-general, leaving room for a broader "pet companion + household coordination" vision. Feeding is the daily habit that makes anyone open the app; everything else earns its place around it. The name comes from the dog the app was built for; it is a mascot, not a scope limit.
 > Domain terminology is defined in [CONTEXT.md](../CONTEXT.md). Decisions are recorded in [docs/adr/](./adr/).
 
 ---
@@ -54,10 +54,12 @@ A pet owner who shares responsibility with at least one other person — partner
 
 ### Out of Scope
 
-- **Social media feed / life updates / walk posts** — the 11pm-build-session temptation. It goes here so you don't. Different product.
+- **Public social — profiles, a follower graph, discovery, strangers, anything visible outside a household** — the 11pm-build-session temptation. It goes here so you don't. Different product. This ban is permanent and is not softened by the private version below.
 - **Pet sounds library** — different core loop, v3 at earliest.
-- **Public pet profiles / follower graph** — startup scale, not a side project.
 - **Events / community features** — same as above.
+- **Comments, threads, @mentions on Posts** — deferred, not banned. See ADR 0017.
+
+**Amended 2026-08-09.** This list used to read "social media feed / life updates / walk posts", which banned the private version along with the public one. Private, household-only Posts are now in scope — see ADR 0017 and the Household surface in CONTEXT.md. The reasoning is not that sharing is a nice extra. It is that everyone with a relation to the pet is already in the app, so a sitter can post a photo without being added to a family thread and the owner never has to awkwardly ask for one. What stays banned is any audience wider than the household.
 - **Custom backend / NestJS / OpenAPI** — Supabase generated types + Zod schemas on Edge Functions cover typing needs without the overhead.
 
 ---
@@ -72,8 +74,12 @@ A pet owner who shares responsibility with at least one other person — partner
 
 **Freemium — a genuinely useful free tier, paywall for power features.** Modelled on Hevy: the free tier is worth coming back to, not crippled.
 
-- **Free:** core feeding log, household coordination (small household — cap to finalise; see open question), push notifications, one pet, basic history (30 days).
-- **Paid:** multiple pets, unlimited history, calendar view, weight tracking, custom notification schedules, priority support, exclusive app icons.
+- **Free:** core feeding log, household coordination (small household — cap to finalise; see open question), push notifications, one pet, basic history (30 days), Posts — unlimited posting, last 30 days visible.
+- **Paid:** multiple pets, unlimited history (feeding *and* Posts), calendar view, weight tracking, custom notification schedules, priority support, exclusive app icons.
+
+The Posts line follows the rule the rest of the list follows: never cap the core loop, cap breadth and history. A free household still gets the whole away-from-home case, because a trip is a fortnight, not a year.
+
+**None of this is built.** The 30-day Posts limit in particular is deliberately *not* implemented in CRU-011 — every household sees its full history until subscriptions are actually built. Gating history before there is anything to gate adds a code path with no revenue attached to it, and the cut-off is a `where` clause whenever it is wanted.
 
 **No paywall in v1.** Get RevenueCat initialised and ready; don't flip the switch until real users are asking for more.
 
@@ -83,7 +89,7 @@ A pet owner who shares responsibility with at least one other person — partner
 
 - **Technical spike needed (Priority 1):** Supabase Edge Function cron for missed-feed alerts. Build this before anything else — least-certain part of the stack, underpins a core v1 feature. See ADR 0002.
 - **Free-tier household cap:** with multiple Owners allowed, the "up to 2 contributors" limit should be re-expressed as a total-member cap. Finalise the number.
-- **Scope creep watch:** a social media feed. Explicitly out of scope. Named here so it's easier to resist.
+- **Scope creep watch:** public social — profiles, followers, discovery. Explicitly out of scope and permanently so. Named here so it's easier to resist. Private household Posts are in scope (ADR 0017); the line between them is the audience, and it does not move.
 - **Invite flow friction:** invitees must download the app and create an account before joining. Onboarding must be dead simple or the multi-member model falls apart. See ADR 0003.
 - **Notification behaviour on iOS:** missed-feed alerts depend on reliable background processing and APNs delivery. Test on a real device early, not just the simulator.
 
