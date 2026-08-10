@@ -101,7 +101,7 @@ const PetSection = ({
           style={styles.identity}
           accessibilityRole="button"
           accessibilityLabel={`Open ${pet.name}`}
-          onPress={() => router.push(`/home/pet/${pet.id}`)}>
+          onPress={() => router.push(`/home/${pet.id}`)}>
           <PetAvatar photoUrl={pet.photoUrl} size={40} />
 
           <View style={styles.names}>

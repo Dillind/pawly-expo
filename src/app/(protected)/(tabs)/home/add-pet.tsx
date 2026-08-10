@@ -87,7 +87,7 @@ const AddPet = () => {
             label: feedingTime.label
           }))
         },
-        { onSuccess: (pet) => router.replace(`/home/pet/${pet.id}`) }
+        { onSuccess: (pet) => router.replace(`/home/${pet.id}`) }
       );
     })();
   };
