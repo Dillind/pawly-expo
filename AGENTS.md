@@ -526,6 +526,19 @@ Rules:
 - **Theme at render.** `backgroundColor` is a native prop, so read it from `useTheme()` inside the component. Never capture colours at module scope — that silently breaks dark mode, since the sheet is drawn natively.
 - **Hooks never take a sheet ref.** A hook does the work and returns state; the call site dismisses. `useLogout()` returns `{ logout, isLoading }` and knows nothing about sheets — keep it that way.
 - **`detents`:** maximum of 3, sorted smallest to largest. Use `['auto']` for content-sized confirmations, `['auto', 0.6, 1]` (the `BaseSheet` default) for anything scrollable.
+- **Never hand-roll a header or a row.** `BaseSheet`'s `title` draws the header — heading, close button, divider — and `SheetRow` draws every row. A sheet that builds its own gets a different size, a missing close button, or a row with no fill, which is exactly the drift these two exist to stop. `photo-source-sheet.tsx` is the reference:
+
+  ```tsx
+  <BaseSheet sheetRef={sheetRef} title="Add a photo" detents={['auto']}>
+    <View style={styles.rows}>
+      <SheetRow icon="camera" label="Take Photo" onPress={takePhoto} />
+      <SheetRow icon="trash" label="Delete post" isDestructive onPress={confirmDelete} />
+      <SheetRow label={pet.name} leading={<PetAvatar … />} isSelected isCheckbox onPress={toggle} />
+    </View>
+  </BaseSheet>
+  ```
+
+  Rows sit in a `View` with `gap: spacing.two`. Omit `title` and there is no header — right for an action sheet raised from a ⋯ menu, which needs no restating. `SheetRow` fills with `backgroundSheetRow`; the sheet behind it is `backgroundSheet`. Those two tokens are the only backgrounds a sheet may use.
 - **Deep links reach sheets via their host screen**, because a sheet has no URL. Route to the screen with a param (`/activity?logId=…`), present from an effect once the data has loaded, then clear the param so back-navigation behaves. This is how notification taps open a specific record.
 - Prefer an **inline** picker inside a sheet over `react-native-modal-datetime-picker` — stacking a modal on top of a native sheet is a rough edge on iOS. This is about _presentation_, not about the control: a time input is always the `mode="time"` spinner (see Dates and times above), inline if the modal misbehaves.
 

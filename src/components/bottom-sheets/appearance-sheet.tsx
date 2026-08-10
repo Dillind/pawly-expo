@@ -1,9 +1,8 @@
 import BaseSheet from '@/components/bottom-sheets/base-sheet';
-import AppText from '@/components/core/app-text';
-import Icon from '@/components/core/icon';
-import PressableOpacity from '@/components/core/pressable-opacity';
+import SheetRow from '@/components/bottom-sheets/sheet-row';
+import type { IconName } from '@/constants/icon-map';
 import { APPEARANCE_OPTIONS } from '@/constants/options';
-import { Radius, type AppTheme } from '@/constants/theme';
+import type { AppTheme } from '@/constants/theme';
 import { useStyles } from '@/hooks/use-styles';
 import { useThemeStore } from '@/stores/theme-store';
 import type { ThemePreference } from '@/types/core';
@@ -13,6 +12,12 @@ import { StyleSheet, View } from 'react-native';
 
 type Props = {
   sheetRef: RefObject<TrueSheet | null>;
+};
+
+const APPEARANCE_ICONS: Record<ThemePreference, IconName> = {
+  system: 'sunMoon',
+  light: 'sun',
+  dark: 'moon'
 };
 
 const AppearanceSheet = ({ sheetRef }: Props) => {
@@ -26,43 +31,24 @@ const AppearanceSheet = ({ sheetRef }: Props) => {
 
   return (
     <BaseSheet sheetRef={sheetRef} title="Appearance" detents={['auto']}>
-      <View style={styles.list}>
+      <View style={styles.rows}>
         {APPEARANCE_OPTIONS.map((option) => (
-          <PressableOpacity
+          <SheetRow
             key={option.value}
-            accessibilityRole="button"
-            accessibilityLabel={option.label}
-            accessibilityState={{ selected: preference === option.value }}
-            style={styles.row}
-            onPress={() => handleSelect(option.value)}>
-            <AppText size={16} style={styles.label}>
-              {option.label}
-            </AppText>
-            {preference === option.value && <Icon name="check" size={18} color="primary" />}
-          </PressableOpacity>
+            icon={APPEARANCE_ICONS[option.value]}
+            label={option.label}
+            isSelected={preference === option.value}
+            onPress={() => handleSelect(option.value)}
+          />
         ))}
       </View>
     </BaseSheet>
   );
 };
 
-const makeStyles = ({ colors, spacing }: AppTheme) =>
+const makeStyles = ({ spacing }: AppTheme) =>
   StyleSheet.create({
-    list: {
-      backgroundColor: colors.backgroundSheetRow,
-      borderRadius: Radius.tile,
-      borderCurve: 'continuous',
-      overflow: 'hidden'
-    },
-    row: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      minHeight: 48,
-      paddingHorizontal: spacing.three
-    },
-    label: {
-      flex: 1
-    }
+    rows: { gap: spacing.two }
   });
 
 export default AppearanceSheet;
