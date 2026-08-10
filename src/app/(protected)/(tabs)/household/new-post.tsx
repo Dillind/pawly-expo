@@ -13,7 +13,8 @@ import { useAuthStore } from '@/stores/auth-store';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter } from 'expo-router';
 import { FormProvider, useForm, useWatch } from 'react-hook-form';
-import { Alert, KeyboardAvoidingView, Platform, StyleSheet, View } from 'react-native';
+import { Alert, StyleSheet, View } from 'react-native';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const EMPTY_DRAFT: PostFormValues = { localUri: '', caption: '', petIds: [] };
@@ -41,12 +42,6 @@ const NewPost = () => {
 
   const hasContent = Boolean(localUri) || caption.trim().length > 0;
 
-  /**
-   * Cancel IS the discard -- there is no draft to keep and no "Discard post"
-   * row, unlike the Hevy screen this is modelled on, where a workout already
-   * exists by the time you reach it. Nothing entered means nothing to lose, so
-   * the alert only appears when there is something to throw away.
-   */
   const cancel = () => {
     if (!hasContent) {
       router.back();
@@ -69,44 +64,38 @@ const NewPost = () => {
         caption: values.caption.trim() || null,
         petIds: values.petIds
       },
-      // Only the navigation lives here. The toast belongs to the hook, so an
-      // upload that outlives this screen still reports.
       { onSuccess: () => router.back() }
     );
   });
 
   return (
     <ScreenView edges={[]}>
-      <View style={[styles.header, { paddingTop: Math.max(insets.top, Spacing.three) }]}>
-        <PressableOpacity onPress={cancel} accessibilityRole="button" disabled={isSharing}>
-          <AppText size={16} color="primary">
-            Cancel
+      <KeyboardAwareScrollView>
+        <View style={[styles.header, { paddingTop: Math.max(insets.top, Spacing.three) }]}>
+          <PressableOpacity onPress={cancel} accessibilityRole="button" disabled={isSharing}>
+            <AppText size={16} color="primary">
+              Cancel
+            </AppText>
+          </PressableOpacity>
+
+          <AppText size={16} fontWeight="bold">
+            Create Post
           </AppText>
-        </PressableOpacity>
 
-        <AppText size={16} fontWeight="bold">
-          New Post
-        </AppText>
+          <MainButton
+            text="Post"
+            onPress={() => {
+              void share();
+            }}
+            isLoading={isSharing}
+            isDisabled={!localUri}
+          />
+        </View>
 
-        <MainButton
-          text="Post"
-          onPress={() => {
-            void share();
-          }}
-          isLoading={isSharing}
-          // A photo is required: a caption on its own is a message, and the
-          // moment those exist people expect replies, which v1 does not have.
-          isDisabled={!localUri}
-        />
-      </View>
-
-      <KeyboardAvoidingView
-        style={styles.body}
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
         <FormProvider {...form}>
           <PostComposer pets={pets} />
         </FormProvider>
-      </KeyboardAvoidingView>
+      </KeyboardAwareScrollView>
     </ScreenView>
   );
 };

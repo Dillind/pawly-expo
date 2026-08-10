@@ -1,3 +1,4 @@
+import PhotoSourceSheet from '@/components/bottom-sheets/photo-source-sheet';
 import TagPetsSheet from '@/components/bottom-sheets/tag-pets-sheet';
 import AppText from '@/components/core/app-text';
 import Icon from '@/components/core/icon';
@@ -6,74 +7,25 @@ import TextInputValidated from '@/components/core/text-input-validated';
 import { CAPTION_MAX, type PostFormValues } from '@/constants/schemas/post';
 import { Radius, ScreenGutter, type AppTheme } from '@/constants/theme';
 import { useStyles } from '@/hooks/use-styles';
-import { userFacingMessage } from '@/lib/errors';
-import { pickPhotoFromLibrary, takePhotoWithCamera } from '@/lib/photo';
-import { showErrorToast } from '@/lib/toast';
 import type { Pet } from '@/types/core';
 import type { TrueSheet } from '@lodev09/react-native-true-sheet';
 import { Image } from 'expo-image';
-import { useRef, useState } from 'react';
+import { useRef } from 'react';
 import { Controller, useFormContext, useWatch } from 'react-hook-form';
-import { ActionSheetIOS, Platform, ScrollView, StyleSheet, View } from 'react-native';
+import { ScrollView, StyleSheet, View } from 'react-native';
 
 type Props = {
   pets: Pet[];
 };
 
-/**
- * The composer body. The route owns the header, the save and the discard
- * guard; this owns the fields and nothing else, so the same form could be
- * reused if a post ever gets an edit screen.
- */
 const PostComposer = ({ pets }: Props) => {
   const styles = useStyles(makeStyles);
   const tagSheetRef = useRef<TrueSheet | null>(null);
+  const photoSheetRef = useRef<TrueSheet | null>(null);
 
   const { control, setValue } = useFormContext<PostFormValues>();
   const localUri = useWatch({ control, name: 'localUri' });
   const petIds = useWatch({ control, name: 'petIds' });
-
-  const [isPicking, setIsPicking] = useState(false);
-
-  const setPhoto = async (pick: () => Promise<string | null>) => {
-    if (isPicking) return;
-    setIsPicking(true);
-
-    try {
-      const uri = await pick();
-      // Null means the user backed out of the picker. Cancelling is not an
-      // error and must not clear a photo they already chose.
-      if (uri) setValue('localUri', uri, { shouldValidate: true, shouldDirty: true });
-    } catch (error) {
-      console.error(error);
-      showErrorToast(userFacingMessage(error, 'Could not open the photo picker'));
-    } finally {
-      setIsPicking(false);
-    }
-  };
-
-  /**
-   * Library or camera, offered as an action sheet rather than two buttons.
-   * Apple's guidance sends "choices related to an intentional action" here, and
-   * the intentional action is "add a photo" -- the source is a detail of it.
-   */
-  const choosePhotoSource = () => {
-    if (Platform.OS !== 'ios') {
-      void setPhoto(pickPhotoFromLibrary);
-      return;
-    }
-
-    ActionSheetIOS.showActionSheetWithOptions(
-      {
-        options: ['Cancel', 'Take a photo', 'Choose from library'],
-        cancelButtonIndex: 0
-      },
-      (index) => {
-        if (index === 1) void setPhoto(takePhotoWithCamera);
-        if (index === 2) void setPhoto(pickPhotoFromLibrary);
-      }
-    );
-  };
 
   const togglePet = (petId: string) =>
     setValue(
@@ -96,7 +48,7 @@ const PostComposer = ({ pets }: Props) => {
         keyboardDismissMode="on-drag">
         <PressableOpacity
           style={styles.photoSlot}
-          onPress={choosePhotoSource}
+          onPress={() => void photoSheetRef.current?.present()}
           accessibilityRole="button"
           accessibilityLabel={localUri ? 'Change the photo' : 'Add a photo'}>
           {localUri ? (
@@ -120,10 +72,11 @@ const PostComposer = ({ pets }: Props) => {
           render={({ field: { onChange, onBlur, value } }) => (
             <TextInputValidated
               name="caption"
+              label="Description"
               value={value}
               onChangeText={onChange}
               onBlur={onBlur}
-              placeholder="Say something about this photo… (optional)"
+              placeholder="Add a description to your post"
               isMultiline
               maxLength={CAPTION_MAX}
               showCharacterCount
@@ -148,6 +101,15 @@ const PostComposer = ({ pets }: Props) => {
           <Icon name="caretRight" size={18} color="textSecondary" />
         </PressableOpacity>
       </ScrollView>
+
+      <PhotoSourceSheet
+        sheetRef={photoSheetRef}
+        title={localUri ? 'Change the photo' : 'Add a photo'}
+        onPicked={(uris) => {
+          const [uri] = uris;
+          if (uri) setValue('localUri', uri, { shouldValidate: true, shouldDirty: true });
+        }}
+      />
 
       <TagPetsSheet
         sheetRef={tagSheetRef}

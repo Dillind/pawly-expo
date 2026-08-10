@@ -6,8 +6,8 @@ import PressableOpacity from '@/components/core/pressable-opacity';
 import type { IconName } from '@/constants/icon-map';
 import { Radius, type AppTheme } from '@/constants/theme';
 import { useStyles } from '@/hooks/use-styles';
-import { showErrorToast } from '@/lib/toast';
 import { pickPhotoFromLibrary, pickPhotosFromLibrary, takePhotoWithCamera } from '@/lib/photo';
+import { showErrorToast } from '@/lib/toast';
 import type { TrueSheet } from '@lodev09/react-native-true-sheet';
 import type { RefObject } from 'react';
 import { StyleSheet, View } from 'react-native';
@@ -35,14 +35,6 @@ type Props = {
   onPicked: (uris: string[]) => void;
 };
 
-/**
- * The one way to choose a photo. Every surface that takes an image presents
- * this, so the camera-vs-library choice looks and behaves the same everywhere.
- *
- * The sheet dismisses BEFORE the picker opens. Raising the system picker while
- * a native sheet is still up stacks two presentations, which iOS handles badly
- * -- the same reason the popover closes before a sheet is presented.
- */
 const PhotoSourceSheet = ({ sheetRef, title = 'Add a photo', selectionLimit, onPicked }: Props) => {
   const styles = useStyles(makeStyles);
 

@@ -79,11 +79,11 @@ const Household = () => {
           Household
         </AppText>
         <IconButton
-          name="bell"
+          name="plus"
           variant="glass"
           size={20}
-          accessibilityLabel="Notification settings"
-          onPress={() => router.push('/profile/settings/notifications')}
+          accessibilityLabel="Share a photo"
+          onPress={() => router.push('/household/new-post')}
         />
       </View>
 

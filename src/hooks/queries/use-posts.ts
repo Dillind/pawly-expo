@@ -5,7 +5,6 @@ import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tansta
 
 const postsKey = (householdId: string | undefined) => ['posts', householdId];
 
-/** The Household stream. Cursor on `(occurred_at, id) desc`. */
 export function usePosts(householdId: string | undefined, viewerId: string | undefined) {
   return useInfiniteQuery({
     queryKey: postsKey(householdId),
@@ -111,8 +110,6 @@ export function useToggleLike(householdId: string | undefined, userId: string | 
         queryClient.setQueryData(postsKey(householdId), context.previous);
       }
     }
-    // Deliberately no onSettled: refetching after every tap would undo the
-    // point of the optimistic update. The rollback above keeps a failure honest.
   });
 }
 
@@ -145,8 +142,6 @@ export function useMarkPostsSeen(householdId: string | undefined, userId: string
   return useMutation({
     mutationFn: () => PostService.markSeen({ householdId: householdId!, userId: userId! }),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['posts-unseen', householdId] }),
-    // Silent by design. Nobody asked for this write; it is a side effect of
-    // opening a tab, and a failed one just means the dot lingers.
     onError: (error) => console.error(error)
   });
 }
