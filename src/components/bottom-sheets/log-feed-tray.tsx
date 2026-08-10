@@ -196,7 +196,7 @@ const makeStyles = ({ colors, spacing }: AppTheme) =>
       paddingVertical: spacing.two,
       paddingHorizontal: spacing.three,
       borderRadius: 12,
-      backgroundColor: colors.backgroundElement
+      backgroundColor: colors.backgroundSheetRow
     },
     petName: { flex: 1 },
     heading: { flexDirection: 'row', alignItems: 'center', gap: spacing.two }

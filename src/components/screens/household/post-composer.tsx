@@ -16,9 +16,11 @@ import { ScrollView, StyleSheet, View } from 'react-native';
 
 type Props = {
   pets: Pet[];
+  /** False when editing -- see the note on `PostService.update`. */
+  canReplacePhoto?: boolean;
 };
 
-const PostComposer = ({ pets }: Props) => {
+const PostComposer = ({ pets, canReplacePhoto = true }: Props) => {
   const styles = useStyles(makeStyles);
   const tagSheetRef = useRef<TrueSheet | null>(null);
   const photoSheetRef = useRef<TrueSheet | null>(null);
@@ -46,25 +48,31 @@ const PostComposer = ({ pets }: Props) => {
         contentContainerStyle={styles.content}
         keyboardShouldPersistTaps="handled"
         keyboardDismissMode="on-drag">
-        <PressableOpacity
-          style={styles.photoSlot}
-          onPress={() => void photoSheetRef.current?.present()}
-          accessibilityRole="button"
-          accessibilityLabel={localUri ? 'Change the photo' : 'Add a photo'}>
-          {localUri ? (
+        {canReplacePhoto ? (
+          <PressableOpacity
+            style={styles.photoSlot}
+            onPress={() => void photoSheetRef.current?.present()}
+            accessibilityRole="button"
+            accessibilityLabel={localUri ? 'Change the photo' : 'Add a photo'}>
+            {localUri ? (
+              <Image source={{ uri: localUri }} style={styles.photo} contentFit="cover" />
+            ) : (
+              <View style={styles.placeholder}>
+                <Icon name="imagePlus" size={32} color="textSecondary" />
+                <AppText size={15} color="textSecondary">
+                  Add a photo
+                </AppText>
+                <AppText size={13} color="textSecondary">
+                  Square — you frame it when you pick
+                </AppText>
+              </View>
+            )}
+          </PressableOpacity>
+        ) : (
+          <View style={styles.photoSlot}>
             <Image source={{ uri: localUri }} style={styles.photo} contentFit="cover" />
-          ) : (
-            <View style={styles.placeholder}>
-              <Icon name="imagePlus" size={32} color="textSecondary" />
-              <AppText size={15} color="textSecondary">
-                Add a photo
-              </AppText>
-              <AppText size={13} color="textSecondary">
-                Square — you frame it when you pick
-              </AppText>
-            </View>
-          )}
-        </PressableOpacity>
+          </View>
+        )}
 
         <Controller
           control={control}
@@ -102,14 +110,16 @@ const PostComposer = ({ pets }: Props) => {
         </PressableOpacity>
       </ScrollView>
 
-      <PhotoSourceSheet
-        sheetRef={photoSheetRef}
-        title={localUri ? 'Change the photo' : 'Add a photo'}
-        onPicked={(uris) => {
-          const [uri] = uris;
-          if (uri) setValue('localUri', uri, { shouldValidate: true, shouldDirty: true });
-        }}
-      />
+      {canReplacePhoto && (
+        <PhotoSourceSheet
+          sheetRef={photoSheetRef}
+          title={localUri ? 'Change the photo' : 'Add a photo'}
+          onPicked={(uris) => {
+            const [uri] = uris;
+            if (uri) setValue('localUri', uri, { shouldValidate: true, shouldDirty: true });
+          }}
+        />
+      )}
 
       <TagPetsSheet
         sheetRef={tagSheetRef}

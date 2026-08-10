@@ -1,6 +1,11 @@
 import { ErrorMessage, SuccessMessage } from '@/constants/enums';
 import { showErrorToast, showSuccessToast } from '@/lib/toast';
-import PostService, { type Post, type PostsCursor } from '@/services/post.service';
+import PostService, {
+  type Post,
+  type PostLiker,
+  type PostsCursor
+} from '@/services/post.service';
+import { useAuthStore } from '@/stores/auth-store';
 import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 const postsKey = (householdId: string | undefined) => ['posts', householdId];
@@ -21,6 +26,15 @@ export function usePosts(householdId: string | undefined, viewerId: string | und
   });
 }
 
+/** One post, for the edit screen. Its own query so the route survives a cold start. */
+export function usePost(postId: string | undefined, viewerId: string | undefined) {
+  return useQuery({
+    queryKey: ['post', postId],
+    queryFn: () => PostService.get({ postId: postId!, viewerId: viewerId ?? null }),
+    enabled: Boolean(postId)
+  });
+}
+
 export function useCreatePost(householdId: string | undefined) {
   const queryClient = useQueryClient();
 
@@ -36,6 +50,24 @@ export function useCreatePost(householdId: string | undefined) {
     onError: (error) => {
       console.error(error);
       showErrorToast(ErrorMessage.PostShareFailed);
+    }
+  });
+}
+
+export function useUpdatePost(householdId: string | undefined) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (input: { postId: string; caption: string | null; petIds: string[] }) =>
+      PostService.update(input),
+    onSettled: (_data, _error, input) => {
+      void queryClient.invalidateQueries({ queryKey: postsKey(householdId) });
+      void queryClient.invalidateQueries({ queryKey: ['post', input.postId] });
+    },
+    onSuccess: () => showSuccessToast(SuccessMessage.PostUpdated),
+    onError: (error) => {
+      console.error(error);
+      showErrorToast(ErrorMessage.PostUpdateFailed);
     }
   });
 }
@@ -60,14 +92,15 @@ type PostsData = { pages: PostsPage[]; pageParams: unknown[] };
 /**
  * Optimistic, and deliberately silent on both success and failure.
  *
- * A Like is not an event worth confirming with a toast -- the filled thumb is
+ * A Like is not an event worth confirming with a toast -- the filled heart is
  * the confirmation, and a toast per tap in a household of four would be
- * unbearable. A failure rolls the thumb back, which reads as "it didn't
+ * unbearable. A failure rolls the heart back, which reads as "it didn't
  * happen" without interrupting anyone; the real error still reaches the
  * console.
  */
-export function useToggleLike(householdId: string | undefined, userId: string | undefined) {
+export function useToggleLike(householdId: string | undefined) {
   const queryClient = useQueryClient();
+  const { userId, profile } = useAuthStore();
 
   return useMutation({
     mutationFn: ({ postId, liked }: { postId: string; liked: boolean }) =>
@@ -81,6 +114,16 @@ export function useToggleLike(householdId: string | undefined, userId: string | 
 
       const previous = queryClient.getQueryData<PostsData>(key);
 
+      // The mutation itself cannot run without an id, and an optimistic liker
+      // carrying a placeholder one could never be filtered back out.
+      if (!userId) return { previous };
+
+      const me: PostLiker = {
+        userId,
+        firstName: profile?.firstName ?? null,
+        lastName: profile?.lastName ?? null
+      };
+
       queryClient.setQueryData<PostsData>(key, (old) =>
         old
           ? {
@@ -92,7 +135,13 @@ export function useToggleLike(householdId: string | undefined, userId: string | 
                     ? {
                         ...post,
                         likedByMe: !liked,
-                        likeCount: post.likeCount + (liked ? -1 : 1)
+                        likeCount: post.likeCount + (liked ? -1 : 1),
+                        // The count and the "Liked by" line read from different
+                        // fields; moving one without the other leaves the card
+                        // contradicting itself until the next refetch.
+                        likers: liked
+                          ? post.likers.filter((liker) => liker.userId !== userId)
+                          : [...post.likers, me]
                       }
                     : post
                 )

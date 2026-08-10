@@ -1,28 +1,21 @@
-import AppText from '@/components/core/app-text';
-import MainButton from '@/components/core/main-button';
-import PressableOpacity from '@/components/core/pressable-opacity';
 import ScreenView from '@/components/layout/screen-view';
 import PostComposer from '@/components/screens/household/post-composer';
+import PostModalHeader from '@/components/screens/household/post-modal-header';
 import { postSchema, type PostFormValues } from '@/constants/schemas/post';
-import { ScreenGutter, Spacing, type AppTheme } from '@/constants/theme';
 import { useHousehold } from '@/hooks/queries/use-household';
 import { usePets } from '@/hooks/queries/use-pets';
 import { useCreatePost } from '@/hooks/queries/use-posts';
-import { useStyles } from '@/hooks/use-styles';
 import { useAuthStore } from '@/stores/auth-store';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter } from 'expo-router';
 import { FormProvider, useForm, useWatch } from 'react-hook-form';
-import { Alert, StyleSheet, View } from 'react-native';
+import { Alert } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const EMPTY_DRAFT: PostFormValues = { localUri: '', caption: '', petIds: [] };
 
 const NewPost = () => {
-  const styles = useStyles(makeStyles);
   const router = useRouter();
-  const insets = useSafeAreaInsets();
 
   const { userId } = useAuthStore();
   const { data: household } = useHousehold();
@@ -71,26 +64,16 @@ const NewPost = () => {
   return (
     <ScreenView edges={[]}>
       <KeyboardAwareScrollView>
-        <View style={[styles.header, { paddingTop: Math.max(insets.top, Spacing.three) }]}>
-          <PressableOpacity onPress={cancel} accessibilityRole="button" disabled={isSharing}>
-            <AppText size={16} color="primary">
-              Cancel
-            </AppText>
-          </PressableOpacity>
-
-          <AppText size={16} fontWeight="bold">
-            Create Post
-          </AppText>
-
-          <MainButton
-            text="Post"
-            onPress={() => {
-              void share();
-            }}
-            isLoading={isSharing}
-            isDisabled={!localUri}
-          />
-        </View>
+        <PostModalHeader
+          title="Create Post"
+          confirmText="Post"
+          isBusy={isSharing}
+          isConfirmDisabled={!localUri}
+          onCancel={cancel}
+          onConfirm={() => {
+            void share();
+          }}
+        />
 
         <FormProvider {...form}>
           <PostComposer pets={pets} />
@@ -99,22 +82,5 @@ const NewPost = () => {
     </ScreenView>
   );
 };
-
-const makeStyles = ({ colors, spacing }: AppTheme) =>
-  StyleSheet.create({
-    header: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      justifyContent: 'space-between',
-      gap: spacing.three,
-      paddingHorizontal: ScreenGutter,
-      paddingBottom: spacing.three,
-      borderBottomWidth: StyleSheet.hairlineWidth,
-      borderColor: colors.backgroundSelected
-    },
-    body: {
-      flex: 1
-    }
-  });
 
 export default NewPost;

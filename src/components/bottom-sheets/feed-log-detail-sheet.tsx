@@ -356,10 +356,10 @@ const makeStyles = ({ colors, spacing }: AppTheme) =>
       paddingVertical: spacing.two,
       paddingHorizontal: spacing.three,
       borderRadius: 100,
-      backgroundColor: colors.backgroundElement
+      backgroundColor: colors.backgroundSheetRow
     },
     dayChipSelected: {
-      backgroundColor: colors.backgroundSelected
+      backgroundColor: colors.primaryMuted
     }
   });
 

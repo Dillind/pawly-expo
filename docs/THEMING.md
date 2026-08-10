@@ -14,13 +14,32 @@ Crumpet uses a small, in-repo theme — **no component library and no NativeWind
 Current colour tokens (keys are the `ThemeColor` union):
 
 | Token | Light | Dark | Use for |
-| ------------------- | --------- | --------- | ---------------------------- |
+| --------------------- | --------- | --------- | ------------------------------------------ |
 | `text` | `#000000` | `#ffffff` | Primary text |
 | `textSecondary` | `#60646C` | `#B0B4BA` | Secondary/hint text, borders |
-| `background` | `#ffffff` | `#000000` | Screen background |
-| `backgroundElement` | `#F0F0F3` | `#212225` | Cards, elements |
-| `backgroundSelected`| `#E0E1E6` | `#2E3135` | Selected/pressed surfaces |
-| `red100` | `#CE3C39` | `#CE3C39` | Errors, destructive |
+| `background` | `#F1F2F5` | `#000000` | Screen background |
+| `backgroundElement` | `#FFFFFF` | `#212225` | Cards and elements **on a screen** |
+| `backgroundSelected` | `#E4E6EB` | `#2E3135` | Selected/pressed surfaces |
+| `backgroundSheet` | `#FFFFFF` | `#1C1D20` | The surface of a bottom sheet |
+| `backgroundSheetRow` | `#F1F2F5` | `#2E3135` | Rows and cards **inside a sheet** |
+| `error` | `#CE3C39` | `#CE3C39` | Errors, destructive |
+| `like` | `#E0405E` | `#FF4D6D` | A Like, and nothing else |
+| `primary` | `#0F7173` | `#14A8AF` | Brand, primary actions |
+| `primaryMuted` | 15% primary | 22% primary | Tinted fills behind a primary state |
+| `onPrimary` | `#ffffff` | `#ffffff` | Text and glyphs on a primary fill |
+| `accent` | `#6E44FF` | `#6E44FF` | Accent |
+| `shadow` | `#0B0D12` | `#000000` | Shadow colour |
+
+### Two levels of surface, and picking the right one
+
+A sheet is a layer above the screen, so it does not share the screen's background.
+`background` behind `backgroundElement` is the pairing on a screen; `backgroundSheet` behind
+`backgroundSheetRow` is the pairing inside a sheet. Putting a `backgroundElement` row on a sheet is
+the bug this pair exists to prevent — in dark mode the two are four points apart and the row
+disappears.
+
+`BaseSheet` applies `backgroundSheet` for you. What you owe it is the rows: anything inside a sheet
+that needs its own fill uses `backgroundSheetRow`.
 
 > The proposed brand palette in PRODUCT_BRIEF (teal/blue/indigo) is **not** in the theme yet. Reconcile in a design session before relying on it.
 
