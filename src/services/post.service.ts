@@ -188,13 +188,15 @@ namespace PostService {
    */
   export async function update(params: {
     postId: string;
-    caption?: string | null;
-    petIds?: string[];
+    // Both required. The RPC overwrites what it is given, so an omitted caption
+    // would silently clear one rather than leave it alone.
+    caption: string | null;
+    petIds: string[];
   }): Promise<void> {
     const { error } = await supabase.rpc('update_post', {
       target_post_id: params.postId,
-      post_caption: params.caption ?? null,
-      tagged_pet_ids: params.petIds ?? []
+      post_caption: params.caption,
+      tagged_pet_ids: params.petIds
     });
 
     if (error) throw error;

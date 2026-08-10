@@ -1,9 +1,5 @@
 -- Editing a Post. Reverses the "no edit in v1" decision in 20260809090000.
---
--- That decision named a real hazard: a comment answers the caption it was
--- written under, and a later rewrite can make the reply nonsense with no trace.
--- edited_at therefore ships WITH the edit -- retrofitting it once posts exist
--- leaves a generation of rows that cannot be told apart from unedited ones.
+-- The reasoning, and why editing is narrower than deleting, is ADR 0018.
 
 alter table public.posts add column edited_at timestamptz;
 
@@ -25,11 +21,8 @@ before update on public.posts
 for each row
 execute function private.stamp_post_edited();
 
--- Editing is the AUTHOR's alone, a narrower rule than deleting. An Owner
--- deleting a member's post is moderation and leaves nothing behind; rewriting
--- their words under their name is a different act, and the card gives the
--- reader no way to see it happened. can_manage_post includes Owners, so it is
--- the wrong test here.
+-- can_manage_post includes Owners, which is right for delete and wrong for
+-- edit (ADR 0018), so editing needs its own test.
 create or replace function private.is_post_author(target_post_id uuid)
 returns boolean
 language sql

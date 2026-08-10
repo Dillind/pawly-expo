@@ -121,6 +121,14 @@ _Avoid_: Feed, timeline, stream, news feed, social, wall.
 > delivering their photos (members and invites live in Profile). Candidates if it changes: Shared,
 > Album. Deferred deliberately so it does not block CRU-011 — revisit before the tab ships to users.
 
+**Edited**:
+The mark a Post carries once its author has changed the caption or the Pet Tags. Shown beside the
+Post's time. Set by the database, and only when something actually changed. Editing belongs to the
+author alone — an Owner may delete a Member's Post but never rewrite it. The photo is never
+editable: an edit changes what a Post says, not what it shows. See
+[ADR 0018](./docs/adr/0018-a-post-is-editable-by-its-author-alone.md).
+_Avoid_: Updated, modified, revised — and never call the marker a "version", there is no history.
+
 **Pet Tag**:
 An optional mark on a Post saying which Pets are in the photo. Several may be tagged, or none.
 A tag describes the content; it never changes who can see the Post, which is always the whole

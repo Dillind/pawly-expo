@@ -1,0 +1,70 @@
+import AppText from '@/components/core/app-text';
+import MainButton from '@/components/core/main-button';
+import PressableOpacity from '@/components/core/pressable-opacity';
+import { ScreenGutter, Spacing, type AppTheme } from '@/constants/theme';
+import { useStyles } from '@/hooks/use-styles';
+import { StyleSheet, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+
+type Props = {
+  title: string;
+  /** "Post" when sharing, "Save" when editing. */
+  confirmText: string;
+  isConfirmDisabled?: boolean;
+  isBusy?: boolean;
+  onCancel: () => void;
+  onConfirm: () => void;
+};
+
+/**
+ * Both post routes are full-screen modals rather than stack screens, so neither
+ * gets a native header and each has to draw its own.
+ */
+const PostModalHeader = ({
+  title,
+  confirmText,
+  isConfirmDisabled = false,
+  isBusy = false,
+  onCancel,
+  onConfirm
+}: Props) => {
+  const styles = useStyles(makeStyles);
+  const insets = useSafeAreaInsets();
+
+  return (
+    <View style={[styles.header, { paddingTop: Math.max(insets.top, Spacing.three) }]}>
+      <PressableOpacity onPress={onCancel} accessibilityRole="button" disabled={isBusy}>
+        <AppText size={16} color="primary">
+          Cancel
+        </AppText>
+      </PressableOpacity>
+
+      <AppText size={16} fontWeight="bold">
+        {title}
+      </AppText>
+
+      <MainButton
+        text={confirmText}
+        onPress={onConfirm}
+        isLoading={isBusy}
+        isDisabled={isConfirmDisabled}
+      />
+    </View>
+  );
+};
+
+const makeStyles = ({ colors, spacing }: AppTheme) =>
+  StyleSheet.create({
+    header: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      gap: spacing.three,
+      paddingHorizontal: ScreenGutter,
+      paddingBottom: spacing.three,
+      borderBottomWidth: StyleSheet.hairlineWidth,
+      borderColor: colors.backgroundSelected
+    }
+  });
+
+export default PostModalHeader;

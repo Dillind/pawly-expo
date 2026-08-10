@@ -58,7 +58,7 @@ export function useUpdatePost(householdId: string | undefined) {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (input: { postId: string; caption?: string | null; petIds?: string[] }) =>
+    mutationFn: (input: { postId: string; caption: string | null; petIds: string[] }) =>
       PostService.update(input),
     onSettled: (_data, _error, input) => {
       void queryClient.invalidateQueries({ queryKey: postsKey(householdId) });
@@ -92,15 +92,15 @@ type PostsData = { pages: PostsPage[]; pageParams: unknown[] };
 /**
  * Optimistic, and deliberately silent on both success and failure.
  *
- * A Like is not an event worth confirming with a toast -- the filled thumb is
+ * A Like is not an event worth confirming with a toast -- the filled heart is
  * the confirmation, and a toast per tap in a household of four would be
- * unbearable. A failure rolls the thumb back, which reads as "it didn't
+ * unbearable. A failure rolls the heart back, which reads as "it didn't
  * happen" without interrupting anyone; the real error still reaches the
  * console.
  */
-export function useToggleLike(householdId: string | undefined, userId: string | undefined) {
+export function useToggleLike(householdId: string | undefined) {
   const queryClient = useQueryClient();
-  const { profile } = useAuthStore();
+  const { userId, profile } = useAuthStore();
 
   return useMutation({
     mutationFn: ({ postId, liked }: { postId: string; liked: boolean }) =>
@@ -114,8 +114,12 @@ export function useToggleLike(householdId: string | undefined, userId: string | 
 
       const previous = queryClient.getQueryData<PostsData>(key);
 
+      // The mutation itself cannot run without an id, and an optimistic liker
+      // carrying a placeholder one could never be filtered back out.
+      if (!userId) return { previous };
+
       const me: PostLiker = {
-        userId: userId ?? '',
+        userId,
         firstName: profile?.firstName ?? null,
         lastName: profile?.lastName ?? null
       };

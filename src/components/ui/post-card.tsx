@@ -16,15 +16,19 @@ import { StyleSheet, View } from 'react-native';
 
 type Props = {
   post: Post;
-  /** Author or Owner. Anything else gets no menu rather than a disabled one. */
-  canManage: boolean;
+  /**
+   * Whether there is anything in the ⋯ menu for this viewer. Editing and
+   * deleting are separate permissions -- the card only needs to know that at
+   * least one of them applies, and gets no menu rather than an empty one.
+   */
+  showActions: boolean;
   onToggleLike: () => void;
   onOpenActions: () => void;
 };
 
 const CAPTION_LINES = 2;
 
-const PostCard = ({ post, canManage, onToggleLike, onOpenActions }: Props) => {
+const PostCard = ({ post, showActions, onToggleLike, onOpenActions }: Props) => {
   const styles = useStyles(makeStyles);
   const [captionExpanded, setCaptionExpanded] = useState(false);
 
@@ -50,7 +54,7 @@ const PostCard = ({ post, canManage, onToggleLike, onOpenActions }: Props) => {
         </View>
         {/* Absent rather than disabled when you cannot act: a menu with one
             greyed row tells the user nothing and invites a pointless tap. */}
-        {canManage && (
+        {showActions && (
           <IconButton
             name="ellipsis"
             variant="ghost"

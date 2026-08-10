@@ -54,22 +54,32 @@ describe('PostService.update', () => {
     });
   });
 
-  it('sends an empty tag array rather than undefined, so clearing every tag clears them', async () => {
-    await PostService.update({ postId: 'post-1', caption: null });
+  it('passes an empty tag array straight through, which is how every tag is cleared', async () => {
+    await PostService.update({ postId: 'post-1', caption: 'Kept', petIds: [] });
+
+    expect(mockRpc).toHaveBeenCalledWith('update_post', {
+      target_post_id: 'post-1',
+      post_caption: 'Kept',
+      tagged_pet_ids: []
+    });
+  });
+
+  it('sends a null caption only when the caller asked to clear it', async () => {
+    await PostService.update({ postId: 'post-1', caption: null, petIds: ['pet-1'] });
 
     expect(mockRpc).toHaveBeenCalledWith('update_post', {
       target_post_id: 'post-1',
       post_caption: null,
-      tagged_pet_ids: []
+      tagged_pet_ids: ['pet-1']
     });
   });
 
   it('throws when the write is rejected', async () => {
     mockRpc.mockResolvedValue({ error: new Error('That post is not yours to edit') });
 
-    await expect(PostService.update({ postId: 'post-1' })).rejects.toThrow(
-      'That post is not yours to edit'
-    );
+    await expect(
+      PostService.update({ postId: 'post-1', caption: 'x', petIds: [] })
+    ).rejects.toThrow('That post is not yours to edit');
   });
 });
 

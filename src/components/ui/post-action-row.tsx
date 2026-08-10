@@ -12,7 +12,7 @@ type Props = {
   onToggleLike: () => void;
 };
 
-const ICON = 22;
+const ICON_SIZE = 22;
 
 /** Comment and share are placed but deliberately not wired yet. */
 const PostActionRow = ({ liked, count, onToggleLike }: Props) => {
@@ -33,7 +33,7 @@ const PostActionRow = ({ liked, count, onToggleLike }: Props) => {
         accessibilityLabel={liked ? 'Remove your like' : 'Like this post'}>
         <Icon
           name="heart"
-          size={ICON}
+          size={ICON_SIZE}
           color={liked ? 'like' : 'textSecondary'}
           fill={liked ? 'like' : undefined}
         />
@@ -45,11 +45,11 @@ const PostActionRow = ({ liked, count, onToggleLike }: Props) => {
       </PressableOpacity>
 
       <View style={styles.target}>
-        <Icon name="comment" size={ICON} color="textSecondary" />
+        <Icon name="comment" size={ICON_SIZE} color="textSecondary" />
       </View>
 
       <View style={styles.target}>
-        <Icon name="share" size={ICON} color="textSecondary" />
+        <Icon name="share" size={ICON_SIZE} color="textSecondary" />
       </View>
     </View>
   );

@@ -1,11 +1,9 @@
-import AppText from '@/components/core/app-text';
 import ErrorState from '@/components/core/error-state';
-import MainButton from '@/components/core/main-button';
-import PressableOpacity from '@/components/core/pressable-opacity';
 import ScreenView from '@/components/layout/screen-view';
 import PostComposer from '@/components/screens/household/post-composer';
+import PostModalHeader from '@/components/screens/household/post-modal-header';
 import { postSchema, type PostFormValues } from '@/constants/schemas/post';
-import { ScreenGutter, Spacing, type AppTheme } from '@/constants/theme';
+import type { AppTheme } from '@/constants/theme';
 import { useHousehold } from '@/hooks/queries/use-household';
 import { usePets } from '@/hooks/queries/use-pets';
 import { usePost, useUpdatePost } from '@/hooks/queries/use-posts';
@@ -15,14 +13,12 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useEffect } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
-import { ActivityIndicator, Alert, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, Alert, StyleSheet } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const EditPost = () => {
   const styles = useStyles(makeStyles);
   const router = useRouter();
-  const insets = useSafeAreaInsets();
 
   const { postId } = useLocalSearchParams<{ postId: string }>();
   const { userId } = useAuthStore();
@@ -81,32 +77,22 @@ const EditPost = () => {
   return (
     <ScreenView edges={[]}>
       <KeyboardAwareScrollView>
-        <View style={[styles.header, { paddingTop: Math.max(insets.top, Spacing.three) }]}>
-          <PressableOpacity onPress={cancel} accessibilityRole="button" disabled={isSaving}>
-            <AppText size={16} color="primary">
-              Cancel
-            </AppText>
-          </PressableOpacity>
-
-          <AppText size={16} fontWeight="bold">
-            Edit Post
-          </AppText>
-
-          <MainButton
-            text="Save"
-            onPress={() => {
-              void save();
-            }}
-            isLoading={isSaving}
-            isDisabled={!post || !formState.isDirty}
-          />
-        </View>
+        <PostModalHeader
+          title="Edit Post"
+          confirmText="Save"
+          isBusy={isSaving}
+          isConfirmDisabled={!post || !formState.isDirty}
+          onCancel={cancel}
+          onConfirm={() => {
+            void save();
+          }}
+        />
 
         {isLoading && <ActivityIndicator style={styles.centred} />}
 
         {isError && (
           <ErrorState
-            description="Could not load that post."
+            title="Couldn't load this post"
             onRetry={() => {
               void refetch();
             }}
@@ -123,18 +109,8 @@ const EditPost = () => {
   );
 };
 
-const makeStyles = ({ colors, spacing }: AppTheme) =>
+const makeStyles = ({ spacing }: AppTheme) =>
   StyleSheet.create({
-    header: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      justifyContent: 'space-between',
-      gap: spacing.three,
-      paddingHorizontal: ScreenGutter,
-      paddingBottom: spacing.three,
-      borderBottomWidth: StyleSheet.hairlineWidth,
-      borderColor: colors.backgroundSelected
-    },
     centred: {
       paddingVertical: spacing.six
     }

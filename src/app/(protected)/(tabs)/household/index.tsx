@@ -48,7 +48,7 @@ const Household = () => {
 
   useRefreshOnFocus(['posts']);
 
-  const { mutate: toggleLike } = useToggleLike(householdId, userId ?? undefined);
+  const { mutate: toggleLike } = useToggleLike(householdId);
   const { mutate: deletePost } = useDeletePost(householdId);
   const { mutate: markSeen } = useMarkPostsSeen(householdId, userId ?? undefined);
 
@@ -60,19 +60,29 @@ const Household = () => {
     }, [householdId, userId, markSeen])
   );
 
-  const isAuthor = (post: Post) => post.authorId === userId;
+  // Editing is the author's alone. An Owner may remove a member's post but
+  // never rewrite it under their name -- the same split as the RLS policies.
+  const permissions = (post: Post | null) => {
+    const canEdit = post !== null && post.authorId === userId;
 
-  const renderItem = ({ item }: LegendListRenderItemProps<Post>) => (
-    <PostCard
-      post={item}
-      canManage={isAuthor(item) || isOwner}
-      onToggleLike={() => toggleLike({ postId: item.id, liked: item.likedByMe })}
-      onOpenActions={() => {
-        setActivePost(item);
-        void actionsSheetRef.current?.present();
-      }}
-    />
-  );
+    return { canEdit, canDelete: canEdit || (post !== null && isOwner) };
+  };
+
+  const renderItem = ({ item }: LegendListRenderItemProps<Post>) => {
+    const { canEdit, canDelete } = permissions(item);
+
+    return (
+      <PostCard
+        post={item}
+        showActions={canEdit || canDelete}
+        onToggleLike={() => toggleLike({ postId: item.id, liked: item.likedByMe })}
+        onOpenActions={() => {
+          setActivePost(item);
+          void actionsSheetRef.current?.present();
+        }}
+      />
+    );
+  };
 
   return (
     <ScreenView>
@@ -118,8 +128,8 @@ const Household = () => {
 
       <PostActionsSheet
         sheetRef={actionsSheetRef}
-        canEdit={activePost ? isAuthor(activePost) : false}
-        canDelete={activePost ? isAuthor(activePost) || isOwner : false}
+        canEdit={permissions(activePost).canEdit}
+        canDelete={permissions(activePost).canDelete}
         onEdit={() => {
           if (activePost) {
             router.push({

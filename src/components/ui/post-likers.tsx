@@ -10,7 +10,7 @@ type Props = {
   likers: PostLiker[];
 };
 
-const AVATAR = 20;
+const AVATAR_SIZE = 20;
 const MAX_AVATARS = 3;
 
 const summarise = (likers: PostLiker[]): string => {
@@ -41,7 +41,7 @@ const PostLikers = ({ likers }: Props) => {
             <AvatarInitials
               firstName={liker.firstName}
               lastName={liker.lastName}
-              size={AVATAR}
+              size={AVATAR_SIZE}
             />
           </View>
         ))}
@@ -66,7 +66,7 @@ const makeStyles = ({ colors, spacing }: AppTheme) =>
     },
     avatar: {
       borderWidth: 2,
-      borderRadius: AVATAR,
+      borderRadius: AVATAR_SIZE,
       borderColor: colors.background
     },
     overlap: {
