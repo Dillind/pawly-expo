@@ -53,7 +53,7 @@ const PhotoTile = ({
           hitSlop={12}
           style={styles.removeBadge}
           onPress={onRemove}>
-          <Icon name="close" size={13} color="onPrimary" />
+          <Icon name="close" size={13} color="background" />
         </PressableOpacity>
       )}
     </View>

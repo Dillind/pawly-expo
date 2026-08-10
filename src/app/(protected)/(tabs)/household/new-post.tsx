@@ -66,8 +66,6 @@ const NewPost = () => {
 
   return (
     <ScreenView edges={[]}>
-      {/* Outside the scroll view, not in it: Cancel and Post stay put while the
-          composer moves under them. */}
       <PostModalHeader
         title="Create Post"
         confirmText="Post"

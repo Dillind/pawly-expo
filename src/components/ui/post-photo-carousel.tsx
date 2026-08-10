@@ -9,13 +9,7 @@ const DOT_SIZE = 6;
 
 type Props = { photos: PostPhoto[] };
 
-/**
- * Square, and every photo is drawn into the same square. Multi-select cannot
- * crop -- `allowsEditing` is mutually exclusive with `allowsMultipleSelection`
- * in the picker -- so a post can now hold a portrait and a landscape shot side
- * by side. A pager whose frame changed per page would lurch on every swipe, so
- * the frame is fixed and `cover` centre-crops into it.
- */
+/** One fixed square frame for every photo -- a pager whose frame changed per page would lurch. */
 const PostPhotoCarousel = ({ photos }: Props) => {
   const styles = useStyles(makeStyles);
   const [width, setWidth] = useState(0);

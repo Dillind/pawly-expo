@@ -79,8 +79,6 @@ const PostComposer = ({ pets }: Props) => {
   return (
     <>
       <View style={styles.content}>
-        {/* Full bleed, re-indented to the gutter by the content container, so a
-            strip at the cap runs to the screen edge rather than stopping short. */}
         <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
