@@ -2,19 +2,22 @@ import ScreenView from '@/components/layout/screen-view';
 import PostComposer from '@/components/screens/household/post-composer';
 import PostModalHeader from '@/components/screens/household/post-modal-header';
 import { postSchema, type PostFormValues } from '@/constants/schemas/post';
+import type { AppTheme } from '@/constants/theme';
 import { useHousehold } from '@/hooks/queries/use-household';
 import { usePets } from '@/hooks/queries/use-pets';
 import { useCreatePost } from '@/hooks/queries/use-posts';
+import { useStyles } from '@/hooks/use-styles';
 import { useAuthStore } from '@/stores/auth-store';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter } from 'expo-router';
 import { FormProvider, useForm, useWatch } from 'react-hook-form';
-import { Alert } from 'react-native';
+import { Alert, StyleSheet } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
 
-const EMPTY_DRAFT: PostFormValues = { localUri: '', caption: '', petIds: [] };
+const EMPTY_DRAFT: PostFormValues = { photos: [], caption: '', petIds: [] };
 
 const NewPost = () => {
+  const styles = useStyles(makeStyles);
   const router = useRouter();
 
   const { userId } = useAuthStore();
@@ -28,12 +31,12 @@ const NewPost = () => {
   });
 
   const { control, handleSubmit } = form;
-  const localUri = useWatch({ control, name: 'localUri' });
+  const photos = useWatch({ control, name: 'photos' });
   const caption = useWatch({ control, name: 'caption' });
 
   const { mutate: createPost, isPending: isSharing } = useCreatePost(household?.id);
 
-  const hasContent = Boolean(localUri) || caption.trim().length > 0;
+  const hasContent = photos.length > 0 || caption.trim().length > 0;
 
   const cancel = () => {
     if (!hasContent) {
@@ -53,7 +56,7 @@ const NewPost = () => {
     createPost(
       {
         userId,
-        localUri: values.localUri,
+        localUris: values.photos.map((photo) => photo.uri),
         caption: values.caption.trim() || null,
         petIds: values.petIds
       },
@@ -63,18 +66,23 @@ const NewPost = () => {
 
   return (
     <ScreenView edges={[]}>
-      <KeyboardAwareScrollView>
-        <PostModalHeader
-          title="Create Post"
-          confirmText="Post"
-          isBusy={isSharing}
-          isConfirmDisabled={!localUri}
-          onCancel={cancel}
-          onConfirm={() => {
-            void share();
-          }}
-        />
+      {/* Outside the scroll view, not in it: Cancel and Post stay put while the
+          composer moves under them. */}
+      <PostModalHeader
+        title="Create Post"
+        confirmText="Post"
+        isBusy={isSharing}
+        isConfirmDisabled={photos.length === 0}
+        onCancel={cancel}
+        onConfirm={() => {
+          void share();
+        }}
+      />
 
+      <KeyboardAwareScrollView
+        style={styles.scroll}
+        keyboardShouldPersistTaps="handled"
+        keyboardDismissMode="on-drag">
         <FormProvider {...form}>
           <PostComposer pets={pets} />
         </FormProvider>
@@ -82,5 +90,12 @@ const NewPost = () => {
     </ScreenView>
   );
 };
+
+const makeStyles = (_theme: AppTheme) =>
+  StyleSheet.create({
+    scroll: {
+      flex: 1
+    }
+  });
 
 export default NewPost;

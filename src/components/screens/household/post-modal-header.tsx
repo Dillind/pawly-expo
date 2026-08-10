@@ -43,8 +43,12 @@ const PostModalHeader = ({
         {title}
       </AppText>
 
+      {/* alignSelf overrides MainButton's own `stretch`, which would otherwise
+          pull it to the full height of the header row. */}
       <MainButton
         text={confirmText}
+        size="xs"
+        containerStyle={styles.confirm}
         onPress={onConfirm}
         isLoading={isBusy}
         isDisabled={isConfirmDisabled}
@@ -64,6 +68,9 @@ const makeStyles = ({ colors, spacing }: AppTheme) =>
       paddingBottom: spacing.three,
       borderBottomWidth: StyleSheet.hairlineWidth,
       borderColor: colors.backgroundSelected
+    },
+    confirm: {
+      alignSelf: 'center'
     }
   });
 

@@ -5,12 +5,12 @@ import PressableOpacity from '@/components/core/pressable-opacity';
 import PostActionRow from '@/components/ui/post-action-row';
 import PostLikers from '@/components/ui/post-likers';
 import PostPetChips from '@/components/ui/post-pet-chips';
-import { Radius, type AppTheme } from '@/constants/theme';
+import PostPhotoCarousel from '@/components/ui/post-photo-carousel';
+import type { AppTheme } from '@/constants/theme';
 import { useStyles } from '@/hooks/use-styles';
 import { formatRelativeTime } from '@/lib/dates';
 import type { Post } from '@/services/post.service';
 import { formatAuthorName } from '@/utils/members';
-import { Image } from 'expo-image';
 import { useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 
@@ -33,7 +33,6 @@ const PostCard = ({ post, showActions, onToggleLike, onOpenActions }: Props) => 
   const [captionExpanded, setCaptionExpanded] = useState(false);
 
   const authorName = formatAuthorName(post.author);
-  const photoUrl = post.photoUrls[0];
 
   return (
     <View style={styles.card}>
@@ -78,17 +77,7 @@ const PostCard = ({ post, showActions, onToggleLike, onOpenActions }: Props) => 
 
       <PostPetChips pets={post.pets} />
 
-      {/* Square, and the picker already cropped to square, so `cover` only ever
-          corrects a stray older asset rather than silently chopping heads. */}
-      {photoUrl && (
-        <Image
-          source={{ uri: photoUrl }}
-          style={styles.photo}
-          contentFit="cover"
-          transition={150}
-          accessibilityIgnoresInvertColors
-        />
-      )}
+      <PostPhotoCarousel photos={post.photos} />
 
       <PostActionRow liked={post.likedByMe} count={post.likeCount} onToggleLike={onToggleLike} />
 
@@ -111,13 +100,6 @@ const makeStyles = ({ colors, spacing }: AppTheme) =>
     headerText: {
       flex: 1,
       gap: spacing.half
-    },
-    photo: {
-      width: '100%',
-      aspectRatio: 1,
-      borderRadius: Radius.card,
-      borderCurve: 'continuous',
-      backgroundColor: colors.backgroundElement
     }
   });
 
