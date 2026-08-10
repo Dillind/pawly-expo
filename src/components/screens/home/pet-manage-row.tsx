@@ -16,7 +16,7 @@ const PetManageRow = ({ pet }: Props) => {
   const styles = useStyles(makeStyles);
 
   return (
-    <Link href={`/home/pet/${pet.id}`} asChild>
+    <Link href={`/home/${pet.id}`} asChild>
       <PressableOpacity style={styles.row} accessibilityLabel={pet.name}>
         {pet.photoUrl ? (
           <Image source={pet.photoUrl} style={styles.avatar} contentFit="cover" />

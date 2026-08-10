@@ -30,7 +30,7 @@ const PostPetChips = ({ pets }: Props) => {
         <PressableOpacity
           key={pet.id}
           style={styles.chip}
-          onPress={() => router.push(`/home/pet/${pet.id}`)}
+          onPress={() => router.push(`/home/${pet.id}`)}
           accessibilityRole="button"
           accessibilityLabel={`View ${pet.name}`}>
           <PetAvatar photoUrl={pet.photoUrl} size={AVATAR} />

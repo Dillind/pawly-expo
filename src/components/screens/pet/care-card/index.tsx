@@ -24,7 +24,7 @@ const CareCard = ({ petId, petName, petSubtitle, photoUrl }: Props) => {
 
   const openEditor = () => {
     router.push({
-      pathname: '/home/pet/care-card-editor',
+      pathname: '/home/[petId]/care-card-editor',
       params: { petId, petName, ...(petSubtitle ? { petSubtitle } : {}) }
     });
   };

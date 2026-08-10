@@ -49,7 +49,7 @@ export default function HomeLayout() {
           }}
         />
         <Stack.Screen
-          name="pet/[petId]"
+          name="[petId]/index"
           options={{
             headerShown: true,
             headerTitle: 'Pet',
@@ -60,7 +60,7 @@ export default function HomeLayout() {
         {/* Full-screen, not a sheet: nine keyboard-heavy steps need the whole
             safe area, and nothing behind it is useful context. */}
         <Stack.Screen
-          name="pet/care-card-editor"
+          name="[petId]/care-card-editor"
           options={{ presentation: 'fullScreenModal', headerShown: false, animation: 'slide_from_bottom' }}
         />
       </Stack>
