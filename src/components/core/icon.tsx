@@ -6,10 +6,12 @@ type Props = {
   name: IconName;
   size?: number;
   color?: ThemeColor;
+  /** Fills the glyph's interior. Omit for the outline Lucide draws by default. */
+  fill?: ThemeColor;
   strokeWidth?: number;
 };
 
-const Icon = ({ name, size = 16, color = 'text', strokeWidth }: Props) => {
+const Icon = ({ name, size = 16, color = 'text', fill, strokeWidth }: Props) => {
   const theme = useTheme();
   const LucideIcon = iconMap[name];
 
@@ -17,6 +19,7 @@ const Icon = ({ name, size = 16, color = 'text', strokeWidth }: Props) => {
     <LucideIcon
       size={size}
       color={theme.colors[color]}
+      fill={fill ? theme.colors[fill] : 'none'}
       strokeWidth={strokeWidth}
       accessible={false}
       importantForAccessibility="no-hide-descendants"

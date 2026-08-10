@@ -19,6 +19,10 @@ export default function HouseholdLayout() {
           name="new-post"
           options={{ presentation: 'fullScreenModal', animation: 'slide_from_bottom' }}
         />
+        <Stack.Screen
+          name="edit-post/[postId]"
+          options={{ presentation: 'fullScreenModal', animation: 'slide_from_bottom' }}
+        />
       </Stack>
     </>
   );

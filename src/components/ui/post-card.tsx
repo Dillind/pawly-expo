@@ -2,7 +2,8 @@ import AppText from '@/components/core/app-text';
 import AvatarInitials from '@/components/core/avatar-initials';
 import IconButton from '@/components/core/icon-button';
 import PressableOpacity from '@/components/core/pressable-opacity';
-import PostLikeButton from '@/components/ui/post-like-button';
+import PostActionRow from '@/components/ui/post-action-row';
+import PostLikers from '@/components/ui/post-likers';
 import PostPetChips from '@/components/ui/post-pet-chips';
 import { Radius, type AppTheme } from '@/constants/theme';
 import { useStyles } from '@/hooks/use-styles';
@@ -44,6 +45,7 @@ const PostCard = ({ post, canManage, onToggleLike, onOpenActions }: Props) => {
           </AppText>
           <AppText size={13} color="textSecondary">
             {formatRelativeTime(post.occurredAt)}
+            {post.editedAt ? ' · Edited' : ''}
           </AppText>
         </View>
         {/* Absent rather than disabled when you cannot act: a menu with one
@@ -59,18 +61,6 @@ const PostCard = ({ post, canManage, onToggleLike, onOpenActions }: Props) => {
         )}
       </View>
 
-      {/* Square, and the picker already cropped to square, so `cover` only ever
-          corrects a stray older asset rather than silently chopping heads. */}
-      {photoUrl && (
-        <Image
-          source={{ uri: photoUrl }}
-          style={styles.photo}
-          contentFit="cover"
-          transition={150}
-          accessibilityIgnoresInvertColors
-        />
-      )}
-
       {post.caption && (
         <PressableOpacity
           onPress={() => setCaptionExpanded((expanded) => !expanded)}
@@ -84,7 +74,21 @@ const PostCard = ({ post, canManage, onToggleLike, onOpenActions }: Props) => {
 
       <PostPetChips pets={post.pets} />
 
-      <PostLikeButton liked={post.likedByMe} count={post.likeCount} onToggle={onToggleLike} />
+      {/* Square, and the picker already cropped to square, so `cover` only ever
+          corrects a stray older asset rather than silently chopping heads. */}
+      {photoUrl && (
+        <Image
+          source={{ uri: photoUrl }}
+          style={styles.photo}
+          contentFit="cover"
+          transition={150}
+          accessibilityIgnoresInvertColors
+        />
+      )}
+
+      <PostActionRow liked={post.likedByMe} count={post.likeCount} onToggleLike={onToggleLike} />
+
+      <PostLikers likers={post.likers} />
     </View>
   );
 };
@@ -108,6 +112,7 @@ const makeStyles = ({ colors, spacing }: AppTheme) =>
       width: '100%',
       aspectRatio: 1,
       borderRadius: Radius.card,
+      borderCurve: 'continuous',
       backgroundColor: colors.backgroundElement
     }
   });

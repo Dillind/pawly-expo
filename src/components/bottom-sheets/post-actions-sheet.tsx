@@ -10,21 +10,24 @@ import { Alert, StyleSheet } from 'react-native';
 
 type Props = {
   sheetRef: RefObject<TrueSheet | null>;
+  canEdit: boolean;
+  canDelete: boolean;
+  onEdit: () => void;
   onDelete: () => void;
 };
 
 /**
- * One row, deliberately.
- *
- * There is no edit in v1 -- delete and repost. Editing needs an `edited_at` and
- * a marker on the card, so that comments (deferred, not cancelled) cannot be
- * made nonsense by a later rewrite. Worth building once, with comments.
- *
- * The sheet is only rendered for someone who can act, so it never contains a
- * disabled row.
+ * The sheet is only rendered for someone who can act, and never contains a
+ * disabled row -- so an Owner looking at a member's post sees delete alone.
  */
-const PostActionsSheet = ({ sheetRef, onDelete }: Props) => {
+const PostActionsSheet = ({ sheetRef, canEdit, canDelete, onEdit, onDelete }: Props) => {
   const styles = useStyles(makeStyles);
+
+  // Await the dismissal. A route pushed while the sheet is still on screen is
+  // swallowed by iOS -- the same clash the delete path below works around.
+  const edit = () => {
+    void sheetRef.current?.dismiss().then(onEdit);
+  };
 
   const confirmDelete = () => {
     // Dismiss first: a native alert raised over a presented sheet is swallowed
@@ -39,16 +42,29 @@ const PostActionsSheet = ({ sheetRef, onDelete }: Props) => {
 
   return (
     <BaseSheet sheetRef={sheetRef} detents={['auto']}>
-      <PressableOpacity
-        style={styles.row}
-        onPress={confirmDelete}
-        accessibilityRole="button"
-        accessibilityLabel="Delete post">
-        <Icon name="trash" size={20} color="error" />
-        <AppText size={16} color="error">
-          Delete post
-        </AppText>
-      </PressableOpacity>
+      {canEdit && (
+        <PressableOpacity
+          style={styles.row}
+          onPress={edit}
+          accessibilityRole="button"
+          accessibilityLabel="Edit post">
+          <Icon name="pencil" size={20} color="text" />
+          <AppText size={16}>Edit post</AppText>
+        </PressableOpacity>
+      )}
+
+      {canDelete && (
+        <PressableOpacity
+          style={styles.row}
+          onPress={confirmDelete}
+          accessibilityRole="button"
+          accessibilityLabel="Delete post">
+          <Icon name="trash" size={20} color="error" />
+          <AppText size={16} color="error">
+            Delete post
+          </AppText>
+        </PressableOpacity>
+      )}
     </BaseSheet>
   );
 };

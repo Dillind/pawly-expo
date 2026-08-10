@@ -10,6 +10,8 @@ export type PostAuthor = { firstName: string | null; lastName: string | null };
 
 export type PostPetTag = { id: string; name: string; photoUrl: string | null };
 
+export type PostLiker = PostAuthor & { userId: string };
+
 export type Post = {
   id: string;
   householdId: string;
@@ -17,10 +19,13 @@ export type Post = {
   author: PostAuthor | null;
   caption: string | null;
   occurredAt: string;
+  editedAt: string | null;
   photoUrls: string[];
   pets: PostPetTag[];
   likeCount: number;
   likedByMe: boolean;
+  /** Ordered oldest like first, so the row's lead name is stable between renders. */
+  likers: PostLiker[];
 };
 
 /** Keyset rather than offset: a post inserted mid-scroll must not shift a page. */
@@ -30,11 +35,11 @@ export type PostsCursor = { occurredAt: string; id: string };
 // directly. Null once the account itself is deleted -- not merely when the
 // member leaves the household, which only costs them access.
 const POST_SELECT = `
-  id, household_id, author_id, caption, occurred_at,
+  id, household_id, author_id, caption, occurred_at, edited_at,
   users!posts_author_id_fkey(first_name, last_name),
   post_photos(storage_path, sort_order),
   post_pets(pets(id, name, photo_url)),
-  post_likes(user_id)
+  post_likes(user_id, created_at, users(first_name, last_name))
 `;
 
 type PostRow = {
@@ -43,10 +48,15 @@ type PostRow = {
   author_id: string | null;
   caption: string | null;
   occurred_at: string;
+  edited_at: string | null;
   users: { first_name: string | null; last_name: string | null } | null;
   post_photos: { storage_path: string; sort_order: number }[];
   post_pets: { pets: { id: string; name: string; photo_url: string | null } | null }[];
-  post_likes: { user_id: string }[];
+  post_likes: {
+    user_id: string;
+    created_at: string;
+    users: { first_name: string | null; last_name: string | null } | null;
+  }[];
 };
 
 const publicUrl = (path: string) => supabase.storage.from(BUCKET).getPublicUrl(path).data.publicUrl;
@@ -61,6 +71,7 @@ function mapPostRow(row: PostRow, viewerId: string | null): Post {
       : null,
     caption: row.caption,
     occurredAt: row.occurred_at,
+    editedAt: row.edited_at,
     photoUrls: [...row.post_photos]
       .sort((a, b) => a.sort_order - b.sort_order)
       .map((photo) => publicUrl(photo.storage_path)),
@@ -69,7 +80,12 @@ function mapPostRow(row: PostRow, viewerId: string | null): Post {
       .filter((pet): pet is NonNullable<typeof pet> => pet !== null)
       .map((pet) => ({ id: pet.id, name: pet.name, photoUrl: pet.photo_url })),
     likeCount: row.post_likes.length,
-    likedByMe: viewerId !== null && row.post_likes.some((like) => like.user_id === viewerId)
+    likedByMe: viewerId !== null && row.post_likes.some((like) => like.user_id === viewerId),
+    likers: row.post_likes.map((like) => ({
+      userId: like.user_id,
+      firstName: like.users?.first_name ?? null,
+      lastName: like.users?.last_name ?? null
+    }))
   };
 }
 
@@ -85,6 +101,7 @@ namespace PostService {
       .eq('household_id', params.householdId)
       .order('occurred_at', { ascending: false })
       .order('id', { ascending: false })
+      .order('created_at', { referencedTable: 'post_likes', ascending: true })
       .limit(POSTS_PAGE_SIZE);
 
     // Ties on occurred_at are real -- two posts a second apart round to the
@@ -114,6 +131,18 @@ namespace PostService {
           ? { occurredAt: last.occurredAt, id: last.id }
           : null
     };
+  }
+
+  export async function get(params: { postId: string; viewerId: string | null }): Promise<Post> {
+    const { data, error } = await supabase
+      .from('posts')
+      .select(POST_SELECT)
+      .eq('id', params.postId)
+      .single();
+
+    if (error) throw error;
+
+    return mapPostRow(data as unknown as PostRow, params.viewerId);
   }
 
   export async function create(params: {
@@ -150,6 +179,25 @@ namespace PostService {
       await supabase.storage.from(BUCKET).remove([path]);
       throw rpcError;
     }
+  }
+
+  /**
+   * Caption and pet tags only. Replacing the photo would mean a second upload
+   * and an orphaned object, with the row already rewritten by the time the
+   * upload failed.
+   */
+  export async function update(params: {
+    postId: string;
+    caption?: string | null;
+    petIds?: string[];
+  }): Promise<void> {
+    const { error } = await supabase.rpc('update_post', {
+      target_post_id: params.postId,
+      post_caption: params.caption ?? null,
+      tagged_pet_ids: params.petIds ?? []
+    });
+
+    if (error) throw error;
   }
 
   export async function remove(postId: string): Promise<void> {

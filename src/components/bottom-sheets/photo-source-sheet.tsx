@@ -120,7 +120,7 @@ const makeStyles = ({ spacing, colors }: AppTheme) =>
       paddingHorizontal: spacing.three,
       borderRadius: Radius.card,
       borderCurve: 'continuous',
-      backgroundColor: colors.backgroundElement
+      backgroundColor: colors.backgroundSheetRow
     }
   });
 

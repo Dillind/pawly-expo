@@ -32,7 +32,7 @@ const BaseSheet = ({
     <TrueSheet
       ref={sheetRef}
       detents={detents}
-      backgroundColor={theme.colors.background}
+      backgroundColor={theme.colors.backgroundSheet}
       cornerRadius={20}
       grabber={true}
       scrollable={scrollable}

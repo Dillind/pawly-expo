@@ -74,7 +74,7 @@ const makeStyles = ({ colors, spacing }: AppTheme) =>
     portraitOverlap: {
       marginLeft: -spacing.four,
       borderWidth: 3,
-      borderColor: colors.background
+      borderColor: colors.backgroundSheet
     },
     story: {
       gap: spacing.three

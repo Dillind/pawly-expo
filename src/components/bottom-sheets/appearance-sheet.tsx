@@ -49,7 +49,7 @@ const AppearanceSheet = ({ sheetRef }: Props) => {
 const makeStyles = ({ colors, spacing }: AppTheme) =>
   StyleSheet.create({
     list: {
-      backgroundColor: colors.backgroundElement,
+      backgroundColor: colors.backgroundSheetRow,
       borderRadius: Radius.tile,
       borderCurve: 'continuous',
       overflow: 'hidden'

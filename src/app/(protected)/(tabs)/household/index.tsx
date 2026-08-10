@@ -60,10 +60,12 @@ const Household = () => {
     }, [householdId, userId, markSeen])
   );
 
+  const isAuthor = (post: Post) => post.authorId === userId;
+
   const renderItem = ({ item }: LegendListRenderItemProps<Post>) => (
     <PostCard
       post={item}
-      canManage={item.authorId === userId || isOwner}
+      canManage={isAuthor(item) || isOwner}
       onToggleLike={() => toggleLike({ postId: item.id, liked: item.likedByMe })}
       onOpenActions={() => {
         setActivePost(item);
@@ -116,6 +118,16 @@ const Household = () => {
 
       <PostActionsSheet
         sheetRef={actionsSheetRef}
+        canEdit={activePost ? isAuthor(activePost) : false}
+        canDelete={activePost ? isAuthor(activePost) || isOwner : false}
+        onEdit={() => {
+          if (activePost) {
+            router.push({
+              pathname: '/household/edit-post/[postId]',
+              params: { postId: activePost.id }
+            });
+          }
+        }}
         onDelete={() => {
           if (activePost) deletePost(activePost.id);
         }}
