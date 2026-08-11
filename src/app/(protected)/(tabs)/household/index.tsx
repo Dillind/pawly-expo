@@ -157,11 +157,9 @@ const makeStyles = ({ spacing }: AppTheme) =>
       paddingBottom: spacing.two
     },
     listContent: {
-      paddingHorizontal: ScreenGutter,
+      paddingHorizontal: spacing.three,
       paddingBottom: spacing.six
     },
-    // A separator rather than a gap on the content container: the list is
-    // virtualised, and it accounts for separator height when it estimates.
     separator: {
       height: spacing.three
     }

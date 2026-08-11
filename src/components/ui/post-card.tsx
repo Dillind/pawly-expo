@@ -93,7 +93,7 @@ const makeStyles = ({ colors, spacing }: AppTheme) =>
   StyleSheet.create({
     card: {
       gap: spacing.two,
-      padding: spacing.three,
+      padding: spacing.four,
       borderRadius: Radius.card,
       borderCurve: 'continuous',
       backgroundColor: colors.backgroundElement

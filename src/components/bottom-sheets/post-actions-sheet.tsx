@@ -21,15 +21,11 @@ type Props = {
 const PostActionsSheet = ({ sheetRef, canEdit, canDelete, onEdit, onDelete }: Props) => {
   const styles = useStyles(makeStyles);
 
-  // Await the dismissal. A route pushed while the sheet is still on screen is
-  // swallowed by iOS -- the same clash the delete path below works around.
   const edit = () => {
     void sheetRef.current?.dismiss().then(onEdit);
   };
 
   const confirmDelete = () => {
-    // Dismiss first: a native alert raised over a presented sheet is swallowed
-    // by iOS, the same clash the popover rule describes.
     void sheetRef.current?.dismiss();
 
     Alert.alert('Delete this post?', 'This removes it for everyone in your household.', [
@@ -53,7 +49,9 @@ const PostActionsSheet = ({ sheetRef, canEdit, canDelete, onEdit, onDelete }: Pr
 
 const makeStyles = ({ spacing }: AppTheme) =>
   StyleSheet.create({
-    rows: { gap: spacing.two }
+    rows: {
+      gap: spacing.two
+    }
   });
 
 export default PostActionsSheet;

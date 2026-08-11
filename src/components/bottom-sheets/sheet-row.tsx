@@ -10,11 +10,9 @@ import { StyleSheet, View } from 'react-native';
 type Props = {
   label: string;
   icon?: IconName;
-  /** Replaces the icon when a row needs something richer, e.g. a PetAvatar. */
   leading?: ReactNode;
   isSelected?: boolean;
   isDestructive?: boolean;
-  /** `checkbox` for a multi-select list; the default suits an action. */
   isCheckbox?: boolean;
   onPress: () => void;
 };

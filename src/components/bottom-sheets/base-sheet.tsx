@@ -34,7 +34,6 @@ const BaseSheet = ({
       ref={sheetRef}
       detents={detents}
       backgroundColor={theme.colors.backgroundSheet}
-      cornerRadius={20}
       grabber={true}
       scrollable={scrollable}
       onDidDismiss={onDismiss}
