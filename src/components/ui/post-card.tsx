@@ -6,9 +6,11 @@ import PostActionRow from '@/components/ui/post-action-row';
 import PostLikers from '@/components/ui/post-likers';
 import PostPetChips from '@/components/ui/post-pet-chips';
 import PostPhotoCarousel from '@/components/ui/post-photo-carousel';
-import type { AppTheme } from '@/constants/theme';
+import { Radius, type AppTheme } from '@/constants/theme';
 import { useStyles } from '@/hooks/use-styles';
+import { useTheme } from '@/hooks/use-theme';
 import { formatRelativeTime } from '@/lib/dates';
+import { createShadowSmall } from '@/lib/styles/shadows';
 import type { Post } from '@/services/post.service';
 import { formatAuthorName } from '@/utils/members';
 import { useState } from 'react';
@@ -29,13 +31,14 @@ type Props = {
 const CAPTION_LINES = 2;
 
 const PostCard = ({ post, showActions, onToggleLike, onOpenActions }: Props) => {
+  const theme = useTheme();
   const styles = useStyles(makeStyles);
   const [captionExpanded, setCaptionExpanded] = useState(false);
 
   const authorName = formatAuthorName(post.author);
 
   return (
-    <View style={styles.card}>
+    <View style={[styles.card, createShadowSmall(theme.colors)]}>
       <View style={styles.header}>
         <AvatarInitials
           firstName={post.author?.firstName}
@@ -90,7 +93,10 @@ const makeStyles = ({ colors, spacing }: AppTheme) =>
   StyleSheet.create({
     card: {
       gap: spacing.two,
-      paddingVertical: spacing.four
+      padding: spacing.three,
+      borderRadius: Radius.card,
+      borderCurve: 'continuous',
+      backgroundColor: colors.backgroundElement
     },
     header: {
       flexDirection: 'row',

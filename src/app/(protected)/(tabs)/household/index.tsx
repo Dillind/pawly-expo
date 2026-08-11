@@ -111,8 +111,9 @@ const Household = () => {
         }}
         isLoadingMore={isFetchingNextPage}
         keyExtractor={(post) => post.id}
-        estimatedItemSize={480}
+        estimatedItemSize={520}
         contentContainerStyle={styles.listContent}
+        ItemSeparatorComponent={() => <View style={styles.separator} />}
         ListEmptyComponent={
           <EmptyState
             icon="image"
@@ -158,6 +159,11 @@ const makeStyles = ({ spacing }: AppTheme) =>
     listContent: {
       paddingHorizontal: ScreenGutter,
       paddingBottom: spacing.six
+    },
+    // A separator rather than a gap on the content container: the list is
+    // virtualised, and it accounts for separator height when it estimates.
+    separator: {
+      height: spacing.three
     }
   });
 
