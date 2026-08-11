@@ -14,9 +14,17 @@ Expo changes fast and the model's training data is often stale. This project is 
 - **Tech stack (with install status):** [docs/TECH_STACK.md](./docs/TECH_STACK.md)
 - **Theming:** [docs/THEMING.md](./docs/THEMING.md)
 - **Domain language (glossary):** [CONTEXT.md](./CONTEXT.md) — use these exact terms
-- **Architecture decisions:** [docs/adr/](./docs/adr/)
+- **Architecture decisions:** [docs/adr/](./docs/adr/) — untracked, see below
 
 Before naming things or discussing the domain, skim `CONTEXT.md`. Before changing architecture, skim the ADRs.
+
+**`docs/adr/` and `docs/agents/` are gitignored deliberately.** They live on your machine, not in
+the repository. Two things follow, and the second one bites quietly:
+
+- Links to those files elsewhere in this document resolve locally and **not** on a fresh clone.
+- `git add` skips new files in them **without saying so**. Write the ADR anyway — it just stays
+  local. `git add -f` is the only way one reaches a commit, and that is a deliberate act, not the
+  default.
 
 ## How to write your replies
 
@@ -626,6 +634,9 @@ const lastResponse = Notifications.useLastNotificationResponse();
 
 ## Agent skills
 
+The three files below are in `docs/agents/`, which is untracked — expect them locally, not on a
+fresh clone.
+
 ### Issue tracker
 
 GitHub Issues on `Dillind/pawly-expo`, via the `gh` CLI. See [docs/agents/issue-tracker.md](./docs/agents/issue-tracker.md).
@@ -640,7 +651,7 @@ Single-context — `CONTEXT.md` and `docs/adr/` at the root. See [docs/agents/do
 
 ## Domain modelling discipline
 
-This project keeps a live domain model. When you introduce or sharpen a domain term, update [CONTEXT.md](./CONTEXT.md) in the same change. When you make a decision that is hard to reverse, surprising without context, and the result of a real trade-off, add an ADR in [docs/adr/](./docs/adr/). Keep `CONTEXT.md` free of implementation detail — it is a glossary.
+This project keeps a live domain model. When you introduce or sharpen a domain term, update [CONTEXT.md](./CONTEXT.md) in the same change. When you make a decision that is hard to reverse, surprising without context, and the result of a real trade-off, add an ADR in `docs/adr/` — still worth writing, still untracked, see the note at the top. Keep `CONTEXT.md` free of implementation detail — it is a glossary.
 
 ## Open questions / known issues
 
