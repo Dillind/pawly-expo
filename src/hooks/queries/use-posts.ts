@@ -3,6 +3,7 @@ import { showErrorToast, showSuccessToast } from '@/lib/toast';
 import PostService, {
   type Post,
   type PostLiker,
+  type PostPhotoInput,
   type PostsCursor
 } from '@/services/post.service';
 import { useAuthStore } from '@/stores/auth-store';
@@ -41,7 +42,7 @@ export function useCreatePost(householdId: string | undefined) {
   return useMutation({
     mutationFn: (input: {
       userId: string;
-      localUri: string;
+      localUris: string[];
       caption?: string | null;
       petIds?: string[];
     }) => PostService.create({ householdId: householdId!, ...input }),
@@ -58,8 +59,13 @@ export function useUpdatePost(householdId: string | undefined) {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (input: { postId: string; caption: string | null; petIds: string[] }) =>
-      PostService.update(input),
+    mutationFn: (input: {
+      postId: string;
+      userId: string;
+      caption: string | null;
+      petIds: string[];
+      photos: PostPhotoInput[];
+    }) => PostService.update(input),
     onSettled: (_data, _error, input) => {
       void queryClient.invalidateQueries({ queryKey: postsKey(householdId) });
       void queryClient.invalidateQueries({ queryKey: ['post', input.postId] });

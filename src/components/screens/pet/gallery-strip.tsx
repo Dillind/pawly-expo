@@ -1,10 +1,11 @@
 import PhotoSourceSheet from '@/components/bottom-sheets/photo-source-sheet';
 import AppText from '@/components/core/app-text';
 import ErrorState from '@/components/core/error-state';
-import Icon from '@/components/core/icon';
 import MainButton from '@/components/core/main-button';
 import PressableOpacity from '@/components/core/pressable-opacity';
 import Tray, { type TrayStepDescriptor } from '@/components/core/tray';
+import AddPhotoTile from '@/components/ui/add-photo-tile';
+import PhotoTile from '@/components/ui/photo-tile';
 import type { AppTheme } from '@/constants/theme';
 import { Radius, Spacing } from '@/constants/theme';
 import {
@@ -19,7 +20,7 @@ import type { PetPhoto } from '@/services/pet-photo.service';
 import type { TrueSheet } from '@lodev09/react-native-true-sheet';
 import { Image } from 'expo-image';
 import { useEffect, useRef, useState } from 'react';
-import { ActivityIndicator, Alert, Pressable, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, Alert, StyleSheet, View } from 'react-native';
 import Animated, {
   cancelAnimation,
   useAnimatedStyle,
@@ -37,9 +38,7 @@ const JIGGLE_DEGREES = 1.4;
 const JIGGLE_MS = 130;
 const JIGGLE_STAGGER_MS = 45;
 
-const BADGE_SIZE = 22;
-
-type PhotoTileProps = {
+type JigglingPhotoTileProps = {
   photo: PetPhoto;
   index: number;
   size: number;
@@ -49,7 +48,7 @@ type PhotoTileProps = {
   onRemove: () => void;
 };
 
-const PhotoTile = ({
+const JigglingPhotoTile = ({
   photo,
   index,
   size,
@@ -57,8 +56,7 @@ const PhotoTile = ({
   onPress,
   onLongPress,
   onRemove
-}: PhotoTileProps) => {
-  const styles = useStyles(makeStyles);
+}: JigglingPhotoTileProps) => {
   const rotation = useSharedValue(0);
 
   useEffect(() => {
@@ -79,30 +77,13 @@ const PhotoTile = ({
 
   return (
     <Animated.View style={jiggle}>
-      <Pressable
-        accessibilityRole="button"
-        accessibilityLabel="Photo"
+      <PhotoTile
+        uri={photo.url}
+        size={size}
         onPress={onPress}
-        onLongPress={onLongPress}>
-        <Image
-          source={photo.url}
-          style={[styles.thumbnail, { width: size, height: size }]}
-          contentFit="cover"
-          transition={200}
-        />
-      </Pressable>
-
-      {isEditing && (
-        <PressableOpacity
-          accessibilityRole="button"
-          accessibilityLabel="Remove photo"
-          // Badge is under the 44pt minimum -- tile itself is only ~60pt.
-          hitSlop={12}
-          style={styles.removeBadge}
-          onPress={onRemove}>
-          <Icon name="close" size={13} color="onPrimary" />
-        </PressableOpacity>
-      )}
+        onLongPress={onLongPress}
+        onRemove={isEditing ? onRemove : undefined}
+      />
     </Animated.View>
   );
 };
@@ -259,23 +240,15 @@ const GalleryStrip = ({ petId }: Props) => {
           <>
             {/* Hidden at the cap: an 11th tile would strand one on a third row. */}
             {!isAtCap && (
-              <PressableOpacity
-                accessibilityRole="button"
-                accessibilityLabel="Add a photo"
-                disabled={isAdding}
-                onPress={() => void photoSheetRef.current?.present()}>
-                <View style={[styles.addTile, { width: tileSize, height: tileSize }]}>
-                  {isAdding ? (
-                    <ActivityIndicator />
-                  ) : (
-                    <Icon name="imagePlus" size={22} color="textSecondary" />
-                  )}
-                </View>
-              </PressableOpacity>
+              <AddPhotoTile
+                size={tileSize}
+                isBusy={isAdding}
+                onPress={() => void photoSheetRef.current?.present()}
+              />
             )}
 
             {photoList.map((photo, index) => (
-              <PhotoTile
+              <JigglingPhotoTile
                 key={photo.id}
                 photo={photo}
                 index={index}
@@ -316,31 +289,6 @@ const makeStyles = ({ spacing, colors }: AppTheme) =>
       flexDirection: 'row',
       flexWrap: 'wrap',
       gap: GRID_GAP
-    },
-    thumbnail: {
-      borderRadius: Radius.tile,
-      borderCurve: 'continuous',
-      backgroundColor: colors.backgroundElement
-    },
-    addTile: {
-      alignItems: 'center',
-      justifyContent: 'center',
-      borderRadius: Radius.tile,
-      borderCurve: 'continuous',
-      backgroundColor: colors.backgroundElement
-    },
-    removeBadge: {
-      position: 'absolute',
-      top: -spacing.one,
-      right: -spacing.one,
-      width: BADGE_SIZE,
-      height: BADGE_SIZE,
-      borderRadius: Radius.full,
-      alignItems: 'center',
-      justifyContent: 'center',
-      backgroundColor: colors.text,
-      borderWidth: 1.5,
-      borderColor: colors.background
     },
     header: {
       flexDirection: 'row',

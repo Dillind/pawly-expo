@@ -28,7 +28,7 @@ const EditPost = () => {
 
   const form = useForm<PostFormValues>({
     resolver: zodResolver(postSchema),
-    defaultValues: { localUri: '', caption: '', petIds: [] },
+    defaultValues: { photos: [], caption: '', petIds: [] },
     mode: 'onChange'
   });
 
@@ -41,7 +41,11 @@ const EditPost = () => {
     if (!post) return;
 
     reset({
-      localUri: post.photoUrls[0] ?? '',
+      photos: post.photos.map((photo) => ({
+        kind: 'existing' as const,
+        storagePath: photo.storagePath,
+        uri: photo.url
+      })),
       caption: post.caption ?? '',
       petIds: post.pets.map((pet) => pet.id)
     });
@@ -62,13 +66,19 @@ const EditPost = () => {
   };
 
   const save = handleSubmit((values) => {
-    if (!postId) return;
+    if (!postId || !userId) return;
 
     updatePost(
       {
         postId,
+        userId,
         caption: values.caption.trim() || null,
-        petIds: values.petIds
+        petIds: values.petIds,
+        photos: values.photos.map((photo) =>
+          photo.kind === 'existing'
+            ? { kind: 'existing' as const, storagePath: photo.storagePath }
+            : { kind: 'new' as const, localUri: photo.uri }
+        )
       },
       { onSuccess: () => router.back() }
     );
@@ -76,18 +86,21 @@ const EditPost = () => {
 
   return (
     <ScreenView edges={[]}>
-      <KeyboardAwareScrollView>
-        <PostModalHeader
-          title="Edit Post"
-          confirmText="Save"
-          isBusy={isSaving}
-          isConfirmDisabled={!post || !formState.isDirty}
-          onCancel={cancel}
-          onConfirm={() => {
-            void save();
-          }}
-        />
+      <PostModalHeader
+        title="Edit Post"
+        confirmText="Save"
+        isBusy={isSaving}
+        isConfirmDisabled={!post || !formState.isDirty}
+        onCancel={cancel}
+        onConfirm={() => {
+          void save();
+        }}
+      />
 
+      <KeyboardAwareScrollView
+        style={styles.scroll}
+        keyboardShouldPersistTaps="handled"
+        keyboardDismissMode="on-drag">
         {isLoading && <ActivityIndicator style={styles.centred} />}
 
         {isError && (
@@ -101,7 +114,7 @@ const EditPost = () => {
 
         {post && (
           <FormProvider {...form}>
-            <PostComposer pets={pets} canReplacePhoto={false} />
+            <PostComposer pets={pets} />
           </FormProvider>
         )}
       </KeyboardAwareScrollView>
@@ -111,6 +124,9 @@ const EditPost = () => {
 
 const makeStyles = ({ spacing }: AppTheme) =>
   StyleSheet.create({
+    scroll: {
+      flex: 1
+    },
     centred: {
       paddingVertical: spacing.six
     }
