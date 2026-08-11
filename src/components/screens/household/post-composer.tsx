@@ -4,30 +4,65 @@ import AppText from '@/components/core/app-text';
 import Icon from '@/components/core/icon';
 import PressableOpacity from '@/components/core/pressable-opacity';
 import TextInputValidated from '@/components/core/text-input-validated';
-import { CAPTION_MAX, type PostFormValues } from '@/constants/schemas/post';
-import { Radius, ScreenGutter, type AppTheme } from '@/constants/theme';
+import AddPhotoTile from '@/components/ui/add-photo-tile';
+import PhotoTile from '@/components/ui/photo-tile';
+import {
+  CAPTION_MAX,
+  PHOTO_CAP,
+  type PostFormValues,
+  type PostPhotoValue
+} from '@/constants/schemas/post';
+import { ScreenGutter, type AppTheme } from '@/constants/theme';
 import { useStyles } from '@/hooks/use-styles';
 import type { Pet } from '@/types/core';
 import type { TrueSheet } from '@lodev09/react-native-true-sheet';
-import { Image } from 'expo-image';
 import { useRef } from 'react';
 import { Controller, useFormContext, useWatch } from 'react-hook-form';
-import { ScrollView, StyleSheet, View } from 'react-native';
+import { Alert, ScrollView, StyleSheet, View } from 'react-native';
 
-type Props = {
-  pets: Pet[];
-  /** False when editing -- see the note on `PostService.update`. */
-  canReplacePhoto?: boolean;
-};
+const TILE_SIZE = 88;
 
-const PostComposer = ({ pets, canReplacePhoto = true }: Props) => {
+type Props = { pets: Pet[] };
+
+const PostComposer = ({ pets }: Props) => {
   const styles = useStyles(makeStyles);
   const tagSheetRef = useRef<TrueSheet | null>(null);
   const photoSheetRef = useRef<TrueSheet | null>(null);
 
   const { control, setValue } = useFormContext<PostFormValues>();
-  const localUri = useWatch({ control, name: 'localUri' });
+  const photos = useWatch({ control, name: 'photos' });
   const petIds = useWatch({ control, name: 'petIds' });
+
+  const remainingSlots = PHOTO_CAP - photos.length;
+  const isAtCap = remainingSlots <= 0;
+
+  const setPhotos = (next: PostPhotoValue[]) =>
+    setValue('photos', next, { shouldValidate: true, shouldDirty: true });
+
+  const addPhotos = (uris: string[]) =>
+    setPhotos([
+      ...photos,
+      ...uris.slice(0, remainingSlots).map((uri) => ({ kind: 'new' as const, uri }))
+    ]);
+
+  const removeAt = (index: number) => setPhotos(photos.filter((_, at) => at !== index));
+
+  /**
+   * Only a photo already on the Post gets the alert. Nothing is deleted until
+   * Save, but that one is gone for good then, and it cannot be picked again
+   * from the library the way a just-added one can.
+   */
+  const confirmRemove = (photo: PostPhotoValue, index: number) => {
+    if (photo.kind === 'new') {
+      removeAt(index);
+      return;
+    }
+
+    Alert.alert('Remove this photo?', 'It comes off the post when you save.', [
+      { text: 'Cancel', style: 'cancel', isPreferred: true },
+      { text: 'Remove', style: 'destructive', onPress: () => removeAt(index) }
+    ]);
+  };
 
   const togglePet = (petId: string) =>
     setValue(
@@ -43,36 +78,32 @@ const PostComposer = ({ pets, canReplacePhoto = true }: Props) => {
 
   return (
     <>
-      <ScrollView
-        style={styles.scroll}
-        contentContainerStyle={styles.content}
-        keyboardShouldPersistTaps="handled"
-        keyboardDismissMode="on-drag">
-        {canReplacePhoto ? (
-          <PressableOpacity
-            style={styles.photoSlot}
-            onPress={() => void photoSheetRef.current?.present()}
-            accessibilityRole="button"
-            accessibilityLabel={localUri ? 'Change the photo' : 'Add a photo'}>
-            {localUri ? (
-              <Image source={{ uri: localUri }} style={styles.photo} contentFit="cover" />
-            ) : (
-              <View style={styles.placeholder}>
-                <Icon name="imagePlus" size={32} color="textSecondary" />
-                <AppText size={15} color="textSecondary">
-                  Add a photo
-                </AppText>
-                <AppText size={13} color="textSecondary">
-                  Square — you frame it when you pick
-                </AppText>
-              </View>
-            )}
-          </PressableOpacity>
-        ) : (
-          <View style={styles.photoSlot}>
-            <Image source={{ uri: localUri }} style={styles.photo} contentFit="cover" />
-          </View>
-        )}
+      <View style={styles.content}>
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          style={styles.strip}
+          contentContainerStyle={styles.stripContent}>
+          {!isAtCap && (
+            <AddPhotoTile size={TILE_SIZE} onPress={() => void photoSheetRef.current?.present()} />
+          )}
+
+          {photos.map((photo, index) => (
+            <PhotoTile
+              key={photo.kind === 'existing' ? photo.storagePath : photo.uri}
+              uri={photo.uri}
+              size={TILE_SIZE}
+              accessibilityLabel={`Photo ${index + 1} of ${photos.length}`}
+              onRemove={() => confirmRemove(photo, index)}
+            />
+          ))}
+        </ScrollView>
+
+        <AppText size={13} color="textSecondary">
+          {isAtCap
+            ? `${PHOTO_CAP} of ${PHOTO_CAP} photos. Remove one to add another.`
+            : `${photos.length} of ${PHOTO_CAP} photos`}
+        </AppText>
 
         <Controller
           control={control}
@@ -108,18 +139,13 @@ const PostComposer = ({ pets, canReplacePhoto = true }: Props) => {
           </AppText>
           <Icon name="caretRight" size={18} color="textSecondary" />
         </PressableOpacity>
-      </ScrollView>
+      </View>
 
-      {canReplacePhoto && (
-        <PhotoSourceSheet
-          sheetRef={photoSheetRef}
-          title={localUri ? 'Change the photo' : 'Add a photo'}
-          onPicked={(uris) => {
-            const [uri] = uris;
-            if (uri) setValue('localUri', uri, { shouldValidate: true, shouldDirty: true });
-          }}
-        />
-      )}
+      <PhotoSourceSheet
+        sheetRef={photoSheetRef}
+        selectionLimit={remainingSlots}
+        onPicked={addPhotos}
+      />
 
       <TagPetsSheet
         sheetRef={tagSheetRef}
@@ -134,30 +160,20 @@ const PostComposer = ({ pets, canReplacePhoto = true }: Props) => {
 
 const makeStyles = ({ colors, spacing }: AppTheme) =>
   StyleSheet.create({
-    scroll: {
-      flex: 1
-    },
     content: {
       paddingHorizontal: ScreenGutter,
       paddingBottom: spacing.six,
       gap: spacing.three
     },
-    photoSlot: {
-      width: '100%',
-      aspectRatio: 1,
-      borderRadius: Radius.card,
-      overflow: 'hidden',
-      backgroundColor: colors.backgroundElement
+    strip: {
+      marginHorizontal: -ScreenGutter
     },
-    photo: {
-      width: '100%',
-      height: '100%'
-    },
-    placeholder: {
-      flex: 1,
-      alignItems: 'center',
-      justifyContent: 'center',
-      gap: spacing.one
+    stripContent: {
+      paddingHorizontal: ScreenGutter,
+      // The remove badge overhangs the tile by a quarter of its size, and a
+      // clipped badge on the first and last tiles is what you get without this.
+      paddingVertical: spacing.two,
+      gap: spacing.two
     },
     row: {
       flexDirection: 'row',

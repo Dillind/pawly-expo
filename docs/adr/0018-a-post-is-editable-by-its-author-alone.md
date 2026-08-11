@@ -7,6 +7,10 @@ Date: 2026-08-11
 Accepted. Reverses the "no edit in v1" position recorded in ADR 0017 and in
 `20260809090000_posts.sql`.
 
+**Point 3 below — "the photo is not replaceable" — is superseded by
+[ADR 0019](./0019-a-post-carries-up-to-ten-photos.md).** Everything else here still
+holds, including the author-only rule that 0019 extends to `post_photos`.
+
 ## Context
 
 Posts shipped without editing, deliberately. The reasoning is worth restating because it

@@ -32,7 +32,7 @@ const PostActionsSheet = ({ sheetRef, canEdit, canDelete, onEdit, onDelete }: Pr
     // by iOS, the same clash the popover rule describes.
     void sheetRef.current?.dismiss();
 
-    Alert.alert('Delete this post?', 'The photo will be removed for everyone in your household.', [
+    Alert.alert('Delete this post?', 'This removes it for everyone in your household.', [
       { text: 'Cancel', style: 'cancel', isPreferred: true },
       { text: 'Delete', style: 'destructive', onPress: onDelete }
     ]);
