@@ -1,4 +1,5 @@
 import AppText from '@/components/core/app-text';
+import Divider from '@/components/core/divider';
 import IconButton from '@/components/core/icon-button';
 import { Radius, type AppTheme } from '@/constants/theme';
 import { useStyles } from '@/hooks/use-styles';
@@ -55,7 +56,7 @@ const BaseSheet = ({
               />
             </View>
 
-            <View style={styles.divider} />
+            <Divider />
           </>
         )}
 
@@ -80,10 +81,6 @@ const makeStyles = ({ spacing, colors }: AppTheme) =>
     close: {
       backgroundColor: colors.backgroundSelected,
       borderRadius: Radius.full
-    },
-    divider: {
-      height: StyleSheet.hairlineWidth,
-      backgroundColor: colors.border
     }
   });
 

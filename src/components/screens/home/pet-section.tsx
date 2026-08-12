@@ -1,4 +1,5 @@
 import AppText from '@/components/core/app-text';
+import Divider from '@/components/core/divider';
 import Icon from '@/components/core/icon';
 import IconButton from '@/components/core/icon-button';
 import PressableOpacity from '@/components/core/pressable-opacity';
@@ -156,9 +157,10 @@ const PetSection = ({
           <ActivityIndicator />
         ) : (
           <Animated.View
+            style={styles.slots}
             entering={FadeIn.duration(EXPAND_MS)}
             exiting={FadeOut.duration(COLLAPSE_MS)}>
-            <View style={styles.slotsDivider} />
+            <Divider />
             {slots && (
               <ScheduledTimeList
                 slots={slots}
@@ -183,11 +185,10 @@ const makeStyles = ({ colors, spacing }: AppTheme) =>
       borderRadius: Radius.card,
       backgroundColor: colors.backgroundElement
     },
-    // Drawn only when the slots are showing, so a collapsed row is a plain card.
-    slotsDivider: {
-      height: StyleSheet.hairlineWidth,
-      marginTop: spacing.two,
-      backgroundColor: colors.border
+    // The rule and the times only show when expanded, so a collapsed row is a
+    // plain card and owes this gap nothing.
+    slots: {
+      marginTop: spacing.two
     },
     headerRow: {
       flexDirection: 'row',
@@ -210,9 +211,6 @@ const makeStyles = ({ colors, spacing }: AppTheme) =>
       paddingVertical: 2,
       borderRadius: 999,
       backgroundColor: colors.backgroundElement
-    },
-    slots: {
-      gap: spacing.two
     }
   });
 
