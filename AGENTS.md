@@ -91,11 +91,23 @@ release" — submit the build that was tested.
 `--profile production` uses `submit.production`.
 
 **`submit.production` is empty on purpose.** EAS owns the Apple credentials: on the first submit it
-signs in to Apple, finds or creates the App Store Connect app for the bundle identifier, and keeps an
-App Store Connect API Key on its servers. Every submit after that is non-interactive with no config
-at all. The `appleId` / `ascAppId` / `appleTeamId` fields exist for CI runners and for juggling
-several Apple accounts — putting them here otherwise just duplicates what EAS already knows, and
-hardcodes an id that only fails once the build has finished.
+signs in to Apple and keeps an App Store Connect API Key on its servers (`eas credentials -p ios` to
+inspect or reset). Every submit after that is non-interactive with no config at all. The
+`appleId` / `ascAppId` / `appleTeamId` and `ascApiKey*` fields exist for CI runners and for juggling
+several Apple accounts — putting them here otherwise duplicates what EAS already knows, and hardcodes
+an id that only fails once the build has finished.
+
+To skip the sign-in prompt without committing anything, export `EXPO_APPLE_ID` and
+`EXPO_APPLE_TEAM_ID`. The CLI prints the team id on the first run.
+
+**The App Store Connect app record must exist before the first submit.** EAS does not create it.
+Without one the submit fails with _"No suitable application records found"_, and the bundle
+identifier has to match `au.com.crumpet.ios` exactly.
+
+**Internal testers are the fast path.** Up to 100, no review, the build is available as soon as
+Apple finishes processing it. External testers (up to 10,000) need one Beta App Review, roughly a
+day, and only for the first build. So a build for one or two people to try is an internal-tester
+build and involves no review at all.
 
 `autoIncrement` on the production profile with `appVersionSource: "remote"` is what stops a build
 being rejected for reusing a build number. Don't hand-set `buildNumber` in `app.json`.
