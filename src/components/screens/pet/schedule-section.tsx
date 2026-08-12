@@ -8,6 +8,7 @@ import Tray, { type TrayStepDescriptor } from '@/components/core/tray';
 import { FEEDING_SCHEDULE_LABEL_OPTIONS } from '@/constants/options';
 import type { AppTheme } from '@/constants/theme';
 import { useFeedingSchedules } from '@/hooks/queries/use-feeding-schedules';
+import { useHousehold } from '@/hooks/queries/use-household';
 import { useDeleteSlot, useUpsertSlot } from '@/hooks/queries/use-schedule-mutations';
 import { useStyles } from '@/hooks/use-styles';
 import { slotSchema, type SlotInput } from '@/lib/form/pet-schemas';
@@ -112,6 +113,10 @@ const ScheduleSection = ({ petId }: Props) => {
   const sheetRef = useRef<TrueSheet | null>(null);
   const [editingSlot, setEditingSlot] = useState<FeedingSlot | null>(null);
   const { data: slots = [], isLoading, isError, refetch } = useFeedingSchedules(petId);
+  // A sitter should not be able to move dinner. A partner should -- and a
+  // partner is invited as an owner, so the rule lands the right way round.
+  const { data: household } = useHousehold();
+  const isOwner = household?.isOwner ?? false;
 
   const openEdit = (slot: FeedingSlot | null) => {
     setEditingSlot(slot);
@@ -138,12 +143,14 @@ const ScheduleSection = ({ petId }: Props) => {
         <AppText variant="header" size={20}>
           Feeding schedule
         </AppText>
-        <IconButton
-          name="plus"
-          accessibilityLabel="Add a feed time"
-          variant="ghost"
-          onPress={() => openEdit(null)}
-        />
+        {isOwner && (
+          <IconButton
+            name="plus"
+            accessibilityLabel="Add a feed time"
+            variant="ghost"
+            onPress={() => openEdit(null)}
+          />
+        )}
       </View>
 
       {isError ? (
@@ -169,13 +176,15 @@ const ScheduleSection = ({ petId }: Props) => {
                   {dayjs(slot.scheduledTime, 'HH:mm').format('h:mm A')}
                 </AppText>
               </View>
-              <IconButton
-                name="pencil"
-                accessibilityLabel={`Edit ${slot.label} feed`}
-                variant="ghost"
-                size={18}
-                onPress={() => openEdit(slot)}
-              />
+              {isOwner && (
+                <IconButton
+                  name="pencil"
+                  accessibilityLabel={`Edit ${slot.label} feed`}
+                  variant="ghost"
+                  size={18}
+                  onPress={() => openEdit(slot)}
+                />
+              )}
             </View>
           ))}
         </View>

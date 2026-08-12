@@ -6,6 +6,21 @@ export type NotificationPreferences = { feedLoggedAlerts: boolean; postAlerts: b
 /** The preferences a member can actually change. missed_feed_alerts is not one — see use-notification-preferences. */
 export type AlertPreference = keyof NotificationPreferences;
 
+/**
+ * Every membership RPC answers with a jsonb status rather than throwing, the
+ * way `log_feed` does — `last_owner` and `not_owner` are outcomes the UI has to
+ * word differently, not failures.
+ */
+export type MembershipStatus =
+  | 'changed'
+  | 'unchanged'
+  | 'removed'
+  | 'left'
+  | 'last_owner'
+  | 'not_owner'
+  | 'not_a_member'
+  | 'use_leave';
+
 type MembershipRow = {
   user_id: string;
   role: HouseholdMember['role'];
@@ -142,6 +157,49 @@ namespace HouseholdService {
       lastName: profileById.get(membership.user_id)?.last_name ?? null,
       feedLoggedAlerts: membership.feed_logged_alerts
     }));
+  }
+
+  const membershipStatus = (data: unknown): MembershipStatus =>
+    (data as { status: MembershipStatus }).status;
+
+  export async function setMemberRole(params: {
+    householdId: string;
+    userId: string;
+    role: HouseholdMember['role'];
+  }): Promise<MembershipStatus> {
+    const { data, error } = await supabase.rpc('set_member_role', {
+      target_household_id: params.householdId,
+      target_user_id: params.userId,
+      new_role: params.role
+    });
+
+    if (error) throw error;
+
+    return membershipStatus(data);
+  }
+
+  export async function removeMember(params: {
+    householdId: string;
+    userId: string;
+  }): Promise<MembershipStatus> {
+    const { data, error } = await supabase.rpc('remove_household_member', {
+      target_household_id: params.householdId,
+      target_user_id: params.userId
+    });
+
+    if (error) throw error;
+
+    return membershipStatus(data);
+  }
+
+  export async function leave(householdId: string): Promise<MembershipStatus> {
+    const { data, error } = await supabase.rpc('leave_household', {
+      target_household_id: householdId
+    });
+
+    if (error) throw error;
+
+    return membershipStatus(data);
   }
 
   export async function getNotificationPreferences(
