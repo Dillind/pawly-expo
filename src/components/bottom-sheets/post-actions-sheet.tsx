@@ -1,12 +1,10 @@
 import BaseSheet from '@/components/bottom-sheets/base-sheet';
-import AppText from '@/components/core/app-text';
-import Icon from '@/components/core/icon';
-import PressableOpacity from '@/components/core/pressable-opacity';
+import SheetRow from '@/components/bottom-sheets/sheet-row';
 import type { AppTheme } from '@/constants/theme';
 import { useStyles } from '@/hooks/use-styles';
 import type { TrueSheet } from '@lodev09/react-native-true-sheet';
 import type { RefObject } from 'react';
-import { Alert, StyleSheet } from 'react-native';
+import { Alert, StyleSheet, View } from 'react-native';
 
 type Props = {
   sheetRef: RefObject<TrueSheet | null>;
@@ -23,15 +21,11 @@ type Props = {
 const PostActionsSheet = ({ sheetRef, canEdit, canDelete, onEdit, onDelete }: Props) => {
   const styles = useStyles(makeStyles);
 
-  // Await the dismissal. A route pushed while the sheet is still on screen is
-  // swallowed by iOS -- the same clash the delete path below works around.
   const edit = () => {
     void sheetRef.current?.dismiss().then(onEdit);
   };
 
   const confirmDelete = () => {
-    // Dismiss first: a native alert raised over a presented sheet is swallowed
-    // by iOS, the same clash the popover rule describes.
     void sheetRef.current?.dismiss();
 
     Alert.alert('Delete this post?', 'This removes it for everyone in your household.', [
@@ -42,40 +36,21 @@ const PostActionsSheet = ({ sheetRef, canEdit, canDelete, onEdit, onDelete }: Pr
 
   return (
     <BaseSheet sheetRef={sheetRef} detents={['auto']}>
-      {canEdit && (
-        <PressableOpacity
-          style={styles.row}
-          onPress={edit}
-          accessibilityRole="button"
-          accessibilityLabel="Edit post">
-          <Icon name="pencil" size={20} color="text" />
-          <AppText size={16}>Edit post</AppText>
-        </PressableOpacity>
-      )}
+      <View style={styles.rows}>
+        {canEdit && <SheetRow icon="pencil" label="Edit post" onPress={edit} />}
 
-      {canDelete && (
-        <PressableOpacity
-          style={styles.row}
-          onPress={confirmDelete}
-          accessibilityRole="button"
-          accessibilityLabel="Delete post">
-          <Icon name="trash" size={20} color="error" />
-          <AppText size={16} color="error">
-            Delete post
-          </AppText>
-        </PressableOpacity>
-      )}
+        {canDelete && (
+          <SheetRow icon="trash" label="Delete post" isDestructive onPress={confirmDelete} />
+        )}
+      </View>
     </BaseSheet>
   );
 };
 
 const makeStyles = ({ spacing }: AppTheme) =>
   StyleSheet.create({
-    row: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      gap: spacing.two,
-      paddingVertical: spacing.three
+    rows: {
+      gap: spacing.two
     }
   });
 

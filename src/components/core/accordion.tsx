@@ -1,8 +1,8 @@
 import AppText from '@/components/core/app-text';
 import Icon from '@/components/core/icon';
+import Divider from '@/components/core/divider';
 import PressableOpacity from '@/components/core/pressable-opacity';
-import type { AppTheme } from '@/constants/theme';
-import { useStyles } from '@/hooks/use-styles';
+import { Spacing } from '@/constants/theme';
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { LayoutChangeEvent, StyleSheet, View } from 'react-native';
 import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
@@ -49,7 +49,6 @@ type AccordionItemProps = {
 };
 
 export const AccordionItem = ({ id, title, icon, children }: AccordionItemProps) => {
-  const themedStyles = useStyles(makeItemStyles);
   const { openId, setOpenId } = useAccordionContext();
   const isOpen = openId === id;
 
@@ -109,7 +108,7 @@ export const AccordionItem = ({ id, title, icon, children }: AccordionItemProps)
           <Icon name="caretDown" size={10} />
         </Animated.View>
       </PressableOpacity>
-      <View style={themedStyles.headerRule} />
+      <Divider />
       <View style={layoutStyles.bodyContainer}>
         <View
           pointerEvents="none"
@@ -132,8 +131,6 @@ type AccordionBulletRowProps = {
 };
 
 export const AccordionBulletRow = ({ label, isLast = false }: AccordionBulletRowProps) => {
-  const themedStyles = useStyles(makeBulletRowStyles);
-
   return (
     <View>
       <View style={layoutStyles.bulletRow}>
@@ -142,27 +139,10 @@ export const AccordionBulletRow = ({ label, isLast = false }: AccordionBulletRow
           {label}
         </AppText>
       </View>
-      {!isLast ? <View style={themedStyles.rowRule} /> : null}
+      {!isLast ? <Divider inset={Spacing.two} /> : null}
     </View>
   );
 };
-
-const makeItemStyles = ({ colors }: AppTheme) =>
-  StyleSheet.create({
-    headerRule: {
-      height: StyleSheet.hairlineWidth,
-      backgroundColor: colors.textSecondary
-    }
-  });
-
-const makeBulletRowStyles = ({ colors }: AppTheme) =>
-  StyleSheet.create({
-    rowRule: {
-      height: StyleSheet.hairlineWidth,
-      backgroundColor: colors.textSecondary,
-      marginLeft: 8
-    }
-  });
 
 const layoutStyles = StyleSheet.create({
   group: {

@@ -111,16 +111,15 @@ const Household = () => {
         }}
         isLoadingMore={isFetchingNextPage}
         keyExtractor={(post) => post.id}
-        estimatedItemSize={480}
+        estimatedItemSize={520}
         contentContainerStyle={styles.listContent}
+        ItemSeparatorComponent={() => <View style={styles.separator} />}
         ListEmptyComponent={
           <EmptyState
             icon="image"
             title="Nothing shared yet"
             description="Photos your household shares of your pets show up here. Handy when someone else is looking after them."
-            action={
-              <MainButton text="Share a photo" href="/household/new-post" />
-            }
+            action={<MainButton text="Share a photo" href="/household/new-post" />}
           />
         }
         renderItem={renderItem}
@@ -156,8 +155,11 @@ const makeStyles = ({ spacing }: AppTheme) =>
       paddingBottom: spacing.two
     },
     listContent: {
-      paddingHorizontal: ScreenGutter,
+      paddingHorizontal: spacing.three,
       paddingBottom: spacing.six
+    },
+    separator: {
+      height: spacing.three
     }
   });
 

@@ -13,22 +13,23 @@ Crumpet uses a small, in-repo theme — **no component library and no NativeWind
 
 Current colour tokens (keys are the `ThemeColor` union):
 
-| Token | Light | Dark | Use for |
-| --------------------- | --------- | --------- | ------------------------------------------ |
-| `text` | `#000000` | `#ffffff` | Primary text |
-| `textSecondary` | `#60646C` | `#B0B4BA` | Secondary/hint text, borders |
-| `background` | `#F1F2F5` | `#000000` | Screen background |
-| `backgroundElement` | `#FFFFFF` | `#212225` | Cards and elements **on a screen** |
-| `backgroundSelected` | `#E4E6EB` | `#2E3135` | Selected/pressed surfaces |
-| `backgroundSheet` | `#FFFFFF` | `#1C1D20` | The surface of a bottom sheet |
-| `backgroundSheetRow` | `#F1F2F5` | `#2E3135` | Rows and cards **inside a sheet** |
-| `error` | `#CE3C39` | `#CE3C39` | Errors, destructive |
-| `like` | `#E0405E` | `#FF4D6D` | A Like, and nothing else |
-| `primary` | `#0F7173` | `#14A8AF` | Brand, primary actions |
-| `primaryMuted` | 15% primary | 22% primary | Tinted fills behind a primary state |
-| `onPrimary` | `#ffffff` | `#ffffff` | Text and glyphs on a primary fill |
-| `accent` | `#6E44FF` | `#6E44FF` | Accent |
-| `shadow` | `#0B0D12` | `#000000` | Shadow colour |
+| Token                | Light         | Dark          | Use for                             |
+| -------------------- | ------------- | ------------- | ----------------------------------- |
+| `text`               | `#000000`     | `#ffffff`     | Primary text                        |
+| `textSecondary`      | `#60646C`     | `#B0B4BA`     | Secondary/hint text                 |
+| `border`             | 29% `#3C3C43` | 60% `#545458` | Separators and hairline rules       |
+| `background`         | `#F1F2F5`     | `#000000`     | Screen background                   |
+| `backgroundElement`  | `#FFFFFF`     | `#212225`     | Cards and elements **on a screen**  |
+| `backgroundSelected` | `#E4E6EB`     | `#2E3135`     | Selected/pressed surfaces           |
+| `backgroundSheet`    | `#FFFFFF`     | `#1C1D20`     | The surface of a bottom sheet       |
+| `backgroundSheetRow` | `#F1F2F5`     | `#2E3135`     | Rows and cards **inside a sheet**   |
+| `error`              | `#CE3C39`     | `#CE3C39`     | Errors, destructive                 |
+| `like`               | `#E0405E`     | `#FF4D6D`     | A Like, and nothing else            |
+| `primary`            | `#0F7173`     | `#14A8AF`     | Brand, primary actions              |
+| `primaryMuted`       | 15% primary   | 22% primary   | Tinted fills behind a primary state |
+| `onPrimary`          | `#ffffff`     | `#ffffff`     | Text and glyphs on a primary fill   |
+| `accent`             | `#6E44FF`     | `#6E44FF`     | Accent                              |
+| `shadow`             | `#0B0D12`     | `#000000`     | Shadow colour                       |
 
 ### Two levels of surface, and picking the right one
 
@@ -40,6 +41,18 @@ disappears.
 
 `BaseSheet` applies `backgroundSheet` for you. What you owe it is the rows: anything inside a sheet
 that needs its own fill uses `backgroundSheetRow`.
+
+### Lines are `border`, never a fill token
+
+Every separator, hairline rule and input outline uses `border`. It is set to `UIColor.separator` and
+its dark counterpart, so a rule reads as a line at `StyleSheet.hairlineWidth` without drawing
+attention to itself.
+
+The two wrong answers both shipped once and were pulled back:
+
+- **`backgroundSelected`** is a fill. On a white card it is barely off-white, so the line vanishes.
+- **`textSecondary`** is text. At full opacity it is far heavier than a separator should be, and it
+  makes the rule compete with the content either side of it.
 
 > The proposed brand palette in PRODUCT_BRIEF (teal/blue/indigo) is **not** in the theme yet. Reconcile in a design session before relying on it.
 
@@ -82,7 +95,7 @@ const makeStyles = ({ colors, spacing }: AppTheme) =>
   StyleSheet.create({
     container: {
       backgroundColor: colors.background,
-      borderColor: colors.textSecondary,
+      borderColor: colors.border,
       padding: spacing.three
     }
   });
@@ -155,7 +168,16 @@ import AppText from '@/components/core/app-text';
 
 ## Buttons
 
-Use `MainButton` (`@/components/core/main-button`) for primary actions — it supports `variant` (`primary` | `secondary` | `text`), `size`, `leftIcon`/`rightIcon`, `isLoading`, `isDisabled`, `hapticFeedback`, and either `onPress` or an Expo Router `href`.
+Use `MainButton` (`@/components/core/main-button`) for primary actions — it supports `variant` (`primary` | `secondary` | `destructive` | `text` | `glass`), `size`, `leftIcon`/`rightIcon`, `isLoading`, `isDisabled`, `hapticFeedback`, and either `onPress` or an Expo Router `href`.
+
+`glass` renders a real `GlassView` and is the iOS 26 idiom for a secondary bar button — Cancel beside a
+primary Save. It is not for the emphasised action: glass is a material, not an accent, and putting the
+one primary action behind it flattens the hierarchy. Two consequences, both already handled by the
+component but worth knowing before you reach for it:
+
+- Its label is `primary`, not `onPrimary`. White on clear glass disappears over a light page.
+- Below iOS 26 there is no material, so it falls back to `secondary`'s opaque fill (see
+  [ADR 0011](./adr/0011-liquid-glass-progressive-enhancement.md)). Check both paths.
 
 ## Light/dark mode
 

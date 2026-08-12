@@ -109,7 +109,7 @@ const makeStyles = ({ colors, spacing }: AppTheme) =>
     secondary: {
       backgroundColor: colors.backgroundElement,
       borderWidth: StyleSheet.hairlineWidth,
-      borderColor: colors.backgroundSelected
+      borderColor: colors.border
     },
     optionBody: { flex: 1, gap: 2 },
     detail: { opacity: 0.85 }

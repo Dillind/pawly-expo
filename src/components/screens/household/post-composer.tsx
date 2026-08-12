@@ -22,9 +22,12 @@ import { Alert, ScrollView, StyleSheet, View } from 'react-native';
 
 const TILE_SIZE = 88;
 
-type Props = { pets: Pet[] };
+type Props = {
+  pets: Pet[];
+  householdName?: string | null;
+};
 
-const PostComposer = ({ pets }: Props) => {
+const PostComposer = ({ pets, householdName }: Props) => {
   const styles = useStyles(makeStyles);
   const tagSheetRef = useRef<TrueSheet | null>(null);
   const photoSheetRef = useRef<TrueSheet | null>(null);
@@ -47,11 +50,6 @@ const PostComposer = ({ pets }: Props) => {
 
   const removeAt = (index: number) => setPhotos(photos.filter((_, at) => at !== index));
 
-  /**
-   * Only a photo already on the Post gets the alert. Nothing is deleted until
-   * Save, but that one is gone for good then, and it cannot be picked again
-   * from the library the way a just-added one can.
-   */
   const confirmRemove = (photo: PostPhotoValue, index: number) => {
     if (photo.kind === 'new') {
       removeAt(index);
@@ -79,25 +77,34 @@ const PostComposer = ({ pets }: Props) => {
   return (
     <>
       <View style={styles.content}>
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          style={styles.strip}
-          contentContainerStyle={styles.stripContent}>
-          {!isAtCap && (
-            <AddPhotoTile size={TILE_SIZE} onPress={() => void photoSheetRef.current?.present()} />
-          )}
+        <View style={styles.photosContainer}>
+          {photos.length === 0 ? (
+            <AddPhotoTile isDropzone onPress={() => void photoSheetRef.current?.present()} />
+          ) : (
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              style={styles.strip}
+              contentContainerStyle={styles.stripContent}>
+              {!isAtCap && (
+                <AddPhotoTile
+                  size={TILE_SIZE}
+                  onPress={() => void photoSheetRef.current?.present()}
+                />
+              )}
 
-          {photos.map((photo, index) => (
-            <PhotoTile
-              key={photo.kind === 'existing' ? photo.storagePath : photo.uri}
-              uri={photo.uri}
-              size={TILE_SIZE}
-              accessibilityLabel={`Photo ${index + 1} of ${photos.length}`}
-              onRemove={() => confirmRemove(photo, index)}
-            />
-          ))}
-        </ScrollView>
+              {photos.map((photo, index) => (
+                <PhotoTile
+                  key={photo.kind === 'existing' ? photo.storagePath : photo.uri}
+                  uri={photo.uri}
+                  size={TILE_SIZE}
+                  accessibilityLabel={`Photo ${index + 1} of ${photos.length}`}
+                  onRemove={() => confirmRemove(photo, index)}
+                />
+              ))}
+            </ScrollView>
+          )}
+        </View>
 
         <AppText size={13} color="textSecondary">
           {isAtCap
@@ -165,13 +172,14 @@ const makeStyles = ({ colors, spacing }: AppTheme) =>
       paddingBottom: spacing.six,
       gap: spacing.three
     },
+    photosContainer: {
+      marginTop: spacing.three
+    },
     strip: {
       marginHorizontal: -ScreenGutter
     },
     stripContent: {
       paddingHorizontal: ScreenGutter,
-      // The remove badge overhangs the tile by a quarter of its size, and a
-      // clipped badge on the first and last tiles is what you get without this.
       paddingVertical: spacing.two,
       gap: spacing.two
     },
@@ -182,7 +190,7 @@ const makeStyles = ({ colors, spacing }: AppTheme) =>
       paddingVertical: spacing.three,
       borderTopWidth: StyleSheet.hairlineWidth,
       borderBottomWidth: StyleSheet.hairlineWidth,
-      borderColor: colors.backgroundSelected
+      borderColor: colors.border
     },
     rowLabel: {
       flex: 1

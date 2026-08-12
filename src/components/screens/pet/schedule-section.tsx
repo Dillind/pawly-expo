@@ -201,7 +201,7 @@ const makeStyles = ({ spacing, colors }: AppTheme) =>
       justifyContent: 'space-between',
       paddingVertical: spacing.one,
       borderBottomWidth: StyleSheet.hairlineWidth,
-      borderBottomColor: colors.textSecondary
+      borderBottomColor: colors.border
     },
     form: { gap: spacing.three }
   });

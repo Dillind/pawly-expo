@@ -22,12 +22,7 @@ export const toInitials = (
 };
 
 const AvatarInitials = ({ firstName, lastName, size = 72 }: Props) => {
-  const styles = useStyles(
-    useCallback(
-      (theme: AppTheme) => makeStyles(theme, size),
-      [size]
-    )
-  );
+  const styles = useStyles(useCallback((theme: AppTheme) => makeStyles(theme, size), [size]));
 
   return (
     <View style={styles.circle}>

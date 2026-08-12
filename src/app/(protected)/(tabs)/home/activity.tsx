@@ -35,10 +35,7 @@ const Activity = () => {
   const timezone = household?.timezone;
 
   const petIds = useMemo(() => pets.map((pet) => pet.id), [pets]);
-  const petNames = useMemo(
-    () => new Map(pets.map((pet) => [pet.id, pet.name])),
-    [pets]
-  );
+  const petNames = useMemo(() => new Map(pets.map((pet) => [pet.id, pet.name])), [pets]);
 
   const { data, isLoading, isError, refetch, fetchNextPage, hasNextPage, isFetchingNextPage } =
     useFeedLogs(petIds);
@@ -140,11 +137,7 @@ const Activity = () => {
         renderItem={renderItem}
       />
 
-      <FeedLogDetailSheet
-        sheetRef={sheetRef}
-        logId={activeLogId}
-        petId={activePetId}
-      />
+      <FeedLogDetailSheet sheetRef={sheetRef} logId={activeLogId} petId={activePetId} />
     </ScreenView>
   );
 };

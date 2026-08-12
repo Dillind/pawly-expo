@@ -62,12 +62,6 @@ const DateTimePickerValidated = ({
 
   return (
     <View style={[styles.container, { marginBottom, marginTop }]}>
-      {/*
-       * Don't drop presentationStyle 'overFullScreen' without re-testing
-       * inside a TrueSheet. Under an earlier configuration on iOS 26, this
-       * modal's dismiss region survived onConfirm and covered the screen,
-       * leaving the host sheet's own buttons permanently dead.
-       */}
       <DateTimePickerModal
         mode={mode}
         isVisible={isVisible}

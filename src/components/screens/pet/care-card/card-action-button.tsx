@@ -41,11 +41,7 @@ const CardActionButton = ({
 
   return (
     <PressableOpacity
-      style={[
-        styles.button,
-        isSolid ? styles.solid : styles.ghost,
-        isDisabled && styles.disabled
-      ]}
+      style={[styles.button, isSolid ? styles.solid : styles.ghost, isDisabled && styles.disabled]}
       accessibilityRole="button"
       accessibilityLabel={accessibilityLabel}
       disabled={isDisabled || isLoading}

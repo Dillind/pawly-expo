@@ -61,7 +61,11 @@ export default function HomeLayout() {
             safe area, and nothing behind it is useful context. */}
         <Stack.Screen
           name="[petId]/care-card-editor"
-          options={{ presentation: 'fullScreenModal', headerShown: false, animation: 'slide_from_bottom' }}
+          options={{
+            presentation: 'fullScreenModal',
+            headerShown: false,
+            animation: 'slide_from_bottom'
+          }}
         />
       </Stack>
     </>

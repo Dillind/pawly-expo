@@ -68,8 +68,8 @@ const ReviewStep = ({
 
           {blocks.length === 0 ? (
             <AppText size={14} color="textSecondary">
-              Nothing filled in yet. Go back and add whatever you can — a half-filled card is
-              still worth handing over.
+              Nothing filled in yet. Go back and add whatever you can — a half-filled card is still
+              worth handing over.
             </AppText>
           ) : (
             <CareCardBlocks blocks={blocks} tone="onPage" />

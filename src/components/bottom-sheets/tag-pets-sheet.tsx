@@ -1,9 +1,8 @@
 import BaseSheet from '@/components/bottom-sheets/base-sheet';
+import SheetRow from '@/components/bottom-sheets/sheet-row';
 import AppText from '@/components/core/app-text';
-import Icon from '@/components/core/icon';
 import MainButton from '@/components/core/main-button';
 import PetAvatar from '@/components/core/pet-avatar';
-import PressableOpacity from '@/components/core/pressable-opacity';
 import { type AppTheme } from '@/constants/theme';
 import { useStyles } from '@/hooks/use-styles';
 import type { Pet } from '@/types/core';
@@ -19,7 +18,7 @@ type Props = {
   onDone: () => void;
 };
 
-const AVATAR = 36;
+const AVATAR = 28;
 
 /**
  * Multi-select, and nothing is ever pre-selected -- not even in a single-pet
@@ -37,26 +36,17 @@ const TagPetsSheet = ({ sheetRef, pets, selectedPetIds, onToggle, onDone }: Prop
         Optional. Say which of your pets are in the photo.
       </AppText>
 
-      <View style={styles.list}>
-        {pets.map((pet) => {
-          const isSelected = selectedPetIds.includes(pet.id);
-
-          return (
-            <PressableOpacity
-              key={pet.id}
-              style={styles.row}
-              onPress={() => onToggle(pet.id)}
-              accessibilityRole="checkbox"
-              accessibilityState={{ checked: isSelected }}
-              accessibilityLabel={pet.name}>
-              <PetAvatar photoUrl={pet.photoUrl} size={AVATAR} />
-              <AppText size={16} style={styles.name}>
-                {pet.name}
-              </AppText>
-              {isSelected && <Icon name="check" size={20} color="primary" />}
-            </PressableOpacity>
-          );
-        })}
+      <View style={styles.rows}>
+        {pets.map((pet) => (
+          <SheetRow
+            key={pet.id}
+            label={pet.name}
+            leading={<PetAvatar photoUrl={pet.photoUrl} size={AVATAR} />}
+            isSelected={selectedPetIds.includes(pet.id)}
+            isCheckbox
+            onPress={() => onToggle(pet.id)}
+          />
+        ))}
       </View>
 
       <MainButton text="Done" onPress={onDone} />
@@ -66,18 +56,7 @@ const TagPetsSheet = ({ sheetRef, pets, selectedPetIds, onToggle, onDone }: Prop
 
 const makeStyles = ({ spacing }: AppTheme) =>
   StyleSheet.create({
-    list: {
-      gap: spacing.one
-    },
-    row: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      gap: spacing.two,
-      paddingVertical: spacing.two
-    },
-    name: {
-      flex: 1
-    }
+    rows: { gap: spacing.two }
   });
 
 export default TagPetsSheet;
