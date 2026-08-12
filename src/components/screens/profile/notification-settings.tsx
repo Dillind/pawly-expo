@@ -90,8 +90,8 @@ const NotificationSettings = () => {
         {isDenied && (
           <View style={styles.section}>
             <AppText size={13} color="textSecondary">
-              Notifications are turned off for Crumpet, so you won&apos;t hear when someone feeds
-              a pet or shares a photo.
+              Notifications are turned off for Crumpet, so you won&apos;t hear when someone feeds a
+              pet or shares a photo.
             </AppText>
             <MainButton
               text="Open Settings"

@@ -171,7 +171,9 @@ const TextInputValidated = React.forwardRef<TextInputRef, Props>(
         {showCharacterCount && maxLength !== undefined && (
           <CharacterCount value={value} max={maxLength} />
         )}
-        {form && name && showFieldError && <SubscribedFieldError control={form.control} name={name} />}
+        {form && name && showFieldError && (
+          <SubscribedFieldError control={form.control} name={name} />
+        )}
       </View>
     );
   }

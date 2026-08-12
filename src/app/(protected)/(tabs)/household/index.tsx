@@ -119,9 +119,7 @@ const Household = () => {
             icon="image"
             title="Nothing shared yet"
             description="Photos your household shares of your pets show up here. Handy when someone else is looking after them."
-            action={
-              <MainButton text="Share a photo" href="/household/new-post" />
-            }
+            action={<MainButton text="Share a photo" href="/household/new-post" />}
           />
         }
         renderItem={renderItem}

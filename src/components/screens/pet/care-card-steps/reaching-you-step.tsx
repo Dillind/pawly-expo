@@ -88,9 +88,7 @@ const ReachingYouStep = ({ petId, contacts, onNext }: Props) => {
   };
 
   if (editing) {
-    return (
-      <ContactForm petId={petId} contact={editing.contact} onDone={() => setEditing(null)} />
-    );
+    return <ContactForm petId={petId} contact={editing.contact} onDone={() => setEditing(null)} />;
   }
 
   return (

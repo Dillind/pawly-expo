@@ -115,16 +115,7 @@ const PetHeading = ({ pet }: { pet: Pet }) => {
  * Raised only when there is something to ask: which pet, which Scheduled Time,
  * or when a late feed happened. A pick needing none of those writes without it.
  */
-const LogFeedTray = ({
-  sheetRef,
-  pets,
-  timezone,
-  today,
-  members,
-  pet,
-  flow,
-  onOpenLog
-}: Props) => {
+const LogFeedTray = ({ sheetRef, pets, timezone, today, members, pet, flow, onOpenLog }: Props) => {
   const [selected, setSelected] = useState<Pet | undefined>(undefined);
 
   const onlyPet = pets.length === 1 ? pets[0] : undefined;

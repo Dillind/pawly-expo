@@ -29,8 +29,7 @@ const FLIP_DURATION_MS = 460;
 const CARD_MARGIN = Spacing.four;
 const MAX_CARD_HEIGHT = 580;
 
-const countLabel = (count: number, noun: string) =>
-  `${count} ${count === 1 ? noun : `${noun}s`}`;
+const countLabel = (count: number, noun: string) => `${count} ${count === 1 ? noun : `${noun}s`}`;
 
 type Props = {
   petName: string;
