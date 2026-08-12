@@ -18,7 +18,10 @@
     },
     "production": {
       "autoIncrement": true,
-      "environment": "production"
+      "environment": "production",
+      "ios": {
+        "resourceClass": "m-medium"
+      }
     },
     "development-simulator": {
       "developmentClient": true,
