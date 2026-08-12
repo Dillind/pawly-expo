@@ -33,6 +33,8 @@ export enum SuccessMessage {
   FeedTimeRemoved = 'Feed time removed',
   FeedTimeUpdated = 'Feed time updated',
   FeedUpdated = 'Feed updated',
+  GraceWindowUpdated = 'Feed timing updated',
+  HouseholdRenamed = 'Household renamed',
   ContactAdded = 'Contact added',
   ContactUpdated = 'Contact updated',
   ContactRemoved = 'Contact removed',
@@ -51,7 +53,8 @@ export enum SuccessMessage {
   PostShared = 'Post shared',
   PostUpdated = 'Post updated',
   SignedIn = 'Signed in',
-  SignedOut = 'Signed out'
+  SignedOut = 'Signed out',
+  TimezoneUpdated = 'Timezone updated'
 }
 
 /**
@@ -67,6 +70,7 @@ export enum ErrorMessage {
   CoverPhotoUpdateFailed = 'Could not set the cover photo',
   FeedTimeRemoveFailed = 'Could not remove the feed time',
   FeedTimeSaveFailed = 'Could not save the feed time',
+  HouseholdUpdateFailed = 'Could not update the household',
   MedicationRemoveFailed = 'Could not remove the medication',
   ContactSaveFailed = 'Could not save the contact',
   ContactRemoveFailed = 'Could not remove the contact',

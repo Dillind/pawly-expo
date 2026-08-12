@@ -76,6 +76,28 @@ namespace HouseholdService {
     });
   }
 
+  export type HouseholdPatch = {
+    name?: string;
+    timezone?: string;
+    graceWindowMinutes?: number;
+  };
+
+  // The service owns snake_case: a column name must never reach a component.
+  export async function update(householdId: string, patch: HouseholdPatch): Promise<void> {
+    const { error } = await supabase
+      .from('households')
+      .update({
+        ...(patch.name !== undefined && { name: patch.name.trim() }),
+        ...(patch.timezone !== undefined && { timezone: patch.timezone }),
+        ...(patch.graceWindowMinutes !== undefined && {
+          grace_window_minutes: patch.graceWindowMinutes
+        })
+      })
+      .eq('id', householdId);
+
+    if (error) throw error;
+  }
+
   export async function existsForUser(userId: string): Promise<boolean> {
     const { data, error } = await supabase
       .from('household_members')
