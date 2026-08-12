@@ -22,9 +22,17 @@ import { Alert, ScrollView, StyleSheet, View } from 'react-native';
 
 const TILE_SIZE = 88;
 
-type Props = { pets: Pet[] };
+type Props = {
+  pets: Pet[];
+  /**
+   * Names who the post is for. Only the create route passes it -- "Posting to"
+   * is a promise about something that has not happened yet, so editing a post
+   * that is already up must not say it.
+   */
+  householdName?: string | null;
+};
 
-const PostComposer = ({ pets }: Props) => {
+const PostComposer = ({ pets, householdName }: Props) => {
   const styles = useStyles(makeStyles);
   const tagSheetRef = useRef<TrueSheet | null>(null);
   const photoSheetRef = useRef<TrueSheet | null>(null);
@@ -79,6 +87,12 @@ const PostComposer = ({ pets }: Props) => {
   return (
     <>
       <View style={styles.content}>
+        {householdName && (
+          <AppText size={14} color="textSecondary">
+            Posting to {householdName}
+          </AppText>
+        )}
+
         {photos.length === 0 ? (
           <AddPhotoTile isDropzone onPress={() => void photoSheetRef.current?.present()} />
         ) : (

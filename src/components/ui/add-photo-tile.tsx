@@ -72,7 +72,7 @@ const makeStyles = ({ colors, spacing }: AppTheme) =>
     },
     dropzone: {
       width: '100%',
-      height: 140,
+      height: 110,
       borderRadius: Radius.card,
       borderWidth: 1,
       borderStyle: 'dashed',

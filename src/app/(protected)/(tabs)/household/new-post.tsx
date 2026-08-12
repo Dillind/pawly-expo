@@ -82,7 +82,7 @@ const NewPost = () => {
         keyboardShouldPersistTaps="handled"
         keyboardDismissMode="on-drag">
         <FormProvider {...form}>
-          <PostComposer pets={pets} />
+          <PostComposer pets={pets} householdName={household?.name} />
         </FormProvider>
       </KeyboardAwareScrollView>
     </ScreenView>
