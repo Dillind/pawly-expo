@@ -19,10 +19,11 @@ type Props = {
 const MemberActionsSheet = ({ sheetRef, member, onSetRole, onRemove }: Props) => {
   const styles = useStyles(makeStyles);
 
-  if (!member) return null;
-
-  const name = fullName(member) || 'this member';
-  const isOwner = member.role === 'owner';
+  // The sheet is always mounted, even with no member: returning null here meant
+  // the ref was still null on the first tap, so present() did nothing and the
+  // row only worked the second time.
+  const name = member ? fullName(member) || 'this member' : '';
+  const isOwner = member?.role === 'owner';
 
   const setRole = (role: HouseholdMember['role']) => {
     void sheetRef.current?.dismiss().then(() => onSetRole(role));
@@ -44,18 +45,22 @@ const MemberActionsSheet = ({ sheetRef, member, onSetRole, onRemove }: Props) =>
   return (
     <BaseSheet sheetRef={sheetRef} title={name} detents={['auto']}>
       <View style={styles.rows}>
-        <SheetRow
-          icon={isOwner ? 'user' : 'shield'}
-          label={isOwner ? 'Make a contributor' : 'Make an owner'}
-          onPress={() => setRole(isOwner ? 'contributor' : 'owner')}
-        />
+        {member && (
+          <>
+            <SheetRow
+              icon={isOwner ? 'user' : 'shield'}
+              label={isOwner ? 'Make a contributor' : 'Make an owner'}
+              onPress={() => setRole(isOwner ? 'contributor' : 'owner')}
+            />
 
-        <SheetRow
-          icon="close"
-          label="Remove from household"
-          isDestructive
-          onPress={confirmRemove}
-        />
+            <SheetRow
+              icon="close"
+              label="Remove from household"
+              isDestructive
+              onPress={confirmRemove}
+            />
+          </>
+        )}
       </View>
     </BaseSheet>
   );
