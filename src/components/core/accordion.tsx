@@ -151,7 +151,7 @@ const makeItemStyles = ({ colors }: AppTheme) =>
   StyleSheet.create({
     headerRule: {
       height: StyleSheet.hairlineWidth,
-      backgroundColor: colors.textSecondary
+      backgroundColor: colors.border
     }
   });
 
@@ -159,7 +159,7 @@ const makeBulletRowStyles = ({ colors }: AppTheme) =>
   StyleSheet.create({
     rowRule: {
       height: StyleSheet.hairlineWidth,
-      backgroundColor: colors.textSecondary,
+      backgroundColor: colors.border,
       marginLeft: 8
     }
   });

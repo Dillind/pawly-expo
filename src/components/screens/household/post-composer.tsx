@@ -79,25 +79,32 @@ const PostComposer = ({ pets }: Props) => {
   return (
     <>
       <View style={styles.content}>
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          style={styles.strip}
-          contentContainerStyle={styles.stripContent}>
-          {!isAtCap && (
-            <AddPhotoTile size={TILE_SIZE} onPress={() => void photoSheetRef.current?.present()} />
-          )}
+        {photos.length === 0 ? (
+          <AddPhotoTile isDropzone onPress={() => void photoSheetRef.current?.present()} />
+        ) : (
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            style={styles.strip}
+            contentContainerStyle={styles.stripContent}>
+            {!isAtCap && (
+              <AddPhotoTile
+                size={TILE_SIZE}
+                onPress={() => void photoSheetRef.current?.present()}
+              />
+            )}
 
-          {photos.map((photo, index) => (
-            <PhotoTile
-              key={photo.kind === 'existing' ? photo.storagePath : photo.uri}
-              uri={photo.uri}
-              size={TILE_SIZE}
-              accessibilityLabel={`Photo ${index + 1} of ${photos.length}`}
-              onRemove={() => confirmRemove(photo, index)}
-            />
-          ))}
-        </ScrollView>
+            {photos.map((photo, index) => (
+              <PhotoTile
+                key={photo.kind === 'existing' ? photo.storagePath : photo.uri}
+                uri={photo.uri}
+                size={TILE_SIZE}
+                accessibilityLabel={`Photo ${index + 1} of ${photos.length}`}
+                onRemove={() => confirmRemove(photo, index)}
+              />
+            ))}
+          </ScrollView>
+        )}
 
         <AppText size={13} color="textSecondary">
           {isAtCap
@@ -182,7 +189,7 @@ const makeStyles = ({ colors, spacing }: AppTheme) =>
       paddingVertical: spacing.three,
       borderTopWidth: StyleSheet.hairlineWidth,
       borderBottomWidth: StyleSheet.hairlineWidth,
-      borderColor: colors.backgroundSelected
+      borderColor: colors.border
     },
     rowLabel: {
       flex: 1

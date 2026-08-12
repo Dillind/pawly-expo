@@ -1,7 +1,10 @@
 import { APP_ACTIVE_OPACITY } from '@/constants/primitives';
 import type { AppTheme } from '@/constants/theme';
 import { useStyles } from '@/hooks/use-styles';
+import { useTheme } from '@/hooks/use-theme';
 import { hapticLight } from '@/lib/haptics';
+import { hasGlass } from '@/utils/platform';
+import { GlassView } from 'expo-glass-effect';
 import { type Href, useRouter } from 'expo-router';
 import React, { type FunctionComponent } from 'react';
 import {
@@ -26,7 +29,7 @@ type MainButtonProps = {
   onPress?: () => void;
   href?: Href;
   isDisabled?: boolean;
-  variant?: 'primary' | 'secondary' | 'destructive' | 'text';
+  variant?: 'primary' | 'secondary' | 'destructive' | 'text' | 'glass';
   size?: 'sm' | 'md' | 'lg' | 'xs';
   // ReactElement, not ReactNode: ReactNode admits a bare string, so passing an
   // IconName here type-checked and then crashed at render with "Text strings
@@ -58,6 +61,7 @@ const MainButton: FunctionComponent<MainButtonProps> = ({
   hapticFeedback = true
 }) => {
   const styles = useStyles(makeStyles);
+  const { colors, isDark } = useTheme();
   const router = useRouter();
   const pressed = useSharedValue(0);
 
@@ -85,6 +89,52 @@ const MainButton: FunctionComponent<MainButtonProps> = ({
 
   const { paddingVertical, paddingHorizontal, borderRadius, fontSize } = SIZE_STYLES[size];
 
+  // Below iOS 26 there is no material to render, so glass borrows `secondary`'s
+  // fill. Its label is `text`'s primary either way -- onPrimary white would
+  // disappear against clear glass over a light page.
+  const fillVariant = variant === 'glass' ? 'secondary' : variant;
+  const labelVariant = variant === 'glass' ? 'text' : variant;
+
+  const content = (
+    <View style={styles.content}>
+      {isLoading ? (
+        <ActivityIndicator
+          size="small"
+          color={variant === 'primary' || variant === 'destructive' ? colors.onPrimary : undefined}
+          style={styles.icon}
+        />
+      ) : (
+        leftIcon && <View style={styles.icon}>{leftIcon}</View>
+      )}
+      <Text style={[styles.label, styles[`${labelVariant}Label`], { fontSize }]}>{text}</Text>
+      {!isLoading && rightIcon && <View style={styles.icon}>{rightIcon}</View>}
+    </View>
+  );
+
+  // The material provides its own press response, so this branch skips the
+  // scale/opacity animation the other variants use -- layering one on top
+  // fights the deformation.
+  if (variant === 'glass' && hasGlass) {
+    return (
+      <GlassView
+        isInteractive
+        colorScheme={isDark ? 'dark' : 'light'}
+        style={[
+          styles.glassSurface,
+          { borderRadius },
+          (isDisabled || isLoading) && styles.disabled,
+          containerStyle
+        ]}>
+        <Pressable
+          onPress={handlePress}
+          disabled={isDisabled || isLoading}
+          style={[styles.base, { paddingVertical, paddingHorizontal }]}>
+          {content}
+        </Pressable>
+      </GlassView>
+    );
+  }
+
   return (
     <AnimatedPressable
       onPress={handlePress}
@@ -93,28 +143,13 @@ const MainButton: FunctionComponent<MainButtonProps> = ({
       disabled={isDisabled || isLoading}
       style={[
         styles.base,
-        styles[variant],
+        styles[fillVariant],
         { paddingVertical, paddingHorizontal, borderRadius },
         (isDisabled || isLoading) && styles.disabled,
         containerStyle,
         animatedStyle
       ]}>
-      <View style={styles.content}>
-        {isLoading ? (
-          <ActivityIndicator
-            size="small"
-            color={variant === 'primary' || variant === 'destructive' ? '#ffffff' : undefined}
-            style={styles.icon}
-          />
-        ) : (
-          leftIcon && <View style={styles.icon}>{leftIcon}</View>
-        )}
-        <Text
-          style={[styles.label, styles[`${variant}Label` as keyof typeof styles], { fontSize }]}>
-          {text}
-        </Text>
-        {!isLoading && rightIcon && <View style={styles.icon}>{rightIcon}</View>}
-      </View>
+      {content}
     </AnimatedPressable>
   );
 };
@@ -138,6 +173,11 @@ const makeStyles = ({ colors }: AppTheme) =>
     text: {
       backgroundColor: 'transparent'
     },
+    glassSurface: {
+      alignSelf: 'stretch',
+      overflow: 'hidden',
+      borderCurve: 'continuous'
+    },
     disabled: {
       opacity: 0.5
     },
@@ -155,13 +195,13 @@ const makeStyles = ({ colors }: AppTheme) =>
       fontWeight: 'bold'
     },
     primaryLabel: {
-      color: '#ffffff'
+      color: colors.onPrimary
     },
     secondaryLabel: {
       color: colors.text
     },
     destructiveLabel: {
-      color: '#ffffff'
+      color: colors.onPrimary
     },
     textLabel: {
       color: colors.primary

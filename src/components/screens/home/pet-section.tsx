@@ -187,7 +187,7 @@ const makeStyles = ({ colors, spacing }: AppTheme) =>
     slotsDivider: {
       height: StyleSheet.hairlineWidth,
       marginTop: spacing.two,
-      backgroundColor: colors.backgroundSelected
+      backgroundColor: colors.border
     },
     headerRow: {
       flexDirection: 'row',

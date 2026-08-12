@@ -11,9 +11,9 @@ const Divider = () => {
 const makeStyles = ({ colors }: AppTheme) =>
   StyleSheet.create({
     divider: {
-      height: 1,
+      height: StyleSheet.hairlineWidth,
       width: '100%',
-      backgroundColor: colors.textSecondary,
+      backgroundColor: colors.border,
       marginVertical: 4
     }
   });

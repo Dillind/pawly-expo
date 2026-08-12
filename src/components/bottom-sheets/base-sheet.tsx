@@ -83,8 +83,7 @@ const makeStyles = ({ spacing, colors }: AppTheme) =>
     },
     divider: {
       height: StyleSheet.hairlineWidth,
-      backgroundColor: colors.textSecondary,
-      opacity: 0.3
+      backgroundColor: colors.border
     }
   });
 

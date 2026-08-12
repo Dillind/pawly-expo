@@ -18,6 +18,9 @@ export const COLORS = {
     backgroundSheet: '#FFFFFF',
     backgroundSheetRow: '#F1F2F5',
     textSecondary: '#60646C',
+    // Separators, matched to UIColor.separator. A fill token used as a line
+    // (backgroundSelected) is too close to white to read as one.
+    border: 'rgba(60, 60, 67, 0.29)',
     error: '#CE3C39',
     like: '#E0405E',
     primary: '#0F7173',
@@ -34,6 +37,7 @@ export const COLORS = {
     backgroundSheet: '#1C1D20',
     backgroundSheetRow: '#2E3135',
     textSecondary: '#B0B4BA',
+    border: 'rgba(84, 84, 88, 0.60)',
     error: '#CE3C39',
     like: '#FF4D6D',
     primary: '#14A8AF',

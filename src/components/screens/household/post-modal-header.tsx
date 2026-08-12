@@ -1,6 +1,5 @@
 import AppText from '@/components/core/app-text';
 import MainButton from '@/components/core/main-button';
-import PressableOpacity from '@/components/core/pressable-opacity';
 import { ScreenGutter, Spacing, type AppTheme } from '@/constants/theme';
 import { useStyles } from '@/hooks/use-styles';
 import { StyleSheet, View } from 'react-native';
@@ -33,22 +32,25 @@ const PostModalHeader = ({
 
   return (
     <View style={[styles.header, { paddingTop: Math.max(insets.top, Spacing.three) }]}>
-      <PressableOpacity onPress={onCancel} accessibilityRole="button" disabled={isBusy}>
-        <AppText size={16} color="primary">
-          Cancel
-        </AppText>
-      </PressableOpacity>
+      {/* alignSelf overrides MainButton's own `stretch`, which would otherwise
+          pull both buttons to the full height of the header row. */}
+      <MainButton
+        text="Cancel"
+        variant="glass"
+        size="xs"
+        containerStyle={styles.button}
+        onPress={onCancel}
+        isDisabled={isBusy}
+      />
 
       <AppText size={16} fontWeight="bold">
         {title}
       </AppText>
 
-      {/* alignSelf overrides MainButton's own `stretch`, which would otherwise
-          pull it to the full height of the header row. */}
       <MainButton
         text={confirmText}
         size="xs"
-        containerStyle={styles.confirm}
+        containerStyle={styles.button}
         onPress={onConfirm}
         isLoading={isBusy}
         isDisabled={isConfirmDisabled}
@@ -67,9 +69,9 @@ const makeStyles = ({ colors, spacing }: AppTheme) =>
       paddingHorizontal: ScreenGutter,
       paddingBottom: spacing.three,
       borderBottomWidth: StyleSheet.hairlineWidth,
-      borderColor: colors.backgroundSelected
+      borderColor: colors.border
     },
-    confirm: {
+    button: {
       alignSelf: 'center'
     }
   });
