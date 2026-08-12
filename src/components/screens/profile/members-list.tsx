@@ -17,12 +17,14 @@ import {
   useRemoveMember,
   useSetMemberRole
 } from '@/hooks/queries/use-membership-mutations';
+import { usePendingInvites, useRevokeInvite } from '@/hooks/queries/use-invites';
 import { useStyles } from '@/hooks/use-styles';
 import { useAuthStore } from '@/stores/auth-store';
 import type { HouseholdMember } from '@/types/core';
 import { fullName } from '@/utils/members';
 import { optionLabel } from '@/utils/options';
 import type { TrueSheet } from '@lodev09/react-native-true-sheet';
+import { useRouter } from 'expo-router';
 import { useRef, useState } from 'react';
 import { Alert, ActivityIndicator, StyleSheet, View } from 'react-native';
 
@@ -30,6 +32,7 @@ const AVATAR_SIZE = 36;
 
 const MembersList = () => {
   const styles = useStyles(makeStyles);
+  const router = useRouter();
   const actionsSheetRef = useRef<TrueSheet | null>(null);
   const [activeMember, setActiveMember] = useState<HouseholdMember | undefined>(undefined);
 
@@ -38,15 +41,25 @@ const MembersList = () => {
   const { data: members = [], isLoading, isError, refetch } = useHouseholdMembers();
 
   const householdId = household?.id;
+  const isOwnerOfHousehold = household?.isOwner ?? false;
   const { mutate: setMemberRole } = useSetMemberRole(householdId);
   const { mutate: removeMember } = useRemoveMember(householdId);
   const { mutate: leaveHousehold, isPending: isLeaving } = useLeaveHousehold(householdId);
+  const { data: pendingInvites = [] } = usePendingInvites(isOwnerOfHousehold ? householdId : undefined);
+  const { mutate: revokeInvite } = useRevokeInvite(householdId);
 
   const isOwner = household?.isOwner ?? false;
   const ownerCount = members.filter((member) => member.role === 'owner').length;
   // The last owner cannot leave: nobody would be left who could rename the
   // household, add a pet or invite anyone.
   const isLastOwner = isOwner && ownerCount <= 1;
+
+  const confirmRevoke = (inviteId: string, email: string) => {
+    Alert.alert(`Revoke the invite for ${email}?`, 'The code stops working straight away.', [
+      { text: 'Cancel', style: 'cancel', isPreferred: true },
+      { text: 'Revoke', style: 'destructive', onPress: () => revokeInvite(inviteId) }
+    ]);
+  };
 
   const confirmLeave = () => {
     if (isLastOwner) {
@@ -129,9 +142,38 @@ const MembersList = () => {
           {members.map(renderMember)}
         </SettingsSection>
 
+        {isOwner && pendingInvites.length > 0 && (
+          <SettingsSection title="Invited">
+            {pendingInvites.map((invite) => (
+              <View key={invite.id} style={styles.row}>
+                <View style={styles.name}>
+                  <AppText size={16} numberOfLines={1}>
+                    {invite.email}
+                  </AppText>
+                  <AppText size={13} color="textSecondary">
+                    {optionLabel(ROLE_OPTIONS, invite.role)} · code {invite.code}
+                  </AppText>
+                </View>
+                <PressableOpacity
+                  accessibilityRole="button"
+                  accessibilityLabel={`Revoke the invite for ${invite.email}`}
+                  onPress={() => confirmRevoke(invite.id, invite.email)}>
+                  <AppText size={14} color="error">
+                    Revoke
+                  </AppText>
+                </PressableOpacity>
+              </View>
+            ))}
+          </SettingsSection>
+        )}
+
         {isOwner && (
           <SettingsSection>
-            <SettingsRow icon="userPlus" label="Invite a member" isSoon />
+            <SettingsRow
+              icon="userPlus"
+              label="Invite a member"
+              onPress={() => router.push('/profile/settings/invite')}
+            />
           </SettingsSection>
         )}
 

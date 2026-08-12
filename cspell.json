@@ -2,6 +2,7 @@
   "version": "0.2",
   "language": "en,en-GB",
   "words": [
+    "ABCDEFGHJKMNPQRSTUVWXYZ",
     "Apoquel",
     "appleid",
     "asyncstorage",
@@ -57,6 +58,7 @@
     "Priya",
     "proargnames",
     "proname",
+    "qrcode",
     "Ragdoll",
     "reactotron",
     "rearrangeable",

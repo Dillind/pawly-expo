@@ -1,0 +1,161 @@
+import { supabase } from '@/lib/supabase/client';
+import type { HouseholdRole } from '@/types/core';
+
+export type PendingInvite = {
+  id: string;
+  email: string;
+  role: HouseholdRole;
+  code: string;
+  createdAt: string;
+  expiresAt: string;
+};
+
+/** An invite as the person receiving it sees it. */
+export type ReceivedInvite = PendingInvite & {
+  householdId: string;
+  householdName: string;
+  invitedByName: string | null;
+};
+
+export type CreateInviteStatus = 'created' | 'already_member' | 'not_owner';
+
+export type RedeemStatus =
+  | 'joined'
+  | 'already_member'
+  | 'already_used'
+  | 'expired'
+  | 'revoked'
+  | 'not_found'
+  | 'not_signed_in';
+
+type InviteRow = {
+  id: string;
+  email: string;
+  role: HouseholdRole;
+  code: string;
+  created_at: string;
+  expires_at: string;
+};
+
+const toInvite = (row: InviteRow): PendingInvite => ({
+  id: row.id,
+  email: row.email,
+  role: row.role,
+  code: row.code,
+  createdAt: row.created_at,
+  expiresAt: row.expires_at
+});
+
+namespace InviteService {
+  /**
+   * Never reports whether the address has an account. The invite is created
+   * either way, so there is no lookup result to leak — see ADR 0020.
+   */
+  export async function create(params: {
+    householdId: string;
+    email: string;
+    role: HouseholdRole;
+  }): Promise<{ status: CreateInviteStatus; code?: string }> {
+    const { data, error } = await supabase.rpc('create_household_invite', {
+      target_household_id: params.householdId,
+      invitee_email: params.email,
+      invitee_role: params.role
+    });
+
+    if (error) throw error;
+
+    const result = data as { status: CreateInviteStatus; code?: string };
+
+    return { status: result.status, code: result.code };
+  }
+
+  /** Everything still outstanding for a household. Owner-only by RLS. */
+  export async function listPending(householdId: string): Promise<PendingInvite[]> {
+    const { data, error } = await supabase
+      .from('household_invites')
+      .select('id, email, role, code, created_at, expires_at')
+      .eq('household_id', householdId)
+      .eq('status', 'pending')
+      .gt('expires_at', new Date().toISOString())
+      .order('created_at', { ascending: false });
+
+    if (error) throw error;
+
+    return (data as InviteRow[]).map(toInvite);
+  }
+
+  /**
+   * Invites waiting for the signed-in user. The select policy deliberately is
+   * not scoped to household membership — the whole point is that the reader is
+   * not a member yet, so the household is embedded rather than joined from a
+   * table they cannot see.
+   */
+  export async function listReceived(userId: string): Promise<ReceivedInvite[]> {
+    const { data, error } = await supabase
+      .from('household_invites')
+      .select(
+        'id, email, role, code, created_at, expires_at, household_id, households(name), users(first_name, last_name)'
+      )
+      .eq('invitee_user_id', userId)
+      .eq('status', 'pending')
+      .gt('expires_at', new Date().toISOString())
+      .order('created_at', { ascending: false });
+
+    if (error) throw error;
+
+    // PostgREST hands embedded relations back as arrays here rather than a
+    // single object, so both are unwrapped at [0].
+    type Row = InviteRow & {
+      household_id: string;
+      households: { name: string }[];
+      users: { first_name: string | null; last_name: string | null }[];
+    };
+
+    return (data as Row[]).map((row) => {
+      const invitedBy = row.users[0];
+
+      return {
+        ...toInvite(row),
+        householdId: row.household_id,
+        householdName: row.households[0]?.name ?? 'a household',
+        invitedByName:
+          [invitedBy?.first_name, invitedBy?.last_name].filter(Boolean).join(' ') || null
+      };
+    });
+  }
+
+  export async function revoke(inviteId: string): Promise<void> {
+    const { error } = await supabase.rpc('revoke_household_invite', { invite_id: inviteId });
+
+    if (error) throw error;
+  }
+
+  export async function decline(inviteId: string): Promise<void> {
+    const { error } = await supabase.rpc('decline_household_invite', { invite_id: inviteId });
+
+    if (error) throw error;
+  }
+
+  /**
+   * By code when typed or scanned, by id when tapped in the inbox. Returns a
+   * status rather than throwing — expired, revoked and already_used each need
+   * different wording.
+   */
+  export async function redeem(params: {
+    code?: string;
+    inviteId?: string;
+  }): Promise<{ status: RedeemStatus; householdId?: string }> {
+    const { data, error } = await supabase.rpc('redeem_household_invite', {
+      invite_code: params.code ?? undefined,
+      invite_id: params.inviteId ?? undefined
+    });
+
+    if (error) throw error;
+
+    const result = data as { status: RedeemStatus; household_id?: string };
+
+    return { status: result.status, householdId: result.household_id };
+  }
+}
+
+export default InviteService;

@@ -41,6 +41,14 @@ export default function HomeLayout() {
           }}
         />
         <Stack.Screen
+          name="join-household"
+          options={{
+            headerShown: true,
+            headerTitle: 'Join a household',
+            headerBackButtonDisplayMode: 'minimal'
+          }}
+        />
+        <Stack.Screen
           name="add-pet"
           options={{
             headerShown: true,
