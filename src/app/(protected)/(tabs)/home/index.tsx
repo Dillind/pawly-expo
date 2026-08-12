@@ -6,6 +6,7 @@ import ErrorState from '@/components/core/error-state';
 import MainButton from '@/components/core/main-button';
 import ScreenScrollView from '@/components/layout/screen-scroll-view';
 import ScreenView from '@/components/layout/screen-view';
+import NoHouseholdState from '@/components/screens/home/no-household-state';
 import PetSection from '@/components/screens/home/pet-section';
 import ActionPopover from '@/components/ui/action-popover';
 import HouseholdSwitcher from '@/components/ui/household-switcher';
@@ -14,6 +15,7 @@ import { CREATE_ACTIONS } from '@/constants/create-actions';
 import { HOME_TILES } from '@/constants/home-tiles';
 import { BottomTabInset, type AppTheme } from '@/constants/theme';
 import { useHousehold } from '@/hooks/queries/use-household';
+import { useHouseholds } from '@/hooks/queries/use-households';
 import { useHouseholdMembers } from '@/hooks/queries/use-household-members';
 import { usePets } from '@/hooks/queries/use-pets';
 import { useLogFlow } from '@/hooks/use-log-flow';
@@ -35,6 +37,7 @@ const Home = () => {
   const styles = useStyles(makeStyles);
 
   const { data: household } = useHousehold();
+  const { data: households = [], isLoading: isLoadingHouseholds } = useHouseholds();
   const { data: pets = [], isLoading, isError, refetch } = usePets();
   const { data: members = [] } = useHouseholdMembers();
 
@@ -64,6 +67,7 @@ const Home = () => {
     void detailSheetRef.current?.present();
   };
 
+  const hasHousehold = households.length > 0;
   const hasPets = pets.length > 0;
   const isOnlyPet = pets.length === 1;
 
@@ -83,6 +87,10 @@ const Home = () => {
   }, [hasPets, requestPermission]);
 
   const renderBody = () => {
+    // No household at all is a valid, permanent state -- the sitter with no
+    // pets of their own. It gets the two doors, not the "no pets" empty state.
+    if (!isLoadingHouseholds && households.length === 0) return <NoHouseholdState />;
+
     if (isError) {
       return (
         <ErrorState
@@ -139,7 +147,7 @@ const Home = () => {
       <ScreenScrollView contentContainerStyle={styles.content}>
         <HouseholdSwitcher />
 
-        {timezone && (
+        {timezone && hasHousehold && (
           <AppText size={14} color="textSecondary">
             {formatDayAndDate(new Date(), timezone)}
           </AppText>
@@ -153,21 +161,25 @@ const Home = () => {
 
         {renderBody()}
 
-        <TileGrid tiles={HOME_TILES} />
+        {hasHousehold && <TileGrid tiles={HOME_TILES} />}
       </ScreenScrollView>
 
-      <ActionPopover
-        actions={CREATE_ACTIONS}
-        primaryAction={{
-          label: 'Log a feed',
-          icon: 'utensils',
-          isDisabled: !hasPets,
-          onPress: () => {
-            setLogPet(undefined);
-            void logTrayRef.current?.present();
-          }
-        }}
-      />
+      {/* Nothing in it applies before a household exists, and the two doors
+          above are already the only two things to do. */}
+      {hasHousehold && (
+        <ActionPopover
+          actions={CREATE_ACTIONS}
+          primaryAction={{
+            label: 'Log a feed',
+            icon: 'utensils',
+            isDisabled: !hasPets,
+            onPress: () => {
+              setLogPet(undefined);
+              void logTrayRef.current?.present();
+            }
+          }}
+        />
+      )}
 
       {timezone && today && (
         <LogFeedTray

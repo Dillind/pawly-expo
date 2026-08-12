@@ -113,18 +113,6 @@ namespace HouseholdService {
     if (error) throw error;
   }
 
-  export async function existsForUser(userId: string): Promise<boolean> {
-    const { data, error } = await supabase
-      .from('household_members')
-      .select('id')
-      .eq('user_id', userId)
-      .limit(1);
-
-    if (error) throw error;
-
-    return data.length > 0;
-  }
-
   export async function listMembers(householdId: string): Promise<HouseholdMember[]> {
     const { data: memberships, error: membershipsError } = await supabase
       .from('household_members')
