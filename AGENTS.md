@@ -65,7 +65,8 @@ bun run check       # all four above, in order, stopping at the first failure
 
 bun run build:dev         # EAS development build, iOS (simulator-capable)
 bun run build:preview     # EAS preview build, iOS
-bun run build:production  # EAS production build, iOS
+bun run build:production  # EAS production build, iOS (build only, no submit)
+bun run testflight        # EAS production build, iOS, auto-submitted to TestFlight
 ```
 
 The build scripts always name a profile, deliberately. A bare `eas build` defaults to
@@ -75,8 +76,47 @@ EXPO_PUBLIC_SUPABASE_KEY". Only the `development` environment is populated — `
 gitignored and never reaches the builder, so anything the app reads from
 `process.env` has to exist as an EAS environment variable too (`eas env:list`).
 
-No `--auto-submit` until `submit.production` in `eas.json` is filled in, and no Android
-build scripts until FCM credentials exist.
+### TestFlight
+
+**`preview` cannot reach TestFlight.** It is `distribution: "internal"` — an ad hoc build for
+registered device UDIDs, installed from a link. TestFlight takes **store** builds only, which is
+what `production` is. Use `preview` to put a build on a device without waiting for App Store
+processing; use `testflight` for anything a real tester should see.
+
+**TestFlight is not a build type, it is the doorway.** Every store build lands there first, and an
+App Store release promotes a build already in TestFlight. Same binary, so never rebuild "for
+release" — submit the build that was tested.
+
+`--auto-submit` runs the submit profile **whose name matches the build profile**, so
+`--profile production` uses `submit.production`.
+
+**`submit.production` is empty on purpose.** EAS owns the Apple credentials: on the first submit it
+signs in to Apple and keeps an App Store Connect API Key on its servers (`eas credentials -p ios` to
+inspect or reset). Every submit after that is non-interactive with no config at all. The
+`appleId` / `ascAppId` / `appleTeamId` and `ascApiKey*` fields exist for CI runners and for juggling
+several Apple accounts — putting them here otherwise duplicates what EAS already knows, and hardcodes
+an id that only fails once the build has finished.
+
+To skip the sign-in prompt without committing anything, export `EXPO_APPLE_ID` and
+`EXPO_APPLE_TEAM_ID`. The CLI prints the team id on the first run.
+
+**The App Store Connect app record must exist before the first submit.** EAS does not create it.
+Without one the submit fails with _"No suitable application records found"_, and the bundle
+identifier has to match `au.com.crumpet.ios` exactly.
+
+**Internal testers are the fast path.** Up to 100, no review, the build is available as soon as
+Apple finishes processing it. External testers (up to 10,000) need one Beta App Review, roughly a
+day, and only for the first build. So a build for one or two people to try is an internal-tester
+build and involves no review at all.
+
+`autoIncrement` on the production profile with `appVersionSource: "remote"` is what stops a build
+being rejected for reusing a build number. Don't hand-set `buildNumber` in `app.json`.
+
+A **`qa` profile is deliberately absent.** The qa/production split is two _store_ builds pointing at
+two _backends_, both going through TestFlight — it earns its keep once a non-production Supabase
+project exists, and not before. Adding one now means a second binary on the same database.
+
+No Android build scripts until FCM credentials exist.
 
 ## Tests
 
@@ -335,7 +375,7 @@ So, in this codebase:
 
 **Never use an alert** for a routine undoable action, for anything merely informative (that is a
 toast), for a validation error (that is inline), or to offer a choice between options that each
-need explaining — Apple sends that to an action sheet, and if the options need text *underneath*
+need explaining — Apple sends that to an action sheet, and if the options need text _underneath_
 them, neither works and it becomes a step in a `Tray`.
 
 **Writing them:**
@@ -367,7 +407,7 @@ description; use it only for text a user can act on. Do **not** pass a raw `erro
 Supabase or Postgres into it: `new row violates row-level security policy` is a developer string,
 and showing it is worse than showing nothing.
 
-That does not mean discarding the error. A service that has already *translated* a failure into
+That does not mean discarding the error. A service that has already _translated_ a failure into
 copy — "There is already a dinner feed. Edit that one instead." — throws
 **`UserFacingError`** (`@/lib/errors`), and `userFacingMessage(error, fallback)` unwraps it: the
 service's own words when it wrote them for a person, the fallback for anything else. Ignoring the
@@ -421,7 +461,7 @@ is made: `onSuccess: (_data, input) => showSuccessToast(input.id ? FeedTimeUpdat
 
 Exceptions worth knowing:
 
-- **`useLogFeed` keeps its toasts at the call site.** A `double_feed` result is a *success* that
+- **`useLogFeed` keeps its toasts at the call site.** A `double_feed` result is a _success_ that
   must not confirm anything, because nothing was written.
 - A success toast is redundant where navigation already confirms the result (sign-up moves to the
   verify screen), and `PushTokenService.register` deliberately stays silent — see the comment in
@@ -547,6 +587,7 @@ Rules:
   ```
 
   Rows sit in a `View` with `gap: spacing.two`. Omit `title` and there is no header — right for an action sheet raised from a ⋯ menu, which needs no restating. `SheetRow` fills with `backgroundSheetRow`; the sheet behind it is `backgroundSheet`. Those two tokens are the only backgrounds a sheet may use.
+
 - **Deep links reach sheets via their host screen**, because a sheet has no URL. Route to the screen with a param (`/activity?logId=…`), present from an effect once the data has loaded, then clear the param so back-navigation behaves. This is how notification taps open a specific record.
 - Prefer an **inline** picker inside a sheet over `react-native-modal-datetime-picker` — stacking a modal on top of a native sheet is a rough edge on iOS. This is about _presentation_, not about the control: a time input is always the `mode="time"` spinner (see Dates and times above), inline if the modal misbehaves.
 
