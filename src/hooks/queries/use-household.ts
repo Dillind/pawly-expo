@@ -1,19 +1,40 @@
-import HouseholdService from '@/services/household.service';
-import { useAuthStore } from '@/stores/auth-store';
-import { useQuery } from '@tanstack/react-query';
+import { useHouseholds } from '@/hooks/queries/use-households';
+import { useActiveHouseholdStore } from '@/stores/active-household-store';
+import { useEffect } from 'react';
 
 /**
- * The household the signed-in user belongs to. Two of its fields are read
+ * The household the user is currently looking at. Two of its fields are read
  * constantly by the feed-logging feature: `timezone` (every day boundary and
  * slot calculation resolves in it, never in device-local time) and
  * `graceWindowMinutes` (the double-feed check).
+ *
+ * The name and shape are unchanged from when a user could only have one, so
+ * every call site reads the active household without knowing there are others.
  */
 export function useHousehold() {
-  const { userId } = useAuthStore();
+  const query = useHouseholds();
+  const { activeHouseholdId, hasHydrated, setActiveHousehold } = useActiveHouseholdStore();
 
-  return useQuery({
-    queryKey: ['household', userId],
-    queryFn: () => HouseholdService.getForUser(userId as string),
-    enabled: Boolean(userId)
-  });
+  const households = query.data;
+
+  // Falling back to the first covers both a fresh install and a stored id for a
+  // household the user has since left or been removed from.
+  const active =
+    households?.find((household) => household.id === activeHouseholdId) ?? households?.[0];
+
+  // Heal the stored id so a household left and later rejoined does not silently
+  // become active again.
+  useEffect(() => {
+    if (!hasHydrated || !active || active.id === activeHouseholdId) return;
+
+    void setActiveHousehold(active.id);
+  }, [hasHydrated, active, activeHouseholdId, setActiveHousehold]);
+
+  return {
+    ...query,
+    // Withheld until AsyncStorage has been read, or the first render picks the
+    // first household and the screen visibly swaps to the stored one.
+    data: hasHydrated ? active : undefined,
+    isLoading: query.isLoading || !hasHydrated
+  };
 }

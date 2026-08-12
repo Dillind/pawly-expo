@@ -48,6 +48,13 @@ export type Household = {
   isOwner: boolean;
 };
 
+/**
+ * A household plus the pets that identify it. Every household defaults to
+ * `<Name>'s Household`, so two rows in the switcher can read almost the same --
+ * the pets are what make one recognisable.
+ */
+export type HouseholdSummary = Household & { pets: Pet[] };
+
 export type Option<T = string> = {
   value: T;
   label: string;

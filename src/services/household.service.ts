@@ -1,5 +1,5 @@
 import { supabase } from '@/lib/supabase/client';
-import type { Household, HouseholdMember } from '@/types/core';
+import type { HouseholdMember, HouseholdSummary } from '@/types/core';
 
 export type NotificationPreferences = { feedLoggedAlerts: boolean; postAlerts: boolean };
 
@@ -14,38 +14,66 @@ type MembershipRow = {
 
 namespace HouseholdService {
   /**
-   * Two round trips rather than a PostgREST embed: household_members.user_id
-   * points at auth.users, so the embed graph here is not the obvious one, and
-   * two explicit selects cannot be misread.
+   * Every household the user belongs to, oldest membership first, each with its
+   * pets for the switcher.
    *
-   * v1 assumes one household per user, hence `.limit(1)` rather than a list.
+   * Separate selects rather than a PostgREST embed: household_members.user_id
+   * points at auth.users, so the embed graph here is not the obvious one, and
+   * explicit selects cannot be misread.
+   *
+   * This replaced a `.limit(1).single()` that had no `order by`. With two
+   * memberships it returned an arbitrary household, and a member who joined a
+   * second one watched her own pet disappear.
    */
-  export async function getForUser(userId: string): Promise<Household> {
-    const { data: membership, error: membershipError } = await supabase
+  export async function listForUser(userId: string): Promise<HouseholdSummary[]> {
+    const { data: memberships, error: membershipsError } = await supabase
       .from('household_members')
       .select('household_id, role')
       .eq('user_id', userId)
-      .limit(1)
-      .single();
+      .order('created_at', { ascending: true });
 
-    if (membershipError) throw membershipError;
+    if (membershipsError) throw membershipsError;
+    if (memberships.length === 0) return [];
 
-    const { data: household, error: householdError } = await supabase
-      .from('households')
-      .select('id, name, timezone, grace_window_minutes')
-      .eq('id', membership.household_id)
-      .single();
+    const householdIds = memberships.map((membership) => membership.household_id);
 
-    if (householdError) throw householdError;
+    const [{ data: households, error: householdsError }, { data: pets, error: petsError }] =
+      await Promise.all([
+        supabase
+          .from('households')
+          .select('id, name, timezone, grace_window_minutes')
+          .in('id', householdIds),
+        supabase
+          .from('pets')
+          .select('id, name, photo_url, household_id')
+          .in('household_id', householdIds)
+          .order('created_at', { ascending: true })
+      ]);
 
-    return {
-      id: household.id,
-      name: household.name,
-      timezone: household.timezone,
-      graceWindowMinutes: household.grace_window_minutes,
-      role: membership.role,
-      isOwner: membership.role === 'owner'
-    };
+    if (householdsError) throw householdsError;
+    if (petsError) throw petsError;
+
+    const householdById = new Map(households.map((household) => [household.id, household]));
+
+    return memberships.flatMap((membership) => {
+      const household = householdById.get(membership.household_id);
+
+      if (!household) return [];
+
+      return [
+        {
+          id: household.id,
+          name: household.name,
+          timezone: household.timezone,
+          graceWindowMinutes: household.grace_window_minutes,
+          role: membership.role,
+          isOwner: membership.role === 'owner',
+          pets: pets
+            .filter((pet) => pet.household_id === household.id)
+            .map((pet) => ({ id: pet.id, name: pet.name, photoUrl: pet.photo_url }))
+        }
+      ];
+    });
   }
 
   export async function existsForUser(userId: string): Promise<boolean> {

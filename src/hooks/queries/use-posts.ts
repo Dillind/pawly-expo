@@ -7,7 +7,13 @@ import PostService, {
   type PostsCursor
 } from '@/services/post.service';
 import { useAuthStore } from '@/stores/auth-store';
-import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import {
+  useInfiniteQuery,
+  useMutation,
+  useQueries,
+  useQuery,
+  useQueryClient
+} from '@tanstack/react-query';
 
 const postsKey = (householdId: string | undefined) => ['posts', householdId];
 
@@ -188,6 +194,31 @@ export function useHasUnseenPosts(householdId: string | undefined) {
     queryFn: () => PostService.hasUnseen(householdId!),
     enabled: Boolean(householdId),
     refetchInterval: 60_000
+  });
+}
+
+/**
+ * The same yes/no for several households at once, keyed by household id.
+ *
+ * Feeds two surfaces from one set of queries: the dot on each switcher row, and
+ * the tab badge, which means "any household" rather than the active one --
+ * otherwise posts in the other households are invisible until you happen to
+ * switch. `useQueries` rather than one call so each household keeps its own
+ * cache entry and shares it with `useHasUnseenPosts`.
+ */
+export function useUnseenByHousehold(householdIds: string[]) {
+  return useQueries({
+    queries: householdIds.map((householdId) => ({
+      queryKey: ['posts-unseen', householdId],
+      queryFn: () => PostService.hasUnseen(householdId),
+      refetchInterval: 60_000
+    })),
+    combine: (results) => ({
+      byHousehold: Object.fromEntries(
+        householdIds.map((householdId, index) => [householdId, results[index]?.data ?? false])
+      ) as Record<string, boolean>,
+      hasAny: results.some((result) => result.data)
+    })
   });
 }
 

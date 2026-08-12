@@ -8,6 +8,7 @@ import ScreenScrollView from '@/components/layout/screen-scroll-view';
 import ScreenView from '@/components/layout/screen-view';
 import PetSection from '@/components/screens/home/pet-section';
 import ActionPopover from '@/components/ui/action-popover';
+import HouseholdSwitcher from '@/components/ui/household-switcher';
 import TileGrid from '@/components/ui/tile-grid';
 import { CREATE_ACTIONS } from '@/constants/create-actions';
 import { HOME_TILES } from '@/constants/home-tiles';
@@ -136,6 +137,8 @@ const Home = () => {
   return (
     <ScreenView>
       <ScreenScrollView contentContainerStyle={styles.content}>
+        <HouseholdSwitcher />
+
         {timezone && (
           <AppText size={14} color="textSecondary">
             {formatDayAndDate(new Date(), timezone)}

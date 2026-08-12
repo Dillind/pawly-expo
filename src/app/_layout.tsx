@@ -12,6 +12,7 @@ import { useColorScheme } from '@/hooks/use-color-scheme';
 import { usePushNotifications } from '@/hooks/use-push-notifications';
 import { useUserProfile } from '@/hooks/queries/use-user-profile';
 import { useAuthStore } from '@/stores/auth-store';
+import { useActiveHouseholdStore } from '@/stores/active-household-store';
 import { useThemeStore } from '@/stores/theme-store';
 import { isWeb } from '@/utils/platform';
 
@@ -43,10 +44,12 @@ const AuthGate = () => {
 export default function RootLayout() {
   const colorScheme = useColorScheme();
   const { hydrate } = useThemeStore();
+  const { hydrate: hydrateActiveHousehold } = useActiveHouseholdStore();
 
   useEffect(() => {
     void hydrate();
-  }, [hydrate]);
+    void hydrateActiveHousehold();
+  }, [hydrate, hydrateActiveHousehold]);
 
   // TanStack's documented React Native pattern. useFocusEffect does not fire
   // when the app returns from the background, which is the case that matters
