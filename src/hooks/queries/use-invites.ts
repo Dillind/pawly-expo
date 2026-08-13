@@ -29,6 +29,16 @@ export function useReceivedInvites() {
   });
 }
 
+/** What a scanned or typed code is offering, before anyone commits to it. */
+export function useInvitePreview(code: string | undefined) {
+  return useQuery({
+    queryKey: ['invite-preview', code],
+    queryFn: () => InviteService.preview(code as string),
+    enabled: Boolean(code),
+    retry: false
+  });
+}
+
 export function useCreateInvite(householdId: string | undefined) {
   const queryClient = useQueryClient();
 
@@ -89,17 +99,21 @@ export function useRedeemInvite() {
 
   return useMutation({
     mutationFn: (input: { code?: string; inviteId?: string }) => InviteService.redeem(input),
-    onSettled: () => {
-      void queryClient.invalidateQueries({ queryKey: ['households', userId] });
-      void queryClient.invalidateQueries({ queryKey: receivedKey(userId) });
-    },
-    onSuccess: (result) => {
+    onSettled: () => queryClient.invalidateQueries({ queryKey: receivedKey(userId) }),
+    onSuccess: async (result) => {
       const failure = REDEEM_FAILURES[result.status];
 
       if (failure) return showErrorToast(failure);
       if (result.status !== 'joined' || !result.householdId) return;
 
-      void setActiveHousehold(result.householdId);
+      // Refetch BEFORE storing the id, not after. useHousehold heals a stored
+      // id it cannot find by falling back to the first household — so setting
+      // the new id while the list is still stale gets it overwritten, and the
+      // join looks like it did nothing.
+      await queryClient.refetchQueries({ queryKey: ['households', userId] });
+      await setActiveHousehold(result.householdId);
+
+      showSuccessToast(SuccessMessage.HouseholdJoined);
     },
     onError: (error) => {
       console.error(error);

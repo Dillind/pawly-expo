@@ -19,6 +19,20 @@ export type ReceivedInvite = PendingInvite & {
 
 export type CreateInviteStatus = 'created' | 'already_member' | 'not_owner';
 
+export type PreviewStatus =
+  | 'valid'
+  | 'already_member'
+  | 'already_used'
+  | 'expired'
+  | 'revoked'
+  | 'not_found';
+
+export type InvitePreview = {
+  status: PreviewStatus;
+  householdName?: string;
+  role?: HouseholdRole;
+};
+
 export type RedeemStatus =
   | 'joined'
   | 'already_member'
@@ -122,6 +136,23 @@ namespace InviteService {
           [invitedBy?.first_name, invitedBy?.last_name].filter(Boolean).join(' ') || null
       };
     });
+  }
+
+  /**
+   * What a code is offering, without accepting it. Holding the code is the
+   * authorisation — the select policy covers owners and the named invitee, and
+   * someone who scanned a QR is usually neither.
+   */
+  export async function preview(code: string): Promise<InvitePreview> {
+    const { data, error } = await supabase.rpc('preview_household_invite', {
+      invite_code: code
+    });
+
+    if (error) throw error;
+
+    const result = data as { status: PreviewStatus; household_name?: string; role?: HouseholdRole };
+
+    return { status: result.status, householdName: result.household_name, role: result.role };
   }
 
   export async function revoke(inviteId: string): Promise<void> {

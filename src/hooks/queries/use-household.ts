@@ -24,11 +24,18 @@ export function useHousehold() {
 
   // Heal the stored id so a household left and later rejoined does not silently
   // become active again.
+  //
+  // Never while a refetch is in flight. Joining a household sets the stored id
+  // and invalidates this query in the same tick, so for a moment the new
+  // household is not in `households` yet -- healing then would overwrite the id
+  // that was just chosen with whatever happens to be first, and the join would
+  // appear to do nothing.
   useEffect(() => {
-    if (!hasHydrated || !active || active.id === activeHouseholdId) return;
+    if (!hasHydrated || query.isFetching) return;
+    if (!active || active.id === activeHouseholdId) return;
 
     void setActiveHousehold(active.id);
-  }, [hasHydrated, active, activeHouseholdId, setActiveHousehold]);
+  }, [hasHydrated, query.isFetching, active, activeHouseholdId, setActiveHousehold]);
 
   return {
     ...query,

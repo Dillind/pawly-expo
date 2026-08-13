@@ -1,5 +1,6 @@
 import AppText from '@/components/core/app-text';
 import MainButton from '@/components/core/main-button';
+import { inviteLink } from '@/constants/invite-link';
 import { Radius, type AppTheme } from '@/constants/theme';
 import { useStyles } from '@/hooks/use-styles';
 import { Share, StyleSheet, View } from 'react-native';
@@ -25,7 +26,7 @@ const InviteCodeCard = ({ code, householdName }: Props) => {
 
   const share = () => {
     void Share.share({
-      message: `Join ${householdName} on Crumpet. Open the app, tap Join a household, and enter ${code}`
+      message: `Join ${householdName} on Crumpet: ${inviteLink(code)}\n\nOr open the app, tap Join a household, and enter ${code}`
     });
   };
 
@@ -36,7 +37,9 @@ const InviteCodeCard = ({ code, householdName }: Props) => {
       </AppText>
 
       <View style={styles.qr}>
-        <QRCode value={code} size={QR_SIZE} backgroundColor="#FFFFFF" color="#000000" />
+        {/* The deep link, not the bare code: scanning with the Camera app
+            has to offer to open Crumpet, not hand back a meaningless string. */}
+        <QRCode value={inviteLink(code)} size={QR_SIZE} backgroundColor="#FFFFFF" color="#000000" />
       </View>
 
       <AppText variant="header" size={30} align="center" style={styles.code}>
