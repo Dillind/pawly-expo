@@ -1,6 +1,7 @@
 import InfoSheet from '@/components/bottom-sheets/info-sheet';
 import AppText from '@/components/core/app-text';
 import DropdownPickerValidated from '@/components/core/dropdown-picker-validated';
+import IconButton from '@/components/core/icon-button';
 import MainButton from '@/components/core/main-button';
 import TextInputValidated from '@/components/core/text-input-validated';
 import ScreenScrollView from '@/components/layout/screen-scroll-view';
@@ -17,7 +18,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import type { TrueSheet } from '@lodev09/react-native-true-sheet';
 import { useRef, useState } from 'react';
 import { Controller, FormProvider, useForm, useWatch } from 'react-hook-form';
-import { Pressable, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 
 /**
  * A screen rather than a sheet, for two reasons. It carries a form, a role
@@ -80,28 +81,36 @@ const InviteMember = () => {
               )}
             />
 
-            <Controller
-              control={control}
-              name="role"
-              render={({ field: { onChange } }) => (
-                <DropdownPickerValidated
-                  name="role"
-                  label="Role"
-                  options={ROLE_OPTIONS}
-                  value={role ?? 'contributor'}
-                  onChange={onChange}
+            {/* The label is drawn here rather than by the picker so the help
+                icon can sit beside it — same treatment as the Care Card
+                editor's header. */}
+            <View style={styles.field}>
+              <View style={styles.labelRow}>
+                <AppText size={14} fontWeight="bold">
+                  Role
+                </AppText>
+                <IconButton
+                  name="help"
+                  accessibilityLabel="What do these roles mean?"
+                  variant="ghost"
+                  size={18}
+                  onPress={() => void infoSheetRef.current?.present()}
                 />
-              )}
-            />
+              </View>
 
-            <Pressable
-              accessibilityRole="button"
-              accessibilityLabel="What do these roles mean?"
-              onPress={() => void infoSheetRef.current?.present()}>
-              <AppText size={14} color="primary">
-                What do these roles mean?
-              </AppText>
-            </Pressable>
+              <Controller
+                control={control}
+                name="role"
+                render={({ field: { onChange } }) => (
+                  <DropdownPickerValidated
+                    name="role"
+                    options={ROLE_OPTIONS}
+                    value={role ?? 'contributor'}
+                    onChange={onChange}
+                  />
+                )}
+              />
+            </View>
 
             <MainButton
               text={isSending ? 'Sending…' : 'Send invite'}
@@ -133,7 +142,9 @@ const makeStyles = ({ spacing }: AppTheme) =>
       paddingBottom: BottomTabInset + spacing.four,
       gap: spacing.four
     },
-    form: { gap: spacing.three }
+    form: { gap: spacing.three },
+    field: { gap: spacing.one },
+    labelRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.one }
   });
 
 export default InviteMember;

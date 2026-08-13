@@ -20,7 +20,7 @@ import {
 import { usePendingInvites, useRevokeInvite } from '@/hooks/queries/use-invites';
 import { useStyles } from '@/hooks/use-styles';
 import { useAuthStore } from '@/stores/auth-store';
-import type { HouseholdMember } from '@/types/core';
+import type { HouseholdMember, HouseholdRole } from '@/types/core';
 import { fullName } from '@/utils/members';
 import { optionLabel } from '@/utils/options';
 import type { TrueSheet } from '@lodev09/react-native-true-sheet';
@@ -45,11 +45,29 @@ const MembersList = () => {
   const { mutate: setMemberRole } = useSetMemberRole(householdId);
   const { mutate: removeMember } = useRemoveMember(householdId);
   const { mutate: leaveHousehold, isPending: isLeaving } = useLeaveHousehold(householdId);
-  const { data: pendingInvites = [] } = usePendingInvites(isOwnerOfHousehold ? householdId : undefined);
+  const { data: pendingInvites = [] } = usePendingInvites(
+    isOwnerOfHousehold ? householdId : undefined
+  );
   const { mutate: revokeInvite } = useRevokeInvite(householdId);
 
+  // Grouped by role, and within a group the signed-in member comes first --
+  // "who am I here, and who else is" is the question this screen answers, and
+  // hunting for your own row is the slow way to answer it.
+  const byRole = (role: HouseholdRole) =>
+    members
+      .filter((member) => member.role === role)
+      .sort((a, b) => {
+        if (a.userId === userId) return -1;
+        if (b.userId === userId) return 1;
+
+        return (fullName(a) || '').localeCompare(fullName(b) || '');
+      });
+
+  const owners = byRole('owner');
+  const contributors = byRole('contributor');
+
   const isOwner = household?.isOwner ?? false;
-  const ownerCount = members.filter((member) => member.role === 'owner').length;
+  const ownerCount = owners.length;
   // The last owner cannot leave: nobody would be left who could rename the
   // household, add a pet or invite anyone.
   const isLastOwner = isOwner && ownerCount <= 1;
@@ -103,12 +121,11 @@ const MembersList = () => {
           lastName={member.lastName}
           size={AVATAR_SIZE}
         />
+        {/* No role on the row: the section heading above already says it, and
+            repeating it on every line is noise. */}
         <AppText size={16} style={styles.name} numberOfLines={1}>
           {fullName(member) || 'Member'}
           {isSelf ? ' (you)' : ''}
-        </AppText>
-        <AppText size={14} color="textSecondary">
-          {optionLabel(ROLE_OPTIONS, member.role)}
         </AppText>
 
         {isOwner && !isSelf && <Icon name="caretRight" size={16} color="textSecondary" />}
@@ -138,9 +155,21 @@ const MembersList = () => {
       <ScreenScrollView
         contentContainerStyle={styles.content}
         contentInsetAdjustmentBehavior="automatic">
-        <SettingsSection dividerInset={Spacing.three + AVATAR_SIZE + Spacing.three}>
-          {members.map(renderMember)}
-        </SettingsSection>
+        {owners.length > 0 && (
+          <SettingsSection
+            title={owners.length === 1 ? 'Owner' : 'Owners'}
+            dividerInset={Spacing.three + AVATAR_SIZE + Spacing.three}>
+            {owners.map(renderMember)}
+          </SettingsSection>
+        )}
+
+        {contributors.length > 0 && (
+          <SettingsSection
+            title={contributors.length === 1 ? 'Contributor' : 'Contributors'}
+            dividerInset={Spacing.three + AVATAR_SIZE + Spacing.three}>
+            {contributors.map(renderMember)}
+          </SettingsSection>
+        )}
 
         {isOwner && pendingInvites.length > 0 && (
           <SettingsSection title="Invited">
