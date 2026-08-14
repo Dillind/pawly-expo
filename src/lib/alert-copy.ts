@@ -52,14 +52,14 @@ export function alertSentence(alert: Alert): AlertSentence {
   }
 }
 
-export type AlertGlyph = 'utensils' | 'alertCircle' | 'image' | 'users';
+export type AlertGlyph = 'utensils' | 'circleAlert' | 'image' | 'users';
 
 export const alertGlyph = (kind: Alert['kind']): AlertGlyph => {
   switch (kind) {
     case 'feed_logged':
       return 'utensils';
     case 'missed_feed':
-      return 'alertCircle';
+      return 'circleAlert';
     case 'post':
       return 'image';
     default:

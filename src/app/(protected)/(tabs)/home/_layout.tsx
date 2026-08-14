@@ -41,6 +41,15 @@ export default function HomeLayout() {
           }}
         />
         <Stack.Screen
+          name="notifications"
+          options={{
+            headerShown: true,
+            headerTitle: 'Notifications',
+            headerBackTitle: 'Home',
+            headerBackButtonDisplayMode: 'minimal'
+          }}
+        />
+        <Stack.Screen
           name="join-household"
           options={{
             headerShown: true,

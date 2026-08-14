@@ -101,7 +101,7 @@ describe('alertGlyph', () => {
 
   it('distinguishes the rest', () => {
     expect(alertGlyph('feed_logged')).toBe('utensils');
-    expect(alertGlyph('missed_feed')).toBe('alertCircle');
+    expect(alertGlyph('missed_feed')).toBe('circleAlert');
     expect(alertGlyph('post')).toBe('image');
   });
 });
