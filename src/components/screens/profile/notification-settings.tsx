@@ -5,6 +5,7 @@ import ToggleSwitch from '@/components/core/toggle-switch';
 import ScreenScrollView from '@/components/layout/screen-scroll-view';
 import ScreenView from '@/components/layout/screen-view';
 import { BottomTabInset, type AppTheme } from '@/constants/theme';
+import { useHousehold } from '@/hooks/queries/use-household';
 import { useNotificationPreferences } from '@/hooks/queries/use-notification-preferences';
 import {
   NOTIFICATION_PERMISSION_QUERY_KEY,
@@ -26,7 +27,10 @@ import { ActivityIndicator, Linking, StyleSheet, View } from 'react-native';
  */
 const NotificationSettings = () => {
   const styles = useStyles(makeStyles);
-  const { data: preferences, isLoading, setPreference } = useNotificationPreferences();
+  const { data: household } = useHousehold();
+  const { data: preferences, isLoading, setPreference } = useNotificationPreferences(
+    household?.id
+  );
 
   const requestPermission = useRequestNotificationPermission();
 
@@ -63,6 +67,16 @@ const NotificationSettings = () => {
 
     return (
       <>
+        {/* These are stored per membership, so they apply to this household
+            alone. Naming it is the only thing stopping a member of several
+            believing they have just silenced all of them. */}
+        {household && (
+          <AppText size={14} color="textSecondary">
+            What {household.name} will and won&apos;t send you. Each household you belong to has its
+            own settings.
+          </AppText>
+        )}
+
         <SettingsSection title="Feeds">
           <View style={styles.toggleRow}>
             <ToggleSwitch

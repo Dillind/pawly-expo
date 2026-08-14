@@ -2,13 +2,13 @@ import AppText from '@/components/core/app-text';
 import Icon from '@/components/core/icon';
 import IconButton from '@/components/core/icon-button';
 import ScreenView from '@/components/layout/screen-view';
-import CareCardHelpSheets, {
-  type CareCardHelpHandle
-} from '@/components/screens/pet/care-card/care-card-help-sheets';
 import MedicationsStep from '@/components/screens/pet/care-card-steps/medications-step';
 import ReachingYouStep from '@/components/screens/pet/care-card-steps/reaching-you-step';
 import ReviewStep from '@/components/screens/pet/care-card-steps/review-step';
 import SectionStep from '@/components/screens/pet/care-card-steps/section-step';
+import CareCardHelpSheets, {
+  type CareCardHelpHandle
+} from '@/components/screens/pet/care-card/care-card-help-sheets';
 import { CARE_CARD_STEPS } from '@/constants/care-card-fields';
 import { Radius, Spacing, type AppTheme } from '@/constants/theme';
 import { useCareCardData } from '@/hooks/queries/use-care-card';
@@ -17,8 +17,8 @@ import { useShareCareCard } from '@/hooks/use-share-care-card';
 import { useStyles } from '@/hooks/use-styles';
 import { formatDateWithYear } from '@/lib/dates';
 import { hapticLight } from '@/lib/haptics';
+import { isIOS } from '@/utils/platform';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRef, useState } from 'react';
 import {
   ActivityIndicator,
@@ -28,7 +28,7 @@ import {
   View
 } from 'react-native';
 import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
-import { isIOS } from '@/utils/platform';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const PROGRESS_DURATION_MS = 260;
 
@@ -63,8 +63,6 @@ const CareCardEditor = () => {
     });
   };
 
-  // Each step saves before advancing, so closing loses at most the current
-  // step -- hence no "discard changes?" prompt.
   const close = () => router.back();
 
   // The household's timezone, matching the stamp useShareCareCard puts on the
@@ -73,8 +71,6 @@ const CareCardEditor = () => {
   const generatedOn = formatDateWithYear(new Date(), zone);
 
   return (
-    // Manual inset: as a fullScreenModal the safe-area provider reports a top
-    // inset of 0 and the header lands on the clock.
     <ScreenView edges={[]}>
       <View style={[styles.header, { paddingTop: Math.max(insets.top, Spacing.three) }]}>
         <IconButton
@@ -144,7 +140,6 @@ const CareCardEditor = () => {
 
             {step.kind === 'section' && (
               <SectionStep
-                // Remounts per step so defaults come from freshly fetched values.
                 key={step.id}
                 petId={petId}
                 card={card}
@@ -197,8 +192,16 @@ const makeStyles = ({ spacing, colors }: AppTheme) =>
       paddingHorizontal: spacing.three,
       paddingBottom: spacing.two
     },
-    headerTitle: { flexDirection: 'row', alignItems: 'center', gap: spacing.one },
-    headerRight: { flexDirection: 'row', alignItems: 'center', gap: spacing.two },
+    headerTitle: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: spacing.one
+    },
+    headerRight: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: spacing.two
+    },
     track: {
       height: 3,
       marginHorizontal: spacing.three,
@@ -206,14 +209,24 @@ const makeStyles = ({ spacing, colors }: AppTheme) =>
       backgroundColor: colors.backgroundSelected,
       overflow: 'hidden'
     },
-    progress: { height: 3, borderRadius: Radius.full, backgroundColor: colors.primary },
-    loading: { flex: 1, alignItems: 'center', justifyContent: 'center' },
+    progress: {
+      height: 3,
+      borderRadius: Radius.full,
+      backgroundColor: colors.primary
+    },
+    loading: {
+      flex: 1,
+      alignItems: 'center',
+      justifyContent: 'center'
+    },
     content: {
       padding: spacing.three,
       paddingBottom: spacing.six,
       gap: spacing.three
     },
-    title: { paddingTop: spacing.two }
+    title: {
+      paddingTop: spacing.two
+    }
   });
 
 export default CareCardEditor;

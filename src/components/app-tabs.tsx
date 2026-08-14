@@ -1,13 +1,17 @@
-import { useHousehold } from '@/hooks/queries/use-household';
-import { useHasUnseenPosts } from '@/hooks/queries/use-posts';
+import { useHouseholds } from '@/hooks/queries/use-households';
+import { useUnseenByHousehold } from '@/hooks/queries/use-posts';
 import { useTheme } from '@/hooks/use-theme';
 import { NativeTabs } from 'expo-router/unstable-native-tabs';
 
 export default function AppTabs() {
   const theme = useTheme();
 
-  const { data: household } = useHousehold();
-  const { data: hasUnseenPosts } = useHasUnseenPosts(household?.id);
+  const { data: households = [] } = useHouseholds();
+  // Across every household, not just the active one -- otherwise posts in the
+  // others stay invisible until the user happens to switch.
+  const { hasAny: hasUnseenPosts } = useUnseenByHousehold(
+    households.map((household) => household.id)
+  );
 
   return (
     <NativeTabs

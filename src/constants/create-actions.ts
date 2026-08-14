@@ -5,7 +5,7 @@ export const CREATE_ACTIONS: ActionPopoverAction[] = [
     icon: 'userPlus',
     title: 'Invite someone',
     subtitle: 'Share your household with a carer',
-    isDisabled: true
+    href: '/profile/settings/invite'
   },
   {
     icon: 'pawPrint',

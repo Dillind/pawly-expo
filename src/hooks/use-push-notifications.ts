@@ -4,7 +4,9 @@ import { useEffect, useRef } from 'react';
 import { AppState, type AppStateStatus } from 'react-native';
 
 import { useHousehold } from '@/hooks/queries/use-household';
+import { useHouseholds } from '@/hooks/queries/use-households';
 import PushTokenService from '@/services/push-token.service';
+import { useActiveHouseholdStore } from '@/stores/active-household-store';
 import { useAuthStore } from '@/stores/auth-store';
 
 // shouldShowAlert is deprecated in SDK 57, and setting it alongside
@@ -30,6 +32,8 @@ export const usePushNotifications = () => {
   const router = useRouter();
   const { status, userId } = useAuthStore();
   const { data: household } = useHousehold();
+  const { data: households = [] } = useHouseholds();
+  const { setActiveHousehold } = useActiveHouseholdStore();
 
   const handledResponseId = useRef<string | null>(null);
 
@@ -76,9 +80,25 @@ export const usePushNotifications = () => {
     const data = lastResponse.notification.request.content.data;
     if (!data?.screen) return;
 
-    router.navigate({
-      pathname: data.screen as RelativePathString,
-      params: data.params as Record<string, string>
-    });
-  }, [lastResponse, status, household, router]);
+    const navigate = () =>
+      router.navigate({
+        pathname: data.screen as RelativePathString,
+        params: data.params as Record<string, string>
+      });
+
+    // A push belongs to a household, which may not be the active one. Switch
+    // first, or the tap lands on the right screen showing the wrong pets.
+    const targetId = data.householdId as string | undefined;
+
+    if (!targetId) return navigate();
+
+    // Left the household, or were removed from it. There is nothing to show and
+    // no household to switch to, so do nothing rather than route somewhere that
+    // will render an error.
+    if (!households.some((candidate) => candidate.id === targetId)) return;
+
+    if (targetId === household.id) return navigate();
+
+    void setActiveHousehold(targetId).then(navigate);
+  }, [lastResponse, status, household, households, setActiveHousehold, router]);
 };

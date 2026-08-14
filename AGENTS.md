@@ -14,17 +14,20 @@ Expo changes fast and the model's training data is often stale. This project is 
 - **Tech stack (with install status):** [docs/TECH_STACK.md](./docs/TECH_STACK.md)
 - **Theming:** [docs/THEMING.md](./docs/THEMING.md)
 - **Domain language (glossary):** [CONTEXT.md](./CONTEXT.md) — use these exact terms
-- **Architecture decisions:** [docs/adr/](./docs/adr/) — untracked, see below
+- **Architecture decisions:** [docs/adr/](./docs/adr/)
 
 Before naming things or discussing the domain, skim `CONTEXT.md`. Before changing architecture, skim the ADRs.
 
-**`docs/adr/` and `docs/agents/` are gitignored deliberately.** They live on your machine, not in
-the repository. Two things follow, and the second one bites quietly:
+**`docs/adr/` is tracked.** It was gitignored between `79c650d` and this commit, and all nineteen
+files were deleted from the working tree during that window. They are restored. Two things follow:
 
-- Links to those files elsewhere in this document resolve locally and **not** on a fresh clone.
-- `git add` skips new files in them **without saying so**. Write the ADR anyway — it just stays
-  local. `git add -f` is the only way one reaches a commit, and that is a deliberate act, not the
-  default.
+- **Numbering came out of that window damaged.** The CRU-008 invite design of 2026-08-05 wrote
+  ADRs numbered 0016–0018, but those numbers belong to the late-feed, posts and post-editing
+  decisions. Those three invite ADRs were never committed and no longer exist. Their content
+  survives in [issue #44](https://github.com/Dillind/pawly-expo/issues/44). **Take the next number
+  from `ls docs/adr/`, never from memory.**
+- **`docs/agents/` is still gitignored**, so `git add` skips new files there without saying so.
+  `git add -f` is the only way one reaches a commit, and that is a deliberate act.
 
 ## How to write your replies
 
@@ -692,7 +695,7 @@ Single-context — `CONTEXT.md` and `docs/adr/` at the root. See [docs/agents/do
 
 ## Domain modelling discipline
 
-This project keeps a live domain model. When you introduce or sharpen a domain term, update [CONTEXT.md](./CONTEXT.md) in the same change. When you make a decision that is hard to reverse, surprising without context, and the result of a real trade-off, add an ADR in `docs/adr/` — still worth writing, still untracked, see the note at the top. Keep `CONTEXT.md` free of implementation detail — it is a glossary.
+This project keeps a live domain model. When you introduce or sharpen a domain term, update [CONTEXT.md](./CONTEXT.md) in the same change. When you make a decision that is hard to reverse, surprising without context, and the result of a real trade-off, add an ADR in `docs/adr/`, numbered from `ls docs/adr/` rather than from memory — see the note at the top. Keep `CONTEXT.md` free of implementation detail — it is a glossary.
 
 ## Open questions / known issues
 

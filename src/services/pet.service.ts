@@ -91,7 +91,16 @@ namespace PetService {
     if (error) throw error;
   }
 
-  export async function add(input: AddPetInput): Promise<Pet> {
+  /**
+   * `householdId` is explicit because only the caller knows which household is
+   * active. `null` means the user has none, and the RPC creates one with them as
+   * its owner — which is how a first pet and a fifth take the same path.
+   */
+  export async function add(
+    input: AddPetInput,
+    householdId: string | null,
+    timezone: string
+  ): Promise<Pet> {
     const { data, error } = await supabase
       .rpc('add_pet', {
         pet_name: input.name,
@@ -100,7 +109,9 @@ namespace PetService {
         pet_birthdate: input.birthdate,
         pet_birthdate_is_approximate: input.birthdateIsApproximate,
         pet_photo_url: input.photoUrl,
-        feeding_times: input.feedingTimes
+        feeding_times: input.feedingTimes,
+        target_household_id: householdId,
+        household_timezone: timezone
       })
       .single();
 

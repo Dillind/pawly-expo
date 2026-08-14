@@ -1,23 +1,117 @@
+import MemberActionsSheet from '@/components/bottom-sheets/member-actions-sheet';
 import AppText from '@/components/core/app-text';
 import AvatarInitials from '@/components/core/avatar-initials';
 import ErrorState from '@/components/core/error-state';
+import Icon from '@/components/core/icon';
+import PressableOpacity from '@/components/core/pressable-opacity';
 import SettingsRow from '@/components/core/settings-row';
 import SettingsSection from '@/components/core/settings-section';
 import ScreenScrollView from '@/components/layout/screen-scroll-view';
 import ScreenView from '@/components/layout/screen-view';
-import { ROLE_OPTIONS } from '@/constants/options';
 import { BottomTabInset, Spacing, type AppTheme } from '@/constants/theme';
+import { useHousehold } from '@/hooks/queries/use-household';
 import { useHouseholdMembers } from '@/hooks/queries/use-household-members';
+import {
+  useLeaveHousehold,
+  useRemoveMember,
+  useSetMemberRole
+} from '@/hooks/queries/use-membership-mutations';
+import { usePendingInvites, useRevokeInvite } from '@/hooks/queries/use-invites';
 import { useStyles } from '@/hooks/use-styles';
-import { fullName } from '@/utils/members';
-import { optionLabel } from '@/utils/options';
-import { ActivityIndicator, StyleSheet, View } from 'react-native';
+import { useAuthStore } from '@/stores/auth-store';
+import type { HouseholdMember, HouseholdRole } from '@/types/core';
+import { fullName, roleLabel } from '@/utils/members';
+import type { TrueSheet } from '@lodev09/react-native-true-sheet';
+import { useRouter } from 'expo-router';
+import { useRef, useState } from 'react';
+import { Alert, ActivityIndicator, InteractionManager, StyleSheet, View } from 'react-native';
 
 const AVATAR_SIZE = 36;
 
 const MembersList = () => {
   const styles = useStyles(makeStyles);
+  const router = useRouter();
+  const actionsSheetRef = useRef<TrueSheet | null>(null);
+  const [activeMember, setActiveMember] = useState<HouseholdMember | undefined>(undefined);
+
+  const { userId } = useAuthStore();
+  const { data: household } = useHousehold();
   const { data: members = [], isLoading, isError, refetch } = useHouseholdMembers();
+
+  const householdId = household?.id;
+  const isOwnerOfHousehold = household?.isOwner ?? false;
+  const { mutate: setMemberRole } = useSetMemberRole(householdId);
+  const { mutate: removeMember } = useRemoveMember(householdId);
+  const { mutate: leaveHousehold, isPending: isLeaving } = useLeaveHousehold(householdId);
+  const { data: pendingInvites = [] } = usePendingInvites(
+    isOwnerOfHousehold ? householdId : undefined
+  );
+  const { mutate: revokeInvite } = useRevokeInvite(householdId);
+
+  // Grouped by role, and within a group the signed-in member comes first --
+  // "who am I here, and who else is" is the question this screen answers, and
+  // hunting for your own row is the slow way to answer it.
+  const byRole = (role: HouseholdRole) =>
+    members
+      .filter((member) => member.role === role)
+      .sort((a, b) => {
+        if (a.userId === userId) return -1;
+        if (b.userId === userId) return 1;
+
+        return (fullName(a) || '').localeCompare(fullName(b) || '');
+      });
+
+  const owners = byRole('owner');
+  const contributors = byRole('contributor');
+
+  const isOwner = household?.isOwner ?? false;
+  const ownerCount = owners.length;
+  // The last owner cannot leave: nobody would be left who could rename the
+  // household, add a pet or invite anyone.
+  const isLastOwner = isOwner && ownerCount <= 1;
+
+  const confirmRevoke = (inviteId: string, email: string) => {
+    Alert.alert(`Revoke the invite for ${email}?`, 'The code stops working straight away.', [
+      { text: 'Cancel', style: 'cancel', isPreferred: true },
+      { text: 'Revoke', style: 'destructive', onPress: () => revokeInvite(inviteId) }
+    ]);
+  };
+
+  const confirmLeave = () => {
+    if (isLastOwner) {
+      const promotable = contributors[0];
+
+      Alert.alert(
+        'You are the only owner',
+        promotable
+          ? `Make someone else an owner first. Shall we start with ${fullName(promotable) || 'a contributor'}?`
+          : 'Invite someone and make them an owner first, then you can leave.',
+        promotable
+          ? [
+              { text: 'Cancel', style: 'cancel', isPreferred: true },
+              {
+                text: 'Choose someone',
+                onPress: () => {
+                  setActiveMember(promotable);
+                  // A sheet raised while the alert is still dismissing gets
+                  // swallowed by UIKit -- the same conflict the Popovers rule
+                  // warns about.
+                  InteractionManager.runAfterInteractions(() => {
+                    void actionsSheetRef.current?.present();
+                  });
+                }
+              }
+            ]
+          : [{ text: 'OK', style: 'cancel', isPreferred: true }]
+      );
+      return;
+    }
+
+    Alert.alert(`Leave ${household?.name ?? 'this household'}?`, 'You lose access to its pets.', [
+      { text: 'Cancel', style: 'cancel', isPreferred: true },
+      { text: 'Leave', style: 'destructive', onPress: () => leaveHousehold() }
+    ]);
+  };
 
   if (isLoading) {
     return (
@@ -35,34 +129,122 @@ const MembersList = () => {
     );
   }
 
+  const renderMember = (member: HouseholdMember) => {
+    const isSelf = member.userId === userId;
+
+    const row = (
+      <View style={styles.row}>
+        <AvatarInitials
+          firstName={member.firstName}
+          lastName={member.lastName}
+          size={AVATAR_SIZE}
+        />
+        {/* No role on the row: the section heading above already says it, and
+            repeating it on every line is noise. */}
+        <AppText size={16} style={styles.name} numberOfLines={1}>
+          {fullName(member) || 'Member'}
+          {isSelf ? ' (you)' : ''}
+        </AppText>
+
+        {isOwner && !isSelf && <Icon name="caretRight" size={16} color="textSecondary" />}
+      </View>
+    );
+
+    // Only an owner acts on someone else. Acting on yourself is leaving, which
+    // is its own row below.
+    if (!isOwner || isSelf) return <View key={member.userId}>{row}</View>;
+
+    return (
+      <PressableOpacity
+        key={member.userId}
+        accessibilityRole="button"
+        accessibilityLabel={`Manage ${fullName(member) || 'member'}`}
+        onPress={() => {
+          setActiveMember(member);
+          void actionsSheetRef.current?.present();
+        }}>
+        {row}
+      </PressableOpacity>
+    );
+  };
+
   return (
     <ScreenView edges={[]}>
       <ScreenScrollView
         contentContainerStyle={styles.content}
         contentInsetAdjustmentBehavior="automatic">
-        <SettingsSection dividerInset={Spacing.three + AVATAR_SIZE + Spacing.three}>
-          {members.map((member) => (
-            <View key={member.userId} style={styles.row}>
-              <AvatarInitials
-                firstName={member.firstName}
-                lastName={member.lastName}
-                size={AVATAR_SIZE}
-              />
-              <AppText size={16} style={styles.name} numberOfLines={1}>
-                {fullName(member) || 'Member'}
-              </AppText>
-              <AppText size={14} color="textSecondary">
-                {optionLabel(ROLE_OPTIONS, member.role)}
-              </AppText>
-            </View>
-          ))}
-        </SettingsSection>
+        {owners.length > 0 && (
+          <SettingsSection
+            title={owners.length === 1 ? 'Owner' : 'Owners'}
+            dividerInset={Spacing.three + AVATAR_SIZE + Spacing.three}>
+            {owners.map(renderMember)}
+          </SettingsSection>
+        )}
+
+        {contributors.length > 0 && (
+          <SettingsSection
+            title={contributors.length === 1 ? 'Contributor' : 'Contributors'}
+            dividerInset={Spacing.three + AVATAR_SIZE + Spacing.three}>
+            {contributors.map(renderMember)}
+          </SettingsSection>
+        )}
+
+        {isOwner && pendingInvites.length > 0 && (
+          <SettingsSection title="Invited">
+            {pendingInvites.map((invite) => (
+              <View key={invite.id} style={styles.row}>
+                <View style={styles.name}>
+                  <AppText size={16} numberOfLines={1}>
+                    {invite.email}
+                  </AppText>
+                  <AppText size={13} color="textSecondary">
+                    {roleLabel(invite.role)} · code {invite.code}
+                  </AppText>
+                </View>
+                <PressableOpacity
+                  accessibilityRole="button"
+                  accessibilityLabel={`Revoke the invite for ${invite.email}`}
+                  onPress={() => confirmRevoke(invite.id, invite.email)}>
+                  <AppText size={14} color="error">
+                    Revoke
+                  </AppText>
+                </PressableOpacity>
+              </View>
+            ))}
+          </SettingsSection>
+        )}
+
+        {isOwner && (
+          <SettingsSection>
+            <SettingsRow
+              icon="userPlus"
+              label="Invite a member"
+              onPress={() => router.push('/profile/settings/invite')}
+            />
+          </SettingsSection>
+        )}
 
         <SettingsSection>
-          <SettingsRow icon="userPlus" label="Invite a member" isSoon />
-          <SettingsRow icon="close" label="Remove a member" isSoon />
+          <SettingsRow
+            icon="logOut"
+            label="Leave household"
+            variant="destructive"
+            isDisabled={isLeaving}
+            onPress={confirmLeave}
+          />
         </SettingsSection>
       </ScreenScrollView>
+
+      <MemberActionsSheet
+        sheetRef={actionsSheetRef}
+        member={activeMember}
+        onSetRole={(role) => {
+          if (activeMember) setMemberRole({ userId: activeMember.userId, role });
+        }}
+        onRemove={() => {
+          if (activeMember) removeMember(activeMember.userId);
+        }}
+      />
     </ScreenView>
   );
 };

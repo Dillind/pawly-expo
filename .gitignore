@@ -50,7 +50,6 @@ example
 .vscode
 
 # docs
-docs/adr
 docs/agents
 .docs/superpowers
 

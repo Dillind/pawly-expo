@@ -15,6 +15,7 @@ export default function ProfileLayout() {
         <Stack.Screen name="settings/account" options={{ headerTitle: 'Account' }} />
         <Stack.Screen name="settings/notifications" options={{ headerTitle: 'Notifications' }} />
         <Stack.Screen name="settings/members" options={{ headerTitle: 'Members' }} />
+        <Stack.Screen name="settings/invite" options={{ headerTitle: 'Invite someone' }} />
       </Stack>
     </>
   );

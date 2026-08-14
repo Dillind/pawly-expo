@@ -88,15 +88,19 @@ describe('PetService.add', () => {
   });
 
   it('translates the domain shape into the RPC argument names', async () => {
-    await PetService.add({
-      name: 'Miso',
-      breed: 'Ragdoll',
-      sex: 'female',
-      birthdate: '2024-02-01',
-      birthdateIsApproximate: true,
-      photoUrl: null,
-      feedingTimes: [{ scheduledTime: '07:00', label: 'morning' }]
-    });
+    await PetService.add(
+      {
+        name: 'Miso',
+        breed: 'Ragdoll',
+        sex: 'female',
+        birthdate: '2024-02-01',
+        birthdateIsApproximate: true,
+        photoUrl: null,
+        feedingTimes: [{ scheduledTime: '07:00', label: 'morning' }]
+      },
+      'household-1',
+      'Australia/Melbourne'
+    );
 
     expect(mockRpc).toHaveBeenCalledWith('add_pet', {
       pet_name: 'Miso',
@@ -105,8 +109,36 @@ describe('PetService.add', () => {
       pet_birthdate: '2024-02-01',
       pet_birthdate_is_approximate: true,
       pet_photo_url: null,
-      feeding_times: [{ scheduledTime: '07:00', label: 'morning' }]
+      feeding_times: [{ scheduledTime: '07:00', label: 'morning' }],
+      target_household_id: 'household-1',
+      household_timezone: 'Australia/Melbourne'
     });
+  });
+
+  // Null is not "unset" -- it is what tells the RPC to create a household and
+  // make the caller its owner, which is the whole of onboarding now.
+  it('passes a null household through rather than omitting it', async () => {
+    await PetService.add(
+      {
+        name: 'Miso',
+        breed: 'Ragdoll',
+        sex: 'female',
+        birthdate: '2024-02-01',
+        birthdateIsApproximate: true,
+        photoUrl: null,
+        feedingTimes: []
+      },
+      null,
+      'Pacific/Auckland'
+    );
+
+    expect(mockRpc).toHaveBeenCalledWith(
+      'add_pet',
+      expect.objectContaining({
+        target_household_id: null,
+        household_timezone: 'Pacific/Auckland'
+      })
+    );
   });
 
   it('maps the returned row back into the domain shape', async () => {
@@ -116,15 +148,19 @@ describe('PetService.add', () => {
     });
 
     await expect(
-      PetService.add({
-        name: 'Miso',
-        breed: 'Ragdoll',
-        sex: 'female',
-        birthdate: '2024-02-01',
-        birthdateIsApproximate: false,
-        photoUrl: null,
-        feedingTimes: []
-      })
+      PetService.add(
+        {
+          name: 'Miso',
+          breed: 'Ragdoll',
+          sex: 'female',
+          birthdate: '2024-02-01',
+          birthdateIsApproximate: false,
+          photoUrl: null,
+          feedingTimes: []
+        },
+        'household-1',
+        'Australia/Melbourne'
+      )
     ).resolves.toEqual({ id: 'pet-2', name: 'Miso', photoUrl: 'https://example.test/m.jpg' });
   });
 });

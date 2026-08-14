@@ -35,6 +35,18 @@ export const FEED_LOG_DAY_OPTIONS: Option<'today' | 'yesterday'>[] = [
   { value: 'yesterday', label: 'Yesterday' }
 ];
 
+/**
+ * The Grace Window, as minutes either side of a Scheduled Time (ADR 0009).
+ * Values are strings because a picker option is a string; the caller parses.
+ */
+export const GRACE_WINDOW_OPTIONS: Option[] = [
+  { value: '30', label: '30 minutes' },
+  { value: '60', label: '1 hour' },
+  { value: '90', label: '1 hour 30 minutes' },
+  { value: '120', label: '2 hours' },
+  { value: '180', label: '3 hours' }
+];
+
 const deviceTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
 export const TIMEZONE_OPTIONS: Option[] = (
