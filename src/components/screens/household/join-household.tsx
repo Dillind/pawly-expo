@@ -3,10 +3,9 @@ import MainButton from '@/components/core/main-button';
 import TextInputValidated from '@/components/core/text-input-validated';
 import ScreenScrollView from '@/components/layout/screen-scroll-view';
 import ScreenView from '@/components/layout/screen-view';
-import ReceivedInviteCard from '@/components/screens/household/received-invite-card';
 import { joinSchema, type JoinInput } from '@/constants/schemas/invite';
 import { BottomTabInset, type AppTheme } from '@/constants/theme';
-import { useReceivedInvites, useRedeemInvite } from '@/hooks/queries/use-invites';
+import { useRedeemInvite } from '@/hooks/queries/use-invites';
 import { useStyles } from '@/hooks/use-styles';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter } from 'expo-router';
@@ -17,7 +16,6 @@ const JoinHousehold = () => {
   const styles = useStyles(makeStyles);
   const router = useRouter();
 
-  const { data: invites = [] } = useReceivedInvites();
   const { mutate: redeem, isPending: isJoining } = useRedeemInvite();
 
   const form = useForm<JoinInput>({
@@ -44,18 +42,6 @@ const JoinHousehold = () => {
       <ScreenScrollView
         contentContainerStyle={styles.content}
         contentInsetAdjustmentBehavior="automatic">
-        {invites.length > 0 && (
-          <View style={styles.invites}>
-            <AppText variant="header" size={18}>
-              Waiting for you
-            </AppText>
-
-            {invites.map((invite) => (
-              <ReceivedInviteCard key={invite.id} invite={invite} />
-            ))}
-          </View>
-        )}
-
         <FormProvider {...form}>
           <View style={styles.form}>
             <AppText variant="header" size={18}>
@@ -104,7 +90,6 @@ const makeStyles = ({ spacing }: AppTheme) =>
       paddingBottom: BottomTabInset + spacing.four,
       gap: spacing.five
     },
-    invites: { gap: spacing.three },
     form: { gap: spacing.three }
   });
 

@@ -77,8 +77,8 @@ const InviteMember = () => {
         <FormProvider {...form}>
           <View style={styles.form}>
             <AppText size={15} color="textSecondary">
-              They&apos;ll get a notification in Crumpet. If they haven&apos;t joined yet, the
-              invite will be waiting when they sign up with this address.
+              Send them the code or the QR below — it&apos;s how they join. The invite is tied to
+              this address, and waits for them if they haven&apos;t signed up yet.
             </AppText>
 
             <Controller

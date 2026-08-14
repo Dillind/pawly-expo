@@ -10,13 +10,6 @@ export type PendingInvite = {
   expiresAt: string;
 };
 
-/** An invite as the person receiving it sees it. */
-export type ReceivedInvite = PendingInvite & {
-  householdId: string;
-  householdName: string;
-  invitedByName: string | null;
-};
-
 export type CreateInviteStatus = 'created' | 'already_member' | 'not_owner';
 
 export type PreviewStatus =
@@ -99,46 +92,6 @@ namespace InviteService {
   }
 
   /**
-   * Invites waiting for the signed-in user. The select policy deliberately is
-   * not scoped to household membership — the whole point is that the reader is
-   * not a member yet, so the household is embedded rather than joined from a
-   * table they cannot see.
-   */
-  export async function listReceived(userId: string): Promise<ReceivedInvite[]> {
-    const { data, error } = await supabase
-      .from('household_invites')
-      .select(
-        'id, email, role, code, created_at, expires_at, household_id, households(name), users(first_name, last_name)'
-      )
-      .eq('invitee_user_id', userId)
-      .eq('status', 'pending')
-      .gt('expires_at', new Date().toISOString())
-      .order('created_at', { ascending: false });
-
-    if (error) throw error;
-
-    // PostgREST hands embedded relations back as arrays here rather than a
-    // single object, so both are unwrapped at [0].
-    type Row = InviteRow & {
-      household_id: string;
-      households: { name: string }[];
-      users: { first_name: string | null; last_name: string | null }[];
-    };
-
-    return (data as Row[]).map((row) => {
-      const invitedBy = row.users[0];
-
-      return {
-        ...toInvite(row),
-        householdId: row.household_id,
-        householdName: row.households[0]?.name ?? 'a household',
-        invitedByName:
-          [invitedBy?.first_name, invitedBy?.last_name].filter(Boolean).join(' ') || null
-      };
-    });
-  }
-
-  /**
    * What a code is offering, without accepting it. Holding the code is the
    * authorisation — the select policy covers owners and the named invitee, and
    * someone who scanned a QR is usually neither.
@@ -157,12 +110,6 @@ namespace InviteService {
 
   export async function revoke(inviteId: string): Promise<void> {
     const { error } = await supabase.rpc('revoke_household_invite', { invite_id: inviteId });
-
-    if (error) throw error;
-  }
-
-  export async function decline(inviteId: string): Promise<void> {
-    const { error } = await supabase.rpc('decline_household_invite', { invite_id: inviteId });
 
     if (error) throw error;
   }

@@ -1,8 +1,6 @@
 import AppText from '@/components/core/app-text';
 import MainButton from '@/components/core/main-button';
-import ReceivedInviteCard from '@/components/screens/household/received-invite-card';
 import type { AppTheme } from '@/constants/theme';
-import { useReceivedInvites } from '@/hooks/queries/use-invites';
 import { useStyles } from '@/hooks/use-styles';
 import { useRouter } from 'expo-router';
 import { StyleSheet, View } from 'react-native';
@@ -14,35 +12,15 @@ import { StyleSheet, View } from 'react-native';
  *
  * Zero households is a valid, permanent state. A sitter or dog walker has no
  * pets of their own and never will, so this must not nag.
+ *
+ * A waiting invite is deliberately not surfaced here. Joining a household is
+ * something the invitee starts — by scanning the QR or entering the code —
+ * never something the app puts in front of them. The record of an invite
+ * belongs in the notification inbox (#19).
  */
 const NoHouseholdState = () => {
   const styles = useStyles(makeStyles);
   const router = useRouter();
-
-  const { data: invites = [] } = useReceivedInvites();
-
-  // A waiting invite outranks the neutral fork. It is what stops two people
-  // who share a pet ending up with two households: if the invite arrives
-  // before the pet does, they join instead of creating.
-  if (invites.length > 0) {
-    return (
-      <View style={styles.container}>
-        <AppText variant="header" size={24}>
-          You&apos;ve been invited
-        </AppText>
-
-        {invites.map((invite) => (
-          <ReceivedInviteCard key={invite.id} invite={invite} />
-        ))}
-
-        <MainButton
-          text="No thanks, add my own pet"
-          variant="secondary"
-          href="/home/add-pet"
-        />
-      </View>
-    );
-  }
 
   return (
     <View style={styles.container}>

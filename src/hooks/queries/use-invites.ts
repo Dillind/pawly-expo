@@ -8,7 +8,6 @@ import type { HouseholdRole } from '@/types/core';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 const pendingKey = (householdId: string | undefined) => ['invites-pending', householdId];
-const receivedKey = (userId: string | undefined) => ['invites-received', userId];
 
 /** Outstanding invites for a household. Owner-only by RLS. */
 export function usePendingInvites(householdId: string | undefined) {
@@ -16,17 +15,6 @@ export function usePendingInvites(householdId: string | undefined) {
     queryKey: pendingKey(householdId),
     queryFn: () => InviteService.listPending(householdId as string),
     enabled: Boolean(householdId)
-  });
-}
-
-/** Invites waiting for the signed-in user, wherever they came from. */
-export function useReceivedInvites() {
-  const { userId } = useAuthStore();
-
-  return useQuery({
-    queryKey: receivedKey(userId),
-    queryFn: () => InviteService.listReceived(userId as string),
-    enabled: Boolean(userId)
   });
 }
 
@@ -99,7 +87,6 @@ export function useRedeemInvite() {
 
   return useMutation({
     mutationFn: (input: { code?: string; inviteId?: string }) => InviteService.redeem(input),
-    onSettled: () => queryClient.invalidateQueries({ queryKey: receivedKey(userId) }),
     onSuccess: async (result) => {
       const failure = REDEEM_FAILURES[result.status];
 
@@ -116,21 +103,6 @@ export function useRedeemInvite() {
     onError: (error) => {
       console.error(error);
       showErrorToast(ErrorMessage.InviteJoinFailed);
-    }
-  });
-}
-
-export function useDeclineInvite() {
-  const queryClient = useQueryClient();
-  const { userId } = useAuthStore();
-
-  return useMutation({
-    mutationFn: (inviteId: string) => InviteService.decline(inviteId),
-    onSettled: () => queryClient.invalidateQueries({ queryKey: receivedKey(userId) }),
-    onSuccess: () => showSuccessToast(SuccessMessage.InviteDeclined),
-    onError: (error) => {
-      console.error(error);
-      showErrorToast(ErrorMessage.InviteDeclineFailed);
     }
   });
 }
