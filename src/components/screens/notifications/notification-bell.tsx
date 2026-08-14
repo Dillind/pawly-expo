@@ -12,10 +12,6 @@ type Props = {
   householdId: string | undefined;
 };
 
-/**
- * The count is capped rather than truncated: "99+" is a number someone can
- * read, where a four-digit badge is just a shape.
- */
 const NotificationBell = ({ householdId }: Props) => {
   const styles = useStyles(makeStyles);
   const router = useRouter();
@@ -47,8 +43,6 @@ const NotificationBell = ({ householdId }: Props) => {
 
 const makeStyles = ({ colors }: AppTheme) =>
   StyleSheet.create({
-    // Sits over the 44pt tap target IconButton owns, so it is positioned
-    // against the circle rather than against the glyph.
     badge: {
       position: 'absolute',
       top: 0,

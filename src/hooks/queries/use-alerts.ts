@@ -6,7 +6,7 @@ import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tansta
 export const alertsKey = (householdId: string | undefined) => ['alerts', householdId];
 export const unreadAlertsKey = (householdId: string | undefined) => ['alerts-unread', householdId];
 
-/** The inbox. Cursor on `(created_at, id) desc`, 30 per page. */
+/** The inbox. Cursor on `(created_at, id) desc`. */
 export function useAlerts(householdId: string | undefined) {
   return useInfiniteQuery({
     queryKey: alertsKey(householdId),
@@ -23,7 +23,6 @@ export function useAlerts(householdId: string | undefined) {
   });
 }
 
-/** Drives the bell's badge, so it must not pull the whole history to count. */
 export function useUnreadAlertCount(householdId: string | undefined) {
   return useQuery({
     queryKey: unreadAlertsKey(householdId),
@@ -33,9 +32,8 @@ export function useUnreadAlertCount(householdId: string | undefined) {
 }
 
 /**
- * Rows mark themselves read as they are seen, so this deliberately does not
- * invalidate the list — re-sorting under the reader while they are looking at
- * it is the failure being avoided. Only the badge refreshes.
+ * Only the badge refreshes. Invalidating the list would re-sort it under
+ * someone still reading it, which is the whole reason rows keep their fill.
  */
 export function useMarkAlertsRead(householdId: string | undefined) {
   const queryClient = useQueryClient();

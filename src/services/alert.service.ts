@@ -10,17 +10,13 @@ export type AlertKind =
   | 'member_role_changed'
   | 'member_left';
 
-/**
- * One row of the inbox, already resolved. `petName`, `postCaption` and the
- * rest are null when the subject has since been deleted — the row survives its
- * subject, so every reader of this type has to cope with that.
- */
+/** A row survives its subject, so every resolved field here can be null. */
 export type Alert = {
   id: string;
   kind: AlertKind;
   createdAt: string;
   isRead: boolean;
-  /** Recorded but never pushed — a backdated feed, or a membership change. */
+  /** Recorded but never pushed. */
   wasSuppressed: boolean;
   actorName: string | null;
   petId: string | null;
@@ -33,7 +29,7 @@ export type Alert = {
   subjectIsMe: boolean;
 };
 
-/** Keyset rather than offset: an alert queued mid-scroll must not shift a page. */
+/** Keyset: an alert queued mid-scroll must not shift a page. */
 export type AlertsCursor = { createdAt: string; id: string };
 
 type AlertRow = {
@@ -55,9 +51,8 @@ type AlertRow = {
   subject_is_me: boolean;
 };
 
-// Matches authorName in supabase/functions/send-alerts/message.ts and
-// formatAuthorName in use-household-members. The push and the inbox render the
-// same event, so they must not disagree about what someone is called.
+// Must agree with authorName in send-alerts/message.ts -- the push and the
+// inbox render the same event.
 const displayName = (firstName: string | null, lastName: string | null): string | null => {
   const name = [firstName, lastName].filter(Boolean).join(' ');
 

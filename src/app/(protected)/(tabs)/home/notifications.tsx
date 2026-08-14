@@ -40,8 +40,7 @@ const groupByDay = (alerts: Alert[], timezone: string): Section[] => {
 };
 
 /**
- * The record of what happened in this household, including what was never
- * pushed. A muted alert still leaves a row: the member asked not to be
+ * A muted alert still leaves a row here: the member asked not to be
  * interrupted, not to be kept in the dark.
  */
 export default function Notifications() {
@@ -61,12 +60,10 @@ export default function Notifications() {
   const alerts = useMemo(() => data?.pages.flat() ?? [], [data]);
   const sections = useMemo(() => groupByDay(alerts, timezone), [alerts, timezone]);
 
-  // Marked read as they are seen, but the fill stays for the session -- the
-  // list must not visibly re-sort under someone who is still reading it.
   const alreadyMarked = useRef(new Set<string>());
 
   // useCallback, not useRef().current: React Compiler forbids reading a ref
-  // during render, and the ref is only touched inside the callback body.
+  // during render.
   const onViewableItemsChanged = useCallback(
     ({ viewableItems }: { viewableItems: SectionListViewToken<Alert, Section>[] }) => {
       const unseen = viewableItems
@@ -76,9 +73,8 @@ export default function Notifications() {
 
       if (unseen.length === 0) return;
 
-      // Added before the write so one scroll does not fire the same ids twice,
-      // and taken back out if it fails -- otherwise a dropped request means
-      // those rows can never be marked read again this session.
+      // Added before the write so one scroll cannot fire the same ids twice,
+      // and taken back out on failure so a dropped request can be retried.
       unseen.forEach((id) => alreadyMarked.current.add(id));
 
       markRead(unseen, {
@@ -90,8 +86,7 @@ export default function Notifications() {
 
   const openSubject = useCallback(
     (alert: Alert) => {
-      // A subject deleted since the alert was queued leaves nowhere to go. The
-      // row stays read rather than routing into a screen with nothing on it.
+      // A deleted subject leaves nowhere to go, so the row does nothing.
       if (alert.kind === 'feed_logged' && alert.feedLogId) {
         return router.push(`/home/activity?logId=${alert.feedLogId}`);
       }
@@ -118,9 +113,8 @@ export default function Notifications() {
     );
   }
 
-  // The server's count, not the cached rows. `isRead` in the list is
-  // deliberately stale -- the fill has to survive being read -- so deriving the
-  // button from it would leave it on screen with nothing left to mark.
+  // The server's count: `isRead` in the list is deliberately stale, so
+  // deriving this from it would strand the button on screen.
   const hasUnread = unreadCount > 0;
 
   return (
@@ -162,8 +156,7 @@ export default function Notifications() {
         renderItem={({ item, index, section }) => (
           <>
             <AlertRow alert={item} onPress={() => openSubject(item)} />
-            {/* Only a read row draws a rule. An unread row's fill already
-                separates it, and drawing both looks like a mistake. */}
+            {/* Only a read row draws a rule -- see AlertRow's unread fill. */}
             {item.isRead && index < section.data.length - 1 && (
               <View style={styles.dividerInset}>
                 <Divider />
@@ -199,8 +192,6 @@ const makeStyles = ({ colors, spacing }: AppTheme) =>
       paddingBottom: spacing.two,
       backgroundColor: colors.background
     },
-    // Inset to the text, not the avatar, so the rule reads as belonging to the
-    // sentence rather than boxing the row.
     dividerInset: {
       paddingLeft: spacing.four + 40 + spacing.three
     }

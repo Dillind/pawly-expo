@@ -126,9 +126,8 @@ export const compareDayBuckets = (a: DayBucket, b: DayBucket): number =>
   BUCKET_ORDER.indexOf(a) - BUCKET_ORDER.indexOf(b);
 
 /**
- * The inbox's headings. Counted in whole calendar days in the household's
- * timezone rather than in elapsed hours, so something logged at 11pm is
- * "Yesterday" by the next morning rather than for the next 24 hours.
+ * Whole calendar days in the household's timezone, not elapsed hours -- so
+ * something logged at 11pm reads as "Yesterday" the next morning.
  */
 export function dayBucket(isoTimestamp: string, zone: string, now: Date = new Date()): DayBucket {
   const day = zonedParts(new Date(isoTimestamp), zone);

@@ -1,16 +1,9 @@
--- The inbox's read model.
+-- subject_id is polymorphic -- feed_logs, feeding_schedules, posts, or a user,
+-- depending on kind -- so there is no foreign key for PostgREST to embed.
 --
--- An alert's subject_id is polymorphic: a feed_logs id for feed_logged, a
--- feeding_schedules id for missed_feed, a posts id for post, and a user id for
--- the three membership kinds. PostgREST cannot embed that -- there is no
--- foreign key to follow, and there could not be one -- so resolution happens
--- here and the client receives a flat row it only has to phrase.
---
--- security definer so a name resolves even when the subject has since left:
--- the users select policy needs a shared household, and someone removed no
--- longer has one. They were a member when it happened, so the row naming them
--- leaks nothing the reader did not already see. Membership is still enforced,
--- in the where clause below.
+-- security definer so a name still resolves after the subject leaves: the
+-- users select policy needs a shared household. Membership is enforced in the
+-- where clause instead.
 
 create or replace function public.list_alerts(
   target_household_id uuid,
@@ -92,8 +85,7 @@ $$;
 revoke all on function public.list_alerts(uuid, timestamptz, uuid, integer) from public;
 grant execute on function public.list_alerts(uuid, timestamptz, uuid, integer) to authenticated;
 
--- The bell's badge. Counting through list_alerts would mean paging the whole
--- history to find out whether the dot shows.
+-- The bell's badge, without paging the whole history to count.
 create or replace function public.unread_alert_count(target_household_id uuid)
 returns integer
 language sql
@@ -115,8 +107,7 @@ $$;
 revoke all on function public.unread_alert_count(uuid) from public;
 grant execute on function public.unread_alert_count(uuid) to authenticated;
 
--- Marking read is insert-only and idempotent, so re-reading a screen costs one
--- statement and conflicts with nothing.
+-- Insert-only and idempotent, so re-reading a screen conflicts with nothing.
 create or replace function public.mark_alerts_read(alert_ids uuid[])
 returns void
 language sql
@@ -134,7 +125,7 @@ $$;
 revoke all on function public.mark_alerts_read(uuid[]) from public;
 grant execute on function public.mark_alerts_read(uuid[]) to authenticated;
 
--- "Mark all read" without shipping the whole history to the client to do it.
+-- Without shipping the whole history to the client to do it.
 create or replace function public.mark_all_alerts_read(target_household_id uuid)
 returns void
 language sql

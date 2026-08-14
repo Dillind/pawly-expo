@@ -17,10 +17,7 @@ type Props = {
   onPress: () => void;
 };
 
-/**
- * A missed feed has no actor, so it leads with the pet it concerns rather than
- * an empty circle. Everything else leads with whoever did it.
- */
+/** A missed feed has no actor, so it shows the pet rather than an empty circle. */
 const Leading = ({ alert }: { alert: Alert }) => {
   const [firstName, ...rest] = (alert.actorName ?? '').split(' ');
 
@@ -46,9 +43,7 @@ const AlertRow = ({ alert, onPress }: Props) => {
       <View>
         <Leading alert={alert} />
 
-        {/* Overhanging badge, the same trick photo-tile.tsx uses for its
-            remove button -- the border in the page colour is what makes it
-            read as sitting on top of the avatar rather than inside it. */}
+        {/* The border in the page colour is what lifts it off the avatar. */}
         <View style={styles.badge}>
           <Icon name={alertGlyph(alert.kind)} size={10} color="onPrimary" />
         </View>
@@ -77,8 +72,7 @@ const makeStyles = ({ colors, spacing }: AppTheme) =>
       paddingHorizontal: spacing.four,
       paddingVertical: spacing.three
     },
-    // Full-bleed rather than an inset card: the fill is the divider for an
-    // unread row, which is why unread rows draw no hairline.
+    // The fill is an unread row's divider, which is why it draws no hairline.
     unread: {
       backgroundColor: colors.primaryMuted
     },

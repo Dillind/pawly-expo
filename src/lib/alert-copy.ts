@@ -1,17 +1,11 @@
 import type { Alert } from '@/services/alert.service';
 
-/**
- * A row's sentence, split so the actor's name can be drawn bold inside one
- * line of text. `lead` is null when nobody did it — a missed feed is the
- * schedule noticing, not a person acting.
- */
+/** Split so the actor can be bold inside one line. `lead` is null for a
+ * missed feed, which nobody did. */
 export type AlertSentence = { lead: string | null; rest: string };
 
-// Matches authorName in supabase/functions/send-alerts/message.ts.
 const someone = (name: string | null) => name ?? 'Member';
 
-// A subject deleted after the fact leaves the row with nothing to name, so
-// every branch below has a version that says less rather than one that breaks.
 const quoted = (caption: string | null) => (caption ? ` “${caption.trim()}”` : '');
 
 const slotWord = (label: string | null) =>
