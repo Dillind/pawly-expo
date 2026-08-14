@@ -16,7 +16,9 @@ import {
   useRemoveMember,
   useSetMemberRole
 } from '@/hooks/queries/use-membership-mutations';
+import InviteCodeSheet from '@/components/bottom-sheets/invite-code-sheet';
 import { usePendingInvites, useRevokeInvite } from '@/hooks/queries/use-invites';
+import type { PendingInvite } from '@/services/invite.service';
 import { useStyles } from '@/hooks/use-styles';
 import { useAuthStore } from '@/stores/auth-store';
 import type { HouseholdMember, HouseholdRole } from '@/types/core';
@@ -33,6 +35,8 @@ const MembersList = () => {
   const router = useRouter();
   const actionsSheetRef = useRef<TrueSheet | null>(null);
   const [activeMember, setActiveMember] = useState<HouseholdMember | undefined>(undefined);
+  const inviteSheetRef = useRef<TrueSheet | null>(null);
+  const [activeInvite, setActiveInvite] = useState<PendingInvite | undefined>(undefined);
 
   const { userId } = useAuthStore();
   const { data: household } = useHousehold();
@@ -69,6 +73,11 @@ const MembersList = () => {
   // The last owner cannot leave: nobody would be left who could rename the
   // household, add a pet or invite anyone.
   const isLastOwner = isOwner && ownerCount <= 1;
+
+  const openInvite = (invite: PendingInvite) => {
+    setActiveInvite(invite);
+    void inviteSheetRef.current?.present();
+  };
 
   const confirmRevoke = (inviteId: string, email: string) => {
     Alert.alert(`Revoke the invite for ${email}?`, 'The code stops working straight away.', [
@@ -192,7 +201,12 @@ const MembersList = () => {
         {isOwner && pendingInvites.length > 0 && (
           <SettingsSection title="Invited">
             {pendingInvites.map((invite) => (
-              <View key={invite.id} style={styles.row}>
+              <PressableOpacity
+                key={invite.id}
+                style={styles.row}
+                accessibilityRole="button"
+                accessibilityLabel={`Show the invite code for ${invite.email}`}
+                onPress={() => openInvite(invite)}>
                 <View style={styles.name}>
                   <AppText size={16} numberOfLines={1}>
                     {invite.email}
@@ -201,15 +215,8 @@ const MembersList = () => {
                     {roleLabel(invite.role)} · code {invite.code}
                   </AppText>
                 </View>
-                <PressableOpacity
-                  accessibilityRole="button"
-                  accessibilityLabel={`Revoke the invite for ${invite.email}`}
-                  onPress={() => confirmRevoke(invite.id, invite.email)}>
-                  <AppText size={14} color="error">
-                    Revoke
-                  </AppText>
-                </PressableOpacity>
-              </View>
+                <Icon name="caretRight" size={18} color="textSecondary" />
+              </PressableOpacity>
             ))}
           </SettingsSection>
         )}
@@ -234,6 +241,15 @@ const MembersList = () => {
           />
         </SettingsSection>
       </ScreenScrollView>
+
+      <InviteCodeSheet
+        sheetRef={inviteSheetRef}
+        invite={activeInvite}
+        householdName={household?.name ?? 'our household'}
+        onRevoke={() => {
+          if (activeInvite) confirmRevoke(activeInvite.id, activeInvite.email);
+        }}
+      />
 
       <MemberActionsSheet
         sheetRef={actionsSheetRef}

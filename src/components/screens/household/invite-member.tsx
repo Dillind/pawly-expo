@@ -10,7 +10,7 @@ import InviteCodeCard from '@/components/screens/household/invite-code-card';
 import { ROLE_OPTIONS } from '@/constants/options';
 import { ROLE_INFO } from '@/constants/role-info';
 import { inviteSchema, type InviteInput } from '@/constants/schemas/invite';
-import { BottomTabInset, type AppTheme } from '@/constants/theme';
+import { BottomTabInset, Radius, type AppTheme } from '@/constants/theme';
 import { useHousehold } from '@/hooks/queries/use-household';
 import { useCreateInvite } from '@/hooks/queries/use-invites';
 import { useStyles } from '@/hooks/use-styles';
@@ -122,7 +122,11 @@ const InviteMember = () => {
           </View>
         </FormProvider>
 
-        {code && <InviteCodeCard code={code} householdName={household?.name ?? 'our household'} />}
+        {code && (
+          <View style={styles.codeCard}>
+            <InviteCodeCard code={code} householdName={household?.name ?? 'our household'} />
+          </View>
+        )}
       </ScreenScrollView>
 
       <InfoSheet
@@ -136,14 +140,20 @@ const InviteMember = () => {
   );
 };
 
-const makeStyles = ({ spacing }: AppTheme) =>
+const makeStyles = ({ colors, spacing }: AppTheme) =>
   StyleSheet.create({
     content: {
       paddingVertical: spacing.four,
       paddingBottom: BottomTabInset + spacing.four,
       gap: spacing.four
     },
-    form: { gap: spacing.three }
+    form: { gap: spacing.three },
+    codeCard: {
+      backgroundColor: colors.backgroundElement,
+      borderRadius: Radius.card,
+      borderCurve: 'continuous',
+      padding: spacing.four
+    }
   });
 
 export default InviteMember;
