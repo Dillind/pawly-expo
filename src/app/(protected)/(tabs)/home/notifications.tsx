@@ -5,7 +5,12 @@ import ErrorState from '@/components/core/error-state';
 import ScreenView from '@/components/layout/screen-view';
 import AlertRow from '@/components/screens/notifications/alert-row';
 import { BottomTabInset, type AppTheme } from '@/constants/theme';
-import { useAlerts, useMarkAlertsRead, useMarkAllAlertsRead } from '@/hooks/queries/use-alerts';
+import {
+  useAlerts,
+  useMarkAlertsRead,
+  useMarkAllAlertsRead,
+  useUnreadAlertCount
+} from '@/hooks/queries/use-alerts';
 import { useHousehold } from '@/hooks/queries/use-household';
 import { useStyles } from '@/hooks/use-styles';
 import { compareDayBuckets, dayBucket, type DayBucket } from '@/lib/dates';
@@ -51,6 +56,7 @@ export default function Notifications() {
     useAlerts(householdId);
   const { mutate: markRead } = useMarkAlertsRead(householdId);
   const { mutate: markAllRead, isPending: isMarkingAll } = useMarkAllAlertsRead(householdId);
+  const { data: unreadCount = 0 } = useUnreadAlertCount(householdId);
 
   const alerts = useMemo(() => data?.pages.flat() ?? [], [data]);
   const sections = useMemo(() => groupByDay(alerts, timezone), [alerts, timezone]);
@@ -70,8 +76,14 @@ export default function Notifications() {
 
       if (unseen.length === 0) return;
 
+      // Added before the write so one scroll does not fire the same ids twice,
+      // and taken back out if it fails -- otherwise a dropped request means
+      // those rows can never be marked read again this session.
       unseen.forEach((id) => alreadyMarked.current.add(id));
-      markRead(unseen);
+
+      markRead(unseen, {
+        onError: () => unseen.forEach((id) => alreadyMarked.current.delete(id))
+      });
     },
     [markRead]
   );
@@ -106,7 +118,10 @@ export default function Notifications() {
     );
   }
 
-  const hasUnread = alerts.some((alert) => !alert.isRead);
+  // The server's count, not the cached rows. `isRead` in the list is
+  // deliberately stale -- the fill has to survive being read -- so deriving the
+  // button from it would leave it on screen with nothing left to mark.
+  const hasUnread = unreadCount > 0;
 
   return (
     <ScreenView edges={[]}>
