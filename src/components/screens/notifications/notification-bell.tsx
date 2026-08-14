@@ -25,7 +25,7 @@ const NotificationBell = ({ householdId }: Props) => {
         accessibilityLabel={
           unread > 0 ? `Notifications, ${unread} unread` : 'Notifications'
         }
-        variant="ghost"
+        variant="glass"
         size={22}
         onPress={() => router.push('/home/notifications')}
       />
