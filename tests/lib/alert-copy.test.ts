@@ -21,15 +21,16 @@ const alert = (overrides: Partial<Alert>): Alert => ({
 
 describe('alertSentence', () => {
   it('names the actor and the pet for a logged feed', () => {
-    expect(alertSentence(alert({}))).toEqual({ lead: 'Sarah Smith', rest: ' fed Crumpet' });
+    expect(alertSentence(alert({}))).toBe('Sarah Smith fed Crumpet');
   });
 
-  it('has no actor for a missed feed, because nobody did it', () => {
+  // Nobody did it, so it leads with the pet rather than a person.
+  it('names no actor for a missed feed', () => {
     const sentence = alertSentence(
       alert({ kind: 'missed_feed', petName: 'Toby', slotLabel: 'lunch' })
     );
 
-    expect(sentence).toEqual({ lead: null, rest: 'Toby’s lunch was missed' });
+    expect(sentence).toBe('Toby’s lunch was missed');
   });
 
   it('says "feed" rather than "custom" for an unlabelled slot', () => {
@@ -37,7 +38,7 @@ describe('alertSentence', () => {
       alert({ kind: 'missed_feed', petName: 'Toby', slotLabel: 'custom' })
     );
 
-    expect(sentence.rest).toBe('Toby’s feed was missed');
+    expect(sentence).toBe('Toby’s feed was missed');
   });
 
   it('quotes a post caption', () => {
@@ -45,29 +46,27 @@ describe('alertSentence', () => {
       alert({ kind: 'post', postCaption: 'Muddy paws again', petName: null })
     );
 
-    expect(sentence).toEqual({ lead: 'Sarah Smith', rest: ' posted “Muddy paws again”' });
+    expect(sentence).toBe('Sarah Smith posted “Muddy paws again”');
   });
 
   it('falls back when a post has no caption', () => {
     const sentence = alertSentence(alert({ kind: 'post', postCaption: null, petName: null }));
 
-    expect(sentence.rest).toBe(' shared a photo');
+    expect(sentence).toBe('Sarah Smith shared a photo');
   });
 
   // The row outlives its subject, so a deleted feed log must still read.
   it('says less rather than breaking when the pet is gone', () => {
-    expect(alertSentence(alert({ petName: null })).rest).toBe(' logged a feed');
-    expect(alertSentence(alert({ kind: 'missed_feed', petName: null })).rest).toBe(
-      'A feed was missed'
-    );
+    expect(alertSentence(alert({ petName: null }))).toBe('Sarah Smith logged a feed');
+    expect(alertSentence(alert({ kind: 'missed_feed', petName: null }))).toBe('A feed was missed');
   });
 
   it('addresses the reader directly when they are the subject', () => {
-    expect(alertSentence(alert({ kind: 'member_removed', subjectIsMe: true })).rest).toBe(
-      ' removed you from the household'
+    expect(alertSentence(alert({ kind: 'member_removed', subjectIsMe: true }))).toBe(
+      'Sarah Smith removed you from the household'
     );
-    expect(alertSentence(alert({ kind: 'member_role_changed', subjectIsMe: true })).rest).toBe(
-      ' changed your role'
+    expect(alertSentence(alert({ kind: 'member_role_changed', subjectIsMe: true }))).toBe(
+      'Sarah Smith changed your role'
     );
   });
 
@@ -76,7 +75,7 @@ describe('alertSentence', () => {
       alert({ kind: 'member_removed', subjectName: 'Test User', subjectIsMe: false })
     );
 
-    expect(sentence.rest).toBe(' removed Test User');
+    expect(sentence).toBe('Sarah Smith removed Test User');
   });
 
   it('leads with the person who left, not whoever is recorded as actor', () => {
@@ -84,11 +83,11 @@ describe('alertSentence', () => {
       alert({ kind: 'member_left', subjectName: 'Test User', actorName: 'Test User' })
     );
 
-    expect(sentence).toEqual({ lead: 'Test User', rest: ' left the household' });
+    expect(sentence).toBe('Test User left the household');
   });
 
   it('falls back to "Member" for a missing name, matching the push', () => {
-    expect(alertSentence(alert({ actorName: null })).lead).toBe('Member');
+    expect(alertSentence(alert({ actorName: null }))).toBe('Member fed Crumpet');
   });
 });
 

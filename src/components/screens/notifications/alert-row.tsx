@@ -8,7 +8,7 @@ import { useStyles } from '@/hooks/use-styles';
 import { alertGlyph, alertSentence } from '@/lib/alert-copy';
 import { formatRelativeTime } from '@/lib/dates';
 import type { Alert } from '@/services/alert.service';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 
 const AVATAR = 40;
 
@@ -32,12 +32,12 @@ const Leading = ({ alert }: { alert: Alert }) => {
 
 const AlertRow = ({ alert, onPress }: Props) => {
   const styles = useStyles(makeStyles);
-  const { lead, rest } = alertSentence(alert);
+  const sentence = alertSentence(alert);
 
   return (
     <PressableOpacity
       accessibilityRole="button"
-      accessibilityLabel={`${lead ?? ''}${rest}`}
+      accessibilityLabel={sentence}
       style={[styles.row, !alert.isRead && styles.unread]}
       onPress={onPress}>
       <View>
@@ -51,8 +51,7 @@ const AlertRow = ({ alert, onPress }: Props) => {
 
       <View style={styles.body}>
         <AppText size={15} numberOfLines={3}>
-          {lead && <Text style={styles.lead}>{lead}</Text>}
-          {rest}
+          {sentence}
         </AppText>
 
         <AppText size={13} color="textSecondary">
@@ -92,9 +91,6 @@ const makeStyles = ({ colors, spacing }: AppTheme) =>
     body: {
       flex: 1,
       gap: 2
-    },
-    lead: {
-      fontWeight: '600'
     }
   });
 
