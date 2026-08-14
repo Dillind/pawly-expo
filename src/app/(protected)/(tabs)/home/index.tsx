@@ -8,6 +8,7 @@ import ScreenScrollView from '@/components/layout/screen-scroll-view';
 import ScreenView from '@/components/layout/screen-view';
 import NoHouseholdState from '@/components/screens/home/no-household-state';
 import PetSection from '@/components/screens/home/pet-section';
+import NotificationBell from '@/components/screens/notifications/notification-bell';
 import ActionPopover from '@/components/ui/action-popover';
 import HouseholdSwitcher from '@/components/ui/household-switcher';
 import TileGrid from '@/components/ui/tile-grid';
@@ -27,7 +28,7 @@ import type { Pet } from '@/types/core';
 import type { TrueSheet } from '@lodev09/react-native-true-sheet';
 import * as Notifications from 'expo-notifications';
 import { useEffect, useRef, useState } from 'react';
-import { ActivityIndicator, StyleSheet } from 'react-native';
+import { ActivityIndicator, StyleSheet, View } from 'react-native';
 import Animated, { LinearTransition } from 'react-native-reanimated';
 
 const Home = () => {
@@ -145,7 +146,10 @@ const Home = () => {
   return (
     <ScreenView>
       <ScreenScrollView contentContainerStyle={styles.content}>
-        <HouseholdSwitcher />
+        <View style={styles.headerRow}>
+          <HouseholdSwitcher />
+          {hasHousehold && <NotificationBell householdId={household?.id} />}
+        </View>
 
         {timezone && hasHousehold && (
           <AppText size={14} color="textSecondary">
@@ -209,6 +213,12 @@ const makeStyles = ({ spacing }: AppTheme) =>
     },
     sections: {
       gap: spacing.four
+    },
+    headerRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      gap: spacing.two
     }
   });
 

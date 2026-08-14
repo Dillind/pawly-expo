@@ -118,6 +118,32 @@ export function formatScheduledTime(postgresTime: string): string {
   return dayjs(postgresTime, 'HH:mm:ss').format('h:mm A');
 }
 
+export type DayBucket = 'Today' | 'Yesterday' | 'This week' | 'Last week' | 'Earlier';
+
+const BUCKET_ORDER: DayBucket[] = ['Today', 'Yesterday', 'This week', 'Last week', 'Earlier'];
+
+export const compareDayBuckets = (a: DayBucket, b: DayBucket): number =>
+  BUCKET_ORDER.indexOf(a) - BUCKET_ORDER.indexOf(b);
+
+/**
+ * Whole calendar days in the household's timezone, not elapsed hours -- so
+ * something logged at 11pm reads as "Yesterday" the next morning.
+ */
+export function dayBucket(isoTimestamp: string, zone: string, now: Date = new Date()): DayBucket {
+  const day = zonedParts(new Date(isoTimestamp), zone);
+  const today = zonedParts(now, zone);
+
+  const asUtcDay = ({ year, month, day: date }: ZonedParts) => Date.UTC(year, month - 1, date);
+  const daysAgo = Math.round((asUtcDay(today) - asUtcDay(day)) / 86_400_000);
+
+  if (daysAgo <= 0) return 'Today';
+  if (daysAgo === 1) return 'Yesterday';
+  if (daysAgo < 7) return 'This week';
+  if (daysAgo < 14) return 'Last week';
+
+  return 'Earlier';
+}
+
 /** Activity's day headers: "Today", "Yesterday", then "23 July 2026". */
 export function formatDayHeading(day: string, zone: string): string {
   if (day === todayInTimezone(zone)) return 'Today';
