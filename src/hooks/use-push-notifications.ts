@@ -88,16 +88,17 @@ export const usePushNotifications = () => {
 
     // A push belongs to a household, which may not be the active one. Switch
     // first, or the tap lands on the right screen showing the wrong pets.
-    // A household the user has since left is not in the list, so nothing
-    // switches and the destination falls back to what they can see.
     const targetId = data.householdId as string | undefined;
-    const isReachable = households.some((candidate) => candidate.id === targetId);
 
-    if (targetId && targetId !== household.id && isReachable) {
-      void setActiveHousehold(targetId).then(navigate);
-      return;
-    }
+    if (!targetId) return navigate();
 
-    navigate();
+    // Left the household, or were removed from it. There is nothing to show and
+    // no household to switch to, so do nothing rather than route somewhere that
+    // will render an error.
+    if (!households.some((candidate) => candidate.id === targetId)) return;
+
+    if (targetId === household.id) return navigate();
+
+    void setActiveHousehold(targetId).then(navigate);
   }, [lastResponse, status, household, households, setActiveHousehold, router]);
 };

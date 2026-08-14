@@ -1,3 +1,4 @@
+import { householdsKey } from '@/hooks/queries/use-households';
 import { ErrorMessage, SuccessMessage } from '@/constants/enums';
 import { showErrorToast, showSuccessToast } from '@/lib/toast';
 import HouseholdService, { type MembershipStatus } from '@/services/household.service';
@@ -12,25 +13,25 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
  * turned into a toast here, once, rather than at each call site.
  */
 const failureFor = (status: MembershipStatus, fallback: string): string | undefined => {
-  if (status === 'last_owner') return ErrorMessage.LastOwner;
+  if (status === 'last_owner') return ErrorMessage.OwnerRequired;
   if (status === 'not_owner' || status === 'not_a_member' || status === 'use_leave')
     return fallback;
 
   return undefined;
 };
 
-function useMembershipQueries() {
+function useInvalidateMembership() {
   const queryClient = useQueryClient();
   const { userId } = useAuthStore();
 
   return (householdId: string) => {
-    void queryClient.invalidateQueries({ queryKey: ['households', userId] });
+    void queryClient.invalidateQueries({ queryKey: householdsKey(userId) });
     void queryClient.invalidateQueries({ queryKey: ['household-members', householdId] });
   };
 }
 
 export function useSetMemberRole(householdId: string | undefined) {
-  const invalidate = useMembershipQueries();
+  const invalidate = useInvalidateMembership();
 
   return useMutation({
     mutationFn: (input: { userId: string; role: HouseholdRole }) =>
@@ -50,7 +51,7 @@ export function useSetMemberRole(householdId: string | undefined) {
 }
 
 export function useRemoveMember(householdId: string | undefined) {
-  const invalidate = useMembershipQueries();
+  const invalidate = useInvalidateMembership();
 
   return useMutation({
     mutationFn: (userId: string) =>
@@ -70,8 +71,8 @@ export function useRemoveMember(householdId: string | undefined) {
 }
 
 export function useLeaveHousehold(householdId: string | undefined) {
-  const invalidate = useMembershipQueries();
-  const { setActiveHousehold } = useActiveHouseholdStore();
+  const invalidate = useInvalidateMembership();
+  const { clearActiveHousehold } = useActiveHouseholdStore();
 
   return useMutation({
     mutationFn: () => HouseholdService.leave(householdId as string),
@@ -83,10 +84,7 @@ export function useLeaveHousehold(householdId: string | undefined) {
       if (status !== 'left') return;
 
       showSuccessToast(SuccessMessage.HouseholdLeft);
-      // The stored id now points at a household that is gone. useHousehold
-      // would fall back on its own, but clearing it here means the fallback
-      // never renders the household the user has just left.
-      void setActiveHousehold('');
+      void clearActiveHousehold();
     },
     onError: (error) => {
       console.error(error);

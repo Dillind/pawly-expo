@@ -92,11 +92,9 @@ namespace PetService {
   }
 
   /**
-   * `householdId` is passed explicitly rather than derived, because the caller
-   * knows which household is active and the RPC used to guess with an unordered
-   * `limit 1`. Passing `null` means the user has none, and the RPC creates one
-   * with them as its owner — which is how a first pet and a fifth take the same
-   * path.
+   * `householdId` is explicit because only the caller knows which household is
+   * active. `null` means the user has none, and the RPC creates one with them as
+   * its owner — which is how a first pet and a fifth take the same path.
    */
   export async function add(
     input: AddPetInput,

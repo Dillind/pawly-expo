@@ -8,7 +8,6 @@ import SettingsRow from '@/components/core/settings-row';
 import SettingsSection from '@/components/core/settings-section';
 import ScreenScrollView from '@/components/layout/screen-scroll-view';
 import ScreenView from '@/components/layout/screen-view';
-import { ROLE_OPTIONS } from '@/constants/options';
 import { BottomTabInset, Spacing, type AppTheme } from '@/constants/theme';
 import { useHousehold } from '@/hooks/queries/use-household';
 import { useHouseholdMembers } from '@/hooks/queries/use-household-members';
@@ -21,12 +20,11 @@ import { usePendingInvites, useRevokeInvite } from '@/hooks/queries/use-invites'
 import { useStyles } from '@/hooks/use-styles';
 import { useAuthStore } from '@/stores/auth-store';
 import type { HouseholdMember, HouseholdRole } from '@/types/core';
-import { fullName } from '@/utils/members';
-import { optionLabel } from '@/utils/options';
+import { fullName, roleLabel } from '@/utils/members';
 import type { TrueSheet } from '@lodev09/react-native-true-sheet';
 import { useRouter } from 'expo-router';
 import { useRef, useState } from 'react';
-import { Alert, ActivityIndicator, StyleSheet, View } from 'react-native';
+import { Alert, ActivityIndicator, InteractionManager, StyleSheet, View } from 'react-native';
 
 const AVATAR_SIZE = 36;
 
@@ -81,10 +79,30 @@ const MembersList = () => {
 
   const confirmLeave = () => {
     if (isLastOwner) {
+      const promotable = contributors[0];
+
       Alert.alert(
         'You are the only owner',
-        'Make someone else an owner first, then you can leave.',
-        [{ text: 'OK', style: 'cancel', isPreferred: true }]
+        promotable
+          ? `Make someone else an owner first. Shall we start with ${fullName(promotable) || 'a contributor'}?`
+          : 'Invite someone and make them an owner first, then you can leave.',
+        promotable
+          ? [
+              { text: 'Cancel', style: 'cancel', isPreferred: true },
+              {
+                text: 'Choose someone',
+                onPress: () => {
+                  setActiveMember(promotable);
+                  // A sheet raised while the alert is still dismissing gets
+                  // swallowed by UIKit -- the same conflict the Popovers rule
+                  // warns about.
+                  InteractionManager.runAfterInteractions(() => {
+                    void actionsSheetRef.current?.present();
+                  });
+                }
+              }
+            ]
+          : [{ text: 'OK', style: 'cancel', isPreferred: true }]
       );
       return;
     }
@@ -180,7 +198,7 @@ const MembersList = () => {
                     {invite.email}
                   </AppText>
                   <AppText size={13} color="textSecondary">
-                    {optionLabel(ROLE_OPTIONS, invite.role)} · code {invite.code}
+                    {roleLabel(invite.role)} · code {invite.code}
                   </AppText>
                 </View>
                 <PressableOpacity

@@ -10,6 +10,7 @@ type State = {
 
 type Action = {
   setActiveHousehold: (householdId: string) => Promise<void>;
+  clearActiveHousehold: () => Promise<void>;
   hydrate: () => Promise<void>;
 };
 
@@ -30,14 +31,27 @@ export const useActiveHouseholdStore = create<State & Action>((set) => ({
 
     try {
       await AsyncStorage.setItem(STORAGE_KEY, householdId);
-    } catch {}
+    } catch (error) {
+      console.error(error);
+    }
+  },
+
+  clearActiveHousehold: async () => {
+    set({ activeHouseholdId: undefined });
+
+    try {
+      await AsyncStorage.removeItem(STORAGE_KEY);
+    } catch (error) {
+      console.error(error);
+    }
   },
 
   hydrate: async () => {
     try {
       const stored = await AsyncStorage.getItem(STORAGE_KEY);
       set({ activeHouseholdId: stored ?? undefined, hasHydrated: true });
-    } catch {
+    } catch (error) {
+      console.error(error);
       set({ hasHydrated: true });
     }
   }

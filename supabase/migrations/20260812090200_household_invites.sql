@@ -116,13 +116,15 @@ begin
     return jsonb_build_object('status', 'created', 'code', existing.code, 'id', existing.id);
   end if;
 
-  -- An expired or revoked row for the same address must not block the partial
-  -- unique index.
+  -- Only an EXPIRED pending row can reach here -- a live one returned above --
+  -- but the expiry clause is stated rather than inferred, because the partial
+  -- unique index depends on this clearing the right rows.
   update public.household_invites
   set status = 'revoked'
   where household_id = target_household_id
     and email = normalised_email
-    and status = 'pending';
+    and status = 'pending'
+    and expires_at <= now();
 
   loop
     new_code := private.generate_invite_code();

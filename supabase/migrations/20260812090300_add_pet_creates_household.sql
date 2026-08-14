@@ -1,22 +1,13 @@
 -- One path for adding a pet, whether or not the user has a household yet.
 --
--- Two problems are fixed together.
+-- The household is passed in rather than guessed: only the caller knows which
+-- one is active. Null means "I have none", and one is created with the caller
+-- as its owner -- which is what lets onboarding be an empty state rather than a
+-- gate, and retires create_household_and_pet.
 --
--- 1. add_pet picked the household with `limit 1` and NO `order by`, the same
---    defect that made a member of two households see an arbitrary one. Adding
---    a pet while looking at household B could file it under household A. The
---    household is now passed in explicitly -- the caller knows which one is
---    active, and the function should not guess.
---
--- 2. It raised 'No household for this user' when there was none, which is why
---    onboarding had to be a locked corridor that created one first. Passing
---    null now means "I have no household", and one is created with the caller
---    as its owner. That is what lets onboarding become an empty state instead
---    of a gate, and it retires create_household_and_pet.
---
--- security invoker is kept deliberately: pets and feeding_schedules carry
--- "Owners can create" policies, so a contributor calling this is refused by RLS
--- with no code here to get wrong.
+-- security invoker is deliberate: pets and feeding_schedules carry "Owners can
+-- create" policies, so a contributor is refused by RLS with no code here to get
+-- wrong.
 
 drop function if exists public.add_pet(
   text, text, public.pet_sex, date, boolean, text, jsonb

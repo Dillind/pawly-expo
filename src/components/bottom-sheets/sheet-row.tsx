@@ -9,6 +9,8 @@ import { StyleSheet, View } from 'react-native';
 
 type Props = {
   label: string;
+  /** Secondary text on the right, before any tick. */
+  detail?: string;
   icon?: IconName;
   leading?: ReactNode;
   isSelected?: boolean;
@@ -19,6 +21,7 @@ type Props = {
 
 const SheetRow = ({
   label,
+  detail,
   icon,
   leading,
   isSelected = false,
@@ -41,6 +44,12 @@ const SheetRow = ({
         <AppText size={17} color={tone} style={styles.label}>
           {label}
         </AppText>
+
+        {detail && (
+          <AppText size={14} color="textSecondary">
+            {detail}
+          </AppText>
+        )}
 
         {isSelected && <Icon name="check" size={20} color="primary" />}
       </View>

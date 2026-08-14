@@ -19,9 +19,8 @@ type Props = {
 const MemberActionsSheet = ({ sheetRef, member, onSetRole, onRemove }: Props) => {
   const styles = useStyles(makeStyles);
 
-  // The sheet is always mounted, even with no member: returning null here meant
-  // the ref was still null on the first tap, so present() did nothing and the
-  // row only worked the second time.
+  // Always mounted, even with no member: the ref has to exist before the row
+  // that opens it is tapped.
   const name = member ? fullName(member) || 'this member' : '';
   const isOwner = member?.role === 'owner';
 

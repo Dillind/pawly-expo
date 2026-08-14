@@ -1,5 +1,4 @@
 import { ErrorMessage } from '@/constants/enums';
-import { useHousehold } from '@/hooks/queries/use-household';
 import { showErrorToast } from '@/lib/toast';
 import HouseholdService, { type AlertPreference } from '@/services/household.service';
 import { useAuthStore } from '@/stores/auth-store';
@@ -12,11 +11,9 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
  * toggle for an alert the engine cannot yet fire is a promise the app can't
  * keep.
  */
-export function useNotificationPreferences() {
+export function useNotificationPreferences(householdId: string | undefined) {
   const queryClient = useQueryClient();
   const { userId } = useAuthStore();
-  const { data: household } = useHousehold();
-  const householdId = household?.id;
 
   const queryKey = ['notification-preferences', householdId, userId];
 

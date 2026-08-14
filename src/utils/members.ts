@@ -1,4 +1,6 @@
-import type { HouseholdMember } from '@/types/core';
+import { ROLE_OPTIONS } from '@/constants/options';
+import type { HouseholdMember, HouseholdRole } from '@/types/core';
+import { optionLabel } from '@/utils/options';
 
 /**
  * `logged_by` is nullable with `on delete set null`, so a log can outlive its
@@ -35,4 +37,14 @@ export function memberDisplayName(
   if (!userId) return 'Removed member';
 
   return formatAuthorName(members.find((candidate) => candidate.userId === userId));
+}
+
+/** "Owner" / "Contributor", from the one list that defines them. */
+export function roleLabel(role: HouseholdRole): string {
+  return optionLabel(ROLE_OPTIONS, role) ?? 'Member';
+}
+
+/** The same, as prose: "an owner" / "a contributor". */
+export function roleWithArticle(role: HouseholdRole): string {
+  return `${role === 'owner' ? 'an' : 'a'} ${roleLabel(role).toLowerCase()}`;
 }

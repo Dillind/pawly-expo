@@ -1,3 +1,4 @@
+import { householdsKey } from '@/hooks/queries/use-households';
 import { ErrorMessage, SuccessMessage } from '@/constants/enums';
 import { showErrorToast, showSuccessToast } from '@/lib/toast';
 import { useHousehold } from '@/hooks/queries/use-household';
@@ -20,7 +21,7 @@ export function useAddPet() {
   return useMutation<Pet, Error, AddPetInput>({
     mutationFn: (input) => PetService.add(input, householdId, timezone),
     onSettled: () => {
-      void queryClient.invalidateQueries({ queryKey: ['households', userId] });
+      void queryClient.invalidateQueries({ queryKey: householdsKey(userId) });
       // `all`, not the default `active`: the screen that adds a pet is not the
       // one that lists them, so the list's observer is often unmounted here.
       void queryClient.invalidateQueries({ queryKey: ['pets'], refetchType: 'all' });

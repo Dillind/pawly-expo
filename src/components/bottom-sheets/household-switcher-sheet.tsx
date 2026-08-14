@@ -5,6 +5,7 @@ import type { AppTheme } from '@/constants/theme';
 import { useHouseholds } from '@/hooks/queries/use-households';
 import { useUnseenByHousehold } from '@/hooks/queries/use-posts';
 import { useStyles } from '@/hooks/use-styles';
+import { roleLabel } from '@/utils/members';
 import { useActiveHouseholdStore } from '@/stores/active-household-store';
 import type { TrueSheet } from '@lodev09/react-native-true-sheet';
 import type { RefObject } from 'react';
@@ -33,6 +34,7 @@ const HouseholdSwitcherSheet = ({ sheetRef, activeHouseholdId }: Props) => {
           <SheetRow
             key={household.id}
             label={household.name}
+            detail={roleLabel(household.role)}
             isSelected={household.id === activeHouseholdId}
             leading={
               <HouseholdPets pets={household.pets} hasUnseenPosts={byHousehold[household.id]} />

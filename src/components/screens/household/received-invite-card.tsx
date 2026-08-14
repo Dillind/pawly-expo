@@ -3,6 +3,7 @@ import MainButton from '@/components/core/main-button';
 import { Radius, type AppTheme } from '@/constants/theme';
 import { useDeclineInvite, useRedeemInvite } from '@/hooks/queries/use-invites';
 import { useStyles } from '@/hooks/use-styles';
+import { roleWithArticle } from '@/utils/members';
 import type { ReceivedInvite } from '@/services/invite.service';
 import { StyleSheet, View } from 'react-native';
 
@@ -31,7 +32,7 @@ const ReceivedInviteCard = ({ invite, onAccepted }: Props) => {
         {inviter} invited you to {invite.householdName}
       </AppText>
       <AppText size={14} color="textSecondary">
-        You&apos;d join as {invite.role === 'owner' ? 'an owner' : 'a contributor'}.
+        You&apos;d join as {roleWithArticle(invite.role)}.
       </AppText>
 
       <View style={styles.actions}>

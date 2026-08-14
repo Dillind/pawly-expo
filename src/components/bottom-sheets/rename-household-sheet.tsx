@@ -9,7 +9,7 @@ import {
   HOUSEHOLD_NAME_MAX,
   householdNameSchema,
   type HouseholdNameInput
-} from '@/lib/form/household-schemas';
+} from '@/constants/schemas/household';
 import { zodResolver } from '@hookform/resolvers/zod';
 import type { TrueSheet } from '@lodev09/react-native-true-sheet';
 import type { RefObject } from 'react';

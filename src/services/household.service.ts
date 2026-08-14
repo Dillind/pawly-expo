@@ -33,12 +33,7 @@ namespace HouseholdService {
    * pets for the switcher.
    *
    * Separate selects rather than a PostgREST embed: household_members.user_id
-   * points at auth.users, so the embed graph here is not the obvious one, and
-   * explicit selects cannot be misread.
-   *
-   * This replaced a `.limit(1).single()` that had no `order by`. With two
-   * memberships it returned an arbitrary household, and a member who joined a
-   * second one watched her own pet disappear.
+   * points at auth.users, so the embed graph here is not the obvious one.
    */
   export async function listForUser(userId: string): Promise<HouseholdSummary[]> {
     const { data: memberships, error: membershipsError } = await supabase

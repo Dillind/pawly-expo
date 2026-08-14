@@ -1,11 +1,5 @@
--- Household settings: an owner may rename their household and change its
--- timezone and grace window.
---
--- households had no UPDATE policy at all until now -- the name was written once
--- by create_household_and_pet and could never change, so every household in the
--- database is called "<Name>'s Household". That reads badly in the post
--- composer, and once a user can belong to several it stops being cosmetic: the
--- switcher is navigated by name.
+-- An owner may rename their household and change its timezone and grace
+-- window. households had no UPDATE policy at all until now.
 
 -- 30 characters, enforced here as well as in the Zod schema. "Dylan and Lisa's
 -- Household" is 26, so a shared name fits with room. The constraint is the half

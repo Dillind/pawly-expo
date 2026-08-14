@@ -6,6 +6,7 @@ import { ErrorMessage } from '@/constants/enums';
 import type { AppTheme } from '@/constants/theme';
 import { useInvitePreview, useRedeemInvite } from '@/hooks/queries/use-invites';
 import { useStyles } from '@/hooks/use-styles';
+import { roleWithArticle } from '@/utils/members';
 import type { PreviewStatus } from '@/services/invite.service';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { ActivityIndicator, StyleSheet, View } from 'react-native';
@@ -16,7 +17,7 @@ const REFUSALS: Partial<Record<PreviewStatus, string>> = {
   already_member: ErrorMessage.InviteAlreadyJoined,
   already_used: ErrorMessage.InviteAlreadyUsed,
   expired: ErrorMessage.InviteExpired,
-  revoked: ErrorMessage.InviteRevoked,
+  revoked: ErrorMessage.InviteWasRevoked,
   not_found: ErrorMessage.InviteNotFound
 };
 
@@ -74,7 +75,7 @@ export default function InviteScreen() {
               Join {preview.householdName}?
             </AppText>
             <AppText size={16} color="textSecondary">
-              You&apos;d join as {preview.role === 'owner' ? 'an owner' : 'a contributor'}, and
+              You&apos;d join as {preview.role ? roleWithArticle(preview.role) : 'a member'}, and
               you&apos;ll see this household&apos;s pets, feeds and posts.
             </AppText>
 

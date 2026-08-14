@@ -1,3 +1,4 @@
+import { householdsKey } from '@/hooks/queries/use-households';
 import { ErrorMessage, SuccessMessage } from '@/constants/enums';
 import { showErrorToast, showSuccessToast } from '@/lib/toast';
 import InviteService, { type RedeemStatus } from '@/services/invite.service';
@@ -81,16 +82,15 @@ const REDEEM_FAILURES: Partial<Record<RedeemStatus, string>> = {
   already_member: ErrorMessage.InviteAlreadyMember,
   already_used: ErrorMessage.InviteAlreadyUsed,
   expired: ErrorMessage.InviteExpired,
-  revoked: ErrorMessage.InviteRevoked,
+  revoked: ErrorMessage.InviteWasRevoked,
   not_found: ErrorMessage.InviteNotFound,
   not_signed_in: ErrorMessage.InviteNotFound
 };
 
 /**
- * Accepting lands the user in the new household straight away — that is why
- * they accepted — but the switch is announced by a toast rather than being
- * silent. A household changing under someone with no explanation is the
- * original bug this whole body of work came from.
+ * Accepting makes the new household active — that is why they accepted — and
+ * says so, because a household changing under someone unannounced reads as a
+ * bug.
  */
 export function useRedeemInvite() {
   const queryClient = useQueryClient();
@@ -106,18 +106,16 @@ export function useRedeemInvite() {
       if (failure) return showErrorToast(failure);
       if (result.status !== 'joined' || !result.householdId) return;
 
-      // Refetch BEFORE storing the id, not after. useHousehold heals a stored
-      // id it cannot find by falling back to the first household — so setting
-      // the new id while the list is still stale gets it overwritten, and the
-      // join looks like it did nothing.
-      await queryClient.refetchQueries({ queryKey: ['households', userId] });
+      // Refetch before storing the id: useHousehold heals an id it cannot find
+      // by falling back to the first household, so a stale list overwrites this.
+      await queryClient.refetchQueries({ queryKey: householdsKey(userId) });
       await setActiveHousehold(result.householdId);
 
       showSuccessToast(SuccessMessage.HouseholdJoined);
     },
     onError: (error) => {
       console.error(error);
-      showErrorToast(ErrorMessage.InviteNotFound);
+      showErrorToast(ErrorMessage.InviteJoinFailed);
     }
   });
 }
@@ -132,7 +130,7 @@ export function useDeclineInvite() {
     onSuccess: () => showSuccessToast(SuccessMessage.InviteDeclined),
     onError: (error) => {
       console.error(error);
-      showErrorToast(ErrorMessage.InviteNotFound);
+      showErrorToast(ErrorMessage.InviteDeclineFailed);
     }
   });
 }

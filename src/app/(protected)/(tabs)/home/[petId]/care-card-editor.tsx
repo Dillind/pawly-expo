@@ -63,8 +63,6 @@ const CareCardEditor = () => {
     });
   };
 
-  // Each step saves before advancing, so closing loses at most the current
-  // step -- hence no "discard changes?" prompt.
   const close = () => router.back();
 
   // The household's timezone, matching the stamp useShareCareCard puts on the
@@ -194,8 +192,16 @@ const makeStyles = ({ spacing, colors }: AppTheme) =>
       paddingHorizontal: spacing.three,
       paddingBottom: spacing.two
     },
-    headerTitle: { flexDirection: 'row', alignItems: 'center', gap: spacing.one },
-    headerRight: { flexDirection: 'row', alignItems: 'center', gap: spacing.two },
+    headerTitle: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: spacing.one
+    },
+    headerRight: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: spacing.two
+    },
     track: {
       height: 3,
       marginHorizontal: spacing.three,
@@ -203,14 +209,24 @@ const makeStyles = ({ spacing, colors }: AppTheme) =>
       backgroundColor: colors.backgroundSelected,
       overflow: 'hidden'
     },
-    progress: { height: 3, borderRadius: Radius.full, backgroundColor: colors.primary },
-    loading: { flex: 1, alignItems: 'center', justifyContent: 'center' },
+    progress: {
+      height: 3,
+      borderRadius: Radius.full,
+      backgroundColor: colors.primary
+    },
+    loading: {
+      flex: 1,
+      alignItems: 'center',
+      justifyContent: 'center'
+    },
     content: {
       padding: spacing.three,
       paddingBottom: spacing.six,
       gap: spacing.three
     },
-    title: { paddingTop: spacing.two }
+    title: {
+      paddingTop: spacing.two
+    }
   });
 
 export default CareCardEditor;

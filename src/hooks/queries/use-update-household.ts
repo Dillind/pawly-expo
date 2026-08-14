@@ -1,3 +1,4 @@
+import { householdsKey } from '@/hooks/queries/use-households';
 import { ErrorMessage } from '@/constants/enums';
 import { showErrorToast, showSuccessToast } from '@/lib/toast';
 import HouseholdService from '@/services/household.service';
@@ -16,7 +17,7 @@ export function useUpdateHousehold(householdId: string | undefined, success: str
     mutationFn: (patch: HouseholdService.HouseholdPatch) =>
       HouseholdService.update(householdId as string, patch),
     onSettled: () => {
-      void queryClient.invalidateQueries({ queryKey: ['households', userId] });
+      void queryClient.invalidateQueries({ queryKey: householdsKey(userId) });
       // The timezone and grace window decide every slot calculation, so a
       // change to either makes the whole day's derived state wrong.
       void queryClient.invalidateQueries({ queryKey: ['slot-states'] });
