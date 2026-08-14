@@ -1,0 +1,107 @@
+import { alertGlyph, alertSentence } from '@/lib/alert-copy';
+import type { Alert } from '@/services/alert.service';
+
+const alert = (overrides: Partial<Alert>): Alert => ({
+  id: 'a1',
+  kind: 'feed_logged',
+  createdAt: '2026-08-14T07:00:00.000Z',
+  isRead: false,
+  wasSuppressed: false,
+  actorName: 'Sarah Smith',
+  petId: 'p1',
+  petName: 'Crumpet',
+  slotLabel: null,
+  feedLogId: 'f1',
+  postId: null,
+  postCaption: null,
+  subjectName: null,
+  subjectIsMe: false,
+  ...overrides
+});
+
+describe('alertSentence', () => {
+  it('names the actor and the pet for a logged feed', () => {
+    expect(alertSentence(alert({}))).toEqual({ lead: 'Sarah Smith', rest: ' fed Crumpet' });
+  });
+
+  it('has no actor for a missed feed, because nobody did it', () => {
+    const sentence = alertSentence(
+      alert({ kind: 'missed_feed', petName: 'Toby', slotLabel: 'lunch' })
+    );
+
+    expect(sentence).toEqual({ lead: null, rest: 'Toby’s lunch was missed' });
+  });
+
+  it('says "feed" rather than "custom" for an unlabelled slot', () => {
+    const sentence = alertSentence(
+      alert({ kind: 'missed_feed', petName: 'Toby', slotLabel: 'custom' })
+    );
+
+    expect(sentence.rest).toBe('Toby’s feed was missed');
+  });
+
+  it('quotes a post caption', () => {
+    const sentence = alertSentence(
+      alert({ kind: 'post', postCaption: 'Muddy paws again', petName: null })
+    );
+
+    expect(sentence).toEqual({ lead: 'Sarah Smith', rest: ' posted “Muddy paws again”' });
+  });
+
+  it('falls back when a post has no caption', () => {
+    const sentence = alertSentence(alert({ kind: 'post', postCaption: null, petName: null }));
+
+    expect(sentence.rest).toBe(' shared a photo');
+  });
+
+  // The row outlives its subject, so a deleted feed log must still read.
+  it('says less rather than breaking when the pet is gone', () => {
+    expect(alertSentence(alert({ petName: null })).rest).toBe(' logged a feed');
+    expect(alertSentence(alert({ kind: 'missed_feed', petName: null })).rest).toBe(
+      'A feed was missed'
+    );
+  });
+
+  it('addresses the reader directly when they are the subject', () => {
+    expect(alertSentence(alert({ kind: 'member_removed', subjectIsMe: true })).rest).toBe(
+      ' removed you from the household'
+    );
+    expect(alertSentence(alert({ kind: 'member_role_changed', subjectIsMe: true })).rest).toBe(
+      ' changed your role'
+    );
+  });
+
+  it('names the subject when it is somebody else', () => {
+    const sentence = alertSentence(
+      alert({ kind: 'member_removed', subjectName: 'Test User', subjectIsMe: false })
+    );
+
+    expect(sentence.rest).toBe(' removed Test User');
+  });
+
+  it('leads with the person who left, not whoever is recorded as actor', () => {
+    const sentence = alertSentence(
+      alert({ kind: 'member_left', subjectName: 'Test User', actorName: 'Test User' })
+    );
+
+    expect(sentence).toEqual({ lead: 'Test User', rest: ' left the household' });
+  });
+
+  it('falls back to "Member" for a missing name, matching the push', () => {
+    expect(alertSentence(alert({ actorName: null })).lead).toBe('Member');
+  });
+});
+
+describe('alertGlyph', () => {
+  it('gives the three membership kinds one shared glyph', () => {
+    expect(alertGlyph('member_removed')).toBe('users');
+    expect(alertGlyph('member_role_changed')).toBe('users');
+    expect(alertGlyph('member_left')).toBe('users');
+  });
+
+  it('distinguishes the rest', () => {
+    expect(alertGlyph('feed_logged')).toBe('utensils');
+    expect(alertGlyph('missed_feed')).toBe('alertCircle');
+    expect(alertGlyph('post')).toBe('image');
+  });
+});

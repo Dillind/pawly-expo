@@ -36,7 +36,7 @@ grant select, insert on public.alert_reads to authenticated;
 
 -- Read state is nobody else's business, so both policies are the reader's own
 -- rows rather than the household's. There is no update or delete grant:
--- marking read is insert-once, and unreading is not a feature.
+-- marking read is insert-once, and marking something unread is not a feature.
 create policy "Users can view their own reads"
   on public.alert_reads
   for select

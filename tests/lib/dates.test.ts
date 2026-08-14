@@ -1,5 +1,7 @@
 import {
+  compareDayBuckets,
   composeLoggedAt,
+  dayBucket,
   dayInTimezone,
   formatAge,
   formatDayHeading,
@@ -149,5 +151,44 @@ describe('formatAge', () => {
   it('prefixes About when the birthdate is only approximate', () => {
     expect(formatAge(daysAgo(3), true)).toBe('About 3 days');
     expect(formatAge(monthsAgo(30), true)).toBe('About 2 years');
+  });
+});
+
+describe('dayBucket', () => {
+  // Fixed instant, asserted per zone rather than per machine clock -- the same
+  // rule the rest of this file follows.
+  const zone = 'Australia/Brisbane';
+  const now = new Date('2026-08-14T02:00:00.000Z'); // noon on the 14th in Brisbane
+
+  it('counts whole calendar days in the household timezone', () => {
+    expect(dayBucket('2026-08-14T01:00:00.000Z', zone, now)).toBe('Today');
+    expect(dayBucket('2026-08-13T01:00:00.000Z', zone, now)).toBe('Yesterday');
+    expect(dayBucket('2026-08-11T01:00:00.000Z', zone, now)).toBe('This week');
+    expect(dayBucket('2026-08-05T01:00:00.000Z', zone, now)).toBe('Last week');
+    expect(dayBucket('2026-07-05T01:00:00.000Z', zone, now)).toBe('Earlier');
+  });
+
+  // 11pm Brisbane on the 13th is 13:00Z; by noon on the 14th it is a calendar
+  // day old, not 24 hours old.
+  it('rolls over at midnight, not 24 hours after the event', () => {
+    expect(dayBucket('2026-08-13T13:00:00.000Z', zone, now)).toBe('Yesterday');
+  });
+
+  it('reads the household timezone, not the device', () => {
+    // 4pm on the 13th in Brisbane, but 2am on the 13th in New York -- where it
+    // is still only the 13th, so the same instant is a day older in one zone.
+    const instant = '2026-08-13T06:00:00.000Z';
+
+    expect(dayBucket(instant, 'Australia/Brisbane', now)).toBe('Yesterday');
+    expect(dayBucket(instant, 'America/New_York', now)).toBe('Today');
+  });
+
+  it('treats a future timestamp as today rather than negative', () => {
+    expect(dayBucket('2026-08-20T01:00:00.000Z', zone, now)).toBe('Today');
+  });
+
+  it('orders buckets newest first', () => {
+    expect(compareDayBuckets('Today', 'Earlier')).toBeLessThan(0);
+    expect(compareDayBuckets('Last week', 'This week')).toBeGreaterThan(0);
   });
 });

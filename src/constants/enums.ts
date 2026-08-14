@@ -68,6 +68,7 @@ export enum SuccessMessage {
  * Supabase string -- those are written for developers.
  */
 export enum ErrorMessage {
+  AlertsMarkReadFailed = 'Could not mark notifications as read',
   BioUpdateFailed = 'Could not update bio',
   CameraAccessDenied = 'Allow camera access in Settings to take a photo',
   CareCardShareFailed = 'Could not make the Care Card PDF',
