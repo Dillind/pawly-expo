@@ -91,7 +91,10 @@ export default function Notifications() {
         return router.push(`/home/activity?logId=${alert.feedLogId}`);
       }
 
-      if (alert.kind === 'post' && alert.postId) return router.push('/household');
+      if ((alert.kind === 'post' || alert.kind === 'post_liked') && alert.postId) {
+        return router.push('/household');
+      }
+
       if (alert.kind === 'missed_feed' && alert.petId) return router.push('/home');
     },
     [router]
@@ -165,7 +168,7 @@ export default function Notifications() {
           <EmptyState
             icon="bell"
             title="Nothing yet"
-            description="Feeds, missed feeds, posts and changes to who's in your household will show up here."
+            description="Feeds, missed feeds, posts, likes and changes to who's in your household will show up here."
           />
         }
         ListFooterComponent={

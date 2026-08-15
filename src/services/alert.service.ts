@@ -6,6 +6,7 @@ export type AlertKind =
   | 'feed_logged'
   | 'missed_feed'
   | 'post'
+  | 'post_liked'
   | 'member_removed'
   | 'member_role_changed'
   | 'member_left';
