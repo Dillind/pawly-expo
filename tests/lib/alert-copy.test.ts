@@ -55,7 +55,6 @@ describe('alertSentence', () => {
     expect(sentence).toBe('Sarah Smith shared a photo');
   });
 
-  // Only the author is ever shown one, so "your" needs no subject check.
   it('says "your post" for a like, and quotes the caption', () => {
     const sentence = alertSentence(
       alert({ kind: 'post_liked', postCaption: 'Muddy paws again', petName: null })

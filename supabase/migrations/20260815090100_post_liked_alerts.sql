@@ -1,17 +1,12 @@
--- 20260809090200 said likes never queue an alert at all, on the grounds that
--- three people liking one photo means three pushes and a muted app. That
--- reasoning holds and is not being overturned -- what changes is that an alert
--- and a push are no longer the same thing. The inbox (#19) shipped after that
--- comment was written, so a row can now be a record without being an
--- interruption. suppressed_reason is set unconditionally, exactly as the
--- membership alerts do it (20260814090100), so dispatch_alert returns early
--- and nobody's phone buzzes. See ADR 0020.
+-- Narrows the "likes never queue an alert at all" note in 20260809090200. That
+-- note was about PUSHES, which this still never sends: suppressed_reason is set
+-- unconditionally, as the membership alerts do it (20260814090100), so
+-- dispatch_alert returns early. See ADR 0021.
 
--- One row per person per post, forever. Without this, unlike-then-like-again
--- writes a second row and the author's inbox fills with the same event. The
--- table-wide alerts_idempotency_idx cannot do this job: it is
--- (kind, subject_id, subject_date), Postgres treats nulls as distinct, and
--- subject_date is null here -- so every like would be unique to it.
+-- One row per person per post, forever. The table-wide alerts_idempotency_idx
+-- cannot do this job: it is (kind, subject_id, subject_date), Postgres treats
+-- nulls as distinct, and subject_date is null here -- so every like, including
+-- an unlike followed by a second like, would be unique to it.
 create unique index alerts_post_liked_once_idx
   on public.alerts (subject_id, actor_id)
   where kind = 'post_liked';
@@ -51,11 +46,9 @@ execute function public.queue_post_liked_alert();
 -- note in 20260809090200.
 revoke execute on function public.queue_post_liked_alert() from public, anon, authenticated;
 
--- A like is the first alert addressed to ONE member rather than the household.
--- Everything above it is household news: a feed, a missed feed, a post. "Lisa
--- liked Dylan's photo" is news to Dylan and clutter to the other three, so both
--- readers below filter it to the post's author. They have to agree -- a row the
--- list hides but the count includes is a badge that cannot be cleared.
+-- A like is the first alert addressed to ONE member rather than the household,
+-- so both readers below filter it to the post's author. They have to agree -- a
+-- row the list hides but the count includes is a badge that cannot be cleared.
 create or replace function public.list_alerts(
   target_household_id uuid,
   before_created_at timestamptz default null,
