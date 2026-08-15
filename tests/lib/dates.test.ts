@@ -1,8 +1,6 @@
 import {
-  compareDayBuckets,
   formatAlertTime,
   composeLoggedAt,
-  dayBucket,
   dayInTimezone,
   formatAge,
   formatDayHeading,
@@ -155,68 +153,37 @@ describe('formatAge', () => {
   });
 });
 
-describe('dayBucket', () => {
-  // Fixed instant, asserted per zone rather than per machine clock -- the same
-  // rule the rest of this file follows.
-  const zone = 'Australia/Brisbane';
-  const now = new Date('2026-08-14T02:00:00.000Z'); // noon on the 14th in Brisbane
-
-  it('counts whole calendar days in the household timezone', () => {
-    expect(dayBucket('2026-08-14T01:00:00.000Z', zone, now)).toBe('Today');
-    expect(dayBucket('2026-08-13T01:00:00.000Z', zone, now)).toBe('Yesterday');
-    expect(dayBucket('2026-08-11T01:00:00.000Z', zone, now)).toBe('This week');
-    expect(dayBucket('2026-08-05T01:00:00.000Z', zone, now)).toBe('Last week');
-    expect(dayBucket('2026-07-05T01:00:00.000Z', zone, now)).toBe('Earlier');
-  });
-
-  // 11pm Brisbane on the 13th is 13:00Z; by noon on the 14th it is a calendar
-  // day old, not 24 hours old.
-  it('rolls over at midnight, not 24 hours after the event', () => {
-    expect(dayBucket('2026-08-13T13:00:00.000Z', zone, now)).toBe('Yesterday');
-  });
-
-  it('reads the household timezone, not the device', () => {
-    // 4pm on the 13th in Brisbane, but 2am on the 13th in New York -- where it
-    // is still only the 13th, so the same instant is a day older in one zone.
-    const instant = '2026-08-13T06:00:00.000Z';
-
-    expect(dayBucket(instant, 'Australia/Brisbane', now)).toBe('Yesterday');
-    expect(dayBucket(instant, 'America/New_York', now)).toBe('Today');
-  });
-
-  it('treats a future timestamp as today rather than negative', () => {
-    expect(dayBucket('2026-08-20T01:00:00.000Z', zone, now)).toBe('Today');
-  });
-
-  it('orders buckets newest first', () => {
-    expect(compareDayBuckets('Today', 'Earlier')).toBeLessThan(0);
-    expect(compareDayBuckets('Last week', 'This week')).toBeGreaterThan(0);
-  });
-});
-
 describe('formatAlertTime', () => {
   const zone = 'Australia/Brisbane';
   const now = new Date('2026-08-15T02:00:00.000Z'); // noon on the 15th in Brisbane
 
-  it('keeps a duration under a day', () => {
+  it('keeps a duration under a day, in words', () => {
     expect(formatAlertTime('2026-08-15T01:59:30.000Z', zone, now)).toBe('Just now');
-    expect(formatAlertTime('2026-08-15T01:30:00.000Z', zone, now)).toBe('30m ago');
-    expect(formatAlertTime('2026-08-14T21:00:00.000Z', zone, now)).toBe('5h ago');
+    expect(formatAlertTime('2026-08-15T01:30:00.000Z', zone, now)).toBe('30 minutes ago');
+    expect(formatAlertTime('2026-08-14T21:00:00.000Z', zone, now)).toBe('5 hours ago');
+  });
+
+  it('says one, not 1s', () => {
+    expect(formatAlertTime('2026-08-15T01:59:00.000Z', zone, now)).toBe('1 minute ago');
+    expect(formatAlertTime('2026-08-15T01:00:00.000Z', zone, now)).toBe('1 hour ago');
+    expect(formatAlertTime('2026-08-14T13:00:00.000Z', zone, now)).toBe('1 day ago');
   });
 
   // The bug this exists for. 26 hours back is two calendar days back in
-  // Brisbane, so the heading reads "This week" -- but dividing elapsed hours by
-  // 24 gave 1, and the row under it said "Yesterday".
-  it('agrees with the heading a row sits under', () => {
-    const instant = '2026-08-13T00:00:00.000Z';
+  // Brisbane, but dividing elapsed hours by 24 gives 1, which read "Yesterday".
+  it('counts calendar days, not elapsed hours', () => {
+    expect(formatAlertTime('2026-08-13T00:00:00.000Z', zone, now)).toBe('2 days ago');
+  });
 
-    expect(dayBucket(instant, zone, now)).toBe('This week');
-    expect(formatAlertTime(instant, zone, now)).toBe('2d ago');
+  // The last day inside the inbox's window, and the first outside it.
+  it('switches to a date at the edge of the window', () => {
+    expect(formatAlertTime('2026-08-09T02:00:00.000Z', zone, now)).toBe('6 days ago');
+    expect(formatAlertTime('2026-08-08T02:00:00.000Z', zone, now)).toBe('8 Aug');
   });
 
   it('counts calendar days once past midnight', () => {
     // 11pm on the 14th in Brisbane -- 13 hours old, but a day back.
-    expect(formatAlertTime('2026-08-14T13:00:00.000Z', zone, now)).toBe('Yesterday');
+    expect(formatAlertTime('2026-08-14T13:00:00.000Z', zone, now)).toBe('1 day ago');
   });
 
   it('falls back to a date beyond a week', () => {
@@ -229,7 +196,7 @@ describe('formatAlertTime', () => {
   it('reads the household timezone, not the device', () => {
     const instant = '2026-08-14T06:00:00.000Z';
 
-    expect(formatAlertTime(instant, 'Australia/Brisbane', now)).toBe('Yesterday');
-    expect(formatAlertTime(instant, 'America/New_York', now)).toBe('20h ago');
+    expect(formatAlertTime(instant, 'Australia/Brisbane', now)).toBe('1 day ago');
+    expect(formatAlertTime(instant, 'America/New_York', now)).toBe('20 hours ago');
   });
 });

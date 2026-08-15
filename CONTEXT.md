@@ -95,7 +95,7 @@ An Alert with no recipient. Every Member of the Household sees it — Posts, Mis
 An Alert with one named recipient. Only that person sees it — not the rest of the Household. Like Alerts and role changes are Addressed. Invites are meant to be, and that is the case being built towards: an invitee is not a Member yet, so nothing scoped to a Household can reach them.
 
 **Inbox**:
-The list of Alerts a Member can see, and the badge that counts the unread ones. Both are built from the same rule, so the badge can always be cleared by reading the list.
+The list of Alerts a Member can see, and the badge that counts the unread ones. Both are built from the same rule, so the badge can always be cleared by reading the list. It holds the **last seven days** — older Alerts are not shown, though nothing is deleted. See [ADR 0022](./docs/adr/0022-the-inbox-holds-the-last-seven-days.md).
 
 **Feed Logged Alert**:
 The immediate push when a Member logs a feed ("[Person] fed [Pet]"). It goes to every Member of the Household except the author, unless that Member has turned Feed Logged Alerts off. Role plays no part in who receives it.

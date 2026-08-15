@@ -118,12 +118,11 @@ export function formatScheduledTime(postgresTime: string): string {
   return dayjs(postgresTime, 'HH:mm:ss').format('h:mm A');
 }
 
-export type DayBucket = 'Today' | 'Yesterday' | 'This week' | 'Last week' | 'Earlier';
+const plural = (count: number, noun: string): string =>
+  `${count} ${noun}${count === 1 ? '' : 's'}`;
 
-const BUCKET_ORDER: DayBucket[] = ['Today', 'Yesterday', 'This week', 'Last week', 'Earlier'];
-
-export const compareDayBuckets = (a: DayBucket, b: DayBucket): number =>
-  BUCKET_ORDER.indexOf(a) - BUCKET_ORDER.indexOf(b);
+/** Must match the interval list_alerts and unread_alert_count filter on. */
+const ALERT_WINDOW_DAYS = 7;
 
 /**
  * Whole calendar days in the household's timezone, not elapsed hours -- so
@@ -139,39 +138,28 @@ export function calendarDaysAgo(isoTimestamp: string, zone: string, now: Date = 
   );
 }
 
-export function dayBucket(isoTimestamp: string, zone: string, now: Date = new Date()): DayBucket {
-  const daysAgo = calendarDaysAgo(isoTimestamp, zone, now);
-
-  if (daysAgo <= 0) return 'Today';
-  if (daysAgo === 1) return 'Yesterday';
-  if (daysAgo < 7) return 'This week';
-  if (daysAgo < 14) return 'Last week';
-
-  return 'Earlier';
-}
-
 /**
- * A row's own timestamp, counted the same way as the heading it sits under.
- * formatRelativeTime divides elapsed hours by 24 on the device clock, which at
- * a boundary files a row under "This week" and then labels it "Yesterday".
- *
- * Under a day stays a duration -- an hour is an hour wherever you are standing.
+ * Whole calendar days in the household's timezone, not elapsed hours on the
+ * device clock, so an 11pm log reads "1 day ago" the next morning rather than
+ * for a further 24 hours. Under a day stays a duration.
  */
 export function formatAlertTime(isoTimestamp: string, zone: string, now: Date = new Date()): string {
   const minutes = Math.floor((now.getTime() - new Date(isoTimestamp).getTime()) / 60000);
 
   if (minutes < 1) return 'Just now';
-  if (minutes < 60) return `${minutes}m ago`;
+  if (minutes < 60) return `${plural(minutes, 'minute')} ago`;
 
   const daysAgo = calendarDaysAgo(isoTimestamp, zone, now);
 
-  if (daysAgo <= 0) return `${Math.floor(minutes / 60)}h ago`;
-  if (daysAgo === 1) return 'Yesterday';
-  if (daysAgo < 7) return `${daysAgo}d ago`;
+  if (daysAgo <= 0) return `${plural(Math.floor(minutes / 60), 'hour')} ago`;
+  if (daysAgo < ALERT_WINDOW_DAYS) return `${plural(daysAgo, 'day')} ago`;
 
-  const then = new Date(isoTimestamp);
+  // In the household's zone, like every branch above it. Formatting the Date
+  // directly reads the device instead, so a row 1 Aug in Brisbane rendered as
+  // "31 Jul" to anyone whose phone was behind it.
+  const then = dayjs(dayInTimezone(isoTimestamp, zone), DAY_FORMAT);
 
-  return dayjs(then).format(then.getFullYear() === now.getFullYear() ? 'D MMM' : 'D MMM YYYY');
+  return then.format(then.year() === zonedParts(now, zone).year ? 'D MMM' : 'D MMM YYYY');
 }
 
 /** Activity's day headers: "Today", "Yesterday", then "23 July 2026". */
@@ -218,21 +206,18 @@ export const formatAge = (birthdate: string | null, isApproximate: boolean): str
     let value: string;
 
     if (days < 7) {
-      value = `${days} day${days === 1 ? '' : 's'}`;
+      value = plural(days, 'day');
     } else if (days < 14) {
       value = '1 week';
     } else {
-      const weeks = Math.floor(days / 7);
-      value = `${weeks} week${weeks === 1 ? '' : 's'}`;
+      value = plural(Math.floor(days / 7), 'week');
     }
 
     return isApproximate ? `About ${value}` : value;
   }
 
   const years = Math.floor(months / 12);
-  const unit = years >= 1 ? years : months;
-  const noun = years >= 1 ? 'year' : 'month';
-  const value = `${unit} ${noun}${unit === 1 ? '' : 's'}`;
+  const value = years >= 1 ? plural(years, 'year') : plural(months, 'month');
 
   return isApproximate ? `About ${value}` : value;
 };
