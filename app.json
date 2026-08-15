@@ -8,8 +8,7 @@
     "scheme": "crumpetapp",
     "userInterfaceStyle": "automatic",
     "ios": {
-      "bundleIdentifier": "au.com.crumpet.ios",
-      "icon": "./assets/expo.icon"
+      "bundleIdentifier": "au.com.crumpet.ios"
     },
     "android": {
       "adaptiveIcon": {
