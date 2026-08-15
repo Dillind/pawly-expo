@@ -35,9 +35,6 @@ const InviteMember = () => {
   const { data: household } = useHousehold();
   const { mutate: createInvite, isPending: isSending } = useCreateInvite(household?.id);
 
-  // In the header rather than beside the Role field: the label belongs to
-  // DropdownPickerValidated, and hand-rolling one to make room for an icon put
-  // it out of step with every other input on the screen.
   const navigation = useNavigation();
 
   useLayoutEffect(() => {

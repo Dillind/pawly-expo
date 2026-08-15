@@ -51,8 +51,10 @@ const getConfig = ({ config }: ConfigContext): ExpoConfig => {
       [
         'expo-image-picker',
         {
-          photosPermission: '$(PRODUCT_NAME) accesses your photos so you can set a picture of your pet.',
-          cameraPermission: '$(PRODUCT_NAME) uses your camera so you can take a picture of your pet.'
+          photosPermission:
+            '$(PRODUCT_NAME) accesses your photos so you can set a picture of your pet.',
+          cameraPermission:
+            '$(PRODUCT_NAME) uses your camera so you can take a picture of your pet.'
         }
       ],
       [
