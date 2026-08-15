@@ -28,6 +28,22 @@ const MemberActionsSheet = ({ sheetRef, member, onSetRole, onRemove }: Props) =>
     void sheetRef.current?.dismiss().then(() => onSetRole(role));
   };
 
+  // Promotion asks, demotion does not: an owner can remove the person who
+  // promoted them, so this is the only one of the two that can cost you
+  // something you cannot take back yourself.
+  const confirmPromote = () => {
+    void sheetRef.current?.dismiss();
+
+    Alert.alert(
+      `Make ${name} an owner?`,
+      'Owners can add and remove pets, and remove any member — including you.',
+      [
+        { text: 'Cancel', style: 'cancel', isPreferred: true },
+        { text: 'Make an owner', onPress: () => onSetRole('owner') }
+      ]
+    );
+  };
+
   const confirmRemove = () => {
     void sheetRef.current?.dismiss();
 
@@ -49,7 +65,7 @@ const MemberActionsSheet = ({ sheetRef, member, onSetRole, onRemove }: Props) =>
             <SheetRow
               icon={isOwner ? 'user' : 'shield'}
               label={isOwner ? 'Make a contributor' : 'Make an owner'}
-              onPress={() => setRole(isOwner ? 'contributor' : 'owner')}
+              onPress={() => (isOwner ? setRole('contributor') : confirmPromote())}
             />
 
             <SheetRow
