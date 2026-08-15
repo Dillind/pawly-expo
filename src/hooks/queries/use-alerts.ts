@@ -2,6 +2,7 @@ import { ErrorMessage } from '@/constants/enums';
 import { showErrorToast } from '@/lib/toast';
 import AlertService, { ALERTS_PAGE_SIZE, type AlertsCursor } from '@/services/alert.service';
 import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useCallback } from 'react';
 
 export const alertsKey = (householdId: string | undefined) => ['alerts', householdId];
 export const unreadAlertsKey = (householdId: string | undefined) => ['alerts-unread', householdId];
@@ -29,6 +30,19 @@ export function useUnreadAlertCount(householdId: string | undefined) {
     queryFn: () => AlertService.unreadCount(householdId as string),
     enabled: Boolean(householdId)
   });
+}
+
+/**
+ * The badge is a separate query from the list, so a pull that refreshed only
+ * the rows would clear them under a count that still says three unread.
+ */
+export function useRefreshUnreadAlertCount(householdId: string | undefined) {
+  const queryClient = useQueryClient();
+
+  return useCallback(
+    () => queryClient.refetchQueries({ queryKey: unreadAlertsKey(householdId) }),
+    [queryClient, householdId]
+  );
 }
 
 /**

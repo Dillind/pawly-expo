@@ -3,6 +3,7 @@ import Divider from '@/components/core/divider';
 import EmptyState from '@/components/core/empty-state';
 import ErrorState from '@/components/core/error-state';
 import HeaderIconButton from '@/components/core/header-icon-button';
+import ThemedRefreshControl from '@/components/core/themed-refresh-control';
 import ScreenView from '@/components/layout/screen-view';
 import AlertRow from '@/components/screens/notifications/alert-row';
 import { BottomTabInset, type AppTheme } from '@/constants/theme';
@@ -10,18 +11,18 @@ import {
   useAlerts,
   useMarkAlertsRead,
   useMarkAllAlertsRead,
+  useRefreshUnreadAlertCount,
   useUnreadAlertCount
 } from '@/hooks/queries/use-alerts';
 import { useHousehold } from '@/hooks/queries/use-household';
 import { usePullToRefresh } from '@/hooks/use-pull-to-refresh';
 import { useStyles } from '@/hooks/use-styles';
-import { useTheme } from '@/hooks/use-theme';
 import { compareDayBuckets, dayBucket, type DayBucket } from '@/lib/dates';
 import type { Alert } from '@/services/alert.service';
 import { SectionList, type SectionListViewToken } from '@legendapp/list/section-list';
 import { Stack, useRouter } from 'expo-router';
 import { useCallback, useMemo, useRef } from 'react';
-import { ActivityIndicator, RefreshControl, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, StyleSheet, View } from 'react-native';
 
 type Section = { title: DayBucket; data: Alert[] };
 
@@ -47,7 +48,6 @@ const groupByDay = (alerts: Alert[], timezone: string): Section[] => {
  */
 export default function Notifications() {
   const styles = useStyles(makeStyles);
-  const { colors } = useTheme();
   const router = useRouter();
 
   const { data: household } = useHousehold();
@@ -57,7 +57,8 @@ export default function Notifications() {
   const { data, isLoading, isError, refetch, fetchNextPage, hasNextPage, isFetchingNextPage } =
     useAlerts(householdId);
 
-  const { isRefreshing, onRefresh } = usePullToRefresh([refetch]);
+  const refreshUnread = useRefreshUnreadAlertCount(householdId);
+  const { isRefreshing, onRefresh } = usePullToRefresh([refetch, refreshUnread]);
   const { mutate: markRead } = useMarkAlertsRead(householdId);
   const { mutate: markAllRead, isPending: isMarkingAll } = useMarkAllAlertsRead(householdId);
   const { data: unreadCount = 0 } = useUnreadAlertCount(householdId);
@@ -153,11 +154,7 @@ export default function Notifications() {
           if (hasNextPage && !isFetchingNextPage) void fetchNextPage();
         }}
         refreshControl={
-          <RefreshControl
-            refreshing={isRefreshing}
-            onRefresh={onRefresh}
-            tintColor={colors.textSecondary}
-          />
+          <ThemedRefreshControl isRefreshing={isRefreshing} onRefresh={onRefresh} />
         }
         renderSectionHeader={({ section }) => (
           <View style={styles.sectionHeader}>

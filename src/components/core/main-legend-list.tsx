@@ -39,8 +39,8 @@ export type MainLegendListProps<T> = Omit<
  * not something a shared wrapper should switch on for the whole app.
  *
  * Refresh uses LegendList's built-in `onRefresh`/`refreshing` props (v3), so
- * they pass straight through -- no hand-built `refreshControl` element. Both
- * come from `usePullToRefresh`, which explains why they are not TanStack's
+ * they pass straight through -- no ThemedRefreshControl element here. Both come
+ * from `usePullToRefresh`, which explains why they are not TanStack's
  * `isRefetching`.
  */
 const MainLegendList = <T,>({
