@@ -25,6 +25,18 @@ from public.posts p
 where a.kind = 'post_liked'
   and p.id = a.subject_id;
 
+-- subject_id is polymorphic and carries no foreign key, so the join above
+-- matches nothing for a like whose post was already deleted -- and a like left
+-- with a null recipient is household news, which is the exact inversion of
+-- "nobody hears about attention paid to someone else's post". It found no such
+-- rows, and the trigger below always sets a recipient, so this constrains an
+-- invariant rather than fixing a live fault. It is stated here because nothing
+-- else makes it true: the trigger being correct is not the same as the table
+-- refusing the row.
+alter table public.alerts
+  add constraint alerts_post_liked_has_recipient
+  check (kind <> 'post_liked' or recipient_id is not null);
+
 -- Called by the list, the count, both mark-read RPCs and the RLS policy, so
 -- they cannot drift: a row the list hides but the count includes is a badge
 -- that cannot be cleared.
@@ -81,8 +93,6 @@ create policy "Users can mark alerts they can see as read"
     )
   );
 
--- The per-kind `where` clause from CRU-048 comes back out: post_liked now
--- carries its recipient, so the readers need no knowledge of what a like is.
 create or replace function public.queue_post_liked_alert()
 returns trigger
 language plpgsql

@@ -92,7 +92,7 @@ Every Alert is either **Household News** or **Addressed**, and that is what deci
 An Alert with no recipient. Every Member of the Household sees it — Posts, Missed Feed Alerts, removals and departures.
 
 **Addressed Alert**:
-An Alert with one named recipient. Only that person sees it, and they see it whether or not they are a Member of the Household it came from — which is how an Invite reaches someone who has not joined yet. Like Alerts, role changes and Invites are Addressed.
+An Alert with one named recipient. Only that person sees it — not the rest of the Household. Like Alerts and role changes are Addressed. Invites are meant to be, and that is the case being built towards: an invitee is not a Member yet, so nothing scoped to a Household can reach them.
 
 **Inbox**:
 The list of Alerts a Member can see, and the badge that counts the unread ones. Both are built from the same rule, so the badge can always be cleared by reading the list.

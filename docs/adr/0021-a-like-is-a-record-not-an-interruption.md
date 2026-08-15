@@ -103,9 +103,15 @@ expressed as a `where` clause at all — `list_alerts` gates on `private.is_hous
 invitee is not a Member yet, so no household-scoped rule can reach them.
 
 **`alerts` now has a nullable `recipient_id`.** Null means Household News: everyone in the
-Household is told. Set means the alert is addressed to one person, and reaches them wherever they
-are. The `post_liked` filters in `list_alerts` and `unread_alert_count` are gone; the trigger sets
-the recipient to the post's author instead, and the readers need no knowledge of what a like is.
+Household is told. Set means the alert is addressed to one person. The `post_liked` filters in
+`list_alerts` and `unread_alert_count` are gone; the trigger sets the recipient to the post's author
+instead, and the readers need no knowledge of what a like is.
+
+A check constraint refuses a `post_liked` row with no recipient. Nothing else made that true — the
+trigger always sets one, but `subject_id` carries no foreign key, so a like whose post had already
+been deleted would have survived the backfill with a null recipient and become Household News. That
+is the precise inversion of the promise above, and the table now refuses it rather than trusting the
+trigger.
 
 The rule is stated once, in `private.alert_is_mine(household_id, recipient_id)`, and the two
 readers, the two mark-read RPCs and the RLS policy all call it. The agreement this ADR insisted on
