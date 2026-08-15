@@ -14,12 +14,13 @@ type Props = {
 };
 
 /**
- * The fallback path, for anyone the email cannot reach — most often someone
- * who signed in with Apple's Hide My Email, where the address on the account
- * is a relay and will never match an invite.
+ * How an invite actually reaches someone: there is no email out, so the owner
+ * has to hand this over. The QR only helps if the scanner already has the app,
+ * so the typed code and the share sheet sit beside it rather than behind it.
  *
- * The QR only helps when the scanner already has the app, so the typed code
- * and the share sheet sit alongside it rather than behind it.
+ * Draws no background of its own -- it sits on a card on the invite screen and
+ * flush on a sheet from the members list, and a sheet may only use the two
+ * sheet tokens.
  */
 const InviteCodeCard = ({ code, householdName }: Props) => {
   const styles = useStyles(makeStyles);
@@ -33,7 +34,7 @@ const InviteCodeCard = ({ code, householdName }: Props) => {
   return (
     <View style={styles.card}>
       <AppText size={14} color="textSecondary" align="center">
-        Or have them scan this, or type the code
+        Have them scan this, or type the code
       </AppText>
 
       <View style={styles.qr}>
@@ -55,13 +56,9 @@ const InviteCodeCard = ({ code, householdName }: Props) => {
   );
 };
 
-const makeStyles = ({ spacing, colors }: AppTheme) =>
+const makeStyles = ({ spacing }: AppTheme) =>
   StyleSheet.create({
     card: {
-      backgroundColor: colors.backgroundElement,
-      borderRadius: Radius.card,
-      borderCurve: 'continuous',
-      padding: spacing.four,
       gap: spacing.three
     },
     // A QR must stay dark-on-light to scan, so it keeps a white plate in both
