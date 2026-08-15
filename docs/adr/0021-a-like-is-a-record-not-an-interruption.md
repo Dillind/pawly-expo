@@ -113,9 +113,18 @@ between the list and the count is now structural rather than a thing two functio
 do.
 
 One detail worth recording, because it is easy to get wrong twice: `alert_is_mine` grants execute to
-`authenticated`, unlike every other `security definer` function in these migrations. An RLS policy
-expression is evaluated as the querying role, so a revoke makes the policy fail with "permission
-denied" rather than return false. `private.is_household_member` is granted for the same reason.
+`authenticated`, unlike every other function in these migrations. An RLS policy expression is
+evaluated as the querying role, so a revoke makes the policy fail with "permission denied" rather
+than return false. `private.is_household_member` is granted for the same reason.
+
+**What this does not yet do.** The permission rule is household-agnostic — an Addressed alert is
+visible to its recipient at the RLS layer whether or not they are a Member. The readers are not.
+`list_alerts` and `unread_alert_count` still take a `target_household_id` and still filter on it, so
+an Addressed alert is only reachable through the Household it came from. For a like or a role change
+that is exactly right; the recipient is a Member and is looking at that Household. For an invite it
+is not: an invitee has no Household to ask for, so #44 is unblocked at the schema and still blocked
+at the reader. Dropping that argument is CRU-059's shape, and doing it here would have meant an
+inbox that silently mixed Households before the design called for it.
 
 What did **not** change: a like still never pushes, still writes one row per person per post, and
 still queues nothing when you like your own post. The push path stays closed at the database.

@@ -1,14 +1,18 @@
 -- The inbox stops being "your household's alerts" and becomes "your alerts".
 --
 -- Null recipient means household news -- everyone is told. A set recipient
--- means the alert is addressed to one person, and reaches them wherever they
--- are. An invite is the case that forces this: an invitee is not a member yet,
--- so no household-scoped rule can reach them at all. See ADR 0021, amended.
+-- means the alert is addressed to one person. An invite is the case that
+-- forces this: an invitee is not a member yet, so no household-scoped rule can
+-- reach them at all.
+--
+-- This lays the schema, not the whole route. The RLS policy below is already
+-- household-agnostic, but list_alerts still takes a target_household_id, so an
+-- invitee has no household to ask for. Dropping that argument is #44 and
+-- CRU-059. See ADR 0021, amended.
 
 alter table public.alerts
   add column recipient_id uuid references auth.users (id) on delete cascade;
 
--- The second path is a lookup in its own right, and it is sparse.
 create index alerts_recipient_recent_idx
   on public.alerts (recipient_id, created_at desc)
   where recipient_id is not null;
@@ -21,9 +25,12 @@ from public.posts p
 where a.kind = 'post_liked'
   and p.id = a.subject_id;
 
--- ONE definition of "this alert is mine", so the list, the count, the two
--- mark-read RPCs and the RLS policy cannot drift apart. A row the list hides
--- but the count includes is a badge that cannot be cleared.
+-- Called by the list, the count, both mark-read RPCs and the RLS policy, so
+-- they cannot drift: a row the list hides but the count includes is a badge
+-- that cannot be cleared.
+--
+-- Not SECURITY DEFINER, unlike the rest of this file -- it reads no tables of
+-- its own, and is_household_member is already definer.
 create or replace function private.alert_is_mine(
   alert_household_id uuid,
   alert_recipient_id uuid
@@ -31,7 +38,6 @@ create or replace function private.alert_is_mine(
 returns boolean
 language sql
 stable
-security definer
 set search_path = ''
 as $$
   select case
@@ -40,10 +46,9 @@ as $$
   end;
 $$;
 
--- Executable by the caller, unlike every other SECURITY DEFINER function here:
--- an RLS policy expression is evaluated as the querying role, so a revoke makes
--- the policy fail with "permission denied" rather than return false. This
--- matches private.is_household_member, which is used the same way.
+-- Executable by the caller, unlike the rest of this file: an RLS policy
+-- expression is evaluated as the querying role, so a revoke makes the policy
+-- fail with "permission denied" rather than return false.
 revoke execute on function private.alert_is_mine(uuid, uuid) from public, anon;
 grant execute on function private.alert_is_mine(uuid, uuid) to authenticated, service_role;
 
