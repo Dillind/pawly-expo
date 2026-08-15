@@ -7,6 +7,11 @@ Date: 2026-08-15
 Accepted. Narrows the "likes never queue an alert at all" note in
 `20260809090200_queue_post_alert.sql`.
 
+**Amended by CRU-051 (2026-08-15).** The warning at the end of Consequences came true within a day:
+three personal kinds arrived at once. The `post_liked` filter described below is gone, replaced by a
+`recipient_id` column on `alerts`. See the Amendment at the foot of this file. Nothing else here
+changed — the reasoning held, only the mechanism moved.
+
 ## Context
 
 Liking a post wrote a `post_likes` row and stopped there. The author was never told.
@@ -72,8 +77,8 @@ worth remembering if the household model ever widens.
 ## Alternatives considered
 
 **Leave it alone.** The status quo, and defensible — the app is about feeding a pet, not about
-social feedback. Rejected because the Household stream already exists and is the one part of the
-app people use for pleasure rather than duty; posting into silence is what makes a stream feel
+social feedback. Rejected because the Household tab already exists and is the one part of the
+app people use for pleasure rather than duty; posting into silence is what makes it feel
 dead.
 
 **Push it, behind a preference defaulting to off.** Rejected. It reintroduces the exact failure
@@ -84,3 +89,48 @@ something no one asked for. The inbox already gives the author the information w
 not rejected. It needs an aggregate the current one-row-per-event schema cannot express, and with a
 four-person household the row count it saves is at most three. Worth revisiting only if households
 get larger.
+
+## Amendment — CRU-051, 2026-08-15
+
+The Consequences section above ends with a warning:
+
+> If a second personal kind appears — a comment, a reply — the filter-per-kind approach here will
+> not scale, and the honest answer at that point is a recipient column on `alerts`, not a third
+> bespoke `where` clause.
+
+Three arrived together: a like, a role change (CRU-056), and an invite (#44). The third cannot be
+expressed as a `where` clause at all — `list_alerts` gates on `private.is_household_member`, and an
+invitee is not a Member yet, so no household-scoped rule can reach them.
+
+**`alerts` now has a nullable `recipient_id`.** Null means Household News: everyone in the
+Household is told. Set means the alert is addressed to one person. The `post_liked` filters in
+`list_alerts` and `unread_alert_count` are gone; the trigger sets the recipient to the post's author
+instead, and the readers need no knowledge of what a like is.
+
+A check constraint refuses a `post_liked` row with no recipient. Nothing else made that true — the
+trigger always sets one, but `subject_id` carries no foreign key, so a like whose post had already
+been deleted would have survived the backfill with a null recipient and become Household News. That
+is the precise inversion of the promise above, and the table now refuses it rather than trusting the
+trigger.
+
+The rule is stated once, in `private.alert_is_mine(household_id, recipient_id)`, and the two
+readers, the two mark-read RPCs and the RLS policy all call it. The agreement this ADR insisted on
+between the list and the count is now structural rather than a thing two functions each remember to
+do.
+
+One detail worth recording, because it is easy to get wrong twice: `alert_is_mine` grants execute to
+`authenticated`, unlike every other function in these migrations. An RLS policy expression is
+evaluated as the querying role, so a revoke makes the policy fail with "permission denied" rather
+than return false. `private.is_household_member` is granted for the same reason.
+
+**What this does not yet do.** The permission rule is household-agnostic — an Addressed alert is
+visible to its recipient at the RLS layer whether or not they are a Member. The readers are not.
+`list_alerts` and `unread_alert_count` still take a `target_household_id` and still filter on it, so
+an Addressed alert is only reachable through the Household it came from. For a like or a role change
+that is exactly right; the recipient is a Member and is looking at that Household. For an invite it
+is not: an invitee has no Household to ask for, so #44 is unblocked at the schema and still blocked
+at the reader. Dropping that argument is CRU-059's shape, and doing it here would have meant an
+inbox that silently mixed Households before the design called for it.
+
+What did **not** change: a like still never pushes, still writes one row per person per post, and
+still queues nothing when you like your own post. The push path stays closed at the database.

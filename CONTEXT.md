@@ -82,6 +82,21 @@ _Avoid_: Missed, skipped, overdue, late.
 **Alert**:
 A notification queued for the Members of a Household — a Feed Logged Alert, a Missed Feed Alert, a Post, a Like Alert, or a change to who is in the Household. An Alert is recorded whether or not it is delivered — muting silences the push, not the record.
 
+Every Alert is either **Household News** or **Addressed**, and that is what decides who sees it:
+
+> The Inbox holds what is relevant to you: Household News, plus anything addressed to you
+> personally. A Post is Household News — everyone is told. A Like, a comment, or an Invite is
+> addressed to one person. Nobody hears about attention paid to someone else's Post.
+
+**Household News**:
+An Alert with no recipient. Every Member of the Household sees it — Posts, Missed Feed Alerts, removals and departures.
+
+**Addressed Alert**:
+An Alert with one named recipient. Only that person sees it — not the rest of the Household. Like Alerts and role changes are Addressed. Invites are meant to be, and that is the case being built towards: an invitee is not a Member yet, so nothing scoped to a Household can reach them.
+
+**Inbox**:
+The list of Alerts a Member can see, and the badge that counts the unread ones. Both are built from the same rule, so the badge can always be cleared by reading the list.
+
 **Feed Logged Alert**:
 The immediate push when a Member logs a feed ("[Person] fed [Pet]"). It goes to every Member of the Household except the author, unless that Member has turned Feed Logged Alerts off. Role plays no part in who receives it.
 
@@ -93,7 +108,7 @@ After 3 consecutive Missed Feed Alerts for a pet with no Feed Log in between, Mi
 _Avoid_: Snooze, cooldown, rate limit.
 
 **Like Alert**:
-The record that a Member liked another Member's Post. It is the only Alert addressed to one person rather than the Household — the author sees it, nobody else does. It never pushes: a like is worth a line in a list, not an interruption. See [ADR 0021](./docs/adr/0021-a-like-is-a-record-not-an-interruption.md).
+The record that a Member liked another Member's Post. An Addressed Alert — the author sees it, nobody else does. It never pushes: a like is worth a line in a list, not an interruption. See [ADR 0021](./docs/adr/0021-a-like-is-a-record-not-an-interruption.md).
 
 **Suppressed Alert**:
 An Alert that was recorded but deliberately not delivered, because the feed it describes was logged too long after it actually happened to be worth interrupting anyone. Distinct from a failed delivery.
