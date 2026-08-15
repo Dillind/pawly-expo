@@ -1,48 +1,46 @@
 import type { Alert } from '@/services/alert.service';
 
-/** Split so the actor can be bold inside one line. `lead` is null for a
- * missed feed, which nobody did. */
-export type AlertSentence = { lead: string | null; rest: string };
-
 const someone = (name: string | null) => name ?? 'Member';
 
-const quoted = (caption: string | null) => (caption ? ` “${caption.trim()}”` : '');
+const quoted = (caption: string) => `“${caption.trim()}”`;
 
 const slotWord = (label: string | null) =>
   !label || label === 'custom' ? 'feed' : label.toLowerCase();
 
-export function alertSentence(alert: Alert): AlertSentence {
+/**
+ * One line of plain English. Every branch has a version that says less, because
+ * a row outlives the subject it names.
+ */
+export function alertSentence(alert: Alert): string {
   const actor = someone(alert.actorName);
 
   switch (alert.kind) {
     case 'feed_logged':
-      return alert.petName
-        ? { lead: actor, rest: ` fed ${alert.petName}` }
-        : { lead: actor, rest: ' logged a feed' };
+      return alert.petName ? `${actor} fed ${alert.petName}` : `${actor} logged a feed`;
 
     case 'missed_feed':
       return alert.petName
-        ? { lead: null, rest: `${alert.petName}’s ${slotWord(alert.slotLabel)} was missed` }
-        : { lead: null, rest: 'A feed was missed' };
+        ? `${alert.petName}’s ${slotWord(alert.slotLabel)} was missed`
+        : 'A feed was missed';
 
     case 'post':
       return alert.postCaption
-        ? { lead: actor, rest: ` posted${quoted(alert.postCaption)}` }
-        : { lead: actor, rest: ' shared a photo' };
+        ? `${actor} posted ${quoted(alert.postCaption)}`
+        : `${actor} shared a photo`;
 
     case 'member_removed':
       return alert.subjectIsMe
-        ? { lead: actor, rest: ' removed you from the household' }
-        : { lead: actor, rest: ` removed ${someone(alert.subjectName)}` };
+        ? `${actor} removed you from the household`
+        : `${actor} removed ${someone(alert.subjectName)}`;
 
     // The new role is not recorded on the alert, so this cannot name it.
     case 'member_role_changed':
       return alert.subjectIsMe
-        ? { lead: actor, rest: ' changed your role' }
-        : { lead: actor, rest: ` changed ${someone(alert.subjectName)}’s role` };
+        ? `${actor} changed your role`
+        : `${actor} changed ${someone(alert.subjectName)}’s role`;
 
     case 'member_left':
-      return { lead: someone(alert.subjectName ?? alert.actorName), rest: ' left the household' };
+      return `${someone(alert.subjectName ?? alert.actorName)} left the household`;
   }
 }
 

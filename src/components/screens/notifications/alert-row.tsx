@@ -6,14 +6,15 @@ import PetAvatar from '@/components/core/pet-avatar';
 import { type AppTheme } from '@/constants/theme';
 import { useStyles } from '@/hooks/use-styles';
 import { alertGlyph, alertSentence } from '@/lib/alert-copy';
-import { formatRelativeTime } from '@/lib/dates';
+import { formatAlertTime } from '@/lib/dates';
 import type { Alert } from '@/services/alert.service';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 
 const AVATAR = 40;
 
 type Props = {
   alert: Alert;
+  timezone: string;
   onPress: () => void;
 };
 
@@ -30,14 +31,14 @@ const Leading = ({ alert }: { alert: Alert }) => {
   );
 };
 
-const AlertRow = ({ alert, onPress }: Props) => {
+const AlertRow = ({ alert, timezone, onPress }: Props) => {
   const styles = useStyles(makeStyles);
-  const { lead, rest } = alertSentence(alert);
+  const sentence = alertSentence(alert);
 
   return (
     <PressableOpacity
       accessibilityRole="button"
-      accessibilityLabel={`${lead ?? ''}${rest}`}
+      accessibilityLabel={sentence}
       style={[styles.row, !alert.isRead && styles.unread]}
       onPress={onPress}>
       <View>
@@ -51,12 +52,11 @@ const AlertRow = ({ alert, onPress }: Props) => {
 
       <View style={styles.body}>
         <AppText size={15} numberOfLines={3}>
-          {lead && <Text style={styles.lead}>{lead}</Text>}
-          {rest}
+          {sentence}
         </AppText>
 
         <AppText size={13} color="textSecondary">
-          {formatRelativeTime(alert.createdAt)}
+          {formatAlertTime(alert.createdAt, timezone)}
         </AppText>
       </View>
     </PressableOpacity>
@@ -92,9 +92,6 @@ const makeStyles = ({ colors, spacing }: AppTheme) =>
     body: {
       flex: 1,
       gap: 2
-    },
-    lead: {
-      fontWeight: '600'
     }
   });
 
