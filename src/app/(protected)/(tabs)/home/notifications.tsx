@@ -155,7 +155,7 @@ export default function Notifications() {
         )}
         renderItem={({ item, index, section }) => (
           <>
-            <AlertRow alert={item} onPress={() => openSubject(item)} />
+            <AlertRow alert={item} timezone={timezone} onPress={() => openSubject(item)} />
             {/* Only a read row draws a rule -- see AlertRow's unread fill. */}
             {item.isRead && index < section.data.length - 1 && (
               <View style={styles.dividerInset}>
