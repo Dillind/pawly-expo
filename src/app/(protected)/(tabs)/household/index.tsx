@@ -14,6 +14,7 @@ import {
   usePosts,
   useToggleLike
 } from '@/hooks/queries/use-posts';
+import { usePullToRefresh } from '@/hooks/use-pull-to-refresh';
 import { useRefreshOnFocus } from '@/hooks/use-refresh-on-focus';
 import { useStyles } from '@/hooks/use-styles';
 import type { Post } from '@/services/post.service';
@@ -47,6 +48,7 @@ const Household = () => {
   } = usePosts(householdId, userId ?? undefined);
 
   useRefreshOnFocus(['posts']);
+  const { isRefreshing, onRefresh } = usePullToRefresh([refetch]);
 
   const { mutate: toggleLike } = useToggleLike(householdId);
   const { mutate: deletePost } = useDeletePost(householdId);
@@ -110,6 +112,8 @@ const Household = () => {
           if (hasNextPage) void fetchNextPage();
         }}
         isLoadingMore={isFetchingNextPage}
+        onRefresh={onRefresh}
+        isRefreshing={isRefreshing}
         keyExtractor={(post) => post.id}
         estimatedItemSize={520}
         contentContainerStyle={styles.listContent}

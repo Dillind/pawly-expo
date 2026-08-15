@@ -6,6 +6,7 @@ import ScreenView from '@/components/layout/screen-view';
 import PetManageRow from '@/components/screens/home/pet-manage-row';
 import { BottomTabInset, type AppTheme } from '@/constants/theme';
 import { usePets } from '@/hooks/queries/use-pets';
+import { usePullToRefresh } from '@/hooks/use-pull-to-refresh';
 import { useStyles } from '@/hooks/use-styles';
 import { ActivityIndicator, StyleSheet, View } from 'react-native';
 
@@ -13,6 +14,7 @@ const Pets = () => {
   const styles = useStyles(makeStyles);
 
   const { data: pets = [], isLoading, isError, refetch } = usePets();
+  const { isRefreshing, onRefresh } = usePullToRefresh([refetch]);
 
   const renderBody = () => {
     if (isError) {
@@ -51,7 +53,9 @@ const Pets = () => {
     <ScreenView edges={[]}>
       <ScreenScrollView
         contentContainerStyle={styles.content}
-        contentInsetAdjustmentBehavior="automatic">
+        contentInsetAdjustmentBehavior="automatic"
+        isRefreshing={isRefreshing}
+        onRefresh={onRefresh}>
         {renderBody()}
       </ScreenScrollView>
     </ScreenView>

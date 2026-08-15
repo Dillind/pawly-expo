@@ -23,6 +23,7 @@ export type MainLegendListProps<T> = Omit<
   isLoading?: boolean;
   isError?: boolean;
   onRetry?: () => void;
+  isRefreshing?: boolean;
   ListFooterComponent?: ReactElement | null;
 };
 
@@ -38,7 +39,9 @@ export type MainLegendListProps<T> = Omit<
  * not something a shared wrapper should switch on for the whole app.
  *
  * Refresh uses LegendList's built-in `onRefresh`/`refreshing` props (v3), so
- * they pass straight through -- no hand-built `refreshControl` element.
+ * they pass straight through -- no hand-built `refreshControl` element. Both
+ * come from `usePullToRefresh`, which explains why they are not TanStack's
+ * `isRefetching`.
  */
 const MainLegendList = <T,>({
   data,
@@ -50,6 +53,8 @@ const MainLegendList = <T,>({
   isLoading = false,
   isError = false,
   onRetry,
+  onRefresh,
+  isRefreshing = false,
   ListFooterComponent,
   onEndReachedThreshold = 0.5,
   showsVerticalScrollIndicator = false,
@@ -93,6 +98,8 @@ const MainLegendList = <T,>({
       }
       onEndReached={onLoadMore ? () => !isLoadingMore && onLoadMore() : undefined}
       onEndReachedThreshold={onEndReachedThreshold}
+      onRefresh={onRefresh}
+      refreshing={onRefresh ? isRefreshing : undefined}
       showsVerticalScrollIndicator={showsVerticalScrollIndicator}
       showsHorizontalScrollIndicator={showsHorizontalScrollIndicator}
       ListFooterComponent={footer}

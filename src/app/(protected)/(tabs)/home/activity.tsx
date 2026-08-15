@@ -10,6 +10,7 @@ import { useFeedLog } from '@/hooks/queries/use-feed-log';
 import { useFeedLogs } from '@/hooks/queries/use-feed-logs';
 import { useHousehold } from '@/hooks/queries/use-household';
 import { usePets } from '@/hooks/queries/use-pets';
+import { usePullToRefresh } from '@/hooks/use-pull-to-refresh';
 import { useRefreshOnFocus } from '@/hooks/use-refresh-on-focus';
 import { useStyles } from '@/hooks/use-styles';
 import { dayInTimezone } from '@/lib/dates';
@@ -39,6 +40,8 @@ const Activity = () => {
 
   const { data, isLoading, isError, refetch, fetchNextPage, hasNextPage, isFetchingNextPage } =
     useFeedLogs(petIds);
+
+  const { isRefreshing, onRefresh } = usePullToRefresh([refetch]);
 
   useRefreshOnFocus(['feed-logs']);
 
@@ -121,6 +124,8 @@ const Activity = () => {
           if (hasNextPage) void fetchNextPage();
         }}
         isLoadingMore={isFetchingNextPage}
+        onRefresh={onRefresh}
+        isRefreshing={isRefreshing}
         keyExtractor={(item) =>
           item.kind === 'header' ? `header-${item.day}` : `log-${item.log.id}`
         }

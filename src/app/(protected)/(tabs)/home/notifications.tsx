@@ -13,13 +13,15 @@ import {
   useUnreadAlertCount
 } from '@/hooks/queries/use-alerts';
 import { useHousehold } from '@/hooks/queries/use-household';
+import { usePullToRefresh } from '@/hooks/use-pull-to-refresh';
 import { useStyles } from '@/hooks/use-styles';
+import { useTheme } from '@/hooks/use-theme';
 import { compareDayBuckets, dayBucket, type DayBucket } from '@/lib/dates';
 import type { Alert } from '@/services/alert.service';
 import { SectionList, type SectionListViewToken } from '@legendapp/list/section-list';
 import { Stack, useRouter } from 'expo-router';
 import { useCallback, useMemo, useRef } from 'react';
-import { ActivityIndicator, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, RefreshControl, StyleSheet, View } from 'react-native';
 
 type Section = { title: DayBucket; data: Alert[] };
 
@@ -45,6 +47,7 @@ const groupByDay = (alerts: Alert[], timezone: string): Section[] => {
  */
 export default function Notifications() {
   const styles = useStyles(makeStyles);
+  const { colors } = useTheme();
   const router = useRouter();
 
   const { data: household } = useHousehold();
@@ -53,6 +56,8 @@ export default function Notifications() {
 
   const { data, isLoading, isError, refetch, fetchNextPage, hasNextPage, isFetchingNextPage } =
     useAlerts(householdId);
+
+  const { isRefreshing, onRefresh } = usePullToRefresh([refetch]);
   const { mutate: markRead } = useMarkAlertsRead(householdId);
   const { mutate: markAllRead, isPending: isMarkingAll } = useMarkAllAlertsRead(householdId);
   const { data: unreadCount = 0 } = useUnreadAlertCount(householdId);
@@ -147,6 +152,13 @@ export default function Notifications() {
         onEndReached={() => {
           if (hasNextPage && !isFetchingNextPage) void fetchNextPage();
         }}
+        refreshControl={
+          <RefreshControl
+            refreshing={isRefreshing}
+            onRefresh={onRefresh}
+            tintColor={colors.textSecondary}
+          />
+        }
         renderSectionHeader={({ section }) => (
           <View style={styles.sectionHeader}>
             <AppText size={12} color="textSecondary" fontWeight="bold">

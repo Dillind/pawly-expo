@@ -21,11 +21,13 @@ import { useHouseholds } from '@/hooks/queries/use-households';
 import { usePets } from '@/hooks/queries/use-pets';
 import { useLogFlow } from '@/hooks/use-log-flow';
 import { useRequestNotificationPermission } from '@/hooks/use-notification-permission';
+import { usePullToRefresh } from '@/hooks/use-pull-to-refresh';
 import { useRefreshOnFocus } from '@/hooks/use-refresh-on-focus';
 import { useStyles } from '@/hooks/use-styles';
 import { formatDayAndDate, todayInTimezone } from '@/lib/dates';
 import type { Pet } from '@/types/core';
 import type { TrueSheet } from '@lodev09/react-native-true-sheet';
+import { useQueryClient } from '@tanstack/react-query';
 import * as Notifications from 'expo-notifications';
 import { useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, StyleSheet, View } from 'react-native';
@@ -41,6 +43,14 @@ const Home = () => {
   const { data: households = [], isLoading: isLoadingHouseholds } = useHouseholds();
   const { data: pets = [], isLoading, isError, refetch } = usePets();
   const { data: members = [] } = useHouseholdMembers();
+  const queryClient = useQueryClient();
+
+  // The day's counts come from slot-states, not from pets, so refreshing only
+  // the latter reloads the list and leaves them stale.
+  const { isRefreshing, onRefresh } = usePullToRefresh([
+    refetch,
+    () => queryClient.refetchQueries({ queryKey: ['slot-states'], type: 'active' })
+  ]);
 
   const timezone = household?.timezone;
   const today = timezone ? todayInTimezone(timezone) : undefined;
@@ -143,7 +153,10 @@ const Home = () => {
 
   return (
     <ScreenView>
-      <ScreenScrollView contentContainerStyle={styles.content}>
+      <ScreenScrollView
+        contentContainerStyle={styles.content}
+        isRefreshing={isRefreshing}
+        onRefresh={onRefresh}>
         <View style={styles.headerRow}>
           <HouseholdSwitcher />
           {hasHousehold && <NotificationBell householdId={household?.id} />}
