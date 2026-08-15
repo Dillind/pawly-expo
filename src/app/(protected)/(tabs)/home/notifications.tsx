@@ -1,7 +1,6 @@
 import AppText from '@/components/core/app-text';
 import Divider from '@/components/core/divider';
 import EmptyState from '@/components/core/empty-state';
-import ErrorState from '@/components/core/error-state';
 import HeaderIconButton from '@/components/core/header-icon-button';
 import MainLegendList from '@/components/core/main-legend-list';
 import ScreenView from '@/components/layout/screen-view';
@@ -18,7 +17,10 @@ import { useHousehold } from '@/hooks/queries/use-household';
 import { usePullToRefresh } from '@/hooks/use-pull-to-refresh';
 import { useStyles } from '@/hooks/use-styles';
 import type { Alert } from '@/services/alert.service';
-import type { LegendListRenderItemProps } from '@legendapp/list/react-native';
+import type {
+  LegendListRenderItemProps,
+  OnViewableItemsChangedInfo
+} from '@legendapp/list/react-native';
 import { Stack, useRouter } from 'expo-router';
 import { useCallback, useMemo, useRef } from 'react';
 import { StyleSheet, View } from 'react-native';
@@ -45,11 +47,10 @@ export default function Notifications() {
   const alreadyMarked = useRef(new Set<string>());
 
   const onViewableItemsChanged = useCallback(
-    ({ viewableItems }: { viewableItems: { item: Alert | undefined }[] }) => {
+    ({ viewableItems }: OnViewableItemsChangedInfo<Alert>) => {
       const unseen = viewableItems
         .map((token) => token.item)
-        .filter((alert): alert is Alert => Boolean(alert) && !alert!.isRead)
-        .filter((alert) => !alreadyMarked.current.has(alert.id))
+        .filter((alert) => !alert.isRead && !alreadyMarked.current.has(alert.id))
         .map((alert) => alert.id);
 
       if (unseen.length === 0) return;
@@ -92,14 +93,6 @@ export default function Notifications() {
     [timezone, openSubject, alerts.length, styles.dividerInset]
   );
 
-  if (isError) {
-    return (
-      <ScreenView>
-        <ErrorState title="Couldn't load notifications" onRetry={() => void refetch()} />
-      </ScreenView>
-    );
-  }
-
   const hasUnread = unreadCount > 0;
 
   return (
@@ -124,6 +117,9 @@ export default function Notifications() {
         renderItem={renderItem}
         keyExtractor={(alert) => alert.id}
         isLoading={isLoading}
+        isError={isError}
+        errorTitle="Couldn't load notifications"
+        onRetry={() => void refetch()}
         onRefresh={onRefresh}
         isRefreshing={isRefreshing}
         onLoadMore={() => {

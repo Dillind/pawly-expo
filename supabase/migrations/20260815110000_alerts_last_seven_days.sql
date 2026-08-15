@@ -1,7 +1,21 @@
 -- The inbox holds the last seven days. Nothing is deleted: an alerts row is one
 -- per event, shared by the household, and it is also the delivery record -- so
--- the cutoff is applied when reading. All three readers take the same interval,
--- or the badge counts rows the list cannot show.
+-- the cutoff is applied when reading.
+--
+-- One definition, for the same reason private.alert_is_mine has one: a row the
+-- list hides but the count includes is a badge that cannot be cleared.
+create or replace function private.alert_window_start()
+returns timestamptz
+language sql
+stable
+set search_path = ''
+as $$
+  select now() - interval '7 days';
+$$;
+
+revoke execute on function private.alert_window_start() from public, anon;
+grant execute on function private.alert_window_start() to authenticated, service_role;
+
 create or replace function public.list_alerts(
   target_household_id uuid,
   before_created_at timestamptz default null,
@@ -68,7 +82,7 @@ as $$
     and subject_user.id = a.subject_id
 
   where a.household_id = target_household_id
-    and a.created_at >= now() - interval '7 days'
+    and a.created_at >= private.alert_window_start()
     and private.alert_is_mine(a.household_id, a.recipient_id)
     -- Your own doing is not news to you. A membership alert is the exception
     -- worth noting: being removed is someone else's action, so it survives.
@@ -94,7 +108,7 @@ as $$
   select count(*)::integer
   from public.alerts a
   where a.household_id = target_household_id
-    and a.created_at >= now() - interval '7 days'
+    and a.created_at >= private.alert_window_start()
     and private.alert_is_mine(a.household_id, a.recipient_id)
     and (a.actor_id is null or a.actor_id <> (select auth.uid()))
     and not exists (
@@ -116,7 +130,7 @@ as $$
   select a.id, (select auth.uid())
   from public.alerts a
   where a.household_id = target_household_id
-    and a.created_at >= now() - interval '7 days'
+    and a.created_at >= private.alert_window_start()
     and private.alert_is_mine(a.household_id, a.recipient_id)
     and (a.actor_id is null or a.actor_id <> (select auth.uid()))
   on conflict (alert_id, user_id) do nothing;

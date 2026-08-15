@@ -22,27 +22,12 @@ export type MainLegendListProps<T> = Omit<
   isLoadingMore?: boolean;
   isLoading?: boolean;
   isError?: boolean;
+  errorTitle?: string;
   onRetry?: () => void;
   isRefreshing?: boolean;
   ListFooterComponent?: ReactElement | null;
 };
 
-/**
- * The single list primitive: every vertical and horizontal list goes through
- * here so paging, pull-to-refresh, and the loading/error/empty states are
- * decided once rather than re-derived per screen.
- *
- * `recycleItems` is deliberately left at LegendList's own default of `false`.
- * Recycling reuses item component instances across rows, so any row holding
- * local state (an open swipe, an inline editor) shows another row's state when
- * reused. It is a per-list decision the call site has to opt into knowingly,
- * not something a shared wrapper should switch on for the whole app.
- *
- * Refresh uses LegendList's built-in `onRefresh`/`refreshing` props (v3), so
- * they pass straight through -- no ThemedRefreshControl element here. Both come
- * from `usePullToRefresh`, which explains why they are not TanStack's
- * `isRefetching`.
- */
 const MainLegendList = <T,>({
   data,
   renderItem,
@@ -52,6 +37,7 @@ const MainLegendList = <T,>({
   isLoadingMore = false,
   isLoading = false,
   isError = false,
+  errorTitle,
   onRetry,
   onRefresh,
   isRefreshing = false,
@@ -67,7 +53,7 @@ const MainLegendList = <T,>({
   if (isError && onRetry) {
     return (
       <View style={styles.state}>
-        <ErrorState onRetry={onRetry} />
+        <ErrorState title={errorTitle} onRetry={onRetry} />
       </View>
     );
   }

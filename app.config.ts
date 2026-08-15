@@ -11,7 +11,7 @@ const getConfig = ({ config }: ConfigContext): ExpoConfig => {
     version: '1.0.0',
     orientation: 'portrait',
     scheme: 'crumpetapp',
-    icon: './src/assets/images/icon.png',
+    icon: './assets/images/icon.png',
     userInterfaceStyle: 'automatic',
     ios: {
       ...config.ios,
@@ -27,7 +27,7 @@ const getConfig = ({ config }: ConfigContext): ExpoConfig => {
       package: 'au.com.crumpet.android',
       // googleServicesFile: './google-services.json',
       adaptiveIcon: {
-        foregroundImage: './src/assets/images/icon.png',
+        foregroundImage: './assets/images/icon.png',
         backgroundColor: '#ffffff'
       }
     },
