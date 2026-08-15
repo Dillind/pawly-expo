@@ -2,6 +2,7 @@ import AppText from '@/components/core/app-text';
 import Divider from '@/components/core/divider';
 import EmptyState from '@/components/core/empty-state';
 import ErrorState from '@/components/core/error-state';
+import HeaderIconButton from '@/components/core/header-icon-button';
 import ScreenView from '@/components/layout/screen-view';
 import AlertRow from '@/components/screens/notifications/alert-row';
 import { BottomTabInset, type AppTheme } from '@/constants/theme';
@@ -15,9 +16,8 @@ import { useHousehold } from '@/hooks/queries/use-household';
 import { useStyles } from '@/hooks/use-styles';
 import { compareDayBuckets, dayBucket, type DayBucket } from '@/lib/dates';
 import type { Alert } from '@/services/alert.service';
-import HeaderIconButton from '@/components/core/header-icon-button';
-import { Stack, useRouter } from 'expo-router';
 import { SectionList, type SectionListViewToken } from '@legendapp/list/section-list';
+import { Stack, useRouter } from 'expo-router';
 import { useCallback, useMemo, useRef } from 'react';
 import { ActivityIndicator, StyleSheet, View } from 'react-native';
 
@@ -113,8 +113,6 @@ export default function Notifications() {
     );
   }
 
-  // The server's count: `isRead` in the list is deliberately stale, so
-  // deriving this from it would strand the button on screen.
   const hasUnread = unreadCount > 0;
 
   return (
@@ -156,7 +154,6 @@ export default function Notifications() {
         renderItem={({ item, index, section }) => (
           <>
             <AlertRow alert={item} timezone={timezone} onPress={() => openSubject(item)} />
-            {/* Only a read row draws a rule -- see AlertRow's unread fill. */}
             {item.isRead && index < section.data.length - 1 && (
               <View style={styles.dividerInset}>
                 <Divider />

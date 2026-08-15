@@ -16,8 +16,8 @@ import { CREATE_ACTIONS } from '@/constants/create-actions';
 import { HOME_TILES } from '@/constants/home-tiles';
 import { BottomTabInset, type AppTheme } from '@/constants/theme';
 import { useHousehold } from '@/hooks/queries/use-household';
-import { useHouseholds } from '@/hooks/queries/use-households';
 import { useHouseholdMembers } from '@/hooks/queries/use-household-members';
+import { useHouseholds } from '@/hooks/queries/use-households';
 import { usePets } from '@/hooks/queries/use-pets';
 import { useLogFlow } from '@/hooks/use-log-flow';
 import { useRequestNotificationPermission } from '@/hooks/use-notification-permission';
@@ -116,7 +116,6 @@ const Home = () => {
     }
 
     return (
-      // Animated so the sections below an expanding one slide rather than jump.
       <Animated.View style={styles.sections} layout={LinearTransition.duration(220)}>
         {pets.map((pet) => (
           <PetSection
@@ -127,8 +126,7 @@ const Home = () => {
             members={members}
             isOnlyPet={isOnlyPet}
             onOpenLog={(logId) => openLog(logId, pet.id)}
-            // Named before the pick so that if a confirm follows, backing out
-            // of it lands on this pet's list rather than the pet picker.
+
             onPickSlot={(pickedPet, slot) => {
               setLogPet(pickedPet);
               flow.pickSlot(pickedPet, slot);
@@ -168,8 +166,6 @@ const Home = () => {
         {hasHousehold && <TileGrid tiles={HOME_TILES} />}
       </ScreenScrollView>
 
-      {/* Nothing in it applies before a household exists, and the two doors
-          above are already the only two things to do. */}
       {hasHousehold && (
         <ActionPopover
           actions={CREATE_ACTIONS}
@@ -207,7 +203,6 @@ const makeStyles = ({ spacing }: AppTheme) =>
   StyleSheet.create({
     content: {
       flexGrow: 1,
-      paddingTop: spacing.four,
       paddingBottom: BottomTabInset + spacing.four,
       gap: spacing.three
     },

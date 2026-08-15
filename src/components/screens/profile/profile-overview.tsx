@@ -4,13 +4,13 @@ import Icon from '@/components/core/icon';
 import IconButton from '@/components/core/icon-button';
 import ScreenScrollView from '@/components/layout/screen-scroll-view';
 import ScreenView from '@/components/layout/screen-view';
+import { ROLE_OPTIONS } from '@/constants/options';
 import { BottomTabInset, Radius, type AppTheme } from '@/constants/theme';
 import { useHousehold } from '@/hooks/queries/use-household';
 import { useHouseholdMembers } from '@/hooks/queries/use-household-members';
 import { useSessionEmail } from '@/hooks/queries/use-session-email';
 import { useUserProfile } from '@/hooks/queries/use-user-profile';
 import { useStyles } from '@/hooks/use-styles';
-import { ROLE_OPTIONS } from '@/constants/options';
 import { fullName } from '@/utils/members';
 import { optionLabel } from '@/utils/options';
 import { useRouter } from 'expo-router';
@@ -83,7 +83,6 @@ const ProfileOverview = () => {
 const makeStyles = ({ colors, spacing }: AppTheme) =>
   StyleSheet.create({
     content: {
-      paddingVertical: spacing.four,
       paddingBottom: BottomTabInset + spacing.four,
       gap: spacing.four
     },
