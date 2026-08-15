@@ -14,7 +14,7 @@ export default function HouseholdLayout() {
         {/* Full screen rather than a sheet. The composer stacks an image
             picker, a keyboard-driven caption and a date picker; a native modal
             over a native sheet is the rough edge the Sheets rule warns about,
-            and none of the stream behind it is useful context. */}
+            and none of the Household tab behind it is useful context. */}
         <Stack.Screen
           name="new-post"
           options={{ presentation: 'fullScreenModal', animation: 'slide_from_bottom' }}
