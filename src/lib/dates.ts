@@ -169,9 +169,9 @@ export function formatAlertTime(isoTimestamp: string, zone: string, now: Date = 
   if (daysAgo === 1) return 'Yesterday';
   if (daysAgo < 7) return `${daysAgo}d ago`;
 
-  const then = new Date(isoTimestamp);
+  const then = dayjs(dayInTimezone(isoTimestamp, zone), DAY_FORMAT);
 
-  return dayjs(then).format(then.getFullYear() === now.getFullYear() ? 'D MMM' : 'D MMM YYYY');
+  return then.format(then.year() === zonedParts(now, zone).year ? 'D MMM' : 'D MMM YYYY');
 }
 
 /** Activity's day headers: "Today", "Yesterday", then "23 July 2026". */
