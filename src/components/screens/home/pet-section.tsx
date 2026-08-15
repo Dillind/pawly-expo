@@ -106,24 +106,23 @@ const PetSection = ({
           <PetAvatar photoUrl={pet.photoUrl} size={40} />
 
           <View style={styles.names}>
-            <AppText size={18} fontWeight="bold">
+            <AppText size={18} fontWeight="bold" numberOfLines={1}>
               {pet.name}
             </AppText>
             {slots && (
-              <AppText size={13} color="textSecondary" numberOfLines={1}>
-                {summarise(slots, hasBadge)}
-              </AppText>
+              <View style={styles.summaryRow}>
+                <AppText size={13} color="textSecondary" numberOfLines={1}>
+                  {summarise(slots, hasBadge)}
+                </AppText>
+                {hasBadge && (
+                  <AppText size={13} color="error" numberOfLines={1}>
+                    · {notLogged} not logged
+                  </AppText>
+                )}
+              </View>
             )}
           </View>
         </PressableOpacity>
-
-        {hasBadge && (
-          <View style={styles.badge}>
-            <AppText size={12} color="error">
-              {notLogged} not logged
-            </AppText>
-          </View>
-        )}
 
         {/* Nothing outstanding, so the fast path has nothing to be fast about. */}
         {isAllLogged ? (
@@ -206,11 +205,12 @@ const makeStyles = ({ colors, spacing }: AppTheme) =>
       flex: 1,
       gap: 2
     },
-    badge: {
-      paddingHorizontal: spacing.two,
-      paddingVertical: 2,
-      borderRadius: 999,
-      backgroundColor: colors.backgroundElement
+    // On the second line rather than beside the name: on a narrow phone the
+    // header row could not hold both, and it was the name that broke.
+    summaryRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 4
     }
   });
 
