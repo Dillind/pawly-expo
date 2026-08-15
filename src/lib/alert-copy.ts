@@ -28,6 +28,12 @@ export function alertSentence(alert: Alert): string {
         ? `${actor} posted ${quoted(alert.postCaption)}`
         : `${actor} shared a photo`;
 
+    // Only ever shown to the post's author, so "your" is always true here.
+    case 'post_liked':
+      return alert.postCaption
+        ? `${actor} liked your post ${quoted(alert.postCaption)}`
+        : `${actor} liked your photo`;
+
     case 'member_removed':
       return alert.subjectIsMe
         ? `${actor} removed you from the household`
@@ -44,7 +50,7 @@ export function alertSentence(alert: Alert): string {
   }
 }
 
-export type AlertGlyph = 'utensils' | 'circleAlert' | 'image' | 'users';
+export type AlertGlyph = 'utensils' | 'circleAlert' | 'image' | 'heart' | 'users';
 
 export const alertGlyph = (kind: Alert['kind']): AlertGlyph => {
   switch (kind) {
@@ -54,6 +60,8 @@ export const alertGlyph = (kind: Alert['kind']): AlertGlyph => {
       return 'circleAlert';
     case 'post':
       return 'image';
+    case 'post_liked':
+      return 'heart';
     default:
       return 'users';
   }

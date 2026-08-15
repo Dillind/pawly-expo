@@ -55,6 +55,20 @@ describe('alertSentence', () => {
     expect(sentence).toBe('Sarah Smith shared a photo');
   });
 
+  it('says "your post" for a like, and quotes the caption', () => {
+    const sentence = alertSentence(
+      alert({ kind: 'post_liked', postCaption: 'Muddy paws again', petName: null })
+    );
+
+    expect(sentence).toBe('Sarah Smith liked your post “Muddy paws again”');
+  });
+
+  it('falls back when a liked post has no caption', () => {
+    const sentence = alertSentence(alert({ kind: 'post_liked', postCaption: null, petName: null }));
+
+    expect(sentence).toBe('Sarah Smith liked your photo');
+  });
+
   // The row outlives its subject, so a deleted feed log must still read.
   it('says less rather than breaking when the pet is gone', () => {
     expect(alertSentence(alert({ petName: null }))).toBe('Sarah Smith logged a feed');
@@ -102,5 +116,6 @@ describe('alertGlyph', () => {
     expect(alertGlyph('feed_logged')).toBe('utensils');
     expect(alertGlyph('missed_feed')).toBe('circleAlert');
     expect(alertGlyph('post')).toBe('image');
+    expect(alertGlyph('post_liked')).toBe('heart');
   });
 });

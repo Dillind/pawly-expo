@@ -18,9 +18,12 @@ import { BottomTabInset, type AppTheme } from '@/constants/theme';
 import { useHousehold } from '@/hooks/queries/use-household';
 import { useHouseholdMembers } from '@/hooks/queries/use-household-members';
 import { useHouseholds } from '@/hooks/queries/use-households';
+import { useRefreshUnreadAlertCount } from '@/hooks/queries/use-alerts';
 import { usePets } from '@/hooks/queries/use-pets';
+import { useRefreshSlotStates } from '@/hooks/queries/use-slot-states';
 import { useLogFlow } from '@/hooks/use-log-flow';
 import { useRequestNotificationPermission } from '@/hooks/use-notification-permission';
+import { usePullToRefresh } from '@/hooks/use-pull-to-refresh';
 import { useRefreshOnFocus } from '@/hooks/use-refresh-on-focus';
 import { useStyles } from '@/hooks/use-styles';
 import { formatDayAndDate, todayInTimezone } from '@/lib/dates';
@@ -41,6 +44,17 @@ const Home = () => {
   const { data: households = [], isLoading: isLoadingHouseholds } = useHouseholds();
   const { data: pets = [], isLoading, isError, refetch } = usePets();
   const { data: members = [] } = useHouseholdMembers();
+
+  const refreshSlotStates = useRefreshSlotStates();
+  const refreshUnread = useRefreshUnreadAlertCount(household?.id);
+
+  // The rows come from pets, the day's counts from slot-states, and the bell
+  // from a third query. Refreshing one leaves the other two stale on screen.
+  const { isRefreshing, onRefresh } = usePullToRefresh([
+    refetch,
+    refreshSlotStates,
+    refreshUnread
+  ]);
 
   const timezone = household?.timezone;
   const today = timezone ? todayInTimezone(timezone) : undefined;
@@ -143,7 +157,10 @@ const Home = () => {
 
   return (
     <ScreenView>
-      <ScreenScrollView contentContainerStyle={styles.content}>
+      <ScreenScrollView
+        contentContainerStyle={styles.content}
+        isRefreshing={isRefreshing}
+        onRefresh={onRefresh}>
         <View style={styles.headerRow}>
           <HouseholdSwitcher />
           {hasHousehold && <NotificationBell householdId={household?.id} />}

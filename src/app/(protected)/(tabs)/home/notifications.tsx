@@ -3,6 +3,7 @@ import Divider from '@/components/core/divider';
 import EmptyState from '@/components/core/empty-state';
 import ErrorState from '@/components/core/error-state';
 import HeaderIconButton from '@/components/core/header-icon-button';
+import ThemedRefreshControl from '@/components/core/themed-refresh-control';
 import ScreenView from '@/components/layout/screen-view';
 import AlertRow from '@/components/screens/notifications/alert-row';
 import { BottomTabInset, type AppTheme } from '@/constants/theme';
@@ -10,9 +11,11 @@ import {
   useAlerts,
   useMarkAlertsRead,
   useMarkAllAlertsRead,
+  useRefreshUnreadAlertCount,
   useUnreadAlertCount
 } from '@/hooks/queries/use-alerts';
 import { useHousehold } from '@/hooks/queries/use-household';
+import { usePullToRefresh } from '@/hooks/use-pull-to-refresh';
 import { useStyles } from '@/hooks/use-styles';
 import { compareDayBuckets, dayBucket, type DayBucket } from '@/lib/dates';
 import type { Alert } from '@/services/alert.service';
@@ -53,6 +56,9 @@ export default function Notifications() {
 
   const { data, isLoading, isError, refetch, fetchNextPage, hasNextPage, isFetchingNextPage } =
     useAlerts(householdId);
+
+  const refreshUnread = useRefreshUnreadAlertCount(householdId);
+  const { isRefreshing, onRefresh } = usePullToRefresh([refetch, refreshUnread]);
   const { mutate: markRead } = useMarkAlertsRead(householdId);
   const { mutate: markAllRead, isPending: isMarkingAll } = useMarkAllAlertsRead(householdId);
   const { data: unreadCount = 0 } = useUnreadAlertCount(householdId);
@@ -91,7 +97,10 @@ export default function Notifications() {
         return router.push(`/home/activity?logId=${alert.feedLogId}`);
       }
 
-      if (alert.kind === 'post' && alert.postId) return router.push('/household');
+      if ((alert.kind === 'post' || alert.kind === 'post_liked') && alert.postId) {
+        return router.push('/household');
+      }
+
       if (alert.kind === 'missed_feed' && alert.petId) return router.push('/home');
     },
     [router]
@@ -144,6 +153,9 @@ export default function Notifications() {
         onEndReached={() => {
           if (hasNextPage && !isFetchingNextPage) void fetchNextPage();
         }}
+        refreshControl={
+          <ThemedRefreshControl isRefreshing={isRefreshing} onRefresh={onRefresh} />
+        }
         renderSectionHeader={({ section }) => (
           <View style={styles.sectionHeader}>
             <AppText size={12} color="textSecondary" fontWeight="bold">
@@ -165,7 +177,7 @@ export default function Notifications() {
           <EmptyState
             icon="bell"
             title="Nothing yet"
-            description="Feeds, missed feeds, posts and changes to who's in your household will show up here."
+            description="Feeds, missed feeds, posts, likes and changes to who's in your household will show up here."
           />
         }
         ListFooterComponent={

@@ -1,5 +1,6 @@
 import FeedingScheduleService from '@/services/feeding-schedule.service';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useCallback } from 'react';
 
 const LIVE_REFETCH_MS = 60_000;
 
@@ -22,4 +23,17 @@ export function useSlotStates(
     enabled: Boolean(petId) && Boolean(date),
     refetchInterval: options?.live ? LIVE_REFETCH_MS : false
   });
+}
+
+/**
+ * Every pet's slot states at once, for a screen that renders several and holds
+ * no single query of its own to refetch.
+ */
+export function useRefreshSlotStates() {
+  const queryClient = useQueryClient();
+
+  return useCallback(
+    () => queryClient.refetchQueries({ queryKey: ['slot-states'], type: 'active' }),
+    [queryClient]
+  );
 }

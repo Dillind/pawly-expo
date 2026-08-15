@@ -80,7 +80,7 @@ _Avoid_: Missed, skipped, overdue, late.
 ## Notifications
 
 **Alert**:
-A notification queued for the Members of a Household. Either a Feed Logged Alert or a Missed Feed Alert. An Alert is recorded whether or not it is delivered — muting silences the push, not the record.
+A notification queued for the Members of a Household — a Feed Logged Alert, a Missed Feed Alert, a Post, a Like Alert, or a change to who is in the Household. An Alert is recorded whether or not it is delivered — muting silences the push, not the record.
 
 **Feed Logged Alert**:
 The immediate push when a Member logs a feed ("[Person] fed [Pet]"). It goes to every Member of the Household except the author, unless that Member has turned Feed Logged Alerts off. Role plays no part in who receives it.
@@ -91,6 +91,9 @@ The push to all household members when a Missed Feed is detected server-side, un
 **Nudge Limit**:
 After 3 consecutive Missed Feed Alerts for a pet with no Feed Log in between, Missed Feed Alerts stop for that pet until someone logs a feed. Stops a household that set up a schedule and drifted away from being nudged three times a day forever. Counted per pet, so one dormant pet never silences another.
 _Avoid_: Snooze, cooldown, rate limit.
+
+**Like Alert**:
+The record that a Member liked another Member's Post. It is the only Alert addressed to one person rather than the Household — the author sees it, nobody else does. It never pushes: a like is worth a line in a list, not an interruption. See [ADR 0021](./docs/adr/0021-a-like-is-a-record-not-an-interruption.md).
 
 **Suppressed Alert**:
 An Alert that was recorded but deliberately not delivered, because the feed it describes was logged too long after it actually happened to be worth interrupting anyone. Distinct from a failed delivery.
