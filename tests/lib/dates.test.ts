@@ -1,5 +1,6 @@
 import {
   compareDayBuckets,
+  formatAlertTime,
   composeLoggedAt,
   dayBucket,
   dayInTimezone,
@@ -190,5 +191,45 @@ describe('dayBucket', () => {
   it('orders buckets newest first', () => {
     expect(compareDayBuckets('Today', 'Earlier')).toBeLessThan(0);
     expect(compareDayBuckets('Last week', 'This week')).toBeGreaterThan(0);
+  });
+});
+
+describe('formatAlertTime', () => {
+  const zone = 'Australia/Brisbane';
+  const now = new Date('2026-08-15T02:00:00.000Z'); // noon on the 15th in Brisbane
+
+  it('keeps a duration under a day', () => {
+    expect(formatAlertTime('2026-08-15T01:59:30.000Z', zone, now)).toBe('Just now');
+    expect(formatAlertTime('2026-08-15T01:30:00.000Z', zone, now)).toBe('30m ago');
+    expect(formatAlertTime('2026-08-14T21:00:00.000Z', zone, now)).toBe('5h ago');
+  });
+
+  // The bug this exists for. 26 hours back is two calendar days back in
+  // Brisbane, so the heading reads "This week" -- but dividing elapsed hours by
+  // 24 gave 1, and the row under it said "Yesterday".
+  it('agrees with the heading a row sits under', () => {
+    const instant = '2026-08-13T00:00:00.000Z';
+
+    expect(dayBucket(instant, zone, now)).toBe('This week');
+    expect(formatAlertTime(instant, zone, now)).toBe('2d ago');
+  });
+
+  it('counts calendar days once past midnight', () => {
+    // 11pm on the 14th in Brisbane -- 13 hours old, but a day back.
+    expect(formatAlertTime('2026-08-14T13:00:00.000Z', zone, now)).toBe('Yesterday');
+  });
+
+  it('falls back to a date beyond a week', () => {
+    expect(formatAlertTime('2026-08-01T02:00:00.000Z', zone, now)).toBe('1 Aug');
+    expect(formatAlertTime('2025-08-01T02:00:00.000Z', zone, now)).toBe('1 Aug 2025');
+  });
+
+  // The same instant is a day old in one zone and hours old in another, which
+  // is the whole reason this takes the household's zone rather than the device's.
+  it('reads the household timezone, not the device', () => {
+    const instant = '2026-08-14T06:00:00.000Z';
+
+    expect(formatAlertTime(instant, 'Australia/Brisbane', now)).toBe('Yesterday');
+    expect(formatAlertTime(instant, 'America/New_York', now)).toBe('20h ago');
   });
 });

@@ -127,14 +127,20 @@ export const compareDayBuckets = (a: DayBucket, b: DayBucket): number =>
 
 /**
  * Whole calendar days in the household's timezone, not elapsed hours -- so
- * something logged at 11pm reads as "Yesterday" the next morning.
+ * something logged at 11pm is one day old the next morning, rather than for a
+ * further 24 hours. Negative for a future timestamp; callers clamp.
  */
-export function dayBucket(isoTimestamp: string, zone: string, now: Date = new Date()): DayBucket {
-  const day = zonedParts(new Date(isoTimestamp), zone);
-  const today = zonedParts(now, zone);
+export function calendarDaysAgo(isoTimestamp: string, zone: string, now: Date = new Date()): number {
+  const asUtcDay = ({ year, month, day }: ZonedParts) => Date.UTC(year, month - 1, day);
 
-  const asUtcDay = ({ year, month, day: date }: ZonedParts) => Date.UTC(year, month - 1, date);
-  const daysAgo = Math.round((asUtcDay(today) - asUtcDay(day)) / 86_400_000);
+  return Math.round(
+    (asUtcDay(zonedParts(now, zone)) - asUtcDay(zonedParts(new Date(isoTimestamp), zone))) /
+      86_400_000
+  );
+}
+
+export function dayBucket(isoTimestamp: string, zone: string, now: Date = new Date()): DayBucket {
+  const daysAgo = calendarDaysAgo(isoTimestamp, zone, now);
 
   if (daysAgo <= 0) return 'Today';
   if (daysAgo === 1) return 'Yesterday';
@@ -142,6 +148,30 @@ export function dayBucket(isoTimestamp: string, zone: string, now: Date = new Da
   if (daysAgo < 14) return 'Last week';
 
   return 'Earlier';
+}
+
+/**
+ * A row's own timestamp, counted the same way as the heading it sits under.
+ * formatRelativeTime divides elapsed hours by 24 on the device clock, which at
+ * a boundary files a row under "This week" and then labels it "Yesterday".
+ *
+ * Under a day stays a duration -- an hour is an hour wherever you are standing.
+ */
+export function formatAlertTime(isoTimestamp: string, zone: string, now: Date = new Date()): string {
+  const minutes = Math.floor((now.getTime() - new Date(isoTimestamp).getTime()) / 60000);
+
+  if (minutes < 1) return 'Just now';
+  if (minutes < 60) return `${minutes}m ago`;
+
+  const daysAgo = calendarDaysAgo(isoTimestamp, zone, now);
+
+  if (daysAgo <= 0) return `${Math.floor(minutes / 60)}h ago`;
+  if (daysAgo === 1) return 'Yesterday';
+  if (daysAgo < 7) return `${daysAgo}d ago`;
+
+  const then = new Date(isoTimestamp);
+
+  return dayjs(then).format(then.getFullYear() === now.getFullYear() ? 'D MMM' : 'D MMM YYYY');
 }
 
 /** Activity's day headers: "Today", "Yesterday", then "23 July 2026". */
