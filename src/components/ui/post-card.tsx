@@ -14,6 +14,7 @@ type Props = {
   onOpen: () => void;
 };
 
+const TITLE_LINES = 2;
 const CAPTION_LINES = 2;
 
 /** A Post in the list. Post Detail renders the same PostBody without the card. */
@@ -26,6 +27,7 @@ const PostCard = ({ post, showActions, onToggleLike, onOpenActions, onOpen }: Pr
       <PostBody
         post={post}
         showActions={showActions}
+        titleLines={TITLE_LINES}
         captionLines={CAPTION_LINES}
         onToggleLike={onToggleLike}
         onOpenActions={onOpenActions}

@@ -14,7 +14,7 @@ import { FormProvider, useForm, useWatch } from 'react-hook-form';
 import { Alert, StyleSheet } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
 
-const EMPTY_DRAFT: PostFormValues = { photos: [], caption: '', petIds: [] };
+const EMPTY_DRAFT: PostFormValues = { title: '', photos: [], caption: '', petIds: [] };
 
 const NewPost = () => {
   const styles = useStyles(makeStyles);
@@ -31,12 +31,13 @@ const NewPost = () => {
   });
 
   const { control, handleSubmit } = form;
+  const title = useWatch({ control, name: 'title' });
   const photos = useWatch({ control, name: 'photos' });
   const caption = useWatch({ control, name: 'caption' });
 
   const { mutate: createPost, isPending: isSharing } = useCreatePost(household?.id);
 
-  const hasContent = photos.length > 0 || caption.trim().length > 0;
+  const hasContent = title.trim().length > 0 || photos.length > 0 || caption.trim().length > 0;
 
   const cancel = () => {
     if (!hasContent) {
@@ -57,6 +58,7 @@ const NewPost = () => {
       {
         userId,
         localUris: values.photos.map((photo) => photo.uri),
+        title: values.title.trim(),
         caption: values.caption.trim() || null,
         petIds: values.petIds
       },
@@ -70,7 +72,7 @@ const NewPost = () => {
         title="Create Post"
         confirmText="Post"
         isBusy={isSharing}
-        isConfirmDisabled={photos.length === 0}
+        isConfirmDisabled={photos.length === 0 || title.trim().length === 0}
         onCancel={cancel}
         onConfirm={() => {
           void share();

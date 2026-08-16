@@ -12,7 +12,7 @@ import { useAuthStore } from '@/stores/auth-store';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useEffect } from 'react';
-import { FormProvider, useForm } from 'react-hook-form';
+import { FormProvider, useForm, useWatch } from 'react-hook-form';
 import { ActivityIndicator, Alert, StyleSheet } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
 
@@ -28,11 +28,12 @@ const EditPost = () => {
 
   const form = useForm<PostFormValues>({
     resolver: zodResolver(postSchema),
-    defaultValues: { photos: [], caption: '', petIds: [] },
+    defaultValues: { title: '', photos: [], caption: '', petIds: [] },
     mode: 'onChange'
   });
 
-  const { handleSubmit, reset, formState } = form;
+  const { control, handleSubmit, reset, formState } = form;
+  const title = useWatch({ control, name: 'title' });
 
   // The form mounts before the post arrives, so the fetched values land via
   // reset -- which also keeps it pristine, so Save stays disabled until an
@@ -41,6 +42,7 @@ const EditPost = () => {
     if (!post) return;
 
     reset({
+      title: post.title ?? '',
       photos: post.photos.map((photo) => ({
         kind: 'existing' as const,
         storagePath: photo.storagePath,
@@ -72,6 +74,7 @@ const EditPost = () => {
       {
         postId,
         userId,
+        title: values.title.trim(),
         caption: values.caption.trim() || null,
         petIds: values.petIds,
         photos: values.photos.map((photo) =>
@@ -90,7 +93,7 @@ const EditPost = () => {
         title="Edit Post"
         confirmText="Save"
         isBusy={isSaving}
-        isConfirmDisabled={!post || !formState.isDirty}
+        isConfirmDisabled={!post || !formState.isDirty || title.trim().length === 0}
         onCancel={cancel}
         onConfirm={() => {
           void save();

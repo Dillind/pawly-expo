@@ -1,5 +1,7 @@
 import { z } from 'zod';
 
+export const TITLE_MAX = 80;
+
 export const CAPTION_MAX = 280;
 
 /** Also enforced in `assert_post_photo_paths`, which is the one that binds. */
@@ -23,6 +25,11 @@ const postPhotoSchema = z.discriminatedUnion('kind', [
 ]);
 
 export const postSchema = z.object({
+  title: z
+    .string()
+    .trim()
+    .min(1, { message: 'Give your post a title' })
+    .max(TITLE_MAX, { message: `Keep it under ${TITLE_MAX} characters` }),
   photos: z
     .array(postPhotoSchema)
     .min(1, { message: 'Add a photo to post' })

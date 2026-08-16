@@ -4,6 +4,7 @@ import PostHeader from '@/components/ui/post-header';
 import PostLikers from '@/components/ui/post-likers';
 import PostPetChips from '@/components/ui/post-pet-chips';
 import PostPhotoCarousel from '@/components/ui/post-photo-carousel';
+import PostTitle from '@/components/ui/post-title';
 import type { AppTheme } from '@/constants/theme';
 import { useStyles } from '@/hooks/use-styles';
 import type { Post } from '@/services/post.service';
@@ -13,6 +14,7 @@ type Props = {
   post: Post;
   /** Set on the Posts tab only: Post Detail keeps its ⋯ in the header. */
   showActions?: boolean;
+  titleLines?: number;
   captionLines?: number;
   onToggleLike: () => void;
   onOpenActions?: () => void;
@@ -27,6 +29,7 @@ type Props = {
 const PostBody = ({
   post,
   showActions,
+  titleLines,
   captionLines,
   onToggleLike,
   onOpenActions,
@@ -38,7 +41,11 @@ const PostBody = ({
     <View style={styles.body}>
       <PostHeader post={post} showActions={showActions} onOpenActions={onOpenActions} />
 
-      <PostCaption caption={post.caption} numberOfLines={captionLines} onPress={onOpen} />
+      <View style={styles.words}>
+        <PostTitle title={post.title} numberOfLines={titleLines} onPress={onOpen} />
+
+        <PostCaption caption={post.caption} numberOfLines={captionLines} onPress={onOpen} />
+      </View>
 
       <PostPetChips pets={post.pets} />
 
@@ -55,6 +62,10 @@ const makeStyles = ({ spacing }: AppTheme) =>
   StyleSheet.create({
     body: {
       gap: spacing.two
+    },
+    /** The title names what the description elaborates, so they sit closer. */
+    words: {
+      gap: spacing.one
     }
   });
 
