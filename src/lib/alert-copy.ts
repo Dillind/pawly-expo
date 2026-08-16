@@ -36,11 +36,10 @@ export function alertSentence(alert: Alert): string {
         ? `${actor} removed you from the household`
         : `${actor} removed ${someone(alert.subjectName)}`;
 
-    // The new role is not recorded on the alert, so this cannot name it.
+    // Addressed to the person whose role changed, so the reader is always the
+    // subject. The new role is not recorded on the alert, so this cannot name it.
     case 'member_role_changed':
-      return alert.subjectIsMe
-        ? `${actor} changed your role`
-        : `${actor} changed ${someone(alert.subjectName)}’s role`;
+      return `${actor} changed your role`;
 
     case 'member_left':
       return `${someone(alert.subjectName ?? alert.actorName)} left the household`;

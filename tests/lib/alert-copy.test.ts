@@ -74,7 +74,14 @@ describe('alertSentence', () => {
     expect(alertSentence(alert({ kind: 'member_removed', subjectIsMe: true }))).toBe(
       'Sarah Smith removed you from the household'
     );
+  });
+
+  // The alert reaches the subject alone, so there is no third-person wording.
+  it('always addresses a role change to the reader', () => {
     expect(alertSentence(alert({ kind: 'member_role_changed', subjectIsMe: true }))).toBe(
+      'Sarah Smith changed your role'
+    );
+    expect(alertSentence(alert({ kind: 'member_role_changed', subjectName: 'Test User' }))).toBe(
       'Sarah Smith changed your role'
     );
   });
