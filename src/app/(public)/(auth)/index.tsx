@@ -1,132 +1,48 @@
 import AppText from '@/components/core/app-text';
 import MainButton from '@/components/core/main-button';
-import PressableOpacity from '@/components/core/pressable-opacity';
-import TextInputValidated from '@/components/core/text-input-validated';
-import TextDescriptionHeader from '@/components/layout/text-description-header';
-import { ErrorMessage, SuccessMessage } from '@/constants/enums';
-import { userFacingMessage } from '@/lib/errors';
-import { signInSchema, type SignInFormValues } from '@/constants/schemas/sign-in';
+import AuthFooterLink from '@/components/screens/auth/auth-footer-link';
+import AuthLegalFooter from '@/components/screens/auth/auth-legal-footer';
+import SocialAuthButtons from '@/components/screens/auth/social-auth-buttons';
 import type { AppTheme } from '@/constants/theme';
 import { useStyles } from '@/hooks/use-styles';
-import { showErrorToast, showSuccessToast } from '@/lib/toast';
-import AuthService from '@/services/auth.service';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { Link } from 'expo-router';
-import { Controller, FormProvider, useForm } from 'react-hook-form';
+import { useTheme } from '@/hooks/use-theme';
+import { useRouter } from 'expo-router';
 import { ScrollView, StyleSheet, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-const SignIn = () => {
+// Fixed so the illustration (CRU-030) can drop in without re-balancing the
+// buttons below it, which are the part worth getting right.
+const ART_HEIGHT = 200;
+
+const Welcome = () => {
   const styles = useStyles(makeStyles);
-
-  const form = useForm<SignInFormValues>({
-    resolver: zodResolver(signInSchema),
-    defaultValues: { email: '', password: '' },
-    mode: 'onBlur'
-  });
-
-  const {
-    control,
-    handleSubmit,
-    formState: { isSubmitting }
-  } = form;
-
-  const onSubmit = handleSubmit(async (values) => {
-    try {
-      await AuthService.signInWithPassword(values);
-      showSuccessToast(SuccessMessage.SignedIn);
-    } catch (error) {
-      showErrorToast(
-        ErrorMessage.SignInFailed,
-        userFacingMessage(error, 'Check your details and try again')
-      );
-    }
-  });
+  const router = useRouter();
+  const insets = useSafeAreaInsets();
+  const { spacing } = useTheme();
 
   return (
-    <View style={{ flex: 1 }}>
-      <ScrollView
-        contentInsetAdjustmentBehavior="automatic"
-        keyboardShouldPersistTaps="handled"
-        contentContainerStyle={styles.scrollContent}>
-        <TextDescriptionHeader
-          title="Welcome back"
-          description="Sign in to coordinate care for your pet."
-        />
+    <ScrollView
+      contentContainerStyle={[
+        styles.scrollContent,
+        { paddingTop: insets.top + spacing.four, paddingBottom: insets.bottom + spacing.three }
+      ]}>
+      <View style={styles.art}>
+        {/* TODO(CRU-030): the illustration goes here. Keep it within ART_HEIGHT. */}
+        <AppText variant="header" size={44} align="center" fontWeight="bold">
+          Crumpet
+        </AppText>
+        <AppText color="textSecondary" size={17} align="center">
+          Every feed, every pet, everyone in the loop.
+        </AppText>
+      </View>
 
-        <FormProvider {...form}>
-          <View style={styles.form}>
-            <Controller
-              control={control}
-              name="email"
-              render={({ field: { onChange, onBlur, value } }) => (
-                <TextInputValidated
-                  name="email"
-                  label="Email"
-                  value={value}
-                  onChangeText={onChange}
-                  onBlur={onBlur}
-                  placeholder="you@example.com"
-                  keyboardType="email-address"
-                  autoCapitalize="none"
-                  autoComplete="email"
-                  returnKeyType="next"
-                  testID="sign-in-email"
-                />
-              )}
-            />
-            <Controller
-              control={control}
-              name="password"
-              render={({ field: { onChange, onBlur, value } }) => (
-                <TextInputValidated
-                  name="password"
-                  label="Password"
-                  value={value}
-                  onChangeText={onChange}
-                  onBlur={onBlur}
-                  placeholder="Your password"
-                  secureTextEntry
-                  autoCapitalize="none"
-                  autoComplete="password"
-                  returnKeyType="done"
-                  onSubmitEditing={() => {
-                    void onSubmit();
-                  }}
-                  testID="sign-in-password"
-                />
-              )}
-            />
-          </View>
-
-          <View style={styles.actions}>
-            <MainButton
-              text={isSubmitting ? 'Signing in…' : 'Sign in'}
-              isLoading={isSubmitting}
-              isDisabled={isSubmitting}
-              onPress={() => {
-                void onSubmit();
-              }}
-            />
-
-            <Link href="/forgot-password" asChild>
-              <PressableOpacity style={styles.forgotPassword}>
-                <AppText color="textSecondary" size={16} align="center">
-                  Forgot password?
-                </AppText>
-              </PressableOpacity>
-            </Link>
-
-            <Link href="/sign-up" asChild>
-              <PressableOpacity style={styles.forgotPassword}>
-                <AppText color="primary" size={16} align="center">
-                  Create an account
-                </AppText>
-              </PressableOpacity>
-            </Link>
-          </View>
-        </FormProvider>
-      </ScrollView>
-    </View>
+      <View style={styles.actions}>
+        <SocialAuthButtons />
+        <MainButton text="Continue with email" onPress={() => router.push('/sign-up')} />
+        <AuthFooterLink prompt="Already have an account?" linkText="Log in here" href="/sign-in" />
+        <AuthLegalFooter />
+      </View>
+    </ScrollView>
   );
 };
 
@@ -134,20 +50,22 @@ const makeStyles = ({ spacing }: AppTheme) =>
   StyleSheet.create({
     scrollContent: {
       flexGrow: 1,
-      padding: spacing.four,
+      paddingHorizontal: spacing.four,
       gap: spacing.three
     },
-    form: {
+    art: {
+      height: ART_HEIGHT,
+      alignItems: 'center',
+      justifyContent: 'center',
       gap: spacing.two
     },
+    // The whole block sits at the bottom together. With `auto` on the buttons
+    // alone, the legal line is pushed past the fold and has to be scrolled to.
     actions: {
       gap: spacing.two,
-      marginTop: spacing.two
-    },
-    forgotPassword: {
-      alignSelf: 'center',
-      paddingVertical: spacing.one
+      marginTop: 'auto',
+      paddingTop: spacing.three
     }
   });
 
-export default SignIn;
+export default Welcome;
