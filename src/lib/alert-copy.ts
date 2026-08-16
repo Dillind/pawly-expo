@@ -15,9 +15,6 @@ export function alertSentence(alert: Alert): string {
   const actor = someone(alert.actorName);
 
   switch (alert.kind) {
-    case 'feed_logged':
-      return alert.petName ? `${actor} fed ${alert.petName}` : `${actor} logged a feed`;
-
     case 'missed_feed':
       return alert.petName
         ? `${alert.petName}’s ${slotWord(alert.slotLabel)} was missed`
@@ -50,12 +47,10 @@ export function alertSentence(alert: Alert): string {
   }
 }
 
-export type AlertGlyph = 'utensils' | 'circleAlert' | 'image' | 'heart' | 'users';
+export type AlertGlyph = 'circleAlert' | 'image' | 'heart' | 'users';
 
 export const alertGlyph = (kind: Alert['kind']): AlertGlyph => {
   switch (kind) {
-    case 'feed_logged':
-      return 'utensils';
     case 'missed_feed':
       return 'circleAlert';
     case 'post':

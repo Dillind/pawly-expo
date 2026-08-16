@@ -66,10 +66,6 @@ export default function Notifications() {
 
   const openSubject = useCallback(
     (alert: Alert) => {
-      if (alert.kind === 'feed_logged' && alert.feedLogId) {
-        return router.push(`/home/activity?logId=${alert.feedLogId}`);
-      }
-
       if ((alert.kind === 'post' || alert.kind === 'post_liked') && alert.postId) {
         return router.push('/household');
       }
