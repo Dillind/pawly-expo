@@ -58,6 +58,7 @@ export enum SuccessMessage {
   PostDeleted = 'Post deleted',
   PostShared = 'Post shared',
   PostUpdated = 'Post updated',
+  NameSaved = 'Name saved',
   SignedIn = 'Signed in',
   SignedOut = 'Signed out',
   TimezoneUpdated = 'Timezone updated'
@@ -96,6 +97,7 @@ export enum ErrorMessage {
   ContactRemoveFailed = 'Could not remove the contact',
   MedicationSaveFailed = 'Could not save the medication',
   MissingPetDetails = 'Missing pet details, go back and try again',
+  NameSaveFailed = 'Could not save your name',
   NotificationSettingsUpdateFailed = 'Could not update notification settings',
   OnboardingFailed = 'Could not finish setup',
   PetAddFailed = 'Could not add the pet',

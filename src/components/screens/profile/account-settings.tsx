@@ -22,7 +22,7 @@ const AccountSettings = () => {
         contentContainerStyle={styles.content}
         contentInsetAdjustmentBehavior="automatic">
         <SettingsSection>
-          <SettingsRow icon="user" label="Name" value={fullName(profile)} isSoon />
+          <SettingsRow icon="user" label="Name" value={fullName(profile) || 'Not set'} isSoon />
           <SettingsRow icon="mail" label="Email" value={email} />
           <SettingsRow icon="key" label="Update password" isSoon />
         </SettingsSection>
