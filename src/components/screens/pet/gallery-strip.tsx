@@ -12,8 +12,8 @@ import {
   useAddPetPhotos,
   useDeletePetPhoto,
   useSetCoverPhoto
-} from '@/hooks/queries/use-pet-photo-mutations';
-import { usePetPhotos } from '@/hooks/queries/use-pet-photos';
+} from '@/hooks/queries/pet/use-pet-photo-mutations';
+import { usePetPhotos } from '@/hooks/queries/pet/use-pet-photos';
 import { useStyles } from '@/hooks/use-styles';
 import { hapticLight } from '@/lib/haptics';
 import type { PetPhoto } from '@/services/pet-photo.service';

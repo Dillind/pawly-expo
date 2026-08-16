@@ -1,6 +1,6 @@
 import TextInputValidated from '@/components/core/text-input-validated';
 import type { AppTheme } from '@/constants/theme';
-import { useUpsertMedication } from '@/hooks/queries/use-care-card-mutations';
+import { useUpsertMedication } from '@/hooks/queries/pet/use-care-card-mutations';
 import { useStyles } from '@/hooks/use-styles';
 import { medicationSchema, type MedicationInput } from '@/lib/form/pet-schemas';
 import type { Medication } from '@/services/care-card.service';

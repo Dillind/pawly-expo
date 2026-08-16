@@ -4,7 +4,7 @@ import MainButton from '@/components/core/main-button';
 import ScreenView from '@/components/layout/screen-view';
 import { ErrorMessage } from '@/constants/enums';
 import type { AppTheme } from '@/constants/theme';
-import { useInvitePreview, useRedeemInvite } from '@/hooks/queries/use-invites';
+import { useInvitePreview, useRedeemInvite } from '@/hooks/queries/household/use-invites';
 import { useStyles } from '@/hooks/use-styles';
 import { roleWithArticle } from '@/utils/members';
 import type { PreviewStatus } from '@/services/invite.service';

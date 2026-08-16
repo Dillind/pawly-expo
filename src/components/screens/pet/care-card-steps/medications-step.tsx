@@ -3,7 +3,7 @@ import Icon from '@/components/core/icon';
 import IconButton from '@/components/core/icon-button';
 import MainButton from '@/components/core/main-button';
 import { Radius, type AppTheme } from '@/constants/theme';
-import { useDeleteMedication } from '@/hooks/queries/use-care-card-mutations';
+import { useDeleteMedication } from '@/hooks/queries/pet/use-care-card-mutations';
 import { useStyles } from '@/hooks/use-styles';
 import { hasValue } from '@/lib/care-card-view';
 import type { Medication } from '@/services/care-card.service';

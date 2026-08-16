@@ -9,15 +9,15 @@ import SettingsSection from '@/components/core/settings-section';
 import ScreenScrollView from '@/components/layout/screen-scroll-view';
 import ScreenView from '@/components/layout/screen-view';
 import { BottomTabInset, Spacing, type AppTheme } from '@/constants/theme';
-import { useHousehold } from '@/hooks/queries/use-household';
-import { useHouseholdMembers } from '@/hooks/queries/use-household-members';
+import { useHousehold } from '@/hooks/queries/household/use-household';
+import { useHouseholdMembers } from '@/hooks/queries/household/use-household-members';
 import {
   useLeaveHousehold,
   useRemoveMember,
   useSetMemberRole
-} from '@/hooks/queries/use-membership-mutations';
+} from '@/hooks/queries/household/use-membership-mutations';
 import InviteCodeSheet from '@/components/bottom-sheets/invite-code-sheet';
-import { usePendingInvites, useRevokeInvite } from '@/hooks/queries/use-invites';
+import { usePendingInvites, useRevokeInvite } from '@/hooks/queries/household/use-invites';
 import type { PendingInvite } from '@/services/invite.service';
 import { useStyles } from '@/hooks/use-styles';
 import { useAuthStore } from '@/stores/auth-store';

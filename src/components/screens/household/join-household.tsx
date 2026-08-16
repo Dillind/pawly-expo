@@ -5,7 +5,7 @@ import ScreenScrollView from '@/components/layout/screen-scroll-view';
 import ScreenView from '@/components/layout/screen-view';
 import { joinSchema, type JoinInput } from '@/constants/schemas/invite';
 import { BottomTabInset, type AppTheme } from '@/constants/theme';
-import { useRedeemInvite } from '@/hooks/queries/use-invites';
+import { useRedeemInvite } from '@/hooks/queries/household/use-invites';
 import { useStyles } from '@/hooks/use-styles';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter } from 'expo-router';

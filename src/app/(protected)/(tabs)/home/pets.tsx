@@ -5,7 +5,7 @@ import ScreenScrollView from '@/components/layout/screen-scroll-view';
 import ScreenView from '@/components/layout/screen-view';
 import PetManageRow from '@/components/screens/home/pet-manage-row';
 import { BottomTabInset, type AppTheme } from '@/constants/theme';
-import { usePets } from '@/hooks/queries/use-pets';
+import { usePets } from '@/hooks/queries/pet/use-pets';
 import { usePullToRefresh } from '@/hooks/use-pull-to-refresh';
 import { useStyles } from '@/hooks/use-styles';
 import { ActivityIndicator, StyleSheet, View } from 'react-native';

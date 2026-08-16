@@ -3,7 +3,7 @@ import MainButton from '@/components/core/main-button';
 import TextInputValidated from '@/components/core/text-input-validated';
 import { SuccessMessage } from '@/constants/enums';
 import type { AppTheme } from '@/constants/theme';
-import { useUpdateHousehold } from '@/hooks/queries/use-update-household';
+import { useUpdateHousehold } from '@/hooks/queries/household/use-update-household';
 import { useStyles } from '@/hooks/use-styles';
 import {
   HOUSEHOLD_NAME_MAX,

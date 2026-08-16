@@ -6,7 +6,7 @@ import LateFeedStep from '@/components/screens/home/late-feed-step';
 import PetAvatar from '@/components/screens/home/pet-avatar';
 import ScheduledTimeList from '@/components/ui/scheduled-time-list';
 import type { AppTheme } from '@/constants/theme';
-import { useSlotStates } from '@/hooks/queries/use-slot-states';
+import { useSlotStates } from '@/hooks/queries/feeding/use-slot-states';
 import type { useLogFlow } from '@/hooks/use-log-flow';
 import { useStyles } from '@/hooks/use-styles';
 import type { HouseholdMember, Pet } from '@/types/core';

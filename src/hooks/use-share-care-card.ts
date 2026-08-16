@@ -1,8 +1,8 @@
 import { emptyCareCard } from '@/constants/care-card-fields';
 import { ErrorMessage } from '@/constants/enums';
-import { careCardQueryOptions } from '@/hooks/queries/use-care-card';
-import { useHousehold } from '@/hooks/queries/use-household';
-import { petDetailQueryOptions } from '@/hooks/queries/use-pet-detail';
+import { careCardQueryOptions } from '@/hooks/queries/pet/use-care-card';
+import { useHousehold } from '@/hooks/queries/household/use-household';
+import { petDetailQueryOptions } from '@/hooks/queries/pet/use-pet-detail';
 import { buildCareCardHtml, careCardFileName, type CareCardPdfPet } from '@/lib/care-card-pdf';
 import { formatAge, formatDateWithYear } from '@/lib/dates';
 import { showErrorToast } from '@/lib/toast';

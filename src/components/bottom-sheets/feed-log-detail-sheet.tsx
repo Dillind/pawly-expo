@@ -13,9 +13,9 @@ import {
   type FeedLogNotesOnlyFormValues
 } from '@/constants/schemas/feed-log';
 import type { AppTheme } from '@/constants/theme';
-import { useFeedLog } from '@/hooks/queries/use-feed-log';
-import { useDeleteFeedLog, useUpdateFeedLog } from '@/hooks/queries/use-feed-log-mutations';
-import { useHousehold } from '@/hooks/queries/use-household';
+import { useFeedLog } from '@/hooks/queries/feeding/use-feed-log';
+import { useDeleteFeedLog, useUpdateFeedLog } from '@/hooks/queries/feeding/use-feed-log-mutations';
+import { useHousehold } from '@/hooks/queries/household/use-household';
 import { useStyles } from '@/hooks/use-styles';
 import {
   composeLoggedAt,

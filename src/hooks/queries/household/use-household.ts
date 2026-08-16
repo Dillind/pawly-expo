@@ -1,4 +1,4 @@
-import { useHouseholds } from '@/hooks/queries/use-households';
+import { useHouseholds } from '@/hooks/queries/household/use-households';
 import { useActiveHouseholdStore } from '@/stores/active-household-store';
 import { useEffect } from 'react';
 

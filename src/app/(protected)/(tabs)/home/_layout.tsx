@@ -2,7 +2,7 @@ import { Link, Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 
 import HeaderIconButton from '@/components/core/header-icon-button';
-import { useHousehold } from '@/hooks/queries/use-household';
+import { useHousehold } from '@/hooks/queries/household/use-household';
 import { useTheme } from '@/hooks/use-theme';
 
 export default function HomeLayout() {

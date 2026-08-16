@@ -3,7 +3,7 @@ import Icon from '@/components/core/icon';
 import IconButton from '@/components/core/icon-button';
 import MainButton from '@/components/core/main-button';
 import { Radius, type AppTheme } from '@/constants/theme';
-import { useDeleteContact } from '@/hooks/queries/use-care-card-mutations';
+import { useDeleteContact } from '@/hooks/queries/pet/use-care-card-mutations';
 import { useStyles } from '@/hooks/use-styles';
 import { MAX_CARE_CARD_CONTACTS, type CareCardContact } from '@/services/care-card.service';
 import { useState } from 'react';

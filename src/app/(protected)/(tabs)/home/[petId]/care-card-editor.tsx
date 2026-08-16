@@ -11,8 +11,8 @@ import CareCardHelpSheets, {
 } from '@/components/screens/pet/care-card/care-card-help-sheets';
 import { CARE_CARD_STEPS } from '@/constants/care-card-fields';
 import { Radius, Spacing, type AppTheme } from '@/constants/theme';
-import { useCareCardData } from '@/hooks/queries/use-care-card';
-import { useHousehold } from '@/hooks/queries/use-household';
+import { useCareCardData } from '@/hooks/queries/pet/use-care-card';
+import { useHousehold } from '@/hooks/queries/household/use-household';
 import { useShareCareCard } from '@/hooks/use-share-care-card';
 import { useStyles } from '@/hooks/use-styles';
 import { formatDateWithYear } from '@/lib/dates';

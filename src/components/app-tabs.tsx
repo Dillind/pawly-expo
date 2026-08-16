@@ -1,5 +1,5 @@
-import { useHouseholds } from '@/hooks/queries/use-households';
-import { useUnseenByHousehold } from '@/hooks/queries/use-posts';
+import { useHouseholds } from '@/hooks/queries/household/use-households';
+import { useUnseenByHousehold } from '@/hooks/queries/posts/use-posts';
 import { useTheme } from '@/hooks/use-theme';
 import { NativeTabs } from 'expo-router/unstable-native-tabs';
 

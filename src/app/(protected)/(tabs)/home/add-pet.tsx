@@ -13,7 +13,7 @@ import TextDescriptionHeader from '@/components/layout/text-description-header';
 import { FEEDING_SCHEDULE_LABEL_OPTIONS, SEX_OPTIONS } from '@/constants/options';
 import { addPetSchema, type AddPetFormValues } from '@/constants/schemas/add-pet';
 import type { AppTheme } from '@/constants/theme';
-import { useAddPet } from '@/hooks/queries/use-pet-mutations';
+import { useAddPet } from '@/hooks/queries/pet/use-pet-mutations';
 import { useStyles } from '@/hooks/use-styles';
 import FieldError from '@/lib/form/components/field-error';
 import PetPhotoService from '@/services/pet-photo.service';

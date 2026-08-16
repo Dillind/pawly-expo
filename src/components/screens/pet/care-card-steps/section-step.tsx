@@ -10,7 +10,7 @@ import {
   type CareCardSection
 } from '@/constants/care-card-fields';
 import type { AppTheme } from '@/constants/theme';
-import { useUpsertCareCard } from '@/hooks/queries/use-care-card-mutations';
+import { useUpsertCareCard } from '@/hooks/queries/pet/use-care-card-mutations';
 import { useStyles } from '@/hooks/use-styles';
 import { careCardSchema, type CareCardInput } from '@/lib/form/pet-schemas';
 import type { CareCard } from '@/services/care-card.service';

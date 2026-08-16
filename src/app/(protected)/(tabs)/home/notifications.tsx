@@ -12,8 +12,8 @@ import {
   useMarkAllAlertsRead,
   useRefreshUnreadAlertCount,
   useUnreadAlertCount
-} from '@/hooks/queries/use-alerts';
-import { useHousehold } from '@/hooks/queries/use-household';
+} from '@/hooks/queries/alerts/use-alerts';
+import { useHousehold } from '@/hooks/queries/household/use-household';
 import { usePullToRefresh } from '@/hooks/use-pull-to-refresh';
 import { useStyles } from '@/hooks/use-styles';
 import { collapseLikes, type InboxRow } from '@/lib/alert-groups';

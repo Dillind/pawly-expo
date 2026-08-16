@@ -1,4 +1,4 @@
-import { useCareCardData } from '@/hooks/queries/use-care-card';
+import { useCareCardData } from '@/hooks/queries/pet/use-care-card';
 import { useShareCareCard } from '@/hooks/use-share-care-card';
 import { useRouter } from 'expo-router';
 import { useRef, useState } from 'react';

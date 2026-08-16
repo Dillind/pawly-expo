@@ -10,7 +10,7 @@ import { Toaster } from 'sonner-native';
 import { useAuthSession } from '@/hooks/use-auth-session';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { usePushNotifications } from '@/hooks/use-push-notifications';
-import { useUserProfile } from '@/hooks/queries/use-user-profile';
+import { useUserProfile } from '@/hooks/queries/account/use-user-profile';
 import { useAuthStore } from '@/stores/auth-store';
 import { useActiveHouseholdStore } from '@/stores/active-household-store';
 import { useThemeStore } from '@/stores/theme-store';

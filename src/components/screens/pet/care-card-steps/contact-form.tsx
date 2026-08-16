@@ -1,7 +1,7 @@
 import AppText from '@/components/core/app-text';
 import TextInputValidated from '@/components/core/text-input-validated';
 import type { AppTheme } from '@/constants/theme';
-import { useUpsertContact } from '@/hooks/queries/use-care-card-mutations';
+import { useUpsertContact } from '@/hooks/queries/pet/use-care-card-mutations';
 import { useStyles } from '@/hooks/use-styles';
 import { careCardContactSchema, type CareCardContactInput } from '@/lib/form/pet-schemas';
 import type { CareCardContact } from '@/services/care-card.service';

@@ -3,8 +3,8 @@ import { RelativePathString, useRouter } from 'expo-router';
 import { useEffect, useRef } from 'react';
 import { AppState, type AppStateStatus } from 'react-native';
 
-import { useHousehold } from '@/hooks/queries/use-household';
-import { useHouseholds } from '@/hooks/queries/use-households';
+import { useHousehold } from '@/hooks/queries/household/use-household';
+import { useHouseholds } from '@/hooks/queries/household/use-households';
 import PushTokenService from '@/services/push-token.service';
 import { useActiveHouseholdStore } from '@/stores/active-household-store';
 import { useAuthStore } from '@/stores/auth-store';

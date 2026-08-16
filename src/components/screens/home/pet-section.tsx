@@ -6,7 +6,7 @@ import PressableOpacity from '@/components/core/pressable-opacity';
 import PetAvatar from '@/components/screens/home/pet-avatar';
 import ScheduledTimeList from '@/components/ui/scheduled-time-list';
 import { Radius, type AppTheme } from '@/constants/theme';
-import { useSlotStates } from '@/hooks/queries/use-slot-states';
+import { useSlotStates } from '@/hooks/queries/feeding/use-slot-states';
 import { useStyles } from '@/hooks/use-styles';
 import { useTheme } from '@/hooks/use-theme';
 import { createShadowMedium } from '@/lib/styles/shadows';

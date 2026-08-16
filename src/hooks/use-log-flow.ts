@@ -1,4 +1,4 @@
-import { useLogFeed } from '@/hooks/queries/use-feed-log-mutations';
+import { useLogFeed } from '@/hooks/queries/feeding/use-feed-log-mutations';
 import { formatTimeOfDay } from '@/lib/dates';
 import { feedLogErrorMessage } from '@/lib/feed-log-errors';
 import { showErrorToast, showSuccessToast } from '@/lib/toast';

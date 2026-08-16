@@ -7,13 +7,13 @@ import MainLegendList from '@/components/core/main-legend-list';
 import ScreenView from '@/components/layout/screen-view';
 import PostCard from '@/components/ui/post-card';
 import { ScreenGutter, type AppTheme } from '@/constants/theme';
-import { useHousehold } from '@/hooks/queries/use-household';
+import { useHousehold } from '@/hooks/queries/household/use-household';
 import {
   useDeletePost,
   useMarkPostsSeen,
   usePosts,
   useToggleLike
-} from '@/hooks/queries/use-posts';
+} from '@/hooks/queries/posts/use-posts';
 import { usePullToRefresh } from '@/hooks/use-pull-to-refresh';
 import { useRefreshOnFocus } from '@/hooks/use-refresh-on-focus';
 import { useStyles } from '@/hooks/use-styles';

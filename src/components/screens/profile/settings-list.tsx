@@ -14,9 +14,9 @@ import {
   TIMEZONE_OPTIONS
 } from '@/constants/options';
 import { BottomTabInset, type AppTheme } from '@/constants/theme';
-import { useHousehold } from '@/hooks/queries/use-household';
-import { useHouseholdMembers } from '@/hooks/queries/use-household-members';
-import { useUpdateHousehold } from '@/hooks/queries/use-update-household';
+import { useHousehold } from '@/hooks/queries/household/use-household';
+import { useHouseholdMembers } from '@/hooks/queries/household/use-household-members';
+import { useUpdateHousehold } from '@/hooks/queries/household/use-update-household';
 import { useLogout } from '@/hooks/use-logout';
 import { useStyles } from '@/hooks/use-styles';
 import { APP_VERSION, supportMailtoForUser } from '@/lib/support';

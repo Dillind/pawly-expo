@@ -7,7 +7,7 @@ import { ErrorMessage, SuccessMessage } from '@/constants/enums';
 import { SEX_OPTIONS } from '@/constants/options';
 import { petDetailsEditSchema, type PetDetailsEditValues } from '@/constants/schemas/pet-details';
 import type { AppTheme } from '@/constants/theme';
-import { useUpdatePet } from '@/hooks/queries/use-update-pet';
+import { useUpdatePet } from '@/hooks/queries/pet/use-update-pet';
 import type { PetSex } from '@/types/core';
 import { useStyles } from '@/hooks/use-styles';
 import { zodResolver } from '@hookform/resolvers/zod';

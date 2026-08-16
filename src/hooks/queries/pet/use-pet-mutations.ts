@@ -1,7 +1,7 @@
-import { householdsKey } from '@/hooks/queries/use-households';
+import { householdsKey } from '@/hooks/queries/household/use-households';
 import { ErrorMessage, SuccessMessage } from '@/constants/enums';
 import { showErrorToast, showSuccessToast } from '@/lib/toast';
-import { useHousehold } from '@/hooks/queries/use-household';
+import { useHousehold } from '@/hooks/queries/household/use-household';
 import PetService, { type AddPetInput } from '@/services/pet.service';
 import { useAuthStore } from '@/stores/auth-store';
 import { deviceTimezone } from '@/utils/timezone';

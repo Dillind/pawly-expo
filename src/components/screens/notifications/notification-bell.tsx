@@ -1,7 +1,7 @@
 import AppText from '@/components/core/app-text';
 import IconButton from '@/components/core/icon-button';
 import type { AppTheme } from '@/constants/theme';
-import { useUnreadAlertCount } from '@/hooks/queries/use-alerts';
+import { useUnreadAlertCount } from '@/hooks/queries/alerts/use-alerts';
 import { useStyles } from '@/hooks/use-styles';
 import { useRouter } from 'expo-router';
 import { StyleSheet, View } from 'react-native';

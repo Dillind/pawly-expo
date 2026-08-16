@@ -306,9 +306,12 @@ Expo Router (file-based). Auth is enforced with `Stack.Protected` guards in `src
 
 ```
 src/services/*.service.ts    the Supabase call + row<->domain mapping. No React, no TanStack.
-src/hooks/queries/*.ts       useQuery / useMutation over a service. Query keys, invalidation.
+src/hooks/queries/<area>/*.ts  useQuery / useMutation over a service. Query keys, invalidation.
 src/hooks/*.ts               everything else (use-theme, use-styles, use-debounce, ...)
 ```
+
+Query hooks are grouped by area — `household/`, `pet/`, `feeding/`, `posts/`, `alerts/`, `account/`.
+Nothing sits loose at the top of `queries/`; a new hook joins an existing folder or starts one.
 
 A service is a `namespace XService` of exported async functions with a default export — follow
 `auth.service.ts`. **The service owns snake_case**: a column name must never reach a component, so

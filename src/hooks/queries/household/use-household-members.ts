@@ -1,4 +1,4 @@
-import { useHousehold } from '@/hooks/queries/use-household';
+import { useHousehold } from '@/hooks/queries/household/use-household';
 import HouseholdService from '@/services/household.service';
 import { useQuery } from '@tanstack/react-query';
 

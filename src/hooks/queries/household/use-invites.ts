@@ -1,4 +1,4 @@
-import { householdsKey } from '@/hooks/queries/use-households';
+import { householdsKey } from '@/hooks/queries/household/use-households';
 import { ErrorMessage, SuccessMessage } from '@/constants/enums';
 import { showErrorToast, showSuccessToast } from '@/lib/toast';
 import InviteService, { type RedeemStatus } from '@/services/invite.service';

@@ -5,8 +5,8 @@ import ToggleSwitch from '@/components/core/toggle-switch';
 import ScreenScrollView from '@/components/layout/screen-scroll-view';
 import ScreenView from '@/components/layout/screen-view';
 import { BottomTabInset, type AppTheme } from '@/constants/theme';
-import { useHousehold } from '@/hooks/queries/use-household';
-import { useNotificationPreferences } from '@/hooks/queries/use-notification-preferences';
+import { useHousehold } from '@/hooks/queries/household/use-household';
+import { useNotificationPreferences } from '@/hooks/queries/household/use-notification-preferences';
 import {
   NOTIFICATION_PERMISSION_QUERY_KEY,
   useRequestNotificationPermission
