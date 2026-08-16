@@ -1,7 +1,7 @@
 import { alertGlyph, alertSentence } from '@/lib/alert-copy';
-import type { Alert } from '@/services/alert.service';
+import type { InboxRow } from '@/lib/alert-groups';
 
-const alert = (overrides: Partial<Alert>): Alert => ({
+const alert = (overrides: Partial<InboxRow>): InboxRow => ({
   id: 'a1',
   kind: 'post',
   createdAt: '2026-08-14T07:00:00.000Z',
@@ -15,6 +15,8 @@ const alert = (overrides: Partial<Alert>): Alert => ({
   postCaption: 'Muddy paws again',
   subjectName: null,
   subjectIsMe: false,
+  alertIds: ['a1'],
+  otherLikeCount: 0,
   ...overrides
 });
 
@@ -56,6 +58,15 @@ describe('alertSentence', () => {
     );
 
     expect(sentence).toBe('Sarah Smith liked your post “Muddy paws again”');
+  });
+
+  it('names the newest liker and counts the rest when likes collapse', () => {
+    expect(alertSentence(alert({ kind: 'post_liked', otherLikeCount: 1 }))).toBe(
+      'Sarah Smith and 1 other liked your post “Muddy paws again”'
+    );
+    expect(alertSentence(alert({ kind: 'post_liked', postCaption: null, otherLikeCount: 3 }))).toBe(
+      'Sarah Smith and 3 others liked your photo'
+    );
   });
 
   it('falls back when a liked post has no caption', () => {

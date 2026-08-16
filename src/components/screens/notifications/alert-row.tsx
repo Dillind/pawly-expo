@@ -6,20 +6,20 @@ import PetAvatar from '@/components/core/pet-avatar';
 import { type AppTheme } from '@/constants/theme';
 import { useStyles } from '@/hooks/use-styles';
 import { alertGlyph, alertSentence } from '@/lib/alert-copy';
+import type { InboxRow } from '@/lib/alert-groups';
 import { formatAlertTime } from '@/lib/dates';
-import type { Alert } from '@/services/alert.service';
 import { StyleSheet, View } from 'react-native';
 
 const AVATAR = 40;
 
 type Props = {
-  alert: Alert;
+  alert: InboxRow;
   timezone: string;
   onPress: () => void;
 };
 
 /** A missed feed has no actor, so it shows the pet rather than an empty circle. */
-const Leading = ({ alert }: { alert: Alert }) => {
+const Leading = ({ alert }: { alert: InboxRow }) => {
   const [firstName, ...rest] = (alert.actorName ?? '').split(' ');
 
   if (alert.kind === 'missed_feed') {
