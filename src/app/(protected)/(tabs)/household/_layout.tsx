@@ -11,6 +11,15 @@ export default function HouseholdLayout() {
       <StatusBar style={isDark ? 'light' : 'dark'} />
       <Stack screenOptions={{ headerShown: false }}>
         <Stack.Screen name="index" />
+        <Stack.Screen
+          name="post/[postId]"
+          options={{
+            headerShown: true,
+            headerTitle: 'Post Detail',
+            headerBackTitle: 'Posts',
+            headerBackButtonDisplayMode: 'minimal'
+          }}
+        />
         {/* Full screen rather than a sheet. The composer stacks an image
             picker, a keyboard-driven caption and a date picker; a native modal
             over a native sheet is the rough edge the Sheets rule warns about,

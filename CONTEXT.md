@@ -129,6 +129,13 @@ never satisfies a Scheduled Time. See
 _Avoid_: Update, moment, story, and above all **feed** — the word belongs to feeding, and calling a
 Post surface "the feed" is what ADR 0017 exists to prevent.
 
+**Post Detail**:
+The screen holding one Post on its own — the same author, caption, Pet Tags, photos, likes and
+likers the Posts tab shows, with the caption never truncated. Where a Post or Like notification
+lands, and where the photo or the caption on a Post opens. Opening one Post does not mark the
+Posts tab seen.
+_Avoid_: Post page, permalink, single post view.
+
 **Posts** (the tab):
 The tab holding the Household's Posts, newest first. Named for what it holds. Visible only to
 Members.

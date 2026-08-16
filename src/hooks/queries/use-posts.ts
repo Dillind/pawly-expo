@@ -124,11 +124,15 @@ export function useToggleLike(householdId: string | undefined) {
       const key = postsKey(householdId);
       await queryClient.cancelQueries({ queryKey: key });
 
+      const detailKey = ['post', postId];
+      await queryClient.cancelQueries({ queryKey: detailKey });
+
       const previous = queryClient.getQueryData<PostsData>(key);
+      const previousDetail = queryClient.getQueryData<Post>(detailKey);
 
       // The mutation itself cannot run without an id, and an optimistic liker
       // carrying a placeholder one could never be filtered back out.
-      if (!userId) return { previous };
+      if (!userId) return { previous, previousDetail };
 
       const me: PostLiker = {
         userId,
@@ -136,39 +140,43 @@ export function useToggleLike(householdId: string | undefined) {
         lastName: profile?.lastName ?? null
       };
 
+      const applyLike = (post: Post): Post => ({
+        ...post,
+        likedByMe: !liked,
+        likeCount: post.likeCount + (liked ? -1 : 1),
+        // The count and the "Liked by" line read from different fields; moving
+        // one without the other leaves the card contradicting itself until the
+        // next refetch.
+        likers: liked
+          ? post.likers.filter((liker) => liker.userId !== userId)
+          : [...post.likers, me]
+      });
+
       queryClient.setQueryData<PostsData>(key, (old) =>
         old
           ? {
               ...old,
               pages: old.pages.map((page) => ({
                 ...page,
-                posts: page.posts.map((post) =>
-                  post.id === postId
-                    ? {
-                        ...post,
-                        likedByMe: !liked,
-                        likeCount: post.likeCount + (liked ? -1 : 1),
-                        // The count and the "Liked by" line read from different
-                        // fields; moving one without the other leaves the card
-                        // contradicting itself until the next refetch.
-                        likers: liked
-                          ? post.likers.filter((liker) => liker.userId !== userId)
-                          : [...post.likers, me]
-                      }
-                    : post
-                )
+                posts: page.posts.map((post) => (post.id === postId ? applyLike(post) : post))
               }))
             }
           : old
       );
 
-      return { previous };
+      // Post Detail reads its own query, so the heart there is dead without this.
+      queryClient.setQueryData<Post>(detailKey, (old) => (old ? applyLike(old) : old));
+
+      return { previous, previousDetail };
     },
 
-    onError: (error, _input, context) => {
+    onError: (error, input, context) => {
       console.error(error);
       if (context?.previous) {
         queryClient.setQueryData(postsKey(householdId), context.previous);
+      }
+      if (context?.previousDetail) {
+        queryClient.setQueryData(['post', input.postId], context.previousDetail);
       }
     }
   });
