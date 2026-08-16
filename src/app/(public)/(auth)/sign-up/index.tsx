@@ -1,6 +1,7 @@
 import MainButton from '@/components/core/main-button';
 import TextInputValidated from '@/components/core/text-input-validated';
 import TextDescriptionHeader from '@/components/layout/text-description-header';
+import AuthFooterLink from '@/components/screens/auth/auth-footer-link';
 import { ErrorMessage } from '@/constants/enums';
 import { userFacingMessage } from '@/lib/errors';
 import { signUpSchema, type SignUpFormValues } from '@/constants/schemas/sign-up';
@@ -20,14 +21,14 @@ const SignUp = () => {
 
   const form = useForm<SignUpFormValues>({
     resolver: zodResolver(signUpSchema),
-    defaultValues: { firstName: '', lastName: '', email: '', password: '' },
+    defaultValues: { email: '', password: '' },
     mode: 'onBlur'
   });
 
   const {
     control,
     handleSubmit,
-    formState: { isSubmitting }
+    formState: { isSubmitting, isValid }
   } = form;
 
   const onSubmit = handleSubmit(async (values) => {
@@ -37,6 +38,7 @@ const SignUp = () => {
       await AuthService.signUp(values);
       router.push({ pathname: '/sign-up/verify', params: { email: values.email } });
     } catch (error) {
+      console.error(error);
       showErrorToast(
         ErrorMessage.SignUpFailed,
         userFacingMessage(error, 'Check your details and try again')
@@ -52,45 +54,11 @@ const SignUp = () => {
         contentContainerStyle={styles.scrollContent}>
         <TextDescriptionHeader
           title="Create your account"
-          description="Set up your account so you can coordinate care for your pet."
+          description="An email and a password is all it takes to get started."
         />
 
         <FormProvider {...form}>
           <View style={styles.form}>
-            <Controller
-              control={control}
-              name="firstName"
-              render={({ field: { onChange, onBlur, value } }) => (
-                <TextInputValidated
-                  name="firstName"
-                  label="First name"
-                  value={value}
-                  onChangeText={onChange}
-                  onBlur={onBlur}
-                  placeholder="Sarah"
-                  autoComplete="given-name"
-                  returnKeyType="next"
-                  testID="sign-up-first-name"
-                />
-              )}
-            />
-            <Controller
-              control={control}
-              name="lastName"
-              render={({ field: { onChange, onBlur, value } }) => (
-                <TextInputValidated
-                  name="lastName"
-                  label="Last name"
-                  value={value}
-                  onChangeText={onChange}
-                  onBlur={onBlur}
-                  placeholder="Smith"
-                  autoComplete="family-name"
-                  returnKeyType="next"
-                  testID="sign-up-last-name"
-                />
-              )}
-            />
             <Controller
               control={control}
               name="email"
@@ -138,10 +106,16 @@ const SignUp = () => {
             <MainButton
               text={isSubmitting ? 'Creating account…' : 'Create account'}
               isLoading={isSubmitting}
-              isDisabled={isSubmitting}
+              isDisabled={isSubmitting || !isValid}
               onPress={() => {
                 void onSubmit();
               }}
+            />
+
+            <AuthFooterLink
+              prompt="Already have an account?"
+              linkText="Log in here"
+              href="/sign-in"
             />
           </View>
         </FormProvider>
