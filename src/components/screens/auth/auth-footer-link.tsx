@@ -1,31 +1,43 @@
 import AppText from '@/components/core/app-text';
-import { AppTheme } from '@/constants/theme';
+import PressableOpacity from '@/components/core/pressable-opacity';
+import type { AppTheme } from '@/constants/theme';
 import { useStyles } from '@/hooks/use-styles';
-import { Link } from 'expo-router';
+import { Link, type Href } from 'expo-router';
 import { StyleSheet, View } from 'react-native';
 
-const AuthFooterLink = () => {
+type Props = {
+  prompt: string;
+  linkText: string;
+  href: Href;
+};
+
+const AuthFooterLink = ({ prompt, linkText, href }: Props) => {
   const styles = useStyles(makeStyles);
+
   return (
     <View style={styles.container}>
-      <AppText color="primary" size={14} fontWeight="regular">
-        Forgot Password?
+      <AppText color="textSecondary" size={14}>
+        {prompt}
       </AppText>
-      <Link href="/forgot-password" asChild>
-        <AppText color="textSecondary" size={14} fontWeight="bold">
-          Reset Here
-        </AppText>
+      <Link href={href} asChild>
+        <PressableOpacity>
+          <AppText color="primary" size={14} fontWeight="bold">
+            {linkText}
+          </AppText>
+        </PressableOpacity>
       </Link>
     </View>
   );
 };
 
-export default AuthFooterLink;
-
-const makeStyles = ({}: AppTheme) =>
+const makeStyles = ({ spacing }: AppTheme) =>
   StyleSheet.create({
     container: {
       flexDirection: 'row',
-      gap: 4
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: spacing.one
     }
   });
+
+export default AuthFooterLink;
