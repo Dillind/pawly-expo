@@ -3,14 +3,14 @@ import { useStyles } from '@/hooks/use-styles';
 import type { PostPhoto } from '@/services/post.service';
 import { Image } from 'expo-image';
 import { useState } from 'react';
-import { ScrollView, StyleSheet, View, type NativeScrollEvent } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, View, type NativeScrollEvent } from 'react-native';
 
 const DOT_SIZE = 6;
 
-type Props = { photos: PostPhoto[] };
+type Props = { photos: PostPhoto[]; onPress?: () => void };
 
 /** One fixed square frame for every photo -- a pager whose frame changed per page would lurch. */
-const PostPhotoCarousel = ({ photos }: Props) => {
+const PostPhotoCarousel = ({ photos, onPress }: Props) => {
   const styles = useStyles(makeStyles);
   const [width, setWidth] = useState(0);
   const [index, setIndex] = useState(0);
@@ -34,17 +34,25 @@ const PostPhotoCarousel = ({ photos }: Props) => {
             scrollEnabled={photos.length > 1}
             onMomentumScrollEnd={(event) => onScrollEnd(event.nativeEvent)}>
             {photos.map((photo, at) => (
-              <Image
+              // Plain Pressable, not PressableOpacity: a fade on press-in would
+              // flash on the first frame of every swipe before the pan wins.
+              <Pressable
                 key={photo.id}
-                source={{ uri: photo.url }}
+                disabled={!onPress}
+                onPress={onPress}
+                accessibilityRole={onPress ? 'button' : 'image'}
                 style={{ width, height: '100%' }}
-                contentFit="cover"
-                transition={150}
-                accessibilityIgnoresInvertColors
                 accessibilityLabel={
                   photos.length > 1 ? `Photo ${at + 1} of ${photos.length}` : undefined
-                }
-              />
+                }>
+                <Image
+                  source={{ uri: photo.url }}
+                  style={styles.photo}
+                  contentFit="cover"
+                  transition={150}
+                  accessibilityIgnoresInvertColors
+                />
+              </Pressable>
             ))}
           </ScrollView>
         )}
@@ -73,6 +81,9 @@ const makeStyles = ({ colors, spacing }: AppTheme) =>
       borderCurve: 'continuous',
       overflow: 'hidden',
       backgroundColor: colors.backgroundElement
+    },
+    photo: {
+      flex: 1
     },
     dots: {
       flexDirection: 'row',

@@ -82,6 +82,9 @@ const Posts = () => {
           setActivePost(item);
           void actionsSheetRef.current?.present();
         }}
+        onOpen={() =>
+          router.push({ pathname: '/household/post/[postId]', params: { postId: item.id } })
+        }
       />
     );
   };

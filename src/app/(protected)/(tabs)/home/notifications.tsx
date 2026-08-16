@@ -68,7 +68,10 @@ export default function Notifications() {
   const openSubject = useCallback(
     (alert: InboxRow) => {
       if ((alert.kind === 'post' || alert.kind === 'post_liked') && alert.postId) {
-        return router.push('/household');
+        return router.push({
+          pathname: '/household/post/[postId]',
+          params: { postId: alert.postId }
+        });
       }
 
       if (alert.kind === 'missed_feed' && alert.petId) return router.push('/home');
