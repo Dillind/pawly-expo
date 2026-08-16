@@ -25,7 +25,7 @@ import { useFocusEffect, useRouter } from 'expo-router';
 import { useCallback, useRef, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 
-const Household = () => {
+const Posts = () => {
   const styles = useStyles(makeStyles);
   const router = useRouter();
 
@@ -90,7 +90,7 @@ const Household = () => {
     <ScreenView>
       <View style={styles.header}>
         <AppText variant="header" size={28} fontWeight="bold">
-          Household
+          Posts
         </AppText>
         <IconButton
           name="plus"
@@ -167,4 +167,4 @@ const makeStyles = ({ spacing }: AppTheme) =>
     }
   });
 
-export default Household;
+export default Posts;

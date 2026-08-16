@@ -55,7 +55,7 @@ _Avoid_: Feed event, meal record, entry.
 
 **Activity**:
 A Pet's chronological history of Feed Logs. The word for this history, in both the product and the UI. It is not a Household-wide surface and does not own a tab — "when did Bailey last eat" is the question people ask, so the history is read per Pet.
-_Avoid_: **Feed** (reserved for the act of feeding — a Feed Log, a Missed Feed), timeline, stream, news feed. Naming this surface "the feed" invites the public social product PRODUCT_BRIEF still puts out of scope. Do not confuse Activity with the Household surface: Activity is feeding history, the Household tab holds Posts.
+_Avoid_: **Feed** (reserved for the act of feeding — a Feed Log, a Missed Feed), timeline, stream, news feed. Naming this surface "the feed" invites the public social product PRODUCT_BRIEF still puts out of scope. Do not confuse Activity with the Posts tab: Activity is feeding history, the Posts tab holds Posts.
 
 **Grace Window**:
 The interval either side of a Scheduled Time within which a Feed Log counts as Satisfying that slot — symmetric, so a 60-minute window makes 06:00–08:00 satisfy an 07:00 slot. Feeding early is as ordinary as feeding late, and an early feed must never leave a slot looking unfed. Configured per household (default 60 minutes).
@@ -129,16 +129,11 @@ never satisfies a Scheduled Time. See
 _Avoid_: Update, moment, story, and above all **feed** — the word belongs to feeding, and calling a
 Post surface "the feed" is what ADR 0017 exists to prevent.
 
-**Household** (the surface):
-The tab holding the Household's Posts, newest first. The same word as the group it belongs to —
-the audience is the name. Visible only to Members.
-_Avoid_: Feed, timeline, stream, news feed, social, wall.
-
-> **Provisional — this name is under review, not settled.** It knowingly gives "Household" a second
-> meaning alongside the group defined above, which is the kind of drift this glossary exists to
-> prevent. It also sits next to the Home tab, and it promises the household's people while
-> delivering their photos (members and invites live in Profile). Candidates if it changes: Shared,
-> Album. Deferred deliberately so it does not block CRU-011 — revisit before the tab ships to users.
+**Posts** (the tab):
+The tab holding the Household's Posts, newest first. Named for what it holds. Visible only to
+Members.
+_Avoid_: Household (that word means the group and nothing else), Feed, timeline, stream, news feed,
+social, wall.
 
 **Edited**:
 The mark a Post carries once its author has changed the caption, the Pet Tags or the photos. Shown
