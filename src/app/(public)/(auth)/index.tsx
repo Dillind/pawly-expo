@@ -10,8 +10,7 @@ import { useRouter } from 'expo-router';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-// Fixed so the illustration (CRU-030) can drop in without re-balancing the
-// buttons below it, which are the part worth getting right.
+// Fixed so the illustration can drop in without moving the buttons.
 const ART_HEIGHT = 200;
 
 const Welcome = () => {
@@ -59,8 +58,7 @@ const makeStyles = ({ spacing }: AppTheme) =>
       justifyContent: 'center',
       gap: spacing.two
     },
-    // Buttons and legal line move as one block. Anchoring the buttons alone
-    // pushes the legal line past the fold.
+    // One block: anchoring the buttons alone pushes the legal line past the fold.
     actions: {
       gap: spacing.two,
       marginTop: 'auto',

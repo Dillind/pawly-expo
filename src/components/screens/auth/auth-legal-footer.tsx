@@ -4,8 +4,7 @@ import { useStyles } from '@/hooks/use-styles';
 import { openExternalUrl } from '@/utils/external-link';
 import { StyleSheet, View } from 'react-native';
 
-// TODO(CRU-023): placeholder destinations. A privacy policy link is required
-// for App Store review, so these have to resolve before submission.
+// TODO: placeholders. App Store review requires a working privacy policy link.
 const TERMS_URL = 'https://crumpet.com.au/terms';
 const PRIVACY_URL = 'https://crumpet.com.au/privacy';
 

@@ -4,8 +4,7 @@ export default function AuthLayout() {
   return (
     <Stack screenOptions={{ headerShown: false }}>
       <Stack.Screen name="index" options={{ title: 'Welcome' }} />
-      {/* The welcome screen pushes these two, so they carry a header for its
-          back button. Without one there is no way out of either. */}
+      {/* Headers give the two pushed screens a back button; without one they trap you. */}
       <Stack.Screen
         name="sign-in"
         options={{ title: 'Sign in', headerShown: true, headerBackTitle: 'Back' }}

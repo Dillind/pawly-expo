@@ -3,10 +3,9 @@ import type { AppTheme } from '@/constants/theme';
 import { useStyles } from '@/hooks/use-styles';
 import { StyleSheet, View } from 'react-native';
 
+// A missing handler disables its button. Both are missing until CRU-026 and CRU-027.
 type Props = {
-  /** CRU-026. Omitted until Apple sign-in exists, which disables the button. */
   onApplePress?: () => void;
-  /** CRU-027. Omitted until Google sign-in exists, which disables the button. */
   onGooglePress?: () => void;
 };
 
