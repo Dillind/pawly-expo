@@ -175,7 +175,7 @@ export function useToggleLike(householdId: string | undefined) {
 }
 
 /**
- * Drives the dot on the Household tab.
+ * Drives the dot on the Posts tab.
  *
  * Polls rather than subscribes, and that is the cheaper option on the client,
  * not the lazier one. Supabase Realtime is a WebSocket held open for the life
