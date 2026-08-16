@@ -39,7 +39,7 @@ const Welcome = () => {
       <View style={styles.actions}>
         <SocialAuthButtons />
         <MainButton text="Continue with email" onPress={() => router.push('/sign-up')} />
-        <AuthFooterLink prompt="Already have an account?" linkText="Log in here" href="/sign-in" />
+        <AuthFooterLink prompt="Already have an account?" linkText="Sign in here" href="/sign-in" />
         <AuthLegalFooter />
       </View>
     </ScrollView>
@@ -59,8 +59,8 @@ const makeStyles = ({ spacing }: AppTheme) =>
       justifyContent: 'center',
       gap: spacing.two
     },
-    // The whole block sits at the bottom together. With `auto` on the buttons
-    // alone, the legal line is pushed past the fold and has to be scrolled to.
+    // Buttons and legal line move as one block. Anchoring the buttons alone
+    // pushes the legal line past the fold.
     actions: {
       gap: spacing.two,
       marginTop: 'auto',
