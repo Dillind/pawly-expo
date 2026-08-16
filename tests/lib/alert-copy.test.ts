@@ -3,7 +3,7 @@ import type { Alert } from '@/services/alert.service';
 
 const alert = (overrides: Partial<Alert>): Alert => ({
   id: 'a1',
-  kind: 'feed_logged',
+  kind: 'post',
   createdAt: '2026-08-14T07:00:00.000Z',
   isRead: false,
   wasSuppressed: false,
@@ -11,19 +11,14 @@ const alert = (overrides: Partial<Alert>): Alert => ({
   petId: 'p1',
   petName: 'Crumpet',
   slotLabel: null,
-  feedLogId: 'f1',
-  postId: null,
-  postCaption: null,
+  postId: 'po1',
+  postCaption: 'Muddy paws again',
   subjectName: null,
   subjectIsMe: false,
   ...overrides
 });
 
 describe('alertSentence', () => {
-  it('names the actor and the pet for a logged feed', () => {
-    expect(alertSentence(alert({}))).toBe('Sarah Smith fed Crumpet');
-  });
-
   // Nobody did it, so it leads with the pet rather than a person.
   it('names no actor for a missed feed', () => {
     const sentence = alertSentence(
@@ -69,9 +64,9 @@ describe('alertSentence', () => {
     expect(sentence).toBe('Sarah Smith liked your photo');
   });
 
-  // The row outlives its subject, so a deleted feed log must still read.
-  it('says less rather than breaking when the pet is gone', () => {
-    expect(alertSentence(alert({ petName: null }))).toBe('Sarah Smith logged a feed');
+  // The row outlives its subject, so a deleted post must still read.
+  it('says less rather than breaking when the subject is gone', () => {
+    expect(alertSentence(alert({ postCaption: null }))).toBe('Sarah Smith shared a photo');
     expect(alertSentence(alert({ kind: 'missed_feed', petName: null }))).toBe('A feed was missed');
   });
 
@@ -101,7 +96,9 @@ describe('alertSentence', () => {
   });
 
   it('falls back to "Member" for a missing name, matching the push', () => {
-    expect(alertSentence(alert({ actorName: null }))).toBe('Member fed Crumpet');
+    expect(alertSentence(alert({ actorName: null, postCaption: null }))).toBe(
+      'Member shared a photo'
+    );
   });
 });
 
@@ -113,7 +110,6 @@ describe('alertGlyph', () => {
   });
 
   it('distinguishes the rest', () => {
-    expect(alertGlyph('feed_logged')).toBe('utensils');
     expect(alertGlyph('missed_feed')).toBe('circleAlert');
     expect(alertGlyph('post')).toBe('image');
     expect(alertGlyph('post_liked')).toBe('heart');

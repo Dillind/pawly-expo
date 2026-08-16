@@ -2,8 +2,11 @@ import { supabase } from '@/lib/supabase/client';
 
 export const ALERTS_PAGE_SIZE = 30;
 
+/**
+ * The kinds the inbox lists. `feed_logged` is deliberately absent: it stays in
+ * the database as a delivery record and is never read back here (ADR 0023).
+ */
 export type AlertKind =
-  | 'feed_logged'
   | 'missed_feed'
   | 'post'
   | 'post_liked'
@@ -23,7 +26,6 @@ export type Alert = {
   petId: string | null;
   petName: string | null;
   slotLabel: string | null;
-  feedLogId: string | null;
   postId: string | null;
   postCaption: string | null;
   subjectName: string | null;
@@ -44,7 +46,6 @@ type AlertRow = {
   pet_id: string | null;
   pet_name: string | null;
   slot_label: string | null;
-  feed_log_id: string | null;
   post_id: string | null;
   post_caption: string | null;
   subject_first_name: string | null;
@@ -70,7 +71,6 @@ const toAlert = (row: AlertRow): Alert => ({
   petId: row.pet_id,
   petName: row.pet_name,
   slotLabel: row.slot_label,
-  feedLogId: row.feed_log_id,
   postId: row.post_id,
   postCaption: row.post_caption,
   subjectName: displayName(row.subject_first_name, row.subject_last_name),
