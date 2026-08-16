@@ -16,7 +16,7 @@ import {
 import { useHousehold } from '@/hooks/queries/use-household';
 import { usePullToRefresh } from '@/hooks/use-pull-to-refresh';
 import { useStyles } from '@/hooks/use-styles';
-import type { Alert } from '@/services/alert.service';
+import { collapseLikes, type InboxRow } from '@/lib/alert-groups';
 import type {
   LegendListRenderItemProps,
   OnViewableItemsChangedInfo
@@ -42,16 +42,17 @@ export default function Notifications() {
   const { mutate: markAllRead, isPending: isMarkingAll } = useMarkAllAlertsRead(householdId);
   const { data: unreadCount = 0 } = useUnreadAlertCount(householdId);
 
-  const alerts = useMemo(() => data?.pages.flat() ?? [], [data]);
+  const alerts = useMemo(() => collapseLikes(data?.pages.flat() ?? []), [data]);
 
   const alreadyMarked = useRef(new Set<string>());
 
   const onViewableItemsChanged = useCallback(
-    ({ viewableItems }: OnViewableItemsChangedInfo<Alert>) => {
+    ({ viewableItems }: OnViewableItemsChangedInfo<InboxRow>) => {
       const unseen = viewableItems
         .map((token) => token.item)
-        .filter((alert) => !alert.isRead && !alreadyMarked.current.has(alert.id))
-        .map((alert) => alert.id);
+        .filter((row) => !row.isRead)
+        .flatMap((row) => row.alertIds)
+        .filter((id) => !alreadyMarked.current.has(id));
 
       if (unseen.length === 0) return;
 
@@ -65,7 +66,7 @@ export default function Notifications() {
   );
 
   const openSubject = useCallback(
-    (alert: Alert) => {
+    (alert: InboxRow) => {
       if ((alert.kind === 'post' || alert.kind === 'post_liked') && alert.postId) {
         return router.push('/household');
       }
@@ -76,7 +77,7 @@ export default function Notifications() {
   );
 
   const renderItem = useCallback(
-    ({ item, index }: LegendListRenderItemProps<Alert>) => (
+    ({ item, index }: LegendListRenderItemProps<InboxRow>) => (
       <>
         <AlertRow alert={item} timezone={timezone} onPress={() => openSubject(item)} />
         {item.isRead && index < alerts.length - 1 && (
@@ -108,7 +109,7 @@ export default function Notifications() {
         }}
       />
 
-      <MainLegendList<Alert>
+      <MainLegendList<InboxRow>
         data={alerts}
         renderItem={renderItem}
         keyExtractor={(alert) => alert.id}

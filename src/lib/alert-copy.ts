@@ -1,4 +1,4 @@
-import type { Alert } from '@/services/alert.service';
+import type { InboxRow } from '@/lib/alert-groups';
 
 const someone = (name: string | null) => name ?? 'Member';
 
@@ -11,8 +11,12 @@ const slotWord = (label: string | null) =>
  * One line of plain English. Every branch has a version that says less, because
  * a row outlives the subject it names.
  */
-export function alertSentence(alert: Alert): string {
+export function alertSentence(alert: InboxRow): string {
   const actor = someone(alert.actorName);
+  const likers =
+    alert.otherLikeCount > 0
+      ? `${actor} and ${alert.otherLikeCount} ${alert.otherLikeCount === 1 ? 'other' : 'others'}`
+      : actor;
 
   switch (alert.kind) {
     case 'missed_feed':
@@ -28,8 +32,8 @@ export function alertSentence(alert: Alert): string {
     // Only ever shown to the post's author, so "your" is always true here.
     case 'post_liked':
       return alert.postCaption
-        ? `${actor} liked your post ${quoted(alert.postCaption)}`
-        : `${actor} liked your photo`;
+        ? `${likers} liked your post ${quoted(alert.postCaption)}`
+        : `${likers} liked your photo`;
 
     case 'member_removed':
       return alert.subjectIsMe
@@ -48,7 +52,7 @@ export function alertSentence(alert: Alert): string {
 
 export type AlertGlyph = 'circleAlert' | 'image' | 'heart' | 'users';
 
-export const alertGlyph = (kind: Alert['kind']): AlertGlyph => {
+export const alertGlyph = (kind: InboxRow['kind']): AlertGlyph => {
   switch (kind) {
     case 'missed_feed':
       return 'circleAlert';
