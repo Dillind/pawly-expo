@@ -7,12 +7,7 @@ export const ALERTS_PAGE_SIZE = 30;
  * the database as a delivery record and is never read back here (ADR 0023).
  */
 export type AlertKind =
-  | 'missed_feed'
-  | 'post'
-  | 'post_liked'
-  | 'member_removed'
-  | 'member_role_changed'
-  | 'member_left';
+  'missed_feed' | 'post' | 'post_liked' | 'member_removed' | 'member_role_changed' | 'member_left';
 
 /** A row survives its subject, so every resolved field here can be null. */
 export type Alert = {
