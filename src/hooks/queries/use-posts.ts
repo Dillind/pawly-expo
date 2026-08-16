@@ -49,6 +49,7 @@ export function useCreatePost(householdId: string | undefined) {
     mutationFn: (input: {
       userId: string;
       localUris: string[];
+      title: string;
       caption?: string | null;
       petIds?: string[];
     }) => PostService.create({ householdId: householdId!, ...input }),
@@ -68,6 +69,7 @@ export function useUpdatePost(householdId: string | undefined) {
     mutationFn: (input: {
       postId: string;
       userId: string;
+      title: string;
       caption: string | null;
       petIds: string[];
       photos: PostPhotoInput[];

@@ -9,6 +9,7 @@ import PhotoTile from '@/components/ui/photo-tile';
 import {
   CAPTION_MAX,
   PHOTO_CAP,
+  TITLE_MAX,
   type PostFormValues,
   type PostPhotoValue
 } from '@/constants/schemas/post';
@@ -77,7 +78,45 @@ const PostComposer = ({ pets, householdName }: Props) => {
   return (
     <>
       <View style={styles.content}>
-        <View style={styles.photosContainer}>
+        <Controller
+          control={control}
+          name="title"
+          render={({ field: { onChange, onBlur, value } }) => (
+            <TextInputValidated
+              name="title"
+              label="Title"
+              value={value}
+              onChangeText={onChange}
+              onBlur={onBlur}
+              placeholder="Name your post"
+              maxLength={TITLE_MAX}
+              showCharacterCount
+            />
+          )}
+        />
+
+        <Controller
+          control={control}
+          name="caption"
+          render={({ field: { onChange, onBlur, value } }) => (
+            <TextInputValidated
+              name="caption"
+              label="Description"
+              value={value}
+              onChangeText={onChange}
+              onBlur={onBlur}
+              placeholder="Add a description to your post"
+              isMultiline
+              maxLength={CAPTION_MAX}
+              showCharacterCount
+              height={110}
+            />
+          )}
+        />
+
+        <View style={styles.photos}>
+          <AppText size={16}>Photos</AppText>
+
           {photos.length === 0 ? (
             <AddPhotoTile isDropzone onPress={() => void photoSheetRef.current?.present()} />
           ) : (
@@ -104,32 +143,13 @@ const PostComposer = ({ pets, householdName }: Props) => {
               ))}
             </ScrollView>
           )}
+
+          <AppText size={13} color="textSecondary">
+            {isAtCap
+              ? `${PHOTO_CAP} of ${PHOTO_CAP} photos. Remove one to add another.`
+              : `${photos.length} of ${PHOTO_CAP} photos`}
+          </AppText>
         </View>
-
-        <AppText size={13} color="textSecondary">
-          {isAtCap
-            ? `${PHOTO_CAP} of ${PHOTO_CAP} photos. Remove one to add another.`
-            : `${photos.length} of ${PHOTO_CAP} photos`}
-        </AppText>
-
-        <Controller
-          control={control}
-          name="caption"
-          render={({ field: { onChange, onBlur, value } }) => (
-            <TextInputValidated
-              name="caption"
-              label="Description"
-              value={value}
-              onChangeText={onChange}
-              onBlur={onBlur}
-              placeholder="Add a description to your post"
-              isMultiline
-              maxLength={CAPTION_MAX}
-              showCharacterCount
-              height={110}
-            />
-          )}
-        />
 
         <PressableOpacity
           style={styles.row}
@@ -169,11 +189,12 @@ const makeStyles = ({ colors, spacing }: AppTheme) =>
   StyleSheet.create({
     content: {
       paddingHorizontal: ScreenGutter,
+      paddingTop: spacing.three,
       paddingBottom: spacing.six,
       gap: spacing.three
     },
-    photosContainer: {
-      marginTop: spacing.three
+    photos: {
+      gap: spacing.one
     },
     strip: {
       marginHorizontal: -ScreenGutter

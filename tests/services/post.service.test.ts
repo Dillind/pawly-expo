@@ -25,6 +25,7 @@ const row = (overrides: Record<string, unknown> = {}) => ({
   id: 'post-1',
   household_id: 'house-1',
   author_id: 'user-1',
+  title: 'Park day',
   caption: 'Bailey at the park',
   occurred_at: '2026-08-09T02:00:00Z',
   edited_at: null,
@@ -50,6 +51,7 @@ describe('PostService.update', () => {
     PostService.update({
       postId: 'post-1',
       userId: 'user-1',
+      title: 'Park day',
       caption: 'A better caption',
       petIds: ['pet-1', 'pet-2'],
       photos: [KEPT_PHOTO],
@@ -62,6 +64,7 @@ describe('PostService.update', () => {
     expect(mockRpc).toHaveBeenCalledWith('update_post', {
       target_post_id: 'post-1',
       photo_storage_paths: ['user-1/house-1/b.jpg'],
+      post_title: 'Park day',
       post_caption: 'A better caption',
       tagged_pet_ids: ['pet-1', 'pet-2']
     });
@@ -73,6 +76,7 @@ describe('PostService.update', () => {
     expect(mockRpc).toHaveBeenCalledWith('update_post', {
       target_post_id: 'post-1',
       photo_storage_paths: ['user-1/house-1/b.jpg'],
+      post_title: 'Park day',
       post_caption: 'Kept',
       tagged_pet_ids: []
     });
@@ -84,6 +88,7 @@ describe('PostService.update', () => {
     expect(mockRpc).toHaveBeenCalledWith('update_post', {
       target_post_id: 'post-1',
       photo_storage_paths: ['user-1/house-1/b.jpg'],
+      post_title: 'Park day',
       post_caption: null,
       tagged_pet_ids: ['pet-1']
     });
@@ -169,6 +174,7 @@ describe('PostService.get', () => {
       householdId: 'house-1',
       authorId: 'user-1',
       author: { firstName: 'Dylan', lastName: 'Lindsay' },
+      title: 'Park day',
       caption: 'Bailey at the park',
       occurredAt: '2026-08-09T02:00:00Z',
       editedAt: null,
@@ -184,6 +190,14 @@ describe('PostService.get', () => {
       likedByMe: false,
       likers: []
     });
+  });
+
+  it('carries a null title through, which is every Post made before titles existed', async () => {
+    mockSingle.mockResolvedValue({ data: row({ title: null }), error: null });
+
+    const post = await PostService.get({ postId: 'post-1', viewerId: null });
+
+    expect(post.title).toBeNull();
   });
 
   it('orders photos by sort_order, not by the order PostgREST returned them', async () => {

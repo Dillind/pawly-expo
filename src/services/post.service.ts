@@ -28,6 +28,8 @@ export type Post = {
   householdId: string;
   authorId: string | null;
   author: PostAuthor | null;
+  /** Null on every Post made before titles existed. */
+  title: string | null;
   caption: string | null;
   occurredAt: string;
   editedAt: string | null;
@@ -46,7 +48,7 @@ export type PostsCursor = { occurredAt: string; id: string };
 // directly. Null once the account itself is deleted -- not merely when the
 // member leaves the household, which only costs them access.
 const POST_SELECT = `
-  id, household_id, author_id, caption, occurred_at, edited_at,
+  id, household_id, author_id, title, caption, occurred_at, edited_at,
   users!posts_author_id_fkey(first_name, last_name),
   post_photos(id, storage_path, sort_order),
   post_pets(pets(id, name, photo_url)),
@@ -57,6 +59,7 @@ type PostRow = {
   id: string;
   household_id: string;
   author_id: string | null;
+  title: string | null;
   caption: string | null;
   occurred_at: string;
   edited_at: string | null;
@@ -80,6 +83,7 @@ function mapPostRow(row: PostRow, viewerId: string | null): Post {
     author: row.users
       ? { firstName: row.users.first_name, lastName: row.users.last_name }
       : null,
+    title: row.title,
     caption: row.caption,
     occurredAt: row.occurred_at,
     editedAt: row.edited_at,
@@ -212,6 +216,7 @@ namespace PostService {
     householdId: string;
     userId: string;
     localUris: string[];
+    title: string;
     caption?: string | null;
     petIds?: string[];
   }): Promise<void> {
@@ -226,6 +231,7 @@ namespace PostService {
     const { error: rpcError } = await supabase.rpc('create_post', {
       target_household_id: params.householdId,
       photo_storage_paths: paths,
+      post_title: params.title,
       post_caption: params.caption ?? null,
       tagged_pet_ids: params.petIds ?? []
     });
@@ -250,8 +256,9 @@ namespace PostService {
   export async function update(params: {
     postId: string;
     userId: string;
-    // All three required. The RPC overwrites what it is given, so an omitted
-    // caption would silently clear one rather than leave it alone.
+    // All required. The RPC overwrites what it is given, so an omitted caption
+    // would silently clear one rather than leave it alone.
+    title: string;
     caption: string | null;
     petIds: string[];
     photos: PostPhotoInput[];
@@ -280,6 +287,7 @@ namespace PostService {
     const { error: rpcError } = await supabase.rpc('update_post', {
       target_post_id: params.postId,
       photo_storage_paths: finalPaths,
+      post_title: params.title,
       post_caption: params.caption,
       tagged_pet_ids: params.petIds
     });

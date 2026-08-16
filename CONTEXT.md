@@ -120,8 +120,9 @@ _Avoid_: Duplicate feed, over-feed.
 ## Sharing
 
 **Post**:
-Photos a Member shares with their Household — between one and ten images, and an optional
-caption. Always
+Photos a Member shares with their Household — a required title, an optional description, and
+between one and ten images. Posts made before titles existed have none, and read fine without one.
+Always
 posted now: unlike a Feed Log, a Post carries no author-set time. Authored deliberately and
 unrelated to feeding: a walk, a nap, a "she's fine, look at her". A Post is never a Feed Log and
 never satisfies a Scheduled Time. See
@@ -130,9 +131,9 @@ _Avoid_: Update, moment, story, and above all **feed** — the word belongs to f
 Post surface "the feed" is what ADR 0017 exists to prevent.
 
 **Post Detail**:
-The screen holding one Post on its own — the same author, caption, Pet Tags, photos, likes and
-likers the Posts tab shows, with the caption never truncated. Where a Post or Like notification
-lands, and where the photo or the caption on a Post opens. Opening one Post does not mark the
+The screen holding one Post on its own — the same author, title, caption, Pet Tags, photos, likes
+and likers the Posts tab shows, with neither the title nor the caption truncated. Where a Post or
+Like notification lands, and where the title, the photo or the caption on a Post opens. Opening one Post does not mark the
 Posts tab seen.
 _Avoid_: Post page, permalink, single post view.
 
