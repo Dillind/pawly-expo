@@ -6,10 +6,10 @@ import TextDescriptionHeader from '@/components/layout/text-description-header';
 import AuthFooterLink from '@/components/screens/auth/auth-footer-link';
 import PasswordGuidelines from '@/components/screens/auth/password-guidelines';
 import { ErrorMessage } from '@/constants/enums';
-import { userFacingMessage } from '@/lib/errors';
 import { signUpSchema, type SignUpFormValues } from '@/constants/schemas/sign-up';
 import type { AppTheme } from '@/constants/theme';
 import { useStyles } from '@/hooks/use-styles';
+import { userFacingMessage } from '@/lib/errors';
 import { hapticLight } from '@/lib/haptics';
 import { showErrorToast } from '@/lib/toast';
 import AuthService from '@/services/auth.service';
@@ -71,7 +71,7 @@ const SignUp = () => {
                   value={value}
                   onChangeText={onChange}
                   onBlur={onBlur}
-                  placeholder="you@example.com"
+                  placeholder="email@example.com"
                   keyboardType="email-address"
                   autoCapitalize="none"
                   autoComplete="email"
