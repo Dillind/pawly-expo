@@ -3,28 +3,34 @@ import TextInputValidated from '@/components/core/text-input-validated';
 import ScreenScrollView from '@/components/layout/screen-scroll-view';
 import ScreenView from '@/components/layout/screen-view';
 import TextDescriptionHeader from '@/components/layout/text-description-header';
-import AuthFooterLink from '@/components/screens/auth/auth-footer-link';
+import AppText from '@/components/core/app-text';
+import PressableOpacity from '@/components/core/pressable-opacity';
 import PasswordGuidelines from '@/components/screens/auth/password-guidelines';
-import { ErrorMessage } from '@/constants/enums';
-import { signUpSchema, type SignUpFormValues } from '@/constants/schemas/sign-up';
+import { ErrorMessage, SuccessMessage } from '@/constants/enums';
+import {
+  resetPasswordSchema,
+  type ResetPasswordFormValues
+} from '@/constants/schemas/reset-password';
 import type { AppTheme } from '@/constants/theme';
 import { useStyles } from '@/hooks/use-styles';
-import { userFacingMessage } from '@/lib/errors';
+import { logError, userFacingMessage } from '@/lib/errors';
 import { hapticLight } from '@/lib/haptics';
-import { showErrorToast } from '@/lib/toast';
+import { showErrorToast, showSuccessToast } from '@/lib/toast';
 import AuthService from '@/services/auth.service';
-import { zodResolver } from '@hookform/resolvers/zod';
+import { useAuthStore } from '@/stores/auth-store';
 import { useRouter } from 'expo-router';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { Controller, FormProvider, useForm } from 'react-hook-form';
 import { StyleSheet, View } from 'react-native';
 
-const SignUp = () => {
+const ResetPassword = () => {
   const styles = useStyles(makeStyles);
+  const { setRecovering } = useAuthStore();
   const router = useRouter();
 
-  const form = useForm<SignUpFormValues>({
-    resolver: zodResolver(signUpSchema),
-    defaultValues: { email: '', password: '' },
+  const form = useForm<ResetPasswordFormValues>({
+    resolver: zodResolver(resetPasswordSchema),
+    defaultValues: { password: '', confirmPassword: '' },
     mode: 'onTouched'
   });
 
@@ -38,16 +44,36 @@ const SignUp = () => {
     hapticLight();
 
     try {
-      await AuthService.signUp(values);
-      router.push({ pathname: '/sign-up/verify', params: { email: values.email } });
+      await AuthService.updatePassword({ password: values.password });
+      showSuccessToast(SuccessMessage.PasswordUpdated);
+      // No navigation: releasing the guard leaves a live session, which AuthGate
+      // reacts to by swapping to (protected) itself.
+      setRecovering(false);
     } catch (error) {
-      console.error(error);
-      showErrorToast(
-        ErrorMessage.SignUpFailed,
-        userFacingMessage(error, 'Check your details and try again')
-      );
+      logError(error);
+      showErrorToast(ErrorMessage.PasswordUpdateFailed, userFacingMessage(error, 'Try again'));
     }
   });
+
+  /**
+   * The only way off this screen other than succeeding. Back and the swipe are
+   * both off, so without this an expired recovery session traps the user here
+   * with no exit but killing the app.
+   *
+   * Signing out is what actually resets it: clearing the flag alone leaves the
+   * recovery session live, and AuthGate would drop them straight into the app
+   * with the password still unchanged.
+   */
+  const startOver = async () => {
+    try {
+      await AuthService.signOut();
+    } catch (error) {
+      logError(error);
+    } finally {
+      setRecovering(false);
+      router.replace('/forgot-password');
+    }
+  };
 
   return (
     <ScreenView edges={['bottom']}>
@@ -55,38 +81,19 @@ const SignUp = () => {
         keyboardShouldPersistTaps="handled"
         contentContainerStyle={styles.scrollContent}>
         <TextDescriptionHeader
-          title="Create your account"
-          description="An email and a password is all it takes to get started."
+          title="Choose a new password"
+          description="Pick something you have not used here before."
         />
 
         <FormProvider {...form}>
           <View style={styles.form}>
             <Controller
               control={control}
-              name="email"
-              render={({ field: { onChange, onBlur, value } }) => (
-                <TextInputValidated
-                  name="email"
-                  label="Email"
-                  value={value}
-                  onChangeText={onChange}
-                  onBlur={onBlur}
-                  placeholder="email@example.com"
-                  keyboardType="email-address"
-                  autoCapitalize="none"
-                  autoComplete="email"
-                  returnKeyType="next"
-                  testID="sign-up-email"
-                />
-              )}
-            />
-            <Controller
-              control={control}
               name="password"
               render={({ field: { onChange, onBlur, value } }) => (
                 <TextInputValidated
                   name="password"
-                  label="Password"
+                  label="New password"
                   value={value}
                   onChangeText={onChange}
                   onBlur={onBlur}
@@ -94,11 +101,30 @@ const SignUp = () => {
                   secureTextEntry
                   autoCapitalize="none"
                   autoComplete="password-new"
+                  returnKeyType="next"
+                  testID="reset-password-password"
+                />
+              )}
+            />
+            <Controller
+              control={control}
+              name="confirmPassword"
+              render={({ field: { onChange, onBlur, value } }) => (
+                <TextInputValidated
+                  name="confirmPassword"
+                  label="Confirm new password"
+                  value={value}
+                  onChangeText={onChange}
+                  onBlur={onBlur}
+                  placeholder="Type it again"
+                  secureTextEntry
+                  autoCapitalize="none"
+                  autoComplete="password-new"
                   returnKeyType="done"
                   onSubmitEditing={() => {
                     void onSubmit();
                   }}
-                  testID="sign-up-password"
+                  testID="reset-password-confirm"
                 />
               )}
             />
@@ -108,7 +134,7 @@ const SignUp = () => {
 
           <View style={styles.actions}>
             <MainButton
-              text={isSubmitting ? 'Creating account…' : 'Create account'}
+              text={isSubmitting ? 'Saving password…' : 'Save password'}
               isLoading={isSubmitting}
               isDisabled={isSubmitting || !isValid}
               onPress={() => {
@@ -116,12 +142,15 @@ const SignUp = () => {
               }}
             />
 
-            <AuthFooterLink
-              prompt="Already have an account?"
-              linkText="Sign in here"
-              href="/sign-in"
-              isReplace
-            />
+            <PressableOpacity
+              style={styles.startOver}
+              onPress={() => {
+                void startOver();
+              }}>
+              <AppText size={14} fontWeight="bold" color="primary">
+                Start over
+              </AppText>
+            </PressableOpacity>
           </View>
         </FormProvider>
       </ScreenScrollView>
@@ -142,7 +171,10 @@ const makeStyles = ({ spacing }: AppTheme) =>
     actions: {
       gap: spacing.two,
       marginTop: spacing.two
+    },
+    startOver: {
+      alignSelf: 'center'
     }
   });
 
-export default SignUp;
+export default ResetPassword;

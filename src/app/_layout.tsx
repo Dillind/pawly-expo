@@ -7,12 +7,12 @@ import { KeyboardProvider } from 'react-native-keyboard-controller';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { Toaster } from 'sonner-native';
 
+import { useUserProfile } from '@/hooks/queries/account/use-user-profile';
 import { useAuthSession } from '@/hooks/use-auth-session';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { usePushNotifications } from '@/hooks/use-push-notifications';
-import { useUserProfile } from '@/hooks/queries/account/use-user-profile';
-import { useAuthStore } from '@/stores/auth-store';
 import { useActiveHouseholdStore } from '@/stores/active-household-store';
+import { useAuthStore } from '@/stores/auth-store';
 import { useThemeStore } from '@/stores/theme-store';
 import { isWeb } from '@/utils/platform';
 
@@ -24,17 +24,17 @@ const AuthGate = () => {
   useAuthSession();
   useUserProfile();
   usePushNotifications();
-  const { status } = useAuthStore();
+  const { status, isRecovering } = useAuthStore();
   const { hasHydrated } = useThemeStore();
 
   if (status === 'loading' || !hasHydrated) return null;
 
   return (
     <Stack screenOptions={{ headerShown: false }}>
-      <Stack.Protected guard={status === 'signedOut'}>
+      <Stack.Protected guard={status === 'signedOut' || isRecovering}>
         <Stack.Screen name="(public)" />
       </Stack.Protected>
-      <Stack.Protected guard={status === 'signedIn'}>
+      <Stack.Protected guard={status === 'signedIn' && !isRecovering}>
         <Stack.Screen name="(protected)" />
       </Stack.Protected>
     </Stack>
@@ -72,7 +72,7 @@ export default function RootLayout() {
               <AuthGate />
             </QueryClientProvider>
           </KeyboardProvider>
-          <Toaster richColors position="bottom-center" />
+          <Toaster richColors position="bottom-center" closeButton swipeToDismissDirection="left" />
         </SafeAreaProvider>
       </ThemeProvider>
     </GestureHandlerRootView>
