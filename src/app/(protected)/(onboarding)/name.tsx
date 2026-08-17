@@ -19,8 +19,10 @@ const NameStep = () => {
 
   const form = useForm<NameFormValues>({
     resolver: zodResolver(nameSchema),
-    defaultValues: { firstName: profile?.firstName ?? '', lastName: profile?.lastName ?? '' },
-    mode: 'onBlur'
+    // `values`, not `defaultValues`: the profile is undefined until its query
+    // resolves, and defaults are read once, so a cold start would show blanks.
+    values: { firstName: profile?.firstName ?? '', lastName: profile?.lastName ?? '' },
+    mode: 'onTouched'
   });
 
   const {

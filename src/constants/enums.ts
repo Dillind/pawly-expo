@@ -47,6 +47,7 @@ export enum SuccessMessage {
   MedicationAdded = 'Medication added',
   MedicationRemoved = 'Medication removed',
   MedicationUpdated = 'Medication updated',
+  NameSaved = 'Name saved',
   OnboardingCompleted = 'Pet profile completed',
   PetAdded = 'Pet added',
   PetDetailsUpdated = 'Pet details updated',
@@ -58,7 +59,6 @@ export enum SuccessMessage {
   PostDeleted = 'Post deleted',
   PostShared = 'Post shared',
   PostUpdated = 'Post updated',
-  NameSaved = 'Name saved',
   SignedIn = 'Signed in',
   SignedOut = 'Signed out',
   TimezoneUpdated = 'Timezone updated'
