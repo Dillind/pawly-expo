@@ -1,19 +1,21 @@
-import AppText from '@/components/core/app-text';
 import MainButton from '@/components/core/main-button';
-import PressableOpacity from '@/components/core/pressable-opacity';
 import TextInputValidated from '@/components/core/text-input-validated';
+import ScreenScrollView from '@/components/layout/screen-scroll-view';
+import ScreenView from '@/components/layout/screen-view';
 import TextDescriptionHeader from '@/components/layout/text-description-header';
+import AuthDivider from '@/components/screens/auth/auth-divider';
+import AuthFooterLink from '@/components/screens/auth/auth-footer-link';
+import SocialAuthButtons from '@/components/screens/auth/social-auth-buttons';
 import { ErrorMessage, SuccessMessage } from '@/constants/enums';
-import { userFacingMessage } from '@/lib/errors';
 import { signInSchema, type SignInFormValues } from '@/constants/schemas/sign-in';
 import type { AppTheme } from '@/constants/theme';
 import { useStyles } from '@/hooks/use-styles';
+import { userFacingMessage } from '@/lib/errors';
 import { showErrorToast, showSuccessToast } from '@/lib/toast';
 import AuthService from '@/services/auth.service';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Link } from 'expo-router';
 import { Controller, FormProvider, useForm } from 'react-hook-form';
-import { ScrollView, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 
 const SignIn = () => {
   const styles = useStyles(makeStyles);
@@ -21,13 +23,13 @@ const SignIn = () => {
   const form = useForm<SignInFormValues>({
     resolver: zodResolver(signInSchema),
     defaultValues: { email: '', password: '' },
-    mode: 'onBlur'
+    mode: 'onTouched'
   });
 
   const {
     control,
     handleSubmit,
-    formState: { isSubmitting }
+    formState: { isSubmitting, isValid }
   } = form;
 
   const onSubmit = handleSubmit(async (values) => {
@@ -35,6 +37,7 @@ const SignIn = () => {
       await AuthService.signInWithPassword(values);
       showSuccessToast(SuccessMessage.SignedIn);
     } catch (error) {
+      console.error(error);
       showErrorToast(
         ErrorMessage.SignInFailed,
         userFacingMessage(error, 'Check your details and try again')
@@ -43,15 +46,18 @@ const SignIn = () => {
   });
 
   return (
-    <View style={{ flex: 1 }}>
-      <ScrollView
-        contentInsetAdjustmentBehavior="automatic"
+    <ScreenView edges={['bottom']}>
+      <ScreenScrollView
         keyboardShouldPersistTaps="handled"
         contentContainerStyle={styles.scrollContent}>
         <TextDescriptionHeader
-          title="Welcome back"
-          description="Sign in to coordinate care for your pet."
+          title="Sign in to Crumpet"
+          description="Pick up where your household left off."
         />
+
+        <SocialAuthButtons />
+
+        <AuthDivider label="or" />
 
         <FormProvider {...form}>
           <View style={styles.form}>
@@ -100,33 +106,24 @@ const SignIn = () => {
 
           <View style={styles.actions}>
             <MainButton
-              text={isSubmitting ? 'Signing in…' : 'Sign in'}
+              text={isSubmitting ? 'Logging in…' : 'Log in'}
               isLoading={isSubmitting}
-              isDisabled={isSubmitting}
+              isDisabled={isSubmitting || !isValid}
               onPress={() => {
                 void onSubmit();
               }}
             />
 
-            <Link href="/forgot-password" asChild>
-              <PressableOpacity style={styles.forgotPassword}>
-                <AppText color="textSecondary" size={16} align="center">
-                  Forgot password?
-                </AppText>
-              </PressableOpacity>
-            </Link>
-
-            <Link href="/sign-up" asChild>
-              <PressableOpacity style={styles.forgotPassword}>
-                <AppText color="primary" size={16} align="center">
-                  Create an account
-                </AppText>
-              </PressableOpacity>
-            </Link>
+            <AuthFooterLink linkText="Reset password" href="/forgot-password" />
+            <AuthFooterLink
+              prompt="New to Crumpet?"
+              linkText="Create new account"
+              href="/sign-up"
+            />
           </View>
         </FormProvider>
-      </ScrollView>
-    </View>
+      </ScreenScrollView>
+    </ScreenView>
   );
 };
 
@@ -134,7 +131,7 @@ const makeStyles = ({ spacing }: AppTheme) =>
   StyleSheet.create({
     scrollContent: {
       flexGrow: 1,
-      padding: spacing.four,
+      paddingVertical: spacing.four,
       gap: spacing.three
     },
     form: {
@@ -143,10 +140,6 @@ const makeStyles = ({ spacing }: AppTheme) =>
     actions: {
       gap: spacing.two,
       marginTop: spacing.two
-    },
-    forgotPassword: {
-      alignSelf: 'center',
-      paddingVertical: spacing.one
     }
   });
 

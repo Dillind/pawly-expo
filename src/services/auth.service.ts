@@ -3,21 +3,10 @@ import { supabase } from '@/lib/supabase/client';
 import PushTokenService from '@/services/push-token.service';
 
 namespace AuthService {
-  export async function signUp(params: {
-    email: string;
-    password: string;
-    firstName: string;
-    lastName: string;
-  }) {
+  export async function signUp(params: { email: string; password: string }) {
     const { data, error } = await supabase.auth.signUp({
       email: params.email,
-      password: params.password,
-      options: {
-        data: {
-          first_name: params.firstName,
-          last_name: params.lastName
-        }
-      }
+      password: params.password
     });
 
     if (error) throw new UserFacingError(error.message);

@@ -6,7 +6,7 @@ import { Link, type Href } from 'expo-router';
 import { StyleSheet, View } from 'react-native';
 
 type Props = {
-  prompt: string;
+  prompt?: string;
   linkText: string;
   href: Href;
 };
@@ -16,9 +16,11 @@ const AuthFooterLink = ({ prompt, linkText, href }: Props) => {
 
   return (
     <View style={styles.container}>
-      <AppText color="textSecondary" size={14}>
-        {prompt}
-      </AppText>
+      {prompt ? (
+        <AppText color="textSecondary" size={14}>
+          {prompt}
+        </AppText>
+      ) : null}
       <Link href={href} asChild>
         <PressableOpacity>
           <AppText color="primary" size={14} fontWeight="bold">

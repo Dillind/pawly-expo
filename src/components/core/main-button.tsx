@@ -21,6 +21,7 @@ import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-na
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
 const PRESS_DURATION_MS = 100;
+const DISABLED_OPACITY = 0.5;
 
 type MainButtonProps = {
   text: string;
@@ -65,9 +66,13 @@ const MainButton: FunctionComponent<MainButtonProps> = ({
   const router = useRouter();
   const pressed = useSharedValue(0);
 
+  // Opacity is owned here rather than by a `disabled` style in the array below:
+  // an animated style always wins, so a later static opacity never applied.
+  const restingOpacity = isDisabled || isLoading ? DISABLED_OPACITY : 1;
+
   const animatedStyle = useAnimatedStyle(() => ({
     transform: [{ scale: 1 - pressed.value * 0.04 }],
-    opacity: 1 - pressed.value * (1 - APP_ACTIVE_OPACITY)
+    opacity: restingOpacity - pressed.value * (1 - APP_ACTIVE_OPACITY)
   }));
 
   if (!onPress && !href) return null;
@@ -122,7 +127,7 @@ const MainButton: FunctionComponent<MainButtonProps> = ({
         style={[
           styles.glassSurface,
           { borderRadius },
-          (isDisabled || isLoading) && styles.disabled,
+          { opacity: restingOpacity },
           containerStyle
         ]}>
         <Pressable
@@ -145,7 +150,6 @@ const MainButton: FunctionComponent<MainButtonProps> = ({
         styles.base,
         styles[fillVariant],
         { paddingVertical, paddingHorizontal, borderRadius },
-        (isDisabled || isLoading) && styles.disabled,
         containerStyle,
         animatedStyle
       ]}>
@@ -177,9 +181,6 @@ const makeStyles = ({ colors }: AppTheme) =>
       alignSelf: 'stretch',
       overflow: 'hidden',
       borderCurve: 'continuous'
-    },
-    disabled: {
-      opacity: 0.5
     },
     content: {
       flexDirection: 'row',
