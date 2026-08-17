@@ -12,24 +12,20 @@ export default function HouseholdLayout() {
       <Stack screenOptions={{ headerShown: false }}>
         <Stack.Screen name="index" />
         <Stack.Screen
-          name="post/[postId]"
+          name="[postId]/index"
           options={{
             headerShown: true,
-            headerTitle: 'Post Detail',
+            headerTitle: 'Post',
             headerBackTitle: 'Posts',
             headerBackButtonDisplayMode: 'minimal'
           }}
         />
-        {/* Full screen rather than a sheet. The composer stacks an image
-            picker, a keyboard-driven caption and a date picker; a native modal
-            over a native sheet is the rough edge the Sheets rule warns about,
-            and none of the Posts tab behind it is useful context. */}
         <Stack.Screen
           name="new-post"
           options={{ presentation: 'fullScreenModal', animation: 'slide_from_bottom' }}
         />
         <Stack.Screen
-          name="edit-post/[postId]"
+          name="[postId]/edit"
           options={{ presentation: 'fullScreenModal', animation: 'slide_from_bottom' }}
         />
       </Stack>

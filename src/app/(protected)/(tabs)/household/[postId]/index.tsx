@@ -85,7 +85,7 @@ const PostDetail = () => {
         onEdit={() => {
           if (post) {
             router.push({
-              pathname: '/household/edit-post/[postId]',
+              pathname: '/household/[postId]/edit',
               params: { postId: post.id }
             });
           }

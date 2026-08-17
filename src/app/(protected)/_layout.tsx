@@ -29,7 +29,7 @@ export default function ProtectedLayout() {
         {/* Where a scanned QR lands. Presented over the tabs rather than inside
             them: it is a question to answer, not a place to browse. */}
         <Stack.Screen
-          name="invite/[code]"
+          name="invite/[code]/index"
           options={{ presentation: 'modal', animation: 'slide_from_bottom' }}
         />
       </Stack.Protected>

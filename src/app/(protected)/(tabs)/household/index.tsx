@@ -83,7 +83,7 @@ const Posts = () => {
           void actionsSheetRef.current?.present();
         }}
         onOpen={() =>
-          router.push({ pathname: '/household/post/[postId]', params: { postId: item.id } })
+          router.push({ pathname: '/household/[postId]', params: { postId: item.id } })
         }
       />
     );
@@ -139,7 +139,7 @@ const Posts = () => {
         onEdit={() => {
           if (activePost) {
             router.push({
-              pathname: '/household/edit-post/[postId]',
+              pathname: '/household/[postId]/edit',
               params: { postId: activePost.id }
             });
           }

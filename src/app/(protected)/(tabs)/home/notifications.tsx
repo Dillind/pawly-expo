@@ -69,7 +69,7 @@ export default function Notifications() {
     (alert: InboxRow) => {
       if ((alert.kind === 'post' || alert.kind === 'post_liked') && alert.postId) {
         return router.push({
-          pathname: '/household/post/[postId]',
+          pathname: '/household/[postId]',
           params: { postId: alert.postId }
         });
       }
