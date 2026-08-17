@@ -11,13 +11,13 @@ So there is **no Services ID, no signing key, no `.p8`, no domain verification**
 rotate every six months, which is a maintenance trap avoided rather than a shortcut taken. Apple
 needs one capability ticked and one bundle ID pasted into Supabase.
 
-Three values, all from Google:
+Google is native-only too, so there is no client secret either. **Two values, both public**, and
+nothing in this whole setup is a secret:
 
 | # | Value | From | Goes to |
 |---|---|---|---|
-| 1 | iOS client ID | Google Cloud | `app.config.ts` |
-| 2 | Web client ID | Google Cloud | code + Supabase Google provider |
-| 3 | Web client secret | Google Cloud | Supabase Google provider |
+| 1 | iOS client ID | Google Cloud | `app.config.ts`, and Supabase Client IDs |
+| 2 | Web client ID | Google Cloud | `app.config.ts`, and Supabase Client IDs |
 
 ---
 
@@ -94,19 +94,29 @@ Credentials → **Create credentials** → **OAuth client ID** → **Web applica
 
 - Authorised redirect URI: `https://dofjrttcyjtzvqyttqdo.supabase.co/auth/v1/callback`
 
-**→ Value 2** (client ID) and **Value 3** (client secret).
+**→ Value 2.** You can ignore the client secret it also gives you — the native flow never uses it.
 
-> Two clients, and this trips people up: the library is configured with the **Web** client ID, not
-> the iOS one, because that is the audience of the ID token Supabase must verify. The iOS client is
-> what makes the native sheet work. You need both.
+> Two clients, and this trips people up twice over.
+>
+> The library is configured with the **Web** client ID, not the iOS one, because that is the audience
+> of the ID token Supabase verifies. The iOS client is what makes the native sheet appear.
+>
+> They are also indistinguishable as strings. Read which is which off the **Type** column — the iOS
+> one has a Bundle ID on its detail page, the Web one has a redirect URI. Swapping them compiles
+> fine and fails at runtime with an audience error, on a device, after a rebuild.
 
 ### 2.4 Fill in Supabase
 
 Authentication → Providers → **Google**. Enable, then:
 
-- Client ID: the **Web** client ID (Value 2)
-- Client Secret: Value 3
-- Authorized Client IDs: the **iOS** client ID (Value 1)
+Put **both** client IDs in **Client IDs**, comma separated — web first, then iOS. It is a list of
+accepted token audiences, not a single client:
+
+```
+<web client id>,<ios client id>
+```
+
+Leave **Client Secret** empty; it belongs to the web OAuth flow.
 
 Leave **Skip Nonce Check** off. We make the nonce work rather than disabling the check.
 
@@ -128,8 +138,8 @@ address creates a second account, and from inside the app it looks like your pet
 
 ## What to send me
 
-The three Google values, and confirmation that Apple's provider is enabled with the bundle ID in
-Client IDs.
+The two Google client IDs — **and which is which**, read off the Type column, not from the order
+they were created in. The iOS one is the one whose detail page shows a Bundle ID.
 
 Then I wire both handlers and we do one dev build to a **physical iPhone**. Apple's sheet cannot be
 tested on a simulator at all, so that build is needed either way — which is why both providers are
