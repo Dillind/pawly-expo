@@ -1,14 +1,14 @@
 import AppText from '@/components/core/app-text';
 import MainButton from '@/components/core/main-button';
+import ScreenScrollView from '@/components/layout/screen-scroll-view';
+import ScreenView from '@/components/layout/screen-view';
 import AuthFooterLink from '@/components/screens/auth/auth-footer-link';
 import AuthLegalFooter from '@/components/screens/auth/auth-legal-footer';
 import SocialAuthButtons from '@/components/screens/auth/social-auth-buttons';
 import type { AppTheme } from '@/constants/theme';
 import { useStyles } from '@/hooks/use-styles';
-import { useTheme } from '@/hooks/use-theme';
 import { useRouter } from 'expo-router';
-import { ScrollView, StyleSheet, View } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { StyleSheet, View } from 'react-native';
 
 // Fixed so the illustration can drop in without moving the buttons.
 const ART_HEIGHT = 200;
@@ -16,32 +16,32 @@ const ART_HEIGHT = 200;
 const Welcome = () => {
   const styles = useStyles(makeStyles);
   const router = useRouter();
-  const insets = useSafeAreaInsets();
-  const { spacing } = useTheme();
 
   return (
-    <ScrollView
-      contentContainerStyle={[
-        styles.scrollContent,
-        { paddingTop: insets.top + spacing.four, paddingBottom: insets.bottom + spacing.three }
-      ]}>
-      <View style={styles.art}>
-        {/* TODO(CRU-030): the illustration goes here. Keep it within ART_HEIGHT. */}
-        <AppText variant="header" size={44} align="center" fontWeight="bold">
-          Crumpet
-        </AppText>
-        <AppText color="textSecondary" size={17} align="center">
-          Every feed, every pet, everyone in the loop.
-        </AppText>
-      </View>
+    <ScreenView edges={['top', 'bottom']}>
+      <ScreenScrollView contentContainerStyle={styles.scrollContent}>
+        <View style={styles.art}>
+          {/* TODO(CRU-030): the illustration goes here. Keep it within ART_HEIGHT. */}
+          <AppText variant="header" size={44} align="center" fontWeight="bold">
+            Crumpet
+          </AppText>
+          <AppText color="textSecondary" size={17} align="center">
+            Every feed, every pet, everyone in the loop.
+          </AppText>
+        </View>
 
-      <View style={styles.actions}>
-        <SocialAuthButtons />
-        <MainButton text="Continue with email" onPress={() => router.push('/sign-up')} />
-        <AuthFooterLink prompt="Already have an account?" linkText="Sign in here" href="/sign-in" />
-        <AuthLegalFooter />
-      </View>
-    </ScrollView>
+        <View style={styles.actions}>
+          <SocialAuthButtons />
+          <MainButton text="Continue with email" onPress={() => router.push('/sign-up')} />
+          <AuthFooterLink
+            prompt="Already have an account?"
+            linkText="Sign in here"
+            href="/sign-in"
+          />
+          <AuthLegalFooter />
+        </View>
+      </ScreenScrollView>
+    </ScreenView>
   );
 };
 
@@ -49,7 +49,7 @@ const makeStyles = ({ spacing }: AppTheme) =>
   StyleSheet.create({
     scrollContent: {
       flexGrow: 1,
-      paddingHorizontal: spacing.four,
+      paddingVertical: spacing.four,
       gap: spacing.three
     },
     art: {

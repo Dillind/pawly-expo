@@ -1,5 +1,7 @@
 import MainButton from '@/components/core/main-button';
 import TextInputValidated from '@/components/core/text-input-validated';
+import ScreenScrollView from '@/components/layout/screen-scroll-view';
+import ScreenView from '@/components/layout/screen-view';
 import TextDescriptionHeader from '@/components/layout/text-description-header';
 import AuthDivider from '@/components/screens/auth/auth-divider';
 import AuthFooterLink from '@/components/screens/auth/auth-footer-link';
@@ -13,7 +15,7 @@ import { showErrorToast, showSuccessToast } from '@/lib/toast';
 import AuthService from '@/services/auth.service';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Controller, FormProvider, useForm } from 'react-hook-form';
-import { ScrollView, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 
 const SignIn = () => {
   const styles = useStyles(makeStyles);
@@ -44,79 +46,84 @@ const SignIn = () => {
   });
 
   return (
-    <ScrollView
-      contentInsetAdjustmentBehavior="automatic"
-      keyboardShouldPersistTaps="handled"
-      contentContainerStyle={styles.scrollContent}>
-      <TextDescriptionHeader
-        title="Sign in to Crumpet"
-        description="Pick up where your household left off."
-      />
+    <ScreenView edges={['bottom']}>
+      <ScreenScrollView
+        keyboardShouldPersistTaps="handled"
+        contentContainerStyle={styles.scrollContent}>
+        <TextDescriptionHeader
+          title="Sign in to Crumpet"
+          description="Pick up where your household left off."
+        />
 
-      <SocialAuthButtons />
+        <SocialAuthButtons />
 
-      <AuthDivider label="Sign in with Apple, Google or email" />
+        <AuthDivider label="Sign in with Apple, Google or email" />
 
-      <FormProvider {...form}>
-        <View style={styles.form}>
-          <Controller
-            control={control}
-            name="email"
-            render={({ field: { onChange, onBlur, value } }) => (
-              <TextInputValidated
-                name="email"
-                label="Email"
-                value={value}
-                onChangeText={onChange}
-                onBlur={onBlur}
-                placeholder="you@example.com"
-                keyboardType="email-address"
-                autoCapitalize="none"
-                autoComplete="email"
-                returnKeyType="next"
-                testID="sign-in-email"
-              />
-            )}
-          />
-          <Controller
-            control={control}
-            name="password"
-            render={({ field: { onChange, onBlur, value } }) => (
-              <TextInputValidated
-                name="password"
-                label="Password"
-                value={value}
-                onChangeText={onChange}
-                onBlur={onBlur}
-                placeholder="Your password"
-                secureTextEntry
-                autoCapitalize="none"
-                autoComplete="password"
-                returnKeyType="done"
-                onSubmitEditing={() => {
-                  void onSubmit();
-                }}
-                testID="sign-in-password"
-              />
-            )}
-          />
-        </View>
+        <FormProvider {...form}>
+          <View style={styles.form}>
+            <Controller
+              control={control}
+              name="email"
+              render={({ field: { onChange, onBlur, value } }) => (
+                <TextInputValidated
+                  name="email"
+                  label="Email"
+                  value={value}
+                  onChangeText={onChange}
+                  onBlur={onBlur}
+                  placeholder="you@example.com"
+                  keyboardType="email-address"
+                  autoCapitalize="none"
+                  autoComplete="email"
+                  returnKeyType="next"
+                  testID="sign-in-email"
+                />
+              )}
+            />
+            <Controller
+              control={control}
+              name="password"
+              render={({ field: { onChange, onBlur, value } }) => (
+                <TextInputValidated
+                  name="password"
+                  label="Password"
+                  value={value}
+                  onChangeText={onChange}
+                  onBlur={onBlur}
+                  placeholder="Your password"
+                  secureTextEntry
+                  autoCapitalize="none"
+                  autoComplete="password"
+                  returnKeyType="done"
+                  onSubmitEditing={() => {
+                    void onSubmit();
+                  }}
+                  testID="sign-in-password"
+                />
+              )}
+            />
+          </View>
 
-        <View style={styles.actions}>
-          <MainButton
-            text={isSubmitting ? 'Logging in…' : 'Log in'}
-            isLoading={isSubmitting}
-            isDisabled={isSubmitting || !isValid}
-            onPress={() => {
-              void onSubmit();
-            }}
-          />
+          <View style={styles.actions}>
+            <MainButton
+              text={isSubmitting ? 'Logging in…' : 'Log in'}
+              isLoading={isSubmitting}
+              isDisabled={isSubmitting || !isValid}
+              onPress={() => {
+                void onSubmit();
+              }}
+            />
 
-          <AuthFooterLink linkText="Reset password" href="/forgot-password" />
-          <AuthFooterLink prompt="New to Crumpet?" linkText="Create new account" href="/sign-up" />
-        </View>
-      </FormProvider>
-    </ScrollView>
+            <AuthFooterLink linkText="Reset password" href="/forgot-password" />
+            <AuthFooterLink
+              prompt="New to Crumpet?"
+              linkText="Create new account"
+              href="/sign-up"
+            />
+          </View>
+        </FormProvider>
+      </ScreenScrollView>
+    </ScreenView>
   );
 };
 
@@ -124,7 +131,7 @@ const makeStyles = ({ spacing }: AppTheme) =>
   StyleSheet.create({
     scrollContent: {
       flexGrow: 1,
-      padding: spacing.four,
+      paddingVertical: spacing.four,
       gap: spacing.three
     },
     form: {

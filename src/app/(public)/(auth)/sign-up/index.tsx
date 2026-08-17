@@ -1,5 +1,7 @@
 import MainButton from '@/components/core/main-button';
 import TextInputValidated from '@/components/core/text-input-validated';
+import ScreenScrollView from '@/components/layout/screen-scroll-view';
+import ScreenView from '@/components/layout/screen-view';
 import TextDescriptionHeader from '@/components/layout/text-description-header';
 import AuthFooterLink from '@/components/screens/auth/auth-footer-link';
 import { ErrorMessage } from '@/constants/enums';
@@ -13,7 +15,7 @@ import AuthService from '@/services/auth.service';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter } from 'expo-router';
 import { Controller, FormProvider, useForm } from 'react-hook-form';
-import { ScrollView, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 
 const SignUp = () => {
   const styles = useStyles(makeStyles);
@@ -47,9 +49,8 @@ const SignUp = () => {
   });
 
   return (
-    <View style={{ flex: 1 }}>
-      <ScrollView
-        contentInsetAdjustmentBehavior="automatic"
+    <ScreenView edges={['bottom']}>
+      <ScreenScrollView
         keyboardShouldPersistTaps="handled"
         contentContainerStyle={styles.scrollContent}>
         <TextDescriptionHeader
@@ -114,13 +115,13 @@ const SignUp = () => {
 
             <AuthFooterLink
               prompt="Already have an account?"
-              linkText="Log in here"
+              linkText="Sign in here"
               href="/sign-in"
             />
           </View>
         </FormProvider>
-      </ScrollView>
-    </View>
+      </ScreenScrollView>
+    </ScreenView>
   );
 };
 
@@ -128,7 +129,7 @@ const makeStyles = ({ spacing }: AppTheme) =>
   StyleSheet.create({
     scrollContent: {
       flexGrow: 1,
-      padding: spacing.four,
+      paddingVertical: spacing.four,
       gap: spacing.three
     },
     form: {
