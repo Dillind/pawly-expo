@@ -1,6 +1,6 @@
 import PostActionsSheet from '@/components/bottom-sheets/post-actions-sheet';
 import ErrorState from '@/components/core/error-state';
-import IconButton from '@/components/core/icon-button';
+import HeaderIconButton from '@/components/core/header-icon-button';
 import ScreenView from '@/components/layout/screen-view';
 import PostBody from '@/components/ui/post-body';
 import { ScreenGutter, type AppTheme } from '@/constants/theme';
@@ -26,8 +26,6 @@ const PostDetail = () => {
   const { mutate: toggleLike } = useToggleLike(household?.id);
   const { mutate: deletePost } = useDeletePost(household?.id);
 
-  // Editing is the author's alone. An Owner may remove a member's post but
-  // never rewrite it under their name -- the same split as the Posts tab.
   const canEdit = post !== undefined && post.authorId === userId;
   const canDelete = canEdit || (post !== undefined && (household?.isOwner ?? false));
 
@@ -41,12 +39,12 @@ const PostDetail = () => {
     <ScreenView edges={[]}>
       <Stack.Screen
         options={{
+          headerTitle: 'Post Detail',
           headerRight:
             canEdit || canDelete
               ? () => (
-                  <IconButton
+                  <HeaderIconButton
                     name="ellipsis"
-                    variant="glass"
                     size={20}
                     accessibilityLabel="Manage this post"
                     onPress={() => void actionsSheetRef.current?.present()}

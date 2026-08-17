@@ -6,14 +6,12 @@ import { ErrorMessage } from '@/constants/enums';
 import type { AppTheme } from '@/constants/theme';
 import { useInvitePreview, useRedeemInvite } from '@/hooks/queries/household/use-invites';
 import { useStyles } from '@/hooks/use-styles';
-import { roleWithArticle } from '@/utils/members';
 import type { PreviewStatus } from '@/services/invite.service';
+import { roleWithArticle } from '@/utils/members';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { ActivityIndicator, StyleSheet, View } from 'react-native';
 
 const REFUSALS: Partial<Record<PreviewStatus, string>> = {
-  // The scanner's wording, not the inviter's -- InviteAlreadyMember reads
-  // "They are already in this household", which is the owner's side of it.
   already_member: ErrorMessage.InviteAlreadyJoined,
   already_used: ErrorMessage.InviteAlreadyUsed,
   expired: ErrorMessage.InviteExpired,
@@ -102,12 +100,17 @@ export default function InviteScreen() {
 
 const makeStyles = ({ spacing }: AppTheme) =>
   StyleSheet.create({
-    loading: { paddingTop: spacing.five },
+    loading: {
+      paddingTop: spacing.five
+    },
     content: {
       flex: 1,
       justifyContent: 'center',
       paddingHorizontal: spacing.four,
       gap: spacing.three
     },
-    actions: { gap: spacing.three, paddingTop: spacing.two }
+    actions: {
+      gap: spacing.three,
+      paddingTop: spacing.two
+    }
   });

@@ -90,7 +90,7 @@ const SignUp = () => {
                   value={value}
                   onChangeText={onChange}
                   onBlur={onBlur}
-                  placeholder="At least 8 characters"
+                  placeholder="Enter password"
                   secureTextEntry
                   autoCapitalize="none"
                   autoComplete="password-new"

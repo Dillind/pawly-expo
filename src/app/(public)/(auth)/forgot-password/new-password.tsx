@@ -1,10 +1,10 @@
+import AppText from '@/components/core/app-text';
 import MainButton from '@/components/core/main-button';
+import PressableOpacity from '@/components/core/pressable-opacity';
 import TextInputValidated from '@/components/core/text-input-validated';
 import ScreenScrollView from '@/components/layout/screen-scroll-view';
 import ScreenView from '@/components/layout/screen-view';
 import TextDescriptionHeader from '@/components/layout/text-description-header';
-import AppText from '@/components/core/app-text';
-import PressableOpacity from '@/components/core/pressable-opacity';
 import PasswordGuidelines from '@/components/screens/auth/password-guidelines';
 import { ErrorMessage, SuccessMessage } from '@/constants/enums';
 import {
@@ -18,8 +18,8 @@ import { hapticLight } from '@/lib/haptics';
 import { showErrorToast, showSuccessToast } from '@/lib/toast';
 import AuthService from '@/services/auth.service';
 import { useAuthStore } from '@/stores/auth-store';
-import { useRouter } from 'expo-router';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useRouter } from 'expo-router';
 import { Controller, FormProvider, useForm } from 'react-hook-form';
 import { StyleSheet, View } from 'react-native';
 
@@ -97,7 +97,7 @@ const ResetPassword = () => {
                   value={value}
                   onChangeText={onChange}
                   onBlur={onBlur}
-                  placeholder="At least 8 characters"
+                  placeholder="Enter password"
                   secureTextEntry
                   autoCapitalize="none"
                   autoComplete="password-new"

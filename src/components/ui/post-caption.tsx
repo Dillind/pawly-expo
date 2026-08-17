@@ -3,7 +3,6 @@ import PressableOpacity from '@/components/core/pressable-opacity';
 
 type Props = {
   caption: string | null;
-  /** Left off on Post Detail, where the whole caption is the point. */
   numberOfLines?: number;
   onPress?: () => void;
 };
