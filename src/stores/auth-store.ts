@@ -7,11 +7,6 @@ type State = {
   status: AuthStatus;
   userId: string | undefined;
   profile: UserProfile | undefined;
-  /**
-   * Verifying a recovery code signs the user in, but they have not chosen a
-   * password yet. This holds the router on (public) until they have. Kept in
-   * memory on purpose: relaunching mid-reset lands you signed in, which is true.
-   */
   isRecovering: boolean;
 };
 

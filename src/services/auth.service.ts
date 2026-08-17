@@ -30,8 +30,6 @@ namespace AuthService {
     if (error) throw toUserFacingError(error);
   }
 
-  // Supabase does not say whether the address has an account, and neither must
-  // the caller -- that would tell a stranger which emails are registered.
   export async function resetPasswordForEmail(params: { email: string }) {
     const { error } = await supabase.auth.resetPasswordForEmail(params.email);
 

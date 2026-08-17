@@ -9,11 +9,6 @@ type Props = {
   prompt?: string;
   linkText: string;
   href: Href;
-  /**
-   * Swap this screen for the target instead of stacking on top of it. The auth
-   * screens are siblings, so pushing lets you reach sign-in from sign-in and
-   * leaves a back button whose label describes a screen it no longer returns to.
-   */
   isReplace?: boolean;
 };
 

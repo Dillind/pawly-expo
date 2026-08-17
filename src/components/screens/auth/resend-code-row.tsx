@@ -14,12 +14,6 @@ type Props = {
   cooldownSeconds?: number;
 };
 
-/**
- * Supabase refuses a second email inside its own max_frequency window, so the
- * countdown is not politeness -- without it the button reliably fails. The
- * server's own remaining time wins whenever it tells us one, because the
- * interval is a project setting this app cannot read.
- */
 const ResendCodeRow = ({ onResend, cooldownSeconds = 60 }: Props) => {
   const styles = useStyles(makeStyles);
   const [remaining, setRemaining] = useState(cooldownSeconds);
@@ -44,8 +38,6 @@ const ResendCodeRow = ({ onResend, cooldownSeconds = 60 }: Props) => {
       showSuccessToast(SuccessMessage.CodeResent);
     } catch (error) {
       logError(error);
-      // Without a toast the restarted countdown looks exactly like success, and
-      // the user waits for an email that was never sent.
       showErrorToast(
         ErrorMessage.CodeResendFailed,
         userFacingMessage(error, 'Try again in a moment')

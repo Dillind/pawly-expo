@@ -20,8 +20,6 @@ describe('passwordSchema', () => {
 });
 
 describe('sign-up and reset agree', () => {
-  // A password accepted at sign-up must be accepted at reset, or a Member is
-  // locked out by a rule that did not exist when they chose it.
   it.each([VALID, 'crumpet123', 'Crumb12', 'CRUMPET123'])('treats %s the same way', (password) => {
     const signUp = signUpSchema.safeParse({ email: 'a@b.com', password }).success;
     const reset = resetPasswordSchema.safeParse({

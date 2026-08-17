@@ -9,8 +9,6 @@ const VerifyReset = () => {
   const { setRecovering } = useAuthStore();
 
   const onVerify = async (token: string) => {
-    // Set before verifying: verifyOtp resolving flips the session, and the guard
-    // has to already be held or the router swaps to (protected) mid-flow.
     setRecovering(true);
 
     try {

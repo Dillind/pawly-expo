@@ -18,14 +18,6 @@ type Props = {
   testID?: string;
 };
 
-/**
- * One box per digit, drawn behind a single transparent TextInput.
- *
- * The boxes are decoration -- the input is one real field stretched over them,
- * so a tap or a VoiceOver focus lands on the field itself. Six separate inputs
- * would each need their own focus and backspace handling, and iOS only offers
- * the emailed code above the keyboard to a field long enough to hold all of it.
- */
 const VerificationCodeInput = ({
   label,
   name,
@@ -44,7 +36,6 @@ const VerificationCodeInput = ({
   useEffect(() => {
     if (!autoFocus) return;
 
-    // The screen transition steals focus if we ask for it immediately.
     const timer = setTimeout(() => inputRef.current?.focus(), 150);
     return () => clearTimeout(timer);
   }, [autoFocus]);
@@ -59,8 +50,6 @@ const VerificationCodeInput = ({
       return;
     }
 
-    // Autofill and a fast typist can both land a full code more than once
-    // before the submit settles, and each call is another verify request.
     if (hasCompleted.current) return;
     hasCompleted.current = true;
     onComplete?.(digits);
@@ -108,7 +97,6 @@ const VerificationCodeInput = ({
           autoCorrect={false}
           caretHidden
           accessibilityLabel={label ?? 'Verification code'}
-          // Spaced so it is read back as digits rather than as one number.
           accessibilityValue={{ text: value.split('').join(' ') }}
           testID={testID}
         />
@@ -146,10 +134,6 @@ const makeStyles = ({ colors, spacing }: AppTheme) =>
       borderWidth: 2,
       borderColor: colors.primary
     },
-    // Covers the boxes rather than hiding in a corner: this is the field the
-    // user taps and the one VoiceOver focuses, so it has to be where they look.
-    // Invisible via a transparent colour, never opacity -- iOS drops an
-    // alpha-zero view from the accessibility tree, taking the field with it.
     input: {
       position: 'absolute',
       top: 0,

@@ -1,8 +1,3 @@
-/**
- * The one sentence describing what a password must be. Shown by
- * PasswordGuidelines and used as every failure message in `passwordSchema`, so
- * the rule and its explanation cannot drift apart.
- */
 export const PasswordRules =
   'Every password needs at least 8 characters, a capital and a lower case letter, and a number.';
 

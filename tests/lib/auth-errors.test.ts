@@ -36,9 +36,6 @@ describe('retryAfterSeconds', () => {
     ).toBe(47);
   });
 
-  // The regression this was written for: every caller is downstream of
-  // toUserFacingError, so an unwrapped-only check never matched and the
-  // server's own cooldown was silently ignored.
   it('reads it through a UserFacingError wrapper', () => {
     const wrapped = toUserFacingError(
       rateLimited('For security purposes, you can only request this after 47 seconds.')

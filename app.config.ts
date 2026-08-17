@@ -76,9 +76,6 @@ const getConfig = ({ config }: ConfigContext): ExpoConfig => {
           configureAndroidBackup: true
         }
       ],
-      // This file sets `plugins` outright rather than spreading config.plugins,
-      // so anything listed in app.json is dropped. Both of these have to be
-      // here to reach a build -- app.json's expo-apple-authentication never did.
       'expo-apple-authentication',
       '@react-native-google-signin/google-signin'
     ],

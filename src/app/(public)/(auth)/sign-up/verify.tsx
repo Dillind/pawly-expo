@@ -5,8 +5,6 @@ import { useLocalSearchParams } from 'expo-router';
 const VerifySignUp = () => {
   const { email } = useLocalSearchParams<{ email: string }>();
 
-  // No manual navigation on success: verifying flips the Supabase session, which
-  // the root layout's AuthGate reacts to and swaps to (protected) itself.
   const onVerify = async (token: string) => {
     await AuthService.verifySignUpOtp({ email, token });
   };

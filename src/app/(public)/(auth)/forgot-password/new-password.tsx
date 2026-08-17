@@ -46,8 +46,6 @@ const ResetPassword = () => {
     try {
       await AuthService.updatePassword({ password: values.password });
       showSuccessToast(SuccessMessage.PasswordUpdated);
-      // No navigation: releasing the guard leaves a live session, which AuthGate
-      // reacts to by swapping to (protected) itself.
       setRecovering(false);
     } catch (error) {
       logError(error);
@@ -55,15 +53,6 @@ const ResetPassword = () => {
     }
   });
 
-  /**
-   * The only way off this screen other than succeeding. Back and the swipe are
-   * both off, so without this an expired recovery session traps the user here
-   * with no exit but killing the app.
-   *
-   * Signing out is what actually resets it: clearing the flag alone leaves the
-   * recovery session live, and AuthGate would drop them straight into the app
-   * with the password still unchanged.
-   */
   const startOver = async () => {
     try {
       await AuthService.signOut();
