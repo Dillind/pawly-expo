@@ -34,6 +34,7 @@
     "@lodev09/react-native-true-sheet": "^3.11.9",
     "@react-native-async-storage/async-storage": "2.2.0",
     "@react-native-community/datetimepicker": "9.1.0",
+    "@react-native-google-signin/google-signin": "^16.1.4",
     "@supabase/supabase-js": "^2.110.8",
     "@tanstack/react-query": "^5.101.2",
     "dayjs": "^1.11.21",
