@@ -80,7 +80,7 @@ const getConfig = ({ config }: ConfigContext): ExpoConfig => {
       [
         '@react-native-google-signin/google-signin',
         {
-          iosUrlScheme: 'com.googleusercontent.apps.290371852262-tc81q69o0vhscfa7fn19vocaukvgpklu'
+          iosUrlScheme: 'com.googleusercontent.apps.290371852262-9okvebu78ht8q3pv02vrp46sio4anoud'
         }
       ]
     ],
@@ -89,8 +89,8 @@ const getConfig = ({ config }: ConfigContext): ExpoConfig => {
         projectId: '3bd7aa83-b1be-43b3-97c2-a3b7d2a7f51c'
       },
       googleSignIn: {
-        iosClientId: '290371852262-tc81q69o0vhscfa7fn19vocaukvgpklu.apps.googleusercontent.com',
-        webClientId: '290371852262-9okvebu78ht8q3pv02vrp46sio4anoud.apps.googleusercontent.com'
+        iosClientId: '290371852262-9okvebu78ht8q3pv02vrp46sio4anoud.apps.googleusercontent.com',
+        webClientId: '290371852262-tc81q69o0vhscfa7fn19vocaukvgpklu.apps.googleusercontent.com'
       }
     }
   };
