@@ -2,7 +2,8 @@ import PressableOpacity from '@/components/core/pressable-opacity';
 import GoogleMark from '@/components/screens/auth/google-mark';
 import type { AppTheme } from '@/constants/theme';
 import { useStyles } from '@/hooks/use-styles';
-import { Image } from 'expo-image';
+import * as AppleAuthentication from 'expo-apple-authentication';
+import { useEffect, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
 // A missing handler disables its button. Both are missing until CRU-026 and CRU-027.
@@ -12,16 +13,11 @@ type Props = {
 };
 
 // Apple and Google both specify how their buttons may look, so these two are
-// the one place in the app that does not draw from the theme.
-//
-// TODO(CRU-026): Apple's must become expo-apple-authentication's
-// AppleAuthenticationButton before release. Apple requires their own control,
-// and it needs a native rebuild this visual pass deliberately avoids.
+// the one place in the app that does not draw from the theme. Apple's is their
+// own native control; only its type, style and corner radius are ours to set.
 const SOCIAL_BUTTON = {
   height: 52,
   radius: 26,
-  appleFill: '#000000',
-  appleLabel: '#FFFFFF',
   googleFill: '#FFFFFF',
   googleLabel: '#1F1F1F',
   googleBorder: '#747775'
@@ -29,21 +25,29 @@ const SOCIAL_BUTTON = {
 
 const SocialAuthButtons = ({ onApplePress, onGooglePress }: Props) => {
   const styles = useStyles(makeStyles);
+  const [hasAppleAuth, setHasAppleAuth] = useState(false);
+
+  useEffect(() => {
+    void AppleAuthentication.isAvailableAsync().then(setHasAppleAuth);
+  }, []);
 
   return (
     <View style={styles.container}>
-      <PressableOpacity
-        style={[styles.button, styles.apple, !onApplePress && styles.disabled]}
-        disabled={!onApplePress}
-        onPress={onApplePress}
-        accessibilityRole="button">
-        <Image
-          source="sf:apple.logo"
-          style={styles.appleMark}
-          tintColor={SOCIAL_BUTTON.appleLabel}
-        />
-        <Text style={[styles.label, styles.appleLabel]}>Continue with Apple</Text>
-      </PressableOpacity>
+      {hasAppleAuth && (
+        // The native button has no disabled state, so an inert one is dimmed
+        // and stops taking touches from out here.
+        <View
+          style={!onApplePress && styles.disabled}
+          pointerEvents={onApplePress ? 'auto' : 'none'}>
+          <AppleAuthentication.AppleAuthenticationButton
+            buttonType={AppleAuthentication.AppleAuthenticationButtonType.CONTINUE}
+            buttonStyle={AppleAuthentication.AppleAuthenticationButtonStyle.BLACK}
+            cornerRadius={SOCIAL_BUTTON.radius}
+            style={styles.appleButton}
+            onPress={() => onApplePress?.()}
+          />
+        </View>
+      )}
 
       <PressableOpacity
         style={[styles.button, styles.google, !onGooglePress && styles.disabled]}
@@ -62,6 +66,9 @@ const makeStyles = ({ spacing }: AppTheme) =>
     container: {
       gap: spacing.two
     },
+    appleButton: {
+      height: SOCIAL_BUTTON.height
+    },
     button: {
       flexDirection: 'row',
       alignItems: 'center',
@@ -71,9 +78,6 @@ const makeStyles = ({ spacing }: AppTheme) =>
       borderRadius: SOCIAL_BUTTON.radius,
       borderCurve: 'continuous'
     },
-    apple: {
-      backgroundColor: SOCIAL_BUTTON.appleFill
-    },
     google: {
       backgroundColor: SOCIAL_BUTTON.googleFill,
       borderWidth: StyleSheet.hairlineWidth,
@@ -82,16 +86,9 @@ const makeStyles = ({ spacing }: AppTheme) =>
     disabled: {
       opacity: 0.5
     },
-    appleMark: {
-      width: 18,
-      height: 18
-    },
     label: {
       fontSize: 17,
       fontWeight: '600'
-    },
-    appleLabel: {
-      color: SOCIAL_BUTTON.appleLabel
     },
     googleLabel: {
       color: SOCIAL_BUTTON.googleLabel
