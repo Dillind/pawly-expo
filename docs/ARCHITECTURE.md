@@ -89,9 +89,9 @@ src/app/
   (protected)/(tabs)/    signed in; native tabs, one Stack per tab
 ```
 
-A dynamic route is a **folder** named `[param]/` holding `index.tsx` plus that entity's other
-screens — `home/[petId]/index.tsx` and `home/[petId]/care-card-editor.tsx`. Never a flat
-`[param].tsx` under a static wrapper.
+Dynamic segments are folders, so one entity's screens sit together —
+`home/[petId]/index.tsx` alongside `home/[petId]/care-card-editor.tsx`. The rule, its anti-pattern
+and what breaks when a route moves are in **AGENTS.md → Navigation**.
 
 Note that `(tabs)` uses Expo Router **native tabs**, not a JS tab bar. Anything that needs the tab
 bar's height cannot read it (`useBottomTabBarHeight` throws outside a JS navigator) — hence the
