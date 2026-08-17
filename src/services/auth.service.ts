@@ -1,6 +1,30 @@
 import { toUserFacingError } from '@/lib/auth-errors';
+import { UserFacingError } from '@/lib/errors';
 import { supabase } from '@/lib/supabase/client';
 import PushTokenService from '@/services/push-token.service';
+import UserService from '@/services/user.service';
+import { GoogleSignin } from '@react-native-google-signin/google-signin';
+import * as AppleAuthentication from 'expo-apple-authentication';
+import Constants from 'expo-constants';
+import * as Crypto from 'expo-crypto';
+
+const googleConfig = Constants.expoConfig?.extra?.googleSignIn as
+  { iosClientId: string; webClientId: string } | undefined;
+
+if (googleConfig) GoogleSignin.configure(googleConfig);
+
+const saveAppleName = async (
+  userId: string | undefined,
+  fullName: AppleAuthentication.AppleAuthenticationFullName | null
+) => {
+  const firstName = fullName?.givenName?.trim();
+  const lastName = fullName?.familyName?.trim();
+
+  if (!userId || !firstName) return;
+
+  await supabase.auth.updateUser({ data: { first_name: firstName, last_name: lastName ?? '' } });
+  await UserService.updateName(userId, { firstName, lastName: lastName ?? '' });
+};
 
 namespace AuthService {
   export async function signUp(params: { email: string; password: string }) {
@@ -49,6 +73,52 @@ namespace AuthService {
 
   export async function updatePassword(params: { password: string }) {
     const { data, error } = await supabase.auth.updateUser({ password: params.password });
+
+    if (error) throw toUserFacingError(error);
+    return data;
+  }
+
+  export async function signInWithApple() {
+    const rawNonce = Crypto.randomUUID();
+    const hashedNonce = await Crypto.digestStringAsync(
+      Crypto.CryptoDigestAlgorithm.SHA256,
+      rawNonce
+    );
+
+    const credential = await AppleAuthentication.signInAsync({
+      requestedScopes: [
+        AppleAuthentication.AppleAuthenticationScope.FULL_NAME,
+        AppleAuthentication.AppleAuthenticationScope.EMAIL
+      ],
+      nonce: hashedNonce
+    });
+
+    if (!credential.identityToken)
+      throw new UserFacingError('Apple did not return a sign-in token.');
+
+    const { data, error } = await supabase.auth.signInWithIdToken({
+      provider: 'apple',
+      token: credential.identityToken,
+      nonce: rawNonce
+    });
+
+    if (error) throw toUserFacingError(error);
+
+    await saveAppleName(data.user?.id, credential.fullName);
+    return data;
+  }
+
+  export async function signInWithGoogle() {
+    await GoogleSignin.hasPlayServices();
+    const response = await GoogleSignin.signIn();
+    const idToken = response.data?.idToken;
+
+    if (!idToken) throw new UserFacingError('Google did not return a sign-in token.');
+
+    const { data, error } = await supabase.auth.signInWithIdToken({
+      provider: 'google',
+      token: idToken
+    });
 
     if (error) throw toUserFacingError(error);
     return data;
