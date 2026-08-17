@@ -10,13 +10,48 @@ Expo changes fast and the model's training data is often stale. This project is 
 
 **Crumpet** — a pet-care coordination app (iOS first). A household shares responsibility for a pet; members log feeds, everyone gets notified, and the app flags missed feeds. Starts with dog feeding but is intentionally pet-general.
 
-- **Product:** [docs/PRODUCT_BRIEF.md](./docs/PRODUCT_BRIEF.md)
+- **Product (the what and why):** [docs/PRODUCT_BRIEF.md](./docs/PRODUCT_BRIEF.md)
+- **Architecture (the shape):** [docs/ARCHITECTURE.md](./docs/ARCHITECTURE.md)
+- **Decisions (the small ones):** [docs/DECISIONS.md](./docs/DECISIONS.md)
+- **Knowledge (the traps):** [docs/KNOWLEDGE.md](./docs/KNOWLEDGE.md)
+- **Architecture decisions (the big ones):** [docs/adr/](./docs/adr/)
 - **Tech stack (with install status):** [docs/TECH_STACK.md](./docs/TECH_STACK.md)
 - **Theming:** [docs/THEMING.md](./docs/THEMING.md)
 - **Domain language (glossary):** [CONTEXT.md](./CONTEXT.md) — use these exact terms
-- **Architecture decisions:** [docs/adr/](./docs/adr/)
 
-Before naming things or discussing the domain, skim `CONTEXT.md`. Before changing architecture, skim the ADRs.
+### Which of these to read, and when
+
+**Always, at the start of a session:** `ARCHITECTURE.md` and `KNOWLEDGE.md`. The first tells you
+where behaviour actually lives — much of it is in Postgres, not `src/`. The second is a list of
+things that have already cost someone hours, including several where the code compiles, the tests
+pass, and the feature is still broken.
+
+**Before naming anything or discussing the domain:** `CONTEXT.md`.
+
+**Before changing how something works:** search `DECISIONS.md` and `docs/adr/` for it first. If a
+choice looks wrong, check whether it was already made deliberately.
+
+**Before planning a feature:** `PRODUCT_BRIEF.md`, especially Out of Scope.
+
+### Which of these to write, and when
+
+Keep them current in the same change, not afterwards. All four are prose for a reader — no bloat,
+no restating what the code already says.
+
+| You have | Write it in |
+|---|---|
+| Introduced or sharpened a domain term | `CONTEXT.md` |
+| Made a choice someone would question, explainable in a sentence or two | `DECISIONS.md` |
+| Made a choice that changes the system's shape, or needs its alternatives spelled out | a new ADR |
+| Lost time to something non-obvious, or found a trap that survives the fix | `KNOWLEDGE.md` |
+| Changed how the layers fit together | `ARCHITECTURE.md` |
+
+The `DECISIONS.md` / ADR line is the one that needs judgement: if you can give the reasoning in two
+sentences it is a `DECISIONS.md` entry, and if you need to lay out the options it is an ADR.
+
+**`KNOWLEDGE.md` is the one most often skipped and the most valuable.** A bug you fixed is worth an
+entry only if the next person would fall into it again — a fixed typo is not, "typecheck passes on a
+route that does not resolve" is.
 
 **`docs/adr/` is tracked.** It was gitignored between `79c650d` and this commit, and all nineteen
 files were deleted from the working tree during that window. They are restored. Two things follow:

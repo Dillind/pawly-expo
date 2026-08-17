@@ -80,6 +80,7 @@
     "rowtype",
     "schemaname",
     "signin",
+    "simctl",
     "springify",
     "sqlerrm",
     "squircle",
@@ -91,11 +92,13 @@
     "tgname",
     "tgrelid",
     "timestamptz",
+    "typechecks",
     "udid",
     "unlogged",
     "viewability",
     "wayfinder",
     "worklets",
+    "worktree",
     "xact"
   ],
   "ignoreRegExpList": [
