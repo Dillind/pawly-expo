@@ -1,19 +1,23 @@
 # Setting up Apple and Google sign-in
 
-Console work only a human can do. Follow it in order — Apple's Services ID cannot be made before
-the capability exists, and Supabase cannot be filled in before either console is done.
+Console work only a human can do.
 
-At the end you will have **six values**. Paste them where each step says; nothing here is secret
-except the Apple key file and the client secret, which never enter the repo.
+**Apple is far smaller than it looks**, because Crumpet signs in natively rather than through a web
+redirect. Supabase's own Apple guide says it outright:
+
+> If you're building a native app only, you do not need to configure the OAuth settings.
+
+So there is **no Services ID, no signing key, no `.p8`, no domain verification** — and no secret to
+rotate every six months, which is a maintenance trap avoided rather than a shortcut taken. Apple
+needs one capability ticked and one bundle ID pasted into Supabase.
+
+Three values, all from Google:
 
 | # | Value | From | Goes to |
 |---|---|---|---|
-| 1 | Team ID | Apple Developer | Supabase Apple provider |
-| 2 | Services ID | Apple Developer | Supabase Apple provider |
-| 3 | Key ID + `.p8` file | Apple Developer | Supabase Apple provider |
-| 4 | iOS client ID | Google Cloud | `app.config.ts` |
-| 5 | Web client ID | Google Cloud | code + Supabase Google provider |
-| 6 | Web client secret | Google Cloud | Supabase Google provider |
+| 1 | iOS client ID | Google Cloud | `app.config.ts` |
+| 2 | Web client ID | Google Cloud | code + Supabase Google provider |
+| 3 | Web client secret | Google Cloud | Supabase Google provider |
 
 ---
 
@@ -27,8 +31,7 @@ except the Apple key file and the client secret, which never enter the repo.
    under Identifiers → App IDs.
 2. Edit it, tick **Sign in with Apple**, then **Configure**.
 3. Choose **Enable as a primary App ID**. Grouping is for related apps that should share one consent
-   prompt — an iOS app and its Mac counterpart. There is one app, so it is its own primary, and the
-   Services ID from 1.3 gets grouped under it via its Primary App ID dropdown.
+   prompt — an iOS app and its Mac counterpart. There is one app, so it is its own primary.
 4. **Server-to-Server Notification Endpoint: leave blank.** Optional, and there is nothing to point
    it at — Supabase exposes no endpoint for it and receiving one means writing an Edge Function.
 5. Save.
@@ -38,69 +41,23 @@ except the Apple key file and the client secret, which never enter the repo.
 > relay address can go dead and we find out when an email bounces. Addable later by pasting a URL —
 > nothing here has to be redone.
 
-### 1.2 Find your Team ID
+### 1.2 Fill in Supabase
 
-Top right of the Apple Developer site, or Membership details. Ten characters — for this account,
-`N676T9WLTV`.
+Authentication → Providers → **Apple**. Enable it, and put the bundle ID in **Client IDs**:
 
-It also appears as the prefix on the App ID (`N676T9WLTV.au.com.crumpet.ios`). On a recent account
-the App ID Prefix and the Team ID are the same value; on older ones they can differ, so Membership
-details is the authority.
+```
+au.com.crumpet.ios
+```
 
-**→ Value 1.**
+Leave Secret Key empty. That field is for the OAuth flow only.
 
-### 1.3 Create a Services ID
+> **Add every bundle ID variant you actually build.** A dev or preview build with its own
+> identifier (`au.com.crumpet.ios.dev`, say) presents that as the token audience, and an audience
+> not in this list is rejected. Comma separate them.
 
-Identifiers → **+** → **Services IDs**.
-
-- Description: `Crumpet Sign In`
-- Identifier: **`au.com.crumpet.signin`** — it must be *different* from the app's bundle ID.
-
-Register it, then **go back into it** and tick **Sign in with Apple** → **Configure**. A freshly
-registered Services ID has it unticked; skipping this is the usual reason Supabase later rejects the
-credentials.
-
-- Primary App ID: `au.com.crumpet.ios`
-- Domains and Subdomains: `dofjrttcyjtzvqyttqdo.supabase.co` — host only, no scheme or path
-- Return URLs: `https://dofjrttcyjtzvqyttqdo.supabase.co/auth/v1/callback`
-
-**→ Value 2** is the identifier you chose.
-
-> **Verify will fail. Save anyway.** Apple checks domain ownership by fetching
-> `apple-developer-domain-association.txt` from the domain, and `supabase.co` is not ours to host on.
->
-> It does not matter, because the app uses the **native** flow: the Apple sheet returns an identity
-> token that goes straight to `signInWithIdToken`, and no browser redirect ever happens. These two
-> fields exist only because Apple will not save a Services ID configuration without them.
-
-> If you cannot find the Services ID again afterwards, the Identifiers list filters to App IDs by
-> default — switch the dropdown at the top right.
-
-### 1.4 Create a key
-
-Keys → **+**.
-
-- Name: `Crumpet Sign In Key`
-- Tick **Sign in with Apple**, Configure, choose `au.com.crumpet.ios`.
-
-Register, then **Download** the `.p8`.
-
-**→ Value 3** is the Key ID plus that file. **Apple lets you download it once.** Put it somewhere
-you will still have next month — a password manager, not Downloads. Do not put it in the repo.
-
-### 1.5 Fill in Supabase
-
-Authentication → Providers → **Apple**. Enable, then:
-
-- Client IDs: `au.com.crumpet.ios` **and** `au.com.crumpet.signin`, comma separated
-- Secret Key: generated from Team ID + Services ID + Key ID + the `.p8` contents
-
-Supabase's Apple page has a generator for the secret; if it doesn't, paste the four values and it
-builds the JWT itself.
-
-> Both IDs go in Client IDs. The native flow presents the **bundle ID** as the audience, the web
-> flow presents the **Services ID**, and a token whose audience is not listed is rejected. Listing
-> only one is the usual reason a native Apple sign-in fails with "invalid audience".
+That is the whole of Apple. **Skip the Services ID, the key and the domain entirely** — if you were
+part-way through a Services ID and Apple refused to save it because the Supabase domain cannot be
+verified, abandon it. Nothing needs it.
 
 ---
 
@@ -121,7 +78,7 @@ Credentials → **Create credentials** → **OAuth client ID** → **iOS**.
 
 - Bundle ID: `au.com.crumpet.ios`
 
-**→ Value 4.**
+**→ Value 1.**
 
 ### 2.3 Create the Web client
 
@@ -129,7 +86,7 @@ Credentials → **Create credentials** → **OAuth client ID** → **Web applica
 
 - Authorised redirect URI: `https://dofjrttcyjtzvqyttqdo.supabase.co/auth/v1/callback`
 
-**→ Value 5** (client ID) and **Value 6** (client secret).
+**→ Value 2** (client ID) and **Value 3** (client secret).
 
 > Two clients, and this trips people up: the library is configured with the **Web** client ID, not
 > the iOS one, because that is the audience of the ID token Supabase must verify. The iOS client is
@@ -139,9 +96,9 @@ Credentials → **Create credentials** → **OAuth client ID** → **Web applica
 
 Authentication → Providers → **Google**. Enable, then:
 
-- Client ID: the **Web** client ID (Value 5)
-- Client Secret: Value 6
-- Authorized Client IDs: the **iOS** client ID (Value 4)
+- Client ID: the **Web** client ID (Value 2)
+- Client Secret: Value 3
+- Authorized Client IDs: the **iOS** client ID (Value 1)
 
 Leave **Skip Nonce Check** off. We make the nonce work rather than disabling the check.
 
@@ -163,9 +120,9 @@ address creates a second account, and from inside the app it looks like your pet
 
 ## What to send me
 
-The six values from the table. The `.p8` file itself I never need — only that it is safely stored
-and pasted into Supabase.
+The three Google values, and confirmation that Apple's provider is enabled with the bundle ID in
+Client IDs.
 
-Then I wire the handlers and we do one dev build to a **physical iPhone**. Apple's sheet cannot be
-tested on a simulator, so that build is required either way, which is why both providers are set up
-together rather than one at a time.
+Then I wire both handlers and we do one dev build to a **physical iPhone**. Apple's sheet cannot be
+tested on a simulator at all, so that build is needed either way — which is why both providers are
+set up together rather than one at a time.
