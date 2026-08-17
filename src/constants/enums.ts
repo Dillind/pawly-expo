@@ -1,3 +1,11 @@
+/**
+ * The one sentence describing what a password must be. Shown by
+ * PasswordGuidelines and used as every failure message in `passwordSchema`, so
+ * the rule and its explanation cannot drift apart.
+ */
+export const PasswordRules =
+  'Every password needs at least 8 characters, a capital and a lower case letter, and a number.';
+
 export enum MessageType {
   Sent = 'Successfully sent',
   Resent = 'Successfully resent',
@@ -61,6 +69,7 @@ export enum SuccessMessage {
   PostUpdated = 'Post updated',
   PasswordUpdated = 'Password updated',
   ResetCodeSent = 'If that address has an account, we have sent a code',
+  CodeResent = 'New code sent',
   SignedIn = 'Signed in',
   SignedOut = 'Signed out',
   TimezoneUpdated = 'Timezone updated'

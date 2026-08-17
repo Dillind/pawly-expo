@@ -14,18 +14,21 @@ export default function AuthLayout() {
         name="sign-up"
         options={{ title: '', headerShown: true, headerBackTitle: 'Welcome' }}
       />
+      {/* The reset flow is grouped in a folder for readability, but deliberately
+          has no _layout of its own -- a nested navigator would give its first
+          screen nothing to go back to, and the back button would vanish. */}
       <Stack.Screen
-        name="forgot-password"
+        name="forgot-password/index"
         options={{ title: '', headerShown: true, headerBackTitle: 'Sign in' }}
       />
       <Stack.Screen
-        name="verify-reset"
+        name="forgot-password/verify"
         options={{ title: '', headerShown: true, headerBackTitle: 'Back' }}
       />
       {/* No back button: the code is spent by the time this screen renders, so
           returning to the verify screen only offers a code that cannot work. */}
       <Stack.Screen
-        name="reset-password"
+        name="forgot-password/new-password"
         options={{ title: '', headerShown: true, headerBackVisible: false, gestureEnabled: false }}
       />
     </Stack>

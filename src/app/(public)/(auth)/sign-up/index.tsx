@@ -4,6 +4,7 @@ import ScreenScrollView from '@/components/layout/screen-scroll-view';
 import ScreenView from '@/components/layout/screen-view';
 import TextDescriptionHeader from '@/components/layout/text-description-header';
 import AuthFooterLink from '@/components/screens/auth/auth-footer-link';
+import PasswordGuidelines from '@/components/screens/auth/password-guidelines';
 import { ErrorMessage } from '@/constants/enums';
 import { userFacingMessage } from '@/lib/errors';
 import { signUpSchema, type SignUpFormValues } from '@/constants/schemas/sign-up';
@@ -101,6 +102,8 @@ const SignUp = () => {
                 />
               )}
             />
+
+            <PasswordGuidelines />
           </View>
 
           <View style={styles.actions}>

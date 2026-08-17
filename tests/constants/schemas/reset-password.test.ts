@@ -1,10 +1,10 @@
 import { resetPasswordSchema } from '@/constants/schemas/reset-password';
 
 describe('resetPasswordSchema', () => {
-  it('accepts two matching passwords of at least eight characters', () => {
+  it('accepts two matching passwords that meet the rules', () => {
     const result = resetPasswordSchema.safeParse({
-      password: 'crumpet123',
-      confirmPassword: 'crumpet123'
+      password: 'Crumpet123',
+      confirmPassword: 'Crumpet123'
     });
 
     expect(result.success).toBe(true);
@@ -12,15 +12,15 @@ describe('resetPasswordSchema', () => {
 
   it('reports a mismatch against the confirm field', () => {
     const result = resetPasswordSchema.safeParse({
-      password: 'crumpet123',
-      confirmPassword: 'crumpet124'
+      password: 'Crumpet123',
+      confirmPassword: 'Crumpet124'
     });
 
     expect(result.success).toBe(false);
     expect(result.error?.issues[0].path).toEqual(['confirmPassword']);
   });
 
-  it('rejects a password shorter than eight characters', () => {
+  it('rejects a password that does not meet the rules', () => {
     const result = resetPasswordSchema.safeParse({ password: 'short', confirmPassword: 'short' });
 
     expect(result.success).toBe(false);

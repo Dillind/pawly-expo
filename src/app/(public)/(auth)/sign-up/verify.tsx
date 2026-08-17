@@ -14,8 +14,9 @@ const VerifySignUp = () => {
   return (
     <OtpVerifyForm
       title="Check your email"
-      description={`Enter the 8-digit code we sent to ${email}.`}
+      description={`Enter the 6-digit code we sent to ${email}.`}
       onVerify={onVerify}
+      onResend={() => AuthService.resendSignUpOtp({ email })}
       testID="verify-signup-token"
     />
   );

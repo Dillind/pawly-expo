@@ -15,7 +15,7 @@ const VerifyReset = () => {
 
     try {
       await AuthService.verifyRecoveryOtp({ email, token });
-      router.push('/reset-password');
+      router.push('/forgot-password/new-password');
     } catch (error) {
       setRecovering(false);
       throw error;
@@ -25,8 +25,9 @@ const VerifyReset = () => {
   return (
     <OtpVerifyForm
       title="Check your email"
-      description={`Enter the 8-digit code we sent to ${email}.`}
+      description={`Enter the 6-digit code we sent to ${email}.`}
       onVerify={onVerify}
+      onResend={() => AuthService.resetPasswordForEmail({ email })}
       testID="verify-reset-token"
     />
   );

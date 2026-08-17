@@ -21,7 +21,7 @@ lands on Home having never chosen a password, with the old one still working.
 
 Three ways out were considered:
 
-1. **Move `reset-password` into `(protected)`.** It would be reachable, but a password-reset screen
+1. **Move `forgot-password/new-password` into `(protected)`.** It would be reachable, but a password-reset screen
    would then live in the signed-in half of the app, split from the two screens it belongs to.
 2. **Do not verify on the verify screen.** Carry the email and the code forward and call `verifyOtp`
    and `updateUser` back to back on the last screen. The session then flips only once the password
@@ -39,9 +39,9 @@ Option 3. `useAuthStore` gains an in-memory `isRecovering` flag, and `AuthGate` 
 <Stack.Protected guard={status === 'signedIn' && !isRecovering}>
 ```
 
-`verify-reset` sets it **before** calling `verifyOtp`, because the call resolving is what flips the
+`forgot-password/verify` sets it **before** calling `verifyOtp`, because the call resolving is what flips the
 session — setting it afterwards is already too late. A failed verification clears it again.
-`reset-password` clears it once `updateUser` succeeds, which is what releases the user into
+`forgot-password/new-password` clears it once `updateUser` succeeds, which is what releases the user into
 `(protected)`. That screen therefore needs no navigation of its own.
 
 The flag is not persisted. Killing the app mid-reset leaves a signed-in user on Home, which is what
@@ -59,5 +59,5 @@ the reset flow, so the blast radius is those two files.
 
 The window between verifying and saving is a real session that can do anything the user can. That
 is inherent to Supabase recovery, not to this decision — option 2 was the only one that avoided it,
-at the cost above. The back button and the swipe gesture are both off on `reset-password`, so the
+at the cost above. The back button and the swipe gesture are both off on `forgot-password/new-password`, so the
 only ways out of the window are finishing it or killing the app.

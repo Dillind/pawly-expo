@@ -1,15 +1,16 @@
 import MainButton from '@/components/core/main-button';
-import TextInputValidated from '@/components/core/text-input-validated';
+import VerificationCodeInput from '@/components/core/verification-code-input';
 import ScreenScrollView from '@/components/layout/screen-scroll-view';
 import ScreenView from '@/components/layout/screen-view';
 import TextDescriptionHeader from '@/components/layout/text-description-header';
-import { ErrorMessage } from '@/constants/enums';
+import ResendCodeRow from '@/components/screens/auth/resend-code-row';
+import { ErrorMessage, SuccessMessage } from '@/constants/enums';
 import { verifyOtpSchema, type VerifyOtpFormValues } from '@/constants/schemas/verify-otp';
 import type { AppTheme } from '@/constants/theme';
 import { useStyles } from '@/hooks/use-styles';
 import { userFacingMessage } from '@/lib/errors';
 import { hapticLight } from '@/lib/haptics';
-import { showErrorToast } from '@/lib/toast';
+import { showErrorToast, showSuccessToast } from '@/lib/toast';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Controller, FormProvider, useForm } from 'react-hook-form';
 import { StyleSheet, View } from 'react-native';
@@ -18,10 +19,11 @@ type Props = {
   title: string;
   description: string;
   onVerify: (token: string) => Promise<void>;
+  onResend: () => Promise<void>;
   testID: string;
 };
 
-const OtpVerifyForm = ({ title, description, onVerify, testID }: Props) => {
+const OtpVerifyForm = ({ title, description, onVerify, onResend, testID }: Props) => {
   const styles = useStyles(makeStyles);
 
   const form = useForm<VerifyOtpFormValues>({
@@ -50,6 +52,11 @@ const OtpVerifyForm = ({ title, description, onVerify, testID }: Props) => {
     }
   });
 
+  const handleResend = async () => {
+    await onResend();
+    showSuccessToast(SuccessMessage.CodeResent);
+  };
+
   return (
     <ScreenView edges={['bottom']}>
       <ScreenScrollView
@@ -62,25 +69,21 @@ const OtpVerifyForm = ({ title, description, onVerify, testID }: Props) => {
             <Controller
               control={control}
               name="token"
-              render={({ field: { onChange, onBlur, value } }) => (
-                <TextInputValidated
+              render={({ field: { onChange, value } }) => (
+                <VerificationCodeInput
                   name="token"
                   label="Verification code"
                   value={value}
                   onChangeText={onChange}
-                  onBlur={onBlur}
-                  placeholder="12345678"
-                  keyboardType="number-pad"
-                  maxLength={8}
-                  autoComplete="one-time-code"
-                  returnKeyType="done"
-                  onSubmitEditing={() => {
+                  onComplete={() => {
                     void onSubmit();
                   }}
                   testID={testID}
                 />
               )}
             />
+
+            <ResendCodeRow onResend={handleResend} />
           </View>
 
           <View style={styles.actions}>
@@ -107,7 +110,7 @@ const makeStyles = ({ spacing }: AppTheme) =>
       gap: spacing.three
     },
     form: {
-      gap: spacing.two
+      gap: spacing.three
     },
     actions: {
       gap: spacing.two,
