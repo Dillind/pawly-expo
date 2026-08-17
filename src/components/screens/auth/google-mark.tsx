@@ -1,8 +1,5 @@
 import Svg, { Path } from 'react-native-svg';
 
-// Google's own mark, not a Lucide icon, so it does not go through the Icon
-// allow-list. Its four colours are fixed by Google's branding rules and must
-// not be themed.
 const GoogleMark = ({ size = 20 }: { size?: number }) => (
   <Svg width={size} height={size} viewBox="0 0 48 48">
     <Path

@@ -6,15 +6,11 @@ import * as AppleAuthentication from 'expo-apple-authentication';
 import { useEffect, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
-// A missing handler disables its button. Both are missing until CRU-026 and CRU-027.
 type Props = {
   onApplePress?: () => void;
   onGooglePress?: () => void;
 };
 
-// Apple and Google both specify how their buttons may look, so these two are
-// the one place in the app that does not draw from the theme. Apple's is their
-// own native control; only its type, style and corner radius are ours to set.
 const SOCIAL_BUTTON = {
   height: 52,
   radius: 26,
@@ -34,8 +30,6 @@ const SocialAuthButtons = ({ onApplePress, onGooglePress }: Props) => {
   return (
     <View style={styles.container}>
       {hasAppleAuth && (
-        // The native button has no disabled state, so an inert one is dimmed
-        // and stops taking touches from out here.
         <View
           style={!onApplePress && styles.disabled}
           pointerEvents={onApplePress ? 'auto' : 'none'}>
