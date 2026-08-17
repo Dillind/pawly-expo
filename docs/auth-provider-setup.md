@@ -40,7 +40,12 @@ except the Apple key file and the client secret, which never enter the repo.
 
 ### 1.2 Find your Team ID
 
-Top right of the Apple Developer site, or Membership details. Ten characters, e.g. `A1B2C3D4E5`.
+Top right of the Apple Developer site, or Membership details. Ten characters — for this account,
+`N676T9WLTV`.
+
+It also appears as the prefix on the App ID (`N676T9WLTV.au.com.crumpet.ios`). On a recent account
+the App ID Prefix and the Team ID are the same value; on older ones they can differ, so Membership
+details is the authority.
 
 **→ Value 1.**
 
@@ -51,15 +56,25 @@ Identifiers → **+** → **Services IDs**.
 - Description: `Crumpet Sign In`
 - Identifier: **`au.com.crumpet.signin`** — it must be *different* from the app's bundle ID.
 
-Register it, then edit it and tick **Sign in with Apple** → **Configure**:
+Register it, then **go back into it** and tick **Sign in with Apple** → **Configure**. A freshly
+registered Services ID has it unticked; skipping this is the usual reason Supabase later rejects the
+credentials.
 
 - Primary App ID: `au.com.crumpet.ios`
+- Domains and Subdomains: `dofjrttcyjtzvqyttqdo.supabase.co` — host only, no scheme or path
 - Return URLs: `https://dofjrttcyjtzvqyttqdo.supabase.co/auth/v1/callback`
 
 **→ Value 2** is the identifier you chose.
 
-> The return URL is required even though the app uses the native flow rather than a web redirect.
-> Apple will not let you save without one.
+> **Verify will fail. Save anyway.** Apple checks domain ownership by fetching
+> `apple-developer-domain-association.txt` from the domain, and `supabase.co` is not ours to host on.
+>
+> It does not matter, because the app uses the **native** flow: the Apple sheet returns an identity
+> token that goes straight to `signInWithIdToken`, and no browser redirect ever happens. These two
+> fields exist only because Apple will not save a Services ID configuration without them.
+
+> If you cannot find the Services ID again afterwards, the Identifiers list filters to App IDs by
+> default — switch the dropdown at the top right.
 
 ### 1.4 Create a key
 
