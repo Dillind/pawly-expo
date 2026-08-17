@@ -3,6 +3,8 @@ import TextInputValidated from '@/components/core/text-input-validated';
 import ScreenScrollView from '@/components/layout/screen-scroll-view';
 import ScreenView from '@/components/layout/screen-view';
 import TextDescriptionHeader from '@/components/layout/text-description-header';
+import AppText from '@/components/core/app-text';
+import PressableOpacity from '@/components/core/pressable-opacity';
 import PasswordGuidelines from '@/components/screens/auth/password-guidelines';
 import { ErrorMessage, SuccessMessage } from '@/constants/enums';
 import {
@@ -11,11 +13,12 @@ import {
 } from '@/constants/schemas/reset-password';
 import type { AppTheme } from '@/constants/theme';
 import { useStyles } from '@/hooks/use-styles';
-import { userFacingMessage } from '@/lib/errors';
+import { logError, userFacingMessage } from '@/lib/errors';
 import { hapticLight } from '@/lib/haptics';
 import { showErrorToast, showSuccessToast } from '@/lib/toast';
 import AuthService from '@/services/auth.service';
 import { useAuthStore } from '@/stores/auth-store';
+import { useRouter } from 'expo-router';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Controller, FormProvider, useForm } from 'react-hook-form';
 import { StyleSheet, View } from 'react-native';
@@ -23,6 +26,7 @@ import { StyleSheet, View } from 'react-native';
 const ResetPassword = () => {
   const styles = useStyles(makeStyles);
   const { setRecovering } = useAuthStore();
+  const router = useRouter();
 
   const form = useForm<ResetPasswordFormValues>({
     resolver: zodResolver(resetPasswordSchema),
@@ -46,10 +50,30 @@ const ResetPassword = () => {
       // reacts to by swapping to (protected) itself.
       setRecovering(false);
     } catch (error) {
-      console.error(error);
+      logError(error);
       showErrorToast(ErrorMessage.PasswordUpdateFailed, userFacingMessage(error, 'Try again'));
     }
   });
+
+  /**
+   * The only way off this screen other than succeeding. Back and the swipe are
+   * both off, so without this an expired recovery session traps the user here
+   * with no exit but killing the app.
+   *
+   * Signing out is what actually resets it: clearing the flag alone leaves the
+   * recovery session live, and AuthGate would drop them straight into the app
+   * with the password still unchanged.
+   */
+  const startOver = async () => {
+    try {
+      await AuthService.signOut();
+    } catch (error) {
+      logError(error);
+    } finally {
+      setRecovering(false);
+      router.replace('/forgot-password');
+    }
+  };
 
   return (
     <ScreenView edges={['bottom']}>
@@ -117,6 +141,16 @@ const ResetPassword = () => {
                 void onSubmit();
               }}
             />
+
+            <PressableOpacity
+              style={styles.startOver}
+              onPress={() => {
+                void startOver();
+              }}>
+              <AppText size={14} fontWeight="bold" color="primary">
+                Start over
+              </AppText>
+            </PressableOpacity>
           </View>
         </FormProvider>
       </ScreenScrollView>
@@ -137,6 +171,9 @@ const makeStyles = ({ spacing }: AppTheme) =>
     actions: {
       gap: spacing.two,
       marginTop: spacing.two
+    },
+    startOver: {
+      alignSelf: 'center'
     }
   });
 

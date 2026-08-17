@@ -8,11 +8,30 @@
  * be replaced with the call site's own copy.
  */
 export class UserFacingError extends Error {
-  constructor(message: string) {
+  /**
+   * The failure this was translated from. The message is copy written for a
+   * person, so without this the driver's own error -- the SQLSTATE, the auth
+   * code, the network failure -- survives nowhere, and `console.error` in every
+   * `onError` would only ever print our own sentence back at us.
+   */
+  readonly cause: unknown;
+
+  constructor(message: string, cause?: unknown) {
     super(message);
     this.name = 'UserFacingError';
+    this.cause = cause;
   }
 }
+
+/**
+ * Log a failure with the driver's own error, not just our copy.
+ *
+ * `console.error(error)` prints an Error's stack, which for a UserFacingError
+ * is the sentence we wrote -- the SQLSTATE or auth code that actually explains
+ * the failure is on `cause` and never reaches the log without this.
+ */
+export const logError = (error: unknown) =>
+  console.error(error, error instanceof UserFacingError ? error.cause : undefined);
 
 export const userFacingMessage = (error: unknown, fallback: string): string =>
   error instanceof UserFacingError ? error.message : fallback;

@@ -4,13 +4,13 @@ import ScreenScrollView from '@/components/layout/screen-scroll-view';
 import ScreenView from '@/components/layout/screen-view';
 import TextDescriptionHeader from '@/components/layout/text-description-header';
 import ResendCodeRow from '@/components/screens/auth/resend-code-row';
-import { ErrorMessage, SuccessMessage } from '@/constants/enums';
+import { ErrorMessage } from '@/constants/enums';
 import { verifyOtpSchema, type VerifyOtpFormValues } from '@/constants/schemas/verify-otp';
 import type { AppTheme } from '@/constants/theme';
 import { useStyles } from '@/hooks/use-styles';
 import { userFacingMessage } from '@/lib/errors';
 import { hapticLight } from '@/lib/haptics';
-import { showErrorToast, showSuccessToast } from '@/lib/toast';
+import { showErrorToast } from '@/lib/toast';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Controller, FormProvider, useForm } from 'react-hook-form';
 import { StyleSheet, View } from 'react-native';
@@ -52,11 +52,6 @@ const OtpVerifyForm = ({ title, description, onVerify, onResend, testID }: Props
     }
   });
 
-  const handleResend = async () => {
-    await onResend();
-    showSuccessToast(SuccessMessage.CodeResent);
-  };
-
   return (
     <ScreenView edges={['bottom']}>
       <ScreenScrollView
@@ -83,7 +78,7 @@ const OtpVerifyForm = ({ title, description, onVerify, onResend, testID }: Props
               )}
             />
 
-            <ResendCodeRow onResend={handleResend} />
+            <ResendCodeRow onResend={onResend} />
           </View>
 
           <View style={styles.actions}>

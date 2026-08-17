@@ -99,6 +99,7 @@ const ForgotPassword = () => {
               prompt="Remembered it?"
               linkText="Sign in here"
               href="/sign-in"
+              isReplace
             />
           </View>
         </FormProvider>

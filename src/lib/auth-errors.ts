@@ -18,15 +18,26 @@ const COPY: Record<string, string> = {
 };
 
 /**
+ * The Supabase error inside whatever a service threw. A caller downstream of
+ * `toUserFacingError` only ever sees the wrapper, so anything wanting the
+ * original has to unwrap it.
+ */
+const authErrorFrom = (error: unknown): AuthError | undefined => {
+  if (error instanceof AuthError) return error;
+  if (error instanceof UserFacingError && error.cause instanceof AuthError) return error.cause;
+};
+
+/**
  * Seconds Supabase wants you to wait, read off `over_email_send_rate_limit`.
  * The interval is a project setting, so it is only ever in the message.
  */
 export const retryAfterSeconds = (error: unknown): number | undefined => {
-  if (!(error instanceof AuthError) || error.code !== 'over_email_send_rate_limit') return;
+  const authError = authErrorFrom(error);
+  if (authError?.code !== 'over_email_send_rate_limit') return;
 
-  const seconds = Number(/after (\d+) seconds?/.exec(error.message)?.[1]);
+  const seconds = Number(/after (\d+) seconds?/.exec(authError.message)?.[1]);
   return Number.isFinite(seconds) ? seconds : undefined;
 };
 
 export const toUserFacingError = (error: AuthError) =>
-  new UserFacingError(COPY[error.code ?? ''] ?? 'Something went wrong. Try again.');
+  new UserFacingError(COPY[error.code ?? ''] ?? 'Something went wrong. Try again.', error);

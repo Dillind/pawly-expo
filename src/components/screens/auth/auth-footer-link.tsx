@@ -9,9 +9,15 @@ type Props = {
   prompt?: string;
   linkText: string;
   href: Href;
+  /**
+   * Swap this screen for the target instead of stacking on top of it. The auth
+   * screens are siblings, so pushing lets you reach sign-in from sign-in and
+   * leaves a back button whose label describes a screen it no longer returns to.
+   */
+  isReplace?: boolean;
 };
 
-const AuthFooterLink = ({ prompt, linkText, href }: Props) => {
+const AuthFooterLink = ({ prompt, linkText, href, isReplace }: Props) => {
   const styles = useStyles(makeStyles);
 
   return (
@@ -21,7 +27,7 @@ const AuthFooterLink = ({ prompt, linkText, href }: Props) => {
           {prompt}
         </AppText>
       ) : null}
-      <Link href={href} asChild>
+      <Link href={href} replace={isReplace} asChild>
         <PressableOpacity>
           <AppText color="primary" size={14} fontWeight="bold">
             {linkText}

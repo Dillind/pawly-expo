@@ -123,6 +123,7 @@ export enum ErrorMessage {
   PostUpdateFailed = 'Could not update the post',
   PasswordUpdateFailed = 'Could not update your password',
   ResetCodeSendFailed = 'Could not send a reset code',
+  CodeResendFailed = 'Could not send a new code',
   SignInFailed = 'Could not sign in',
   SupportEmailUnavailable = 'No email app to contact support from',
   SignOutFailed = 'Failed to sign out',

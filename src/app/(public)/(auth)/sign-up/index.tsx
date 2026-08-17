@@ -120,6 +120,7 @@ const SignUp = () => {
               prompt="Already have an account?"
               linkText="Sign in here"
               href="/sign-in"
+              isReplace
             />
           </View>
         </FormProvider>

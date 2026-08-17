@@ -119,6 +119,7 @@ const SignIn = () => {
               prompt="New to Crumpet?"
               linkText="Create new account"
               href="/sign-up"
+              isReplace
             />
           </View>
         </FormProvider>
