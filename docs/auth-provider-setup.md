@@ -67,10 +67,18 @@ verified, abandon it. Nothing needs it.
 
 ### 2.1 Configure the consent screen
 
-APIs & Services → OAuth consent screen. External. App name `Crumpet`, your support email, your
-contact email. No scopes beyond the defaults — the app needs email and profile only.
+APIs & Services → OAuth consent screen. App name `Crumpet`, your support email, your contact email.
+No scopes beyond the defaults — the app needs `email`, `profile` and `openid` only.
 
-You can leave it in Testing while developing; add your own address under Test users.
+**Audience: External.** Internal only exists with a Google Workspace organisation and would limit
+sign-in to that org.
+
+Leave it in **Testing** while developing, and add every address that will sign in under **Test
+users**. An address not on that list fails with a confusing consent error rather than a useful one.
+
+> The screen warns you "may need to verify your app". You won't. Verification is for *sensitive* and
+> *restricted* scopes — Gmail, Drive, Calendar. The three we ask for are non-sensitive, so going from
+> Testing to Production is a button, not a review.
 
 ### 2.2 Create the iOS client
 
