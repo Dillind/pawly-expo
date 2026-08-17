@@ -24,17 +24,17 @@ const AuthGate = () => {
   useAuthSession();
   useUserProfile();
   usePushNotifications();
-  const { status } = useAuthStore();
+  const { status, isRecovering } = useAuthStore();
   const { hasHydrated } = useThemeStore();
 
   if (status === 'loading' || !hasHydrated) return null;
 
   return (
     <Stack screenOptions={{ headerShown: false }}>
-      <Stack.Protected guard={status === 'signedOut'}>
+      <Stack.Protected guard={status === 'signedOut' || isRecovering}>
         <Stack.Screen name="(public)" />
       </Stack.Protected>
-      <Stack.Protected guard={status === 'signedIn'}>
+      <Stack.Protected guard={status === 'signedIn' && !isRecovering}>
         <Stack.Screen name="(protected)" />
       </Stack.Protected>
     </Stack>

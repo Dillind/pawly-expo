@@ -59,6 +59,8 @@ export enum SuccessMessage {
   PostDeleted = 'Post deleted',
   PostShared = 'Post shared',
   PostUpdated = 'Post updated',
+  PasswordUpdated = 'Password updated',
+  ResetCodeSent = 'If that address has an account, we have sent a code',
   SignedIn = 'Signed in',
   SignedOut = 'Signed out',
   TimezoneUpdated = 'Timezone updated'
@@ -110,6 +112,8 @@ export enum ErrorMessage {
   PostDeleteFailed = 'Could not delete the post',
   PostShareFailed = 'Could not share the post',
   PostUpdateFailed = 'Could not update the post',
+  PasswordUpdateFailed = 'Could not update your password',
+  ResetCodeSendFailed = 'Could not send a reset code',
   SignInFailed = 'Could not sign in',
   SupportEmailUnavailable = 'No email app to contact support from',
   SignOutFailed = 'Failed to sign out',

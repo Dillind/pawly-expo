@@ -24,6 +24,32 @@ namespace AuthService {
     return data;
   }
 
+  // Supabase does not say whether the address has an account, and neither must
+  // the caller -- that would tell a stranger which emails are registered.
+  export async function resetPasswordForEmail(params: { email: string }) {
+    const { error } = await supabase.auth.resetPasswordForEmail(params.email);
+
+    if (error) throw new UserFacingError(error.message);
+  }
+
+  export async function verifyRecoveryOtp(params: { email: string; token: string }) {
+    const { data, error } = await supabase.auth.verifyOtp({
+      email: params.email,
+      token: params.token,
+      type: 'recovery'
+    });
+
+    if (error) throw new UserFacingError(error.message);
+    return data;
+  }
+
+  export async function updatePassword(params: { password: string }) {
+    const { data, error } = await supabase.auth.updateUser({ password: params.password });
+
+    if (error) throw new UserFacingError(error.message);
+    return data;
+  }
+
   export async function signInWithPassword(params: { email: string; password: string }) {
     const { data, error } = await supabase.auth.signInWithPassword(params);
 

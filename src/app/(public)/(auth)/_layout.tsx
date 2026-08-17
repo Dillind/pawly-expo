@@ -14,7 +14,20 @@ export default function AuthLayout() {
         name="sign-up"
         options={{ title: '', headerShown: true, headerBackTitle: 'Welcome' }}
       />
-      <Stack.Screen name="forgot-password" options={{ title: 'Forgot password' }} />
+      <Stack.Screen
+        name="forgot-password"
+        options={{ title: '', headerShown: true, headerBackTitle: 'Sign in' }}
+      />
+      <Stack.Screen
+        name="verify-reset"
+        options={{ title: '', headerShown: true, headerBackTitle: 'Back' }}
+      />
+      {/* No back button: the code is spent by the time this screen renders, so
+          returning to the verify screen only offers a code that cannot work. */}
+      <Stack.Screen
+        name="reset-password"
+        options={{ title: '', headerShown: true, headerBackVisible: false, gestureEnabled: false }}
+      />
     </Stack>
   );
 }
