@@ -127,7 +127,7 @@ const MainButton: FunctionComponent<MainButtonProps> = ({
         style={[
           styles.glassSurface,
           { borderRadius },
-          (isDisabled || isLoading) && styles.disabled,
+          { opacity: restingOpacity },
           containerStyle
         ]}>
         <Pressable
@@ -181,9 +181,6 @@ const makeStyles = ({ colors }: AppTheme) =>
       alignSelf: 'stretch',
       overflow: 'hidden',
       borderCurve: 'continuous'
-    },
-    disabled: {
-      opacity: 0.5
     },
     content: {
       flexDirection: 'row',

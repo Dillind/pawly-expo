@@ -23,7 +23,7 @@ const SignIn = () => {
   const form = useForm<SignInFormValues>({
     resolver: zodResolver(signInSchema),
     defaultValues: { email: '', password: '' },
-    mode: 'onBlur'
+    mode: 'onTouched'
   });
 
   const {
@@ -57,7 +57,7 @@ const SignIn = () => {
 
         <SocialAuthButtons />
 
-        <AuthDivider label="Sign in with Apple, Google or email" />
+        <AuthDivider label="or" />
 
         <FormProvider {...form}>
           <View style={styles.form}>

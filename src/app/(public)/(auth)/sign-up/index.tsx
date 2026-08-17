@@ -24,7 +24,7 @@ const SignUp = () => {
   const form = useForm<SignUpFormValues>({
     resolver: zodResolver(signUpSchema),
     defaultValues: { email: '', password: '' },
-    mode: 'onBlur'
+    mode: 'onTouched'
   });
 
   const {
