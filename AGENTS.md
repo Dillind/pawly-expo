@@ -291,6 +291,32 @@ or iOS silently keeps the old behaviour — the fallback file is not what runs o
 
 Expo Router (file-based). Auth is enforced with `Stack.Protected` guards in `src/app/_layout.tsx`; routes are split into `(public)` and `(protected)` groups. The authenticated area uses Expo Router **native tabs** (`expo-router/unstable-native-tabs`), not a JS tab bar. Auth is wired with real Supabase authentication via `useAuthSession` and `useAuthStore`.
 
+**A dynamic route is a folder, never a file.** `[param]/index.tsx`, with that entity's other screens
+as siblings inside it. `src/app/(protected)/(tabs)/home/[petId]/` is the reference — `index.tsx` and
+`care-card-editor.tsx`, registered as `[petId]/index` and `[petId]/care-card-editor`.
+
+```
+home/[petId]/index.tsx             ✅  one folder holds everything a Pet can do
+home/[petId]/care-card-editor.tsx  ✅
+
+post/[postId].tsx                  ❌  a static wrapper around one dynamic file,
+edit-post/[postId].tsx             ❌  and the same entity split across two of them
+```
+
+**Add a `_layout.tsx` only when you want a nested navigator.** A folder without one keeps its
+screens on the parent stack, which is usually what you want — a nested stack leaves its first screen
+with nothing to pop to and the back button silently disappears.
+
+**Titles and header options live in the `_layout.tsx`**, not in a `Stack.Screen` inside the screen
+itself. Declaring the same option in both is two sources of truth for one header.
+
+**Moving a route has two consequences the compiler cannot see:**
+
+- **Typecheck passes on a route that no longer resolves** — the generated types go stale. Open it on
+  a simulator; a bad move shows as **Unmatched Route**.
+- **Push payloads embed route paths.** `supabase/functions/send-alerts/message.ts` carries them, so
+  the Edge Function needs redeploying, and notifications already delivered keep the old path.
+
 ### State
 
 - **Local:** `useState` / `useReducer`.
@@ -578,6 +604,24 @@ import Icon from '@/components/core/icon';
 Unlike `MainButton`, it never stretches to fill its parent — it is a fixed circular target (`alignSelf: 'center'`). Variants are `primary` / `secondary` / `ghost` / `glass`; the first two draw the glyph in `onPrimary`, `ghost` in `text`, and `glass` in `primary` (white on clear glass is invisible over a light background).
 
 `glass` is the one variant that does not use `PressableOpacity`: it renders a `GlassView` with `isInteractive`, so the material itself provides the press response. Layering the usual opacity fade on top would fight it — see [ADR 0011](./docs/adr/0011-liquid-glass-progressive-enhancement.md), which also requires the `hasGlass` fallback the variant already carries — below iOS 26 it drops back to the opaque `PressableOpacity` path, because there is no material to deform.
+
+**A `headerLeft` or `headerRight` is always `HeaderIconButton`** (`src/components/core/header-icon-button.tsx`), never a raw `IconButton`:
+
+```tsx
+headerRight: () => (
+  <HeaderIconButton name="ellipsis" accessibilityLabel="Manage this post" onPress={openMenu} />
+)
+```
+
+**Pass nothing but `name`, `accessibilityLabel` and `onPress`.** Its size, stroke and 36×40 box were
+measured against the native back button on a simulator, so overriding `size` is what makes a header
+button look almost-but-not-quite right next to the back chevron.
+
+**Never `variant="glass"` in a native header.** On iOS 26 the bar draws its own glass circle behind
+a bar button item; a `GlassView` inside that stacks two materials and reads visibly heavier than the
+back button beside it. `HeaderIconButton` uses `ghost` precisely so the system provides the only
+material. `glass` is for a control floating over content — the popover trigger, the Home bell — where
+nothing else is drawing the circle.
 
 **Adding a new icon:**
 
