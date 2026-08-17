@@ -25,7 +25,18 @@ except the Apple key file and the client secret, which never enter the repo.
 
 1. Find the App ID for **`au.com.crumpet.ios`**. If it isn't there, the EAS build created it — check
    under Identifiers → App IDs.
-2. Edit it, tick **Sign in with Apple**, Save.
+2. Edit it, tick **Sign in with Apple**, then **Configure**.
+3. Choose **Enable as a primary App ID**. Grouping is for related apps that should share one consent
+   prompt — an iOS app and its Mac counterpart. There is one app, so it is its own primary, and the
+   Services ID from 1.3 gets grouped under it via its Primary App ID dropdown.
+4. **Server-to-Server Notification Endpoint: leave blank.** Optional, and there is nothing to point
+   it at — Supabase exposes no endpoint for it and receiving one means writing an Edge Function.
+5. Save.
+
+> What blank costs: Apple would otherwise tell us when someone turns off email forwarding on a
+> private relay address, deletes their app account, or deletes their Apple Account. Without it a
+> relay address can go dead and we find out when an email bounces. Addable later by pasting a URL —
+> nothing here has to be redone.
 
 ### 1.2 Find your Team ID
 
