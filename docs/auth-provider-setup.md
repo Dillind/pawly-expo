@@ -124,15 +124,24 @@ Leave **Skip Nonce Check** off. We make the nonce work rather than disabling the
 
 ## Part 3 — Identity linking
 
-Authentication → Providers (or Settings, depending on dashboard version). Find the identity-linking
-setting and **tell me what it says before anyone signs in with Google.**
+**There is no setting to find.** Automatic linking is built into Supabase Auth and always on. When
+an OAuth sign-in arrives, it looks for an existing user with the same email and links the new
+identity to them — provided **the existing user's email is verified**.
 
-This matters more here than on a new project: every existing account is email-only, and
-`dylan.lindsay234@gmail.com` and `lisahinton00@gmail.com` are both Gmail addresses. The first Google
-sign-in with either is the collision case in issue #36, against live household data.
+Every account on this project has a verified email, so a Google sign-in with an address that already
+exists links to it. Same user, same household, same pets. Nothing forks.
 
-**Use a throwaway address for the first Google test.** If linking is off, signing in with your own
-address creates a second account, and from inside the app it looks like your pets are gone.
+**Apple's private relay is the exception, and it cannot be fixed.** Choosing "Hide My Email" produces
+`something@privaterelay.appleid.com`, which matches no existing account, so a new one is created —
+correctly, because nothing can tell it is the same person. Choose **Share My Email** when testing
+Apple against an account that already exists.
+
+That relay case, and what a user is told when linking cannot happen, is the remaining substance of
+issue #36.
+
+> The dashboard toggle near this, **Allow manual linking**, is a different feature — it enables the
+> `linkIdentity()` API for a signed-in user to attach another provider deliberately. It is in beta,
+> off by default, and not needed for any of the above.
 
 ---
 
