@@ -18,6 +18,18 @@ namespace UserService {
       avatarUrl: data.avatar_url
     };
   }
+
+  export async function updateName(
+    userId: string,
+    params: { firstName: string; lastName: string }
+  ) {
+    const { error } = await supabase
+      .from('users')
+      .update({ first_name: params.firstName, last_name: params.lastName })
+      .eq('id', userId);
+
+    if (error) throw error;
+  }
 }
 
 export default UserService;
