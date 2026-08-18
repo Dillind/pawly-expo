@@ -116,13 +116,8 @@ const SignIn = () => {
               }}
             />
 
-            <AuthFooterLink linkText="Forgot password?" href="/forgot-password" />
-            <AuthFooterLink
-              prompt="New to Crumpet?"
-              linkText="Create new account"
-              href="/sign-up"
-              isReplace
-            />
+            <AuthFooterLink linkText="Reset password" href="/forgot-password" />
+            <AuthFooterLink linkText="Create new account" href="/" isDismissTo />
           </View>
         </FormProvider>
       </ScreenScrollView>

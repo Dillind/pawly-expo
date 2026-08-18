@@ -10,9 +10,12 @@ type Props = {
   linkText: string;
   href: Href;
   isReplace?: boolean;
+  /** Pops back to `href` when it is already in the stack, so the animation
+   *  reverses rather than pushing a second copy of a screen already below. */
+  isDismissTo?: boolean;
 };
 
-const AuthFooterLink = ({ prompt, linkText, href, isReplace }: Props) => {
+const AuthFooterLink = ({ prompt, linkText, href, isReplace, isDismissTo }: Props) => {
   const styles = useStyles(makeStyles);
 
   return (
@@ -22,7 +25,7 @@ const AuthFooterLink = ({ prompt, linkText, href, isReplace }: Props) => {
           {prompt}
         </AppText>
       ) : null}
-      <Link href={href} replace={isReplace} asChild>
+      <Link href={href} replace={isReplace} dismissTo={isDismissTo} asChild>
         <PressableOpacity>
           <AppText color="primary" size={14} fontWeight="bold">
             {linkText}
