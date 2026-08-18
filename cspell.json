@@ -111,6 +111,8 @@
   ],
   "ignorePaths": [
     "**/dist/**",
+    "ios/**",
+    "android/**",
     "**/node_modules/**",
     "**/.git/**",
     "**/.DS_Store",
