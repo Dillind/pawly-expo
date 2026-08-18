@@ -8,10 +8,12 @@ import SocialAuthButtons from '@/components/screens/auth/social-auth-buttons';
 import type { AppTheme } from '@/constants/theme';
 import { useStyles } from '@/hooks/use-styles';
 import { useRouter } from 'expo-router';
+import { Image } from 'expo-image';
 import { StyleSheet, View } from 'react-native';
 
 // Fixed so the illustration can drop in without moving the buttons.
-const ART_HEIGHT = 200;
+const ART_HEIGHT = 320;
+const MARK_SIZE = 140;
 
 const Welcome = () => {
   const styles = useStyles(makeStyles);
@@ -21,7 +23,14 @@ const Welcome = () => {
     <ScreenView edges={['top', 'bottom']}>
       <ScreenScrollView contentContainerStyle={styles.scrollContent}>
         <View style={styles.art}>
-          {/* TODO(CRU-030): the illustration goes here. Keep it within ART_HEIGHT. */}
+          {/* TODO(CRU-030): placeholder mark. The corners are painted, not
+              transparent, so the tile is clipped rather than drawn as-is. */}
+          <Image
+            source={require('@/assets/images/crumpet-welcome.png')}
+            style={styles.mark}
+            contentFit="cover"
+            accessibilityIgnoresInvertColors
+          />
           <AppText variant="header" size={44} align="center" fontWeight="bold">
             Crumpet
           </AppText>
@@ -57,6 +66,13 @@ const makeStyles = ({ spacing }: AppTheme) =>
       alignItems: 'center',
       justifyContent: 'center',
       gap: spacing.two
+    },
+    mark: {
+      width: MARK_SIZE,
+      height: MARK_SIZE,
+      borderRadius: MARK_SIZE * 0.24,
+      borderCurve: 'continuous',
+      marginBottom: spacing.two
     },
     // One block: anchoring the buttons alone pushes the legal line past the fold.
     actions: {
