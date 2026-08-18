@@ -4,6 +4,10 @@ import { ConfigContext, ExpoConfig } from 'expo/config';
 dotenv.config();
 
 const getConfig = ({ config }: ConfigContext): ExpoConfig => {
+  const GOOGLE_IOS_CLIENT_ID = process.env.EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID;
+  const GOOGLE_WEB_CLIENT_ID = process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID;
+  const GOOGLE_IOS_URL_SCHEME = process.env.EXPO_PUBLIC_GOOGLE_IOS_URL_SCHEME;
+
   return {
     ...config,
     name: 'Crumpet',
@@ -80,7 +84,7 @@ const getConfig = ({ config }: ConfigContext): ExpoConfig => {
       [
         '@react-native-google-signin/google-signin',
         {
-          iosUrlScheme: 'com.googleusercontent.apps.290371852262-9okvebu78ht8q3pv02vrp46sio4anoud'
+          iosUrlScheme: GOOGLE_IOS_URL_SCHEME
         }
       ]
     ],
@@ -89,8 +93,8 @@ const getConfig = ({ config }: ConfigContext): ExpoConfig => {
         projectId: '3bd7aa83-b1be-43b3-97c2-a3b7d2a7f51c'
       },
       googleSignIn: {
-        iosClientId: '290371852262-9okvebu78ht8q3pv02vrp46sio4anoud.apps.googleusercontent.com',
-        webClientId: '290371852262-tc81q69o0vhscfa7fn19vocaukvgpklu.apps.googleusercontent.com'
+        iosClientId: GOOGLE_IOS_CLIENT_ID,
+        webClientId: GOOGLE_WEB_CLIENT_ID
       }
     }
   };
