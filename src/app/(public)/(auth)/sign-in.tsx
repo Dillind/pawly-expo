@@ -68,6 +68,7 @@ const SignIn = () => {
                 <TextInputValidated
                   name="email"
                   label="Email"
+                  isLabelIndicated
                   value={value}
                   onChangeText={onChange}
                   onBlur={onBlur}
@@ -87,6 +88,7 @@ const SignIn = () => {
                 <TextInputValidated
                   name="password"
                   label="Password"
+                  isLabelIndicated
                   value={value}
                   onChangeText={onChange}
                   onBlur={onBlur}
