@@ -71,7 +71,7 @@ const SignIn = () => {
                   value={value}
                   onChangeText={onChange}
                   onBlur={onBlur}
-                  placeholder="you@example.com"
+                  placeholder="email@example.com"
                   keyboardType="email-address"
                   autoCapitalize="none"
                   autoComplete="email"
@@ -90,7 +90,7 @@ const SignIn = () => {
                   value={value}
                   onChangeText={onChange}
                   onBlur={onBlur}
-                  placeholder="Your password"
+                  placeholder="Enter your password"
                   secureTextEntry
                   autoCapitalize="none"
                   autoComplete="password"
@@ -114,7 +114,7 @@ const SignIn = () => {
               }}
             />
 
-            <AuthFooterLink linkText="Reset password" href="/forgot-password" />
+            <AuthFooterLink linkText="Forgot password?" href="/forgot-password" />
             <AuthFooterLink
               prompt="New to Crumpet?"
               linkText="Create new account"

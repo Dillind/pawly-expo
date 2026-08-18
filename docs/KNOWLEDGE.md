@@ -61,6 +61,17 @@ while testing an email flow. Custom SMTP (AWS SES) is the fix and is not done ye
 **`enable_confirmations = false` in `config.toml` is the local setting only.** The live project's
 auth settings are not in the repo — check the dashboard before concluding what the server does.
 
+**Google sign-in has "Skip nonce checks" on, deliberately.** `signInWithApple` generates a nonce and
+`signInWithGoogle` does not — that asymmetry is forced, not an oversight. Supabase expects the
+provider to store a *hashed* nonce (SHA-256, hex), which is Apple's behaviour; Google stamps the raw
+value in, so the comparison cannot succeed whatever you pass — see
+[supabase/auth#1829](https://github.com/supabase/auth/issues/1829). Choosing our own nonce is a
+paid feature of
+`@react-native-google-signin/google-signin`. Without the toggle, every Google sign-in dies on
+"Passed nonce and nonce in id_token should either both exist or not." The cost is replay protection
+on the token, which is small here because the native SDK returns it in-process — there is no
+redirect to intercept. Turn the check back on if Supabase fixes the comparison or we buy the library.
+
 ## Simulator
 
 **`simctl` typing drops and reorders characters.** Use `delayMs: 100`+ and verify the field with
