@@ -16,14 +16,17 @@ const isCancellation = (error: unknown) =>
 export const useSocialAuth = () => {
   const [isPending, setIsPending] = useState(false);
 
-  const run = async (signIn: () => Promise<unknown>) => {
+  const run = async (signIn: () => Promise<unknown | null>) => {
     if (isPending) return;
 
     hapticLight();
     setIsPending(true);
 
     try {
-      await signIn();
+      const result = await signIn();
+
+      if (result === null) return;
+
       showSuccessToast(SuccessMessage.SignedIn);
     } catch (error) {
       if (isCancellation(error)) return;

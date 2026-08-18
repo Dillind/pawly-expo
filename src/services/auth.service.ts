@@ -111,6 +111,9 @@ namespace AuthService {
   export async function signInWithGoogle() {
     await GoogleSignin.hasPlayServices();
     const response = await GoogleSignin.signIn();
+
+    if (response.type === 'cancelled') return null;
+
     const idToken = response.data?.idToken;
 
     if (!idToken) throw new UserFacingError('Google did not return a sign-in token.');
