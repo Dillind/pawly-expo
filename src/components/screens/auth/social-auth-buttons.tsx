@@ -3,20 +3,27 @@ import GoogleMark from '@/components/screens/auth/google-mark';
 import type { AppTheme } from '@/constants/theme';
 import { useSocialAuth } from '@/hooks/use-social-auth';
 import { useStyles } from '@/hooks/use-styles';
+import { useTheme } from '@/hooks/use-theme';
 import * as AppleAuthentication from 'expo-apple-authentication';
 import { useEffect, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
 const SOCIAL_BUTTON = {
   height: 52,
-  radius: 26,
-  googleFill: '#FFFFFF',
-  googleLabel: '#1F1F1F',
-  googleBorder: '#747775'
+  radius: 26
+} as const;
+
+// Google publishes a light and a dark button; the mark itself stays full
+// colour in both. These are its values, not theme tokens -- a branded button
+// has to look the same in every app that shows it.
+const GOOGLE_BUTTON = {
+  light: { fill: '#FFFFFF', label: '#1F1F1F' },
+  dark: { fill: '#131314', label: '#E3E3E3' }
 } as const;
 
 const SocialAuthButtons = () => {
   const styles = useStyles(makeStyles);
+  const { isDark } = useTheme();
   const { signInWithApple, signInWithGoogle, isPending } = useSocialAuth();
   const [hasAppleAuth, setHasAppleAuth] = useState(false);
 
@@ -30,7 +37,11 @@ const SocialAuthButtons = () => {
         <View style={isPending && styles.disabled} pointerEvents={isPending ? 'none' : 'auto'}>
           <AppleAuthentication.AppleAuthenticationButton
             buttonType={AppleAuthentication.AppleAuthenticationButtonType.CONTINUE}
-            buttonStyle={AppleAuthentication.AppleAuthenticationButtonStyle.BLACK}
+            buttonStyle={
+              isDark
+                ? AppleAuthentication.AppleAuthenticationButtonStyle.WHITE
+                : AppleAuthentication.AppleAuthenticationButtonStyle.BLACK
+            }
             cornerRadius={SOCIAL_BUTTON.radius}
             style={styles.appleButton}
             onPress={() => void signInWithApple()}
@@ -50,7 +61,7 @@ const SocialAuthButtons = () => {
   );
 };
 
-const makeStyles = ({ spacing }: AppTheme) =>
+const makeStyles = ({ spacing, isDark }: AppTheme) =>
   StyleSheet.create({
     container: {
       gap: spacing.two
@@ -68,9 +79,7 @@ const makeStyles = ({ spacing }: AppTheme) =>
       borderCurve: 'continuous'
     },
     google: {
-      backgroundColor: SOCIAL_BUTTON.googleFill,
-      borderWidth: StyleSheet.hairlineWidth,
-      borderColor: SOCIAL_BUTTON.googleBorder
+      backgroundColor: isDark ? GOOGLE_BUTTON.dark.fill : GOOGLE_BUTTON.light.fill
     },
     disabled: {
       opacity: 0.5
@@ -80,7 +89,7 @@ const makeStyles = ({ spacing }: AppTheme) =>
       fontWeight: '600'
     },
     googleLabel: {
-      color: SOCIAL_BUTTON.googleLabel
+      color: isDark ? GOOGLE_BUTTON.dark.label : GOOGLE_BUTTON.light.label
     }
   });
 
