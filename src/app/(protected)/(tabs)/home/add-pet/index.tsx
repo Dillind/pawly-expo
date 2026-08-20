@@ -10,16 +10,18 @@ import ScreenScrollView from '@/components/layout/screen-scroll-view';
 import ScreenView from '@/components/layout/screen-view';
 import FlowStepper from '@/components/ui/flow-stepper';
 import { PET_TYPE_OPTIONS, SEX_OPTIONS } from '@/constants/options';
+import { ADD_PET_DETAIL_FIELDS, type AddPetFormValues } from '@/constants/schemas/add-pet';
 import { Radius, type AppTheme } from '@/constants/theme';
 import { useStyles } from '@/hooks/use-styles';
-import useAddPetStore, { type AgeMode } from '@/stores/add-pet-store';
+import type { AgeMode } from '@/types/core';
+import { isIOS } from '@/utils/platform';
 import { optionLabel } from '@/utils/options';
 import type { TrueSheet } from '@lodev09/react-native-true-sheet';
 import { Image } from 'expo-image';
 import { Stack, useRouter } from 'expo-router';
 import { useRef } from 'react';
+import { Controller, useFormContext, useWatch } from 'react-hook-form';
 import { ActionSheetIOS, Alert, StyleSheet, View } from 'react-native';
-import { isIOS } from '@/utils/platform';
 
 const AGE_OPTIONS: { value: AgeMode; label: string }[] = [
   { value: 'birthdate', label: 'Date of birth' },
@@ -35,11 +37,11 @@ const AddPetDetails = () => {
   const router = useRouter();
   const photoSheetRef = useRef<TrueSheet | null>(null);
 
-  const { name, petType, sex, ageMode, birthdate, breed, photoUri, setDetails, reset } =
-    useAddPetStore();
+  const { control, setValue, trigger, reset, formState } = useFormContext<AddPetFormValues>();
 
-  const hasWork = name.trim() !== '' || breed.trim() !== '' || photoUri !== null;
-  const canContinue = name.trim() !== '' && birthdate !== '';
+  const petType = useWatch({ control, name: 'petType' });
+  const ageMode = useWatch({ control, name: 'ageMode' });
+  const photoUri = useWatch({ control, name: 'photoUri' });
 
   const leave = () => {
     reset();
@@ -47,21 +49,22 @@ const AddPetDetails = () => {
   };
 
   // An action sheet, not an alert: this is a choice attached to something the
-  // member just did, and Apple sends that to an action sheet. Nothing has been
-  // typed yet means nothing to lose, so there is no question to ask.
+  // member just did, and Apple sends that to an action sheet. Nothing typed
+  // means nothing to lose, so there is no question to ask.
   const cancel = () => {
-    if (!hasWork) {
+    if (!formState.isDirty) {
       leave();
       return;
     }
 
-    const title = `You have not added ${name.trim() || 'this pet'} yet`;
+    const title = 'You have not added this pet yet';
+    const message = 'Everything you have entered will be lost.';
 
     if (isIOS) {
       ActionSheetIOS.showActionSheetWithOptions(
         {
           title,
-          message: 'Everything you have entered will be lost.',
+          message,
           options: ['Keep editing', 'Discard'],
           cancelButtonIndex: 0,
           destructiveButtonIndex: 1
@@ -73,10 +76,18 @@ const AddPetDetails = () => {
       return;
     }
 
-    Alert.alert(title, 'Everything you have entered will be lost.', [
+    Alert.alert(title, message, [
       { text: 'Keep editing', style: 'cancel', isPreferred: true },
       { text: 'Discard', style: 'destructive', onPress: leave }
     ]);
+  };
+
+  // The gate is the schema, not a hand-written condition: validate exactly the
+  // fields this step owns, and let each input render its own error.
+  const onContinue = async () => {
+    const isValid = await trigger([...ADD_PET_DETAIL_FIELDS]);
+
+    if (isValid) router.push('/home/add-pet/feeds');
   };
 
   return (
@@ -126,13 +137,21 @@ const AddPetDetails = () => {
           </AppText>
         </PressableOpacity>
 
-        <TextInputValidated
-          label="Name"
-          isLabelIndicated
-          value={name}
-          onChangeText={(next: string) => setDetails({ name: next })}
-          placeholder="Bailey"
-          returnKeyType="next"
+        <Controller
+          control={control}
+          name="name"
+          render={({ field: { onChange, onBlur, value } }) => (
+            <TextInputValidated
+              name="name"
+              label="Name"
+              isLabelIndicated
+              value={value}
+              onChangeText={onChange}
+              onBlur={onBlur}
+              placeholder="Bailey"
+              returnKeyType="next"
+            />
+          )}
         />
 
         <View style={styles.field}>
@@ -151,55 +170,70 @@ const AddPetDetails = () => {
           </PressableOpacity>
         </View>
 
-        <SegmentedControl
-          label="Sex"
-          options={SEX_OPTIONS}
-          value={sex}
-          onChange={(next) => setDetails({ sex: next })}
+        <Controller
+          control={control}
+          name="sex"
+          render={({ field: { onChange, value } }) => (
+            <SegmentedControl
+              name="sex"
+              label="Sex"
+              options={SEX_OPTIONS}
+              value={value}
+              onChange={onChange}
+            />
+          )}
         />
 
-        <SegmentedControl
-          label="Age"
-          options={AGE_OPTIONS}
-          value={ageMode}
-          onChange={(next) => setDetails({ ageMode: next })}
+        <Controller
+          control={control}
+          name="ageMode"
+          render={({ field: { onChange, value } }) => (
+            <SegmentedControl
+              name="ageMode"
+              label="Age"
+              options={AGE_OPTIONS}
+              value={value}
+              onChange={onChange}
+            />
+          )}
         />
 
-        <DateTimePickerValidated
-          label={ageMode === 'birthdate' ? 'Date of birth' : 'Roughly when were they born?'}
-          selectedDate={birthdate}
-          setSelectedDate={(next) => setDetails({ birthdate: next })}
+        <Controller
+          control={control}
+          name="birthdate"
+          render={({ field: { onChange, value } }) => (
+            <DateTimePickerValidated
+              name="birthdate"
+              label={ageMode === 'birthdate' ? 'Date of birth' : 'Roughly when were they born?'}
+              isLabelIndicated
+              selectedDate={value}
+              setSelectedDate={onChange}
+            />
+          )}
         />
 
-        <TextInputValidated
-          label="Breed"
-          value={breed}
-          onChangeText={(next: string) => setDetails({ breed: next })}
-          placeholder="Labrador, mixed, not sure..."
-          returnKeyType="done"
+        <Controller
+          control={control}
+          name="breed"
+          render={({ field: { onChange, onBlur, value } }) => (
+            <TextInputValidated
+              name="breed"
+              label="Breed"
+              value={value}
+              onChangeText={onChange}
+              onBlur={onBlur}
+              placeholder="Labrador, mixed, not sure..."
+              returnKeyType="done"
+            />
+          )}
         />
 
-        {/* add_pet casts pet_birthdate to a date, so an empty string fails in
-            Postgres at the very end of a three-step flow. Say so on the step
-            that can fix it. */}
-        {!canContinue && (
-          <AppText size={13} color="textSecondary">
-            {name.trim() === ''
-              ? 'Give them a name to continue.'
-              : `Pick ${ageMode === 'birthdate' ? 'their date of birth' : 'roughly when they were born'} to continue.`}
-          </AppText>
-        )}
-
-        <MainButton
-          text="Continue"
-          isDisabled={!canContinue}
-          onPress={() => router.push('/home/add-pet/feeds')}
-        />
+        <MainButton text="Continue" onPress={() => void onContinue()} />
       </ScreenScrollView>
 
       <PhotoSourceSheet
         sheetRef={photoSheetRef}
-        onPicked={([uri]) => setDetails({ photoUri: uri })}
+        onPicked={([uri]) => setValue('photoUri', uri, { shouldDirty: true })}
       />
     </ScreenView>
   );

@@ -88,6 +88,9 @@ export type FeedingScheduleLabel = 'morning' | 'lunch' | 'dinner' | 'custom';
  */
 export type PetType = 'dog' | 'cat' | 'other';
 
+/** Whether a birthdate is exact or a rough guess. Stored as birthdate_is_approximate. */
+export type AgeMode = 'birthdate' | 'approximate';
+
 /**
  * One expected feed on one local day. `seriesId` and `occurrenceDate` together
  * name it, and a feed log carries the same pair — which is what makes a Double

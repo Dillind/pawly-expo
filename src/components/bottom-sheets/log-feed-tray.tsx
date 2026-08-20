@@ -13,11 +13,13 @@ import FeedTimeService from '@/services/feed-time.service';
 import { useQueries } from '@tanstack/react-query';
 import type { useLogFlow } from '@/hooks/use-log-flow';
 import { useStyles } from '@/hooks/use-styles';
+import { newFeedLogSchema, type NewFeedLogFormValues } from '@/constants/schemas/feed-log';
 import { composeLoggedAt, formatScheduledTime, timeInTimezone } from '@/lib/dates';
 import type { Occurrence, Pet } from '@/types/core';
 import type { TrueSheet } from '@lodev09/react-native-true-sheet';
-import dayjs from 'dayjs';
-import { useState, type RefObject } from 'react';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useMemo, useState, type RefObject } from 'react';
+import { Controller, FormProvider, useForm } from 'react-hook-form';
 import { ActivityIndicator, StyleSheet, View } from 'react-native';
 
 type Flow = ReturnType<typeof useLogFlow>;
@@ -175,6 +177,20 @@ const ConfirmStep = ({
 }) => {
   const styles = useStyles(makeStyles);
 
+  const schema = useMemo(() => newFeedLogSchema({ timezone }), [timezone]);
+  const form = useForm<NewFeedLogFormValues>({
+    resolver: zodResolver(schema),
+    mode: 'onTouched',
+    defaultValues: {
+      // The truth is that the feed happened now. Anything else is a correction,
+      // so it starts here and the member changes it deliberately. Read in the
+      // household's timezone, never the device's (ADR 0009).
+      time: timeInTimezone(new Date().toISOString(), timezone),
+      notes: ''
+    }
+  });
+  const { control, handleSubmit } = form;
+
   // Each pet's own occurrence for the chosen feed. One query per pet, because a
   // hook cannot be called from a loop -- useQueries is the sanctioned shape.
   // Without this the other pets would be logged as Extra Feeds and the sweep
@@ -195,78 +211,77 @@ const ConfirmStep = ({
       );
     });
   }
-  // The truth is that the feed happened now. Anything else is a correction, so
-  // it starts here and the member changes it deliberately. Read in the
-  // household's timezone, never the device's -- a member logging from another
-  // country must not record a feed at the wrong instant (ADR 0009).
-  const [fedAt, setFedAt] = useState(timeInTimezone(new Date().toISOString(), timezone));
-  const [notes, setNotes] = useState('');
-
-  // The household's local day plus the chosen wall-clock time, resolved in the
-  // household's timezone. composeLoggedAt is the one place that arithmetic
-  // lives; do not rebuild it from the device clock.
-  const loggedAt = composeLoggedAt('today', fedAt, timezone);
-
-  // RLS rejects a logged_at later than now(), so a future time is refused by
-  // the database with a message nobody can act on. Say so here instead.
-  const isInFuture = dayjs(loggedAt).isAfter(dayjs());
-
-  const submit = () =>
+  // The household's local day plus the chosen wall-clock time. composeLoggedAt
+  // is the one place that arithmetic lives; do not rebuild it from the device
+  // clock. The schema has already refused a future time by this point.
+  const submit = handleSubmit((values) =>
     onLog(
       {
-        loggedAt,
-        notes: notes.trim() === '' ? null : notes.trim()
+        loggedAt: composeLoggedAt('today', values.time, timezone),
+        notes: values.notes.trim() === '' ? null : values.notes.trim()
       },
       matches
-    );
+    )
+  );
 
   return (
-    <View style={styles.stack}>
-      <View style={styles.petsSummary}>
-        {pets.map((pet) => (
-          <View key={pet.id} style={styles.petSummaryRow}>
-            <PetAvatar photoUrl={pet.photoUrl} size={32} />
-            <AppText size={16}>{pet.name}</AppText>
-          </View>
-        ))}
-      </View>
-
-      {occurrence?.instructions ? (
-        <View style={styles.instructions}>
-          <AppText size={14}>{occurrence.instructions}</AppText>
+    <FormProvider {...form}>
+      <View style={styles.stack}>
+        <View style={styles.petsSummary}>
+          {pets.map((pet) => (
+            <View key={pet.id} style={styles.petSummaryRow}>
+              <PetAvatar photoUrl={pet.photoUrl} size={32} />
+              <AppText size={16}>{pet.name}</AppText>
+            </View>
+          ))}
         </View>
-      ) : null}
 
-      <Divider />
+        {occurrence?.instructions ? (
+          <View style={styles.instructions}>
+            <AppText size={14}>{occurrence.instructions}</AppText>
+          </View>
+        ) : null}
 
-      <DateTimePickerValidated
-        mode="time"
-        label="Fed at"
-        selectedDate={fedAt}
-        setSelectedDate={setFedAt}
-      />
+        <Divider />
 
-      <TextInputValidated
-        label="Note"
-        placeholder="Anything worth passing on"
-        value={notes}
-        onChangeText={setNotes}
-        isMultiline
-      />
+        <Controller
+          control={control}
+          name="time"
+          render={({ field: { onChange, value } }) => (
+            <DateTimePickerValidated
+              name="time"
+              mode="time"
+              label="Fed at"
+              selectedDate={value}
+              setSelectedDate={onChange}
+            />
+          )}
+        />
 
-      {isInFuture && (
-        <AppText size={13} color="error">
-          That time has not happened yet. Pick a time up to now.
-        </AppText>
-      )}
+        <Controller
+          control={control}
+          name="notes"
+          render={({ field: { onChange, onBlur, value } }) => (
+            <TextInputValidated
+              name="notes"
+              label="Note"
+              placeholder="Anything worth passing on"
+              value={value}
+              onBlur={onBlur}
+              onChangeText={onChange}
+              isMultiline
+            />
+          )}
+        />
 
-      <MainButton
-        text={pets.length > 1 ? `Log for ${pets.length} pets` : 'Log this feed'}
-        isLoading={isLogging}
-        isDisabled={isLogging || isInFuture}
-        onPress={submit}
-      />
-    </View>
+        <MainButton
+          text={pets.length > 1 ? `Log for ${pets.length} pets` : 'Log this feed'}
+          isLoading={isLogging}
+          isDisabled={isLogging}
+          onPress={() => void submit()}
+        />
+      </View>
+    </FormProvider>
   );
 };
 

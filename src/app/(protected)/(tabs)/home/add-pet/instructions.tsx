@@ -5,16 +5,17 @@ import ScreenScrollView from '@/components/layout/screen-scroll-view';
 import ScreenView from '@/components/layout/screen-view';
 import FlowStepper from '@/components/ui/flow-stepper';
 import { FEEDING_SCHEDULE_LABEL_OPTIONS } from '@/constants/options';
+import type { AddPetFormValues } from '@/constants/schemas/add-pet';
 import { Radius, type AppTheme } from '@/constants/theme';
 import { useAddPet } from '@/hooks/queries/pet/use-pet-mutations';
 import { useStyles } from '@/hooks/use-styles';
 import PetPhotoService from '@/services/pet-photo.service';
 import { useAuthStore } from '@/stores/auth-store';
-import useAddPetStore from '@/stores/add-pet-store';
 import { optionLabel } from '@/utils/options';
 import dayjs from 'dayjs';
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
+import { Controller, useFieldArray, useFormContext, useWatch } from 'react-hook-form';
 import { StyleSheet, View } from 'react-native';
 
 /**
@@ -29,19 +30,23 @@ const AddPetInstructions = () => {
   const { mutate: addPet, isPending: isAdding } = useAddPet();
   const [isUploading, setIsUploading] = useState(false);
 
-  const store = useAddPetStore();
-  const { name, feedTimes, setInstructions, reset } = store;
+  const { control, handleSubmit, reset } = useFormContext<AddPetFormValues>();
+  const { fields } = useFieldArray({ control, name: 'feedTimes' });
+  const name = useWatch({ control, name: 'name' });
+  const feedTimes = useWatch({ control, name: 'feedTimes' });
 
   const isBusy = isAdding || isUploading;
 
-  const create = async () => {
+  // handleSubmit, so the whole schema is checked before anything is uploaded or
+  // written. A field that failed shows its own error on the step that owns it.
+  const create = handleSubmit(async (values) => {
     setIsUploading(true);
 
     let photoUrl: string | null = null;
 
     try {
-      if (store.photoUri && userId) {
-        photoUrl = await PetPhotoService.uploadCover({ userId, localUri: store.photoUri });
+      if (values.photoUri && userId) {
+        photoUrl = await PetPhotoService.uploadCover({ userId, localUri: values.photoUri });
       }
     } finally {
       setIsUploading(false);
@@ -49,14 +54,14 @@ const AddPetInstructions = () => {
 
     addPet(
       {
-        name: store.name.trim(),
-        breed: store.breed.trim(),
-        sex: store.sex,
-        birthdate: store.birthdate,
-        birthdateIsApproximate: store.ageMode === 'approximate',
+        name: values.name.trim(),
+        breed: values.breed.trim(),
+        sex: values.sex,
+        birthdate: values.birthdate,
+        birthdateIsApproximate: values.ageMode === 'approximate',
         photoUrl,
-        petType: store.petType,
-        feedingTimes: feedTimes.map((feedTime) => ({
+        petType: values.petType,
+        feedingTimes: values.feedTimes.map((feedTime) => ({
           scheduledTime: feedTime.localTime,
           label: feedTime.label,
           daysOfWeek: feedTime.daysOfWeek,
@@ -72,7 +77,7 @@ const AddPetInstructions = () => {
         }
       }
     );
-  };
+  });
 
   return (
     <ScreenView edges={[]}>
@@ -92,20 +97,28 @@ const AddPetInstructions = () => {
           </AppText>
         </View>
 
-        {feedTimes.map((feedTime, index) => (
-          <View key={`${feedTime.label}-${index}`} style={styles.card}>
+        {fields.map((field, index) => (
+          <View key={field.id} style={styles.card}>
             <AppText size={15} fontWeight="bold">
-              {optionLabel(FEEDING_SCHEDULE_LABEL_OPTIONS, feedTime.label)}
+              {optionLabel(FEEDING_SCHEDULE_LABEL_OPTIONS, feedTimes[index]?.label ?? 'custom')}
               {'  ·  '}
-              {dayjs(feedTime.localTime, 'HH:mm').format('h:mm A')}
+              {dayjs(feedTimes[index]?.localTime ?? '00:00', 'HH:mm').format('h:mm A')}
             </AppText>
 
-            <TextInputValidated
-              label="Instructions"
-              placeholder="Half a tin of wet food + 1 cup dry"
-              value={feedTime.instructions ?? ''}
-              onChangeText={(next: string) => setInstructions(index, next === '' ? null : next)}
-              isMultiline
+            <Controller
+              control={control}
+              name={`feedTimes.${index}.instructions`}
+              render={({ field: { onChange, onBlur, value } }) => (
+                <TextInputValidated
+                  name={`feedTimes.${index}.instructions`}
+                  label="Instructions"
+                  placeholder="Half a tin of wet food + 1 cup dry"
+                  value={value ?? ''}
+                  onBlur={onBlur}
+                  onChangeText={(next: string) => onChange(next === '' ? null : next)}
+                  isMultiline
+                />
+              )}
             />
           </View>
         ))}

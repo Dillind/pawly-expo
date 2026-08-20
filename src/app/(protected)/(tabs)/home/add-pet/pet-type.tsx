@@ -4,7 +4,8 @@ import ScreenView from '@/components/layout/screen-view';
 import { PET_TYPE_OPTIONS } from '@/constants/options';
 import type { AppTheme } from '@/constants/theme';
 import { useStyles } from '@/hooks/use-styles';
-import useAddPetStore from '@/stores/add-pet-store';
+import type { AddPetFormValues } from '@/constants/schemas/add-pet';
+import { useFormContext, useWatch } from 'react-hook-form';
 import { useRouter } from 'expo-router';
 import { StyleSheet, View } from 'react-native';
 
@@ -16,7 +17,8 @@ import { StyleSheet, View } from 'react-native';
 const PetTypeStep = () => {
   const styles = useStyles(makeStyles);
   const router = useRouter();
-  const { petType, setPetType } = useAddPetStore();
+  const { control, setValue } = useFormContext<AddPetFormValues>();
+  const petType = useWatch({ control, name: 'petType' });
 
   return (
     <ScreenView edges={[]}>
@@ -30,7 +32,7 @@ const PetTypeStep = () => {
               label={option.label}
               isSelected={option.value === petType}
               onPress={() => {
-                setPetType(option.value);
+                setValue('petType', option.value, { shouldDirty: true, shouldValidate: true });
                 router.back();
               }}
             />

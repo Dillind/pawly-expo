@@ -6,25 +6,27 @@ import ScreenScrollView from '@/components/layout/screen-scroll-view';
 import ScreenView from '@/components/layout/screen-view';
 import FlowStepper from '@/components/ui/flow-stepper';
 import { FEEDING_SCHEDULE_LABEL_OPTIONS } from '@/constants/options';
+import type { AddPetFormValues } from '@/constants/schemas/add-pet';
 import { Radius, type AppTheme } from '@/constants/theme';
 import { useStyles } from '@/hooks/use-styles';
-import useAddPetStore from '@/stores/add-pet-store';
 import { describeDays } from '@/utils/days';
 import { optionLabel } from '@/utils/options';
 import dayjs from 'dayjs';
 import { useRouter } from 'expo-router';
+import { useFieldArray, useFormContext, useWatch } from 'react-hook-form';
 import { StyleSheet, View } from 'react-native';
 
 /** Step 2. Back goes to step 1, and from there Cancel leaves. One exit. */
 const AddPetFeeds = () => {
   const styles = useStyles(makeStyles);
   const router = useRouter();
-  const { name, feedTimes, editFeedTime } = useAddPetStore();
 
-  const open = (index: number) => {
-    editFeedTime(index);
-    router.push('/home/add-pet/feed');
-  };
+  const { control } = useFormContext<AddPetFormValues>();
+  // The array is a form field, so the editor screen edits it through the same
+  // form rather than through a store beside it.
+  const { fields } = useFieldArray({ control, name: 'feedTimes' });
+  const name = useWatch({ control, name: 'name' });
+  const feedTimes = useWatch({ control, name: 'feedTimes' });
 
   return (
     <ScreenView edges={[]}>
@@ -43,30 +45,40 @@ const AddPetFeeds = () => {
         </View>
 
         <View style={styles.list}>
-          {feedTimes.map((feedTime, index) => (
-            <PressableOpacity
-              key={`${feedTime.label}-${feedTime.localTime}-${index}`}
-              style={styles.card}
-              accessibilityRole="button"
-              accessibilityLabel={`Edit the ${feedTime.label} feed`}
-              onPress={() => open(index)}>
-              <View style={styles.cardBody}>
-                <AppText size={16} fontWeight="bold">
-                  {optionLabel(FEEDING_SCHEDULE_LABEL_OPTIONS, feedTime.label)}
-                </AppText>
-                <AppText size={13} color="textSecondary">
-                  {dayjs(feedTime.localTime, 'HH:mm').format('h:mm A')}
-                  {'  ·  '}
-                  {describeDays(feedTime.daysOfWeek)}
-                </AppText>
-              </View>
+          {fields.map((field, index) => {
+            const feedTime = feedTimes[index];
 
-              <Icon name="caretRight" size={16} color="textSecondary" />
-            </PressableOpacity>
-          ))}
+            if (!feedTime) return null;
+
+            return (
+              <PressableOpacity
+                key={field.id}
+                style={styles.card}
+                accessibilityRole="button"
+                accessibilityLabel={`Edit the ${feedTime.label} feed`}
+                onPress={() => router.push(`/home/add-pet/feed?index=${index}`)}>
+                <View style={styles.cardBody}>
+                  <AppText size={16} fontWeight="bold">
+                    {optionLabel(FEEDING_SCHEDULE_LABEL_OPTIONS, feedTime.label)}
+                  </AppText>
+                  <AppText size={13} color="textSecondary">
+                    {dayjs(feedTime.localTime, 'HH:mm').format('h:mm A')}
+                    {'  ·  '}
+                    {describeDays(feedTime.daysOfWeek)}
+                  </AppText>
+                </View>
+
+                <Icon name="caretRight" size={16} color="textSecondary" />
+              </PressableOpacity>
+            );
+          })}
         </View>
 
-        <MainButton text="Add a feed" variant="secondary" onPress={() => open(-1)} />
+        <MainButton
+          text="Add a feed"
+          variant="secondary"
+          onPress={() => router.push('/home/add-pet/feed')}
+        />
 
         <AppText size={13} color="textSecondary">
           Days are set per feed — they can skip dinner on Sundays and still eat breakfast.
