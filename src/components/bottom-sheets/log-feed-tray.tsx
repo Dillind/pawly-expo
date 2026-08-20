@@ -169,15 +169,18 @@ const ConfirmStep = ({
   const [fedAt, setFedAt] = useState(dayjs().format('HH:mm'));
   const [notes, setNotes] = useState('');
 
-  const submit = () => {
-    const [hour, minute] = fedAt.split(':').map(Number);
-    const loggedAt = dayjs().hour(hour).minute(minute).second(0).millisecond(0);
+  const [hour, minute] = fedAt.split(':').map(Number);
+  const loggedAt = dayjs().hour(hour).minute(minute).second(0).millisecond(0);
 
+  // RLS rejects a logged_at later than now(), so a future time is refused by
+  // the database with a message nobody can act on. Say so here instead.
+  const isInFuture = loggedAt.isAfter(dayjs());
+
+  const submit = () =>
     onLog({
       loggedAt: loggedAt.toISOString(),
       notes: notes.trim() === '' ? null : notes.trim()
     });
-  };
 
   return (
     <View style={styles.stack}>
@@ -213,10 +216,16 @@ const ConfirmStep = ({
         isMultiline
       />
 
+      {isInFuture && (
+        <AppText size={13} color="error">
+          That time has not happened yet. Pick a time up to now.
+        </AppText>
+      )}
+
       <MainButton
         text={pets.length > 1 ? `Log for ${pets.length} pets` : 'Log this feed'}
         isLoading={isLogging}
-        isDisabled={isLogging}
+        isDisabled={isLogging || isInFuture}
         onPress={submit}
       />
     </View>

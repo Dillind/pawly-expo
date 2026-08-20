@@ -110,16 +110,22 @@ namespace FeedTimeService {
   }
 
   /** Open-ended: paused from today until someone resumes. */
-  export async function pause(petId: string, from: string): Promise<void> {
-    const { error } = await supabase
-      .from('pet_pauses')
-      .insert({ pet_id: petId, during: `[${from},)` });
+  export async function pause(petId: string, reason?: string | null): Promise<void> {
+    const { error } = await supabase.rpc('pause_pet', {
+      target_pet_id: petId,
+      target_reason: reason ?? null
+    });
 
     if (error) throw error;
   }
 
-  export async function resume(pauseId: string): Promise<void> {
-    const { error } = await supabase.from('pet_pauses').delete().eq('id', pauseId);
+  /**
+   * Closes the pause rather than deleting it. A deleted pause would make the
+   * days it covered start expecting feeds again — the same history rewrite
+   * versioning exists to prevent.
+   */
+  export async function resume(petId: string): Promise<void> {
+    const { error } = await supabase.rpc('resume_pet', { target_pet_id: petId });
     if (error) throw error;
   }
 

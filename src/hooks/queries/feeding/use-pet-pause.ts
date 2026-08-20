@@ -20,7 +20,7 @@ export function usePausePet(petId: string) {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (from: string) => FeedTimeService.pause(petId, from),
+    mutationFn: (reason?: string | null) => FeedTimeService.pause(petId, reason),
     onSettled: () => invalidate(queryClient, petId),
     onSuccess: () => showSuccessToast(SuccessMessage.FeedsPaused),
     onError: (error) => {
@@ -34,7 +34,7 @@ export function useResumePet(petId: string) {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (pauseId: string) => FeedTimeService.resume(pauseId),
+    mutationFn: () => FeedTimeService.resume(petId),
     onSettled: () => invalidate(queryClient, petId),
     onSuccess: () => showSuccessToast(SuccessMessage.FeedsResumed),
     onError: (error) => {

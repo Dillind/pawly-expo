@@ -167,10 +167,7 @@ const ScheduleSection = ({ petId }: Props) => {
             }
             value={Boolean(pause)}
             isDisabled={isPausing || isResuming}
-            onChange={(next) => {
-              if (next) pausePet(today);
-              else if (pause) resumePet(pause.id);
-            }}
+            onChange={(next) => (next ? pausePet(null) : resumePet())}
           />
         </>
       )}
