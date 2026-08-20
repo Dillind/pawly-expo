@@ -143,21 +143,48 @@ Invoke `/frontend-design` and `/expo-native-ui` before writing any of this, and
 
 ### 6. Tests
 
-**There is no pgTAP harness, and building one is most of this phase.** `supabase/tests/` does not
-exist, `config.toml` has no test configuration, and there is no script. Budget for the setup, not
-just the assertions.
+**Deferred, deliberately.** Come back to this once phases 1 to 5 are done. It is the last phase
+and nothing above it depends on it — but do not let it be quietly dropped, because it is the only
+thing that can verify any of the SQL.
 
-**Never run this against production.** `supabase db reset` drops and recreates the database, and
+**The test target already exists.** A second Supabase project was created for it on 2026-08-20:
+
+| | |
+| --- | --- |
+| Name | `crumpet-qa` |
+| Project ref | <!-- cspell:disable-line -->`zkckgmvykrmswnjxvfii` |
+| Region | `ap-northeast-2`, matching production |
+| Organisation | dylan-personal |
+| Cost | free tier |
+
+All 67 migrations are applied there and it matches production: 18 tables, 46 functions, 47 RLS
+policies, the same seven `alert_kind` values in the same order, and the missed-feed cron job.
+
+**Never point the tests at production.** `supabase db reset` drops and recreates the database, and
 production holds real households. Worse without any reset: inserting a `feed_logs` row fires a
 trigger into `alerts`, then `pg_net`, then the `send-alerts` Edge Function — so a test that logs a
-feed sends **real push notifications to real devices**. The test target must be a database nobody
-depends on.
+feed would send **real push notifications to real devices**.
 
-Setup, in order:
+**On QA the outbox is inert, and not because anything was disabled.** `dispatch_alert` reads its
+URL and secret from Vault. Those secrets were deliberately not created on QA, so the function takes
+its own early-exit path: it writes `dispatch skipped: vault secrets missing` on the alert row and
+makes no HTTP call. QA therefore stays identical to production, and a test can still assert that an
+`alerts` row was queued. **Do not create those secrets on QA.**
 
-1. Install Docker and the Supabase CLI. Neither is on the development machine as of writing.
-2. Point the tests at a **non-production project** — a second Supabase project is the cheapest
-   option, Supabase branching the cleanest. Confirm which with the owner before the first run.
+Two things to know about the QA project:
+
+- **The missed-feed sweep runs there**, every fifteen minutes, same as production. Harmless while
+  it is empty; it will accumulate rows once test data exists. Remember that before asserting an
+  alert count.
+- **Its migration history is ten batches, not 67 files.** Several objects are defined repeatedly
+  across the migrations — `slot_states` five times, `create_post` four, `list_alerts` five — and
+  only the final definition of each was applied. The schema matches production, which was verified
+  by comparing counts. The *history* does not, so `supabase migration list` will not line up.
+
+Still to do before the first assertion:
+
+1. Install Docker and the Supabase CLI. Neither was on the development machine as of writing.
+2. Link to `crumpet-qa`, not to production. Check twice.
 3. `create extension if not exists pgtap`, add `supabase/tests/`, add a `test:db` script.
 
 Then cover, at minimum:
@@ -167,11 +194,14 @@ Then cover, at minimum:
 - A paused day expects no occurrences and nudges nobody.
 - A second log against one occurrence is refused unless confirmed.
 - An Extra Feed satisfies nothing.
-- A DST transition day has the right number of occurrences. Run the suite under `TZ=UTC`,
+- A DST transition day has the right number of occurrences. Run under `TZ=UTC`,
   `America/New_York` and `Pacific/Kiritimati`, as the Jest suite already is.
 
 Jest keeps the pure logic and the row↔domain mapping in the service. It cannot reach any of the
 above — that is the whole reason this phase exists. Run `bun run check` before finishing.
+
+**Every migration from phase 1 onward has to be applied to both projects**, or QA drifts and stops
+being worth having.
 
 ## Naming map
 
