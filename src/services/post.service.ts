@@ -110,10 +110,8 @@ function mapPostRow(row: PostRow, viewerId: string | null): Post {
 
 namespace PostService {
   /**
-   * A list, because a Member of several Households reads one Posts list across
-   * all of them. The keyset below still holds: the order is over the whole
-   * result rather than per household, so a page boundary does not care how many
-   * households its rows came from.
+   * The keyset below still holds across several households: the order is over
+   * the whole result rather than per household.
    */
   export async function list(params: {
     householdIds: string[];

@@ -19,8 +19,7 @@ type Props = {
 
 /**
  * Scrolls rather than dividing a fixed track into equal segments: household
- * names are user-written and a SegmentedControl squashes "The Lindsay House"
- * into two illegible lines beside a short one.
+ * names are user-written, and SegmentedControl squashes a long one.
  */
 const PostFilterBar = ({ households, scope, onChange }: Props) => {
   const styles = useStyles(makeStyles);

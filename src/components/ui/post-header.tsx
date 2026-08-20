@@ -16,10 +16,7 @@ type Props = {
    * least one of them applies, and gets no menu rather than an empty one.
    */
   showActions?: boolean;
-  /**
-   * Which household the post was made in. Omitted when the viewer belongs to
-   * one -- naming the only household there is tells them nothing.
-   */
+  /** Omitted when the viewer has one household -- naming it tells them nothing. */
   householdName?: string;
   onOpenActions?: () => void;
 };

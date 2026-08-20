@@ -15,10 +15,7 @@ import {
   useQueryClient
 } from '@tanstack/react-query';
 
-/**
- * One entry per Post Scope, all under a single prefix. Sorted, because the same
- * households arriving in a different order must not fetch a second time.
- */
+/** Sorted: the same households in a different order must not fetch a second time. */
 const postsKey = (householdIds: string[]) => ['posts', 'scope', [...householdIds].sort()];
 
 /** Invalidating one scope leaves the others showing the post that just changed. */
@@ -135,8 +132,8 @@ export function useToggleLike() {
       const detailKey = ['post', postId];
       await queryClient.cancelQueries({ queryKey: detailKey });
 
-      // Every cached scope, not one: the same post sits in the all-households
-      // list and in its own household's, and a heart fills in both or neither.
+      // The same post sits in the all-households scope and in its own
+      // household's, and a heart fills in both or neither.
       const previous = queryClient.getQueriesData<PostsData>({ queryKey: ALL_SCOPES });
       const previousDetail = queryClient.getQueryData<Post>(detailKey);
 
@@ -238,10 +235,7 @@ export function useUnseenByHousehold(householdIds: string[]) {
   });
 }
 
-/**
- * Every household in the current Post Scope. Marking only the active one would
- * leave a dot on a household whose posts are already on screen.
- */
+/** Marking only the active one leaves a dot on a household already on screen. */
 export function useMarkPostsSeen(householdIds: string[], userId: string | undefined) {
   const queryClient = useQueryClient();
 

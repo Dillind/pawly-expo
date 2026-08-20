@@ -79,8 +79,8 @@ const Posts = () => {
 
   // Editing is the author's alone. An Owner may remove a member's post but
   // never rewrite it under their name -- the same split as the RLS policies.
-  // Ownership is read from the post's own household, not the active one: under
-  // the all-households scope those differ from one row to the next.
+  // Ownership comes from the post's own household: under the all-households
+  // scope that differs from one row to the next.
   const permissions = (post: Post | null) => {
     const canEdit = post !== null && post.authorId === userId;
     const isOwner = post !== null && (householdById.get(post.householdId)?.isOwner ?? false);
@@ -191,8 +191,8 @@ const makeStyles = ({ spacing }: AppTheme) =>
       paddingHorizontal: ScreenGutter,
       paddingBottom: spacing.two
     },
-    // No horizontal padding: the photo runs to both screen edges and PostBody
-    // re-indents its own words. Padding here would inset the photo with them.
+    // No horizontal padding: PostBody re-indents its own words, and padding
+    // here would inset the photo with them.
     listContent: {
       paddingBottom: spacing.six
     },

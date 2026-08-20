@@ -14,7 +14,6 @@ type Props = {
   post: Post;
   /** Set on the Posts tab only: Post Detail keeps its ⋯ in the header. */
   showActions?: boolean;
-  /** Passed straight to PostHeader; see its prop for when it is omitted. */
   householdName?: string;
   titleLines?: number;
   captionLines?: number;
@@ -30,10 +29,8 @@ type Props = {
 /**
  * Everything a Post shows, in one order, on both surfaces that show it.
  *
- * The gutter is owned here rather than by either screen, because the photo has
- * to reach the screen edge while every word around it stays on the same left
- * margin as the screen title. A parent that padded this would inset the photo
- * too, so both screens hand it the full width.
+ * The gutter is owned here because a parent that padded this would inset the
+ * photo with the words. Both screens hand it the full width.
  */
 const PostBody = ({
   post,

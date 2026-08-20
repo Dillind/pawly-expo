@@ -9,11 +9,7 @@ const DOT_SIZE = 6;
 
 type Props = { photos: PostPhoto[]; onPress?: () => void };
 
-/**
- * One fixed square frame for every photo -- a pager whose frame changed per
- * page would lurch. Full-bleed and square-cornered: the photo is the widest
- * thing on the screen and owns both edges.
- */
+/** One fixed square frame for every photo -- a frame that changed per page would lurch. */
 const PostPhotoCarousel = ({ photos, onPress }: Props) => {
   const styles = useStyles(makeStyles);
   const [width, setWidth] = useState(0);
@@ -60,9 +56,7 @@ const PostPhotoCarousel = ({ photos, onPress }: Props) => {
         </ScrollView>
       )}
 
-      {/* On the photo rather than under it: below the frame the dots cost a row
-          of height on every multi-photo post, and the pager reads as two
-          separate things. The scrim keeps them visible on a pale sky. */}
+      {/* The scrim is what keeps the dots visible on a pale photo. */}
       {photos.length > 1 && (
         <View style={styles.dots} pointerEvents="none">
           {photos.map((photo, at) => (
