@@ -709,7 +709,7 @@ Push handling lives in `use-push-notifications`, mounted once inside `AuthGate` 
 
 **The only write path for a feed log is the `log_feed` RPC — never a table insert.** That was already true for the Double Feed guard; it now also decides whether anyone finds out. An after-insert trigger on `feed_logs` queues the `alerts` row, so a path that bypasses `log_feed` does not merely skip the guard, it silently sends no notification.
 
-**Delivery is the recipient's decision, never the sender's.** There is no per-log "notify?" control and there must not be one — see ADR 0012. A feed logged more than 30 minutes after it happened is recorded as a Suppressed Alert and not pushed, automatically.
+**Delivery is the recipient's decision, never the sender's.** There is no per-log "notify?" control and there must not be one — see ADR 0012. **Lateness no longer suppresses anything** (ADR 0029): a feed logged two hours late is still that feed, and the household is told. The 30-minute rule that used to record a Suppressed Alert was removed with the feeds rework.
 
 **Sending is an outbox, not a direct call.** `feed_logs` → trigger → `alerts` → trigger → `pg_net` → the `send-alerts` Edge Function, which resolves recipients at send time. Anything that needs to notify a household inserts an `alerts` row; it does not call the Edge Function.
 

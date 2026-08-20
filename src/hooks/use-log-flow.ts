@@ -120,27 +120,28 @@ export function useLogFlow({ members, timezone, onWritten }: Options) {
    * The tray's write: one or more pets, one feed, one time. A null occurrence
    * is an Extra Feed — "Not on the schedule" — which satisfies nothing.
    *
-   * The occurrence belongs to the first pet's schedule, so only that pet's log
-   * can name it. The others are recorded as Extra Feeds, which is the honest
-   * record: nobody said those pets have a dinner at six.
+   * `matches` names each pet's OWN occurrence for the chosen feed. Writing the
+   * others as Extra Feeds instead would leave their occurrences unsatisfied,
+   * and the sweep would then nudge the household about a pet fed a minute ago.
    */
   const log = useCallback(
     (
       pets: Pet[],
       occurrence: Occurrence | null,
-      input: { loggedAt: string; notes: string | null }
+      input: { loggedAt: string; notes: string | null },
+      matches: Record<string, Occurrence | undefined> = {}
     ) => {
-      pets.forEach((pet, index) => {
-        const owns = index === 0 && occurrence !== null;
+      pets.forEach((pet) => {
+        const mine = occurrence ? matches[pet.id] : undefined;
 
         write(
           pet,
           {
             ...input,
-            seriesId: owns ? occurrence.seriesId : null,
-            occurrenceDate: owns ? occurrence.occurrenceDate : null
+            seriesId: mine?.seriesId ?? null,
+            occurrenceDate: mine?.occurrenceDate ?? null
           },
-          occurrence ? loggedText(pet, occurrence.label) : `Logged a feed for ${pet.name}`
+          mine ? loggedText(pet, mine.label) : `Logged a feed for ${pet.name}`
         );
       });
     },

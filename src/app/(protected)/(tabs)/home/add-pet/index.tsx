@@ -39,6 +39,7 @@ const AddPetDetails = () => {
     useAddPetStore();
 
   const hasWork = name.trim() !== '' || breed.trim() !== '' || photoUri !== null;
+  const canContinue = name.trim() !== '' && birthdate !== '';
 
   const leave = () => {
     reset();
@@ -178,9 +179,20 @@ const AddPetDetails = () => {
           returnKeyType="done"
         />
 
+        {/* add_pet casts pet_birthdate to a date, so an empty string fails in
+            Postgres at the very end of a three-step flow. Say so on the step
+            that can fix it. */}
+        {!canContinue && (
+          <AppText size={13} color="textSecondary">
+            {name.trim() === ''
+              ? 'Give them a name to continue.'
+              : `Pick ${ageMode === 'birthdate' ? 'their date of birth' : 'roughly when they were born'} to continue.`}
+          </AppText>
+        )}
+
         <MainButton
           text="Continue"
-          isDisabled={name.trim() === ''}
+          isDisabled={!canContinue}
           onPress={() => router.push('/home/add-pet/feeds')}
         />
       </ScreenScrollView>

@@ -127,7 +127,9 @@ _Avoid_: Snooze, cooldown, rate limit.
 The record that a Member liked another Member's Post. An Addressed Alert — the author sees it, nobody else does. It never pushes: a like is worth a line in a list, not an interruption. See [ADR 0021](./docs/adr/0021-a-like-is-a-record-not-an-interruption.md).
 
 **Suppressed Alert**:
-An Alert that was recorded but deliberately not delivered, because the feed it describes was logged too long after it actually happened to be worth interrupting anyone. Distinct from a failed delivery.
+An Alert that was recorded but deliberately not delivered. Distinct from a failed delivery.
+
+The lateness rule that used to produce these is **gone** (ADR 0029). A feed logged two hours late is that feed, logged late, and the household is told — the log names the Feed Time it satisfies, so lateness no longer makes it ambiguous. The column and the concept remain for a future reason to hold an Alert back; nothing sets one today.
 
 **Double Feed**:
 A second Feed Log against an Occurrence that already has a Satisfying Feed — two people logging the same feed. Because the Member names the Feed Time, this is now an exact fact rather than a guess, so the warning can name the collision: "Sarah logged Bailey's dinner at 6:05 pm." An Extra Feed is never a Double Feed, because it names no Feed Time. The app warns at log time and the Member decides whether to record it anyway.

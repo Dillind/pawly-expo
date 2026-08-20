@@ -9,9 +9,11 @@ import Tray, { useTray, type TrayStepDescriptor } from '@/components/core/tray';
 import PetAvatar from '@/components/screens/home/pet-avatar';
 import { Radius, type AppTheme } from '@/constants/theme';
 import { useOccurrences } from '@/hooks/queries/feeding/use-occurrences';
+import FeedTimeService from '@/services/feed-time.service';
+import { useQueries } from '@tanstack/react-query';
 import type { useLogFlow } from '@/hooks/use-log-flow';
 import { useStyles } from '@/hooks/use-styles';
-import { formatScheduledTime } from '@/lib/dates';
+import { composeLoggedAt, formatScheduledTime, timeInTimezone } from '@/lib/dates';
 import type { Occurrence, Pet } from '@/types/core';
 import type { TrueSheet } from '@lodev09/react-native-true-sheet';
 import dayjs from 'dayjs';
@@ -24,6 +26,7 @@ type Props = {
   sheetRef: RefObject<TrueSheet | null>;
   pets: Pet[];
   today: string;
+  timezone: string;
   /** Preselected by a per-pet Log button, which already knows its pet. */
   pet?: Pet;
   flow: Flow;
@@ -155,32 +158,67 @@ const FeedPickerStep = ({
 const ConfirmStep = ({
   pets,
   occurrence,
+  today,
+  timezone,
   isLogging,
   onLog
 }: {
   pets: Pet[];
   occurrence: Occurrence | null;
+  today: string;
+  timezone: string;
   isLogging: boolean;
-  onLog: (input: { loggedAt: string; notes: string | null }) => void;
+  onLog: (
+    input: { loggedAt: string; notes: string | null },
+    matches: Record<string, Occurrence | undefined>
+  ) => void;
 }) => {
   const styles = useStyles(makeStyles);
+
+  // Each pet's own occurrence for the chosen feed. One query per pet, because a
+  // hook cannot be called from a loop -- useQueries is the sanctioned shape.
+  // Without this the other pets would be logged as Extra Feeds and the sweep
+  // would nudge about animals that were just fed.
+  const occurrenceQueries = useQueries({
+    queries: pets.map((pet) => ({
+      queryKey: ['occurrences', pet.id, today],
+      queryFn: () => FeedTimeService.getOccurrences(pet.id, today)
+    }))
+  });
+
+  const matches: Record<string, Occurrence | undefined> = {};
+
+  if (occurrence) {
+    pets.forEach((pet, index) => {
+      matches[pet.id] = occurrenceQueries[index]?.data?.find(
+        (each) => each.label === occurrence.label && each.state !== 'fed'
+      );
+    });
+  }
   // The truth is that the feed happened now. Anything else is a correction, so
-  // it starts here and the member changes it deliberately.
-  const [fedAt, setFedAt] = useState(dayjs().format('HH:mm'));
+  // it starts here and the member changes it deliberately. Read in the
+  // household's timezone, never the device's -- a member logging from another
+  // country must not record a feed at the wrong instant (ADR 0009).
+  const [fedAt, setFedAt] = useState(timeInTimezone(new Date().toISOString(), timezone));
   const [notes, setNotes] = useState('');
 
-  const [hour, minute] = fedAt.split(':').map(Number);
-  const loggedAt = dayjs().hour(hour).minute(minute).second(0).millisecond(0);
+  // The household's local day plus the chosen wall-clock time, resolved in the
+  // household's timezone. composeLoggedAt is the one place that arithmetic
+  // lives; do not rebuild it from the device clock.
+  const loggedAt = composeLoggedAt('today', fedAt, timezone);
 
   // RLS rejects a logged_at later than now(), so a future time is refused by
   // the database with a message nobody can act on. Say so here instead.
-  const isInFuture = loggedAt.isAfter(dayjs());
+  const isInFuture = dayjs(loggedAt).isAfter(dayjs());
 
   const submit = () =>
-    onLog({
-      loggedAt: loggedAt.toISOString(),
-      notes: notes.trim() === '' ? null : notes.trim()
-    });
+    onLog(
+      {
+        loggedAt,
+        notes: notes.trim() === '' ? null : notes.trim()
+      },
+      matches
+    );
 
   return (
     <View style={styles.stack}>
@@ -249,7 +287,7 @@ const PetHeading = ({ pet }: { pet: Pet }) => {
  * Raised when there is something to ask: which pets, which feed, and at what
  * time. Tapping Log on a Home row asks none of those and writes without this.
  */
-const LogFeedTray = ({ sheetRef, pets, today, pet, flow }: Props) => {
+const LogFeedTray = ({ sheetRef, pets, today, timezone, pet, flow }: Props) => {
   const [selected, setSelected] = useState<Pet[]>([]);
   const [occurrence, setOccurrence] = useState<Occurrence | null>(null);
 
@@ -287,8 +325,10 @@ const LogFeedTray = ({ sheetRef, pets, today, pet, flow }: Props) => {
       <ConfirmStep
         pets={active}
         occurrence={occurrence}
+        today={today}
+        timezone={timezone}
         isLogging={flow.isLogging}
-        onLog={(input) => flow.log(active, occurrence, input)}
+        onLog={(input, matches) => flow.log(active, occurrence, input, matches)}
       />
     )
   };

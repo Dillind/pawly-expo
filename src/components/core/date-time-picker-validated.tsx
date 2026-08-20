@@ -7,7 +7,7 @@ import FieldError from '@/lib/form/components/field-error';
 import dayjs from 'dayjs';
 import customParseFormat from 'dayjs/plugin/customParseFormat';
 import { useState } from 'react';
-import { useFormContext, useFormState } from 'react-hook-form';
+import { useFormContext, useFormState, type Control, type FieldValues } from 'react-hook-form';
 import { StyleSheet, View } from 'react-native';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
 import IndicatedText from './indicated-text';
@@ -54,8 +54,6 @@ const DateTimePickerValidated = ({
 }: Props) => {
   const [isVisible, setIsVisible] = useState<boolean>(false);
   const form = useFormContext();
-  const { errors } = useFormState({ control: form?.control, name });
-  const isError = name && errors?.[name]?.message;
   const styles = useStyles(makeStyles);
 
   const date = selectedDate ? dayjs(selectedDate, storeFormat[mode]).toDate() : new Date();
@@ -99,9 +97,27 @@ const DateTimePickerValidated = ({
         </AppText>
         <Icon name={mode === 'time' ? 'clock' : 'calendar'} size={16} />
       </PressableOpacity>
-      {isError && <FieldError marginTop={8} error={errors?.[name]?.message as string} />}
+      {form && name && <SubscribedFieldError control={form.control} name={name} />}
     </View>
   );
+};
+
+/**
+ * The subscription lives in a child so it is only mounted when there is a form
+ * to subscribe to. useFormState throws on a null control, so calling it
+ * unconditionally crashed the picker anywhere it was used outside a
+ * FormProvider -- which is every "pick a time" that is not a validated field.
+ */
+const SubscribedFieldError = ({
+  control,
+  name
+}: {
+  control: Control<FieldValues>;
+  name: string;
+}) => {
+  const { errors } = useFormState({ control, name });
+
+  return <FieldError marginTop={8} error={errors?.[name]?.message as string} />;
 };
 
 const makeStyles = ({ colors }: AppTheme) =>

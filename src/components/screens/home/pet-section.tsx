@@ -8,6 +8,7 @@ import PetAvatar from '@/components/screens/home/pet-avatar';
 import OccurrenceList from '@/components/ui/occurrence-list';
 import { Radius, type AppTheme } from '@/constants/theme';
 import { useOccurrences } from '@/hooks/queries/feeding/use-occurrences';
+import { usePetPause } from '@/hooks/queries/feeding/use-pet-pause';
 import { useStyles } from '@/hooks/use-styles';
 import { useTheme } from '@/hooks/use-theme';
 import { createShadowMedium } from '@/lib/styles/shadows';
@@ -53,7 +54,10 @@ const LABEL_WORD: Record<Occurrence['label'], string> = {
  * "logged", never "fed" -- the count is of records, not meals, and the app does
  * not know whether the pet ate. CONTEXT.md, Not Logged.
  */
-function summarise(occurrences: Occurrence[]): string {
+function summarise(occurrences: Occurrence[], isPaused: boolean): string {
+  // A paused pet also has no occurrences, so this has to come first — otherwise
+  // a boarding pet reads as one nobody has set up.
+  if (isPaused) return 'Paused — no feeds expected';
   if (occurrences.length === 0) return 'No feeds set up yet';
 
   const overdue = occurrences.find((occurrence) => occurrence.state === 'missed');
@@ -94,9 +98,13 @@ const PetSection = ({
   const router = useRouter();
 
   const { data: occurrences, isLoading } = useOccurrences(pet.id, today, { live: true });
+  const { data: pause } = usePetPause(pet.id, today);
+  const isPaused = Boolean(pause);
 
   const isAllLogged =
-    Boolean(occurrences?.length) && occurrences?.every((occurrence) => occurrence.state === 'fed');
+    !isPaused &&
+    Boolean(occurrences?.length) &&
+    occurrences?.every((occurrence) => occurrence.state === 'fed');
 
   // A done card collapses: the screen gets quieter as the day goes right.
   // Not persisted on purpose -- an expansion surviving a relaunch rebuilds the
@@ -134,7 +142,7 @@ const PetSection = ({
             </AppText>
             {occurrences && (
               <AppText size={13} color="textSecondary" numberOfLines={1}>
-                {summarise(occurrences)}
+                {summarise(occurrences, isPaused)}
               </AppText>
             )}
           </View>
@@ -167,7 +175,21 @@ const PetSection = ({
             entering={FadeIn.duration(EXPAND_MS)}
             exiting={FadeOut.duration(COLLAPSE_MS)}>
             <Divider />
-            {occurrences?.length ? (
+            {isPaused ? (
+              // Still on Home, because hiding it would read as deleted. It just
+              // expects nothing.
+              <View style={styles.empty}>
+                <AppText size={14} color="textSecondary">
+                  {pet.name} is paused. No feeds are expected and nobody is nudged.
+                </AppText>
+                <MainButton
+                  text="Manage pause"
+                  variant="text"
+                  size="sm"
+                  onPress={() => router.push(`/home/${pet.id}`)}
+                />
+              </View>
+            ) : occurrences?.length ? (
               <OccurrenceList
                 occurrences={occurrences}
                 timezone={timezone}

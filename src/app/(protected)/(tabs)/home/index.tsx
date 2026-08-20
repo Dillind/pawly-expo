@@ -212,7 +212,14 @@ const Home = () => {
       )}
 
       {timezone && today && (
-        <LogFeedTray sheetRef={logTrayRef} pets={pets} today={today} pet={logPet} flow={flow} />
+        <LogFeedTray
+          sheetRef={logTrayRef}
+          pets={pets}
+          today={today}
+          timezone={timezone}
+          pet={logPet}
+          flow={flow}
+        />
       )}
 
       <FeedLogDetailSheet sheetRef={detailSheetRef} logId={activeLogId} petId={activePetId} />
