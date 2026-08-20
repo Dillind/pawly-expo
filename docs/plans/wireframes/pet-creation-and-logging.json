@@ -1,0 +1,1768 @@
+[
+  {
+    "screen": "1. Details — Cancel lives here only",
+    "width": 390,
+    "height": 900,
+    "padding": 20,
+    "children": [
+      {
+        "row": {
+          "children": [
+            {
+              "text": {
+                "text": "Cancel",
+                "color": "primary",
+                "size": "sm"
+              }
+            },
+            {
+              "text": {
+                "text": "Add a pet",
+                "bold": true,
+                "size": "sm"
+              }
+            },
+            {
+              "text": {
+                "text": " ",
+                "size": "sm"
+              }
+            }
+          ],
+          "justify": "space-between",
+          "align": "center"
+        }
+      },
+      {
+        "stepper": {
+          "current": 1,
+          "stepCount": 3,
+          "width": 350
+        }
+      },
+      {
+        "heading": {
+          "text": "Who are you caring for?",
+          "level": 2
+        }
+      },
+      {
+        "text": {
+          "text": "The basics. You can fill in the rest later.",
+          "color": "muted",
+          "size": "sm"
+        }
+      },
+      {
+        "input": {
+          "label": "Name *",
+          "placeholder": "Bailey",
+          "width": 350
+        }
+      },
+      {
+        "label": "Pet type *"
+      },
+      {
+        "card": {
+          "children": [
+            {
+              "row": {
+                "children": [
+                  {
+                    "text": {
+                      "text": "Dog",
+                      "size": "sm"
+                    }
+                  },
+                  {
+                    "icon": "chevron-right"
+                  }
+                ],
+                "justify": "space-between",
+                "align": "center"
+              }
+            }
+          ],
+          "padding": 12,
+          "width": 350
+        }
+      },
+      {
+        "text": {
+          "text": "Pushes a screen inside this flow — not a sheet. See screen 8.",
+          "color": "muted",
+          "size": "xs"
+        }
+      },
+      {
+        "label": "Sex"
+      },
+      {
+        "tabs": {
+          "items": [
+            {
+              "label": "Male",
+              "active": true
+            },
+            {
+              "label": "Female"
+            }
+          ],
+          "widthMode": "stretch"
+        }
+      },
+      {
+        "label": "Age"
+      },
+      {
+        "tabs": {
+          "items": [
+            {
+              "label": "Date of birth",
+              "active": true
+            },
+            {
+              "label": "Approximate age"
+            }
+          ],
+          "widthMode": "stretch"
+        }
+      },
+      {
+        "input": {
+          "placeholder": "12 March 2021",
+          "width": 350
+        }
+      },
+      {
+        "input": {
+          "label": "Breed",
+          "placeholder": "Labrador, mixed, not sure...",
+          "width": 350
+        }
+      },
+      {
+        "row": {
+          "children": [
+            {
+              "avatar": 44
+            },
+            {
+              "text": {
+                "text": "Add a photo",
+                "color": "primary",
+                "size": "sm"
+              }
+            }
+          ],
+          "gap": 12,
+          "align": "center"
+        }
+      },
+      {
+        "divider": true
+      },
+      {
+        "button": "Continue",
+        "variant": "primary",
+        "fullWidth": true
+      },
+      {
+        "callout": {
+          "text": "Step 1 is the only step with Cancel. Nothing to go back to, so nothing to confuse it with.",
+          "variant": "info"
+        }
+      }
+    ],
+    "section": "1. Details — Cancel lives here only"
+  },
+  {
+    "screen": "1b. Cancel with work entered",
+    "width": 390,
+    "height": 900,
+    "padding": 20,
+    "children": [
+      {
+        "text": {
+          "text": "Action sheet, not an alert — a choice attached to an action you took",
+          "color": "muted",
+          "size": "xs",
+          "align": "center"
+        }
+      },
+      {
+        "modal": {
+          "title": "You have not added Bailey yet",
+          "width": 350,
+          "height": 300,
+          "children": [
+            {
+              "text": {
+                "text": "His name, two feed times and the instructions will be lost.",
+                "size": "sm",
+                "align": "center"
+              }
+            },
+            {
+              "divider": true
+            },
+            {
+              "button": "Keep editing",
+              "variant": "primary",
+              "fullWidth": true
+            },
+            {
+              "button": "Discard",
+              "variant": "outline",
+              "fullWidth": true
+            }
+          ]
+        }
+      },
+      {
+        "callout": {
+          "text": "Apple: help people avoid data loss by getting confirmation before closing a modal view. Only shown once something has been typed.",
+          "variant": "warning"
+        }
+      }
+    ],
+    "section": "1b. Cancel with work entered"
+  },
+  {
+    "screen": "2. Feeds — Back only, no Cancel",
+    "width": 390,
+    "height": 900,
+    "padding": 20,
+    "children": [
+      {
+        "row": {
+          "children": [
+            {
+              "text": {
+                "text": "‹  Back",
+                "color": "primary",
+                "size": "sm"
+              }
+            },
+            {
+              "text": {
+                "text": "Add a pet",
+                "bold": true,
+                "size": "sm"
+              }
+            },
+            {
+              "text": {
+                "text": " ",
+                "size": "sm"
+              }
+            }
+          ],
+          "justify": "space-between",
+          "align": "center"
+        }
+      },
+      {
+        "stepper": {
+          "current": 2,
+          "stepCount": 3,
+          "width": 350
+        }
+      },
+      {
+        "heading": {
+          "text": "When does Bailey eat?",
+          "level": 2
+        }
+      },
+      {
+        "text": {
+          "text": "Set the times you feed him. Change them whenever you like.",
+          "color": "muted",
+          "size": "sm"
+        }
+      },
+      {
+        "card": {
+          "children": [
+            {
+              "row": {
+                "children": [
+                  {
+                    "stack": {
+                      "children": [
+                        {
+                          "text": {
+                            "text": "Morning",
+                            "bold": true
+                          }
+                        },
+                        {
+                          "text": {
+                            "text": "7:00 am  ·  Every day",
+                            "color": "muted",
+                            "size": "sm"
+                          }
+                        }
+                      ],
+                      "gap": 2
+                    }
+                  },
+                  {
+                    "icon": "chevron-right"
+                  }
+                ],
+                "justify": "space-between",
+                "align": "center"
+              }
+            }
+          ],
+          "padding": 14,
+          "width": 350
+        }
+      },
+      {
+        "card": {
+          "children": [
+            {
+              "row": {
+                "children": [
+                  {
+                    "stack": {
+                      "children": [
+                        {
+                          "text": {
+                            "text": "Dinner",
+                            "bold": true
+                          }
+                        },
+                        {
+                          "text": {
+                            "text": "6:00 pm  ·  Mon–Sat",
+                            "color": "muted",
+                            "size": "sm"
+                          }
+                        }
+                      ],
+                      "gap": 2
+                    }
+                  },
+                  {
+                    "icon": "chevron-right"
+                  }
+                ],
+                "justify": "space-between",
+                "align": "center"
+              }
+            }
+          ],
+          "padding": 14,
+          "width": 350
+        }
+      },
+      {
+        "button": "+  Add a feed",
+        "variant": "outline",
+        "fullWidth": true
+      },
+      {
+        "text": {
+          "text": "Days are set per feed — he can skip dinner on Sundays and still eat breakfast.",
+          "color": "muted",
+          "size": "xs"
+        }
+      },
+      {
+        "divider": true
+      },
+      {
+        "callout": {
+          "text": "New to this?  How feeds work →",
+          "variant": "info"
+        }
+      },
+      {
+        "divider": true
+      },
+      {
+        "button": "Continue",
+        "variant": "primary",
+        "fullWidth": true
+      },
+      {
+        "callout": {
+          "text": "One exit. Back goes to step 1, and from there Cancel leaves. No two buttons that both look like leaving.",
+          "variant": "info"
+        }
+      }
+    ],
+    "section": "2. Feeds — Back only, no Cancel"
+  },
+  {
+    "screen": "2b. One feed — pushed, not stacked",
+    "width": 390,
+    "height": 900,
+    "padding": 20,
+    "children": [
+      {
+        "row": {
+          "children": [
+            {
+              "text": {
+                "text": "‹  Feeds",
+                "color": "primary",
+                "size": "sm"
+              }
+            },
+            {
+              "text": {
+                "text": "Dinner",
+                "bold": true,
+                "size": "sm"
+              }
+            },
+            {
+              "text": {
+                "text": "Save",
+                "color": "primary",
+                "size": "sm"
+              }
+            }
+          ],
+          "justify": "space-between",
+          "align": "center"
+        }
+      },
+      {
+        "input": {
+          "label": "Name *",
+          "placeholder": "Dinner",
+          "width": 350
+        }
+      },
+      {
+        "label": "Time *"
+      },
+      {
+        "card": {
+          "children": [
+            {
+              "text": {
+                "text": "6:00 pm",
+                "size": "sm",
+                "align": "center"
+              }
+            },
+            {
+              "text": {
+                "text": "native time wheel, 216pt, inline",
+                "color": "muted",
+                "size": "xs",
+                "align": "center"
+              }
+            }
+          ],
+          "padding": 24,
+          "width": 350
+        }
+      },
+      {
+        "label": "Days"
+      },
+      {
+        "row": {
+          "children": [
+            {
+              "badge": "M",
+              "variant": "filled"
+            },
+            {
+              "badge": "T",
+              "variant": "filled"
+            },
+            {
+              "badge": "W",
+              "variant": "filled"
+            },
+            {
+              "badge": "T",
+              "variant": "filled"
+            },
+            {
+              "badge": "F",
+              "variant": "filled"
+            },
+            {
+              "badge": "S",
+              "variant": "filled"
+            },
+            {
+              "badge": "S",
+              "variant": "outline"
+            }
+          ],
+          "gap": 6
+        }
+      },
+      {
+        "divider": true
+      },
+      {
+        "button": "Remove this feed",
+        "variant": "outline",
+        "fullWidth": true
+      },
+      {
+        "callout": {
+          "text": "Inside the add-pet flow this is a pushed screen, so no modal sits on a modal. Opened later from the pet screen, the same content is a sheet.",
+          "variant": "success"
+        }
+      }
+    ],
+    "section": "2b. One feed — pushed, not stacked"
+  },
+  {
+    "screen": "3. What he gets — Back only",
+    "width": 390,
+    "height": 900,
+    "padding": 20,
+    "children": [
+      {
+        "row": {
+          "children": [
+            {
+              "text": {
+                "text": "‹  Back",
+                "color": "primary",
+                "size": "sm"
+              }
+            },
+            {
+              "text": {
+                "text": "Add a pet",
+                "bold": true,
+                "size": "sm"
+              }
+            },
+            {
+              "text": {
+                "text": " ",
+                "size": "sm"
+              }
+            }
+          ],
+          "justify": "space-between",
+          "align": "center"
+        }
+      },
+      {
+        "stepper": {
+          "current": 3,
+          "stepCount": 3,
+          "width": 350
+        }
+      },
+      {
+        "heading": {
+          "text": "What does Bailey get?",
+          "level": 2
+        }
+      },
+      {
+        "text": {
+          "text": "Whoever feeds him sees this when they log it. A sitter will thank you.",
+          "color": "muted",
+          "size": "sm"
+        }
+      },
+      {
+        "checkbox": {
+          "label": "Same for every feed",
+          "checked": false
+        }
+      },
+      {
+        "card": {
+          "children": [
+            {
+              "text": {
+                "text": "Morning  ·  7:00 am",
+                "bold": true,
+                "size": "sm"
+              }
+            },
+            {
+              "textarea": {
+                "label": "Instructions",
+                "placeholder": "1 cup dry biscuits",
+                "width": 300,
+                "height": 56
+              }
+            }
+          ],
+          "padding": 14,
+          "width": 350
+        }
+      },
+      {
+        "card": {
+          "children": [
+            {
+              "text": {
+                "text": "Dinner  ·  6:00 pm",
+                "bold": true,
+                "size": "sm"
+              }
+            },
+            {
+              "textarea": {
+                "label": "Instructions",
+                "placeholder": "Half a tin of wet food + 1 cup dry",
+                "width": 300,
+                "height": 56
+              }
+            }
+          ],
+          "padding": 14,
+          "width": 350
+        }
+      },
+      {
+        "callout": {
+          "text": "Skip this if you like. You can add it any time from Bailey's feeds.",
+          "variant": "info"
+        }
+      },
+      {
+        "divider": true
+      },
+      {
+        "button": "Add Bailey",
+        "variant": "primary",
+        "fullWidth": true
+      },
+      {
+        "button": "Skip for now",
+        "variant": "outline",
+        "fullWidth": true
+      }
+    ],
+    "section": "3. What he gets — Back only"
+  },
+  {
+    "screen": "4. Home — tap a feed to log it",
+    "width": 390,
+    "height": 900,
+    "padding": 20,
+    "children": [
+      {
+        "row": {
+          "children": [
+            {
+              "text": {
+                "text": "The Lindsays  ▾",
+                "bold": true
+              }
+            },
+            {
+              "icon": "bell"
+            }
+          ],
+          "justify": "space-between",
+          "align": "center"
+        }
+      },
+      {
+        "text": {
+          "text": "Tuesday 19 August",
+          "color": "muted",
+          "size": "sm"
+        }
+      },
+      {
+        "heading": {
+          "text": "Today",
+          "level": 2
+        }
+      },
+      {
+        "card": {
+          "children": [
+            {
+              "row": {
+                "children": [
+                  {
+                    "avatar": 36
+                  },
+                  {
+                    "text": {
+                      "text": "Bailey",
+                      "bold": true
+                    }
+                  }
+                ],
+                "gap": 10,
+                "align": "center"
+              }
+            },
+            {
+              "divider": true
+            },
+            {
+              "row": {
+                "children": [
+                  {
+                    "stack": {
+                      "children": [
+                        {
+                          "text": {
+                            "text": "Morning  7:00 am",
+                            "size": "sm"
+                          }
+                        },
+                        {
+                          "text": {
+                            "text": "Fed by Sarah at 7:05 am",
+                            "color": "muted",
+                            "size": "xs"
+                          }
+                        }
+                      ],
+                      "gap": 2
+                    }
+                  },
+                  {
+                    "icon": "check"
+                  }
+                ],
+                "justify": "space-between",
+                "align": "center"
+              }
+            },
+            {
+              "row": {
+                "children": [
+                  {
+                    "stack": {
+                      "children": [
+                        {
+                          "text": {
+                            "text": "Dinner  6:00 pm",
+                            "size": "sm"
+                          }
+                        },
+                        {
+                          "text": {
+                            "text": "Half a tin wet + 1 cup dry",
+                            "color": "muted",
+                            "size": "xs"
+                          }
+                        }
+                      ],
+                      "gap": 2
+                    }
+                  },
+                  {
+                    "button": "Log",
+                    "variant": "primary",
+                    "size": "sm"
+                  }
+                ],
+                "justify": "space-between",
+                "align": "center"
+              }
+            }
+          ],
+          "padding": 14,
+          "width": 350
+        }
+      },
+      {
+        "card": {
+          "children": [
+            {
+              "row": {
+                "children": [
+                  {
+                    "avatar": 36
+                  },
+                  {
+                    "text": {
+                      "text": "Mango",
+                      "bold": true
+                    }
+                  }
+                ],
+                "gap": 10,
+                "align": "center"
+              }
+            },
+            {
+              "divider": true
+            },
+            {
+              "row": {
+                "children": [
+                  {
+                    "stack": {
+                      "children": [
+                        {
+                          "text": {
+                            "text": "Morning  8:00 am",
+                            "size": "sm"
+                          }
+                        },
+                        {
+                          "badge": "Not logged",
+                          "variant": "outline"
+                        }
+                      ],
+                      "gap": 4
+                    }
+                  },
+                  {
+                    "button": "Log",
+                    "variant": "primary",
+                    "size": "sm"
+                  }
+                ],
+                "justify": "space-between",
+                "align": "center"
+              }
+            }
+          ],
+          "padding": 14,
+          "width": 350
+        }
+      },
+      {
+        "divider": true
+      },
+      {
+        "button": "Log something else",
+        "variant": "outline",
+        "fullWidth": true
+      },
+      {
+        "text": {
+          "text": "A snack, or a feed that isn't on the schedule.",
+          "color": "muted",
+          "size": "xs",
+          "align": "center"
+        }
+      }
+    ],
+    "section": "4. Home — tap a feed to log it"
+  },
+  {
+    "screen": "5. Log a feed — one pet",
+    "width": 390,
+    "height": 900,
+    "padding": 20,
+    "children": [
+      {
+        "text": {
+          "text": "Sheet over Home. Nothing else is open, so no stacking.",
+          "color": "muted",
+          "size": "xs",
+          "align": "center"
+        }
+      },
+      {
+        "modal": {
+          "title": "Dinner  ·  6:00 pm",
+          "width": 350,
+          "height": 460,
+          "children": [
+            {
+              "row": {
+                "children": [
+                  {
+                    "avatar": 40
+                  },
+                  {
+                    "stack": {
+                      "children": [
+                        {
+                          "text": {
+                            "text": "Bailey",
+                            "bold": true
+                          }
+                        },
+                        {
+                          "text": {
+                            "text": "Due now",
+                            "color": "muted",
+                            "size": "sm"
+                          }
+                        }
+                      ],
+                      "gap": 2
+                    }
+                  }
+                ],
+                "gap": 10,
+                "align": "center"
+              }
+            },
+            {
+              "card": {
+                "children": [
+                  {
+                    "text": {
+                      "text": "Half a tin of wet food + 1 cup dry",
+                      "size": "sm"
+                    }
+                  }
+                ],
+                "padding": 12,
+                "width": 300
+              }
+            },
+            {
+              "row": {
+                "children": [
+                  {
+                    "text": {
+                      "text": "Fed at",
+                      "size": "sm"
+                    }
+                  },
+                  {
+                    "text": {
+                      "text": "7:52 pm  ›",
+                      "color": "primary",
+                      "size": "sm"
+                    }
+                  }
+                ],
+                "justify": "space-between",
+                "align": "center"
+              }
+            },
+            {
+              "text": {
+                "text": "Defaults to now, because that is the truth. Tap to change it.",
+                "color": "muted",
+                "size": "xs"
+              }
+            },
+            {
+              "button": "Add a note",
+              "variant": "outline",
+              "fullWidth": true
+            },
+            {
+              "button": "Log this feed",
+              "variant": "primary",
+              "fullWidth": true
+            }
+          ]
+        }
+      }
+    ],
+    "section": "5. Log a feed — one pet"
+  },
+  {
+    "screen": "5b. Log a feed — several pets",
+    "width": 390,
+    "height": 900,
+    "padding": 20,
+    "children": [
+      {
+        "text": {
+          "text": "From “Log something else”, or a shared feed time",
+          "color": "muted",
+          "size": "xs",
+          "align": "center"
+        }
+      },
+      {
+        "modal": {
+          "title": "Log a feed",
+          "width": 350,
+          "height": 560,
+          "children": [
+            {
+              "label": "Who did you feed?"
+            },
+            {
+              "row": {
+                "children": [
+                  {
+                    "row": {
+                      "children": [
+                        {
+                          "avatar": 32
+                        },
+                        {
+                          "text": {
+                            "text": "Bailey",
+                            "size": "sm"
+                          }
+                        }
+                      ],
+                      "gap": 8,
+                      "align": "center"
+                    }
+                  },
+                  {
+                    "icon": "check"
+                  }
+                ],
+                "justify": "space-between",
+                "align": "center"
+              }
+            },
+            {
+              "divider": true
+            },
+            {
+              "row": {
+                "children": [
+                  {
+                    "row": {
+                      "children": [
+                        {
+                          "avatar": 32
+                        },
+                        {
+                          "text": {
+                            "text": "Mango",
+                            "size": "sm"
+                          }
+                        }
+                      ],
+                      "gap": 8,
+                      "align": "center"
+                    }
+                  },
+                  {
+                    "icon": "check"
+                  }
+                ],
+                "justify": "space-between",
+                "align": "center"
+              }
+            },
+            {
+              "divider": true
+            },
+            {
+              "label": "Which feed?"
+            },
+            {
+              "tabs": {
+                "items": [
+                  {
+                    "label": "Dinner",
+                    "active": true
+                  },
+                  {
+                    "label": "Not on the schedule"
+                  }
+                ],
+                "widthMode": "stretch"
+              }
+            },
+            {
+              "row": {
+                "children": [
+                  {
+                    "text": {
+                      "text": "Fed at",
+                      "size": "sm"
+                    }
+                  },
+                  {
+                    "text": {
+                      "text": "6:04 pm  ›",
+                      "color": "primary",
+                      "size": "sm"
+                    }
+                  }
+                ],
+                "justify": "space-between",
+                "align": "center"
+              }
+            },
+            {
+              "button": "Log for 2 pets",
+              "variant": "primary",
+              "fullWidth": true
+            }
+          ]
+        }
+      }
+    ],
+    "section": "5b. Log a feed — several pets"
+  },
+  {
+    "screen": "5c. Already logged — the alert",
+    "width": 390,
+    "height": 900,
+    "padding": 20,
+    "children": [
+      {
+        "text": {
+          "text": "Native alert. Apple allows an alert on top of a sheet — the one exception.",
+          "color": "muted",
+          "size": "xs",
+          "align": "center"
+        }
+      },
+      {
+        "modal": {
+          "title": "Already logged",
+          "width": 300,
+          "height": 220,
+          "children": [
+            {
+              "text": {
+                "text": "Sarah logged Bailey's dinner at 6:05 pm.",
+                "size": "sm",
+                "align": "center"
+              }
+            },
+            {
+              "divider": true
+            },
+            {
+              "button": "Cancel",
+              "variant": "primary",
+              "fullWidth": true
+            },
+            {
+              "button": "Log it anyway",
+              "variant": "outline",
+              "fullWidth": true
+            }
+          ]
+        }
+      },
+      {
+        "callout": {
+          "text": "Precise now, because the log is tied to a feed you chose. No guessing which feed you meant.",
+          "variant": "success"
+        }
+      }
+    ],
+    "section": "5c. Already logged — the alert"
+  },
+  {
+    "screen": "6. Logged late — no scolding",
+    "width": 390,
+    "height": 900,
+    "padding": 20,
+    "children": [
+      {
+        "heading": {
+          "text": "Before",
+          "level": 3
+        }
+      },
+      {
+        "card": {
+          "children": [
+            {
+              "row": {
+                "children": [
+                  {
+                    "stack": {
+                      "children": [
+                        {
+                          "text": {
+                            "text": "Dinner  6:00 pm",
+                            "size": "sm"
+                          }
+                        },
+                        {
+                          "badge": "Not logged",
+                          "variant": "outline"
+                        }
+                      ],
+                      "gap": 4
+                    }
+                  },
+                  {
+                    "button": "Log",
+                    "variant": "primary",
+                    "size": "sm"
+                  }
+                ],
+                "justify": "space-between",
+                "align": "center"
+              }
+            }
+          ],
+          "padding": 14,
+          "width": 350
+        }
+      },
+      {
+        "text": {
+          "text": "It is 7:50 pm. Nobody has logged dinner. The household was nudged at 7:00 pm.",
+          "color": "muted",
+          "size": "xs"
+        }
+      },
+      {
+        "divider": true
+      },
+      {
+        "heading": {
+          "text": "After — logged at 7:52 pm",
+          "level": 3
+        }
+      },
+      {
+        "card": {
+          "children": [
+            {
+              "row": {
+                "children": [
+                  {
+                    "stack": {
+                      "children": [
+                        {
+                          "text": {
+                            "text": "Dinner  6:00 pm",
+                            "size": "sm"
+                          }
+                        },
+                        {
+                          "text": {
+                            "text": "Fed by Dylan at 7:52 pm",
+                            "color": "muted",
+                            "size": "xs"
+                          }
+                        }
+                      ],
+                      "gap": 2
+                    }
+                  },
+                  {
+                    "icon": "check"
+                  }
+                ],
+                "justify": "space-between",
+                "align": "center"
+              }
+            }
+          ],
+          "padding": 14,
+          "width": 350
+        }
+      },
+      {
+        "callout": {
+          "text": "Still dinner. Still logged. The household is told it happened. No extra feed, no missed feed.",
+          "variant": "success"
+        }
+      },
+      {
+        "divider": true
+      },
+      {
+        "text": {
+          "text": "Today it becomes an Extra Feed instead, dinner still reads Not Logged, and nobody is told. That is the confusion.",
+          "color": "muted",
+          "size": "xs"
+        }
+      }
+    ],
+    "section": "6. Logged late — no scolding"
+  },
+  {
+    "screen": "7. Bailey's feeds — edit any time",
+    "width": 390,
+    "height": 900,
+    "padding": 20,
+    "children": [
+      {
+        "row": {
+          "children": [
+            {
+              "icon": "chevron-left"
+            },
+            {
+              "text": {
+                "text": "Bailey's feeds",
+                "bold": true
+              }
+            },
+            {
+              "icon": "help-circle"
+            }
+          ],
+          "justify": "space-between",
+          "align": "center"
+        }
+      },
+      {
+        "card": {
+          "children": [
+            {
+              "row": {
+                "children": [
+                  {
+                    "text": {
+                      "text": "Morning",
+                      "bold": true
+                    }
+                  },
+                  {
+                    "text": {
+                      "text": "7:00 am",
+                      "color": "muted",
+                      "size": "sm"
+                    }
+                  }
+                ],
+                "justify": "space-between",
+                "align": "center"
+              }
+            },
+            {
+              "text": {
+                "text": "Every day  ·  1 cup dry biscuits",
+                "color": "muted",
+                "size": "xs"
+              }
+            }
+          ],
+          "padding": 14,
+          "width": 350
+        }
+      },
+      {
+        "card": {
+          "children": [
+            {
+              "row": {
+                "children": [
+                  {
+                    "text": {
+                      "text": "Dinner",
+                      "bold": true
+                    }
+                  },
+                  {
+                    "text": {
+                      "text": "6:00 pm",
+                      "color": "muted",
+                      "size": "sm"
+                    }
+                  }
+                ],
+                "justify": "space-between",
+                "align": "center"
+              }
+            },
+            {
+              "text": {
+                "text": "Mon–Sat  ·  Half a tin wet + 1 cup dry",
+                "color": "muted",
+                "size": "xs"
+              }
+            }
+          ],
+          "padding": 14,
+          "width": 350
+        }
+      },
+      {
+        "button": "+  Add a feed",
+        "variant": "outline",
+        "fullWidth": true
+      },
+      {
+        "divider": true
+      },
+      {
+        "row": {
+          "children": [
+            {
+              "stack": {
+                "children": [
+                  {
+                    "text": {
+                      "text": "Pause feeds",
+                      "bold": true,
+                      "size": "sm"
+                    }
+                  },
+                  {
+                    "text": {
+                      "text": "Boarding, vet stay, fasting",
+                      "color": "muted",
+                      "size": "xs"
+                    }
+                  }
+                ],
+                "gap": 2
+              }
+            },
+            {
+              "switch": {
+                "label": "",
+                "on": false
+              }
+            }
+          ],
+          "justify": "space-between",
+          "align": "center"
+        }
+      },
+      {
+        "divider": true
+      },
+      {
+        "callout": {
+          "text": "Changes start tomorrow. Days already gone keep the schedule they had.",
+          "variant": "info"
+        }
+      }
+    ],
+    "section": "7. Bailey's feeds — edit any time"
+  },
+  {
+    "screen": "8. Pet type — pushed inside the flow",
+    "width": 390,
+    "height": 900,
+    "padding": 20,
+    "children": [
+      {
+        "row": {
+          "children": [
+            {
+              "text": {
+                "text": "‹  Details",
+                "color": "primary",
+                "size": "sm"
+              }
+            },
+            {
+              "text": {
+                "text": "Pet type",
+                "bold": true,
+                "size": "sm"
+              }
+            },
+            {
+              "text": {
+                "text": " ",
+                "size": "sm"
+              }
+            }
+          ],
+          "justify": "space-between",
+          "align": "center"
+        }
+      },
+      {
+        "card": {
+          "children": [
+            {
+              "row": {
+                "children": [
+                  {
+                    "row": {
+                      "children": [
+                        {
+                          "icon": "dog"
+                        },
+                        {
+                          "text": {
+                            "text": "Dog",
+                            "size": "sm"
+                          }
+                        }
+                      ],
+                      "gap": 12,
+                      "align": "center"
+                    }
+                  },
+                  {
+                    "icon": "check"
+                  }
+                ],
+                "justify": "space-between",
+                "align": "center"
+              }
+            }
+          ],
+          "padding": 14,
+          "width": 350
+        }
+      },
+      {
+        "card": {
+          "children": [
+            {
+              "row": {
+                "children": [
+                  {
+                    "icon": "cat"
+                  },
+                  {
+                    "text": {
+                      "text": "Cat",
+                      "size": "sm"
+                    }
+                  }
+                ],
+                "gap": 12,
+                "align": "center"
+              }
+            }
+          ],
+          "padding": 14,
+          "width": 350
+        }
+      },
+      {
+        "card": {
+          "children": [
+            {
+              "row": {
+                "children": [
+                  {
+                    "icon": "rabbit"
+                  },
+                  {
+                    "text": {
+                      "text": "Rabbit",
+                      "size": "sm"
+                    }
+                  }
+                ],
+                "gap": 12,
+                "align": "center"
+              }
+            }
+          ],
+          "padding": 14,
+          "width": 350
+        }
+      },
+      {
+        "card": {
+          "children": [
+            {
+              "row": {
+                "children": [
+                  {
+                    "icon": "bird"
+                  },
+                  {
+                    "text": {
+                      "text": "Bird",
+                      "size": "sm"
+                    }
+                  }
+                ],
+                "gap": 12,
+                "align": "center"
+              }
+            }
+          ],
+          "padding": 14,
+          "width": 350
+        }
+      },
+      {
+        "card": {
+          "children": [
+            {
+              "row": {
+                "children": [
+                  {
+                    "icon": "paw-print"
+                  },
+                  {
+                    "text": {
+                      "text": "Other",
+                      "size": "sm"
+                    }
+                  }
+                ],
+                "gap": 12,
+                "align": "center"
+              }
+            }
+          ],
+          "padding": 14,
+          "width": 350
+        }
+      },
+      {
+        "callout": {
+          "text": "Same SheetRow content either way. Pushed inside the add-pet modal; raised as a sheet when editing a pet later.",
+          "variant": "info"
+        }
+      }
+    ],
+    "section": "8. Pet type — pushed inside the flow"
+  },
+  {
+    "screen": "9. How feeds work — a sheet, not a tour",
+    "width": 390,
+    "height": 900,
+    "padding": 20,
+    "children": [
+      {
+        "text": {
+          "text": "Raised from the pet screen or Settings — not from inside the modal",
+          "color": "muted",
+          "size": "xs",
+          "align": "center"
+        }
+      },
+      {
+        "modal": {
+          "title": "How feeds work",
+          "width": 350,
+          "height": 620,
+          "children": [
+            {
+              "row": {
+                "children": [
+                  {
+                    "icon": "clock"
+                  },
+                  {
+                    "stack": {
+                      "children": [
+                        {
+                          "text": {
+                            "text": "A feed is a time you plan to feed your pet",
+                            "bold": true,
+                            "size": "sm"
+                          }
+                        },
+                        {
+                          "text": {
+                            "text": "Morning at 7, dinner at 6. Set as many as you need.",
+                            "color": "muted",
+                            "size": "sm"
+                          }
+                        }
+                      ],
+                      "gap": 2
+                    }
+                  }
+                ],
+                "gap": 12,
+                "align": "center"
+              }
+            },
+            {
+              "row": {
+                "children": [
+                  {
+                    "icon": "check"
+                  },
+                  {
+                    "stack": {
+                      "children": [
+                        {
+                          "text": {
+                            "text": "Tap Log when you feed them",
+                            "bold": true,
+                            "size": "sm"
+                          }
+                        },
+                        {
+                          "text": {
+                            "text": "Everyone sees it straight away, so nobody feeds twice.",
+                            "color": "muted",
+                            "size": "sm"
+                          }
+                        }
+                      ],
+                      "gap": 2
+                    }
+                  }
+                ],
+                "gap": 12,
+                "align": "center"
+              }
+            },
+            {
+              "row": {
+                "children": [
+                  {
+                    "icon": "clock"
+                  },
+                  {
+                    "stack": {
+                      "children": [
+                        {
+                          "text": {
+                            "text": "Late is fine",
+                            "bold": true,
+                            "size": "sm"
+                          }
+                        },
+                        {
+                          "text": {
+                            "text": "Log dinner at 8 and it is still dinner, just logged late.",
+                            "color": "muted",
+                            "size": "sm"
+                          }
+                        }
+                      ],
+                      "gap": 2
+                    }
+                  }
+                ],
+                "gap": 12,
+                "align": "center"
+              }
+            },
+            {
+              "row": {
+                "children": [
+                  {
+                    "icon": "bell"
+                  },
+                  {
+                    "stack": {
+                      "children": [
+                        {
+                          "text": {
+                            "text": "Not logged means nobody tapped Log",
+                            "bold": true,
+                            "size": "sm"
+                          }
+                        },
+                        {
+                          "text": {
+                            "text": "It does not mean your pet went hungry. Log it whenever you remember.",
+                            "color": "muted",
+                            "size": "sm"
+                          }
+                        }
+                      ],
+                      "gap": 2
+                    }
+                  }
+                ],
+                "gap": 12,
+                "align": "center"
+              }
+            },
+            {
+              "button": "Got it",
+              "variant": "primary",
+              "fullWidth": true
+            }
+          ]
+        }
+      }
+    ],
+    "section": "9. How feeds work — a sheet, not a tour"
+  }
+]

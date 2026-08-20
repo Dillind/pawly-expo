@@ -18,8 +18,17 @@ everywhere for **Feed Time** on screen and **Occurrence** in code.
 
 ## Wireframes
 
-Two Wirekitty canvases, v1. They are hosted previews rather than files in the repo, so treat them
-as a reference that can go stale or disappear — the ADRs are the durable record.
+Two Wirekitty canvases. **The source of truth is in this repo**, not the links — the hosted
+previews can go stale, be revised by someone else, or stop resolving.
+
+    docs/plans/wireframes/pet-creation-and-logging.json   13 screens
+    docs/plans/wireframes/home-states.json                 6 screens
+
+Each file is the Wirekitty shorthand schema: one entry per screen, `screen` naming it, `children`
+describing it. Readable as-is, and it can be pushed back to Wirekitty with `create_wireframe` to
+see it drawn again.
+
+The live previews, which need the Wirekitty MCP server and may not resolve later:
 
 **Pet creation, logging, the feed editor, the explainer** — 13 screens:
 <https://app.wirekitty.dev/?fetchFrom=https%3A%2F%2Fmcp.wirekitty.dev%2Fwireframe%2Ff3bf65d0-5c12-40a0-944a-41935e91a4f0.json&callback=https%3A%2F%2Fmcp.wirekitty.dev%2Fwebhook&wireframeId=f3bf65d0-5c12-40a0-944a-41935e91a4f0>
