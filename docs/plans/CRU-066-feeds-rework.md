@@ -37,13 +37,13 @@ The live previews, which need the Wirekitty MCP server and may not resolve later
 no feeds yet, a paused pet, and the single-pet case:
 <https://app.wirekitty.dev/?fetchFrom=https%3A%2F%2Fmcp.wirekitty.dev%2Fwireframe%2F0c3fd19d-e211-44d9-93cd-985e8f696a5c.json&callback=https%3A%2F%2Fmcp.wirekitty.dev%2Fwebhook&wireframeId=0c3fd19d-e211-44d9-93cd-985e8f696a5c>
 
-Two open questions the wireframes deliberately leave showing, for the owner rather than the
-implementer to settle:
+Two notes on where the drawings and the plan differ, both decided since:
 
-- A feed's name is free text ("Dinner", "Medication with breakfast") rather than the current
-  morning/lunch/dinner enum. More flexible, and it loses sorting by meaning.
-- Home keeps one uniform card layout whether there is one pet or five. With one pet the card
-  wrapper may be noise.
+- Screen 2b shows a free-text **Name** field. That was rejected — **the enum stays**. Render the
+  four labels with `SegmentedControl` or a `SheetRow` picker, not a text input.
+- Home keeps one uniform card layout whether there is one pet or five. Screen F asks whether the
+  card wrapper is noise for a single pet. **Still open**, and safe to leave: it is a layout
+  choice inside phase 5, not a schema one.
 
 ## Order of work
 
@@ -54,15 +54,20 @@ before the one above it is green.
 
 New migration, named `<timestamp>_feed_times.sql` following the existing convention.
 
-- `feed_times` — one row per **version**: `id`, `pet_id`, `series_id`, `name text`,
-  `local_time time`, `days_of_week smallint[]`, `instructions text`, `effective daterange`,
-  `created_at`. Add `exclude using gist (series_id with =, effective with &&)`, which needs
+- `feed_times` — one row per **version**: `id`, `pet_id`, `series_id`,
+  `label public.feeding_schedule_label`, `local_time time`, `days_of_week smallint[]`,
+  `instructions text`, `effective daterange`, `created_at`.
+  **Keep the existing enum** (morning / lunch / dinner / custom) — free-text names were
+  considered and rejected for now. `FEEDING_SCHEDULE_LABEL_OPTIONS` in `src/constants/options.ts`
+  already holds the four, so the picker needs no new data. Add `exclude using gist (series_id with =, effective with &&)`, which needs
   `create extension if not exists btree_gist`.
 - `pet_pauses` — `pet_id`, `during daterange`, `reason text`.
 - `feed_logs` gains `feed_time_series_id uuid null` and `occurrence_date date null`. Both null
   means an Extra Feed. Unique on `(feed_time_series_id, occurrence_date)` where not null —
   this is what makes Double Feed a fact rather than a guess.
-- `pets` gains `pet_type` (enum: dog, cat, rabbit, bird, other).
+- `pets` gains `pet_type` — an enum of **`dog`, `cat`, `other`** only. Leave a TODO on the type:
+  more species are expected, and adding a value to a Postgres enum is `alter type ... add value`,
+  which cannot run inside a transaction with other DDL. Worth knowing before the day it matters.
 - Backfill: each existing `feeding_schedules` row becomes the first version of its own series,
   `effective` starting at its `created_at` date in the household timezone. That is exactly what
   `slot_states_new_slots_start_tomorrow` already means by
@@ -126,6 +131,11 @@ Invoke `/frontend-design` and `/expo-native-ui` before writing any of this, and
   `care-card-editor.tsx` can drop its hand-rolled `KeyboardAvoidingView`.
 - **Home**: a card per pet, a row per occurrence, `Log` on each unlogged one. Done cards collapse.
 - **Log sheet**: instructions visible, `Fed at` defaults to now, multi-pet selection.
+- **Correcting a log.** Tapping a logged row opens it for edit — change the time, change the note,
+  delete it. `useUpdateFeedLog` and `useDeleteFeedLog` already exist, so this is a surface, not a
+  feature. It is the only way to fix a mistake, and it is deliberately an edit on the row rather
+  than a second flow. Deleting is destructive, so it confirms with an alert carrying
+  `style: 'destructive'`.
 - **Retire `DropdownPickerValidated` from these forms.** Two options is a segmented control; five
   is a `BaseSheet` + `SheetRow` list.
 - On finish, land on the pet's screen. It is the summary, and it teaches where to edit later.
@@ -133,13 +143,35 @@ Invoke `/frontend-design` and `/expo-native-ui` before writing any of this, and
 
 ### 6. Tests
 
-- **pgTAP, against a local `supabase db reset`.** Jest cannot reach any of this, and this is the
-  first change where that gap is unacceptable rather than merely unfortunate. Cover: an edit does
-  not change a past day; overlapping versions are rejected; a paused day expects nothing; a
-  second log on one occurrence is refused; an Extra Feed satisfies nothing; a DST day still has
-  the right number of occurrences.
-- Jest keeps the pure logic and the row↔domain mapping in the service.
-- `bun run check` before finishing.
+**There is no pgTAP harness, and building one is most of this phase.** `supabase/tests/` does not
+exist, `config.toml` has no test configuration, and there is no script. Budget for the setup, not
+just the assertions.
+
+**Never run this against production.** `supabase db reset` drops and recreates the database, and
+production holds real households. Worse without any reset: inserting a `feed_logs` row fires a
+trigger into `alerts`, then `pg_net`, then the `send-alerts` Edge Function — so a test that logs a
+feed sends **real push notifications to real devices**. The test target must be a database nobody
+depends on.
+
+Setup, in order:
+
+1. Install Docker and the Supabase CLI. Neither is on the development machine as of writing.
+2. Point the tests at a **non-production project** — a second Supabase project is the cheapest
+   option, Supabase branching the cleanest. Confirm which with the owner before the first run.
+3. `create extension if not exists pgtap`, add `supabase/tests/`, add a `test:db` script.
+
+Then cover, at minimum:
+
+- Editing a feed time does not change what a past day means.
+- Overlapping versions of one series are rejected by the exclusion constraint.
+- A paused day expects no occurrences and nudges nobody.
+- A second log against one occurrence is refused unless confirmed.
+- An Extra Feed satisfies nothing.
+- A DST transition day has the right number of occurrences. Run the suite under `TZ=UTC`,
+  `America/New_York` and `Pacific/Kiritimati`, as the Jest suite already is.
+
+Jest keeps the pure logic and the row↔domain mapping in the service. It cannot reach any of the
+above — that is the whole reason this phase exists. Run `bun run check` before finishing.
 
 ## Naming map
 
