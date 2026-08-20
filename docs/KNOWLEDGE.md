@@ -113,6 +113,11 @@ list, and `log_feed` is `security invoker` — so a column added without a match
 fails with "permission denied for table feed_logs", surfaced as "Something went wrong. Try again."
 Adding a column to that table means adding the grant.
 
+**`SheetRow` only works inside a sheet.** It fills with `backgroundSheetRow`, which in the light
+palette is `#F1F2F5` — the screen background. Used on a screen the rows lose their fill entirely and
+read as plain labels rather than as something tappable. It looks fine in dark mode, so this only
+shows up in a light-mode pass. On a screen, use a card on `backgroundElement`.
+
 ## This repo
 
 **`docs/agents/` is gitignored.** `git add` skips new files there silently; `git add -f` is the only
