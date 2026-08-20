@@ -16,6 +16,12 @@ const safe = async (fn: () => Promise<void>) => {
 export const hapticLight = () => safe(() => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light));
 
 /**
+ * Selection tick for a value moving past a step -- a segmented control, a
+ * picker detent. Not an impact: nothing collided, the selection changed.
+ */
+export const hapticSelection = () => safe(() => Haptics.selectionAsync());
+
+/**
  * Medium haptic for significant actions like swiping
  */
 export const hapticMedium = () =>

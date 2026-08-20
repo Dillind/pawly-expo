@@ -9,7 +9,7 @@ import Animated, {
 
 import { Spacing, type AppTheme } from '@/constants/theme';
 import { useStyles } from '@/hooks/use-styles';
-import { hapticLight } from '@/lib/haptics';
+import { hapticSelection } from '@/lib/haptics';
 
 import AppText from './app-text';
 import PressableOpacity from './pressable-opacity';
@@ -29,10 +29,11 @@ type Props<T extends string> = {
 const TrackPadding = Spacing.one;
 const SegmentGap = Spacing.one;
 
+// Apple's two designer parameters, which is the form Reanimated takes
+// directly. Critically damped: a segment thumb must not overshoot its track.
 const ThumbSpring = {
-  damping: 20,
-  stiffness: 220,
-  mass: 0.6,
+  duration: 400,
+  dampingRatio: 1,
   reduceMotion: ReduceMotion.System
 };
 
@@ -58,17 +59,17 @@ const SegmentedControl = <T extends string>({ label, options, value, onChange }:
 
     const target = selectedIndex * (segmentWidth + SegmentGap);
 
-    if (hasSettled.value) {
-      translateX.value = withSpring(target, ThumbSpring);
+    if (hasSettled.get()) {
+      translateX.set(withSpring(target, ThumbSpring));
     } else {
-      translateX.value = target;
-      hasSettled.value = true;
+      translateX.set(target);
+      hasSettled.set(true);
     }
   }, [hasSettled, segmentWidth, selectedIndex, translateX]);
 
   const thumbStyle = useAnimatedStyle(() => ({
     width: segmentWidth,
-    transform: [{ translateX: translateX.value }]
+    transform: [{ translateX: translateX.get() }]
   }));
 
   const handleLayout = (event: LayoutChangeEvent) => {
@@ -78,7 +79,7 @@ const SegmentedControl = <T extends string>({ label, options, value, onChange }:
   const handlePress = (option: Option<T>) => {
     if (option.value === value) return;
 
-    void hapticLight();
+    void hapticSelection();
     onChange(option.value);
   };
 
