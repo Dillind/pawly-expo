@@ -93,6 +93,26 @@ same trap catches any "current row" query built on a range instead of a boolean 
 first. Swapping them shifts every weekday-only feed by one day, and nothing fails — the feed just
 turns up on the wrong days.
 
+**`dayjs.tz` is broken under Hermes in BOTH its forms.** The instance `.tz()`
+silently returns UTC. The *static* `dayjs.tz(string, format, zone)` was believed safe and is not —
+measured on device it returned instants about fourteen minutes off, varying by call. Nothing in
+`src/lib/dates.ts` may use either. Zone arithmetic goes through `Intl.formatToParts` (`zonedParts`,
+`instantAt`). This was live: the feed-log correction sheet saved wrong instants.
+
+**RHF `formState` from `useFormContext()` does not subscribe a child component.** The Proxy only
+computes what the component owning `useForm` reads, so `isDirty` reads `false` forever in a child —
+which silently disabled the add-pet discard confirmation. In a child, use
+`useFormState({ control })`. Reading `formState.x` inside a callback subscribes nothing at all.
+
+**A picker fires no blur, so `mode: 'onTouched'` never clears its error.** The member fixes the
+field and the message stays. `DateTimePickerValidated` calls `trigger(name)` after a confirm for
+exactly this; any new non-text input needs the same.
+
+**Column-level grants on `feed_logs` bite every new column.** `authenticated` has INSERT on a named
+list, and `log_feed` is `security invoker` — so a column added without a matching `grant insert`
+fails with "permission denied for table feed_logs", surfaced as "Something went wrong. Try again."
+Adding a column to that table means adding the grant.
+
 ## This repo
 
 **`docs/agents/` is gitignored.** `git add` skips new files there silently; `git add -f` is the only

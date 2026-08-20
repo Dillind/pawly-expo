@@ -70,6 +70,11 @@ const DateTimePickerValidated = ({
         onConfirm={(picked) => {
           setSelectedDate(dayjs(picked).format(storeFormat[mode]));
           setIsVisible(false);
+
+          // A picker fires no blur, so under `onTouched` the field is never
+          // marked touched and an error it already shows has nothing to clear
+          // it -- the member fixes the field and the message stays put.
+          if (form && name) void form.trigger(name);
         }}
         onCancel={() => {
           setIsVisible(false);

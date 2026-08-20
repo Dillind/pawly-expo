@@ -206,8 +206,12 @@ const ConfirmStep = ({
 
   if (occurrence) {
     pets.forEach((pet, index) => {
+      // Match on the feed, never on its state. Excluding an already-fed
+      // occurrence here would quietly turn a deliberate re-log into an Extra
+      // Feed and skip the Double Feed warning entirely -- log_feed is what
+      // decides that, and it needs to be given the occurrence to decide about.
       matches[pet.id] = occurrenceQueries[index]?.data?.find(
-        (each) => each.label === occurrence.label && each.state !== 'fed'
+        (each) => each.label === occurrence.label
       );
     });
   }

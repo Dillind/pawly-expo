@@ -8,6 +8,7 @@ import PetAvatar from '@/components/screens/home/pet-avatar';
 import OccurrenceList from '@/components/ui/occurrence-list';
 import { Radius, type AppTheme } from '@/constants/theme';
 import { useOccurrences } from '@/hooks/queries/feeding/use-occurrences';
+import { useFeedTimes } from '@/hooks/queries/feeding/use-feed-times';
 import { usePetPause } from '@/hooks/queries/feeding/use-pet-pause';
 import { useStyles } from '@/hooks/use-styles';
 import { useTheme } from '@/hooks/use-theme';
@@ -54,11 +55,14 @@ const LABEL_WORD: Record<Occurrence['label'], string> = {
  * "logged", never "fed" -- the count is of records, not meals, and the app does
  * not know whether the pet ate. CONTEXT.md, Not Logged.
  */
-function summarise(occurrences: Occurrence[], isPaused: boolean): string {
+function summarise(occurrences: Occurrence[], isPaused: boolean, hasFeedTimes: boolean): string {
   // A paused pet also has no occurrences, so this has to come first — otherwise
   // a boarding pet reads as one nobody has set up.
   if (isPaused) return 'Paused — no feeds expected';
-  if (occurrences.length === 0) return 'No feeds set up yet';
+  // Feeds exist but none land today: a new pet's feeds start tomorrow, and a
+  // weekday-only feed says nothing on a Sunday. Claiming there are none reads
+  // as if the app threw the member's work away.
+  if (occurrences.length === 0) return hasFeedTimes ? 'No feeds today' : 'No feeds set up yet';
 
   const overdue = occurrences.find((occurrence) => occurrence.state === 'missed');
   if (overdue) {
@@ -99,7 +103,9 @@ const PetSection = ({
 
   const { data: occurrences, isLoading } = useOccurrences(pet.id, today, { live: true });
   const { data: pause } = usePetPause(pet.id, today);
+  const { data: feedTimes } = useFeedTimes(pet.id);
   const isPaused = Boolean(pause);
+  const hasFeedTimes = Boolean(feedTimes?.length);
 
   const isAllLogged =
     !isPaused &&
@@ -142,7 +148,7 @@ const PetSection = ({
             </AppText>
             {occurrences && (
               <AppText size={13} color="textSecondary" numberOfLines={1}>
-                {summarise(occurrences, isPaused)}
+                {summarise(occurrences, isPaused, hasFeedTimes)}
               </AppText>
             )}
           </View>
@@ -199,17 +205,21 @@ const PetSection = ({
                 onPickOccurrence={(occurrence) => onPickOccurrence(pet, occurrence)}
               />
             ) : (
-              // Skipping the schedule stays viable -- the log is the habit and
-              // the schedule is the upgrade, so this offers both.
               <View style={styles.empty}>
                 <AppText size={14} color="textSecondary">
-                  Add {pet.name}&apos;s feed times and everyone will know when they are due.
+                  {hasFeedTimes
+                    ? `Nothing is due for ${pet.name} today. Their next feed is on the way.`
+                    : `Add ${pet.name}'s feed times and everyone will know when they are due.`}
                 </AppText>
-                <MainButton
-                  text="Set up feeds"
-                  size="sm"
-                  onPress={() => router.push(`/home/${pet.id}`)}
-                />
+                {/* Skipping the schedule stays viable -- the log is the habit
+                    and the schedule is the upgrade, so this offers both. */}
+                {!hasFeedTimes && (
+                  <MainButton
+                    text="Set up feeds"
+                    size="sm"
+                    onPress={() => router.push(`/home/${pet.id}`)}
+                  />
+                )}
                 <MainButton text="Just log a feed" variant="text" size="sm" onPress={onLogPress} />
               </View>
             )}

@@ -20,7 +20,7 @@ import type { TrueSheet } from '@lodev09/react-native-true-sheet';
 import { Image } from 'expo-image';
 import { Stack, useRouter } from 'expo-router';
 import { useRef } from 'react';
-import { Controller, useFormContext, useWatch } from 'react-hook-form';
+import { Controller, useFormContext, useFormState, useWatch } from 'react-hook-form';
 import { ActionSheetIOS, Alert, StyleSheet, View } from 'react-native';
 
 const AGE_OPTIONS: { value: AgeMode; label: string }[] = [
@@ -37,7 +37,15 @@ const AddPetDetails = () => {
   const router = useRouter();
   const photoSheetRef = useRef<TrueSheet | null>(null);
 
-  const { control, setValue, trigger, reset, formState } = useFormContext<AddPetFormValues>();
+  const { control, setValue, trigger, reset } = useFormContext<AddPetFormValues>();
+
+  // useFormState, not formState off useFormContext. The form lives in the
+  // layout, and its formState Proxy only computes what the LAYOUT's render
+  // reads — so isDirty stayed false forever here and Cancel discarded a
+  // half-entered pet with no confirmation. useFormState subscribes this
+  // component properly, and re-rendering it is also what keeps headerLeft's
+  // closure from going stale.
+  const { isDirty } = useFormState({ control });
 
   const petType = useWatch({ control, name: 'petType' });
   const ageMode = useWatch({ control, name: 'ageMode' });
@@ -52,7 +60,7 @@ const AddPetDetails = () => {
   // member just did, and Apple sends that to an action sheet. Nothing typed
   // means nothing to lose, so there is no question to ask.
   const cancel = () => {
-    if (!formState.isDirty) {
+    if (!isDirty) {
       leave();
       return;
     }
