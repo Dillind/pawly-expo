@@ -1,10 +1,5 @@
 import PostBody from '@/components/ui/post-body';
-import { Radius, type AppTheme } from '@/constants/theme';
-import { useStyles } from '@/hooks/use-styles';
-import { useTheme } from '@/hooks/use-theme';
-import { createShadowSmall } from '@/lib/styles/shadows';
 import type { Post } from '@/services/post.service';
-import { StyleSheet, View } from 'react-native';
 
 type Props = {
   post: Post;
@@ -17,33 +12,21 @@ type Props = {
 const TITLE_LINES = 2;
 const CAPTION_LINES = 2;
 
-const PostCard = ({ post, showActions, onToggleLike, onOpenActions, onOpen }: Props) => {
-  const theme = useTheme();
-  const styles = useStyles(makeStyles);
-
-  return (
-    <View style={[styles.card, createShadowSmall(theme.colors)]}>
-      <PostBody
-        post={post}
-        showActions={showActions}
-        titleLines={TITLE_LINES}
-        captionLines={CAPTION_LINES}
-        onToggleLike={onToggleLike}
-        onOpenActions={onOpenActions}
-        onOpen={onOpen}
-      />
-    </View>
-  );
-};
-
-const makeStyles = ({ colors, spacing }: AppTheme) =>
-  StyleSheet.create({
-    card: {
-      padding: spacing.four,
-      borderRadius: Radius.card,
-      borderCurve: 'continuous',
-      backgroundColor: colors.backgroundElement
-    }
-  });
+/**
+ * A post in the feed. Flat on the page background with no frame of its own:
+ * the photo runs to both screen edges, so a card with padding and a radius
+ * would be a border drawn around a picture that has already left it.
+ */
+const PostCard = ({ post, showActions, onToggleLike, onOpenActions, onOpen }: Props) => (
+  <PostBody
+    post={post}
+    showActions={showActions}
+    titleLines={TITLE_LINES}
+    captionLines={CAPTION_LINES}
+    onToggleLike={onToggleLike}
+    onOpenActions={onOpenActions}
+    onOpen={onOpen}
+  />
+);
 
 export default PostCard;

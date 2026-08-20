@@ -118,16 +118,19 @@ const Posts = () => {
         onRefresh={onRefresh}
         isRefreshing={isRefreshing}
         keyExtractor={(post) => post.id}
-        estimatedItemSize={520}
+        estimatedItemSize={640}
         contentContainerStyle={styles.listContent}
         ItemSeparatorComponent={() => <View style={styles.separator} />}
         ListEmptyComponent={
-          <EmptyState
-            icon="image"
-            title="Nothing shared yet"
-            description="Photos your household shares of your pets show up here. Handy when someone else is looking after them."
-            action={<MainButton text="Share a photo" href="/household/new-post" />}
-          />
+          // The list has no gutter of its own, so the empty state carries one.
+          <View style={styles.emptyGutter}>
+            <EmptyState
+              icon="image"
+              title="Nothing shared yet"
+              description="Photos your household shares of your pets show up here. Handy when someone else is looking after them."
+              action={<MainButton text="Share a photo" href="/household/new-post" />}
+            />
+          </View>
         }
         renderItem={renderItem}
       />
@@ -161,12 +164,16 @@ const makeStyles = ({ spacing }: AppTheme) =>
       paddingHorizontal: ScreenGutter,
       paddingBottom: spacing.two
     },
+    // No horizontal padding: the photo runs to both screen edges and PostBody
+    // re-indents its own words. Padding here would inset the photo with them.
     listContent: {
-      paddingHorizontal: spacing.three,
       paddingBottom: spacing.six
     },
     separator: {
-      height: spacing.three
+      height: spacing.four
+    },
+    emptyGutter: {
+      paddingHorizontal: ScreenGutter
     }
   });
 

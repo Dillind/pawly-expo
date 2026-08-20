@@ -3,7 +3,7 @@ import ErrorState from '@/components/core/error-state';
 import HeaderIconButton from '@/components/core/header-icon-button';
 import ScreenView from '@/components/layout/screen-view';
 import PostBody from '@/components/ui/post-body';
-import { ScreenGutter, type AppTheme } from '@/constants/theme';
+import { type AppTheme } from '@/constants/theme';
 import { useHousehold } from '@/hooks/queries/household/use-household';
 import { useDeletePost, usePost, useToggleLike } from '@/hooks/queries/posts/use-posts';
 import { useStyles } from '@/hooks/use-styles';
@@ -104,8 +104,9 @@ const makeStyles = ({ spacing }: AppTheme) =>
     centred: {
       paddingTop: spacing.six
     },
+    // PostBody carries the gutter so its photo can reach both screen edges
+    // here too, exactly as it does in the feed.
     content: {
-      paddingHorizontal: ScreenGutter,
       paddingTop: spacing.three,
       paddingBottom: spacing.six
     }

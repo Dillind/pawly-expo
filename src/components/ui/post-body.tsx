@@ -5,7 +5,7 @@ import PostLikers from '@/components/ui/post-likers';
 import PostPetChips from '@/components/ui/post-pet-chips';
 import PostPhotoCarousel from '@/components/ui/post-photo-carousel';
 import PostTitle from '@/components/ui/post-title';
-import type { AppTheme } from '@/constants/theme';
+import { ScreenGutter, type AppTheme } from '@/constants/theme';
 import { useStyles } from '@/hooks/use-styles';
 import type { Post } from '@/services/post.service';
 import { StyleSheet, View } from 'react-native';
@@ -25,7 +25,14 @@ type Props = {
   onOpen?: () => void;
 };
 
-/** Everything a Post shows, in one order, on both surfaces that show it. */
+/**
+ * Everything a Post shows, in one order, on both surfaces that show it.
+ *
+ * The gutter is owned here rather than by either screen, because the photo has
+ * to reach the screen edge while every word around it stays on the same left
+ * margin as the screen title. A parent that padded this would inset the photo
+ * too, so both screens hand it the full width.
+ */
 const PostBody = ({
   post,
   showActions,
@@ -39,21 +46,25 @@ const PostBody = ({
 
   return (
     <View style={styles.body}>
-      <PostHeader post={post} showActions={showActions} onOpenActions={onOpenActions} />
+      <View style={styles.gutter}>
+        <PostHeader post={post} showActions={showActions} onOpenActions={onOpenActions} />
 
-      <View style={styles.words}>
-        <PostTitle title={post.title} numberOfLines={titleLines} onPress={onOpen} />
+        <View style={styles.words}>
+          <PostTitle title={post.title} numberOfLines={titleLines} onPress={onOpen} />
 
-        <PostCaption caption={post.caption} numberOfLines={captionLines} onPress={onOpen} />
+          <PostCaption caption={post.caption} numberOfLines={captionLines} onPress={onOpen} />
+        </View>
+
+        <PostPetChips pets={post.pets} />
       </View>
-
-      <PostPetChips pets={post.pets} />
 
       <PostPhotoCarousel photos={post.photos} onPress={onOpen} />
 
-      <PostActionRow liked={post.likedByMe} count={post.likeCount} onToggleLike={onToggleLike} />
+      <View style={styles.gutter}>
+        <PostActionRow liked={post.likedByMe} count={post.likeCount} onToggleLike={onToggleLike} />
 
-      <PostLikers likers={post.likers} />
+        <PostLikers likers={post.likers} />
+      </View>
     </View>
   );
 };
@@ -61,6 +72,10 @@ const PostBody = ({
 const makeStyles = ({ spacing }: AppTheme) =>
   StyleSheet.create({
     body: {
+      gap: spacing.two
+    },
+    gutter: {
+      paddingHorizontal: ScreenGutter,
       gap: spacing.two
     },
     /** The title names what the description elaborates, so they sit closer. */
