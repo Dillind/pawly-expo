@@ -47,6 +47,7 @@ const AddPetDetails = () => {
   // closure from going stale.
   const { isDirty } = useFormState({ control });
 
+  const petName = useWatch({ control, name: 'name' });
   const petType = useWatch({ control, name: 'petType' });
   const ageMode = useWatch({ control, name: 'ageMode' });
   const photoUri = useWatch({ control, name: 'photoUri' });
@@ -65,7 +66,7 @@ const AddPetDetails = () => {
       return;
     }
 
-    const title = 'You have not added this pet yet';
+    const title = `You have not added ${petName.trim() || 'this pet'} yet`;
     const message = 'Everything you have entered will be lost.';
 
     if (isIOS) {

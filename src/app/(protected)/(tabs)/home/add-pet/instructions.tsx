@@ -7,8 +7,10 @@ import FlowStepper from '@/components/ui/flow-stepper';
 import { FEEDING_SCHEDULE_LABEL_OPTIONS } from '@/constants/options';
 import type { AddPetFormValues } from '@/constants/schemas/add-pet';
 import { Radius, type AppTheme } from '@/constants/theme';
+import { ErrorMessage } from '@/constants/enums';
 import { useAddPet } from '@/hooks/queries/pet/use-pet-mutations';
 import { useStyles } from '@/hooks/use-styles';
+import { showErrorToast } from '@/lib/toast';
 import PetPhotoService from '@/services/pet-photo.service';
 import { useAuthStore } from '@/stores/auth-store';
 import { optionLabel } from '@/utils/options';
@@ -38,46 +40,54 @@ const AddPetInstructions = () => {
   const isBusy = isAdding || isUploading;
 
   // handleSubmit, so the whole schema is checked before anything is uploaded or
-  // written. A field that failed shows its own error on the step that owns it.
-  const create = handleSubmit(async (values) => {
-    setIsUploading(true);
+  // written. The fields it can reject are all on step 1, two screens back, so a
+  // failure has to say so here and send the member to where the errors render.
+  // Without that the button does nothing at all.
+  const create = handleSubmit(
+    async (values) => {
+      setIsUploading(true);
 
-    let photoUrl: string | null = null;
+      let photoUrl: string | null = null;
 
-    try {
-      if (values.photoUri && userId) {
-        photoUrl = await PetPhotoService.uploadCover({ userId, localUri: values.photoUri });
-      }
-    } finally {
-      setIsUploading(false);
-    }
-
-    addPet(
-      {
-        name: values.name.trim(),
-        breed: values.breed.trim(),
-        sex: values.sex,
-        birthdate: values.birthdate,
-        birthdateIsApproximate: values.ageMode === 'approximate',
-        photoUrl,
-        petType: values.petType,
-        feedingTimes: values.feedTimes.map((feedTime) => ({
-          scheduledTime: feedTime.localTime,
-          label: feedTime.label,
-          daysOfWeek: feedTime.daysOfWeek,
-          instructions: feedTime.instructions
-        }))
-      },
-      {
-        onSuccess: (pet) => {
-          reset();
-          // The pet's own screen is the summary, and it teaches where to edit
-          // all of this later.
-          router.replace(`/home/${pet.id}`);
+      try {
+        if (values.photoUri && userId) {
+          photoUrl = await PetPhotoService.uploadCover({ userId, localUri: values.photoUri });
         }
+      } finally {
+        setIsUploading(false);
       }
-    );
-  });
+
+      addPet(
+        {
+          name: values.name.trim(),
+          breed: values.breed.trim(),
+          sex: values.sex,
+          birthdate: values.birthdate,
+          birthdateIsApproximate: values.ageMode === 'approximate',
+          photoUrl,
+          petType: values.petType,
+          feedingTimes: values.feedTimes.map((feedTime) => ({
+            scheduledTime: feedTime.localTime,
+            label: feedTime.label,
+            daysOfWeek: feedTime.daysOfWeek,
+            instructions: feedTime.instructions
+          }))
+        },
+        {
+          onSuccess: (pet) => {
+            reset();
+            // The pet's own screen is the summary, and it teaches where to edit
+            // all of this later.
+            router.replace(`/home/${pet.id}`);
+          }
+        }
+      );
+    },
+    () => {
+      showErrorToast(ErrorMessage.MissingPetDetails);
+      router.dismissTo('/home/add-pet');
+    }
+  );
 
   return (
     <ScreenView edges={[]}>
@@ -97,31 +107,37 @@ const AddPetInstructions = () => {
           </AppText>
         </View>
 
-        {fields.map((field, index) => (
-          <View key={field.id} style={styles.card}>
-            <AppText size={15} fontWeight="bold">
-              {optionLabel(FEEDING_SCHEDULE_LABEL_OPTIONS, feedTimes[index]?.label ?? 'custom')}
-              {'  ·  '}
-              {dayjs(feedTimes[index]?.localTime ?? '00:00', 'HH:mm').format('h:mm A')}
-            </AppText>
+        {fields.map((field, index) => {
+          const feedTime = feedTimes[index];
 
-            <Controller
-              control={control}
-              name={`feedTimes.${index}.instructions`}
-              render={({ field: { onChange, onBlur, value } }) => (
-                <TextInputValidated
-                  name={`feedTimes.${index}.instructions`}
-                  label="Instructions"
-                  placeholder="Half a tin of wet food + 1 cup dry"
-                  value={value ?? ''}
-                  onBlur={onBlur}
-                  onChangeText={(next: string) => onChange(next === '' ? null : next)}
-                  isMultiline
-                />
-              )}
-            />
-          </View>
-        ))}
+          if (!feedTime) return null;
+
+          return (
+            <View key={field.id} style={styles.card}>
+              <AppText size={15} fontWeight="bold">
+                {optionLabel(FEEDING_SCHEDULE_LABEL_OPTIONS, feedTime.label)}
+                {'  ·  '}
+                {dayjs(feedTime.localTime, 'HH:mm').format('h:mm A')}
+              </AppText>
+
+              <Controller
+                control={control}
+                name={`feedTimes.${index}.instructions`}
+                render={({ field: { onChange, onBlur, value } }) => (
+                  <TextInputValidated
+                    name={`feedTimes.${index}.instructions`}
+                    label="Instructions"
+                    placeholder="Half a tin of wet food + 1 cup dry"
+                    value={value ?? ''}
+                    onBlur={onBlur}
+                    onChangeText={(next: string) => onChange(next === '' ? null : next)}
+                    isMultiline
+                  />
+                )}
+              />
+            </View>
+          );
+        })}
 
         <MainButton
           text={`Add ${name || 'pet'}`}

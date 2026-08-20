@@ -210,9 +210,17 @@ const ConfirmStep = ({
       // occurrence here would quietly turn a deliberate re-log into an Extra
       // Feed and skip the Double Feed warning entirely -- log_feed is what
       // decides that, and it needs to be given the occurrence to decide about.
-      matches[pet.id] = occurrenceQueries[index]?.data?.find(
+      // Another pet's feed is a different series, so the label is the only
+      // thing that can carry the correspondence across pets. Several feeds can
+      // share the label `custom`, so the time settles it, and an ambiguous
+      // label with no time match resolves to nothing rather than to a guess.
+      const sameLabel = (occurrenceQueries[index]?.data ?? []).filter(
         (each) => each.label === occurrence.label
       );
+
+      matches[pet.id] =
+        sameLabel.find((each) => each.localTime === occurrence.localTime) ??
+        (sameLabel.length === 1 ? sameLabel[0] : undefined);
     });
   }
   // The household's local day plus the chosen wall-clock time. composeLoggedAt
@@ -332,7 +340,9 @@ const LogFeedTray = ({ sheetRef, pets, today, timezone, pet, flow }: Props) => {
     header: active.length === 1 ? () => <PetHeading pet={active[0]} /> : undefined,
     // The feeds offered are the first pet's. Two pets rarely share a schedule,
     // and asking per pet would turn one trip to the kitchen into two flows.
-    render: () => <FeedPickerStep key={active[0]?.id} pet={active[0]} today={today} onPick={setOccurrence} />
+    render: () => (
+      <FeedPickerStep key={active[0]?.id} pet={active[0]} today={today} onPick={setOccurrence} />
+    )
   };
 
   const confirmStep: TrayStepDescriptor = {
