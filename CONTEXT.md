@@ -143,6 +143,14 @@ Members.
 _Avoid_: Household (that word means the group and nothing else), Feed, timeline, stream, news feed,
 social, wall.
 
+**Post Scope**:
+Which Households the Posts tab is currently reading. Either all of them, or one. A Member of a
+single Household never sees the control and never thinks about it. Chosen for the moment, not
+stored: a Scope that survived a relaunch would hide a Household's Posts from someone who had
+forgotten they narrowed it. Distinct from the Active Household, which decides where a new Post is
+written and where the rest of the app is pointed.
+_Avoid_: Feed filter, view, channel, workspace.
+
 **Edited**:
 The mark a Post carries once its author has changed the caption, the Pet Tags or the photos. Shown
 beside the Post's time. Set by the database, and only when something actually changed — including a

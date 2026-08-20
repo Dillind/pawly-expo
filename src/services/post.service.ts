@@ -109,15 +109,21 @@ function mapPostRow(row: PostRow, viewerId: string | null): Post {
 }
 
 namespace PostService {
+  /**
+   * A list, because a Member of several Households reads one Posts list across
+   * all of them. The keyset below still holds: the order is over the whole
+   * result rather than per household, so a page boundary does not care how many
+   * households its rows came from.
+   */
   export async function list(params: {
-    householdId: string;
+    householdIds: string[];
     viewerId: string | null;
     cursor?: PostsCursor;
   }): Promise<{ posts: Post[]; nextCursor: PostsCursor | null }> {
     let query = supabase
       .from('posts')
       .select(POST_SELECT)
-      .eq('household_id', params.householdId)
+      .in('household_id', params.householdIds)
       .order('occurred_at', { ascending: false })
       .order('id', { ascending: false })
       .order('created_at', { referencedTable: 'post_likes', ascending: true })

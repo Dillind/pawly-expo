@@ -15,21 +15,28 @@ import {
   useQueryClient
 } from '@tanstack/react-query';
 
-const postsKey = (householdId: string | undefined) => ['posts', householdId];
+/**
+ * One entry per Post Scope, all under a single prefix. Sorted, because the same
+ * households arriving in a different order must not fetch a second time.
+ */
+const postsKey = (householdIds: string[]) => ['posts', 'scope', [...householdIds].sort()];
 
-export function usePosts(householdId: string | undefined, viewerId: string | undefined) {
+/** Invalidating one scope leaves the others showing the post that just changed. */
+const ALL_SCOPES = ['posts', 'scope'];
+
+export function usePosts(householdIds: string[], viewerId: string | undefined) {
   return useInfiniteQuery({
-    queryKey: postsKey(householdId),
+    queryKey: postsKey(householdIds),
     queryFn: ({ pageParam }) =>
       PostService.list({
-        householdId: householdId!,
+        householdIds,
         viewerId: viewerId ?? null,
         cursor: pageParam ?? undefined
       }),
     initialPageParam: null as PostsCursor | null,
     getNextPageParam: (lastPage) => lastPage.nextCursor,
     select: (data) => data.pages.flatMap((page) => page.posts),
-    enabled: Boolean(householdId)
+    enabled: householdIds.length > 0
   });
 }
 
@@ -53,7 +60,7 @@ export function useCreatePost(householdId: string | undefined) {
       caption?: string | null;
       petIds?: string[];
     }) => PostService.create({ householdId: householdId!, ...input }),
-    onSettled: () => queryClient.invalidateQueries({ queryKey: postsKey(householdId) }),
+    onSettled: () => queryClient.invalidateQueries({ queryKey: ALL_SCOPES }),
     onSuccess: () => showSuccessToast(SuccessMessage.PostShared),
     onError: (error) => {
       console.error(error);
@@ -62,7 +69,7 @@ export function useCreatePost(householdId: string | undefined) {
   });
 }
 
-export function useUpdatePost(householdId: string | undefined) {
+export function useUpdatePost() {
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -75,7 +82,7 @@ export function useUpdatePost(householdId: string | undefined) {
       photos: PostPhotoInput[];
     }) => PostService.update(input),
     onSettled: (_data, _error, input) => {
-      void queryClient.invalidateQueries({ queryKey: postsKey(householdId) });
+      void queryClient.invalidateQueries({ queryKey: ALL_SCOPES });
       void queryClient.invalidateQueries({ queryKey: ['post', input.postId] });
     },
     onSuccess: () => showSuccessToast(SuccessMessage.PostUpdated),
@@ -86,12 +93,12 @@ export function useUpdatePost(householdId: string | undefined) {
   });
 }
 
-export function useDeletePost(householdId: string | undefined) {
+export function useDeletePost() {
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: (postId: string) => PostService.remove(postId),
-    onSettled: () => queryClient.invalidateQueries({ queryKey: postsKey(householdId) }),
+    onSettled: () => queryClient.invalidateQueries({ queryKey: ALL_SCOPES }),
     onSuccess: () => showSuccessToast(SuccessMessage.PostDeleted),
     onError: (error) => {
       console.error(error);
@@ -112,7 +119,7 @@ type PostsData = { pages: PostsPage[]; pageParams: unknown[] };
  * happen" without interrupting anyone; the real error still reaches the
  * console.
  */
-export function useToggleLike(householdId: string | undefined) {
+export function useToggleLike() {
   const queryClient = useQueryClient();
   const { userId, profile } = useAuthStore();
 
@@ -123,13 +130,14 @@ export function useToggleLike(householdId: string | undefined) {
         : PostService.like({ postId, userId: userId! }),
 
     onMutate: async ({ postId, liked }) => {
-      const key = postsKey(householdId);
-      await queryClient.cancelQueries({ queryKey: key });
+      await queryClient.cancelQueries({ queryKey: ALL_SCOPES });
 
       const detailKey = ['post', postId];
       await queryClient.cancelQueries({ queryKey: detailKey });
 
-      const previous = queryClient.getQueryData<PostsData>(key);
+      // Every cached scope, not one: the same post sits in the all-households
+      // list and in its own household's, and a heart fills in both or neither.
+      const previous = queryClient.getQueriesData<PostsData>({ queryKey: ALL_SCOPES });
       const previousDetail = queryClient.getQueryData<Post>(detailKey);
 
       // The mutation itself cannot run without an id, and an optimistic liker
@@ -154,7 +162,7 @@ export function useToggleLike(householdId: string | undefined) {
           : [...post.likers, me]
       });
 
-      queryClient.setQueryData<PostsData>(key, (old) =>
+      queryClient.setQueriesData<PostsData>({ queryKey: ALL_SCOPES }, (old) =>
         old
           ? {
               ...old,
@@ -174,9 +182,7 @@ export function useToggleLike(householdId: string | undefined) {
 
     onError: (error, input, context) => {
       console.error(error);
-      if (context?.previous) {
-        queryClient.setQueryData(postsKey(householdId), context.previous);
-      }
+      context?.previous.forEach(([key, data]) => queryClient.setQueryData(key, data));
       if (context?.previousDetail) {
         queryClient.setQueryData(['post', input.postId], context.previousDetail);
       }
@@ -232,12 +238,19 @@ export function useUnseenByHousehold(householdIds: string[]) {
   });
 }
 
-export function useMarkPostsSeen(householdId: string | undefined, userId: string | undefined) {
+/**
+ * Every household in the current Post Scope. Marking only the active one would
+ * leave a dot on a household whose posts are already on screen.
+ */
+export function useMarkPostsSeen(householdIds: string[], userId: string | undefined) {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: () => PostService.markSeen({ householdId: householdId!, userId: userId! }),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['posts-unseen', householdId] }),
+    mutationFn: () =>
+      Promise.all(
+        householdIds.map((householdId) => PostService.markSeen({ householdId, userId: userId! }))
+      ),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['posts-unseen'] }),
     onError: (error) => console.error(error)
   });
 }

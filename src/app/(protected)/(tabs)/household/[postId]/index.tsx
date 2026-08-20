@@ -4,7 +4,7 @@ import HeaderIconButton from '@/components/core/header-icon-button';
 import ScreenView from '@/components/layout/screen-view';
 import PostBody from '@/components/ui/post-body';
 import { type AppTheme } from '@/constants/theme';
-import { useHousehold } from '@/hooks/queries/household/use-household';
+import { useHouseholds } from '@/hooks/queries/household/use-households';
 import { useDeletePost, usePost, useToggleLike } from '@/hooks/queries/posts/use-posts';
 import { useStyles } from '@/hooks/use-styles';
 import { useAuthStore } from '@/stores/auth-store';
@@ -20,11 +20,15 @@ const PostDetail = () => {
 
   const { postId } = useLocalSearchParams<{ postId: string }>();
   const { userId } = useAuthStore();
-  const { data: household } = useHousehold();
+  const { data: households = [] } = useHouseholds();
   const { data: post, isLoading, isError, refetch } = usePost(postId, userId ?? undefined);
 
-  const { mutate: toggleLike } = useToggleLike(household?.id);
-  const { mutate: deletePost } = useDeletePost(household?.id);
+  const { mutate: toggleLike } = useToggleLike();
+  const { mutate: deletePost } = useDeletePost();
+
+  // The post's own household, not the active one: a post opened under the
+  // all-households scope can belong to a household the viewer is not in.
+  const household = households.find((candidate) => candidate.id === post?.householdId);
 
   const canEdit = post !== undefined && post.authorId === userId;
   const canDelete = canEdit || (post !== undefined && (household?.isOwner ?? false));
@@ -71,6 +75,7 @@ const PostDetail = () => {
           contentContainerStyle={styles.content}>
           <PostBody
             post={post}
+            householdName={households.length > 1 ? household?.name : undefined}
             onToggleLike={() => toggleLike({ postId: post.id, liked: post.likedByMe })}
           />
         </ScrollView>

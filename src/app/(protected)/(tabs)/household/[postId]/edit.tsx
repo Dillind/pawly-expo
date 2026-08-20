@@ -4,7 +4,6 @@ import PostComposer from '@/components/screens/household/post-composer';
 import PostModalHeader from '@/components/screens/household/post-modal-header';
 import { postSchema, type PostFormValues } from '@/constants/schemas/post';
 import type { AppTheme } from '@/constants/theme';
-import { useHousehold } from '@/hooks/queries/household/use-household';
 import { usePets } from '@/hooks/queries/pet/use-pets';
 import { usePost, useUpdatePost } from '@/hooks/queries/posts/use-posts';
 import { useStyles } from '@/hooks/use-styles';
@@ -22,7 +21,6 @@ const EditPost = () => {
 
   const { postId } = useLocalSearchParams<{ postId: string }>();
   const { userId } = useAuthStore();
-  const { data: household } = useHousehold();
   const { data: pets = [] } = usePets();
   const { data: post, isLoading, isError, refetch } = usePost(postId, userId ?? undefined);
 
@@ -53,7 +51,7 @@ const EditPost = () => {
     });
   }, [post, reset]);
 
-  const { mutate: updatePost, isPending: isSaving } = useUpdatePost(household?.id);
+  const { mutate: updatePost, isPending: isSaving } = useUpdatePost();
 
   const cancel = () => {
     if (!formState.isDirty) {

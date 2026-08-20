@@ -16,12 +16,17 @@ type Props = {
    * least one of them applies, and gets no menu rather than an empty one.
    */
   showActions?: boolean;
+  /**
+   * Which household the post was made in. Omitted when the viewer belongs to
+   * one -- naming the only household there is tells them nothing.
+   */
+  householdName?: string;
   onOpenActions?: () => void;
 };
 
 const AVATAR = 40;
 
-const PostHeader = ({ post, showActions = false, onOpenActions }: Props) => {
+const PostHeader = ({ post, showActions = false, householdName, onOpenActions }: Props) => {
   const styles = useStyles(makeStyles);
   const authorName = formatAuthorName(post.author);
 
@@ -36,9 +41,10 @@ const PostHeader = ({ post, showActions = false, onOpenActions }: Props) => {
         <AppText size={15} fontWeight="bold">
           {authorName}
         </AppText>
-        <AppText size={13} color="textSecondary">
+        <AppText size={13} color="textSecondary" numberOfLines={1}>
           {formatRelativeTime(post.occurredAt)}
           {post.editedAt ? ' · Edited' : ''}
+          {householdName ? ` · ${householdName}` : ''}
         </AppText>
       </View>
       {/* Absent rather than disabled when you cannot act: a menu with one

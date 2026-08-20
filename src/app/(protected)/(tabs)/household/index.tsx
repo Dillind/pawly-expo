@@ -6,8 +6,9 @@ import MainButton from '@/components/core/main-button';
 import MainLegendList from '@/components/core/main-legend-list';
 import ScreenView from '@/components/layout/screen-view';
 import PostCard from '@/components/ui/post-card';
+import PostFilterBar, { ALL_HOUSEHOLDS, type PostScope } from '@/components/ui/post-filter-bar';
 import { ScreenGutter, type AppTheme } from '@/constants/theme';
-import { useHousehold } from '@/hooks/queries/household/use-household';
+import { useHouseholds } from '@/hooks/queries/household/use-households';
 import {
   useDeletePost,
   useMarkPostsSeen,
@@ -22,7 +23,7 @@ import { useAuthStore } from '@/stores/auth-store';
 import type { LegendListRenderItemProps } from '@legendapp/list/react-native';
 import type { TrueSheet } from '@lodev09/react-native-true-sheet';
 import { useFocusEffect, useRouter } from 'expo-router';
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useMemo, useRef, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 
 const Posts = () => {
@@ -30,9 +31,23 @@ const Posts = () => {
   const router = useRouter();
 
   const { userId } = useAuthStore();
-  const { data: household } = useHousehold();
-  const householdId = household?.id;
-  const isOwner = household?.isOwner ?? false;
+  const { data: households = [] } = useHouseholds();
+
+  // Not persisted: the scope is where you are looking right now, and a filter
+  // surviving a relaunch hides posts from someone who has forgotten they set it.
+  const [scope, setScope] = useState<PostScope>(ALL_HOUSEHOLDS);
+  const isMultiHousehold = households.length > 1;
+
+  const householdIds = useMemo(() => {
+    const ids = households.map((household) => household.id);
+
+    return scope === ALL_HOUSEHOLDS ? ids : ids.filter((id) => id === scope);
+  }, [households, scope]);
+
+  const householdById = useMemo(
+    () => new Map(households.map((household) => [household.id, household])),
+    [households]
+  );
 
   const [activePost, setActivePost] = useState<Post | null>(null);
   const actionsSheetRef = useRef<TrueSheet | null>(null);
@@ -45,29 +60,32 @@ const Posts = () => {
     fetchNextPage,
     hasNextPage,
     isFetchingNextPage
-  } = usePosts(householdId, userId ?? undefined);
+  } = usePosts(householdIds, userId ?? undefined);
 
   useRefreshOnFocus(['posts']);
   const { isRefreshing, onRefresh } = usePullToRefresh([refetch]);
 
-  const { mutate: toggleLike } = useToggleLike(householdId);
-  const { mutate: deletePost } = useDeletePost(householdId);
-  const { mutate: markSeen } = useMarkPostsSeen(householdId, userId ?? undefined);
+  const { mutate: toggleLike } = useToggleLike();
+  const { mutate: deletePost } = useDeletePost();
+  const { mutate: markSeen } = useMarkPostsSeen(householdIds, userId ?? undefined);
 
   // Clearing the dot is a side effect of arriving, not of the data loading, so
   // it fires on focus rather than in an effect keyed on the query.
   useFocusEffect(
     useCallback(() => {
-      if (householdId && userId) markSeen();
-    }, [householdId, userId, markSeen])
+      if (householdIds.length > 0 && userId) markSeen();
+    }, [householdIds, userId, markSeen])
   );
 
   // Editing is the author's alone. An Owner may remove a member's post but
   // never rewrite it under their name -- the same split as the RLS policies.
+  // Ownership is read from the post's own household, not the active one: under
+  // the all-households scope those differ from one row to the next.
   const permissions = (post: Post | null) => {
     const canEdit = post !== null && post.authorId === userId;
+    const isOwner = post !== null && (householdById.get(post.householdId)?.isOwner ?? false);
 
-    return { canEdit, canDelete: canEdit || (post !== null && isOwner) };
+    return { canEdit, canDelete: canEdit || isOwner };
   };
 
   const renderItem = ({ item }: LegendListRenderItemProps<Post>) => {
@@ -77,6 +95,9 @@ const Posts = () => {
       <PostCard
         post={item}
         showActions={canEdit || canDelete}
+        householdName={
+          isMultiHousehold ? householdById.get(item.householdId)?.name : undefined
+        }
         onToggleLike={() => toggleLike({ postId: item.id, liked: item.likedByMe })}
         onOpenActions={() => {
           setActivePost(item);
@@ -103,6 +124,12 @@ const Posts = () => {
           onPress={() => router.push('/household/new-post')}
         />
       </View>
+
+      {isMultiHousehold && (
+        <View style={styles.filter}>
+          <PostFilterBar households={households} scope={scope} onChange={setScope} />
+        </View>
+      )}
 
       <MainLegendList<Post>
         data={posts}
@@ -174,6 +201,9 @@ const makeStyles = ({ spacing }: AppTheme) =>
     },
     emptyGutter: {
       paddingHorizontal: ScreenGutter
+    },
+    filter: {
+      paddingBottom: spacing.three
     }
   });
 

@@ -43,3 +43,38 @@ with nothing to pop to and the back button vanishes — observed on device, not 
 **`UserFacingError` carries the original error as `cause`.** Translating a driver failure into copy
 for a person otherwise destroys the only thing that explains it, and `console.error` in every
 `onError` ends up printing our own sentence back at us. `logError` prints both.
+
+
+---
+
+## 2026-08-21
+
+**The Posts photo is full-bleed, and PostBody owns the gutter.** Matching Hevy means the picture
+reaches both screen edges, which no parent can allow while it is padding its children. So the
+gutter moved down into `PostBody`, which re-indents its own words and lets the carousel through at
+full width. Both surfaces that render a Post — the tab and Post Detail — now hand it the whole
+width. The card lost its radius, shadow and background in the same move: a frame drawn around a
+picture that has already left it reads as a mistake.
+
+**The pager dots sit on the photo, not under it.** Below the frame they cost a row of height on
+every multi-photo Post and split the pager into two things that do not look related. The scrim
+behind them is what keeps them legible on a pale photo, which is the reason the dots were outside
+the frame to begin with.
+
+**The Posts tab reads every Household at once by default.** `PostService.list` takes
+`householdIds`, and the keyset paging is unchanged — the order was always over the whole result,
+never per household, so a page boundary does not care how many Households its rows came from. The
+filter narrows to one; see Post Scope in CONTEXT.md for why it is not persisted.
+
+**Post permissions are read from the Post's own Household.** Under the all-Households Scope, two
+adjacent rows can belong to two Households the viewer holds different roles in, so the old check
+against the Active Household's `isOwner` was wrong on every row but one. Both the tab and Post
+Detail now look the Household up by `post.householdId`.
+
+**Every cached Scope is invalidated together, and a Like writes to all of them.** The same Post
+sits in the all-Households list and in its own Household's, so a heart filled in one has to fill in
+both. `setQueriesData` over the shared `['posts', 'scope']` prefix does that; a single key could
+not.
+
+**Arriving at the tab marks every Household in the Scope seen.** Marking only the Active one left a
+dot on a Household whose Posts were already on the screen.

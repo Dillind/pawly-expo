@@ -14,6 +14,8 @@ type Props = {
   post: Post;
   /** Set on the Posts tab only: Post Detail keeps its ⋯ in the header. */
   showActions?: boolean;
+  /** Passed straight to PostHeader; see its prop for when it is omitted. */
+  householdName?: string;
   titleLines?: number;
   captionLines?: number;
   onToggleLike: () => void;
@@ -36,6 +38,7 @@ type Props = {
 const PostBody = ({
   post,
   showActions,
+  householdName,
   titleLines,
   captionLines,
   onToggleLike,
@@ -47,7 +50,12 @@ const PostBody = ({
   return (
     <View style={styles.body}>
       <View style={styles.gutter}>
-        <PostHeader post={post} showActions={showActions} onOpenActions={onOpenActions} />
+        <PostHeader
+          post={post}
+          showActions={showActions}
+          householdName={householdName}
+          onOpenActions={onOpenActions}
+        />
 
         <View style={styles.words}>
           <PostTitle title={post.title} numberOfLines={titleLines} onPress={onOpen} />
