@@ -3,6 +3,7 @@
   "language": "en,en-GB",
   "words": [
     "ABCDEFGHJKMNPQRSTUVWXYZ",
+    "smallint",
     "EXDATE",
     "RRULE",
     "daterange",
