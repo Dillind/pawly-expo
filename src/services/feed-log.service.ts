@@ -21,10 +21,10 @@ type FeedLogRow = {
 export type FeedLogsCursor = { loggedAt: string; id: string };
 
 export type LogFeedResult =
-  | { status: 'logged'; logId: string }
+  | { status: 'logged'; logId: string; isExtraFeed: boolean }
   | {
       status: 'double_feed';
-      slot: { label: FeedingScheduleLabel; scheduledTime: string };
+      occurrence: { label: FeedingScheduleLabel; localTime: string };
       existing: { id: string; loggedAt: string; loggedBy: string | null };
     };
 
@@ -49,18 +49,23 @@ function mapLogFeedResult(data: unknown): LogFeedResult {
   const payload = data as {
     status?: string;
     log_id?: string;
-    slot?: { label: FeedingScheduleLabel; scheduled_time: string };
+    is_extra_feed?: boolean;
+    occurrence?: { label: FeedingScheduleLabel; local_time: string };
     existing?: { id: string; logged_at: string; logged_by: string | null };
   };
 
   if (payload.status === 'logged' && payload.log_id) {
-    return { status: 'logged', logId: payload.log_id };
+    return {
+      status: 'logged',
+      logId: payload.log_id,
+      isExtraFeed: payload.is_extra_feed ?? false
+    };
   }
 
-  if (payload.status === 'double_feed' && payload.slot && payload.existing) {
+  if (payload.status === 'double_feed' && payload.occurrence && payload.existing) {
     return {
       status: 'double_feed',
-      slot: { label: payload.slot.label, scheduledTime: payload.slot.scheduled_time },
+      occurrence: { label: payload.occurrence.label, localTime: payload.occurrence.local_time },
       existing: {
         id: payload.existing.id,
         loggedAt: payload.existing.logged_at,
@@ -121,21 +126,32 @@ namespace FeedLogService {
 
   /**
    * The only write path for a feed log. `log_feed` decides and inserts in one
-   * transaction, so two members logging the same slot at the same moment cannot
-   * both be told there is no double feed.
+   * transaction, so two members logging the same occurrence at the same moment
+   * cannot both be told there is no double feed.
+   *
+   * Omit `seriesId`/`occurrenceDate` for an Extra Feed, which satisfies nothing.
    *
    * A `double_feed` result means nothing was written. Calling again with
-   * `confirmed: true` writes unconditionally.
+   * `confirmed: true` writes it as an Extra Feed — the occurrence is already
+   * satisfied, so the second feed cannot satisfy it again.
    */
   export async function log(
     petId: string,
-    input: { loggedAt?: string; notes?: string | null; confirmed?: boolean }
+    input: {
+      loggedAt?: string;
+      notes?: string | null;
+      confirmed?: boolean;
+      seriesId?: string | null;
+      occurrenceDate?: string | null;
+    }
   ): Promise<LogFeedResult> {
     const { data, error } = await supabase.rpc('log_feed', {
       target_pet_id: petId,
       target_logged_at: input.loggedAt ?? new Date().toISOString(),
       target_notes: input.notes ?? null,
-      confirmed: input.confirmed ?? false
+      confirmed: input.confirmed ?? false,
+      target_series_id: input.seriesId ?? null,
+      target_occurrence_date: input.occurrenceDate ?? null
     });
 
     if (error) throw error;

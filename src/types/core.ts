@@ -77,17 +77,25 @@ export type HouseholdMember = {
   feedLoggedAlerts: boolean;
 };
 
-export type SlotStateValue = 'fed' | 'due' | 'missed' | 'upcoming';
+export type OccurrenceStateValue = 'fed' | 'due' | 'missed' | 'upcoming';
 
 export type FeedingScheduleLabel = 'morning' | 'lunch' | 'dinner' | 'custom';
 
-export type SlotState = {
-  scheduleId: string;
+/**
+ * One expected feed on one local day. `seriesId` and `occurrenceDate` together
+ * name it, and a feed log carries the same pair — which is what makes a Double
+ * Feed a fact rather than a guess.
+ */
+export type Occurrence = {
+  seriesId: string;
+  /** ISO YYYY-MM-DD in the household's timezone. */
+  occurrenceDate: string;
   /** Postgres `time`, e.g. "07:00:00". */
-  scheduledTime: string;
+  localTime: string;
   label: FeedingScheduleLabel;
+  instructions: string | null;
   scheduledAt: string;
-  state: SlotStateValue;
+  state: OccurrenceStateValue;
   satisfyingLogId: string | null;
   satisfiedAt: string | null;
   satisfiedBy: string | null;

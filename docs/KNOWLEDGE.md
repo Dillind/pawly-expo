@@ -83,6 +83,16 @@ swallows a tap on a header control.
 **Two simulators are in use.** iPhone 17 Pro is signed out and is the one for auth work. iPhone 17
 Pro Max holds a live session with real data — **do not sign it out**.
 
+**A `daterange` is never null, so "the current version" is not a PostgREST filter.** The live
+version of a Feed Time is the one whose range has an open upper bound, and `upper(effective) is
+null` cannot be expressed over REST — `.is('effective', null)` silently matches nothing and the
+editor renders an empty list with no error. `public.pet_feed_times` exists for exactly this. The
+same trap catches any "current row" query built on a range instead of a boolean flag.
+
+**`extract(dow ...)` is 0=Sunday; `isodow` is 1=Monday.** `feed_times.days_of_week` uses the
+first. Swapping them shifts every weekday-only feed by one day, and nothing fails — the feed just
+turns up on the wrong days.
+
 ## This repo
 
 **`docs/agents/` is gitignored.** `git add` skips new files there silently; `git add -f` is the only

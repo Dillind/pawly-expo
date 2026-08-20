@@ -1,4 +1,4 @@
-import FeedingScheduleService from '@/services/feeding-schedule.service';
+import FeedTimeService from '@/services/feed-time.service';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useCallback } from 'react';
 
@@ -9,31 +9,31 @@ const LIVE_REFETCH_MS = 60_000;
  * Date, which re-serialises every render and thrashes the cache key.
  *
  * `live` is for today only. `state` is computed server-side at fetch time, so
- * a slot sitting at `due` would otherwise flip to `missed` with nothing telling
- * the client.
+ * an occurrence sitting at `due` would otherwise flip to `missed` with nothing
+ * telling the client.
  */
-export function useSlotStates(
+export function useOccurrences(
   petId: string | undefined,
   date: string | undefined,
   options?: { live?: boolean }
 ) {
   return useQuery({
-    queryKey: ['slot-states', petId, date],
-    queryFn: () => FeedingScheduleService.getSlotStates(petId as string, date as string),
+    queryKey: ['occurrences', petId, date],
+    queryFn: () => FeedTimeService.getOccurrences(petId as string, date as string),
     enabled: Boolean(petId) && Boolean(date),
     refetchInterval: options?.live ? LIVE_REFETCH_MS : false
   });
 }
 
 /**
- * Every pet's slot states at once, for a screen that renders several and holds
+ * Every pet's occurrences at once, for a screen that renders several and holds
  * no single query of its own to refetch.
  */
-export function useRefreshSlotStates() {
+export function useRefreshOccurrences() {
   const queryClient = useQueryClient();
 
   return useCallback(
-    () => queryClient.refetchQueries({ queryKey: ['slot-states'], type: 'active' }),
+    () => queryClient.refetchQueries({ queryKey: ['occurrences'], type: 'active' }),
     [queryClient]
   );
 }

@@ -5,11 +5,11 @@ import type { IconName } from '@/constants/icon-map';
 import type { AppTheme, ThemeColor } from '@/constants/theme';
 import { useStyles } from '@/hooks/use-styles';
 import { formatScheduledTime, formatTimeOfDay } from '@/lib/dates';
-import type { FeedingScheduleLabel, SlotState } from '@/types/core';
+import type { FeedingScheduleLabel, Occurrence } from '@/types/core';
 import { StyleSheet, View } from 'react-native';
 
 type Props = {
-  slot: SlotState;
+  occurrence: Occurrence;
   timezone: string;
   fedBy: string;
   /** Inside a card already. Drops its own fill so the two do not stack. */
@@ -17,54 +17,54 @@ type Props = {
   onPress?: () => void;
 };
 
-const slotLabelText: Record<FeedingScheduleLabel, string> = {
+const labelText: Record<FeedingScheduleLabel, string> = {
   morning: 'Morning',
   lunch: 'Lunch',
   dinner: 'Dinner',
   custom: 'Feed'
 };
 
-const stateIcon: Record<SlotState['state'], IconName> = {
+const stateIcon: Record<Occurrence['state'], IconName> = {
   fed: 'check',
   due: 'dot',
   missed: 'circleAlert',
   upcoming: 'dot'
 };
 
-const stateColour: Record<SlotState['state'], ThemeColor> = {
+const stateColour: Record<Occurrence['state'], ThemeColor> = {
   fed: 'primary',
   due: 'accent',
   missed: 'error',
   upcoming: 'textSecondary'
 };
 
-const SlotRow = ({ slot, timezone, fedBy, isNested = false, onPress }: Props) => {
+const OccurrenceRow = ({ occurrence, timezone, fedBy, isNested = false, onPress }: Props) => {
   const styles = useStyles(makeStyles);
   const rowStyle = [styles.row, isNested && styles.nested];
 
   const detail =
-    slot.state === 'fed' && slot.satisfiedAt
-      ? `${fedBy}, ${formatTimeOfDay(slot.satisfiedAt, timezone)}`
+    occurrence.state === 'fed' && occurrence.satisfiedAt
+      ? `${fedBy}, ${formatTimeOfDay(occurrence.satisfiedAt, timezone)}`
       : // "Not logged", never "Missed" -- CONTEXT.md, Not Logged.
-        { fed: 'Fed', due: 'Due now', missed: 'Not logged', upcoming: 'Upcoming' }[slot.state];
+        { fed: 'Fed', due: 'Due now', missed: 'Not logged', upcoming: 'Upcoming' }[occurrence.state];
 
   const body = (
     <>
-      <Icon name={stateIcon[slot.state]} size={18} color={stateColour[slot.state]} />
+      <Icon name={stateIcon[occurrence.state]} size={18} color={stateColour[occurrence.state]} />
       <AppText size={16} style={styles.label}>
-        {slotLabelText[slot.label]}
+        {labelText[occurrence.label]}
       </AppText>
       <AppText size={14} color="textSecondary">
-        {formatScheduledTime(slot.scheduledTime)}
+        {formatScheduledTime(occurrence.localTime)}
       </AppText>
-      <AppText size={14} color={stateColour[slot.state]} style={styles.detail} align="right">
+      <AppText size={14} color={stateColour[occurrence.state]} style={styles.detail} align="right">
         {detail}
       </AppText>
     </>
   );
 
-  // `upcoming` has no onPress: its Scheduled Time is in the future and RLS
-  // rejects a logged_at later than now(), so a tap could write nothing.
+  // `upcoming` has no onPress: its Feed Time is in the future and RLS rejects a
+  // logged_at later than now(), so a tap could write nothing.
   if (!onPress) return <View style={rowStyle}>{body}</View>;
 
   return (
@@ -99,4 +99,4 @@ const makeStyles = ({ colors, spacing }: AppTheme) =>
     }
   });
 
-export default SlotRow;
+export default OccurrenceRow;

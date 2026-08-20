@@ -4,14 +4,14 @@ import Icon from '@/components/core/icon';
 import IconButton from '@/components/core/icon-button';
 import PressableOpacity from '@/components/core/pressable-opacity';
 import PetAvatar from '@/components/screens/home/pet-avatar';
-import ScheduledTimeList from '@/components/ui/scheduled-time-list';
+import OccurrenceList from '@/components/ui/occurrence-list';
 import { Radius, type AppTheme } from '@/constants/theme';
-import { useSlotStates } from '@/hooks/queries/feeding/use-slot-states';
+import { useOccurrences } from '@/hooks/queries/feeding/use-occurrences';
 import { useStyles } from '@/hooks/use-styles';
 import { useTheme } from '@/hooks/use-theme';
 import { createShadowMedium } from '@/lib/styles/shadows';
 import { formatScheduledTime } from '@/lib/dates';
-import type { HouseholdMember, Pet, SlotState } from '@/types/core';
+import type { HouseholdMember, Occurrence, Pet } from '@/types/core';
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
 import { ActivityIndicator, StyleSheet, View } from 'react-native';
@@ -33,29 +33,31 @@ type Props = {
   members: HouseholdMember[];
   isOnlyPet: boolean;
   onOpenLog: (logId: string) => void;
-  onPickSlot: (pet: Pet, slot: SlotState) => void;
+  onPickOccurrence: (pet: Pet, occurrence: Occurrence) => void;
   onLogPress: () => void;
 };
 
 /** "logged", never "fed" -- the count is of records, not meals. CONTEXT.md, Not Logged. */
-function summarise(slots: SlotState[], hasBadge: boolean): string {
-  const logged = slots.filter((slot) => slot.state === 'fed').length;
-  const summary = `${logged} of ${slots.length} logged`;
+function summarise(occurrences: Occurrence[], hasBadge: boolean): string {
+  const logged = occurrences.filter((occurrence) => occurrence.state === 'fed').length;
+  const summary = `${logged} of ${occurrences.length} logged`;
 
   // Both on one line wraps, and the badge already names what is outstanding.
   if (hasBadge) return summary;
 
-  const next = slots.find((slot) => slot.state === 'due' || slot.state === 'upcoming');
+  const next = occurrences.find(
+    (occurrence) => occurrence.state === 'due' || occurrence.state === 'upcoming'
+  );
   if (!next) return summary;
 
-  return `${summary} · next ${formatScheduledTime(next.scheduledTime)}`;
+  return `${summary} · next ${formatScheduledTime(next.localTime)}`;
 }
 
 /**
  * One pet's feed times for today, collapsed until asked for.
  *
- * The slot query lives here rather than in Home because a hook cannot be called
- * once per item from a loop.
+ * The occurrence query lives here rather than in Home because a hook cannot be
+ * called once per item from a loop.
  */
 const PetSection = ({
   pet,
@@ -64,7 +66,7 @@ const PetSection = ({
   members,
   isOnlyPet,
   onOpenLog,
-  onPickSlot,
+  onPickOccurrence,
   onLogPress
 }: Props) => {
   const styles = useStyles(makeStyles);
@@ -75,10 +77,12 @@ const PetSection = ({
   // cluttered screen this replaced.
   const [isExpanded, setIsExpanded] = useState(isOnlyPet);
 
-  const { data: slots, isLoading } = useSlotStates(pet.id, today, { live: true });
+  const { data: occurrences, isLoading } = useOccurrences(pet.id, today, { live: true });
 
-  const notLogged = slots?.filter((slot) => slot.state === 'missed').length ?? 0;
-  const isAllLogged = Boolean(slots?.length) && slots?.every((slot) => slot.state === 'fed');
+  const notLogged =
+    occurrences?.filter((occurrence) => occurrence.state === 'missed').length ?? 0;
+  const isAllLogged =
+    Boolean(occurrences?.length) && occurrences?.every((occurrence) => occurrence.state === 'fed');
   const hasBadge = notLogged > 0 && !isExpanded;
 
   const caretStyle = useAnimatedStyle(() => ({
@@ -109,10 +113,10 @@ const PetSection = ({
             <AppText size={18} fontWeight="bold" numberOfLines={1}>
               {pet.name}
             </AppText>
-            {slots && (
+            {occurrences && (
               <View style={styles.summaryRow}>
                 <AppText size={13} color="textSecondary" numberOfLines={1}>
-                  {summarise(slots, hasBadge)}
+                  {summarise(occurrences, hasBadge)}
                 </AppText>
                 {hasBadge && (
                   <AppText size={13} color="error" numberOfLines={1}>
@@ -156,18 +160,18 @@ const PetSection = ({
           <ActivityIndicator />
         ) : (
           <Animated.View
-            style={styles.slots}
+            style={styles.occurrences}
             entering={FadeIn.duration(EXPAND_MS)}
             exiting={FadeOut.duration(COLLAPSE_MS)}>
             <Divider />
-            {slots && (
-              <ScheduledTimeList
-                slots={slots}
+            {occurrences && (
+              <OccurrenceList
+                occurrences={occurrences}
                 timezone={timezone}
                 members={members}
                 isNested
                 onOpenLog={onOpenLog}
-                onPickSlot={(slot) => onPickSlot(pet, slot)}
+                onPickOccurrence={(occurrence) => onPickOccurrence(pet, occurrence)}
               />
             )}
           </Animated.View>
@@ -186,7 +190,7 @@ const makeStyles = ({ colors, spacing }: AppTheme) =>
     },
     // The rule and the times only show when expanded, so a collapsed row is a
     // plain card and owes this gap nothing.
-    slots: {
+    occurrences: {
       marginTop: spacing.two
     },
     headerRow: {

@@ -2,16 +2,15 @@ import AppText from '@/components/core/app-text';
 import Icon from '@/components/core/icon';
 import PressableOpacity from '@/components/core/pressable-opacity';
 import Tray, { useTray, type TrayStepDescriptor } from '@/components/core/tray';
-import LateFeedStep from '@/components/screens/home/late-feed-step';
 import PetAvatar from '@/components/screens/home/pet-avatar';
-import ScheduledTimeList from '@/components/ui/scheduled-time-list';
+import OccurrenceList from '@/components/ui/occurrence-list';
 import type { AppTheme } from '@/constants/theme';
-import { useSlotStates } from '@/hooks/queries/feeding/use-slot-states';
+import { useOccurrences } from '@/hooks/queries/feeding/use-occurrences';
 import type { useLogFlow } from '@/hooks/use-log-flow';
 import { useStyles } from '@/hooks/use-styles';
 import type { HouseholdMember, Pet } from '@/types/core';
 import type { TrueSheet } from '@lodev09/react-native-true-sheet';
-import { useEffect, useState, type RefObject } from 'react';
+import { useState, type RefObject } from 'react';
 import { ActivityIndicator, StyleSheet, View } from 'react-native';
 
 type Flow = ReturnType<typeof useLogFlow>;
@@ -72,30 +71,19 @@ const TimeStep = ({
   flow: Flow;
   onOpenLog: (logId: string) => void;
 }) => {
-  const { data: slots, isLoading } = useSlotStates(pet?.id, today);
+  const { data: occurrences, isLoading } = useOccurrences(pet?.id, today);
 
-  if (!pet || isLoading || !slots) return <ActivityIndicator />;
+  if (!pet || isLoading || !occurrences) return <ActivityIndicator />;
 
   return (
-    <ScheduledTimeList
-      slots={slots}
+    <OccurrenceList
+      occurrences={occurrences}
       timezone={timezone}
       members={members}
       onOpenLog={onOpenLog}
-      onPickSlot={(slot) => flow.pickSlot(pet, slot)}
+      onPickOccurrence={(occurrence) => flow.pickOccurrence(pet, occurrence)}
     />
   );
-};
-
-/** Moves the tray onto the late-feed step when the flow asks. */
-const WhenNavigator = ({ token }: { token: number }) => {
-  const { goTo } = useTray();
-
-  useEffect(() => {
-    if (token > 0) goTo('when');
-  }, [token, goTo]);
-
-  return null;
 };
 
 const PetHeading = ({ pet }: { pet: Pet }) => {
@@ -112,8 +100,8 @@ const PetHeading = ({ pet }: { pet: Pet }) => {
 };
 
 /**
- * Raised only when there is something to ask: which pet, which Scheduled Time,
- * or when a late feed happened. A pick needing none of those writes without it.
+ * Raised only when there is something to ask: which pet, and which Feed Time.
+ * A pick needing neither writes without it.
  */
 const LogFeedTray = ({ sheetRef, pets, timezone, today, members, pet, flow, onOpenLog }: Props) => {
   const [selected, setSelected] = useState<Pet | undefined>(undefined);
@@ -138,43 +126,18 @@ const LogFeedTray = ({ sheetRef, pets, timezone, today, members, pet, flow, onOp
     )
   };
 
-  const whenStep: TrayStepDescriptor = {
-    id: 'when',
-    title: 'When was this feed?',
-    render: () =>
-      flow.confirm ? (
-        <LateFeedStep
-          confirm={flow.confirm}
-          timezone={timezone}
-          isLogging={flow.isLogging}
-          onResolveLate={flow.resolveLate}
-        />
-      ) : null
-  };
-
   const steps: TrayStepDescriptor[] = active
-    ? [timeStep, whenStep]
+    ? [timeStep]
     : [
         {
           id: 'pet',
           title: 'Log a feed',
           render: () => <PetPickerStep pets={pets} onSelect={setSelected} />
         },
-        timeStep,
-        whenStep
+        timeStep
       ];
 
-  return (
-    <Tray
-      sheetRef={sheetRef}
-      steps={steps}
-      onDismiss={() => {
-        setSelected(undefined);
-        flow.cancel();
-      }}>
-      <WhenNavigator token={flow.confirmToken} />
-    </Tray>
-  );
+  return <Tray sheetRef={sheetRef} steps={steps} onDismiss={() => setSelected(undefined)} />;
 };
 
 const makeStyles = ({ colors, spacing }: AppTheme) =>

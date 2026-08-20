@@ -7,12 +7,12 @@ import MainButton from '@/components/core/main-button';
 import Tray, { type TrayStepDescriptor } from '@/components/core/tray';
 import { FEEDING_SCHEDULE_LABEL_OPTIONS } from '@/constants/options';
 import type { AppTheme } from '@/constants/theme';
-import { useFeedingSchedules } from '@/hooks/queries/feeding/use-feeding-schedules';
+import { useFeedTimes } from '@/hooks/queries/feeding/use-feed-times';
 import { useHousehold } from '@/hooks/queries/household/use-household';
-import { useDeleteSlot, useUpsertSlot } from '@/hooks/queries/feeding/use-schedule-mutations';
+import { useEndFeedTime, useSaveFeedTime } from '@/hooks/queries/feeding/use-feed-time-mutations';
 import { useStyles } from '@/hooks/use-styles';
-import { slotSchema, type SlotInput } from '@/lib/form/pet-schemas';
-import type { FeedingSlot } from '@/services/feeding-schedule.service';
+import { EVERY_DAY, feedTimeSchema, type FeedTimeInput } from '@/lib/form/pet-schemas';
+import type { FeedTime } from '@/services/feed-time.service';
 import { zodResolver } from '@hookform/resolvers/zod';
 import type { TrueSheet } from '@lodev09/react-native-true-sheet';
 import dayjs from 'dayjs';
@@ -24,34 +24,36 @@ const capitalize = (value: string) => value.charAt(0).toUpperCase() + value.slic
 
 type EditStepProps = {
   petId: string;
-  slot: FeedingSlot | null;
+  feedTime: FeedTime | null;
   onDone: () => void;
 };
 
-const EditStep = ({ petId, slot, onDone }: EditStepProps) => {
+const EditStep = ({ petId, feedTime, onDone }: EditStepProps) => {
   const styles = useStyles(makeStyles);
-  const { mutate: upsertSlot, isPending: isSaving } = useUpsertSlot(petId);
-  const { mutate: deleteSlot, isPending: isDeleting } = useDeleteSlot(petId);
+  const { mutate: saveFeedTime, isPending: isSaving } = useSaveFeedTime(petId);
+  const { mutate: endFeedTime, isPending: isDeleting } = useEndFeedTime(petId);
 
-  const form = useForm<SlotInput>({
-    resolver: zodResolver(slotSchema),
+  const form = useForm<FeedTimeInput>({
+    resolver: zodResolver(feedTimeSchema),
     defaultValues: {
-      label: slot?.label ?? 'custom',
-      scheduledTime: slot?.scheduledTime ?? '17:00'
+      label: feedTime?.label ?? 'custom',
+      localTime: feedTime?.localTime ?? '17:00',
+      daysOfWeek: feedTime?.daysOfWeek ?? [...EVERY_DAY],
+      instructions: feedTime?.instructions ?? null
     }
   });
   const { control, handleSubmit } = form;
 
-  const scheduledTime = useWatch({ control, name: 'scheduledTime' });
+  const localTime = useWatch({ control, name: 'localTime' });
 
   const onSubmit = handleSubmit((values) => {
-    upsertSlot({ ...values, id: slot?.id }, { onSuccess: onDone });
+    saveFeedTime({ ...values, seriesId: feedTime?.seriesId }, { onSuccess: onDone });
   });
 
   const onDelete = () => {
-    if (!slot) return;
+    if (!feedTime) return;
 
-    deleteSlot(slot.id, { onSuccess: onDone });
+    endFeedTime(feedTime.seriesId, { onSuccess: onDone });
   };
 
   return (
@@ -73,13 +75,13 @@ const EditStep = ({ petId, slot, onDone }: EditStepProps) => {
 
         <Controller
           control={control}
-          name="scheduledTime"
+          name="localTime"
           render={({ field: { onChange } }) => (
             <DateTimePickerValidated
-              name="scheduledTime"
+              name="localTime"
               mode="time"
               label="Time fed"
-              selectedDate={scheduledTime}
+              selectedDate={localTime}
               setSelectedDate={onChange}
             />
           )}
@@ -92,7 +94,7 @@ const EditStep = ({ petId, slot, onDone }: EditStepProps) => {
           onPress={() => void onSubmit()}
         />
 
-        {slot && (
+        {feedTime && (
           <MainButton
             text={isDeleting ? 'Removing…' : 'Remove this feed'}
             variant="text"
@@ -111,26 +113,26 @@ type Props = { petId: string };
 const ScheduleSection = ({ petId }: Props) => {
   const styles = useStyles(makeStyles);
   const sheetRef = useRef<TrueSheet | null>(null);
-  const [editingSlot, setEditingSlot] = useState<FeedingSlot | null>(null);
-  const { data: slots = [], isLoading, isError, refetch } = useFeedingSchedules(petId);
+  const [editingFeedTime, setEditingFeedTime] = useState<FeedTime | null>(null);
+  const { data: feedTimes = [], isLoading, isError, refetch } = useFeedTimes(petId);
   // A sitter should not be able to move dinner. A partner should -- and a
   // partner is invited as an owner, so the rule lands the right way round.
   const { data: household } = useHousehold();
   const isOwner = household?.isOwner ?? false;
 
-  const openEdit = (slot: FeedingSlot | null) => {
-    setEditingSlot(slot);
+  const openEdit = (next: FeedTime | null) => {
+    setEditingFeedTime(next);
     void sheetRef.current?.present();
   };
 
   const steps: TrayStepDescriptor[] = [
     {
       id: 'edit',
-      title: editingSlot ? `Edit ${capitalize(editingSlot.label)} feed` : 'Add a feed time',
+      title: editingFeedTime ? `Edit ${capitalize(editingFeedTime.label)} feed` : 'Add a feed time',
       render: () => (
         <EditStep
           petId={petId}
-          slot={editingSlot}
+          feedTime={editingFeedTime}
           onDone={() => void sheetRef.current?.dismiss()}
         />
       )
@@ -162,27 +164,27 @@ const ScheduleSection = ({ petId }: Props) => {
         />
       ) : isLoading ? (
         <ActivityIndicator />
-      ) : slots.length === 0 ? (
+      ) : feedTimes.length === 0 ? (
         <AppText color="textSecondary" size={14}>
           No feed times yet. Add one to get missed-feed alerts.
         </AppText>
       ) : (
         <View style={styles.list}>
-          {slots.map((slot) => (
-            <View key={slot.id} style={styles.slotRow}>
+          {feedTimes.map((feedTime) => (
+            <View key={feedTime.seriesId} style={styles.feedTimeRow}>
               <View>
-                <AppText size={16}>{capitalize(slot.label)}</AppText>
+                <AppText size={16}>{capitalize(feedTime.label)}</AppText>
                 <AppText color="textSecondary" size={14}>
-                  {dayjs(slot.scheduledTime, 'HH:mm').format('h:mm A')}
+                  {dayjs(feedTime.localTime, 'HH:mm').format('h:mm A')}
                 </AppText>
               </View>
               {isOwner && (
                 <IconButton
                   name="pencil"
-                  accessibilityLabel={`Edit ${slot.label} feed`}
+                  accessibilityLabel={`Edit ${feedTime.label} feed`}
                   variant="ghost"
                   size={18}
-                  onPress={() => openEdit(slot)}
+                  onPress={() => openEdit(feedTime)}
                 />
               )}
             </View>
@@ -190,7 +192,7 @@ const ScheduleSection = ({ petId }: Props) => {
         </View>
       )}
 
-      <Tray sheetRef={sheetRef} steps={steps} onDismiss={() => setEditingSlot(null)} />
+      <Tray sheetRef={sheetRef} steps={steps} onDismiss={() => setEditingFeedTime(null)} />
     </View>
   );
 };
@@ -204,7 +206,7 @@ const makeStyles = ({ spacing, colors }: AppTheme) =>
       justifyContent: 'space-between'
     },
     list: { gap: spacing.two },
-    slotRow: {
+    feedTimeRow: {
       flexDirection: 'row',
       alignItems: 'center',
       justifyContent: 'space-between',

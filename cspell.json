@@ -8,6 +8,7 @@
     "EXDATE",
     "RRULE",
     "daterange",
+    "isodow",
     "bitemporal",
     "Apoquel",
     "Cavoodle",

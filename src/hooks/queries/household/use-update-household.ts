@@ -18,9 +18,9 @@ export function useUpdateHousehold(householdId: string | undefined, success: str
       HouseholdService.update(householdId as string, patch),
     onSettled: () => {
       void queryClient.invalidateQueries({ queryKey: householdsKey(userId) });
-      // The timezone and grace window decide every slot calculation, so a
+      // The timezone and grace window decide every occurrence calculation, so a
       // change to either makes the whole day's derived state wrong.
-      void queryClient.invalidateQueries({ queryKey: ['slot-states'] });
+      void queryClient.invalidateQueries({ queryKey: ['occurrences'] });
     },
     onSuccess: () => showSuccessToast(success),
     onError: (error) => {
