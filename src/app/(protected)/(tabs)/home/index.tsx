@@ -177,6 +177,22 @@ const Home = () => {
 
         {renderBody()}
 
+        {hasPets && (
+          <View style={styles.extraFeed}>
+            <MainButton
+              text="Log something else"
+              variant="text"
+              onPress={() => {
+                setLogPet(undefined);
+                void logTrayRef.current?.present();
+              }}
+            />
+            <AppText size={13} color="textSecondary" align="center">
+              A snack, or a feed that is not on the schedule.
+            </AppText>
+          </View>
+        )}
+
         {hasHousehold && <TileGrid tiles={HOME_TILES} />}
       </ScreenScrollView>
 
@@ -196,16 +212,7 @@ const Home = () => {
       )}
 
       {timezone && today && (
-        <LogFeedTray
-          sheetRef={logTrayRef}
-          pets={pets}
-          timezone={timezone}
-          today={today}
-          members={members}
-          pet={logPet}
-          flow={flow}
-          onOpenLog={(logId) => openLog(logId, logPet?.id ?? pets[0]?.id)}
-        />
+        <LogFeedTray sheetRef={logTrayRef} pets={pets} today={today} pet={logPet} flow={flow} />
       )}
 
       <FeedLogDetailSheet sheetRef={detailSheetRef} logId={activeLogId} petId={activePetId} />
@@ -222,6 +229,9 @@ const makeStyles = ({ spacing }: AppTheme) =>
     },
     sections: {
       gap: spacing.four
+    },
+    extraFeed: {
+      gap: spacing.one
     },
     headerRow: {
       flexDirection: 'row',

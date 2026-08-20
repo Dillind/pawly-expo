@@ -1,23 +1,23 @@
+import HowFeedsWorkSheet from '@/components/bottom-sheets/how-feeds-work-sheet';
 import AppText from '@/components/core/app-text';
-import DateTimePickerValidated from '@/components/core/date-time-picker-validated';
-import DropdownPickerValidated from '@/components/core/dropdown-picker-validated';
+import Divider from '@/components/core/divider';
 import ErrorState from '@/components/core/error-state';
+import ToggleSwitch from '@/components/core/toggle-switch';
 import IconButton from '@/components/core/icon-button';
-import MainButton from '@/components/core/main-button';
 import Tray, { type TrayStepDescriptor } from '@/components/core/tray';
-import { FEEDING_SCHEDULE_LABEL_OPTIONS } from '@/constants/options';
+import FeedTimeForm from '@/components/ui/feed-time-form';
 import type { AppTheme } from '@/constants/theme';
 import { useFeedTimes } from '@/hooks/queries/feeding/use-feed-times';
-import { useHousehold } from '@/hooks/queries/household/use-household';
 import { useEndFeedTime, useSaveFeedTime } from '@/hooks/queries/feeding/use-feed-time-mutations';
+import { usePausePet, usePetPause, useResumePet } from '@/hooks/queries/feeding/use-pet-pause';
+import { useHousehold } from '@/hooks/queries/household/use-household';
 import { useStyles } from '@/hooks/use-styles';
-import { EVERY_DAY, feedTimeSchema, type FeedTimeInput } from '@/lib/form/pet-schemas';
 import type { FeedTime } from '@/services/feed-time.service';
-import { zodResolver } from '@hookform/resolvers/zod';
+import { todayInTimezone } from '@/lib/dates';
+import { describeDays } from '@/utils/days';
 import type { TrueSheet } from '@lodev09/react-native-true-sheet';
 import dayjs from 'dayjs';
 import { useRef, useState } from 'react';
-import { Controller, FormProvider, useForm, useWatch } from 'react-hook-form';
 import { ActivityIndicator, StyleSheet, View } from 'react-native';
 
 const capitalize = (value: string) => value.charAt(0).toUpperCase() + value.slice(1);
@@ -29,82 +29,21 @@ type EditStepProps = {
 };
 
 const EditStep = ({ petId, feedTime, onDone }: EditStepProps) => {
-  const styles = useStyles(makeStyles);
   const { mutate: saveFeedTime, isPending: isSaving } = useSaveFeedTime(petId);
-  const { mutate: endFeedTime, isPending: isDeleting } = useEndFeedTime(petId);
-
-  const form = useForm<FeedTimeInput>({
-    resolver: zodResolver(feedTimeSchema),
-    defaultValues: {
-      label: feedTime?.label ?? 'custom',
-      localTime: feedTime?.localTime ?? '17:00',
-      daysOfWeek: feedTime?.daysOfWeek ?? [...EVERY_DAY],
-      instructions: feedTime?.instructions ?? null
-    }
-  });
-  const { control, handleSubmit } = form;
-
-  const localTime = useWatch({ control, name: 'localTime' });
-
-  const onSubmit = handleSubmit((values) => {
-    saveFeedTime({ ...values, seriesId: feedTime?.seriesId }, { onSuccess: onDone });
-  });
-
-  const onDelete = () => {
-    if (!feedTime) return;
-
-    endFeedTime(feedTime.seriesId, { onSuccess: onDone });
-  };
+  const { mutate: endFeedTime, isPending: isRemoving } = useEndFeedTime(petId);
 
   return (
-    <FormProvider {...form}>
-      <View style={styles.form}>
-        <Controller
-          control={control}
-          name="label"
-          render={({ field: { onChange, value } }) => (
-            <DropdownPickerValidated
-              name="label"
-              label="Feed"
-              options={FEEDING_SCHEDULE_LABEL_OPTIONS}
-              value={value}
-              onChange={onChange}
-            />
-          )}
-        />
-
-        <Controller
-          control={control}
-          name="localTime"
-          render={({ field: { onChange } }) => (
-            <DateTimePickerValidated
-              name="localTime"
-              mode="time"
-              label="Time fed"
-              selectedDate={localTime}
-              setSelectedDate={onChange}
-            />
-          )}
-        />
-
-        <MainButton
-          text={isSaving ? 'Saving…' : 'Save'}
-          isLoading={isSaving}
-          isDisabled={isSaving || isDeleting}
-          onPress={() => void onSubmit()}
-        />
-
-        {feedTime && (
-          <MainButton
-            text={isDeleting ? 'Removing…' : 'Remove this feed'}
-            variant="text"
-            isLoading={isDeleting}
-            isDisabled={isSaving || isDeleting}
-            onPress={() => void onDelete()}
-          />
-        )}
-      </View>
-    </FormProvider>
+    <FeedTimeForm
+      feedTime={feedTime}
+      isSaving={isSaving}
+      isRemoving={isRemoving}
+      onSubmit={(values) =>
+        saveFeedTime({ ...values, seriesId: feedTime?.seriesId }, { onSuccess: onDone })
+      }
+      onRemove={
+        feedTime ? () => endFeedTime(feedTime.seriesId, { onSuccess: onDone }) : undefined
+      }
+    />
   );
 };
 
@@ -119,6 +58,12 @@ const ScheduleSection = ({ petId }: Props) => {
   // partner is invited as an owner, so the rule lands the right way round.
   const { data: household } = useHousehold();
   const isOwner = household?.isOwner ?? false;
+
+  const today = household?.timezone ? todayInTimezone(household.timezone) : undefined;
+  const { data: pause } = usePetPause(petId, today);
+  const { mutate: pausePet, isPending: isPausing } = usePausePet(petId);
+  const { mutate: resumePet, isPending: isResuming } = useResumePet(petId);
+  const helpSheetRef = useRef<TrueSheet | null>(null);
 
   const openEdit = (next: FeedTime | null) => {
     setEditingFeedTime(next);
@@ -143,16 +88,25 @@ const ScheduleSection = ({ petId }: Props) => {
     <View style={styles.section}>
       <View style={styles.header}>
         <AppText variant="header" size={20}>
-          Feeding schedule
+          Feeds
         </AppText>
-        {isOwner && (
+        <View style={styles.headerActions}>
           <IconButton
-            name="plus"
-            accessibilityLabel="Add a feed time"
+            name="help"
+            accessibilityLabel="How feeds work"
             variant="ghost"
-            onPress={() => openEdit(null)}
+            size={18}
+            onPress={() => void helpSheetRef.current?.present()}
           />
-        )}
+          {isOwner && (
+            <IconButton
+              name="plus"
+              accessibilityLabel="Add a feed time"
+              variant="ghost"
+              onPress={() => openEdit(null)}
+            />
+          )}
+        </View>
       </View>
 
       {isError ? (
@@ -166,16 +120,24 @@ const ScheduleSection = ({ petId }: Props) => {
         <ActivityIndicator />
       ) : feedTimes.length === 0 ? (
         <AppText color="textSecondary" size={14}>
-          No feed times yet. Add one to get missed-feed alerts.
+          No feeds set up yet. Add their feed times and everyone will know when they are due.
         </AppText>
       ) : (
         <View style={styles.list}>
           {feedTimes.map((feedTime) => (
             <View key={feedTime.seriesId} style={styles.feedTimeRow}>
-              <View>
-                <AppText size={16}>{capitalize(feedTime.label)}</AppText>
-                <AppText color="textSecondary" size={14}>
-                  {dayjs(feedTime.localTime, 'HH:mm').format('h:mm A')}
+              <View style={styles.feedTimeBody}>
+                <View style={styles.feedTimeHeading}>
+                  <AppText size={16} fontWeight="bold">
+                    {capitalize(feedTime.label)}
+                  </AppText>
+                  <AppText color="textSecondary" size={14}>
+                    {dayjs(feedTime.localTime, 'HH:mm').format('h:mm A')}
+                  </AppText>
+                </View>
+                <AppText color="textSecondary" size={13}>
+                  {describeDays(feedTime.daysOfWeek)}
+                  {feedTime.instructions ? `  ·  ${feedTime.instructions}` : ''}
                 </AppText>
               </View>
               {isOwner && (
@@ -192,7 +154,29 @@ const ScheduleSection = ({ petId }: Props) => {
         </View>
       )}
 
+      {isOwner && today && (
+        <>
+          <Divider />
+
+          <ToggleSwitch
+            label="Pause feeds"
+            description={
+              pause
+                ? 'No feeds expected, nobody nudged.'
+                : 'Boarding, a vet stay, fasting before surgery.'
+            }
+            value={Boolean(pause)}
+            isDisabled={isPausing || isResuming}
+            onChange={(next) => {
+              if (next) pausePet(today);
+              else if (pause) resumePet(pause.id);
+            }}
+          />
+        </>
+      )}
+
       <Tray sheetRef={sheetRef} steps={steps} onDismiss={() => setEditingFeedTime(null)} />
+      <HowFeedsWorkSheet sheetRef={helpSheetRef} />
     </View>
   );
 };
@@ -205,16 +189,22 @@ const makeStyles = ({ spacing, colors }: AppTheme) =>
       alignItems: 'center',
       justifyContent: 'space-between'
     },
+    headerActions: { flexDirection: 'row', alignItems: 'center' },
     list: { gap: spacing.two },
     feedTimeRow: {
       flexDirection: 'row',
       alignItems: 'center',
-      justifyContent: 'space-between',
-      paddingVertical: spacing.one,
+      gap: spacing.two,
+      paddingVertical: spacing.two,
       borderBottomWidth: StyleSheet.hairlineWidth,
       borderBottomColor: colors.border
     },
-    form: { gap: spacing.three }
+    feedTimeBody: { flex: 1, gap: 2 },
+    feedTimeHeading: {
+      flexDirection: 'row',
+      alignItems: 'baseline',
+      gap: spacing.two
+    }
   });
 
 export default ScheduleSection;

@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useFormContext, useFormState, type Control, type FieldValues } from 'react-hook-form';
 import { StyleSheet, View, type LayoutChangeEvent } from 'react-native';
 import Animated, {
   ReduceMotion,
@@ -9,6 +10,7 @@ import Animated, {
 
 import { Spacing, type AppTheme } from '@/constants/theme';
 import { useStyles } from '@/hooks/use-styles';
+import FieldError from '@/lib/form/components/field-error';
 import { hapticSelection } from '@/lib/haptics';
 
 import AppText from './app-text';
@@ -21,6 +23,11 @@ type Option<T> = {
 
 type Props<T extends string> = {
   label?: string;
+  /**
+   * The field this control stands for. Without it the control cannot render its
+   * own error — the same rule the other validated inputs follow.
+   */
+  name?: string;
   options: Option<T>[];
   value: T;
   onChange: (value: T) => void;
@@ -37,8 +44,15 @@ const ThumbSpring = {
   reduceMotion: ReduceMotion.System
 };
 
-const SegmentedControl = <T extends string>({ label, options, value, onChange }: Props<T>) => {
+const SegmentedControl = <T extends string>({
+  label,
+  name,
+  options,
+  value,
+  onChange
+}: Props<T>) => {
   const styles = useStyles(makeStyles);
+  const form = useFormContext();
   const [trackWidth, setTrackWidth] = useState(0);
 
   const translateX = useSharedValue(0);
@@ -114,8 +128,21 @@ const SegmentedControl = <T extends string>({ label, options, value, onChange }:
           );
         })}
       </View>
+      {form && name && <SubscribedFieldError control={form.control} name={name} />}
     </View>
   );
+};
+
+const SubscribedFieldError = ({
+  control,
+  name
+}: {
+  control: Control<FieldValues>;
+  name: string;
+}) => {
+  const { errors } = useFormState({ control, name });
+
+  return <FieldError marginTop={8} error={errors?.[name]?.message as string} />;
 };
 
 const makeStyles = ({ colors, spacing }: AppTheme) =>

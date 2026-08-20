@@ -1,8 +1,8 @@
 import AppText from '@/components/core/app-text';
 import Icon from '@/components/core/icon';
+import MainButton from '@/components/core/main-button';
 import PressableOpacity from '@/components/core/pressable-opacity';
-import type { IconName } from '@/constants/icon-map';
-import type { AppTheme, ThemeColor } from '@/constants/theme';
+import type { AppTheme } from '@/constants/theme';
 import { useStyles } from '@/hooks/use-styles';
 import { formatScheduledTime, formatTimeOfDay } from '@/lib/dates';
 import type { FeedingScheduleLabel, Occurrence } from '@/types/core';
@@ -12,9 +12,12 @@ type Props = {
   occurrence: Occurrence;
   timezone: string;
   fedBy: string;
+  isLogging?: boolean;
   /** Inside a card already. Drops its own fill so the two do not stack. */
   isNested?: boolean;
-  onPress?: () => void;
+  /** Tapping a logged row opens it for correction. */
+  onOpenLog?: () => void;
+  onLog?: () => void;
 };
 
 const labelText: Record<FeedingScheduleLabel, string> = {
@@ -24,54 +27,85 @@ const labelText: Record<FeedingScheduleLabel, string> = {
   custom: 'Feed'
 };
 
-const stateIcon: Record<Occurrence['state'], IconName> = {
-  fed: 'check',
-  due: 'dot',
-  missed: 'circleAlert',
-  upcoming: 'dot'
-};
-
-const stateColour: Record<Occurrence['state'], ThemeColor> = {
-  fed: 'primary',
-  due: 'accent',
-  missed: 'error',
-  upcoming: 'textSecondary'
-};
-
-const OccurrenceRow = ({ occurrence, timezone, fedBy, isNested = false, onPress }: Props) => {
+const OccurrenceRow = ({
+  occurrence,
+  timezone,
+  fedBy,
+  isLogging = false,
+  isNested = false,
+  onOpenLog,
+  onLog
+}: Props) => {
   const styles = useStyles(makeStyles);
-  const rowStyle = [styles.row, isNested && styles.nested];
+  const isFed = occurrence.state === 'fed';
 
-  const detail =
-    occurrence.state === 'fed' && occurrence.satisfiedAt
+  // "Not logged", never "Missed" -- CONTEXT.md, Not Logged. And the row does not
+  // shout: nothing here is red, because the app does not know whether the pet
+  // ate, only whether anyone tapped Log.
+  const detail = isFed
+    ? occurrence.satisfiedAt
       ? `${fedBy}, ${formatTimeOfDay(occurrence.satisfiedAt, timezone)}`
-      : // "Not logged", never "Missed" -- CONTEXT.md, Not Logged.
-        { fed: 'Fed', due: 'Due now', missed: 'Not logged', upcoming: 'Upcoming' }[occurrence.state];
+      : fedBy
+    : occurrence.state === 'missed'
+      ? 'Not logged'
+      : occurrence.instructions;
 
   const body = (
     <>
-      <Icon name={stateIcon[occurrence.state]} size={18} color={stateColour[occurrence.state]} />
-      <AppText size={16} style={styles.label}>
-        {labelText[occurrence.label]}
-      </AppText>
-      <AppText size={14} color="textSecondary">
-        {formatScheduledTime(occurrence.localTime)}
-      </AppText>
-      <AppText size={14} color={stateColour[occurrence.state]} style={styles.detail} align="right">
-        {detail}
-      </AppText>
+      <View style={styles.text}>
+        <View style={styles.heading}>
+          <AppText size={15}>{labelText[occurrence.label]}</AppText>
+          <AppText size={15} color="textSecondary">
+            {formatScheduledTime(occurrence.localTime)}
+          </AppText>
+        </View>
+
+        {detail ? (
+          <AppText size={13} color="textSecondary" numberOfLines={2}>
+            {detail}
+          </AppText>
+        ) : null}
+      </View>
+
+      {isFed ? (
+        <Icon name="check" size={20} color="primary" />
+      ) : onLog ? (
+        <MainButton
+          text="Log"
+          size="xs"
+          // MainButton stretches by default, which in a row means it fills the
+          // row's height. The Log button is a chip, not a bar.
+          containerStyle={styles.logButton}
+          isLoading={isLogging}
+          isDisabled={isLogging}
+          onPress={onLog}
+        />
+      ) : (
+        <AppText size={13} color="textSecondary">
+          Upcoming
+        </AppText>
+      )}
     </>
   );
 
-  // `upcoming` has no onPress: its Feed Time is in the future and RLS rejects a
-  // logged_at later than now(), so a tap could write nothing.
-  if (!onPress) return <View style={rowStyle}>{body}</View>;
+  const rowStyle = [styles.row, isNested && styles.nested];
 
-  return (
-    <PressableOpacity style={rowStyle} accessibilityRole="button" onPress={onPress}>
-      {body}
-    </PressableOpacity>
-  );
+  // Only a logged row is tappable as a whole: it opens the log for correction.
+  // An unlogged row's action is the Log button, and a row that is both tappable
+  // and holds a button is the ambiguous target FeedLogRow already warns about.
+  if (isFed && onOpenLog) {
+    return (
+      <PressableOpacity
+        style={rowStyle}
+        accessibilityRole="button"
+        accessibilityLabel={`Edit the ${labelText[occurrence.label].toLowerCase()} log`}
+        onPress={onOpenLog}>
+        {body}
+      </PressableOpacity>
+    );
+  }
+
+  return <View style={rowStyle}>{body}</View>;
 };
 
 const makeStyles = ({ colors, spacing }: AppTheme) =>
@@ -83,6 +117,7 @@ const makeStyles = ({ colors, spacing }: AppTheme) =>
       paddingVertical: spacing.three,
       paddingHorizontal: spacing.three,
       borderRadius: 12,
+      borderCurve: 'continuous',
       backgroundColor: colors.backgroundElement
     },
     nested: {
@@ -91,11 +126,12 @@ const makeStyles = ({ colors, spacing }: AppTheme) =>
       borderRadius: 0,
       backgroundColor: 'transparent'
     },
-    label: {
-      minWidth: 72
-    },
-    detail: {
-      flex: 1
+    text: { flex: 1, gap: 2 },
+    logButton: { alignSelf: 'center' },
+    heading: {
+      flexDirection: 'row',
+      alignItems: 'baseline',
+      gap: spacing.two
     }
   });
 

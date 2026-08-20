@@ -14,10 +14,10 @@ type Props = {
 };
 
 /**
- * Today's occurrences, as something to choose from. Rendered inline by the Home
- * card and as a tray step, which is why it holds no presentation of its own.
+ * Today's occurrences, as something to act on. Rendered inline by the Home card
+ * and as a tray step, which is why it holds no presentation of its own.
  *
- * An `upcoming` row stays inert: its Feed Time is in the future, and RLS
+ * An `upcoming` row has no Log button: its Feed Time is in the future, and RLS
  * rejects a `logged_at` later than now(). There is nothing a tap could write.
  */
 const OccurrenceList = ({
@@ -30,25 +30,25 @@ const OccurrenceList = ({
 }: Props) => {
   return (
     <View>
-      {occurrences.map((occurrence) => {
-        const onPress =
-          occurrence.state === 'fed' && occurrence.satisfyingLogId
-            ? () => onOpenLog(occurrence.satisfyingLogId as string)
-            : occurrence.state === 'due' || occurrence.state === 'missed'
+      {occurrences.map((occurrence) => (
+        <OccurrenceRow
+          key={occurrence.seriesId}
+          occurrence={occurrence}
+          timezone={timezone}
+          fedBy={memberDisplayName(members, occurrence.satisfiedBy)}
+          isNested={isNested}
+          onOpenLog={
+            occurrence.satisfyingLogId
+              ? () => onOpenLog(occurrence.satisfyingLogId as string)
+              : undefined
+          }
+          onLog={
+            occurrence.state === 'due' || occurrence.state === 'missed'
               ? () => onPickOccurrence(occurrence)
-              : undefined;
-
-        return (
-          <OccurrenceRow
-            key={occurrence.seriesId}
-            occurrence={occurrence}
-            timezone={timezone}
-            fedBy={memberDisplayName(members, occurrence.satisfiedBy)}
-            isNested={isNested}
-            onPress={onPress}
-          />
-        );
-      })}
+              : undefined
+          }
+        />
+      ))}
     </View>
   );
 };

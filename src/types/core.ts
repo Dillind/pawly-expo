@@ -82,6 +82,13 @@ export type OccurrenceStateValue = 'fed' | 'due' | 'missed' | 'upcoming';
 export type FeedingScheduleLabel = 'morning' | 'lunch' | 'dinner' | 'custom';
 
 /**
+ * Deliberately three. More species are expected — adding one is
+ * `alter type ... add value`, which cannot share a transaction with other DDL,
+ * so it needs a migration of its own.
+ */
+export type PetType = 'dog' | 'cat' | 'other';
+
+/**
  * One expected feed on one local day. `seriesId` and `occurrenceDate` together
  * name it, and a feed log carries the same pair — which is what makes a Double
  * Feed a fact rather than a guess.

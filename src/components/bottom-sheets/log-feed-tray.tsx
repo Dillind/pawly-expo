@@ -1,15 +1,20 @@
 import AppText from '@/components/core/app-text';
+import DateTimePickerValidated from '@/components/core/date-time-picker-validated';
+import Divider from '@/components/core/divider';
 import Icon from '@/components/core/icon';
+import MainButton from '@/components/core/main-button';
 import PressableOpacity from '@/components/core/pressable-opacity';
+import TextInputValidated from '@/components/core/text-input-validated';
 import Tray, { useTray, type TrayStepDescriptor } from '@/components/core/tray';
 import PetAvatar from '@/components/screens/home/pet-avatar';
-import OccurrenceList from '@/components/ui/occurrence-list';
-import type { AppTheme } from '@/constants/theme';
+import { Radius, type AppTheme } from '@/constants/theme';
 import { useOccurrences } from '@/hooks/queries/feeding/use-occurrences';
 import type { useLogFlow } from '@/hooks/use-log-flow';
 import { useStyles } from '@/hooks/use-styles';
-import type { HouseholdMember, Pet } from '@/types/core';
+import { formatScheduledTime } from '@/lib/dates';
+import type { Occurrence, Pet } from '@/types/core';
 import type { TrueSheet } from '@lodev09/react-native-true-sheet';
+import dayjs from 'dayjs';
 import { useState, type RefObject } from 'react';
 import { ActivityIndicator, StyleSheet, View } from 'react-native';
 
@@ -18,71 +23,203 @@ type Flow = ReturnType<typeof useLogFlow>;
 type Props = {
   sheetRef: RefObject<TrueSheet | null>;
   pets: Pet[];
-  timezone: string;
   today: string;
-  members: HouseholdMember[];
   /** Preselected by a per-pet Log button, which already knows its pet. */
   pet?: Pet;
   flow: Flow;
-  onOpenLog: (logId: string) => void;
 };
 
-const PetPickerStep = ({ pets, onSelect }: { pets: Pet[]; onSelect: (pet: Pet) => void }) => {
+const LABEL_TEXT: Record<Occurrence['label'], string> = {
+  morning: 'Morning',
+  lunch: 'Lunch',
+  dinner: 'Dinner',
+  custom: 'Feed'
+};
+
+/**
+ * Several pets at once, because one person feeding two animals is one trip to
+ * the kitchen, not two. A tick rather than a radio: this is a set, and the
+ * button counts it back.
+ */
+const PetPickerStep = ({
+  pets,
+  selected,
+  onToggle
+}: {
+  pets: Pet[];
+  selected: Pet[];
+  onToggle: (pet: Pet) => void;
+}) => {
   const styles = useStyles(makeStyles);
   const { goTo } = useTray();
 
   return (
-    <View style={styles.list}>
-      {pets.map((pet) => (
-        <PressableOpacity
-          key={pet.id}
-          style={styles.petRow}
-          accessibilityRole="button"
-          accessibilityLabel={`Log a feed for ${pet.name}`}
-          onPress={() => {
-            onSelect(pet);
-            goTo('time');
-          }}>
-          <PetAvatar photoUrl={pet.photoUrl} />
+    <View style={styles.stack}>
+      <AppText size={14} fontWeight="bold">
+        Who did you feed?
+      </AppText>
 
-          <AppText size={16} style={styles.petName}>
-            {pet.name}
-          </AppText>
+      <View style={styles.list}>
+        {pets.map((pet) => {
+          const isSelected = selected.some((each) => each.id === pet.id);
 
-          <Icon name="caretRight" size={16} color="textSecondary" />
-        </PressableOpacity>
-      ))}
+          return (
+            <PressableOpacity
+              key={pet.id}
+              style={styles.petRow}
+              accessibilityRole="checkbox"
+              accessibilityLabel={pet.name}
+              accessibilityState={{ checked: isSelected }}
+              onPress={() => onToggle(pet)}>
+              <PetAvatar photoUrl={pet.photoUrl} size={32} />
+
+              <AppText size={16} style={styles.petName}>
+                {pet.name}
+              </AppText>
+
+              {isSelected && <Icon name="check" size={18} color="primary" />}
+            </PressableOpacity>
+          );
+        })}
+      </View>
+
+      <MainButton
+        text={selected.length > 1 ? `Continue with ${selected.length} pets` : 'Continue'}
+        isDisabled={selected.length === 0}
+        onPress={() => goTo('feed')}
+      />
     </View>
   );
 };
 
-const TimeStep = ({
+/** Which feed this was. "Not on the schedule" is the Extra Feed, chosen. */
+const FeedPickerStep = ({
   pet,
-  timezone,
   today,
-  members,
-  flow,
-  onOpenLog
+  onPick
 }: {
   pet: Pet | undefined;
-  timezone: string;
   today: string;
-  members: HouseholdMember[];
-  flow: Flow;
-  onOpenLog: (logId: string) => void;
+  onPick: (occurrence: Occurrence | null) => void;
 }) => {
+  const styles = useStyles(makeStyles);
+  const { goTo } = useTray();
   const { data: occurrences, isLoading } = useOccurrences(pet?.id, today);
 
   if (!pet || isLoading || !occurrences) return <ActivityIndicator />;
 
+  const choose = (occurrence: Occurrence | null) => {
+    onPick(occurrence);
+    goTo('confirm');
+  };
+
   return (
-    <OccurrenceList
-      occurrences={occurrences}
-      timezone={timezone}
-      members={members}
-      onOpenLog={onOpenLog}
-      onPickOccurrence={(occurrence) => flow.pickOccurrence(pet, occurrence)}
-    />
+    <View style={styles.list}>
+      {occurrences.map((occurrence) => (
+        <PressableOpacity
+          key={occurrence.seriesId}
+          style={styles.petRow}
+          accessibilityRole="button"
+          accessibilityLabel={`${LABEL_TEXT[occurrence.label]} at ${formatScheduledTime(occurrence.localTime)}`}
+          onPress={() => choose(occurrence)}>
+          <View style={styles.petName}>
+            <AppText size={16}>{LABEL_TEXT[occurrence.label]}</AppText>
+            <AppText size={13} color="textSecondary">
+              {formatScheduledTime(occurrence.localTime)}
+              {occurrence.state === 'fed' ? '  ·  already logged' : ''}
+            </AppText>
+          </View>
+
+          <Icon name="caretRight" size={16} color="textSecondary" />
+        </PressableOpacity>
+      ))}
+
+      <PressableOpacity
+        style={styles.petRow}
+        accessibilityRole="button"
+        accessibilityLabel="Not on the schedule"
+        onPress={() => choose(null)}>
+        <View style={styles.petName}>
+          <AppText size={16}>Not on the schedule</AppText>
+          <AppText size={13} color="textSecondary">
+            A snack, or a feed you do not plan for.
+          </AppText>
+        </View>
+
+        <Icon name="caretRight" size={16} color="textSecondary" />
+      </PressableOpacity>
+    </View>
+  );
+};
+
+const ConfirmStep = ({
+  pets,
+  occurrence,
+  isLogging,
+  onLog
+}: {
+  pets: Pet[];
+  occurrence: Occurrence | null;
+  isLogging: boolean;
+  onLog: (input: { loggedAt: string; notes: string | null }) => void;
+}) => {
+  const styles = useStyles(makeStyles);
+  // The truth is that the feed happened now. Anything else is a correction, so
+  // it starts here and the member changes it deliberately.
+  const [fedAt, setFedAt] = useState(dayjs().format('HH:mm'));
+  const [notes, setNotes] = useState('');
+
+  const submit = () => {
+    const [hour, minute] = fedAt.split(':').map(Number);
+    const loggedAt = dayjs().hour(hour).minute(minute).second(0).millisecond(0);
+
+    onLog({
+      loggedAt: loggedAt.toISOString(),
+      notes: notes.trim() === '' ? null : notes.trim()
+    });
+  };
+
+  return (
+    <View style={styles.stack}>
+      <View style={styles.petsSummary}>
+        {pets.map((pet) => (
+          <View key={pet.id} style={styles.petSummaryRow}>
+            <PetAvatar photoUrl={pet.photoUrl} size={32} />
+            <AppText size={16}>{pet.name}</AppText>
+          </View>
+        ))}
+      </View>
+
+      {occurrence?.instructions ? (
+        <View style={styles.instructions}>
+          <AppText size={14}>{occurrence.instructions}</AppText>
+        </View>
+      ) : null}
+
+      <Divider />
+
+      <DateTimePickerValidated
+        mode="time"
+        label="Fed at"
+        selectedDate={fedAt}
+        setSelectedDate={setFedAt}
+      />
+
+      <TextInputValidated
+        label="Note"
+        placeholder="Anything worth passing on"
+        value={notes}
+        onChangeText={setNotes}
+        isMultiline
+      />
+
+      <MainButton
+        text={pets.length > 1 ? `Log for ${pets.length} pets` : 'Log this feed'}
+        isLoading={isLogging}
+        isDisabled={isLogging}
+        onPress={submit}
+      />
+    </View>
   );
 };
 
@@ -100,48 +237,71 @@ const PetHeading = ({ pet }: { pet: Pet }) => {
 };
 
 /**
- * Raised only when there is something to ask: which pet, and which Feed Time.
- * A pick needing neither writes without it.
+ * Raised when there is something to ask: which pets, which feed, and at what
+ * time. Tapping Log on a Home row asks none of those and writes without this.
  */
-const LogFeedTray = ({ sheetRef, pets, timezone, today, members, pet, flow, onOpenLog }: Props) => {
-  const [selected, setSelected] = useState<Pet | undefined>(undefined);
+const LogFeedTray = ({ sheetRef, pets, today, pet, flow }: Props) => {
+  const [selected, setSelected] = useState<Pet[]>([]);
+  const [occurrence, setOccurrence] = useState<Occurrence | null>(null);
 
   const onlyPet = pets.length === 1 ? pets[0] : undefined;
-  const active = pet ?? onlyPet ?? selected;
+  const preselected = pet ?? onlyPet;
+  const active = preselected ? [preselected] : selected;
 
-  const timeStep: TrayStepDescriptor = {
-    id: 'time',
-    title: active ? `Log a feed for ${active.name}` : 'Log a feed',
-    header: active ? () => <PetHeading pet={active} /> : undefined,
+  const reset = () => {
+    setSelected([]);
+    setOccurrence(null);
+  };
+
+  const toggle = (next: Pet) =>
+    setSelected((current) =>
+      current.some((each) => each.id === next.id)
+        ? current.filter((each) => each.id !== next.id)
+        : [...current, next]
+    );
+
+  const feedStep: TrayStepDescriptor = {
+    id: 'feed',
+    title: 'Which feed?',
+    header: active.length === 1 ? () => <PetHeading pet={active[0]} /> : undefined,
+    // The feeds offered are the first pet's. Two pets rarely share a schedule,
+    // and asking per pet would turn one trip to the kitchen into two flows.
+    render: () => <FeedPickerStep key={active[0]?.id} pet={active[0]} today={today} onPick={setOccurrence} />
+  };
+
+  const confirmStep: TrayStepDescriptor = {
+    id: 'confirm',
+    title: occurrence
+      ? `${LABEL_TEXT[occurrence.label]}  ·  ${formatScheduledTime(occurrence.localTime)}`
+      : 'Log a feed',
     render: () => (
-      <TimeStep
-        key={active?.id}
-        pet={active}
-        timezone={timezone}
-        today={today}
-        members={members}
-        flow={flow}
-        onOpenLog={onOpenLog}
+      <ConfirmStep
+        pets={active}
+        occurrence={occurrence}
+        isLogging={flow.isLogging}
+        onLog={(input) => flow.log(active, occurrence, input)}
       />
     )
   };
 
-  const steps: TrayStepDescriptor[] = active
-    ? [timeStep]
+  const steps: TrayStepDescriptor[] = preselected
+    ? [feedStep, confirmStep]
     : [
         {
           id: 'pet',
           title: 'Log a feed',
-          render: () => <PetPickerStep pets={pets} onSelect={setSelected} />
+          render: () => <PetPickerStep pets={pets} selected={selected} onToggle={toggle} />
         },
-        timeStep
+        feedStep,
+        confirmStep
       ];
 
-  return <Tray sheetRef={sheetRef} steps={steps} onDismiss={() => setSelected(undefined)} />;
+  return <Tray sheetRef={sheetRef} steps={steps} onDismiss={reset} />;
 };
 
 const makeStyles = ({ colors, spacing }: AppTheme) =>
   StyleSheet.create({
+    stack: { gap: spacing.three },
     list: { gap: spacing.two },
     petRow: {
       flexDirection: 'row',
@@ -149,10 +309,19 @@ const makeStyles = ({ colors, spacing }: AppTheme) =>
       gap: spacing.three,
       paddingVertical: spacing.two,
       paddingHorizontal: spacing.three,
-      borderRadius: 12,
+      borderRadius: Radius.tile,
+      borderCurve: 'continuous',
       backgroundColor: colors.backgroundSheetRow
     },
-    petName: { flex: 1 },
+    petName: { flex: 1, gap: 2 },
+    petsSummary: { gap: spacing.two },
+    petSummaryRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.three },
+    instructions: {
+      padding: spacing.three,
+      borderRadius: Radius.tile,
+      borderCurve: 'continuous',
+      backgroundColor: colors.backgroundSheetRow
+    },
     heading: { flexDirection: 'row', alignItems: 'center', gap: spacing.two }
   });
 

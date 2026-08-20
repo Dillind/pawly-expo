@@ -116,13 +116,36 @@ export function useLogFlow({ members, timezone, onWritten }: Options) {
     [write]
   );
 
-  /** "Log something else" — a snack, deliberately recorded. Satisfies nothing. */
-  const logExtraFeed = useCallback(
-    (pet: Pet, notes?: string | null) => {
-      write(pet, { loggedAt: new Date().toISOString(), notes }, 'Logged as an extra feed');
+  /**
+   * The tray's write: one or more pets, one feed, one time. A null occurrence
+   * is an Extra Feed — "Not on the schedule" — which satisfies nothing.
+   *
+   * The occurrence belongs to the first pet's schedule, so only that pet's log
+   * can name it. The others are recorded as Extra Feeds, which is the honest
+   * record: nobody said those pets have a dinner at six.
+   */
+  const log = useCallback(
+    (
+      pets: Pet[],
+      occurrence: Occurrence | null,
+      input: { loggedAt: string; notes: string | null }
+    ) => {
+      pets.forEach((pet, index) => {
+        const owns = index === 0 && occurrence !== null;
+
+        write(
+          pet,
+          {
+            ...input,
+            seriesId: owns ? occurrence.seriesId : null,
+            occurrenceDate: owns ? occurrence.occurrenceDate : null
+          },
+          occurrence ? loggedText(pet, occurrence.label) : `Logged a feed for ${pet.name}`
+        );
+      });
     },
     [write]
   );
 
-  return { isLogging, pickOccurrence, logExtraFeed };
+  return { isLogging, pickOccurrence, log };
 }

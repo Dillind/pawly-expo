@@ -3,6 +3,13 @@ import type { FeedTimeInput } from '@/lib/form/pet-schemas';
 import { supabase } from '@/lib/supabase/client';
 import type { FeedingScheduleLabel, Occurrence, OccurrenceStateValue } from '@/types/core';
 
+export type PetPause = {
+  id: string;
+  /** The raw Postgres daterange, e.g. "[2026-08-20,)". */
+  during: string;
+  reason: string | null;
+};
+
 export type FeedTime = {
   seriesId: string;
   localTime: string;
@@ -79,6 +86,40 @@ namespace FeedTimeService {
       target_series_id: seriesId
     });
 
+    if (error) throw error;
+  }
+
+  /**
+   * The pause covering today, if there is one. A pause is a date range, so
+   * "paused" is a question about a day rather than a flag on the pet.
+   */
+  export async function currentPause(petId: string, date: string): Promise<PetPause | null> {
+    const { data, error } = await supabase
+      .from('pet_pauses')
+      .select('id, during, reason')
+      .eq('pet_id', petId)
+      .contains('during', `[${date},${date}]`)
+      .maybeSingle();
+
+    if (error) throw error;
+    if (!data) return null;
+
+    const row = data as { id: string; during: string; reason: string | null };
+
+    return { id: row.id, during: row.during, reason: row.reason };
+  }
+
+  /** Open-ended: paused from today until someone resumes. */
+  export async function pause(petId: string, from: string): Promise<void> {
+    const { error } = await supabase
+      .from('pet_pauses')
+      .insert({ pet_id: petId, during: `[${from},)` });
+
+    if (error) throw error;
+  }
+
+  export async function resume(pauseId: string): Promise<void> {
+    const { error } = await supabase.from('pet_pauses').delete().eq('id', pauseId);
     if (error) throw error;
   }
 

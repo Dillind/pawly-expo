@@ -57,12 +57,13 @@ export default function HomeLayout() {
             headerBackButtonDisplayMode: 'minimal'
           }}
         />
+        {/* A modal, because adding a pet is a self-contained task with its own
+            exit. Its three steps push inside it -- see add-pet/_layout.tsx. */}
         <Stack.Screen
           name="add-pet"
           options={{
-            headerShown: true,
-            headerTitle: 'Add a pet',
-            headerBackButtonDisplayMode: 'minimal'
+            presentation: 'modal',
+            headerShown: false
           }}
         />
         <Stack.Screen
