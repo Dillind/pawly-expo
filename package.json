@@ -24,7 +24,14 @@
     "check": "bun run typecheck && bun run lint && bun run spellcheck && bun run test"
   },
   "jest": {
-    "preset": "jest-expo"
+    "preset": "jest-expo",
+    "testPathIgnorePatterns": [
+      "/node_modules/",
+      "<rootDir>/.claude/"
+    ],
+    "modulePathIgnorePatterns": [
+      "<rootDir>/.claude/"
+    ]
   },
   "dependencies": {
     "@expo-google-fonts/inter": "^0.4.2",
