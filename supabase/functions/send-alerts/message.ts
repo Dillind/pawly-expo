@@ -140,6 +140,6 @@ export const buildPostMessage = (input: PostInput): Omit<ExpoMessage, 'to'> => {
     // and there is nothing second-tier to say -- the photo is the content and
     // it is one tap away.
     body: '',
-    data: { screen: '/household/[postId]', params: { postId: input.postId } }
+    data: { screen: '/posts/[postId]', params: { postId: input.postId } }
   };
 };

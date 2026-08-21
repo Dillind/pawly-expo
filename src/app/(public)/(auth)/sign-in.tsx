@@ -48,6 +48,7 @@ const SignIn = () => {
   return (
     <ScreenView edges={['bottom']}>
       <ScreenScrollView
+        contentInsetAdjustmentBehavior="automatic"
         keyboardShouldPersistTaps="handled"
         contentContainerStyle={styles.scrollContent}>
         <TextDescriptionHeader

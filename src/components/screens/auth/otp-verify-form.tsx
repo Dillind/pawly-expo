@@ -55,6 +55,7 @@ const OtpVerifyForm = ({ title, description, onVerify, onResend, testID }: Props
   return (
     <ScreenView edges={['bottom']}>
       <ScreenScrollView
+        contentInsetAdjustmentBehavior="automatic"
         keyboardShouldPersistTaps="handled"
         contentContainerStyle={styles.scrollContent}>
         <TextDescriptionHeader title={title} description={description} />

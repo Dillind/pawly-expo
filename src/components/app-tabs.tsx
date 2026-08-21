@@ -22,7 +22,7 @@ export default function AppTabs() {
         <NativeTabs.Trigger.Label>Home</NativeTabs.Trigger.Label>
         <NativeTabs.Trigger.Icon sf={'house.fill'} />
       </NativeTabs.Trigger>
-      <NativeTabs.Trigger name="household">
+      <NativeTabs.Trigger name="posts">
         <NativeTabs.Trigger.Label>Posts</NativeTabs.Trigger.Label>
         <NativeTabs.Trigger.Icon sf={'photo.on.rectangle'} />
         <NativeTabs.Trigger.Badge hidden={!hasUnseenPosts} />

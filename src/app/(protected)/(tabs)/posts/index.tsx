@@ -1,12 +1,10 @@
 import PostActionsSheet from '@/components/bottom-sheets/post-actions-sheet';
-import AppText from '@/components/core/app-text';
 import EmptyState from '@/components/core/empty-state';
-import IconButton from '@/components/core/icon-button';
 import MainButton from '@/components/core/main-button';
 import MainLegendList from '@/components/core/main-legend-list';
 import ScreenView from '@/components/layout/screen-view';
 import PostCard from '@/components/ui/post-card';
-import { ScreenGutter, type AppTheme } from '@/constants/theme';
+import type { AppTheme } from '@/constants/theme';
 import { useHousehold } from '@/hooks/queries/household/use-household';
 import {
   useDeletePost,
@@ -62,8 +60,6 @@ const Posts = () => {
     }, [householdId, userId, markSeen])
   );
 
-  // Editing is the author's alone. An Owner may remove a member's post but
-  // never rewrite it under their name -- the same split as the RLS policies.
   const permissions = (post: Post | null) => {
     const canEdit = post !== null && post.authorId === userId;
 
@@ -82,29 +78,15 @@ const Posts = () => {
           setActivePost(item);
           void actionsSheetRef.current?.present();
         }}
-        onOpen={() =>
-          router.push({ pathname: '/household/[postId]', params: { postId: item.id } })
-        }
+        onOpen={() => router.push({ pathname: '/posts/[postId]', params: { postId: item.id } })}
       />
     );
   };
 
   return (
-    <ScreenView>
-      <View style={styles.header}>
-        <AppText variant="header" size={28} fontWeight="bold">
-          Posts
-        </AppText>
-        <IconButton
-          name="plus"
-          variant="glass"
-          size={20}
-          accessibilityLabel="Share a photo"
-          onPress={() => router.push('/household/new-post')}
-        />
-      </View>
-
+    <ScreenView edges={[]}>
       <MainLegendList<Post>
+        contentInsetAdjustmentBehavior="automatic"
         data={posts}
         isLoading={isLoading}
         isError={isError}
@@ -126,7 +108,7 @@ const Posts = () => {
             icon="image"
             title="Nothing shared yet"
             description="Photos your household shares of your pets show up here. Handy when someone else is looking after them."
-            action={<MainButton text="Share a photo" href="/household/new-post" />}
+            action={<MainButton text="Share a photo" href="/posts/new-post" />}
           />
         }
         renderItem={renderItem}
@@ -139,7 +121,7 @@ const Posts = () => {
         onEdit={() => {
           if (activePost) {
             router.push({
-              pathname: '/household/[postId]/edit',
+              pathname: '/posts/[postId]/edit',
               params: { postId: activePost.id }
             });
           }
@@ -154,13 +136,6 @@ const Posts = () => {
 
 const makeStyles = ({ spacing }: AppTheme) =>
   StyleSheet.create({
-    header: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      justifyContent: 'space-between',
-      paddingHorizontal: ScreenGutter,
-      paddingBottom: spacing.two
-    },
     listContent: {
       paddingHorizontal: spacing.three,
       paddingBottom: spacing.six

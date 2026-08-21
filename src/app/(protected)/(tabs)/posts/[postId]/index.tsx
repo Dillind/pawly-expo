@@ -1,6 +1,5 @@
 import PostActionsSheet from '@/components/bottom-sheets/post-actions-sheet';
 import ErrorState from '@/components/core/error-state';
-import HeaderIconButton from '@/components/core/header-icon-button';
 import ScreenView from '@/components/layout/screen-view';
 import PostBody from '@/components/ui/post-body';
 import { ScreenGutter, type AppTheme } from '@/constants/theme';
@@ -32,27 +31,19 @@ const PostDetail = () => {
   const leave = () => {
     if (router.canGoBack()) return router.back();
 
-    router.replace('/household');
+    router.replace('/posts');
   };
 
   return (
     <ScreenView edges={[]}>
-      <Stack.Screen
-        options={{
-          headerTitle: 'Post Detail',
-          headerRight:
-            canEdit || canDelete
-              ? () => (
-                  <HeaderIconButton
-                    name="ellipsis"
-                    size={20}
-                    accessibilityLabel="Manage this post"
-                    onPress={() => void actionsSheetRef.current?.present()}
-                  />
-                )
-              : undefined
-        }}
-      />
+      <Stack.Toolbar placement="right">
+        <Stack.Toolbar.Button
+          icon="ellipsis"
+          accessibilityLabel="Manage this post"
+          hidden={!canEdit && !canDelete}
+          onPress={() => void actionsSheetRef.current?.present()}
+        />
+      </Stack.Toolbar>
 
       {isLoading && <ActivityIndicator style={styles.centred} />}
 
@@ -83,7 +74,7 @@ const PostDetail = () => {
         onEdit={() => {
           if (post) {
             router.push({
-              pathname: '/household/[postId]/edit',
+              pathname: '/posts/[postId]/edit',
               params: { postId: post.id }
             });
           }

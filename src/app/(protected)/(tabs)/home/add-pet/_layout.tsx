@@ -1,5 +1,6 @@
 import { EVERY_DAY } from '@/lib/form/pet-schemas';
 import { addPetSchema, type AddPetFormValues } from '@/constants/schemas/add-pet';
+import { HeaderTitleStyle } from '@/constants/theme';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Stack } from 'expo-router';
 import { FormProvider, useForm } from 'react-hook-form';
@@ -37,21 +38,32 @@ export default function AddPetLayout() {
 
   return (
     <FormProvider {...form}>
-      <Stack screenOptions={{ headerBackButtonDisplayMode: 'minimal' }}>
-        <Stack.Screen name="index" options={{ headerTitle: 'Add a pet' }} />
-        <Stack.Screen
-          name="pet-type"
-          options={{ headerTitle: 'Pet type', headerBackTitle: 'Details' }}
-        />
-        <Stack.Screen
-          name="feeds"
-          options={{ headerTitle: 'Add a pet', headerBackTitle: 'Details' }}
-        />
-        <Stack.Screen name="feed" options={{ headerTitle: 'Feed', headerBackTitle: 'Feeds' }} />
-        <Stack.Screen
-          name="instructions"
-          options={{ headerTitle: 'Add a pet', headerBackTitle: 'Feeds' }}
-        />
+      <Stack>
+        <Stack.Screen name="index">
+          <Stack.Title style={HeaderTitleStyle}>Add a pet</Stack.Title>
+          <Stack.Header transparent />
+          <Stack.Screen.BackButton displayMode="minimal" />
+        </Stack.Screen>
+        <Stack.Screen name="pet-type">
+          <Stack.Title style={HeaderTitleStyle}>Pet type</Stack.Title>
+          <Stack.Header transparent />
+          <Stack.Screen.BackButton displayMode="minimal" />
+        </Stack.Screen>
+        <Stack.Screen name="feeds">
+          <Stack.Title style={HeaderTitleStyle}>Add a pet</Stack.Title>
+          <Stack.Header transparent />
+          <Stack.Screen.BackButton displayMode="minimal" />
+        </Stack.Screen>
+        <Stack.Screen name="feed">
+          <Stack.Title style={HeaderTitleStyle}>Feed</Stack.Title>
+          <Stack.Header transparent />
+          <Stack.Screen.BackButton displayMode="minimal" />
+        </Stack.Screen>
+        <Stack.Screen name="instructions">
+          <Stack.Title style={HeaderTitleStyle}>Add a pet</Stack.Title>
+          <Stack.Header transparent />
+          <Stack.Screen.BackButton displayMode="minimal" />
+        </Stack.Screen>
       </Stack>
     </FormProvider>
   );

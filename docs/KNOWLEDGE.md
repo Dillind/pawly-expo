@@ -113,6 +113,23 @@ list, and `log_feed` is `security invoker` — so a column added without a match
 fails with "permission denied for table feed_logs", surfaced as "Something went wrong. Try again."
 Adding a column to that table means adding the grant.
 
+**A custom bar item stretches the next screen's back button.** iOS animates the left bar-item group
+across a push, so a `Stack.Toolbar.View` on the outgoing screen hands its geometry to the incoming
+back button — which draws its background as a wide rectangle instead of a circle until the
+transition ends. Adding `hidesSharedBackground` to the custom item makes it worse, not better: with
+no background to hand over, the stretch runs for the whole push. Prefer a native
+`Stack.Toolbar.Button`; if the control has to be custom, leave its shared background alone.
+
+**A collapsed wrapper makes `Stack.Title asChild` look broken.** A `View` that hugs its content
+measures to nothing in the native title slot, so the bar shows the route name — `index`, not the
+switcher — and the title reads as unsupported. It is not: give the wrapper an explicit `width` and
+it registers. A width wider than the slot also left-aligns the content, because UIKit centres the
+slot itself. See `home/_layout.tsx`.
+
+**`Stack.Screen` reads its direct children only.** A shared header component compiles, renders, and
+silently leaves the bar showing the route name. Nothing warns. Share the style, never the
+components — `HeaderTitleStyle` in `constants/theme.ts` is the shared piece.
+
 **`SheetRow` only works inside a sheet.** It fills with `backgroundSheetRow`, which in the light
 palette is `#F1F2F5` — the screen background. Used on a screen the rows lose their fill entirely and
 read as plain labels rather than as something tappable. It looks fine in dark mode, so this only

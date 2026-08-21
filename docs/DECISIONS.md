@@ -17,6 +17,59 @@ Newest first. Append, don't rewrite.
 
 ---
 
+## 2026-08-21
+
+**Every stack header is declarative, not `options`.** SDK 57 gives `Stack.Title`, `Stack.Header`,
+`Stack.Toolbar` and `Stack.Screen.BackButton` as children of `Stack.Screen`. They replace
+`headerTitle`, `headerRight` and `headerBackButtonDisplayMode` across every layout.
+
+**They cannot be wrapped in a component.** `Stack.Screen` reads its direct children only, so a
+shared `ScreenHeader` component was tried and abandoned — the bar fell back to the route name,
+`index`. `HeaderTitleStyle` in `constants/theme.ts` is what can be shared.
+
+**The bar is transparent with no blur.** `<Stack.Header transparent />`. Content scrolls under it
+and the title sits level with the toolbar button, which is the effect Hevy has. A blurred bar keeps
+the title readable over a photo and a clear one does not — that trade was weighed and the clear bar
+chosen deliberately.
+
+**A native title is left-aligned with a wide wrapper, not with an option.** `headerTitleAlign:
+'left'` is ignored by the native stack, and a left `Stack.Toolbar.View` draws its own glass pill on
+iOS 26 and leaks the route name into the centre slot. Both were tried on a simulator. What works is
+`Stack.Title asChild` over a `View` given an explicit width wider than the title slot: UIKit centres
+the slot, so a box that overruns it starts at the left margin.
+
+**`Stack.Toolbar.Button` replaces `HeaderIconButton` in a bar.** It takes an SF Symbol rather than a
+Lucide icon, and it is a real bar button item, so it matches the back button by construction instead
+of by a hand-measured 36x40 box.
+
+**A transparent header insets nothing but the bar.** Every screen behind one needs `edges={[]}` on
+its `ScreenView` and `contentInsetAdjustmentBehavior="automatic"` on its scroller, or its first row
+hides under the title.
+
+**The `household` route group is now `posts`.** The folder held the posts feed while `Household` is
+a domain object with its own screens elsewhere, so the name pointed at the wrong thing. The tab
+trigger, every `href`, and the push payload in `send-alerts/message.ts` moved with it. The function
+is redeployed (v8 on `crumpet`).
+
+**`use-push-notifications` rewrites `/household` to `/posts` on the way in.** A notification
+delivered before the rename sits on the phone until it is tapped, carrying the old path. Without the
+rewrite those taps land on Unmatched Route. It can be deleted once no undelivered notification
+predates 2026-08-21.
+
+**Home's switcher is a `Stack.Title asChild`, with no pill.** The native title slot does hold a
+control. The earlier attempts failed because the wrapper `View` hugged its content and collapsed;
+an explicit `width` fixes it. The switcher draws its own chevron circle, so no glass pill remains.
+
+**The title slot also avoids the back-button stretch.** iOS animates the left bar-item group across
+a push, so a custom `Stack.Toolbar.View` hands its geometry to the next screen's back button, which
+then draws its background as a wide rectangle for the whole push. `hidesSharedBackground` makes it
+worse, not better. A title is outside that group, so the fault cannot occur — which is the second
+reason the switcher is a title and not a left bar item.
+
+**The bell is a native `Stack.Toolbar.Button` with a `Stack.Toolbar.Badge`.** The hand-rolled
+`NotificationBell`, with its absolutely-positioned badge, was deleted — a custom right-hand view
+carries the same transition cost as the left one, for a control the platform already draws.
+
 ## 2026-08-17
 
 **Email codes are six digits, not eight.** `supabase/config.toml` sets `otp_length = 6`, which is

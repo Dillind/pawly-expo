@@ -1,5 +1,4 @@
 import ErrorState from '@/components/core/error-state';
-import HeaderIconButton from '@/components/core/header-icon-button';
 import ScreenScrollView from '@/components/layout/screen-scroll-view';
 import ScreenView from '@/components/layout/screen-view';
 import GalleryStrip from '@/components/screens/pet/gallery-strip';
@@ -7,17 +6,19 @@ import PetBio from '@/components/screens/pet/pet-bio';
 import PetHeader from '@/components/screens/pet/pet-header';
 import ScheduleSection from '@/components/screens/pet/schedule-section';
 import SectionCard from '@/components/screens/pet/section-card';
-import { BottomTabInset, type AppTheme } from '@/constants/theme';
+import { BottomTabInset, HeaderTitleStyle, type AppTheme } from '@/constants/theme';
 import { useHousehold } from '@/hooks/queries/household/use-household';
 import { usePetDetail } from '@/hooks/queries/pet/use-pet-detail';
 import { useRemovePet } from '@/hooks/queries/pet/use-pet-mutations';
 import { useStyles } from '@/hooks/use-styles';
+import { useTheme } from '@/hooks/use-theme';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import { ActivityIndicator, Alert, StyleSheet } from 'react-native';
 
 const PetDetail = () => {
   const { petId } = useLocalSearchParams<{ petId: string }>();
   const styles = useStyles(makeStyles);
+  const { colors } = useTheme();
   const { data: pet, isLoading, isError, refetch } = usePetDetail(petId);
   const { data: household } = useHousehold();
   const { mutate: removePet, isPending: isRemoving } = useRemovePet();
@@ -59,27 +60,21 @@ const PetDetail = () => {
 
   return (
     <ScreenView edges={[]}>
-      <Stack.Screen
-        options={{
-          headerTitle: pet.name,
-          headerRight: household?.isOwner
-            ? () => (
-                <HeaderIconButton
-                  name="trash"
-                  accessibilityLabel={`Remove ${pet.name}`}
-                  color="error"
-                  size={22}
-                  strokeWidth={2.3}
-                  isLoading={isRemoving}
-                  isDisabled={isRemoving}
-                  onPress={confirmRemove}
-                />
-              )
-            : undefined
-        }}
-      />
+      <Stack.Title style={HeaderTitleStyle}>{pet.name}</Stack.Title>
+      <Stack.Toolbar placement="right">
+        <Stack.Toolbar.Button
+          icon="trash"
+          accessibilityLabel={`Remove ${pet.name}`}
+          tintColor={colors.error}
+          hidden={!household?.isOwner}
+          disabled={isRemoving}
+          onPress={confirmRemove}
+        />
+      </Stack.Toolbar>
 
-      <ScreenScrollView contentContainerStyle={styles.content}>
+      <ScreenScrollView
+        contentContainerStyle={styles.content}
+        contentInsetAdjustmentBehavior="automatic">
         <PetHeader
           petId={pet.id}
           name={pet.name}

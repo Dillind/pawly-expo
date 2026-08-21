@@ -63,7 +63,7 @@ Function. Recipients are resolved when the alert is sent, not when it is queued,
 delivery the recipient's choice rather than the sender's — there is no per-log "notify?" control and
 there must not be one (ADR 0012).
 
-Push payloads carry a route (`screen: '/household/[postId]'`) in `send-alerts/message.ts`. **Renaming
+Push payloads carry a route (`screen: '/posts/[postId]'`) in `send-alerts/message.ts`. **Renaming
 a route means redeploying that function**, and already-delivered notifications keep the old path.
 
 ## Auth is one subscription driving one guard

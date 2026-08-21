@@ -139,6 +139,15 @@ export const Radius = {
 export const BottomTabInset = Platform.select({ ios: 84, android: 80 }) ?? 0;
 
 /**
+ * The style every `Stack.Title` takes.
+ *
+ * It cannot be a shared header component: `Stack.Screen` reads its direct
+ * children only, so a `Stack.Title` inside a wrapper never registers and the
+ * bar falls back to the route name. A constant is what can be shared.
+ */
+export const HeaderTitleStyle = { fontSize: 18, fontWeight: 'bold' } as const;
+
+/**
  * The gutter between screen content and the screen edge.
  *
  * Applied by ScreenScrollView on the *content container*, never on the frame --

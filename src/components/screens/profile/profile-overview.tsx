@@ -1,7 +1,6 @@
 import AppText from '@/components/core/app-text';
 import AvatarInitials from '@/components/core/avatar-initials';
 import Icon from '@/components/core/icon';
-import IconButton from '@/components/core/icon-button';
 import ScreenScrollView from '@/components/layout/screen-scroll-view';
 import ScreenView from '@/components/layout/screen-view';
 import { ROLE_OPTIONS } from '@/constants/options';
@@ -13,12 +12,10 @@ import { useUserProfile } from '@/hooks/queries/account/use-user-profile';
 import { useStyles } from '@/hooks/use-styles';
 import { fullName } from '@/utils/members';
 import { optionLabel } from '@/utils/options';
-import { useRouter } from 'expo-router';
 import { StyleSheet, View } from 'react-native';
 
 const ProfileOverview = () => {
   const styles = useStyles(makeStyles);
-  const router = useRouter();
 
   const { data: profile } = useUserProfile();
   const { data: email } = useSessionEmail();
@@ -28,23 +25,10 @@ const ProfileOverview = () => {
   const name = fullName(profile);
 
   return (
-    <ScreenView>
+    <ScreenView edges={[]}>
       <ScreenScrollView
         contentContainerStyle={styles.content}
-        contentInsetAdjustmentBehavior="always">
-        <View style={styles.header}>
-          <AppText variant="header" size={32}>
-            Profile
-          </AppText>
-          <IconButton
-            name="settings"
-            accessibilityLabel="Settings"
-            variant="glass"
-            size={22}
-            onPress={() => router.push('/profile/settings')}
-          />
-        </View>
-
+        contentInsetAdjustmentBehavior="automatic">
         <View style={styles.identity}>
           <AvatarInitials firstName={profile?.firstName} lastName={profile?.lastName} />
           <AppText variant="header" size={22}>
@@ -85,11 +69,6 @@ const makeStyles = ({ colors, spacing }: AppTheme) =>
     content: {
       paddingBottom: BottomTabInset + spacing.four,
       gap: spacing.four
-    },
-    header: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      justifyContent: 'space-between'
     },
     identity: {
       alignItems: 'center',

@@ -26,7 +26,7 @@ const HouseholdSwitcher = () => {
   if (!household) return null;
 
   const title = (
-    <AppText variant="header" size={20} numberOfLines={1}>
+    <AppText variant="header" size={22} fontWeight="bold" numberOfLines={1}>
       {household.name}
     </AppText>
   );
@@ -43,7 +43,9 @@ const HouseholdSwitcher = () => {
         }}>
         <View style={styles.row}>
           {title}
-          <Icon name="caretDown" size={18} color="textSecondary" />
+          <View style={styles.chevron}>
+            <Icon name="caretDown" size={15} color="text" strokeWidth={2.5} />
+          </View>
         </View>
       </PressableOpacity>
 
@@ -52,9 +54,19 @@ const HouseholdSwitcher = () => {
   );
 };
 
-const makeStyles = ({ spacing }: AppTheme) =>
+const CHEVRON_SIZE = 26;
+
+const makeStyles = ({ colors, spacing }: AppTheme) =>
   StyleSheet.create({
-    row: { flexDirection: 'row', alignItems: 'center', gap: spacing.one }
+    row: { flexDirection: 'row', alignItems: 'center', gap: spacing.two },
+    chevron: {
+      width: CHEVRON_SIZE,
+      height: CHEVRON_SIZE,
+      borderRadius: CHEVRON_SIZE / 2,
+      alignItems: 'center',
+      justifyContent: 'center',
+      backgroundColor: colors.backgroundSelected
+    }
   });
 
 export default HouseholdSwitcher;

@@ -605,7 +605,16 @@ Unlike `MainButton`, it never stretches to fill its parent — it is a fixed cir
 
 `glass` is the one variant that does not use `PressableOpacity`: it renders a `GlassView` with `isInteractive`, so the material itself provides the press response. Layering the usual opacity fade on top would fight it — see [ADR 0011](./docs/adr/0011-liquid-glass-progressive-enhancement.md), which also requires the `hasGlass` fallback the variant already carries — below iOS 26 it drops back to the opaque `PressableOpacity` path, because there is no material to deform.
 
-**A `headerLeft` or `headerRight` is always `HeaderIconButton`** (`src/components/core/header-icon-button.tsx`), never a raw `IconButton`:
+**A bar button is `Stack.Toolbar.Button`, not a React view.** SDK 57 renders a real
+`UIBarButtonItem` from an SF Symbol, so it matches the back button by construction:
+
+```tsx
+<Stack.Toolbar placement="right">
+  <Stack.Toolbar.Button icon="plus" accessibilityLabel="Share a photo" onPress={openComposer} />
+</Stack.Toolbar>
+```
+
+`HeaderIconButton` below is the older path, kept for a header that is not a `Stack.Screen` child:
 
 ```tsx
 headerRight: () => (

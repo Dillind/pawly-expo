@@ -8,9 +8,7 @@ import ScreenScrollView from '@/components/layout/screen-scroll-view';
 import ScreenView from '@/components/layout/screen-view';
 import NoHouseholdState from '@/components/screens/home/no-household-state';
 import PetSection from '@/components/screens/home/pet-section';
-import NotificationBell from '@/components/screens/notifications/notification-bell';
 import ActionPopover from '@/components/ui/action-popover';
-import HouseholdSwitcher from '@/components/ui/household-switcher';
 import TileGrid from '@/components/ui/tile-grid';
 import { CREATE_ACTIONS } from '@/constants/create-actions';
 import { HOME_TILES } from '@/constants/home-tiles';
@@ -153,16 +151,12 @@ const Home = () => {
   };
 
   return (
-    <ScreenView>
+    <ScreenView edges={[]}>
       <ScreenScrollView
         contentContainerStyle={styles.content}
+        contentInsetAdjustmentBehavior="automatic"
         isRefreshing={isRefreshing}
         onRefresh={onRefresh}>
-        <View style={styles.headerRow}>
-          <HouseholdSwitcher />
-          {hasHousehold && <NotificationBell householdId={household?.id} />}
-        </View>
-
         {timezone && hasHousehold && (
           <AppText size={14} color="textSecondary">
             {formatDayAndDate(new Date(), timezone)}
@@ -240,12 +234,6 @@ const makeStyles = ({ spacing }: AppTheme) =>
     extraFeed: {
       gap: spacing.one
     },
-    headerRow: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      justifyContent: 'space-between',
-      gap: spacing.two
-    }
   });
 
 export default Home;

@@ -112,8 +112,9 @@ const Activity = () => {
   };
 
   return (
-    <ScreenView>
+    <ScreenView edges={[]}>
       <MainLegendList<ActivityItem>
+        contentInsetAdjustmentBehavior="automatic"
         data={items}
         isLoading={isLoading || !timezone}
         isError={isError}

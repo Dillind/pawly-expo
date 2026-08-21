@@ -80,9 +80,14 @@ export const usePushNotifications = () => {
     const data = lastResponse.notification.request.content.data;
     if (!data?.screen) return;
 
+    // A notification delivered before the route was renamed carries the old
+    // path. It sits on the phone until it is tapped, so dropping this mapping
+    // sends those taps to Unmatched Route.
+    const screen = (data.screen as string).replace(/^\/household/, '/posts');
+
     const navigate = () =>
       router.navigate({
-        pathname: data.screen as RelativePathString,
+        pathname: screen as RelativePathString,
         params: data.params as Record<string, string>
       });
 
