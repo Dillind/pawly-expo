@@ -26,6 +26,9 @@ import { useFocusEffect, useRouter } from 'expo-router';
 import { useCallback, useMemo, useRef, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 
+/** Wide enough to read as a break between posts, narrow enough to stay one list. */
+const PostGap = 12;
+
 const Posts = () => {
   const styles = useStyles(makeStyles);
   const router = useRouter();
@@ -210,7 +213,7 @@ const makeStyles = ({ spacing }: AppTheme) =>
       paddingBottom: spacing.six
     },
     separator: {
-      height: spacing.four
+      height: PostGap
     },
     emptyGutter: {
       paddingHorizontal: ScreenGutter

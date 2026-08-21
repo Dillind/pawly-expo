@@ -74,10 +74,15 @@ const PostBody = ({
   );
 };
 
-const makeStyles = ({ spacing }: AppTheme) =>
+const makeStyles = ({ colors, spacing }: AppTheme) =>
   StyleSheet.create({
+    // The post carries the element colour and the gap between posts shows the
+    // page through it. Without this the two are the same colour and the posts
+    // run together, in light mode especially.
     body: {
-      gap: spacing.two
+      gap: spacing.two,
+      paddingVertical: spacing.two,
+      backgroundColor: colors.backgroundElement
     },
     gutter: {
       paddingHorizontal: ScreenGutter,
