@@ -1,24 +1,26 @@
 import { ErrorMessage, SuccessMessage } from '@/constants/enums';
 import { userFacingMessage } from '@/lib/errors';
-import type { SlotInput } from '@/lib/form/pet-schemas';
+import type { FeedTimeInput } from '@/lib/form/pet-schemas';
 import { showErrorToast, showSuccessToast } from '@/lib/toast';
-import FeedingScheduleService from '@/services/feeding-schedule.service';
+import FeedTimeService from '@/services/feed-time.service';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 const invalidate = (queryClient: ReturnType<typeof useQueryClient>, petId: string) => {
-  void queryClient.invalidateQueries({ queryKey: ['feeding-schedules', petId] });
-  void queryClient.invalidateQueries({ queryKey: ['slot-states', petId] });
+  void queryClient.invalidateQueries({ queryKey: ['feed-times', petId] });
+  void queryClient.invalidateQueries({ queryKey: ['occurrences', petId] });
 };
 
-export function useUpsertSlot(petId: string) {
+export function useSaveFeedTime(petId: string) {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (input: SlotInput & { id?: string }) =>
-      FeedingScheduleService.upsertSlot(petId, input),
+    mutationFn: (input: FeedTimeInput & { seriesId?: string }) =>
+      FeedTimeService.saveFeedTime(petId, input),
     onSettled: () => invalidate(queryClient, petId),
     onSuccess: (_data, input) => {
-      showSuccessToast(input.id ? SuccessMessage.FeedTimeUpdated : SuccessMessage.FeedTimeAdded);
+      showSuccessToast(
+        input.seriesId ? SuccessMessage.FeedTimeUpdated : SuccessMessage.FeedTimeAdded
+      );
     },
     onError: (error) => {
       console.error(error);
@@ -27,11 +29,11 @@ export function useUpsertSlot(petId: string) {
   });
 }
 
-export function useDeleteSlot(petId: string) {
+export function useEndFeedTime(petId: string) {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (slotId: string) => FeedingScheduleService.deleteSlot(slotId),
+    mutationFn: (seriesId: string) => FeedTimeService.endFeedTime(petId, seriesId),
     onSettled: () => invalidate(queryClient, petId),
     onSuccess: () => showSuccessToast(SuccessMessage.FeedTimeRemoved),
     onError: (error) => {

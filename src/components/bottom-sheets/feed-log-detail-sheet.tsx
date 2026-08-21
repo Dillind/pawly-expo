@@ -34,7 +34,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import type { TrueSheet } from '@lodev09/react-native-true-sheet';
 import { useMemo, type RefObject } from 'react';
 import { Controller, FormProvider, useForm } from 'react-hook-form';
-import { ActivityIndicator, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, Alert, StyleSheet, View } from 'react-native';
 
 type Props = {
   sheetRef: RefObject<TrueSheet | null>;
@@ -98,7 +98,15 @@ const FeedLogDetailSheet = ({ sheetRef, logId, petId }: Props) => {
   const onDelete = () => {
     if (!log) return;
 
-    deleteFeedLog({ logId: log.id }, { onSuccess: () => void sheetRef.current?.dismiss() });
+    Alert.alert('Delete this log?', 'The feed will no longer count as logged.', [
+      { text: 'Cancel', style: 'cancel', isPreferred: true },
+      {
+        text: 'Delete',
+        style: 'destructive',
+        onPress: () =>
+          deleteFeedLog({ logId: log.id }, { onSuccess: () => void sheetRef.current?.dismiss() })
+      }
+    ]);
   };
 
   return (

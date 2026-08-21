@@ -5,7 +5,7 @@ import { useEffect } from 'react';
 /**
  * The household the user is currently looking at. Two of its fields are read
  * constantly by the feed-logging feature: `timezone` (every day boundary and
- * slot calculation resolves in it, never in device-local time) and
+ * occurrence calculation resolves in it, never in device-local time) and
  * `graceWindowMinutes` (the double-feed check).
  *
  * The name and shape are unchanged from when a user could only have one, so

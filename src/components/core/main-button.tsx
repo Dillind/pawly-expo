@@ -71,8 +71,8 @@ const MainButton: FunctionComponent<MainButtonProps> = ({
   const restingOpacity = isDisabled || isLoading ? DISABLED_OPACITY : 1;
 
   const animatedStyle = useAnimatedStyle(() => ({
-    transform: [{ scale: 1 - pressed.value * 0.04 }],
-    opacity: restingOpacity - pressed.value * (1 - APP_ACTIVE_OPACITY)
+    transform: [{ scale: 1 - pressed.get() * 0.04 }],
+    opacity: restingOpacity - pressed.get() * (1 - APP_ACTIVE_OPACITY)
   }));
 
   if (!onPress && !href) return null;
@@ -85,11 +85,11 @@ const MainButton: FunctionComponent<MainButtonProps> = ({
   };
 
   const handlePressIn = () => {
-    pressed.value = withTiming(1, { duration: PRESS_DURATION_MS });
+    pressed.set(withTiming(1, { duration: PRESS_DURATION_MS }));
   };
 
   const handlePressOut = () => {
-    pressed.value = withTiming(0, { duration: PRESS_DURATION_MS });
+    pressed.set(withTiming(0, { duration: PRESS_DURATION_MS }));
   };
 
   const { paddingVertical, paddingHorizontal, borderRadius, fontSize } = SIZE_STYLES[size];

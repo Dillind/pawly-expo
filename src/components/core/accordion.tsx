@@ -4,10 +4,22 @@ import Divider from '@/components/core/divider';
 import PressableOpacity from '@/components/core/pressable-opacity';
 import { Spacing } from '@/constants/theme';
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
-import { LayoutChangeEvent, StyleSheet, View } from 'react-native';
-import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
+import { StyleSheet, View } from 'react-native';
+import Animated, {
+  FadeIn,
+  FadeOut,
+  LinearTransition,
+  ReduceMotion,
+  useAnimatedStyle,
+  useSharedValue,
+  withTiming
+} from 'react-native-reanimated';
 
 const TIMING_MS = 280;
+
+const Reflow = LinearTransition.duration(TIMING_MS).reduceMotion(ReduceMotion.System);
+const BodyIn = FadeIn.duration(TIMING_MS).reduceMotion(ReduceMotion.System);
+const BodyOut = FadeOut.duration(TIMING_MS / 2).reduceMotion(ReduceMotion.System);
 
 type AccordionContextValue = {
   openId: string | null;
@@ -52,8 +64,6 @@ export const AccordionItem = ({ id, title, icon, children }: AccordionItemProps)
   const { openId, setOpenId } = useAccordionContext();
   const isOpen = openId === id;
 
-  const [contentHeight, setContentHeight] = useState(0);
-  const animatedHeight = useSharedValue(0);
   const rotation = useSharedValue(isOpen ? 0 : -90);
 
   const onHeaderPress = useCallback(() => {
@@ -61,37 +71,15 @@ export const AccordionItem = ({ id, title, icon, children }: AccordionItemProps)
   }, [id, isOpen, setOpenId]);
 
   useEffect(() => {
-    rotation.value = withTiming(isOpen ? 0 : -90, { duration: TIMING_MS });
+    rotation.set(withTiming(isOpen ? 0 : -90, { duration: TIMING_MS }));
   }, [isOpen, rotation]);
 
-  useEffect(() => {
-    if (isOpen) {
-      if (contentHeight > 0) {
-        animatedHeight.value = withTiming(contentHeight, { duration: TIMING_MS });
-      }
-    } else {
-      animatedHeight.value = withTiming(0, { duration: TIMING_MS });
-    }
-  }, [isOpen, contentHeight, animatedHeight]);
-
-  const onContentLayout = useCallback((e: LayoutChangeEvent) => {
-    const h = e.nativeEvent.layout.height;
-    if (h > 0) {
-      setContentHeight((prev) => (Math.abs(prev - h) > 0.5 ? h : prev));
-    }
-  }, []);
-
-  const bodyStyle = useAnimatedStyle(() => ({
-    height: animatedHeight.value,
-    overflow: 'hidden'
-  }));
-
   const chevronStyle = useAnimatedStyle(() => ({
-    transform: [{ rotate: `${rotation.value}deg` }]
+    transform: [{ rotate: `${rotation.get()}deg` }]
   }));
 
   return (
-    <View style={layoutStyles.item}>
+    <Animated.View layout={Reflow} style={layoutStyles.item}>
       <PressableOpacity
         accessibilityRole="button"
         accessibilityState={{ expanded: isOpen }}
@@ -109,19 +97,12 @@ export const AccordionItem = ({ id, title, icon, children }: AccordionItemProps)
         </Animated.View>
       </PressableOpacity>
       <Divider />
-      <View style={layoutStyles.bodyContainer}>
-        <View
-          pointerEvents="none"
-          collapsable={false}
-          style={layoutStyles.measureLayer}
-          onLayout={onContentLayout}>
-          <View style={layoutStyles.bodyInner}>{children}</View>
-        </View>
-        <Animated.View style={[bodyStyle, layoutStyles.bodyAnimated]}>
-          <View style={layoutStyles.bodyInner}>{children}</View>
+      {isOpen ? (
+        <Animated.View entering={BodyIn} exiting={BodyOut} style={layoutStyles.bodyInner}>
+          {children}
         </Animated.View>
-      </View>
-    </View>
+      ) : null}
+    </Animated.View>
   );
 };
 
@@ -169,20 +150,6 @@ const layoutStyles = StyleSheet.create({
     width: 22,
     alignItems: 'center',
     justifyContent: 'center'
-  },
-  bodyContainer: {
-    position: 'relative'
-  },
-  measureLayer: {
-    position: 'absolute',
-    left: 0,
-    right: 0,
-    top: 0,
-    opacity: 0,
-    zIndex: 0
-  },
-  bodyAnimated: {
-    zIndex: 1
   },
   bodyInner: {
     paddingBottom: 4

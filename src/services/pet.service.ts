@@ -1,6 +1,6 @@
 import { supabase } from '@/lib/supabase/client';
 import PetPhotoService from '@/services/pet-photo.service';
-import type { FeedingScheduleLabel, Pet, PetSex } from '@/types/core';
+import type { FeedingScheduleLabel, Pet, PetSex, PetType } from '@/types/core';
 
 export type PetDetail = {
   id: string;
@@ -20,7 +20,13 @@ export type AddPetInput = {
   birthdate: string;
   birthdateIsApproximate: boolean;
   photoUrl: string | null;
-  feedingTimes: { scheduledTime: string; label: FeedingScheduleLabel }[];
+  petType: PetType;
+  feedingTimes: {
+    scheduledTime: string;
+    label: FeedingScheduleLabel;
+    daysOfWeek: number[];
+    instructions: string | null;
+  }[];
 };
 
 export type PetPatch = {
@@ -111,7 +117,8 @@ namespace PetService {
         pet_photo_url: input.photoUrl,
         feeding_times: input.feedingTimes,
         target_household_id: householdId,
-        household_timezone: timezone
+        household_timezone: timezone,
+        pet_pet_type: input.petType
       })
       .single();
 

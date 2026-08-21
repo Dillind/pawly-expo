@@ -11,7 +11,7 @@ type Props = {
 
 /**
  * The "Fed 2 of 3" count this used to carry read as the whole household's, but
- * came from one pet's slots. Rather than sum a per-pet query the list cannot
+ * came from one pet's occurrences. Rather than sum a per-pet query the list cannot
  * call once per pet, the count is gone until Activity itself is reworked.
  */
 const ActivityDayHeader = ({ day, timezone }: Props) => {

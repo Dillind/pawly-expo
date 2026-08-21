@@ -96,7 +96,10 @@ describe('PetService.add', () => {
         birthdate: '2024-02-01',
         birthdateIsApproximate: true,
         photoUrl: null,
-        feedingTimes: [{ scheduledTime: '07:00', label: 'morning' }]
+        petType: 'cat',
+        feedingTimes: [
+          { scheduledTime: '07:00', label: 'morning', daysOfWeek: [1, 2, 3], instructions: null }
+        ]
       },
       'household-1',
       'Australia/Melbourne'
@@ -109,9 +112,12 @@ describe('PetService.add', () => {
       pet_birthdate: '2024-02-01',
       pet_birthdate_is_approximate: true,
       pet_photo_url: null,
-      feeding_times: [{ scheduledTime: '07:00', label: 'morning' }],
+      feeding_times: [
+        { scheduledTime: '07:00', label: 'morning', daysOfWeek: [1, 2, 3], instructions: null }
+      ],
       target_household_id: 'household-1',
-      household_timezone: 'Australia/Melbourne'
+      household_timezone: 'Australia/Melbourne',
+      pet_pet_type: 'cat'
     });
   });
 
@@ -126,6 +132,7 @@ describe('PetService.add', () => {
         birthdate: '2024-02-01',
         birthdateIsApproximate: true,
         photoUrl: null,
+        petType: 'dog',
         feedingTimes: []
       },
       null,
@@ -156,6 +163,7 @@ describe('PetService.add', () => {
           birthdate: '2024-02-01',
           birthdateIsApproximate: false,
           photoUrl: null,
+          petType: 'dog',
           feedingTimes: []
         },
         'household-1',

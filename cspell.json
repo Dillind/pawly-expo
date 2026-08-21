@@ -3,6 +3,13 @@
   "language": "en,en-GB",
   "words": [
     "ABCDEFGHJKMNPQRSTUVWXYZ",
+    "Wirekitty",
+    "smallint",
+    "EXDATE",
+    "RRULE",
+    "daterange",
+    "isodow",
+    "bitemporal",
     "Apoquel",
     "Cavoodle",
     "Dillind",
@@ -112,6 +119,7 @@
   "ignorePaths": [
     "**/dist/**",
     "ios/**",
+    "docs/research/**",
     "android/**",
     "**/node_modules/**",
     "**/.git/**",
