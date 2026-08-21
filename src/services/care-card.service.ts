@@ -1,8 +1,4 @@
-import type {
-  CareCardContactInput,
-  CareCardInput,
-  MedicationInput
-} from '@/lib/form/pet-schemas';
+import type { CareCardContactInput, CareCardInput, MedicationInput } from '@/lib/form/pet-schemas';
 import { supabase } from '@/lib/supabase/client';
 
 export type CareCard = {
@@ -121,10 +117,7 @@ namespace CareCardService {
     const row = { pet_id: petId, name: input.name, phone: input.phone };
 
     if (input.id) {
-      const { error } = await supabase
-        .from('care_card_contacts')
-        .update(row)
-        .eq('id', input.id);
+      const { error } = await supabase.from('care_card_contacts').update(row).eq('id', input.id);
       if (error) throw error;
       return;
     }

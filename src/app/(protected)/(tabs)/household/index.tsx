@@ -35,8 +35,16 @@ const Posts = () => {
 
   // Not persisted: the scope is where you are looking right now, and a filter
   // surviving a relaunch hides posts from someone who has forgotten they set it.
-  const [scope, setScope] = useState<PostScope>(ALL_HOUSEHOLDS);
+  const [chosenScope, setScope] = useState<PostScope>(ALL_HOUSEHOLDS);
   const isMultiHousehold = households.length > 1;
+
+  // Healed rather than stored: leaving the household you had filtered to would
+  // otherwise leave a dead id selected, no chips on screen to change it, and an
+  // empty tab until the next relaunch.
+  const scope =
+    chosenScope !== ALL_HOUSEHOLDS && !households.some((household) => household.id === chosenScope)
+      ? ALL_HOUSEHOLDS
+      : chosenScope;
 
   const householdIds = useMemo(() => {
     const ids = households.map((household) => household.id);
@@ -69,12 +77,16 @@ const Posts = () => {
   const { mutate: deletePost } = useDeletePost();
   const { mutate: markSeen } = useMarkPostsSeen(householdIds, userId ?? undefined);
 
+  // Keyed on a string, not the array: `householdIds` has a fresh identity on
+  // every households refetch, and the effect would issue a write for each one.
+  const scopeKey = householdIds.join(',');
+
   // Clearing the dot is a side effect of arriving, not of the data loading, so
   // it fires on focus rather than in an effect keyed on the query.
   useFocusEffect(
     useCallback(() => {
-      if (householdIds.length > 0 && userId) markSeen();
-    }, [householdIds, userId, markSeen])
+      if (scopeKey && userId) markSeen();
+    }, [scopeKey, userId, markSeen])
   );
 
   // Editing is the author's alone. An Owner may remove a member's post but
@@ -95,17 +107,13 @@ const Posts = () => {
       <PostCard
         post={item}
         showActions={canEdit || canDelete}
-        householdName={
-          isMultiHousehold ? householdById.get(item.householdId)?.name : undefined
-        }
+        householdName={isMultiHousehold ? householdById.get(item.householdId)?.name : undefined}
         onToggleLike={() => toggleLike({ postId: item.id, liked: item.likedByMe })}
         onOpenActions={() => {
           setActivePost(item);
           void actionsSheetRef.current?.present();
         }}
-        onOpen={() =>
-          router.push({ pathname: '/household/[postId]', params: { postId: item.id } })
-        }
+        onOpen={() => router.push({ pathname: '/household/[postId]', params: { postId: item.id } })}
       />
     );
   };
@@ -121,7 +129,12 @@ const Posts = () => {
           variant="glass"
           size={20}
           accessibilityLabel="Share a photo"
-          onPress={() => router.push('/household/new-post')}
+          onPress={() =>
+            router.push({
+              pathname: '/household/new-post',
+              params: scope === ALL_HOUSEHOLDS ? undefined : { householdId: scope }
+            })
+          }
         />
       </View>
 

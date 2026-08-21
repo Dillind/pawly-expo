@@ -4,12 +4,12 @@ import PostModalHeader from '@/components/screens/household/post-modal-header';
 import { postSchema, type PostFormValues } from '@/constants/schemas/post';
 import type { AppTheme } from '@/constants/theme';
 import { useHousehold } from '@/hooks/queries/household/use-household';
-import { usePets } from '@/hooks/queries/pet/use-pets';
+import { useHouseholds } from '@/hooks/queries/household/use-households';
 import { useCreatePost } from '@/hooks/queries/posts/use-posts';
 import { useStyles } from '@/hooks/use-styles';
 import { useAuthStore } from '@/stores/auth-store';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useRouter } from 'expo-router';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import { FormProvider, useForm, useWatch } from 'react-hook-form';
 import { Alert, StyleSheet } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
@@ -21,8 +21,15 @@ const NewPost = () => {
   const router = useRouter();
 
   const { userId } = useAuthStore();
-  const { data: household } = useHousehold();
-  const { data: pets = [] } = usePets();
+  const { householdId } = useLocalSearchParams<{ householdId?: string }>();
+  const { data: households = [] } = useHouseholds();
+  const { data: activeHousehold } = useHousehold();
+
+  // The Posts tab hands over the household it is filtered to, so sharing from a
+  // filtered tab does not write the post somewhere the user cannot see it.
+  const household = households.find((candidate) => candidate.id === householdId) ?? activeHousehold;
+
+  const pets = household?.pets ?? [];
 
   const form = useForm<PostFormValues>({
     resolver: zodResolver(postSchema),

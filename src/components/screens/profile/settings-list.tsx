@@ -8,11 +8,7 @@ import SettingsSection from '@/components/core/settings-section';
 import ScreenScrollView from '@/components/layout/screen-scroll-view';
 import ScreenView from '@/components/layout/screen-view';
 import { ErrorMessage, SuccessMessage } from '@/constants/enums';
-import {
-  APPEARANCE_OPTIONS,
-  GRACE_WINDOW_OPTIONS,
-  TIMEZONE_OPTIONS
-} from '@/constants/options';
+import { APPEARANCE_OPTIONS, GRACE_WINDOW_OPTIONS, TIMEZONE_OPTIONS } from '@/constants/options';
 import { BottomTabInset, type AppTheme } from '@/constants/theme';
 import { useHousehold } from '@/hooks/queries/household/use-household';
 import { useHouseholdMembers } from '@/hooks/queries/household/use-household-members';
@@ -171,7 +167,10 @@ const SettingsList = () => {
         selected={household?.timezone}
         isScrollable
         onSelect={(timezone) =>
-          updateTimezone({ timezone }, { onSuccess: () => void timezoneSheetRef.current?.dismiss() })
+          updateTimezone(
+            { timezone },
+            { onSuccess: () => void timezoneSheetRef.current?.dismiss() }
+          )
         }
       />
       <OptionSheet

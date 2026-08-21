@@ -20,7 +20,8 @@ listBuilder.or = (...args: unknown[]) => {
 
   return listBuilder;
 };
-listBuilder.then = (resolve: (value: unknown) => unknown) => Promise.resolve(listResult).then(resolve);
+listBuilder.then = (resolve: (value: unknown) => unknown) =>
+  Promise.resolve(listResult).then(resolve);
 
 const mockSelect = jest.fn(() => ({
   eq: mockEq,
@@ -110,7 +111,7 @@ describe('PostService.list', () => {
     expect(nextCursor).toBeNull();
   });
 
-  it('carries each post\'s own household through, which is what labels the card', async () => {
+  it("carries each post's own household through, which is what labels the card", async () => {
     listResult.data = [row(), row({ id: 'post-2', household_id: 'house-2' })];
 
     const { posts } = await PostService.list({

@@ -118,8 +118,7 @@ export function formatScheduledTime(postgresTime: string): string {
   return dayjs(postgresTime, 'HH:mm:ss').format('h:mm A');
 }
 
-const plural = (count: number, noun: string): string =>
-  `${count} ${noun}${count === 1 ? '' : 's'}`;
+const plural = (count: number, noun: string): string => `${count} ${noun}${count === 1 ? '' : 's'}`;
 
 /** Must match the interval list_alerts and unread_alert_count filter on. */
 const ALERT_WINDOW_DAYS = 7;
@@ -129,7 +128,11 @@ const ALERT_WINDOW_DAYS = 7;
  * something logged at 11pm is one day old the next morning, rather than for a
  * further 24 hours. Negative for a future timestamp; callers clamp.
  */
-export function calendarDaysAgo(isoTimestamp: string, zone: string, now: Date = new Date()): number {
+export function calendarDaysAgo(
+  isoTimestamp: string,
+  zone: string,
+  now: Date = new Date()
+): number {
   const asUtcDay = ({ year, month, day }: ZonedParts) => Date.UTC(year, month - 1, day);
 
   return Math.round(
@@ -143,7 +146,11 @@ export function calendarDaysAgo(isoTimestamp: string, zone: string, now: Date = 
  * device clock, so an 11pm log reads "1 day ago" the next morning rather than
  * for a further 24 hours. Under a day stays a duration.
  */
-export function formatAlertTime(isoTimestamp: string, zone: string, now: Date = new Date()): string {
+export function formatAlertTime(
+  isoTimestamp: string,
+  zone: string,
+  now: Date = new Date()
+): string {
   const minutes = Math.floor((now.getTime() - new Date(isoTimestamp).getTime()) / 60000);
 
   if (minutes < 1) return 'Just now';

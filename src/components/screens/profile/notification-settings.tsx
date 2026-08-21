@@ -28,9 +28,7 @@ import { ActivityIndicator, Linking, StyleSheet, View } from 'react-native';
 const NotificationSettings = () => {
   const styles = useStyles(makeStyles);
   const { data: household } = useHousehold();
-  const { data: preferences, isLoading, setPreference } = useNotificationPreferences(
-    household?.id
-  );
+  const { data: preferences, isLoading, setPreference } = useNotificationPreferences(household?.id);
 
   const requestPermission = useRequestNotificationPermission();
 

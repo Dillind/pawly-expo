@@ -20,8 +20,7 @@ export type PostPhoto = { id: string; url: string; storagePath: string };
  * author just picked and which has not been uploaded yet.
  */
 export type PostPhotoInput =
-  | { kind: 'existing'; storagePath: string }
-  | { kind: 'new'; localUri: string };
+  { kind: 'existing'; storagePath: string } | { kind: 'new'; localUri: string };
 
 export type Post = {
   id: string;
@@ -80,9 +79,7 @@ function mapPostRow(row: PostRow, viewerId: string | null): Post {
     id: row.id,
     householdId: row.household_id,
     authorId: row.author_id,
-    author: row.users
-      ? { firstName: row.users.first_name, lastName: row.users.last_name }
-      : null,
+    author: row.users ? { firstName: row.users.first_name, lastName: row.users.last_name } : null,
     title: row.title,
     caption: row.caption,
     occurredAt: row.occurred_at,

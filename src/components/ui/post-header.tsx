@@ -38,10 +38,12 @@ const PostHeader = ({ post, showActions = false, householdName, onOpenActions }:
         <AppText size={15} fontWeight="bold">
           {authorName}
         </AppText>
+        {/* The household leads: it is the new information, and last on the line
+            it is the first thing a narrow screen truncates away. */}
         <AppText size={13} color="textSecondary" numberOfLines={1}>
+          {householdName ? `${householdName} · ` : ''}
           {formatRelativeTime(post.occurredAt)}
           {post.editedAt ? ' · Edited' : ''}
-          {householdName ? ` · ${householdName}` : ''}
         </AppText>
       </View>
       {/* Absent rather than disabled when you cannot act: a menu with one

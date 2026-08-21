@@ -107,6 +107,34 @@ export function useDeletePost() {
 type PostsPage = { posts: Post[]; nextCursor: PostsCursor | null };
 type PostsData = { pages: PostsPage[]; pageParams: unknown[] };
 
+type Client = ReturnType<typeof useQueryClient>;
+
+/** Rewrites one post wherever it is cached, leaving every other post untouched. */
+function writeToEveryScope(client: Client, postId: string, apply: (post: Post) => Post) {
+  client.setQueriesData<PostsData>({ queryKey: ALL_SCOPES }, (old) =>
+    old
+      ? {
+          ...old,
+          pages: old.pages.map((page) => ({
+            ...page,
+            posts: page.posts.map((post) => (post.id === postId ? apply(post) : post))
+          }))
+        }
+      : old
+  );
+}
+
+function findCachedPost(client: Client, postId: string): Post | undefined {
+  for (const [, data] of client.getQueriesData<PostsData>({ queryKey: ALL_SCOPES })) {
+    for (const page of data?.pages ?? []) {
+      const found = page.posts.find((post) => post.id === postId);
+      if (found) return found;
+    }
+  }
+
+  return undefined;
+}
+
 /**
  * Optimistic, and deliberately silent on both success and failure.
  *
@@ -132,14 +160,12 @@ export function useToggleLike() {
       const detailKey = ['post', postId];
       await queryClient.cancelQueries({ queryKey: detailKey });
 
-      // The same post sits in the all-households scope and in its own
-      // household's, and a heart fills in both or neither.
-      const previous = queryClient.getQueriesData<PostsData>({ queryKey: ALL_SCOPES });
       const previousDetail = queryClient.getQueryData<Post>(detailKey);
+      const previousPost = findCachedPost(queryClient, postId) ?? previousDetail;
 
       // The mutation itself cannot run without an id, and an optimistic liker
       // carrying a placeholder one could never be filtered back out.
-      if (!userId) return { previous, previousDetail };
+      if (!userId) return { previousDetail, previousPost };
 
       const me: PostLiker = {
         userId,
@@ -159,27 +185,25 @@ export function useToggleLike() {
           : [...post.likers, me]
       });
 
-      queryClient.setQueriesData<PostsData>({ queryKey: ALL_SCOPES }, (old) =>
-        old
-          ? {
-              ...old,
-              pages: old.pages.map((page) => ({
-                ...page,
-                posts: page.posts.map((post) => (post.id === postId ? applyLike(post) : post))
-              }))
-            }
-          : old
-      );
+      // The same post sits in the all-households scope and in its own
+      // household's, and a heart fills in both or neither.
+      writeToEveryScope(queryClient, postId, applyLike);
 
       // Post Detail reads its own query, so the heart there is dead without this.
       queryClient.setQueryData<Post>(detailKey, (old) => (old ? applyLike(old) : old));
 
-      return { previous, previousDetail };
+      return { previousDetail, previousPost };
     },
 
+    // Restores this one post, never a whole cache snapshot: a snapshot taken
+    // before this tap also predates any like still in flight beside it, and
+    // writing it back would empty a heart that had already succeeded.
     onError: (error, input, context) => {
       console.error(error);
-      context?.previous.forEach(([key, data]) => queryClient.setQueryData(key, data));
+
+      const restored = context?.previousPost;
+      if (restored) writeToEveryScope(queryClient, input.postId, () => restored);
+
       if (context?.previousDetail) {
         queryClient.setQueryData(['post', input.postId], context.previousDetail);
       }
@@ -240,11 +264,13 @@ export function useMarkPostsSeen(householdIds: string[], userId: string | undefi
   const queryClient = useQueryClient();
 
   return useMutation({
+    // allSettled, not all: one rejected household must not throw away the dots
+    // that were cleared successfully.
     mutationFn: () =>
-      Promise.all(
+      Promise.allSettled(
         householdIds.map((householdId) => PostService.markSeen({ householdId, userId: userId! }))
       ),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['posts-unseen'] }),
+    onSettled: () => queryClient.invalidateQueries({ queryKey: ['posts-unseen'] }),
     onError: (error) => console.error(error)
   });
 }

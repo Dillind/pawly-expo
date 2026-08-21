@@ -50,11 +50,7 @@ const Home = () => {
 
   // The rows come from pets, the day's counts from slot-states, and the bell
   // from a third query. Refreshing one leaves the other two stale on screen.
-  const { isRefreshing, onRefresh } = usePullToRefresh([
-    refetch,
-    refreshSlotStates,
-    refreshUnread
-  ]);
+  const { isRefreshing, onRefresh } = usePullToRefresh([refetch, refreshSlotStates, refreshUnread]);
 
   const timezone = household?.timezone;
   const today = timezone ? todayInTimezone(timezone) : undefined;
