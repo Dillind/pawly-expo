@@ -20,8 +20,7 @@ export type PostPhoto = { id: string; url: string; storagePath: string };
  * author just picked and which has not been uploaded yet.
  */
 export type PostPhotoInput =
-  | { kind: 'existing'; storagePath: string }
-  | { kind: 'new'; localUri: string };
+  { kind: 'existing'; storagePath: string } | { kind: 'new'; localUri: string };
 
 export type Post = {
   id: string;
@@ -80,9 +79,7 @@ function mapPostRow(row: PostRow, viewerId: string | null): Post {
     id: row.id,
     householdId: row.household_id,
     authorId: row.author_id,
-    author: row.users
-      ? { firstName: row.users.first_name, lastName: row.users.last_name }
-      : null,
+    author: row.users ? { firstName: row.users.first_name, lastName: row.users.last_name } : null,
     title: row.title,
     caption: row.caption,
     occurredAt: row.occurred_at,
@@ -109,15 +106,19 @@ function mapPostRow(row: PostRow, viewerId: string | null): Post {
 }
 
 namespace PostService {
+  /**
+   * The keyset below still holds across several households: the order is over
+   * the whole result rather than per household.
+   */
   export async function list(params: {
-    householdId: string;
+    householdIds: string[];
     viewerId: string | null;
     cursor?: PostsCursor;
   }): Promise<{ posts: Post[]; nextCursor: PostsCursor | null }> {
     let query = supabase
       .from('posts')
       .select(POST_SELECT)
-      .eq('household_id', params.householdId)
+      .in('household_id', params.householdIds)
       .order('occurred_at', { ascending: false })
       .order('id', { ascending: false })
       .order('created_at', { referencedTable: 'post_likes', ascending: true })

@@ -43,3 +43,61 @@ with nothing to pop to and the back button vanishes — observed on device, not 
 **`UserFacingError` carries the original error as `cause`.** Translating a driver failure into copy
 for a person otherwise destroys the only thing that explains it, and `console.error` in every
 `onError` ends up printing our own sentence back at us. `logError` prints both.
+
+
+---
+
+## 2026-08-21
+
+**The Posts photo is full-bleed, and PostBody owns the gutter.** Matching Hevy means the picture
+reaches both screen edges, which no parent can allow while it is padding its children. So the
+gutter moved down into `PostBody`, which re-indents its own words and lets the carousel through at
+full width. Both surfaces that render a Post — the tab and Post Detail — now hand it the whole
+width. The card lost its radius, shadow and background in the same move: a frame drawn around a
+picture that has already left it reads as a mistake.
+
+**The pager dots sit on the photo, not under it.** Below the frame they cost a row of height on
+every multi-photo Post and split the pager into two things that do not look related. The scrim
+behind them is what keeps them legible on a pale photo, which is the reason the dots were outside
+the frame to begin with.
+
+**The Posts tab reads every Household at once.** `PostService.list` takes `householdIds`, and the
+keyset paging is unchanged — the order was always over the whole result, never per household, so a
+page boundary does not care how many Households its rows came from.
+
+**There is no filter on the Posts tab, and that was a deliberate cut.** One was built — a chip row
+per Household — and removed before it shipped. Three reasons. Almost every Member holds one
+Household and would never see the control. For the two-Household case the label on each card
+already answers "which house is this" with no tap, which is the question people actually ask; "show
+me only that house" is far rarer. And the filter introduced two bugs of its own: a narrowed
+selection that stranded the tab on an empty list with no control left on screen to reset it, and
+sharing from a narrowed tab writing the Post to a different Household than the one being read.
+
+Cutting it also removes a real teaching problem. The household switcher sets the Active Household
+and governs every other surface; a filter that governed only this one meant two controls answering
+"which Household", with a rule to explain. Build the filter when a Member says the tab is noisy —
+they will name the axis, instead of us guessing between Household, unseen and Pet.
+
+**A Post has its own surface token, and dark mode inverts it.** `postSurface` and `postDivider`
+are new. Light draws a white Post on a tinted band, which is the grouped-list idiom the rest of the
+app uses. Dark does the reverse — the Post is pure black and the band between two of them is the
+lighter grey. A Post that fills the screen width has no edge of its own, so the band is the only
+thing separating one from the next; and in dark a Post drawn on anything but black loses the
+photo's own blacks at its top and bottom edge.
+
+**The Household name is the Post's first line, above the author.** Grey text in a metadata line is
+not something the eye sorts by, and which house a photo came from is the first thing a Member of
+several of them asks. A Member of one Household sees the author on that line, as before.
+
+**Post permissions are read from the Post's own Household.** With the tab spanning several Households, two
+adjacent rows can belong to two Households the viewer holds different roles in, so the old check
+against the Active Household's `isOwner` was wrong on every row but one. Both the tab and Post
+Detail now look the Household up by `post.householdId`.
+
+**A Like writes to every cached Posts list, and rolls back one Post rather than a snapshot.**
+`setQueriesData` over the shared `['posts']` prefix keeps every cached list in step. The rollback
+restores the single Post, because a snapshot taken before this tap also predates any Like still in
+flight beside it — writing it back emptied a heart that had already succeeded.
+
+**Arriving at the tab marks every Household seen.** Marking only the Active one left a dot on a
+Household whose Posts were already on the screen.

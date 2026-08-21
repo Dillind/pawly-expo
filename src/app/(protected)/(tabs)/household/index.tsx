@@ -7,7 +7,7 @@ import MainLegendList from '@/components/core/main-legend-list';
 import ScreenView from '@/components/layout/screen-view';
 import PostCard from '@/components/ui/post-card';
 import { ScreenGutter, type AppTheme } from '@/constants/theme';
-import { useHousehold } from '@/hooks/queries/household/use-household';
+import { useHouseholds } from '@/hooks/queries/household/use-households';
 import {
   useDeletePost,
   useMarkPostsSeen,
@@ -22,17 +22,26 @@ import { useAuthStore } from '@/stores/auth-store';
 import type { LegendListRenderItemProps } from '@legendapp/list/react-native';
 import type { TrueSheet } from '@lodev09/react-native-true-sheet';
 import { useFocusEffect, useRouter } from 'expo-router';
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useMemo, useRef, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
+
+const PostGap = 12;
 
 const Posts = () => {
   const styles = useStyles(makeStyles);
   const router = useRouter();
 
   const { userId } = useAuthStore();
-  const { data: household } = useHousehold();
-  const householdId = household?.id;
-  const isOwner = household?.isOwner ?? false;
+  const { data: households = [] } = useHouseholds();
+
+  const isMultiHousehold = households.length > 1;
+
+  const householdIds = useMemo(() => households.map((household) => household.id), [households]);
+
+  const householdById = useMemo(
+    () => new Map(households.map((household) => [household.id, household])),
+    [households]
+  );
 
   const [activePost, setActivePost] = useState<Post | null>(null);
   const actionsSheetRef = useRef<TrueSheet | null>(null);
@@ -45,29 +54,33 @@ const Posts = () => {
     fetchNextPage,
     hasNextPage,
     isFetchingNextPage
-  } = usePosts(householdId, userId ?? undefined);
+  } = usePosts(householdIds, userId ?? undefined);
 
   useRefreshOnFocus(['posts']);
   const { isRefreshing, onRefresh } = usePullToRefresh([refetch]);
 
-  const { mutate: toggleLike } = useToggleLike(householdId);
-  const { mutate: deletePost } = useDeletePost(householdId);
-  const { mutate: markSeen } = useMarkPostsSeen(householdId, userId ?? undefined);
+  const { mutate: toggleLike } = useToggleLike();
+  const { mutate: deletePost } = useDeletePost();
+  const { mutate: markSeen } = useMarkPostsSeen(householdIds, userId ?? undefined);
+
+  // A string, not the array: the array is a fresh identity on every refetch.
+  const scopeKey = householdIds.join(',');
 
   // Clearing the dot is a side effect of arriving, not of the data loading, so
   // it fires on focus rather than in an effect keyed on the query.
   useFocusEffect(
     useCallback(() => {
-      if (householdId && userId) markSeen();
-    }, [householdId, userId, markSeen])
+      if (scopeKey && userId) markSeen();
+    }, [scopeKey, userId, markSeen])
   );
 
   // Editing is the author's alone. An Owner may remove a member's post but
   // never rewrite it under their name -- the same split as the RLS policies.
   const permissions = (post: Post | null) => {
     const canEdit = post !== null && post.authorId === userId;
+    const isOwner = post !== null && (householdById.get(post.householdId)?.isOwner ?? false);
 
-    return { canEdit, canDelete: canEdit || (post !== null && isOwner) };
+    return { canEdit, canDelete: canEdit || isOwner };
   };
 
   const renderItem = ({ item }: LegendListRenderItemProps<Post>) => {
@@ -77,14 +90,13 @@ const Posts = () => {
       <PostCard
         post={item}
         showActions={canEdit || canDelete}
+        householdName={isMultiHousehold ? householdById.get(item.householdId)?.name : undefined}
         onToggleLike={() => toggleLike({ postId: item.id, liked: item.likedByMe })}
         onOpenActions={() => {
           setActivePost(item);
           void actionsSheetRef.current?.present();
         }}
-        onOpen={() =>
-          router.push({ pathname: '/household/[postId]', params: { postId: item.id } })
-        }
+        onOpen={() => router.push({ pathname: '/household/[postId]', params: { postId: item.id } })}
       />
     );
   };
@@ -118,16 +130,18 @@ const Posts = () => {
         onRefresh={onRefresh}
         isRefreshing={isRefreshing}
         keyExtractor={(post) => post.id}
-        estimatedItemSize={520}
+        estimatedItemSize={640}
         contentContainerStyle={styles.listContent}
         ItemSeparatorComponent={() => <View style={styles.separator} />}
         ListEmptyComponent={
-          <EmptyState
-            icon="image"
-            title="Nothing shared yet"
-            description="Photos your household shares of your pets show up here. Handy when someone else is looking after them."
-            action={<MainButton text="Share a photo" href="/household/new-post" />}
-          />
+          <View style={styles.emptyGutter}>
+            <EmptyState
+              icon="image"
+              title="Nothing shared yet"
+              description="Photos your household shares of your pets show up here. Handy when someone else is looking after them."
+              action={<MainButton text="Share a photo" href="/household/new-post" />}
+            />
+          </View>
         }
         renderItem={renderItem}
       />
@@ -152,7 +166,7 @@ const Posts = () => {
   );
 };
 
-const makeStyles = ({ spacing }: AppTheme) =>
+const makeStyles = ({ colors, spacing }: AppTheme) =>
   StyleSheet.create({
     header: {
       flexDirection: 'row',
@@ -161,12 +175,16 @@ const makeStyles = ({ spacing }: AppTheme) =>
       paddingHorizontal: ScreenGutter,
       paddingBottom: spacing.two
     },
+    // No gutter: PostBody re-indents its words and padding here would inset the photo.
     listContent: {
-      paddingHorizontal: spacing.three,
       paddingBottom: spacing.six
     },
     separator: {
-      height: spacing.three
+      height: PostGap,
+      backgroundColor: colors.postDivider
+    },
+    emptyGutter: {
+      paddingHorizontal: ScreenGutter
     }
   });
 

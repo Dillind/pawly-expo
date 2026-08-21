@@ -5,7 +5,7 @@ import PostLikers from '@/components/ui/post-likers';
 import PostPetChips from '@/components/ui/post-pet-chips';
 import PostPhotoCarousel from '@/components/ui/post-photo-carousel';
 import PostTitle from '@/components/ui/post-title';
-import type { AppTheme } from '@/constants/theme';
+import { ScreenGutter, type AppTheme } from '@/constants/theme';
 import { useStyles } from '@/hooks/use-styles';
 import type { Post } from '@/services/post.service';
 import { StyleSheet, View } from 'react-native';
@@ -14,6 +14,7 @@ type Props = {
   post: Post;
   /** Set on the Posts tab only: Post Detail keeps its ⋯ in the header. */
   showActions?: boolean;
+  householdName?: string;
   titleLines?: number;
   captionLines?: number;
   onToggleLike: () => void;
@@ -25,10 +26,11 @@ type Props = {
   onOpen?: () => void;
 };
 
-/** Everything a Post shows, in one order, on both surfaces that show it. */
+/** The gutter is owned here: a parent that padded this would inset the photo with the words. */
 const PostBody = ({
   post,
   showActions,
+  householdName,
   titleLines,
   captionLines,
   onToggleLike,
@@ -39,33 +41,53 @@ const PostBody = ({
 
   return (
     <View style={styles.body}>
-      <PostHeader post={post} showActions={showActions} onOpenActions={onOpenActions} />
+      <View style={styles.gutter}>
+        <PostHeader
+          post={post}
+          showActions={showActions}
+          householdName={householdName}
+          onOpenActions={onOpenActions}
+        />
 
-      <View style={styles.words}>
-        <PostTitle title={post.title} numberOfLines={titleLines} onPress={onOpen} />
+        <View style={styles.words}>
+          <PostTitle title={post.title} numberOfLines={titleLines} onPress={onOpen} />
 
-        <PostCaption caption={post.caption} numberOfLines={captionLines} onPress={onOpen} />
+          <PostCaption caption={post.caption} numberOfLines={captionLines} onPress={onOpen} />
+        </View>
+
+        <PostPetChips pets={post.pets} />
       </View>
-
-      <PostPetChips pets={post.pets} />
 
       <PostPhotoCarousel photos={post.photos} onPress={onOpen} />
 
-      <PostActionRow liked={post.likedByMe} count={post.likeCount} onToggleLike={onToggleLike} />
+      <View style={[styles.gutter, styles.actions]}>
+        <PostActionRow liked={post.likedByMe} count={post.likeCount} onToggleLike={onToggleLike} />
 
-      <PostLikers likers={post.likers} />
+        <PostLikers likers={post.likers} />
+      </View>
     </View>
   );
 };
 
-const makeStyles = ({ spacing }: AppTheme) =>
+const makeStyles = ({ colors, spacing }: AppTheme) =>
   StyleSheet.create({
     body: {
+      gap: spacing.two,
+      paddingVertical: spacing.two,
+      backgroundColor: colors.postSurface
+    },
+    gutter: {
+      paddingHorizontal: ScreenGutter,
       gap: spacing.two
     },
     /** The title names what the description elaborates, so they sit closer. */
     words: {
       gap: spacing.one
+    },
+    // The buttons already carry their own tap-target height, so a gap here
+    // lands on top of that and reads as a much wider one than it is.
+    actions: {
+      gap: 0
     }
   });
 

@@ -16,12 +16,14 @@ type Props = {
    * least one of them applies, and gets no menu rather than an empty one.
    */
   showActions?: boolean;
+  /** Omitted when the viewer has one household. */
+  householdName?: string;
   onOpenActions?: () => void;
 };
 
 const AVATAR = 40;
 
-const PostHeader = ({ post, showActions = false, onOpenActions }: Props) => {
+const PostHeader = ({ post, showActions = false, householdName, onOpenActions }: Props) => {
   const styles = useStyles(makeStyles);
   const authorName = formatAuthorName(post.author);
 
@@ -33,10 +35,11 @@ const PostHeader = ({ post, showActions = false, onOpenActions }: Props) => {
         size={AVATAR}
       />
       <View style={styles.headerText}>
-        <AppText size={15} fontWeight="bold">
-          {authorName}
+        <AppText size={15} fontWeight="bold" numberOfLines={1}>
+          {householdName ?? authorName}
         </AppText>
-        <AppText size={13} color="textSecondary">
+        <AppText size={13} color="textSecondary" numberOfLines={1}>
+          {householdName ? `${authorName} · ` : ''}
           {formatRelativeTime(post.occurredAt)}
           {post.editedAt ? ' · Edited' : ''}
         </AppText>
