@@ -60,10 +60,12 @@ const makeStyles = ({ spacing }: AppTheme) =>
     row: {
       flexDirection: 'row',
       alignItems: 'center',
-      marginLeft: -spacing.two
+      marginLeft: -spacing.one
     },
+    // Narrower than they are tall. The full 44pt height keeps the target legal
+    // while the icons sit as close together as Hevy's.
     target: {
-      width: 44,
+      width: 38,
       height: 44,
       alignItems: 'center',
       justifyContent: 'center'
@@ -73,7 +75,7 @@ const makeStyles = ({ spacing }: AppTheme) =>
       alignItems: 'center',
       gap: spacing.one,
       height: 44,
-      paddingHorizontal: spacing.two
+      paddingHorizontal: spacing.one
     },
     count: {
       fontVariant: ['tabular-nums']

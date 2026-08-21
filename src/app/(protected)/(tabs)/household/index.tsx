@@ -166,7 +166,7 @@ const Posts = () => {
   );
 };
 
-const makeStyles = ({ spacing }: AppTheme) =>
+const makeStyles = ({ colors, spacing }: AppTheme) =>
   StyleSheet.create({
     header: {
       flexDirection: 'row',
@@ -180,7 +180,8 @@ const makeStyles = ({ spacing }: AppTheme) =>
       paddingBottom: spacing.six
     },
     separator: {
-      height: PostGap
+      height: PostGap,
+      backgroundColor: colors.postDivider
     },
     emptyGutter: {
       paddingHorizontal: ScreenGutter

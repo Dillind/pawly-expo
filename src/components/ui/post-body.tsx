@@ -60,7 +60,7 @@ const PostBody = ({
 
       <PostPhotoCarousel photos={post.photos} onPress={onOpen} />
 
-      <View style={styles.gutter}>
+      <View style={[styles.gutter, styles.actions]}>
         <PostActionRow liked={post.likedByMe} count={post.likeCount} onToggleLike={onToggleLike} />
 
         <PostLikers likers={post.likers} />
@@ -71,11 +71,10 @@ const PostBody = ({
 
 const makeStyles = ({ colors, spacing }: AppTheme) =>
   StyleSheet.create({
-    // Without a colour of its own the post and the gap match, and posts run together.
     body: {
       gap: spacing.two,
       paddingVertical: spacing.two,
-      backgroundColor: colors.backgroundElement
+      backgroundColor: colors.postSurface
     },
     gutter: {
       paddingHorizontal: ScreenGutter,
@@ -84,6 +83,11 @@ const makeStyles = ({ colors, spacing }: AppTheme) =>
     /** The title names what the description elaborates, so they sit closer. */
     words: {
       gap: spacing.one
+    },
+    // The buttons already carry their own tap-target height, so a gap here
+    // lands on top of that and reads as a much wider one than it is.
+    actions: {
+      gap: 0
     }
   });
 

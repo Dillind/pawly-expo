@@ -67,7 +67,7 @@ const makeStyles = ({ colors, spacing }: AppTheme) =>
     avatar: {
       borderWidth: 2,
       borderRadius: AVATAR_SIZE,
-      borderColor: colors.backgroundElement
+      borderColor: colors.postSurface
     },
     overlap: {
       marginLeft: -spacing.two

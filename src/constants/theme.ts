@@ -17,6 +17,12 @@ export const COLORS = {
     backgroundSelected: '#E4E6EB',
     backgroundSheet: '#FFFFFF',
     backgroundSheetRow: '#F1F2F5',
+    // A Post fills the screen width, so it has no edge of its own -- the band
+    // between two of them is the only thing that separates them. Light mode
+    // draws the Post white on a tinted band; dark mode does the reverse,
+    // because a Post on anything but black loses the photo's own black.
+    postSurface: '#FFFFFF',
+    postDivider: '#F1F2F5',
     textSecondary: '#60646C',
     // Separators, matched to UIColor.separator. A fill token used as a line
     // (backgroundSelected) is too close to white to read as one.
@@ -36,6 +42,8 @@ export const COLORS = {
     backgroundSelected: '#2E3135',
     backgroundSheet: '#1C1D20',
     backgroundSheetRow: '#2E3135',
+    postSurface: '#000000',
+    postDivider: '#212225',
     textSecondary: '#B0B4BA',
     border: 'rgba(84, 84, 88, 0.60)',
     error: '#CE3C39',

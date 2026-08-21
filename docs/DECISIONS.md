@@ -78,6 +78,13 @@ and governs every other surface; a filter that governed only this one meant two 
 "which Household", with a rule to explain. Build the filter when a Member says the tab is noisy —
 they will name the axis, instead of us guessing between Household, unseen and Pet.
 
+**A Post has its own surface token, and dark mode inverts it.** `postSurface` and `postDivider`
+are new. Light draws a white Post on a tinted band, which is the grouped-list idiom the rest of the
+app uses. Dark does the reverse — the Post is pure black and the band between two of them is the
+lighter grey. A Post that fills the screen width has no edge of its own, so the band is the only
+thing separating one from the next; and in dark a Post drawn on anything but black loses the
+photo's own blacks at its top and bottom edge.
+
 **The Household name is the Post's first line, above the author.** Grey text in a metadata line is
 not something the eye sorts by, and which house a photo came from is the first thing a Member of
 several of them asks. A Member of one Household sees the author on that line, as before.

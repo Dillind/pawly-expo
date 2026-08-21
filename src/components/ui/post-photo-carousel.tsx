@@ -74,7 +74,7 @@ const makeStyles = ({ colors, spacing }: AppTheme) =>
       width: '100%',
       aspectRatio: 1,
       overflow: 'hidden',
-      backgroundColor: colors.backgroundElement
+      backgroundColor: colors.postDivider
     },
     photo: {
       flex: 1
