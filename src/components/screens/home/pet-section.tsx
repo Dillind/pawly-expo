@@ -2,16 +2,19 @@ import AppText from '@/components/core/app-text';
 import Divider from '@/components/core/divider';
 import Icon from '@/components/core/icon';
 import IconButton from '@/components/core/icon-button';
+import MainButton from '@/components/core/main-button';
 import PressableOpacity from '@/components/core/pressable-opacity';
 import PetAvatar from '@/components/screens/home/pet-avatar';
-import ScheduledTimeList from '@/components/ui/scheduled-time-list';
+import OccurrenceList from '@/components/ui/occurrence-list';
 import { Radius, type AppTheme } from '@/constants/theme';
-import { useSlotStates } from '@/hooks/queries/feeding/use-slot-states';
+import { useOccurrences } from '@/hooks/queries/feeding/use-occurrences';
+import { useFeedTimes } from '@/hooks/queries/feeding/use-feed-times';
+import { usePetPause } from '@/hooks/queries/feeding/use-pet-pause';
 import { useStyles } from '@/hooks/use-styles';
 import { useTheme } from '@/hooks/use-theme';
 import { createShadowMedium } from '@/lib/styles/shadows';
 import { formatScheduledTime } from '@/lib/dates';
-import type { HouseholdMember, Pet, SlotState } from '@/types/core';
+import type { HouseholdMember, Occurrence, Pet } from '@/types/core';
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
 import { ActivityIndicator, StyleSheet, View } from 'react-native';
@@ -33,29 +36,56 @@ type Props = {
   members: HouseholdMember[];
   isOnlyPet: boolean;
   onOpenLog: (logId: string) => void;
-  onPickSlot: (pet: Pet, slot: SlotState) => void;
+  onPickOccurrence: (pet: Pet, occurrence: Occurrence) => void;
   onLogPress: () => void;
 };
 
-/** "logged", never "fed" -- the count is of records, not meals. CONTEXT.md, Not Logged. */
-function summarise(slots: SlotState[], hasBadge: boolean): string {
-  const logged = slots.filter((slot) => slot.state === 'fed').length;
-  const summary = `${logged} of ${slots.length} logged`;
+const LABEL_WORD: Record<Occurrence['label'], string> = {
+  morning: 'morning',
+  lunch: 'lunch',
+  dinner: 'dinner',
+  custom: 'feed'
+};
 
-  // Both on one line wraps, and the badge already names what is outstanding.
-  if (hasBadge) return summary;
+/**
+ * The one line under the pet's name. It answers "what, if anything, do I do
+ * about this pet right now" — an overdue feed first, then the next one due,
+ * then the quiet case.
+ *
+ * "logged", never "fed" -- the count is of records, not meals, and the app does
+ * not know whether the pet ate. CONTEXT.md, Not Logged.
+ */
+function summarise(occurrences: Occurrence[], isPaused: boolean, hasFeedTimes: boolean): string {
+  // A paused pet also has no occurrences, so this has to come first — otherwise
+  // a boarding pet reads as one nobody has set up.
+  if (isPaused) return 'Paused — no feeds expected';
+  // Feeds exist but none land today: a new pet's feeds start tomorrow, and a
+  // weekday-only feed says nothing on a Sunday. Claiming there are none reads
+  // as if the app threw the member's work away.
+  if (occurrences.length === 0) return hasFeedTimes ? 'No feeds today' : 'No feeds set up yet';
 
-  const next = slots.find((slot) => slot.state === 'due' || slot.state === 'upcoming');
-  if (!next) return summary;
+  const overdue = occurrences.find((occurrence) => occurrence.state === 'missed');
+  if (overdue) {
+    return `${capitalise(LABEL_WORD[overdue.label])} was due at ${formatScheduledTime(overdue.localTime)}`;
+  }
 
-  return `${summary} · next ${formatScheduledTime(next.scheduledTime)}`;
+  const next = occurrences.find(
+    (occurrence) => occurrence.state === 'due' || occurrence.state === 'upcoming'
+  );
+  if (next) {
+    return `Next: ${LABEL_WORD[next.label]} at ${formatScheduledTime(next.localTime)}`;
+  }
+
+  return occurrences.length === 1 ? 'Logged once today' : `Logged ${occurrences.length} times today`;
 }
+
+const capitalise = (value: string) => value.charAt(0).toUpperCase() + value.slice(1);
 
 /**
  * One pet's feed times for today, collapsed until asked for.
  *
- * The slot query lives here rather than in Home because a hook cannot be called
- * once per item from a loop.
+ * The occurrence query lives here rather than in Home because a hook cannot be
+ * called once per item from a loop.
  */
 const PetSection = ({
   pet,
@@ -64,28 +94,35 @@ const PetSection = ({
   members,
   isOnlyPet,
   onOpenLog,
-  onPickSlot,
+  onPickOccurrence,
   onLogPress
 }: Props) => {
   const styles = useStyles(makeStyles);
   const theme = useTheme();
   const router = useRouter();
 
-  // Not persisted on purpose: an expansion surviving a relaunch rebuilds the
+  const { data: occurrences, isLoading } = useOccurrences(pet.id, today, { live: true });
+  const { data: pause } = usePetPause(pet.id, today);
+  const { data: feedTimes } = useFeedTimes(pet.id);
+  const isPaused = Boolean(pause);
+  const hasFeedTimes = Boolean(feedTimes?.length);
+
+  const isAllLogged =
+    !isPaused &&
+    Boolean(occurrences?.length) &&
+    occurrences?.every((occurrence) => occurrence.state === 'fed');
+
+  // A done card collapses: the screen gets quieter as the day goes right.
+  // Not persisted on purpose -- an expansion surviving a relaunch rebuilds the
   // cluttered screen this replaced.
-  const [isExpanded, setIsExpanded] = useState(isOnlyPet);
-
-  const { data: slots, isLoading } = useSlotStates(pet.id, today, { live: true });
-
-  const notLogged = slots?.filter((slot) => slot.state === 'missed').length ?? 0;
-  const isAllLogged = Boolean(slots?.length) && slots?.every((slot) => slot.state === 'fed');
-  const hasBadge = notLogged > 0 && !isExpanded;
+  const [isExpanded, setIsExpanded] = useState<boolean | null>(null);
+  const isOpen = isExpanded ?? (isOnlyPet || !isAllLogged);
 
   const caretStyle = useAnimatedStyle(() => ({
     transform: [
       {
-        rotate: withTiming(isExpanded ? '180deg' : '0deg', {
-          duration: isExpanded ? EXPAND_MS : COLLAPSE_MS
+        rotate: withTiming(isOpen ? '180deg' : '0deg', {
+          duration: isOpen ? EXPAND_MS : COLLAPSE_MS
         })
       }
     ]
@@ -109,66 +146,82 @@ const PetSection = ({
             <AppText size={18} fontWeight="bold" numberOfLines={1}>
               {pet.name}
             </AppText>
-            {slots && (
-              <View style={styles.summaryRow}>
-                <AppText size={13} color="textSecondary" numberOfLines={1}>
-                  {summarise(slots, hasBadge)}
-                </AppText>
-                {hasBadge && (
-                  <AppText size={13} color="error" numberOfLines={1}>
-                    · {notLogged} not logged
-                  </AppText>
-                )}
-              </View>
+            {occurrences && (
+              <AppText size={13} color="textSecondary" numberOfLines={1}>
+                {summarise(occurrences, isPaused, hasFeedTimes)}
+              </AppText>
             )}
           </View>
         </PressableOpacity>
 
-        {/* Nothing outstanding, so the fast path has nothing to be fast about. */}
-        {isAllLogged ? (
-          <Icon name="check" size={20} color="primary" />
-        ) : (
-          <IconButton
-            name="utensils"
-            accessibilityLabel={`Log a feed for ${pet.name}`}
-            variant="secondary"
-            size={18}
-            onPress={onLogPress}
-          />
-        )}
+        {/* Nothing outstanding, so the fast path has nothing to be fast about.
+            Every row already carries its own Log button. */}
+        {isAllLogged && <Icon name="check" size={20} color="primary" />}
 
         <Animated.View style={caretStyle}>
           <IconButton
             name="caretDown"
             accessibilityLabel={
-              isExpanded ? `Hide ${pet.name}'s feed times` : `Show ${pet.name}'s feed times`
+              isOpen ? `Hide ${pet.name}'s feeds` : `Show ${pet.name}'s feeds`
             }
             variant="ghost"
             size={18}
             hapticFeedback={false}
-            onPress={() => setIsExpanded((current) => !current)}
+            onPress={() => setIsExpanded(!isOpen)}
           />
         </Animated.View>
       </View>
 
-      {isExpanded &&
+      {isOpen &&
         (isLoading ? (
           <ActivityIndicator />
         ) : (
           <Animated.View
-            style={styles.slots}
+            style={styles.occurrences}
             entering={FadeIn.duration(EXPAND_MS)}
             exiting={FadeOut.duration(COLLAPSE_MS)}>
             <Divider />
-            {slots && (
-              <ScheduledTimeList
-                slots={slots}
+            {isPaused ? (
+              // Still on Home, because hiding it would read as deleted. It just
+              // expects nothing.
+              <View style={styles.empty}>
+                <AppText size={14} color="textSecondary">
+                  {pet.name} is paused. No feeds are expected and nobody is nudged.
+                </AppText>
+                <MainButton
+                  text="Manage pause"
+                  variant="text"
+                  size="sm"
+                  onPress={() => router.push(`/home/${pet.id}`)}
+                />
+              </View>
+            ) : occurrences?.length ? (
+              <OccurrenceList
+                occurrences={occurrences}
                 timezone={timezone}
                 members={members}
                 isNested
                 onOpenLog={onOpenLog}
-                onPickSlot={(slot) => onPickSlot(pet, slot)}
+                onPickOccurrence={(occurrence) => onPickOccurrence(pet, occurrence)}
               />
+            ) : (
+              <View style={styles.empty}>
+                <AppText size={14} color="textSecondary">
+                  {hasFeedTimes
+                    ? `Nothing is due for ${pet.name} today. Their next feed is on the way.`
+                    : `Add ${pet.name}'s feed times and everyone will know when they are due.`}
+                </AppText>
+                {/* Skipping the schedule stays viable -- the log is the habit
+                    and the schedule is the upgrade, so this offers both. */}
+                {!hasFeedTimes && (
+                  <MainButton
+                    text="Set up feeds"
+                    size="sm"
+                    onPress={() => router.push(`/home/${pet.id}`)}
+                  />
+                )}
+                <MainButton text="Just log a feed" variant="text" size="sm" onPress={onLogPress} />
+              </View>
             )}
           </Animated.View>
         ))}
@@ -186,8 +239,12 @@ const makeStyles = ({ colors, spacing }: AppTheme) =>
     },
     // The rule and the times only show when expanded, so a collapsed row is a
     // plain card and owes this gap nothing.
-    slots: {
+    occurrences: {
       marginTop: spacing.two
+    },
+    empty: {
+      gap: spacing.two,
+      paddingTop: spacing.three
     },
     headerRow: {
       flexDirection: 'row',

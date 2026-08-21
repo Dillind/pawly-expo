@@ -8,13 +8,13 @@ import { useCallback } from 'react';
 /**
  * Every mutation invalidates the same two prefixes on settle. Prefix
  * invalidation catches every cached date without enumerating them, which
- * matters because Activity holds one slot-states entry per visible day.
+ * matters because Activity holds one occurrences entry per visible day.
  */
 function useInvalidateFeedData(petId: string | undefined) {
   const queryClient = useQueryClient();
 
   return useCallback(() => {
-    void queryClient.invalidateQueries({ queryKey: ['slot-states', petId] });
+    void queryClient.invalidateQueries({ queryKey: ['occurrences', petId] });
     void queryClient.invalidateQueries({ queryKey: ['feed-logs', petId] });
   }, [queryClient, petId]);
 }
@@ -41,11 +41,13 @@ export function useLogFeed() {
       loggedAt?: string;
       notes?: string | null;
       confirmed?: boolean;
+      seriesId?: string | null;
+      occurrenceDate?: string | null;
     }) => FeedLogService.log(petId, input),
     // The pet comes from the payload rather than the hook, so one instance
     // serves a Home screen holding several pets.
     onSettled: (_data, _error, variables) => {
-      void queryClient.invalidateQueries({ queryKey: ['slot-states', variables.petId] });
+      void queryClient.invalidateQueries({ queryKey: ['occurrences', variables.petId] });
       void queryClient.invalidateQueries({ queryKey: ['feed-logs', variables.petId] });
     }
   });
@@ -72,9 +74,9 @@ export function useUpdateFeedLog(petId: string | undefined) {
 
 /**
  * Hard delete — Undo and "delete this log" are the same operation. Soft
- * deletion would add `deleted_at is null` to every read path including the slot
+ * deletion would add `deleted_at is null` to every read path including the
  * matcher and the missed-feed cron; one forgotten filter and a deleted feed
- * silently satisfies a slot.
+ * silently satisfies an occurrence.
  */
 export function useDeleteFeedLog(petId: string | undefined) {
   const invalidate = useInvalidateFeedData(petId);

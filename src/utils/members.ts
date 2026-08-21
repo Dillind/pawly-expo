@@ -9,8 +9,8 @@ import { optionLabel } from '@/utils/options';
  *
  * Both entry points below resolve to a first name. A household is a handful of
  * trusted people, so "Dylan fed Bailey" is how a member would say it, and the
- * compact slot row has no space for more. Every surface must agree: the same
- * feed log is rendered by the Home slot row, the Activity row and the log
+ * compact occurrence row has no space for more. Every surface must agree: the
+ * same feed log is rendered by the Home occurrence row, the Activity row and the log
  * sheet, and showing three different names for one person reads as a bug.
  */
 export function formatAuthorName(

@@ -1,25 +1,52 @@
-import { bioSchema, medicationSchema, slotSchema } from '@/lib/form/pet-schemas';
+import { bioSchema, feedTimeSchema, medicationSchema } from '@/lib/form/pet-schemas';
 
 const firstMessage = (result: { success: boolean; error?: { issues: { message: string }[] } }) =>
   result.success ? null : (result.error?.issues[0]?.message ?? null);
 
-describe('slotSchema', () => {
+describe('feedTimeSchema', () => {
+  const base = { daysOfWeek: [0, 1, 2, 3, 4, 5, 6], instructions: null };
+
   it('accepts a known label and a 24-hour time', () => {
-    expect(slotSchema.safeParse({ label: 'morning', scheduledTime: '07:00' }).success).toBe(true);
-    expect(slotSchema.safeParse({ label: 'custom', scheduledTime: '23:59' }).success).toBe(true);
+    expect(feedTimeSchema.safeParse({ ...base, label: 'morning', localTime: '07:00' }).success).toBe(
+      true
+    );
+    expect(feedTimeSchema.safeParse({ ...base, label: 'custom', localTime: '23:59' }).success).toBe(
+      true
+    );
   });
 
   it('rejects a label outside the enum', () => {
-    expect(slotSchema.safeParse({ label: 'brunch', scheduledTime: '07:00' }).success).toBe(false);
+    expect(feedTimeSchema.safeParse({ ...base, label: 'brunch', localTime: '07:00' }).success).toBe(
+      false
+    );
   });
 
   it('rejects a time that is not HH:mm', () => {
-    for (const scheduledTime of ['7:00', '0700', '07:00:00', '', 'morning']) {
-      const result = slotSchema.safeParse({ label: 'morning', scheduledTime });
+    for (const localTime of ['7:00', '0700', '07:00:00', '', 'morning']) {
+      const result = feedTimeSchema.safeParse({ ...base, label: 'morning', localTime });
 
       expect(result.success).toBe(false);
       expect(firstMessage(result)).toBe('Choose a time');
     }
+  });
+
+  it('rejects a feed that applies to no day', () => {
+    const result = feedTimeSchema.safeParse({
+      ...base,
+      label: 'morning',
+      localTime: '07:00',
+      daysOfWeek: []
+    });
+
+    expect(result.success).toBe(false);
+    expect(firstMessage(result)).toBe('Pick at least one day');
+  });
+
+  it('rejects a day outside 0 to 6', () => {
+    expect(
+      feedTimeSchema.safeParse({ ...base, label: 'morning', localTime: '07:00', daysOfWeek: [7] })
+        .success
+    ).toBe(false);
   });
 });
 

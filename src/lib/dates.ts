@@ -28,9 +28,10 @@ const DAY_FORMAT = 'YYYY-MM-DD';
  * `if (!Number(s))` guard -- true for NaN, not just 0 -- falls through to
  * `.utcOffset(0)`. Result: every `.tz()` call returns UTC, with no error.
  *
- * formatToParts itself is sound on Hermes and is what the plugin's *static*
- * `dayjs.tz(string, format, zone)` path already uses, which is why
- * composeLoggedAt below writes the right instant while reads were all UTC.
+ * formatToParts itself is sound on Hermes and is the only zone machinery this
+ * file trusts. The plugin's *static* `dayjs.tz(string, format, zone)` path is
+ * NOT a safe exception -- measured on device it returns instants about fourteen
+ * minutes off. Nothing here may call `.tz()` in either form; see instantAt.
  */
 const zonedFormatters = new Map<string, Intl.DateTimeFormat>();
 
@@ -118,8 +119,7 @@ export function formatScheduledTime(postgresTime: string): string {
   return dayjs(postgresTime, 'HH:mm:ss').format('h:mm A');
 }
 
-const plural = (count: number, noun: string): string =>
-  `${count} ${noun}${count === 1 ? '' : 's'}`;
+const plural = (count: number, noun: string): string => `${count} ${noun}${count === 1 ? '' : 's'}`;
 
 /** Must match the interval list_alerts and unread_alert_count filter on. */
 const ALERT_WINDOW_DAYS = 7;
@@ -129,7 +129,11 @@ const ALERT_WINDOW_DAYS = 7;
  * something logged at 11pm is one day old the next morning, rather than for a
  * further 24 hours. Negative for a future timestamp; callers clamp.
  */
-export function calendarDaysAgo(isoTimestamp: string, zone: string, now: Date = new Date()): number {
+export function calendarDaysAgo(
+  isoTimestamp: string,
+  zone: string,
+  now: Date = new Date()
+): number {
   const asUtcDay = ({ year, month, day }: ZonedParts) => Date.UTC(year, month - 1, day);
 
   return Math.round(
@@ -143,7 +147,11 @@ export function calendarDaysAgo(isoTimestamp: string, zone: string, now: Date = 
  * device clock, so an 11pm log reads "1 day ago" the next morning rather than
  * for a further 24 hours. Under a day stays a duration.
  */
-export function formatAlertTime(isoTimestamp: string, zone: string, now: Date = new Date()): string {
+export function formatAlertTime(
+  isoTimestamp: string,
+  zone: string,
+  now: Date = new Date()
+): string {
   const minutes = Math.floor((now.getTime() - new Date(isoTimestamp).getTime()) / 60000);
 
   if (minutes < 1) return 'Just now';
@@ -171,18 +179,44 @@ export function formatDayHeading(day: string, zone: string): string {
 }
 
 /**
+ * The instant at which a wall-clock date and time occur in a zone.
+ *
+ * Built from Intl.formatToParts, NOT from dayjs.tz -- see the note at the top
+ * of this file for why neither form of `.tz()` is safe under Hermes.
+ *
+ * Two passes: the first offset is read at the guessed instant, which can sit on
+ * the wrong side of a DST transition. Re-reading at the corrected instant
+ * settles it. A wall time inside a spring-forward gap does not exist; it
+ * resolves to the instant just after the jump, which is the conventional answer.
+ */
+function instantAt(calendarDay: string, time: string, zone: string): Date {
+  const [year, month, day] = calendarDay.split('-').map(Number);
+  const [hour, minute] = time.split(':').map(Number);
+
+  const wallAsUtc = Date.UTC(year, month - 1, day, hour, minute, 0, 0);
+
+  const offsetAt = (instant: number) => {
+    const parts = zonedParts(new Date(instant), zone);
+
+    return (
+      Date.UTC(parts.year, parts.month - 1, parts.day, parts.hour, parts.minute, 0, 0) - instant
+    );
+  };
+
+  const firstPass = wallAsUtc - offsetAt(wallAsUtc);
+
+  return new Date(wallAsUtc - offsetAt(firstPass));
+}
+
+/**
  * Rebuilds a timestamp from the correction form's day choice and "HH:mm"
  * entry, resolved in the household's timezone. Backdating is capped at 24
  * hours, so "today or yesterday" covers every case the RLS policy admits.
- *
- * Keeps dayjs.tz -- the *static* form, given a string, which resolves the
- * offset through formatToParts and is unaffected by the Hermes Date-parsing
- * fault described above. Do not rewrite it to `dayjs(...).tz(zone)`.
  */
 export function composeLoggedAt(day: 'today' | 'yesterday', time: string, zone: string): string {
   const calendarDay = day === 'today' ? todayInTimezone(zone) : yesterdayInTimezone(zone);
 
-  return dayjs.tz(`${calendarDay} ${time}`, `${DAY_FORMAT} HH:mm`, zone).toISOString();
+  return instantAt(calendarDay, time, zone).toISOString();
 }
 
 export const formatAge = (birthdate: string | null, isApproximate: boolean): string | null => {

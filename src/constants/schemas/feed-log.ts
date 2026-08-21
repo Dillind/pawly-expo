@@ -57,6 +57,32 @@ export function feedLogSchema({ isOwner, timezone }: { isOwner: boolean; timezon
 export type FeedLogFormValues = z.infer<ReturnType<typeof feedLogSchema>>;
 
 /**
+ * The log sheet, for a feed being recorded now rather than corrected. The day
+ * is always today, so there is no day control and no backdating floor to check
+ * -- but the no-future ceiling still binds, because RLS rejects a logged_at
+ * later than now() and the resulting Postgres error is not something a member
+ * can act on.
+ */
+export function newFeedLogSchema({ timezone }: { timezone: string }) {
+  return z
+    .object({
+      time: z.string().regex(TIME_REGEX, { message: 'Enter a valid time, like 07:30' }),
+      notes: notesField
+    })
+    .superRefine((values, ctx) => {
+      if (dayjs(composeLoggedAt('today', values.time, timezone)).isAfter(dayjs())) {
+        ctx.addIssue({
+          code: 'custom',
+          path: ['time'],
+          message: "That time hasn't happened yet"
+        });
+      }
+    });
+}
+
+export type NewFeedLogFormValues = z.infer<ReturnType<typeof newFeedLogSchema>>;
+
+/**
  * The correction form for a log older than yesterday: the Today/Yesterday
  * control cannot represent its date, so feed-log-detail-sheet.tsx renders
  * that date as read-only text and offers notes editing only. No day/time

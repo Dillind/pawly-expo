@@ -1,0 +1,1170 @@
+[
+  {
+    "screen": "A. Home — the working state",
+    "width": 390,
+    "height": 900,
+    "padding": 20,
+    "children": [
+      {
+        "row": {
+          "children": [
+            {
+              "text": {
+                "text": "The Lindsays  ▾",
+                "bold": true
+              }
+            },
+            {
+              "icon": "bell"
+            }
+          ],
+          "justify": "space-between",
+          "align": "center"
+        }
+      },
+      {
+        "text": {
+          "text": "Tuesday 19 August",
+          "color": "muted",
+          "size": "sm"
+        }
+      },
+      {
+        "row": {
+          "children": [
+            {
+              "heading": {
+                "text": "Today",
+                "level": 2
+              }
+            },
+            {
+              "badge": "2 feeds left",
+              "variant": "outline"
+            }
+          ],
+          "justify": "space-between",
+          "align": "center"
+        }
+      },
+      {
+        "card": {
+          "children": [
+            {
+              "row": {
+                "children": [
+                  {
+                    "row": {
+                      "children": [
+                        {
+                          "avatar": 36
+                        },
+                        {
+                          "stack": {
+                            "children": [
+                              {
+                                "text": {
+                                  "text": "Bailey",
+                                  "bold": true
+                                }
+                              },
+                              {
+                                "text": {
+                                  "text": "Next: dinner at 6:00 pm",
+                                  "color": "muted",
+                                  "size": "xs"
+                                }
+                              }
+                            ],
+                            "gap": 1
+                          }
+                        }
+                      ],
+                      "gap": 10,
+                      "align": "center"
+                    }
+                  },
+                  {
+                    "icon": "chevron-right"
+                  }
+                ],
+                "justify": "space-between",
+                "align": "center"
+              }
+            },
+            {
+              "divider": true
+            },
+            {
+              "row": {
+                "children": [
+                  {
+                    "stack": {
+                      "children": [
+                        {
+                          "text": {
+                            "text": "Morning  7:00 am",
+                            "size": "sm"
+                          }
+                        },
+                        {
+                          "text": {
+                            "text": "Sarah, 7:05 am",
+                            "color": "muted",
+                            "size": "xs"
+                          }
+                        }
+                      ],
+                      "gap": 1
+                    }
+                  },
+                  {
+                    "icon": "check"
+                  }
+                ],
+                "justify": "space-between",
+                "align": "center"
+              }
+            },
+            {
+              "row": {
+                "children": [
+                  {
+                    "stack": {
+                      "children": [
+                        {
+                          "text": {
+                            "text": "Dinner  6:00 pm",
+                            "size": "sm"
+                          }
+                        },
+                        {
+                          "text": {
+                            "text": "Half a tin wet + 1 cup dry",
+                            "color": "muted",
+                            "size": "xs"
+                          }
+                        }
+                      ],
+                      "gap": 1
+                    }
+                  },
+                  {
+                    "button": "Log",
+                    "variant": "primary",
+                    "size": "sm"
+                  }
+                ],
+                "justify": "space-between",
+                "align": "center"
+              }
+            }
+          ],
+          "padding": 14,
+          "width": 350
+        }
+      },
+      {
+        "card": {
+          "children": [
+            {
+              "row": {
+                "children": [
+                  {
+                    "row": {
+                      "children": [
+                        {
+                          "avatar": 36
+                        },
+                        {
+                          "stack": {
+                            "children": [
+                              {
+                                "text": {
+                                  "text": "Mango",
+                                  "bold": true
+                                }
+                              },
+                              {
+                                "text": {
+                                  "text": "Morning not logged",
+                                  "color": "muted",
+                                  "size": "xs"
+                                }
+                              }
+                            ],
+                            "gap": 1
+                          }
+                        }
+                      ],
+                      "gap": 10,
+                      "align": "center"
+                    }
+                  },
+                  {
+                    "icon": "chevron-right"
+                  }
+                ],
+                "justify": "space-between",
+                "align": "center"
+              }
+            },
+            {
+              "divider": true
+            },
+            {
+              "row": {
+                "children": [
+                  {
+                    "stack": {
+                      "children": [
+                        {
+                          "text": {
+                            "text": "Morning  8:00 am",
+                            "size": "sm"
+                          }
+                        },
+                        {
+                          "badge": "Not logged",
+                          "variant": "outline"
+                        }
+                      ],
+                      "gap": 3
+                    }
+                  },
+                  {
+                    "button": "Log",
+                    "variant": "primary",
+                    "size": "sm"
+                  }
+                ],
+                "justify": "space-between",
+                "align": "center"
+              }
+            },
+            {
+              "row": {
+                "children": [
+                  {
+                    "stack": {
+                      "children": [
+                        {
+                          "text": {
+                            "text": "Dinner  6:30 pm",
+                            "size": "sm"
+                          }
+                        },
+                        {
+                          "text": {
+                            "text": "One scoop",
+                            "color": "muted",
+                            "size": "xs"
+                          }
+                        }
+                      ],
+                      "gap": 1
+                    }
+                  },
+                  {
+                    "button": "Log",
+                    "variant": "primary",
+                    "size": "sm"
+                  }
+                ],
+                "justify": "space-between",
+                "align": "center"
+              }
+            }
+          ],
+          "padding": 14,
+          "width": 350
+        }
+      },
+      {
+        "divider": true
+      },
+      {
+        "button": "Log something else",
+        "variant": "outline",
+        "fullWidth": true
+      }
+    ],
+    "section": "A. Home — the working state"
+  },
+  {
+    "screen": "B. Home — everything done",
+    "width": 390,
+    "height": 900,
+    "padding": 20,
+    "children": [
+      {
+        "row": {
+          "children": [
+            {
+              "text": {
+                "text": "The Lindsays  ▾",
+                "bold": true
+              }
+            },
+            {
+              "icon": "bell"
+            }
+          ],
+          "justify": "space-between",
+          "align": "center"
+        }
+      },
+      {
+        "text": {
+          "text": "Tuesday 19 August",
+          "color": "muted",
+          "size": "sm"
+        }
+      },
+      {
+        "row": {
+          "children": [
+            {
+              "heading": {
+                "text": "Today",
+                "level": 2
+              }
+            },
+            {
+              "badge": "All fed",
+              "variant": "filled"
+            }
+          ],
+          "justify": "space-between",
+          "align": "center"
+        }
+      },
+      {
+        "card": {
+          "children": [
+            {
+              "row": {
+                "children": [
+                  {
+                    "row": {
+                      "children": [
+                        {
+                          "avatar": 36
+                        },
+                        {
+                          "stack": {
+                            "children": [
+                              {
+                                "text": {
+                                  "text": "Bailey",
+                                  "bold": true
+                                }
+                              },
+                              {
+                                "text": {
+                                  "text": "Fed twice today",
+                                  "color": "muted",
+                                  "size": "xs"
+                                }
+                              }
+                            ],
+                            "gap": 1
+                          }
+                        }
+                      ],
+                      "gap": 10,
+                      "align": "center"
+                    }
+                  },
+                  {
+                    "icon": "check"
+                  }
+                ],
+                "justify": "space-between",
+                "align": "center"
+              }
+            },
+            {
+              "divider": true
+            },
+            {
+              "row": {
+                "children": [
+                  {
+                    "text": {
+                      "text": "Morning  7:00 am",
+                      "size": "sm"
+                    }
+                  },
+                  {
+                    "text": {
+                      "text": "Sarah",
+                      "color": "muted",
+                      "size": "xs"
+                    }
+                  }
+                ],
+                "justify": "space-between",
+                "align": "center"
+              }
+            },
+            {
+              "row": {
+                "children": [
+                  {
+                    "text": {
+                      "text": "Dinner  6:00 pm",
+                      "size": "sm"
+                    }
+                  },
+                  {
+                    "text": {
+                      "text": "You, 6:02 pm",
+                      "color": "muted",
+                      "size": "xs"
+                    }
+                  }
+                ],
+                "justify": "space-between",
+                "align": "center"
+              }
+            }
+          ],
+          "padding": 14,
+          "width": 350
+        }
+      },
+      {
+        "card": {
+          "children": [
+            {
+              "row": {
+                "children": [
+                  {
+                    "row": {
+                      "children": [
+                        {
+                          "avatar": 36
+                        },
+                        {
+                          "stack": {
+                            "children": [
+                              {
+                                "text": {
+                                  "text": "Mango",
+                                  "bold": true
+                                }
+                              },
+                              {
+                                "text": {
+                                  "text": "Fed twice today",
+                                  "color": "muted",
+                                  "size": "xs"
+                                }
+                              }
+                            ],
+                            "gap": 1
+                          }
+                        }
+                      ],
+                      "gap": 10,
+                      "align": "center"
+                    }
+                  },
+                  {
+                    "icon": "check"
+                  }
+                ],
+                "justify": "space-between",
+                "align": "center"
+              }
+            }
+          ],
+          "padding": 14,
+          "width": 350
+        }
+      },
+      {
+        "callout": {
+          "text": "Done cards collapse. The screen gets quieter as the day goes right — nothing to act on, nothing shouting.",
+          "variant": "success"
+        }
+      },
+      {
+        "divider": true
+      },
+      {
+        "button": "Log something else",
+        "variant": "outline",
+        "fullWidth": true
+      }
+    ],
+    "section": "B. Home — everything done"
+  },
+  {
+    "screen": "C. Home — a feed is overdue",
+    "width": 390,
+    "height": 900,
+    "padding": 20,
+    "children": [
+      {
+        "row": {
+          "children": [
+            {
+              "text": {
+                "text": "The Lindsays  ▾",
+                "bold": true
+              }
+            },
+            {
+              "icon": "bell"
+            }
+          ],
+          "justify": "space-between",
+          "align": "center"
+        }
+      },
+      {
+        "text": {
+          "text": "Tuesday 19 August  ·  7:50 pm",
+          "color": "muted",
+          "size": "sm"
+        }
+      },
+      {
+        "row": {
+          "children": [
+            {
+              "heading": {
+                "text": "Today",
+                "level": 2
+              }
+            },
+            {
+              "badge": "1 feed left",
+              "variant": "outline"
+            }
+          ],
+          "justify": "space-between",
+          "align": "center"
+        }
+      },
+      {
+        "card": {
+          "children": [
+            {
+              "row": {
+                "children": [
+                  {
+                    "row": {
+                      "children": [
+                        {
+                          "avatar": 36
+                        },
+                        {
+                          "stack": {
+                            "children": [
+                              {
+                                "text": {
+                                  "text": "Bailey",
+                                  "bold": true
+                                }
+                              },
+                              {
+                                "text": {
+                                  "text": "Dinner was due at 6:00 pm",
+                                  "color": "muted",
+                                  "size": "xs"
+                                }
+                              }
+                            ],
+                            "gap": 1
+                          }
+                        }
+                      ],
+                      "gap": 10,
+                      "align": "center"
+                    }
+                  },
+                  {
+                    "icon": "chevron-right"
+                  }
+                ],
+                "justify": "space-between",
+                "align": "center"
+              }
+            },
+            {
+              "divider": true
+            },
+            {
+              "row": {
+                "children": [
+                  {
+                    "stack": {
+                      "children": [
+                        {
+                          "text": {
+                            "text": "Dinner  6:00 pm",
+                            "size": "sm"
+                          }
+                        },
+                        {
+                          "badge": "Not logged",
+                          "variant": "outline"
+                        }
+                      ],
+                      "gap": 3
+                    }
+                  },
+                  {
+                    "button": "Log",
+                    "variant": "primary",
+                    "size": "sm"
+                  }
+                ],
+                "justify": "space-between",
+                "align": "center"
+              }
+            },
+            {
+              "text": {
+                "text": "Has he been fed? Log it whenever you remember — it will still count as dinner.",
+                "color": "muted",
+                "size": "xs"
+              }
+            }
+          ],
+          "padding": 14,
+          "width": 350
+        }
+      },
+      {
+        "callout": {
+          "text": "No red. No “Missed”. The copy asks a question rather than making an accusation — the app does not know whether the dog ate.",
+          "variant": "info"
+        }
+      },
+      {
+        "divider": true
+      },
+      {
+        "heading": {
+          "text": "The push that went out at 7:00 pm",
+          "level": 3
+        }
+      },
+      {
+        "card": {
+          "children": [
+            {
+              "text": {
+                "text": "Crumpet",
+                "bold": true,
+                "size": "xs"
+              }
+            },
+            {
+              "text": {
+                "text": "Bailey's dinner is not logged yet",
+                "size": "sm"
+              }
+            },
+            {
+              "text": {
+                "text": "Due at 6:00 pm. Tap to log it.",
+                "color": "muted",
+                "size": "xs"
+              }
+            }
+          ],
+          "padding": 12,
+          "width": 350
+        }
+      }
+    ],
+    "section": "C. Home — a feed is overdue"
+  },
+  {
+    "screen": "D. Home — pet has no feeds yet",
+    "width": 390,
+    "height": 900,
+    "padding": 20,
+    "children": [
+      {
+        "row": {
+          "children": [
+            {
+              "text": {
+                "text": "The Lindsays  ▾",
+                "bold": true
+              }
+            },
+            {
+              "icon": "bell"
+            }
+          ],
+          "justify": "space-between",
+          "align": "center"
+        }
+      },
+      {
+        "text": {
+          "text": "Tuesday 19 August",
+          "color": "muted",
+          "size": "sm"
+        }
+      },
+      {
+        "heading": {
+          "text": "Today",
+          "level": 2
+        }
+      },
+      {
+        "card": {
+          "children": [
+            {
+              "row": {
+                "children": [
+                  {
+                    "row": {
+                      "children": [
+                        {
+                          "avatar": 36
+                        },
+                        {
+                          "text": {
+                            "text": "Bailey",
+                            "bold": true
+                          }
+                        }
+                      ],
+                      "gap": 10,
+                      "align": "center"
+                    }
+                  },
+                  {
+                    "icon": "chevron-right"
+                  }
+                ],
+                "justify": "space-between",
+                "align": "center"
+              }
+            },
+            {
+              "divider": true
+            },
+            {
+              "text": {
+                "text": "No feeds set up yet.",
+                "size": "sm"
+              }
+            },
+            {
+              "text": {
+                "text": "Add his feed times and everyone will know when he is due.",
+                "color": "muted",
+                "size": "xs"
+              }
+            },
+            {
+              "button": "Set up feeds",
+              "variant": "primary",
+              "fullWidth": true
+            },
+            {
+              "button": "Just log a feed",
+              "variant": "outline",
+              "fullWidth": true
+            }
+          ],
+          "padding": 14,
+          "width": 350
+        }
+      },
+      {
+        "callout": {
+          "text": "Skipping the schedule stays viable. Huckleberry's users log for weeks before building one — the log is the habit, the schedule is the upgrade.",
+          "variant": "info"
+        }
+      }
+    ],
+    "section": "D. Home — pet has no feeds yet"
+  },
+  {
+    "screen": "E. Home — pets paused",
+    "width": 390,
+    "height": 900,
+    "padding": 20,
+    "children": [
+      {
+        "row": {
+          "children": [
+            {
+              "text": {
+                "text": "The Lindsays  ▾",
+                "bold": true
+              }
+            },
+            {
+              "icon": "bell"
+            }
+          ],
+          "justify": "space-between",
+          "align": "center"
+        }
+      },
+      {
+        "text": {
+          "text": "Tuesday 19 August",
+          "color": "muted",
+          "size": "sm"
+        }
+      },
+      {
+        "heading": {
+          "text": "Today",
+          "level": 2
+        }
+      },
+      {
+        "card": {
+          "children": [
+            {
+              "row": {
+                "children": [
+                  {
+                    "row": {
+                      "children": [
+                        {
+                          "avatar": 36
+                        },
+                        {
+                          "stack": {
+                            "children": [
+                              {
+                                "text": {
+                                  "text": "Bailey",
+                                  "bold": true
+                                }
+                              },
+                              {
+                                "text": {
+                                  "text": "Paused until Sunday",
+                                  "color": "muted",
+                                  "size": "xs"
+                                }
+                              }
+                            ],
+                            "gap": 1
+                          }
+                        }
+                      ],
+                      "gap": 10,
+                      "align": "center"
+                    }
+                  },
+                  {
+                    "badge": "Paused",
+                    "variant": "outline"
+                  }
+                ],
+                "justify": "space-between",
+                "align": "center"
+              }
+            },
+            {
+              "divider": true
+            },
+            {
+              "text": {
+                "text": "At the kennel. No feeds expected, nobody nudged.",
+                "color": "muted",
+                "size": "xs"
+              }
+            },
+            {
+              "button": "Resume feeds",
+              "variant": "outline",
+              "fullWidth": true
+            }
+          ],
+          "padding": 14,
+          "width": 350
+        }
+      },
+      {
+        "card": {
+          "children": [
+            {
+              "row": {
+                "children": [
+                  {
+                    "row": {
+                      "children": [
+                        {
+                          "avatar": 36
+                        },
+                        {
+                          "stack": {
+                            "children": [
+                              {
+                                "text": {
+                                  "text": "Mango",
+                                  "bold": true
+                                }
+                              },
+                              {
+                                "text": {
+                                  "text": "Next: dinner at 6:30 pm",
+                                  "color": "muted",
+                                  "size": "xs"
+                                }
+                              }
+                            ],
+                            "gap": 1
+                          }
+                        }
+                      ],
+                      "gap": 10,
+                      "align": "center"
+                    }
+                  },
+                  {
+                    "icon": "chevron-right"
+                  }
+                ],
+                "justify": "space-between",
+                "align": "center"
+              }
+            },
+            {
+              "divider": true
+            },
+            {
+              "row": {
+                "children": [
+                  {
+                    "stack": {
+                      "children": [
+                        {
+                          "text": {
+                            "text": "Morning  8:00 am",
+                            "size": "sm"
+                          }
+                        },
+                        {
+                          "text": {
+                            "text": "You, 8:10 am",
+                            "color": "muted",
+                            "size": "xs"
+                          }
+                        }
+                      ],
+                      "gap": 1
+                    }
+                  },
+                  {
+                    "icon": "check"
+                  }
+                ],
+                "justify": "space-between",
+                "align": "center"
+              }
+            },
+            {
+              "row": {
+                "children": [
+                  {
+                    "stack": {
+                      "children": [
+                        {
+                          "text": {
+                            "text": "Dinner  6:30 pm",
+                            "size": "sm"
+                          }
+                        },
+                        {
+                          "text": {
+                            "text": "One scoop",
+                            "color": "muted",
+                            "size": "xs"
+                          }
+                        }
+                      ],
+                      "gap": 1
+                    }
+                  },
+                  {
+                    "button": "Log",
+                    "variant": "primary",
+                    "size": "sm"
+                  }
+                ],
+                "justify": "space-between",
+                "align": "center"
+              }
+            }
+          ],
+          "padding": 14,
+          "width": 350
+        }
+      },
+      {
+        "callout": {
+          "text": "A paused pet still appears — hiding it would look like it had been deleted. It just expects nothing.",
+          "variant": "info"
+        }
+      }
+    ],
+    "section": "E. Home — pets paused"
+  },
+  {
+    "screen": "F. Home — one pet, the common case",
+    "width": 390,
+    "height": 900,
+    "padding": 20,
+    "children": [
+      {
+        "row": {
+          "children": [
+            {
+              "text": {
+                "text": "The Lindsays  ▾",
+                "bold": true
+              }
+            },
+            {
+              "icon": "bell"
+            }
+          ],
+          "justify": "space-between",
+          "align": "center"
+        }
+      },
+      {
+        "text": {
+          "text": "Tuesday 19 August",
+          "color": "muted",
+          "size": "sm"
+        }
+      },
+      {
+        "stack": {
+          "children": [
+            {
+              "avatar": 72
+            },
+            {
+              "text": {
+                "text": "Bailey",
+                "bold": true,
+                "size": "lg"
+              }
+            },
+            {
+              "text": {
+                "text": "Next: dinner at 6:00 pm",
+                "color": "muted",
+                "size": "sm"
+              }
+            }
+          ],
+          "align": "center",
+          "gap": 6
+        }
+      },
+      {
+        "card": {
+          "children": [
+            {
+              "row": {
+                "children": [
+                  {
+                    "stack": {
+                      "children": [
+                        {
+                          "text": {
+                            "text": "Morning  7:00 am",
+                            "size": "sm"
+                          }
+                        },
+                        {
+                          "text": {
+                            "text": "Sarah, 7:05 am",
+                            "color": "muted",
+                            "size": "xs"
+                          }
+                        }
+                      ],
+                      "gap": 1
+                    }
+                  },
+                  {
+                    "icon": "check"
+                  }
+                ],
+                "justify": "space-between",
+                "align": "center"
+              }
+            },
+            {
+              "divider": true
+            },
+            {
+              "row": {
+                "children": [
+                  {
+                    "stack": {
+                      "children": [
+                        {
+                          "text": {
+                            "text": "Dinner  6:00 pm",
+                            "size": "sm"
+                          }
+                        },
+                        {
+                          "text": {
+                            "text": "Half a tin wet + 1 cup dry",
+                            "color": "muted",
+                            "size": "xs"
+                          }
+                        }
+                      ],
+                      "gap": 1
+                    }
+                  },
+                  {
+                    "button": "Log",
+                    "variant": "primary",
+                    "size": "sm"
+                  }
+                ],
+                "justify": "space-between",
+                "align": "center"
+              }
+            }
+          ],
+          "padding": 14,
+          "width": 350
+        }
+      },
+      {
+        "callout": {
+          "text": "With one pet the card wrapper is noise. Worth deciding whether Home switches layout at one pet, or stays uniform.",
+          "variant": "warning"
+        }
+      },
+      {
+        "divider": true
+      },
+      {
+        "button": "Log something else",
+        "variant": "outline",
+        "fullWidth": true
+      }
+    ],
+    "section": "F. Home — one pet, the common case"
+  }
+]

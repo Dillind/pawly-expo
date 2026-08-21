@@ -13,10 +13,12 @@ export type AlertKind = 'feed_logged' | 'missed_feed' | 'post';
 type AlertSubject = {
   kind: AlertKind;
   subject_id: string;
+  /** The local day the alert is about. Only a missed_feed carries one. */
+  subject_date: string | null;
 };
 
 /**
- * subject_id is a feed_logs.id for feed_logged, a feeding_schedules.id for
+ * subject_id is a feed_logs.id for feed_logged, a feed_times.series_id for
  * missed_feed, and a posts.id for post. Null means the row is gone -- deleted
  * between queue and dispatch.
  *
@@ -87,21 +89,27 @@ export const buildMessageForAlert = async (
     }
 
     case 'missed_feed': {
-      const { data: slot } = await client
-        .from('feeding_schedules')
-        .select('scheduled_time, label, pets ( name )')
-        .eq('id', alert.subject_id)
+      if (!alert.subject_date) return null;
+
+      // The version that applied on the day being nudged about, not the current
+      // one. A feed time is versioned, so "dinner at 6" has to be read through
+      // the schedule that was in force then -- see ADR 0030.
+      const { data: feedTime } = await client
+        .from('feed_times')
+        .select('local_time, label, pets ( name )')
+        .eq('series_id', alert.subject_id)
+        .contains('effective', `[${alert.subject_date},${alert.subject_date}]`)
         .maybeSingle();
 
-      if (!slot) return null;
+      if (!feedTime) return null;
 
       // deno-lint-ignore no-explicit-any
-      const pet = (slot as any).pets;
+      const pet = (feedTime as any).pets;
 
       return buildMissedFeedMessage({
         petName: pet.name,
-        label: slot.label as ScheduleLabel,
-        scheduledTime: slot.scheduled_time
+        label: feedTime.label as ScheduleLabel,
+        scheduledTime: feedTime.local_time
       });
     }
 

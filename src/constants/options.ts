@@ -4,6 +4,7 @@ import type {
   HouseholdRole,
   Option,
   PetSex,
+  PetType,
   ThemePreference
 } from '@/types/core';
 
@@ -21,6 +22,12 @@ export const APPEARANCE_OPTIONS: Option<ThemePreference>[] = [
 export const SEX_OPTIONS: Option<PetSex>[] = [
   { value: 'male', label: 'Male' },
   { value: 'female', label: 'Female' }
+];
+
+export const PET_TYPE_OPTIONS: Option<PetType>[] = [
+  { value: 'dog', label: 'Dog' },
+  { value: 'cat', label: 'Cat' },
+  { value: 'other', label: 'Other' }
 ];
 
 export const FEEDING_SCHEDULE_LABEL_OPTIONS: Option<FeedingScheduleLabel>[] = [

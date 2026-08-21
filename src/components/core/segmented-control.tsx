@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useFormContext, useFormState, type Control, type FieldValues } from 'react-hook-form';
 import { StyleSheet, View, type LayoutChangeEvent } from 'react-native';
 import Animated, {
   ReduceMotion,
@@ -9,7 +10,8 @@ import Animated, {
 
 import { Spacing, type AppTheme } from '@/constants/theme';
 import { useStyles } from '@/hooks/use-styles';
-import { hapticLight } from '@/lib/haptics';
+import FieldError from '@/lib/form/components/field-error';
+import { hapticSelection } from '@/lib/haptics';
 
 import AppText from './app-text';
 import PressableOpacity from './pressable-opacity';
@@ -21,6 +23,11 @@ type Option<T> = {
 
 type Props<T extends string> = {
   label?: string;
+  /**
+   * The field this control stands for. Without it the control cannot render its
+   * own error — the same rule the other validated inputs follow.
+   */
+  name?: string;
   options: Option<T>[];
   value: T;
   onChange: (value: T) => void;
@@ -29,15 +36,23 @@ type Props<T extends string> = {
 const TrackPadding = Spacing.one;
 const SegmentGap = Spacing.one;
 
+// Apple's two designer parameters, which is the form Reanimated takes
+// directly. Critically damped: a segment thumb must not overshoot its track.
 const ThumbSpring = {
-  damping: 20,
-  stiffness: 220,
-  mass: 0.6,
+  duration: 400,
+  dampingRatio: 1,
   reduceMotion: ReduceMotion.System
 };
 
-const SegmentedControl = <T extends string>({ label, options, value, onChange }: Props<T>) => {
+const SegmentedControl = <T extends string>({
+  label,
+  name,
+  options,
+  value,
+  onChange
+}: Props<T>) => {
   const styles = useStyles(makeStyles);
+  const form = useFormContext();
   const [trackWidth, setTrackWidth] = useState(0);
 
   const translateX = useSharedValue(0);
@@ -58,17 +73,17 @@ const SegmentedControl = <T extends string>({ label, options, value, onChange }:
 
     const target = selectedIndex * (segmentWidth + SegmentGap);
 
-    if (hasSettled.value) {
-      translateX.value = withSpring(target, ThumbSpring);
+    if (hasSettled.get()) {
+      translateX.set(withSpring(target, ThumbSpring));
     } else {
-      translateX.value = target;
-      hasSettled.value = true;
+      translateX.set(target);
+      hasSettled.set(true);
     }
   }, [hasSettled, segmentWidth, selectedIndex, translateX]);
 
   const thumbStyle = useAnimatedStyle(() => ({
     width: segmentWidth,
-    transform: [{ translateX: translateX.value }]
+    transform: [{ translateX: translateX.get() }]
   }));
 
   const handleLayout = (event: LayoutChangeEvent) => {
@@ -78,7 +93,7 @@ const SegmentedControl = <T extends string>({ label, options, value, onChange }:
   const handlePress = (option: Option<T>) => {
     if (option.value === value) return;
 
-    void hapticLight();
+    void hapticSelection();
     onChange(option.value);
   };
 
@@ -113,8 +128,21 @@ const SegmentedControl = <T extends string>({ label, options, value, onChange }:
           );
         })}
       </View>
+      {form && name && <SubscribedFieldError control={form.control} name={name} />}
     </View>
   );
+};
+
+const SubscribedFieldError = ({
+  control,
+  name
+}: {
+  control: Control<FieldValues>;
+  name: string;
+}) => {
+  const { errors } = useFormState({ control, name });
+
+  return <FieldError marginTop={8} error={errors?.[name]?.message as string} />;
 };
 
 const makeStyles = ({ colors, spacing }: AppTheme) =>

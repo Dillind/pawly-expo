@@ -83,6 +83,41 @@ swallows a tap on a header control.
 **Two simulators are in use.** iPhone 17 Pro is signed out and is the one for auth work. iPhone 17
 Pro Max holds a live session with real data — **do not sign it out**.
 
+**A `daterange` is never null, so "the current version" is not a PostgREST filter.** The live
+version of a Feed Time is the one whose range has an open upper bound, and `upper(effective) is
+null` cannot be expressed over REST — `.is('effective', null)` silently matches nothing and the
+editor renders an empty list with no error. `public.pet_feed_times` exists for exactly this. The
+same trap catches any "current row" query built on a range instead of a boolean flag.
+
+**`extract(dow ...)` is 0=Sunday; `isodow` is 1=Monday.** `feed_times.days_of_week` uses the
+first. Swapping them shifts every weekday-only feed by one day, and nothing fails — the feed just
+turns up on the wrong days.
+
+**`dayjs.tz` is broken under Hermes in BOTH its forms.** The instance `.tz()`
+silently returns UTC. The *static* `dayjs.tz(string, format, zone)` was believed safe and is not —
+measured on device it returned instants about fourteen minutes off, varying by call. Nothing in
+`src/lib/dates.ts` may use either. Zone arithmetic goes through `Intl.formatToParts` (`zonedParts`,
+`instantAt`). This was live: the feed-log correction sheet saved wrong instants.
+
+**RHF `formState` from `useFormContext()` does not subscribe a child component.** The Proxy only
+computes what the component owning `useForm` reads, so `isDirty` reads `false` forever in a child —
+which silently disabled the add-pet discard confirmation. In a child, use
+`useFormState({ control })`. Reading `formState.x` inside a callback subscribes nothing at all.
+
+**A picker fires no blur, so `mode: 'onTouched'` never clears its error.** The member fixes the
+field and the message stays. `DateTimePickerValidated` calls `trigger(name)` after a confirm for
+exactly this; any new non-text input needs the same.
+
+**Column-level grants on `feed_logs` bite every new column.** `authenticated` has INSERT on a named
+list, and `log_feed` is `security invoker` — so a column added without a matching `grant insert`
+fails with "permission denied for table feed_logs", surfaced as "Something went wrong. Try again."
+Adding a column to that table means adding the grant.
+
+**`SheetRow` only works inside a sheet.** It fills with `backgroundSheetRow`, which in the light
+palette is `#F1F2F5` — the screen background. Used on a screen the rows lose their fill entirely and
+read as plain labels rather than as something tappable. It looks fine in dark mode, so this only
+shows up in a light-mode pass. On a screen, use a card on `backgroundElement`.
+
 ## This repo
 
 **`docs/agents/` is gitignored.** `git add` skips new files there silently; `git add -f` is the only

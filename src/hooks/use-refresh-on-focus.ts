@@ -6,7 +6,7 @@ import { useCallback, useEffect, useRef } from 'react';
  * Refetches a query key when the screen regains focus.
  *
  * refetchQueries({ stale: true }) rather than invalidateQueries: invalidation
- * ignores staleTime and would re-run every per-day slot-state RPC on every tab
+ * ignores staleTime and would re-run every per-day occurrence RPC on every tab
  * switch, refetching day headers that have not changed.
  *
  * The key is held in a ref because call sites pass an array literal, which has

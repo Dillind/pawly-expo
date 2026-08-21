@@ -20,7 +20,7 @@ import { useHouseholdMembers } from '@/hooks/queries/household/use-household-mem
 import { useHouseholds } from '@/hooks/queries/household/use-households';
 import { useRefreshUnreadAlertCount } from '@/hooks/queries/alerts/use-alerts';
 import { usePets } from '@/hooks/queries/pet/use-pets';
-import { useRefreshSlotStates } from '@/hooks/queries/feeding/use-slot-states';
+import { useRefreshOccurrences } from '@/hooks/queries/feeding/use-occurrences';
 import { useLogFlow } from '@/hooks/use-log-flow';
 import { useRequestNotificationPermission } from '@/hooks/use-notification-permission';
 import { usePullToRefresh } from '@/hooks/use-pull-to-refresh';
@@ -45,21 +45,21 @@ const Home = () => {
   const { data: pets = [], isLoading, isError, refetch } = usePets();
   const { data: members = [] } = useHouseholdMembers();
 
-  const refreshSlotStates = useRefreshSlotStates();
+  const refreshOccurrences = useRefreshOccurrences();
   const refreshUnread = useRefreshUnreadAlertCount(household?.id);
 
-  // The rows come from pets, the day's counts from slot-states, and the bell
+  // The rows come from pets, the day's counts from occurrences, and the bell
   // from a third query. Refreshing one leaves the other two stale on screen.
   const { isRefreshing, onRefresh } = usePullToRefresh([
     refetch,
-    refreshSlotStates,
+    refreshOccurrences,
     refreshUnread
   ]);
 
   const timezone = household?.timezone;
   const today = timezone ? todayInTimezone(timezone) : undefined;
 
-  useRefreshOnFocus(['slot-states']);
+  useRefreshOnFocus(['occurrences']);
   const detailSheetRef = useRef<TrueSheet | null>(null);
   const logTrayRef = useRef<TrueSheet | null>(null);
   const hasCheckedPermission = useRef(false);
@@ -68,9 +68,6 @@ const Home = () => {
   const flow = useLogFlow({
     members,
     timezone,
-    onConfirmNeeded: () => {
-      void logTrayRef.current?.present();
-    },
     onWritten: () => {
       void logTrayRef.current?.dismiss();
     }
@@ -141,9 +138,9 @@ const Home = () => {
             isOnlyPet={isOnlyPet}
             onOpenLog={(logId) => openLog(logId, pet.id)}
 
-            onPickSlot={(pickedPet, slot) => {
+            onPickOccurrence={(pickedPet, occurrence) => {
               setLogPet(pickedPet);
-              flow.pickSlot(pickedPet, slot);
+              flow.pickOccurrence(pickedPet, occurrence);
             }}
             onLogPress={() => {
               setLogPet(pet);
@@ -180,6 +177,22 @@ const Home = () => {
 
         {renderBody()}
 
+        {hasPets && (
+          <View style={styles.extraFeed}>
+            <MainButton
+              text="Log something else"
+              variant="text"
+              onPress={() => {
+                setLogPet(undefined);
+                void logTrayRef.current?.present();
+              }}
+            />
+            <AppText size={13} color="textSecondary" align="center">
+              A snack, or a feed that is not on the schedule.
+            </AppText>
+          </View>
+        )}
+
         {hasHousehold && <TileGrid tiles={HOME_TILES} />}
       </ScreenScrollView>
 
@@ -202,12 +215,10 @@ const Home = () => {
         <LogFeedTray
           sheetRef={logTrayRef}
           pets={pets}
-          timezone={timezone}
           today={today}
-          members={members}
+          timezone={timezone}
           pet={logPet}
           flow={flow}
-          onOpenLog={(logId) => openLog(logId, logPet?.id ?? pets[0]?.id)}
         />
       )}
 
@@ -225,6 +236,9 @@ const makeStyles = ({ spacing }: AppTheme) =>
     },
     sections: {
       gap: spacing.four
+    },
+    extraFeed: {
+      gap: spacing.one
     },
     headerRow: {
       flexDirection: 'row',

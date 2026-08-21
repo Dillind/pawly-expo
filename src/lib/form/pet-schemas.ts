@@ -2,12 +2,17 @@ import { z } from 'zod';
 
 export const SCHEDULE_LABELS = ['morning', 'lunch', 'dinner', 'custom'] as const;
 
-export const slotSchema = z.object({
+export const EVERY_DAY = [0, 1, 2, 3, 4, 5, 6] as const;
+
+export const feedTimeSchema = z.object({
   label: z.enum(SCHEDULE_LABELS),
-  scheduledTime: z.string().regex(/^\d{2}:\d{2}$/, 'Choose a time')
+  localTime: z.string().regex(/^\d{2}:\d{2}$/, 'Choose a time'),
+  // 0 is Sunday, matching Postgres `extract(dow ...)`.
+  daysOfWeek: z.array(z.number().int().min(0).max(6)).min(1, 'Pick at least one day'),
+  instructions: z.string().max(500, 'Keep it under 500 characters').nullable()
 });
 
-export type SlotInput = z.infer<typeof slotSchema>;
+export type FeedTimeInput = z.infer<typeof feedTimeSchema>;
 
 export const bioSchema = z.object({
   bio: z.string().max(500, 'Keep it under 500 characters').nullable()

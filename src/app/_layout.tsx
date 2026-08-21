@@ -54,7 +54,7 @@ export default function RootLayout() {
   // TanStack's documented React Native pattern. useFocusEffect does not fire
   // when the app returns from the background, which is the case that matters
   // most here: the phone is in a pocket, a housemate feeds the dog, the app
-  // reopens and must not still show the slot as unfed.
+  // reopens and must not still show the occurrence as unfed.
   useEffect(() => {
     const subscription = AppState.addEventListener('change', (status: AppStateStatus) => {
       if (!isWeb) focusManager.setFocused(status === 'active');
