@@ -210,10 +210,9 @@ const ConfirmStep = ({
       // occurrence here would quietly turn a deliberate re-log into an Extra
       // Feed and skip the Double Feed warning entirely -- log_feed is what
       // decides that, and it needs to be given the occurrence to decide about.
-      // Another pet's feed is a different series, so the label is the only
-      // thing that can carry the correspondence across pets. Several feeds can
-      // share the label `custom`, so the time settles it, and an ambiguous
-      // label with no time match resolves to nothing rather than to a guess.
+      // The label is the only key that carries across pets, and several feeds
+      // can share `custom` -- so the time settles it, and an ambiguous label
+      // resolves to nothing rather than to a guess.
       const sameLabel = (occurrenceQueries[index]?.data ?? []).filter(
         (each) => each.label === occurrence.label
       );

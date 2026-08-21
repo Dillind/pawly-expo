@@ -39,10 +39,8 @@ const AddPetInstructions = () => {
 
   const isBusy = isAdding || isUploading;
 
-  // handleSubmit, so the whole schema is checked before anything is uploaded or
-  // written. The fields it can reject are all on step 1, two screens back, so a
-  // failure has to say so here and send the member to where the errors render.
-  // Without that the button does nothing at all.
+  // Every field handleSubmit can reject lives on step 1, two screens back, so
+  // a failure has to send the member there. Otherwise the button does nothing.
   const create = handleSubmit(
     async (values) => {
       setIsUploading(true);

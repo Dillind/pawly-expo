@@ -16,6 +16,11 @@ type Props = {
   isSelected?: boolean;
   isDestructive?: boolean;
   isCheckbox?: boolean;
+  /**
+   * Where the row is drawn. `backgroundSheetRow` is the screen background in
+   * light mode, so it only contrasts inside a sheet.
+   */
+  surface?: 'sheet' | 'screen';
   onPress: () => void;
 };
 
@@ -27,6 +32,7 @@ const SheetRow = ({
   isSelected = false,
   isDestructive = false,
   isCheckbox = false,
+  surface = 'sheet',
   onPress
 }: Props) => {
   const styles = useStyles(makeStyles);
@@ -38,7 +44,7 @@ const SheetRow = ({
       accessibilityLabel={label}
       accessibilityState={isCheckbox ? { checked: isSelected } : { selected: isSelected }}
       onPress={onPress}>
-      <View style={styles.row}>
+      <View style={[styles.row, surface === 'screen' && styles.onScreen]}>
         {leading ?? (icon && <Icon name={icon} size={22} color={tone} />)}
 
         <AppText size={17} color={tone} style={styles.label}>
@@ -68,6 +74,9 @@ const makeStyles = ({ spacing, colors }: AppTheme) =>
       borderRadius: Radius.card,
       borderCurve: 'continuous',
       backgroundColor: colors.backgroundSheetRow
+    },
+    onScreen: {
+      backgroundColor: colors.backgroundElement
     },
     label: {
       flex: 1
