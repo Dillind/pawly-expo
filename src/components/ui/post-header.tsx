@@ -16,7 +16,7 @@ type Props = {
    * least one of them applies, and gets no menu rather than an empty one.
    */
   showActions?: boolean;
-  /** Omitted when the viewer has one household -- naming it tells them nothing. */
+  /** Omitted when the viewer has one household. */
   householdName?: string;
   onOpenActions?: () => void;
 };
@@ -35,13 +35,11 @@ const PostHeader = ({ post, showActions = false, householdName, onOpenActions }:
         size={AVATAR}
       />
       <View style={styles.headerText}>
-        <AppText size={15} fontWeight="bold">
-          {authorName}
+        <AppText size={15} fontWeight="bold" numberOfLines={1}>
+          {householdName ?? authorName}
         </AppText>
-        {/* The household leads: it is the new information, and last on the line
-            it is the first thing a narrow screen truncates away. */}
         <AppText size={13} color="textSecondary" numberOfLines={1}>
-          {householdName ? `${householdName} · ` : ''}
+          {householdName ? `${authorName} · ` : ''}
           {formatRelativeTime(post.occurredAt)}
           {post.editedAt ? ' · Edited' : ''}
         </AppText>

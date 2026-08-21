@@ -16,10 +16,9 @@ import {
 } from '@tanstack/react-query';
 
 /** Sorted: the same households in a different order must not fetch a second time. */
-const postsKey = (householdIds: string[]) => ['posts', 'scope', [...householdIds].sort()];
+const postsKey = (householdIds: string[]) => ['posts', [...householdIds].sort()];
 
-/** Invalidating one scope leaves the others showing the post that just changed. */
-const ALL_SCOPES = ['posts', 'scope'];
+const ALL_POSTS = ['posts'];
 
 export function usePosts(householdIds: string[], viewerId: string | undefined) {
   return useInfiniteQuery({
@@ -57,7 +56,7 @@ export function useCreatePost(householdId: string | undefined) {
       caption?: string | null;
       petIds?: string[];
     }) => PostService.create({ householdId: householdId!, ...input }),
-    onSettled: () => queryClient.invalidateQueries({ queryKey: ALL_SCOPES }),
+    onSettled: () => queryClient.invalidateQueries({ queryKey: ALL_POSTS }),
     onSuccess: () => showSuccessToast(SuccessMessage.PostShared),
     onError: (error) => {
       console.error(error);
@@ -79,7 +78,7 @@ export function useUpdatePost() {
       photos: PostPhotoInput[];
     }) => PostService.update(input),
     onSettled: (_data, _error, input) => {
-      void queryClient.invalidateQueries({ queryKey: ALL_SCOPES });
+      void queryClient.invalidateQueries({ queryKey: ALL_POSTS });
       void queryClient.invalidateQueries({ queryKey: ['post', input.postId] });
     },
     onSuccess: () => showSuccessToast(SuccessMessage.PostUpdated),
@@ -95,7 +94,7 @@ export function useDeletePost() {
 
   return useMutation({
     mutationFn: (postId: string) => PostService.remove(postId),
-    onSettled: () => queryClient.invalidateQueries({ queryKey: ALL_SCOPES }),
+    onSettled: () => queryClient.invalidateQueries({ queryKey: ALL_POSTS }),
     onSuccess: () => showSuccessToast(SuccessMessage.PostDeleted),
     onError: (error) => {
       console.error(error);
@@ -109,9 +108,8 @@ type PostsData = { pages: PostsPage[]; pageParams: unknown[] };
 
 type Client = ReturnType<typeof useQueryClient>;
 
-/** Rewrites one post wherever it is cached, leaving every other post untouched. */
-function writeToEveryScope(client: Client, postId: string, apply: (post: Post) => Post) {
-  client.setQueriesData<PostsData>({ queryKey: ALL_SCOPES }, (old) =>
+function writeToEveryList(client: Client, postId: string, apply: (post: Post) => Post) {
+  client.setQueriesData<PostsData>({ queryKey: ALL_POSTS }, (old) =>
     old
       ? {
           ...old,
@@ -125,7 +123,7 @@ function writeToEveryScope(client: Client, postId: string, apply: (post: Post) =
 }
 
 function findCachedPost(client: Client, postId: string): Post | undefined {
-  for (const [, data] of client.getQueriesData<PostsData>({ queryKey: ALL_SCOPES })) {
+  for (const [, data] of client.getQueriesData<PostsData>({ queryKey: ALL_POSTS })) {
     for (const page of data?.pages ?? []) {
       const found = page.posts.find((post) => post.id === postId);
       if (found) return found;
@@ -155,7 +153,7 @@ export function useToggleLike() {
         : PostService.like({ postId, userId: userId! }),
 
     onMutate: async ({ postId, liked }) => {
-      await queryClient.cancelQueries({ queryKey: ALL_SCOPES });
+      await queryClient.cancelQueries({ queryKey: ALL_POSTS });
 
       const detailKey = ['post', postId];
       await queryClient.cancelQueries({ queryKey: detailKey });
@@ -185,9 +183,7 @@ export function useToggleLike() {
           : [...post.likers, me]
       });
 
-      // The same post sits in the all-households scope and in its own
-      // household's, and a heart fills in both or neither.
-      writeToEveryScope(queryClient, postId, applyLike);
+      writeToEveryList(queryClient, postId, applyLike);
 
       // Post Detail reads its own query, so the heart there is dead without this.
       queryClient.setQueryData<Post>(detailKey, (old) => (old ? applyLike(old) : old));
@@ -195,14 +191,13 @@ export function useToggleLike() {
       return { previousDetail, previousPost };
     },
 
-    // Restores this one post, never a whole cache snapshot: a snapshot taken
-    // before this tap also predates any like still in flight beside it, and
-    // writing it back would empty a heart that had already succeeded.
+    // One post, never a whole snapshot: a snapshot predates any like still in
+    // flight beside this one, and would empty a heart that had succeeded.
     onError: (error, input, context) => {
       console.error(error);
 
       const restored = context?.previousPost;
-      if (restored) writeToEveryScope(queryClient, input.postId, () => restored);
+      if (restored) writeToEveryList(queryClient, input.postId, () => restored);
 
       if (context?.previousDetail) {
         queryClient.setQueryData(['post', input.postId], context.previousDetail);
@@ -259,13 +254,11 @@ export function useUnseenByHousehold(householdIds: string[]) {
   });
 }
 
-/** Marking only the active one leaves a dot on a household already on screen. */
 export function useMarkPostsSeen(householdIds: string[], userId: string | undefined) {
   const queryClient = useQueryClient();
 
   return useMutation({
-    // allSettled, not all: one rejected household must not throw away the dots
-    // that were cleared successfully.
+    // allSettled: one rejected household must not discard the dots that cleared.
     mutationFn: () =>
       Promise.allSettled(
         householdIds.map((householdId) => PostService.markSeen({ householdId, userId: userId! }))

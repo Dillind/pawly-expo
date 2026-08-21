@@ -12,6 +12,16 @@ _Avoid_: Family, group, team, account.
 Any person belonging to a household. Umbrella term — every member has a role (Owner or Contributor).
 _Avoid_: User (a User is the account; a Member is that account's place in a household).
 
+**Active Household**:
+The one Household a User is currently working in, when they belong to more than one. It decides
+what the app acts on: which Pets Home shows, which timezone the day is measured in, which
+Household a new Post is written to, and which Household's settings the Profile tab edits. Chosen
+with the household switcher and remembered on the device rather than on the account — it is where
+this phone is pointed, not a fact about the person, so switching on a phone does not change what
+the same account shows on a tablet. A User in one Household has an Active Household too; they
+simply never see the control.
+_Avoid_: Current household, selected household, workspace, context.
+
 **Owner**:
 A member role with full control: edit/delete anything in the household, manage the schedule, manage pets, and manage members. A household may have more than one Owner. Highest permission level.
 _Avoid_: Admin, manager.
@@ -138,18 +148,12 @@ Posts tab seen.
 _Avoid_: Post page, permalink, single post view.
 
 **Posts** (the tab):
-The tab holding the Household's Posts, newest first. Named for what it holds. Visible only to
-Members.
+The tab holding Posts, newest first — every Household the Member belongs to, together. Named for
+what it holds. Visible only to Members. It is the one surface that does not follow the Active
+Household: the switcher decides where a Member *acts*, and this tab decides what they *read*. Each
+Post names the Household it came from, which is what keeps the two readable side by side.
 _Avoid_: Household (that word means the group and nothing else), Feed, timeline, stream, news feed,
 social, wall.
-
-**Post Scope**:
-Which Households the Posts tab is currently reading. Either all of them, or one. A Member of a
-single Household never sees the control and never thinks about it. Chosen for the moment, not
-stored: a Scope that survived a relaunch would hide a Household's Posts from someone who had
-forgotten they narrowed it. Distinct from the Active Household, which decides where a new Post is
-written and where the rest of the app is pointed.
-_Avoid_: Feed filter, view, channel, workspace.
 
 **Edited**:
 The mark a Post carries once its author has changed the caption, the Pet Tags or the photos. Shown

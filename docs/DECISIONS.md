@@ -61,20 +61,36 @@ every multi-photo Post and split the pager into two things that do not look rela
 behind them is what keeps them legible on a pale photo, which is the reason the dots were outside
 the frame to begin with.
 
-**The Posts tab reads every Household at once by default.** `PostService.list` takes
-`householdIds`, and the keyset paging is unchanged — the order was always over the whole result,
-never per household, so a page boundary does not care how many Households its rows came from. The
-filter narrows to one; see Post Scope in CONTEXT.md for why it is not persisted.
+**The Posts tab reads every Household at once.** `PostService.list` takes `householdIds`, and the
+keyset paging is unchanged — the order was always over the whole result, never per household, so a
+page boundary does not care how many Households its rows came from.
 
-**Post permissions are read from the Post's own Household.** Under the all-Households Scope, two
+**There is no filter on the Posts tab, and that was a deliberate cut.** One was built — a chip row
+per Household — and removed before it shipped. Three reasons. Almost every Member holds one
+Household and would never see the control. For the two-Household case the label on each card
+already answers "which house is this" with no tap, which is the question people actually ask; "show
+me only that house" is far rarer. And the filter introduced two bugs of its own: a narrowed
+selection that stranded the tab on an empty list with no control left on screen to reset it, and
+sharing from a narrowed tab writing the Post to a different Household than the one being read.
+
+Cutting it also removes a real teaching problem. The household switcher sets the Active Household
+and governs every other surface; a filter that governed only this one meant two controls answering
+"which Household", with a rule to explain. Build the filter when a Member says the tab is noisy —
+they will name the axis, instead of us guessing between Household, unseen and Pet.
+
+**The Household name is the Post's first line, above the author.** Grey text in a metadata line is
+not something the eye sorts by, and which house a photo came from is the first thing a Member of
+several of them asks. A Member of one Household sees the author on that line, as before.
+
+**Post permissions are read from the Post's own Household.** With the tab spanning several Households, two
 adjacent rows can belong to two Households the viewer holds different roles in, so the old check
 against the Active Household's `isOwner` was wrong on every row but one. Both the tab and Post
 Detail now look the Household up by `post.householdId`.
 
-**Every cached Scope is invalidated together, and a Like writes to all of them.** The same Post
-sits in the all-Households list and in its own Household's, so a heart filled in one has to fill in
-both. `setQueriesData` over the shared `['posts', 'scope']` prefix does that; a single key could
-not.
+**A Like writes to every cached Posts list, and rolls back one Post rather than a snapshot.**
+`setQueriesData` over the shared `['posts']` prefix keeps every cached list in step. The rollback
+restores the single Post, because a snapshot taken before this tap also predates any Like still in
+flight beside it — writing it back emptied a heart that had already succeeded.
 
-**Arriving at the tab marks every Household in the Scope seen.** Marking only the Active one left a
-dot on a Household whose Posts were already on the screen.
+**Arriving at the tab marks every Household seen.** Marking only the Active one left a dot on a
+Household whose Posts were already on the screen.

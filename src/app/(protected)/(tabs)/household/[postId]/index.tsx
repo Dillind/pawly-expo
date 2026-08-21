@@ -26,8 +26,6 @@ const PostDetail = () => {
   const { mutate: toggleLike } = useToggleLike();
   const { mutate: deletePost } = useDeletePost();
 
-  // The post's own household, not the active one: a post opened under the
-  // all-households scope can belong to a household the viewer is not in.
   const household = households.find((candidate) => candidate.id === post?.householdId);
 
   const canEdit = post !== undefined && post.authorId === userId;
@@ -109,8 +107,6 @@ const makeStyles = ({ spacing }: AppTheme) =>
     centred: {
       paddingTop: spacing.six
     },
-    // PostBody carries the gutter so its photo can reach both screen edges
-    // here too, exactly as it does in the feed.
     content: {
       paddingTop: spacing.three,
       paddingBottom: spacing.six

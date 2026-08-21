@@ -25,7 +25,8 @@ const escapeHtml = (value: string): string =>
     .replace(/'/g, '&#39;');
 
 /** Escaped first, so the <br> this introduces is the only markup that survives. */
-const escapeMultiline = (value: string): string => escapeHtml(value).replace(/\r?\n/g, '<br />');
+const escapeMultiline = (value: string): string =>
+  escapeHtml(value).replace(/\r?\n/g, '<br />');
 
 const fieldRow = (label: string, value: string): string =>
   `<div class="row"><div class="label">${escapeHtml(label)}</div>` +

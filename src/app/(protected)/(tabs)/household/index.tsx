@@ -6,7 +6,6 @@ import MainButton from '@/components/core/main-button';
 import MainLegendList from '@/components/core/main-legend-list';
 import ScreenView from '@/components/layout/screen-view';
 import PostCard from '@/components/ui/post-card';
-import PostFilterBar, { ALL_HOUSEHOLDS, type PostScope } from '@/components/ui/post-filter-bar';
 import { ScreenGutter, type AppTheme } from '@/constants/theme';
 import { useHouseholds } from '@/hooks/queries/household/use-households';
 import {
@@ -26,7 +25,6 @@ import { useFocusEffect, useRouter } from 'expo-router';
 import { useCallback, useMemo, useRef, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 
-/** Wide enough to read as a break between posts, narrow enough to stay one list. */
 const PostGap = 12;
 
 const Posts = () => {
@@ -36,24 +34,9 @@ const Posts = () => {
   const { userId } = useAuthStore();
   const { data: households = [] } = useHouseholds();
 
-  // Not persisted: the scope is where you are looking right now, and a filter
-  // surviving a relaunch hides posts from someone who has forgotten they set it.
-  const [chosenScope, setScope] = useState<PostScope>(ALL_HOUSEHOLDS);
   const isMultiHousehold = households.length > 1;
 
-  // Healed rather than stored: leaving the household you had filtered to would
-  // otherwise leave a dead id selected, no chips on screen to change it, and an
-  // empty tab until the next relaunch.
-  const scope =
-    chosenScope !== ALL_HOUSEHOLDS && !households.some((household) => household.id === chosenScope)
-      ? ALL_HOUSEHOLDS
-      : chosenScope;
-
-  const householdIds = useMemo(() => {
-    const ids = households.map((household) => household.id);
-
-    return scope === ALL_HOUSEHOLDS ? ids : ids.filter((id) => id === scope);
-  }, [households, scope]);
+  const householdIds = useMemo(() => households.map((household) => household.id), [households]);
 
   const householdById = useMemo(
     () => new Map(households.map((household) => [household.id, household])),
@@ -80,8 +63,7 @@ const Posts = () => {
   const { mutate: deletePost } = useDeletePost();
   const { mutate: markSeen } = useMarkPostsSeen(householdIds, userId ?? undefined);
 
-  // Keyed on a string, not the array: `householdIds` has a fresh identity on
-  // every households refetch, and the effect would issue a write for each one.
+  // A string, not the array: the array is a fresh identity on every refetch.
   const scopeKey = householdIds.join(',');
 
   // Clearing the dot is a side effect of arriving, not of the data loading, so
@@ -94,8 +76,6 @@ const Posts = () => {
 
   // Editing is the author's alone. An Owner may remove a member's post but
   // never rewrite it under their name -- the same split as the RLS policies.
-  // Ownership comes from the post's own household: under the all-households
-  // scope that differs from one row to the next.
   const permissions = (post: Post | null) => {
     const canEdit = post !== null && post.authorId === userId;
     const isOwner = post !== null && (householdById.get(post.householdId)?.isOwner ?? false);
@@ -132,20 +112,9 @@ const Posts = () => {
           variant="glass"
           size={20}
           accessibilityLabel="Share a photo"
-          onPress={() =>
-            router.push({
-              pathname: '/household/new-post',
-              params: scope === ALL_HOUSEHOLDS ? undefined : { householdId: scope }
-            })
-          }
+          onPress={() => router.push('/household/new-post')}
         />
       </View>
-
-      {isMultiHousehold && (
-        <View style={styles.filter}>
-          <PostFilterBar households={households} scope={scope} onChange={setScope} />
-        </View>
-      )}
 
       <MainLegendList<Post>
         data={posts}
@@ -165,7 +134,6 @@ const Posts = () => {
         contentContainerStyle={styles.listContent}
         ItemSeparatorComponent={() => <View style={styles.separator} />}
         ListEmptyComponent={
-          // The list has no gutter of its own, so the empty state carries one.
           <View style={styles.emptyGutter}>
             <EmptyState
               icon="image"
@@ -207,8 +175,7 @@ const makeStyles = ({ spacing }: AppTheme) =>
       paddingHorizontal: ScreenGutter,
       paddingBottom: spacing.two
     },
-    // No horizontal padding: PostBody re-indents its own words, and padding
-    // here would inset the photo with them.
+    // No gutter: PostBody re-indents its words and padding here would inset the photo.
     listContent: {
       paddingBottom: spacing.six
     },
@@ -217,9 +184,6 @@ const makeStyles = ({ spacing }: AppTheme) =>
     },
     emptyGutter: {
       paddingHorizontal: ScreenGutter
-    },
-    filter: {
-      paddingBottom: spacing.three
     }
   });
 

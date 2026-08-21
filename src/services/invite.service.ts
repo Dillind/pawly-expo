@@ -13,7 +13,12 @@ export type PendingInvite = {
 export type CreateInviteStatus = 'created' | 'already_member' | 'not_owner';
 
 export type PreviewStatus =
-  'valid' | 'already_member' | 'already_used' | 'expired' | 'revoked' | 'not_found';
+  | 'valid'
+  | 'already_member'
+  | 'already_used'
+  | 'expired'
+  | 'revoked'
+  | 'not_found';
 
 export type InvitePreview = {
   status: PreviewStatus;

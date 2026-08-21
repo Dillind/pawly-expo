@@ -13,7 +13,6 @@ type Props = {
 const TITLE_LINES = 2;
 const CAPTION_LINES = 2;
 
-/** No frame of its own: a radius drawn around a photo that already left it reads as a mistake. */
 const PostCard = ({
   post,
   showActions,

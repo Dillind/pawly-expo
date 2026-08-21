@@ -26,12 +26,7 @@ type Props = {
   onOpen?: () => void;
 };
 
-/**
- * Everything a Post shows, in one order, on both surfaces that show it.
- *
- * The gutter is owned here because a parent that padded this would inset the
- * photo with the words. Both screens hand it the full width.
- */
+/** The gutter is owned here: a parent that padded this would inset the photo with the words. */
 const PostBody = ({
   post,
   showActions,
@@ -76,9 +71,7 @@ const PostBody = ({
 
 const makeStyles = ({ colors, spacing }: AppTheme) =>
   StyleSheet.create({
-    // The post carries the element colour and the gap between posts shows the
-    // page through it. Without this the two are the same colour and the posts
-    // run together, in light mode especially.
+    // Without a colour of its own the post and the gap match, and posts run together.
     body: {
       gap: spacing.two,
       paddingVertical: spacing.two,
