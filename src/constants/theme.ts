@@ -150,8 +150,9 @@ export const BottomTabInset = Platform.select({ ios: 84, android: 80 }) ?? 0;
  * The style every `Stack.Title` takes.
  *
  * It cannot be a shared header component: `Stack.Screen` reads its direct
- * children only, so a `Stack.Title` inside a wrapper never registers and the
- * bar falls back to the route name. A constant is what can be shared.
+ * children only, so a `Stack.Title` returned by a wrapper component never
+ * reaches the bar, which falls back to the route name. A constant can be
+ * shared; the components cannot.
  */
 export const HeaderTitleStyle = { fontSize: 18, fontWeight: 'bold' } as const;
 

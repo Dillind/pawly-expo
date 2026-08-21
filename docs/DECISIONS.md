@@ -33,8 +33,9 @@ the title readable over a photo and a clear one does not — that trade was weig
 chosen deliberately.
 
 **A native title is left-aligned with a wide wrapper, not with an option.** `headerTitleAlign:
-'left'` is ignored by the native stack, and a left `Stack.Toolbar.View` draws its own glass pill on
-iOS 26 and leaks the route name into the centre slot. Both were tried on a simulator. What works is
+'left'` is ignored by the native stack. A left `Stack.Toolbar.View` draws its own glass pill on iOS
+26, leaks the route name into the centre slot, and stretches the next screen's back button — see
+below. Both were tried on a simulator. What works is
 `Stack.Title asChild` over a `View` given an explicit width wider than the title slot: UIKit centres
 the slot, so a box that overruns it starts at the left margin.
 
@@ -65,6 +66,16 @@ a push, so a custom `Stack.Toolbar.View` hands its geometry to the next screen's
 then draws its background as a wide rectangle for the whole push. `hidesSharedBackground` makes it
 worse, not better. A title is outside that group, so the fault cannot occur — which is the second
 reason the switcher is a title and not a left bar item.
+
+**Removing a Pet moved from the header into the Edit details tray.** As a `Stack.Toolbar.Button` it
+needed the pet, the Household role and the mutation, so it sat behind the screen's loading return
+and dragged the title behind it with it. In the tray it sits beside every other action on the same
+data, and the pencil that opens it is already Owner-only, so the role check comes for free. The
+header then holds nothing but the Pet's name.
+
+**`MainButton` gained a `destructiveText` variant.** The existing `text` variant draws its label in
+`primary`, which cannot carry a destructive action, and a filled red button beside Save reads louder
+than the save it sits under.
 
 **The bell is a native `Stack.Toolbar.Button` with a `Stack.Toolbar.Badge`.** The hand-rolled
 `NotificationBell`, with its absolutely-positioned badge, was deleted — a custom right-hand view
