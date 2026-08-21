@@ -2,8 +2,8 @@ import PostActionsSheet from '@/components/bottom-sheets/post-actions-sheet';
 import ErrorState from '@/components/core/error-state';
 import ScreenView from '@/components/layout/screen-view';
 import PostBody from '@/components/ui/post-body';
-import { ScreenGutter, type AppTheme } from '@/constants/theme';
-import { useHousehold } from '@/hooks/queries/household/use-household';
+import { type AppTheme } from '@/constants/theme';
+import { useHouseholds } from '@/hooks/queries/household/use-households';
 import { useDeletePost, usePost, useToggleLike } from '@/hooks/queries/posts/use-posts';
 import { useStyles } from '@/hooks/use-styles';
 import { useAuthStore } from '@/stores/auth-store';
@@ -19,11 +19,13 @@ const PostDetail = () => {
 
   const { postId } = useLocalSearchParams<{ postId: string }>();
   const { userId } = useAuthStore();
-  const { data: household } = useHousehold();
+  const { data: households = [] } = useHouseholds();
   const { data: post, isLoading, isError, refetch } = usePost(postId, userId ?? undefined);
 
-  const { mutate: toggleLike } = useToggleLike(household?.id);
-  const { mutate: deletePost } = useDeletePost(household?.id);
+  const { mutate: toggleLike } = useToggleLike();
+  const { mutate: deletePost } = useDeletePost();
+
+  const household = households.find((candidate) => candidate.id === post?.householdId);
 
   const canEdit = post !== undefined && post.authorId === userId;
   const canDelete = canEdit || (post !== undefined && (household?.isOwner ?? false));
@@ -62,6 +64,7 @@ const PostDetail = () => {
           contentContainerStyle={styles.content}>
           <PostBody
             post={post}
+            householdName={households.length > 1 ? household?.name : undefined}
             onToggleLike={() => toggleLike({ postId: post.id, liked: post.likedByMe })}
           />
         </ScrollView>
@@ -96,7 +99,6 @@ const makeStyles = ({ spacing }: AppTheme) =>
       paddingTop: spacing.six
     },
     content: {
-      paddingHorizontal: ScreenGutter,
       paddingTop: spacing.three,
       paddingBottom: spacing.six
     }

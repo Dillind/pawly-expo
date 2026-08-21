@@ -15,21 +15,24 @@ import {
   useQueryClient
 } from '@tanstack/react-query';
 
-const postsKey = (householdId: string | undefined) => ['posts', householdId];
+/** Sorted: the same households in a different order must not fetch a second time. */
+const postsKey = (householdIds: string[]) => ['posts', [...householdIds].sort()];
 
-export function usePosts(householdId: string | undefined, viewerId: string | undefined) {
+const ALL_POSTS = ['posts'];
+
+export function usePosts(householdIds: string[], viewerId: string | undefined) {
   return useInfiniteQuery({
-    queryKey: postsKey(householdId),
+    queryKey: postsKey(householdIds),
     queryFn: ({ pageParam }) =>
       PostService.list({
-        householdId: householdId!,
+        householdIds,
         viewerId: viewerId ?? null,
         cursor: pageParam ?? undefined
       }),
     initialPageParam: null as PostsCursor | null,
     getNextPageParam: (lastPage) => lastPage.nextCursor,
     select: (data) => data.pages.flatMap((page) => page.posts),
-    enabled: Boolean(householdId)
+    enabled: householdIds.length > 0
   });
 }
 
@@ -53,7 +56,7 @@ export function useCreatePost(householdId: string | undefined) {
       caption?: string | null;
       petIds?: string[];
     }) => PostService.create({ householdId: householdId!, ...input }),
-    onSettled: () => queryClient.invalidateQueries({ queryKey: postsKey(householdId) }),
+    onSettled: () => queryClient.invalidateQueries({ queryKey: ALL_POSTS }),
     onSuccess: () => showSuccessToast(SuccessMessage.PostShared),
     onError: (error) => {
       console.error(error);
@@ -62,7 +65,7 @@ export function useCreatePost(householdId: string | undefined) {
   });
 }
 
-export function useUpdatePost(householdId: string | undefined) {
+export function useUpdatePost() {
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -75,7 +78,7 @@ export function useUpdatePost(householdId: string | undefined) {
       photos: PostPhotoInput[];
     }) => PostService.update(input),
     onSettled: (_data, _error, input) => {
-      void queryClient.invalidateQueries({ queryKey: postsKey(householdId) });
+      void queryClient.invalidateQueries({ queryKey: ALL_POSTS });
       void queryClient.invalidateQueries({ queryKey: ['post', input.postId] });
     },
     onSuccess: () => showSuccessToast(SuccessMessage.PostUpdated),
@@ -86,12 +89,12 @@ export function useUpdatePost(householdId: string | undefined) {
   });
 }
 
-export function useDeletePost(householdId: string | undefined) {
+export function useDeletePost() {
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: (postId: string) => PostService.remove(postId),
-    onSettled: () => queryClient.invalidateQueries({ queryKey: postsKey(householdId) }),
+    onSettled: () => queryClient.invalidateQueries({ queryKey: ALL_POSTS }),
     onSuccess: () => showSuccessToast(SuccessMessage.PostDeleted),
     onError: (error) => {
       console.error(error);
@@ -103,6 +106,33 @@ export function useDeletePost(householdId: string | undefined) {
 type PostsPage = { posts: Post[]; nextCursor: PostsCursor | null };
 type PostsData = { pages: PostsPage[]; pageParams: unknown[] };
 
+type Client = ReturnType<typeof useQueryClient>;
+
+function writeToEveryList(client: Client, postId: string, apply: (post: Post) => Post) {
+  client.setQueriesData<PostsData>({ queryKey: ALL_POSTS }, (old) =>
+    old
+      ? {
+          ...old,
+          pages: old.pages.map((page) => ({
+            ...page,
+            posts: page.posts.map((post) => (post.id === postId ? apply(post) : post))
+          }))
+        }
+      : old
+  );
+}
+
+function findCachedPost(client: Client, postId: string): Post | undefined {
+  for (const [, data] of client.getQueriesData<PostsData>({ queryKey: ALL_POSTS })) {
+    for (const page of data?.pages ?? []) {
+      const found = page.posts.find((post) => post.id === postId);
+      if (found) return found;
+    }
+  }
+
+  return undefined;
+}
+
 /**
  * Optimistic, and deliberately silent on both success and failure.
  *
@@ -112,7 +142,7 @@ type PostsData = { pages: PostsPage[]; pageParams: unknown[] };
  * happen" without interrupting anyone; the real error still reaches the
  * console.
  */
-export function useToggleLike(householdId: string | undefined) {
+export function useToggleLike() {
   const queryClient = useQueryClient();
   const { userId, profile } = useAuthStore();
 
@@ -123,18 +153,17 @@ export function useToggleLike(householdId: string | undefined) {
         : PostService.like({ postId, userId: userId! }),
 
     onMutate: async ({ postId, liked }) => {
-      const key = postsKey(householdId);
-      await queryClient.cancelQueries({ queryKey: key });
+      await queryClient.cancelQueries({ queryKey: ALL_POSTS });
 
       const detailKey = ['post', postId];
       await queryClient.cancelQueries({ queryKey: detailKey });
 
-      const previous = queryClient.getQueryData<PostsData>(key);
       const previousDetail = queryClient.getQueryData<Post>(detailKey);
+      const previousPost = findCachedPost(queryClient, postId) ?? previousDetail;
 
       // The mutation itself cannot run without an id, and an optimistic liker
       // carrying a placeholder one could never be filtered back out.
-      if (!userId) return { previous, previousDetail };
+      if (!userId) return { previousDetail, previousPost };
 
       const me: PostLiker = {
         userId,
@@ -154,29 +183,22 @@ export function useToggleLike(householdId: string | undefined) {
           : [...post.likers, me]
       });
 
-      queryClient.setQueryData<PostsData>(key, (old) =>
-        old
-          ? {
-              ...old,
-              pages: old.pages.map((page) => ({
-                ...page,
-                posts: page.posts.map((post) => (post.id === postId ? applyLike(post) : post))
-              }))
-            }
-          : old
-      );
+      writeToEveryList(queryClient, postId, applyLike);
 
       // Post Detail reads its own query, so the heart there is dead without this.
       queryClient.setQueryData<Post>(detailKey, (old) => (old ? applyLike(old) : old));
 
-      return { previous, previousDetail };
+      return { previousDetail, previousPost };
     },
 
+    // One post, never a whole snapshot: a snapshot predates any like still in
+    // flight beside this one, and would empty a heart that had succeeded.
     onError: (error, input, context) => {
       console.error(error);
-      if (context?.previous) {
-        queryClient.setQueryData(postsKey(householdId), context.previous);
-      }
+
+      const restored = context?.previousPost;
+      if (restored) writeToEveryList(queryClient, input.postId, () => restored);
+
       if (context?.previousDetail) {
         queryClient.setQueryData(['post', input.postId], context.previousDetail);
       }
@@ -232,12 +254,16 @@ export function useUnseenByHousehold(householdIds: string[]) {
   });
 }
 
-export function useMarkPostsSeen(householdId: string | undefined, userId: string | undefined) {
+export function useMarkPostsSeen(householdIds: string[], userId: string | undefined) {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: () => PostService.markSeen({ householdId: householdId!, userId: userId! }),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['posts-unseen', householdId] }),
+    // allSettled: one rejected household must not discard the dots that cleared.
+    mutationFn: () =>
+      Promise.allSettled(
+        householdIds.map((householdId) => PostService.markSeen({ householdId, userId: userId! }))
+      ),
+    onSettled: () => queryClient.invalidateQueries({ queryKey: ['posts-unseen'] }),
     onError: (error) => console.error(error)
   });
 }

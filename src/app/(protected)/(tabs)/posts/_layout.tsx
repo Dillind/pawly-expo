@@ -4,7 +4,7 @@ import { StatusBar } from 'expo-status-bar';
 import { HeaderTitleStyle } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 
-export default function HouseholdLayout() {
+export default function PostsLayout() {
   const { isDark } = useTheme();
   const router = useRouter();
 

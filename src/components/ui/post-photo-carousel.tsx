@@ -9,7 +9,7 @@ const DOT_SIZE = 6;
 
 type Props = { photos: PostPhoto[]; onPress?: () => void };
 
-/** One fixed square frame for every photo -- a pager whose frame changed per page would lurch. */
+/** One fixed square frame for every photo -- a frame that changed per page would lurch. */
 const PostPhotoCarousel = ({ photos, onPress }: Props) => {
   const styles = useStyles(makeStyles);
   const [width, setWidth] = useState(0);
@@ -22,44 +22,43 @@ const PostPhotoCarousel = ({ photos, onPress }: Props) => {
   };
 
   return (
-    <View style={styles.container}>
-      <View style={styles.frame} onLayout={(event) => setWidth(event.nativeEvent.layout.width)}>
-        {width > 0 && (
-          <ScrollView
-            horizontal
-            pagingEnabled
-            showsHorizontalScrollIndicator={false}
-            // Off while there is nothing to page to, so a single-photo card
-            // does not rubber-band under the finger.
-            scrollEnabled={photos.length > 1}
-            onMomentumScrollEnd={(event) => onScrollEnd(event.nativeEvent)}>
-            {photos.map((photo, at) => (
-              // Plain Pressable, not PressableOpacity: a fade on press-in would
-              // flash on the first frame of every swipe before the pan wins.
-              <Pressable
-                key={photo.id}
-                disabled={!onPress}
-                onPress={onPress}
-                accessibilityRole={onPress ? 'button' : 'image'}
-                style={{ width, height: '100%' }}
-                accessibilityLabel={
-                  photos.length > 1 ? `Photo ${at + 1} of ${photos.length}` : undefined
-                }>
-                <Image
-                  source={{ uri: photo.url }}
-                  style={styles.photo}
-                  contentFit="cover"
-                  transition={150}
-                  accessibilityIgnoresInvertColors
-                />
-              </Pressable>
-            ))}
-          </ScrollView>
-        )}
-      </View>
+    <View style={styles.frame} onLayout={(event) => setWidth(event.nativeEvent.layout.width)}>
+      {width > 0 && (
+        <ScrollView
+          horizontal
+          pagingEnabled
+          showsHorizontalScrollIndicator={false}
+          // Off while there is nothing to page to, so a single-photo card
+          // does not rubber-band under the finger.
+          scrollEnabled={photos.length > 1}
+          onMomentumScrollEnd={(event) => onScrollEnd(event.nativeEvent)}>
+          {photos.map((photo, at) => (
+            // Plain Pressable, not PressableOpacity: a fade on press-in would
+            // flash on the first frame of every swipe before the pan wins.
+            <Pressable
+              key={photo.id}
+              disabled={!onPress}
+              onPress={onPress}
+              accessibilityRole={onPress ? 'button' : 'image'}
+              style={{ width, height: '100%' }}
+              accessibilityLabel={
+                photos.length > 1 ? `Photo ${at + 1} of ${photos.length}` : undefined
+              }>
+              <Image
+                source={{ uri: photo.url }}
+                style={styles.photo}
+                contentFit="cover"
+                transition={150}
+                accessibilityIgnoresInvertColors
+              />
+            </Pressable>
+          ))}
+        </ScrollView>
+      )}
 
+      {/* The scrim is what keeps the dots visible on a pale photo. */}
       {photos.length > 1 && (
-        <View style={styles.dots}>
+        <View style={styles.dots} pointerEvents="none">
           {photos.map((photo, at) => (
             <View key={photo.id} style={[styles.dot, at === index && styles.dotActive]} />
           ))}
@@ -71,34 +70,34 @@ const PostPhotoCarousel = ({ photos, onPress }: Props) => {
 
 const makeStyles = ({ colors, spacing }: AppTheme) =>
   StyleSheet.create({
-    container: {
-      gap: spacing.two
-    },
     frame: {
       width: '100%',
       aspectRatio: 1,
-      borderRadius: Radius.card,
-      borderCurve: 'continuous',
       overflow: 'hidden',
-      backgroundColor: colors.backgroundElement
+      backgroundColor: colors.postDivider
     },
     photo: {
       flex: 1
     },
     dots: {
-      flexDirection: 'row',
+      position: 'absolute',
+      bottom: spacing.three,
       alignSelf: 'center',
-      gap: spacing.one
+      flexDirection: 'row',
+      gap: spacing.one,
+      paddingVertical: spacing.two,
+      paddingHorizontal: spacing.three,
+      borderRadius: Radius.full,
+      backgroundColor: 'rgba(0, 0, 0, 0.35)'
     },
     dot: {
       width: DOT_SIZE,
       height: DOT_SIZE,
       borderRadius: Radius.full,
-      backgroundColor: colors.textSecondary,
-      opacity: 0.3
+      backgroundColor: '#FFFFFF',
+      opacity: 0.45
     },
     dotActive: {
-      backgroundColor: colors.primary,
       opacity: 1
     }
   });

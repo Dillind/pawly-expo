@@ -4,7 +4,6 @@ import PostModalHeader from '@/components/screens/household/post-modal-header';
 import { postSchema, type PostFormValues } from '@/constants/schemas/post';
 import type { AppTheme } from '@/constants/theme';
 import { useHousehold } from '@/hooks/queries/household/use-household';
-import { usePets } from '@/hooks/queries/pet/use-pets';
 import { useCreatePost } from '@/hooks/queries/posts/use-posts';
 import { useStyles } from '@/hooks/use-styles';
 import { useAuthStore } from '@/stores/auth-store';
@@ -22,7 +21,10 @@ const NewPost = () => {
 
   const { userId } = useAuthStore();
   const { data: household } = useHousehold();
-  const { data: pets = [] } = usePets();
+
+  // A post is always written to the Active Household, and the household summary
+  // already carries its pets -- so this needs no query of its own.
+  const pets = household?.pets ?? [];
 
   const form = useForm<PostFormValues>({
     resolver: zodResolver(postSchema),
