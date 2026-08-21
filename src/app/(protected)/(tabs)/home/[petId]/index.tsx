@@ -6,10 +6,10 @@ import PetBio from '@/components/screens/pet/pet-bio';
 import PetHeader from '@/components/screens/pet/pet-header';
 import ScheduleSection from '@/components/screens/pet/schedule-section';
 import SectionCard from '@/components/screens/pet/section-card';
-import { BottomTabInset, type AppTheme } from '@/constants/theme';
+import { BottomTabInset, HeaderTitleStyle, type AppTheme } from '@/constants/theme';
 import { usePetDetail } from '@/hooks/queries/pet/use-pet-detail';
 import { useStyles } from '@/hooks/use-styles';
-import { useLocalSearchParams } from 'expo-router';
+import { Stack, useLocalSearchParams } from 'expo-router';
 import { ActivityIndicator, StyleSheet } from 'react-native';
 
 const PetDetail = () => {
@@ -18,28 +18,20 @@ const PetDetail = () => {
 
   const { data: pet, isLoading, isError, refetch } = usePetDetail(petId);
 
-  if (!petId || isError) {
-    return (
-      <ScreenView edges={[]}>
+  const content = () => {
+    if (!petId || isError) {
+      return (
         <ErrorState
           onRetry={() => {
             void refetch();
           }}
         />
-      </ScreenView>
-    );
-  }
+      );
+    }
 
-  if (isLoading || !pet) {
+    if (isLoading || !pet) return <ActivityIndicator />;
+
     return (
-      <ScreenView edges={[]}>
-        <ActivityIndicator />
-      </ScreenView>
-    );
-  }
-
-  return (
-    <ScreenView edges={[]}>
       <ScreenScrollView
         contentContainerStyle={styles.content}
         contentInsetAdjustmentBehavior="automatic">
@@ -63,6 +55,17 @@ const PetDetail = () => {
           <PetBio petId={pet.id} name={pet.name} bio={pet.bio} />
         </SectionCard>
       </ScreenScrollView>
+    );
+  };
+
+  return (
+    <ScreenView edges={[]}>
+      {content()}
+
+      {/* Outside the branches above, not inside them. A title declared behind
+          an early return leaves the bar with none, and it falls back to the
+          route name -- `[petId]/index` flashes until the pet loads. */}
+      <Stack.Title style={HeaderTitleStyle}>{pet?.name ?? ''}</Stack.Title>
     </ScreenView>
   );
 };

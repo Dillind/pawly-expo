@@ -8,6 +8,8 @@ import { useUnreadAlertCount } from '@/hooks/queries/alerts/use-alerts';
 import { useHousehold } from '@/hooks/queries/household/use-household';
 import { useTheme } from '@/hooks/use-theme';
 
+const BADGE_CAP = 99;
+
 export default function HomeLayout() {
   const { isDark } = useTheme();
   const router = useRouter();
@@ -20,6 +22,10 @@ export default function HomeLayout() {
       <StatusBar style={isDark ? 'light' : 'dark'} />
       <Stack screenOptions={{ headerShown: false }}>
         <Stack.Screen name="index" options={{ headerShown: true }}>
+          {/* The switcher is a title, not a left `Stack.Toolbar.View`. A custom
+              left bar item hands its geometry to the next screen's back button,
+              which then draws its background as a wide rectangle for the whole
+              push. A title is outside the left bar-item group, so it cannot. */}
           <Stack.Title asChild>
             <View style={styles.switcher}>
               <HouseholdSwitcher />
@@ -32,7 +38,9 @@ export default function HomeLayout() {
               onPress={() => router.push('/home/notifications')}>
               <Stack.Toolbar.Icon sf="bell" />
               {unread > 0 && (
-                <Stack.Toolbar.Badge>{unread > 99 ? '99+' : String(unread)}</Stack.Toolbar.Badge>
+                <Stack.Toolbar.Badge>
+                  {unread > BADGE_CAP ? `${BADGE_CAP}+` : String(unread)}
+                </Stack.Toolbar.Badge>
               )}
             </Stack.Toolbar.Button>
           </Stack.Toolbar>
@@ -77,8 +85,8 @@ export default function HomeLayout() {
           }}
         />
 
+        {/* The title is the pet's name, so the screen sets it, not this. */}
         <Stack.Screen name="[petId]/index" options={{ headerShown: true }}>
-          <Stack.Title style={HeaderTitleStyle}>Pet Detail</Stack.Title>
           <Stack.Header transparent />
           <Stack.Screen.BackButton displayMode="minimal" />
         </Stack.Screen>
@@ -95,6 +103,8 @@ export default function HomeLayout() {
   );
 }
 
+// UIKit centres the title slot, so a box that hugs its content lands in the
+// middle. A width wider than the slot is what pins the switcher to the left.
 const styles = StyleSheet.create({
   switcher: {
     width: 300,

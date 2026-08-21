@@ -4,7 +4,7 @@ import { StatusBar } from 'expo-status-bar';
 import { HeaderTitleStyle } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 
-export default function HouseholdLayout() {
+export default function PostsLayout() {
   const { isDark } = useTheme();
   const router = useRouter();
 
@@ -24,7 +24,7 @@ export default function HouseholdLayout() {
           </Stack.Toolbar>
         </Stack.Screen>
         <Stack.Screen name="[postId]/index" options={{ headerShown: true }}>
-          <Stack.Title style={HeaderTitleStyle}>Post Detail</Stack.Title>
+          <Stack.Title style={HeaderTitleStyle}>Post</Stack.Title>
           <Stack.Header transparent />
           <Stack.Screen.BackButton displayMode="minimal" />
         </Stack.Screen>

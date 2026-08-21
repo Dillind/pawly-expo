@@ -310,6 +310,13 @@ with nothing to pop to and the back button silently disappears.
 **Titles and header options live in the `_layout.tsx`**, not in a `Stack.Screen` inside the screen
 itself. Declaring the same option in both is two sources of truth for one header.
 
+**The exception is a header that depends on the screen's own data.** A title that is a Pet's name
+cannot be written by a layout, which has no reliable read of the focused route's params. Set it from
+the screen with `Stack.Title`, and **put it outside every early return** — behind one the bar has no
+title and falls back to the route name, so `[petId]/index` flashes until the data arrives. Prefer
+making the header static and moving it to the layout, as removing a Pet did when it moved into the
+Edit details tray.
+
 **Moving a route has two consequences the compiler cannot see:**
 
 - **Typecheck passes on a route that no longer resolves** — the generated types go stale. Open it on
@@ -464,7 +471,7 @@ them, neither works and it becomes a step in a `Tray`.
   branded buttons, that is the signal it was never an alert — build it as a `Tray` step.
 
 Live examples: the Double Feed collision in `use-log-flow.ts`, removing a Pet in
-`home/pet/[petId].tsx`, deleting a photo in `gallery-strip.tsx`. The counter-example worth reading
+`edit-pet-details.tsx`, deleting a photo in `gallery-strip.tsx`. The counter-example worth reading
 is `late-feed-step.tsx` — it asks a question and is deliberately **not** an alert, because each of
 its two options needs a sentence of consequence underneath it (ADR 0016).
 
