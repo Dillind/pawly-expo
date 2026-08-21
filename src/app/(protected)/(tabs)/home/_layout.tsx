@@ -78,6 +78,7 @@ export default function HomeLayout() {
         />
 
         <Stack.Screen name="[petId]/index" options={{ headerShown: true }}>
+          <Stack.Title style={HeaderTitleStyle}>Pet Detail</Stack.Title>
           <Stack.Header transparent />
           <Stack.Screen.BackButton displayMode="minimal" />
         </Stack.Screen>

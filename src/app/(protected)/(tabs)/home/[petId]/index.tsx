@@ -6,56 +6,40 @@ import PetBio from '@/components/screens/pet/pet-bio';
 import PetHeader from '@/components/screens/pet/pet-header';
 import ScheduleSection from '@/components/screens/pet/schedule-section';
 import SectionCard from '@/components/screens/pet/section-card';
-import { BottomTabInset, HeaderTitleStyle, type AppTheme } from '@/constants/theme';
-import { useHousehold } from '@/hooks/queries/household/use-household';
+import { BottomTabInset, type AppTheme } from '@/constants/theme';
 import { usePetDetail } from '@/hooks/queries/pet/use-pet-detail';
-import { useRemovePet } from '@/hooks/queries/pet/use-pet-mutations';
 import { useStyles } from '@/hooks/use-styles';
-import { useTheme } from '@/hooks/use-theme';
-import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
-import { ActivityIndicator, Alert, StyleSheet } from 'react-native';
+import { useLocalSearchParams } from 'expo-router';
+import { ActivityIndicator, StyleSheet } from 'react-native';
 
 const PetDetail = () => {
   const { petId } = useLocalSearchParams<{ petId: string }>();
   const styles = useStyles(makeStyles);
-  const router = useRouter();
-  const { colors } = useTheme();
 
   const { data: pet, isLoading, isError, refetch } = usePetDetail(petId);
-  const { data: household } = useHousehold();
-  const { mutate: removePet, isPending: isRemoving } = useRemovePet();
 
-  const confirmRemove = () => {
-    if (!pet) return;
-
-    Alert.alert(
-      `Remove ${pet.name}?`,
-      `This deletes every feed logged for ${pet.name}, their Care Card, their photos and their feeding schedule. It cannot be undone.`,
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Remove',
-          style: 'destructive',
-          onPress: () => removePet(pet.id, { onSuccess: () => router.replace('/home') })
-        }
-      ]
-    );
-  };
-
-  const body = () => {
-    if (!petId || isError) {
-      return (
+  if (!petId || isError) {
+    return (
+      <ScreenView edges={[]}>
         <ErrorState
           onRetry={() => {
             void refetch();
           }}
         />
-      );
-    }
+      </ScreenView>
+    );
+  }
 
-    if (isLoading || !pet) return <ActivityIndicator />;
-
+  if (isLoading || !pet) {
     return (
+      <ScreenView edges={[]}>
+        <ActivityIndicator />
+      </ScreenView>
+    );
+  }
+
+  return (
+    <ScreenView edges={[]}>
       <ScreenScrollView
         contentContainerStyle={styles.content}
         contentInsetAdjustmentBehavior="automatic">
@@ -79,27 +63,6 @@ const PetDetail = () => {
           <PetBio petId={pet.id} name={pet.name} bio={pet.bio} />
         </SectionCard>
       </ScreenScrollView>
-    );
-  };
-
-  // The header sits outside every early return. Behind one, the bar has no
-  // title and falls back to the route name -- `[petId]/index` flashes before
-  // the pet loads.
-  return (
-    <ScreenView edges={[]}>
-      {body()}
-
-      <Stack.Title style={HeaderTitleStyle}>{pet?.name ?? ''}</Stack.Title>
-      <Stack.Toolbar placement="right">
-        <Stack.Toolbar.Button
-          icon="trash"
-          accessibilityLabel={pet ? `Remove ${pet.name}` : 'Remove this pet'}
-          tintColor={colors.error}
-          hidden={!pet || !household?.isOwner}
-          disabled={isRemoving}
-          onPress={confirmRemove}
-        />
-      </Stack.Toolbar>
     </ScreenView>
   );
 };

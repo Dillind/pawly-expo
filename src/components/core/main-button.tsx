@@ -30,7 +30,7 @@ type MainButtonProps = {
   onPress?: () => void;
   href?: Href;
   isDisabled?: boolean;
-  variant?: 'primary' | 'secondary' | 'destructive' | 'text' | 'glass';
+  variant?: 'primary' | 'secondary' | 'destructive' | 'destructiveText' | 'text' | 'glass';
   size?: 'sm' | 'md' | 'lg' | 'xs';
   // ReactElement, not ReactNode: ReactNode admits a bare string, so passing an
   // IconName here type-checked and then crashed at render with "Text strings
@@ -177,6 +177,9 @@ const makeStyles = ({ colors }: AppTheme) =>
     text: {
       backgroundColor: 'transparent'
     },
+    destructiveText: {
+      backgroundColor: 'transparent'
+    },
     glassSurface: {
       alignSelf: 'stretch',
       overflow: 'hidden',
@@ -206,6 +209,9 @@ const makeStyles = ({ colors }: AppTheme) =>
     },
     textLabel: {
       color: colors.primary
+    },
+    destructiveTextLabel: {
+      color: colors.error
     }
   });
 
