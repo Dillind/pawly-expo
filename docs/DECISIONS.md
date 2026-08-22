@@ -17,6 +17,15 @@ Newest first. Append, don't rewrite.
 
 ---
 
+## 2026-08-22
+
+**A gallery photo cannot be promoted to the profile photo.** The profile photo is set only by
+uploading a new one through the header's camera button. Tapping a gallery photo opens it full
+screen, which is what tapping a photo means, and there is nowhere left for "Set as cover photo" that
+does not put an edit action behind a gesture people use to look at things.
+
+---
+
 ## 2026-08-21
 
 **Every stack header is declarative, not `options`.** SDK 57 gives `Stack.Title`, `Stack.Header`,
