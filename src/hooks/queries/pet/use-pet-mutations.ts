@@ -21,10 +21,10 @@ export function useAddPet() {
   return useMutation<Pet, Error, AddPetInput>({
     mutationFn: (input) => PetService.add(input, householdId, timezone),
     onSettled: () => {
-      void queryClient.invalidateQueries({ queryKey: householdsKey(userId) });
       // `all`, not the default `active`: the screen that adds a pet is not the
       // one that lists them, so the list's observer is often unmounted here.
-      void queryClient.invalidateQueries({ queryKey: ['pets'], refetchType: 'all' });
+      // The pet lists read from this query too, so it is the only key to bust.
+      void queryClient.invalidateQueries({ queryKey: householdsKey(userId), refetchType: 'all' });
       void queryClient.invalidateQueries({ queryKey: ['occurrences'], refetchType: 'all' });
     },
     onSuccess: () => showSuccessToast(SuccessMessage.PetAdded),
@@ -41,8 +41,8 @@ export function useRemovePet() {
   return useMutation<void, Error, string>({
     mutationFn: (petId) => PetService.remove(petId),
     onSettled: () => {
-      void queryClient.invalidateQueries({ queryKey: ['pets'], refetchType: 'all' });
       // Home and Activity both keep rendering a removed pet otherwise.
+      void queryClient.invalidateQueries({ queryKey: ['households'], refetchType: 'all' });
       void queryClient.invalidateQueries({ queryKey: ['occurrences'], refetchType: 'all' });
       void queryClient.invalidateQueries({ queryKey: ['feed-logs'], refetchType: 'all' });
     },

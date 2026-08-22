@@ -11,7 +11,7 @@ export type ChangePetPhotoInput = { localUri: string; previousUrl: string | null
 const invalidateCover = (queryClient: ReturnType<typeof useQueryClient>, petId: string) => {
   void queryClient.invalidateQueries({ queryKey: ['pet-detail', petId] });
   void queryClient.invalidateQueries({ queryKey: ['pet'] });
-  void queryClient.invalidateQueries({ queryKey: ['pets'] });
+  void queryClient.invalidateQueries({ queryKey: ['households'] });
 };
 
 /** Sequential: `add_pet_photo` derives `sort_order` from existing rows, so concurrent calls race. */

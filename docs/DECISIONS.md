@@ -194,3 +194,24 @@ glass circle behind a `Stack.Toolbar.Button` itself, exactly as it does for a ba
 that stays. `PostPhotoCarousel` takes `onPressPhoto` alongside `onPress`, and only Post Detail
 passes it — a tab row is a summary, so tapping into it should reach the Post, not skip past it to
 one photo.
+
+**The pet lists are derived from the households query, not fetched.** `HouseholdService.listForUser`
+already selects `id, name, photo_url` for every household's pets, and `PetService.listForHousehold`
+asked for exactly those three columns again — one more serial round trip before Home could render a
+row. `usePets` now reads `household.pets`, and `PetService.listForHousehold` is gone. The cost is
+that anything touching a pet's name, photo, or existence has to invalidate `households`; the `pets`
+query key no longer exists.
+
+**The query cache has defaults and is persisted to AsyncStorage.** `new QueryClient()` takes
+`staleTime: 0`, so every query was stale the moment it landed and a tab switch back to Home re-ran
+one occurrence RPC per pet. The default is now 30s, five minutes on `households` and
+`household-members` (both only change through mutations that invalidate them), and 15s on
+occurrences, which age on their own and are already polled every 60s while Home is open.
+`PersistQueryClientProvider` writes the cache to AsyncStorage so a warm start paints the last known
+shape instead of an empty screen. The cache is per-account and AsyncStorage is not, so ending a
+signed-in session clears both copies — `useCacheReset` watches the auth status rather than living in
+`useLogout`, because a revoked token never goes through the logout button.
+
+**Home's loading state is two skeleton pet cards, not a spinner.** They are built from the same
+measurements as a collapsed `PetSection`, and the "Today" heading renders during the wait too, so
+nothing below moves when the pets arrive.

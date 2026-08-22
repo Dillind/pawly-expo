@@ -4,6 +4,11 @@ import { useCallback } from 'react';
 
 const LIVE_REFETCH_MS = 60_000;
 
+// Short, because `state` is computed server-side and ages on its own. Long
+// enough that a tab switch straight back to Home does not re-run one RPC per
+// pet for an answer it was just given.
+const OCCURRENCES_STALE_MS = 15_000;
+
 /**
  * `date` is an ISO YYYY-MM-DD string in the household's timezone — never a
  * Date, which re-serialises every render and thrashes the cache key.
@@ -21,7 +26,8 @@ export function useOccurrences(
     queryKey: ['occurrences', petId, date],
     queryFn: () => FeedTimeService.getOccurrences(petId as string, date as string),
     enabled: Boolean(petId) && Boolean(date),
-    refetchInterval: options?.live ? LIVE_REFETCH_MS : false
+    refetchInterval: options?.live ? LIVE_REFETCH_MS : false,
+    staleTime: OCCURRENCES_STALE_MS
   });
 }
 

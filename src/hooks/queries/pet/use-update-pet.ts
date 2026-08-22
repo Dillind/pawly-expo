@@ -13,6 +13,8 @@ export function useUpdatePet(petId: string, messages: Messages) {
     onSettled: () => {
       void queryClient.invalidateQueries({ queryKey: ['pet-detail', petId] });
       void queryClient.invalidateQueries({ queryKey: ['pet'] });
+      // The pet lists render the name from the households query.
+      void queryClient.invalidateQueries({ queryKey: ['households'] });
     },
     onSuccess: () => showSuccessToast(messages.success),
     onError: (error) => {
