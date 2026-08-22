@@ -1,14 +1,16 @@
 import IconButton from '@/components/core/icon-button';
 import BaseModal from '@/components/modals/base-modal';
-import { Radius, Spacing, type AppTheme } from '@/constants/theme';
+import { Spacing, type AppTheme } from '@/constants/theme';
 import { useStyles } from '@/hooks/use-styles';
 import { Image } from 'expo-image';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import { StyleSheet, View } from 'react-native';
+import { useEffect } from 'react';
 import Animated, {
   interpolate,
   runOnJS,
   useAnimatedStyle,
+  useReducedMotion,
   useSharedValue,
   withTiming
 } from 'react-native-reanimated';
@@ -22,12 +24,22 @@ type Props = {
 };
 
 const DISMISS_DISTANCE = 120;
+const ENTER_MS = 280;
+const ENTER_SCALE = 0.94;
 
 const PhotoViewer = ({ photo, onClose }: Props) => {
   const styles = useStyles(makeStyles);
   const insets = useSafeAreaInsets();
 
+  const isReducedMotion = useReducedMotion();
   const offsetY = useSharedValue(0);
+  const scale = useSharedValue(isReducedMotion ? 1 : ENTER_SCALE);
+
+  // The modal cross-dissolves; the photo grows into place behind it, which is
+  // what reads as the photo expanding rather than a page arriving.
+  useEffect(() => {
+    scale.value = withTiming(1, { duration: isReducedMotion ? 0 : ENTER_MS });
+  }, [isReducedMotion, scale]);
 
   const dismiss = Gesture.Pan()
     .activeOffsetY(12)
@@ -48,11 +60,17 @@ const PhotoViewer = ({ photo, onClose }: Props) => {
   }));
 
   const photoStyle = useAnimatedStyle(() => ({
-    transform: [{ translateY: offsetY.value }]
+    transform: [{ translateY: offsetY.value }, { scale: scale.value }]
   }));
 
   return (
-    <BaseModal isVisible variant="bare" isBackdropDismissible={false} onClose={onClose}>
+    <BaseModal
+      isVisible
+      variant="bare"
+      animation="fade"
+      hasBackdrop={false}
+      isBackdropDismissible={false}
+      onClose={onClose}>
       <GestureDetector gesture={dismiss}>
         <Animated.View style={[styles.stage, stageStyle]}>
           <Animated.View style={[styles.frame, photoStyle]}>
@@ -70,9 +88,9 @@ const PhotoViewer = ({ photo, onClose }: Props) => {
             <IconButton
               name="close"
               accessibilityLabel="Close photo"
-              variant="ghost"
+              variant="glass"
+              color="text"
               size={20}
-              containerStyle={styles.close}
               onPress={onClose}
             />
           </View>
@@ -98,10 +116,6 @@ const makeStyles = ({ colors, spacing }: AppTheme) =>
       position: 'absolute',
       right: spacing.three,
       alignSelf: 'flex-end'
-    },
-    close: {
-      backgroundColor: colors.backgroundElement,
-      borderRadius: Radius.full
     }
   });
 
