@@ -7,10 +7,15 @@ import { Pressable, ScrollView, StyleSheet, View, type NativeScrollEvent } from 
 
 const DOT_SIZE = 6;
 
-type Props = { photos: PostPhoto[]; onPress?: () => void };
+type Props = {
+  photos: PostPhoto[];
+  onPress?: () => void;
+  /** Post Detail only: opens that one photo instead of the Post. */
+  onPressPhoto?: (photoId: string) => void;
+};
 
 /** One fixed square frame for every photo -- a frame that changed per page would lurch. */
-const PostPhotoCarousel = ({ photos, onPress }: Props) => {
+const PostPhotoCarousel = ({ photos, onPress, onPressPhoto }: Props) => {
   const styles = useStyles(makeStyles);
   const [width, setWidth] = useState(0);
   const [index, setIndex] = useState(0);
@@ -37,9 +42,9 @@ const PostPhotoCarousel = ({ photos, onPress }: Props) => {
             // flash on the first frame of every swipe before the pan wins.
             <Pressable
               key={photo.id}
-              disabled={!onPress}
-              onPress={onPress}
-              accessibilityRole={onPress ? 'button' : 'image'}
+              disabled={!onPress && !onPressPhoto}
+              onPress={onPressPhoto ? () => onPressPhoto(photo.id) : onPress}
+              accessibilityRole={onPress || onPressPhoto ? 'button' : 'image'}
               style={{ width, height: '100%' }}
               accessibilityLabel={
                 photos.length > 1 ? `Photo ${at + 1} of ${photos.length}` : undefined

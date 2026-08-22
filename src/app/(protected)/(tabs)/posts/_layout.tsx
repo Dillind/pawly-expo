@@ -28,6 +28,27 @@ export default function PostsLayout() {
           <Stack.Header transparent />
           <Stack.Screen.BackButton displayMode="minimal" />
         </Stack.Screen>
+        {/* A native screen, not a modal: iOS draws the glass circle behind a
+            bar button item, and the push is a render-server transition. */}
+        <Stack.Screen
+          name="[postId]/photo/[photoId]/index"
+          options={{
+            headerShown: true,
+            presentation: 'fullScreenModal',
+            animation: 'fade',
+            title: ''
+          }}>
+          <Stack.Header transparent />
+          <Stack.Screen.BackButton hidden />
+          <Stack.Toolbar placement="right">
+            <Stack.Toolbar.Button
+              icon="xmark"
+              accessibilityLabel="Close photo"
+              onPress={() => router.back()}
+            />
+          </Stack.Toolbar>
+        </Stack.Screen>
+
         <Stack.Screen
           name="new-post"
           options={{ presentation: 'fullScreenModal', animation: 'slide_from_bottom' }}

@@ -96,7 +96,12 @@ export default function HomeLayout() {
             `react-native-modal` fade is orchestrated in JS and never matches. */}
         <Stack.Screen
           name="[petId]/photo/[photoId]/index"
-          options={{ headerShown: true, animation: 'fade' }}>
+          options={{
+            headerShown: true,
+            presentation: 'fullScreenModal',
+            animation: 'fade',
+            title: ''
+          }}>
           <Stack.Header transparent />
           <Stack.Screen.BackButton hidden />
           <Stack.Toolbar placement="right">

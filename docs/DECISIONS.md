@@ -181,3 +181,16 @@ flight beside it — writing it back emptied a heart that had already succeeded.
 
 **Arriving at the tab marks every Household seen.** Marking only the Active one left a dot on a
 Household whose Posts were already on the screen.
+
+**A photo opened full screen is a route, not a modal.** The pet gallery and Post Detail both push
+`.../photo/[photoId]`, presented as a `fullScreenModal` with `animation: 'fade'`. The first build
+used `BaseModal`, and it was wrong twice over: `react-native-modal` orchestrates its animation in
+JS, so a full-screen surface arrives with a visible slide that a native push does not have; and the
+close button has to be a `GlassView`, which renders almost nothing over a flat page because glass is
+a material with nothing behind it to refract. A native screen fixes both at once — iOS draws the
+glass circle behind a `Stack.Toolbar.Button` itself, exactly as it does for a back button.
+
+**A Post's photos open only from Post Detail.** On the Posts tab a photo tap opens the Post, and
+that stays. `PostPhotoCarousel` takes `onPressPhoto` alongside `onPress`, and only Post Detail
+passes it — a tab row is a summary, so tapping into it should reach the Post, not skip past it to
+one photo.

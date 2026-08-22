@@ -145,3 +145,14 @@ way one reaches a commit.
 
 **Files sometimes change under you** — a deleted file reappearing, a comment silently removed.
 Stage your own paths explicitly rather than `git add -A`, and ask rather than restoring.
+
+**A lone `GlassView` over a flat background renders no circle at all.** Glass refracts what is
+behind it, so over a page painted one colour there is nothing to work with — on black the close
+button was a bare teal glyph, and on the light page a bare dark one. Both times it looked like the
+material had failed. It had not; there was nothing to sample. Where the design wants the iOS glass
+circle, put a `Stack.Toolbar.Button` in a native header and let the bar draw it. Reach for
+`variant="glass"` only over content.
+
+**A full-screen `BaseModal` never feels native.** `react-native-modal` runs its animation through
+Animatable in JS. Side by side with a native push at the same duration the difference is obvious,
+and no tuning of `animationIn` closes it. A surface that fills the screen belongs on the stack.
