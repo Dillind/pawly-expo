@@ -16,6 +16,7 @@ function useInvalidateFeedData(petId: string | undefined) {
   return useCallback(() => {
     void queryClient.invalidateQueries({ queryKey: ['occurrences', petId] });
     void queryClient.invalidateQueries({ queryKey: ['feed-logs', petId] });
+    void queryClient.invalidateQueries({ queryKey: ['user-stats'] });
   }, [queryClient, petId]);
 }
 
@@ -49,6 +50,7 @@ export function useLogFeed() {
     onSettled: (_data, _error, variables) => {
       void queryClient.invalidateQueries({ queryKey: ['occurrences', variables.petId] });
       void queryClient.invalidateQueries({ queryKey: ['feed-logs', variables.petId] });
+      void queryClient.invalidateQueries({ queryKey: ['user-stats'] });
     }
   });
 }

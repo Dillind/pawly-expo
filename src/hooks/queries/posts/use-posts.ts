@@ -56,7 +56,10 @@ export function useCreatePost(householdId: string | undefined) {
       caption?: string | null;
       petIds?: string[];
     }) => PostService.create({ householdId: householdId!, ...input }),
-    onSettled: () => queryClient.invalidateQueries({ queryKey: ALL_POSTS }),
+    onSettled: () => {
+      void queryClient.invalidateQueries({ queryKey: ALL_POSTS });
+      void queryClient.invalidateQueries({ queryKey: ['user-stats'] });
+    },
     onSuccess: () => showSuccessToast(SuccessMessage.PostShared),
     onError: (error) => {
       console.error(error);
@@ -94,7 +97,10 @@ export function useDeletePost() {
 
   return useMutation({
     mutationFn: (postId: string) => PostService.remove(postId),
-    onSettled: () => queryClient.invalidateQueries({ queryKey: ALL_POSTS }),
+    onSettled: () => {
+      void queryClient.invalidateQueries({ queryKey: ALL_POSTS });
+      void queryClient.invalidateQueries({ queryKey: ['user-stats'] });
+    },
     onSuccess: () => showSuccessToast(SuccessMessage.PostDeleted),
     onError: (error) => {
       console.error(error);

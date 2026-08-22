@@ -37,6 +37,11 @@ export type UserProfile = {
   avatarUrl: string | null;
 };
 
+export type UserStats = {
+  feedsLogged: number;
+  postsCreated: number;
+};
+
 export type HouseholdRole = 'owner' | 'contributor';
 
 export type Household = {

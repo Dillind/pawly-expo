@@ -4,6 +4,7 @@ import Icon from '@/components/core/icon';
 import IconButton from '@/components/core/icon-button';
 import UserAvatar from '@/components/core/user-avatar';
 import ScreenScrollView from '@/components/layout/screen-scroll-view';
+import ProfileStats from '@/components/screens/profile/profile-stats';
 import ScreenView from '@/components/layout/screen-view';
 import { ROLE_OPTIONS } from '@/constants/options';
 import { BottomTabInset, Radius, type AppTheme } from '@/constants/theme';
@@ -81,6 +82,8 @@ const ProfileOverview = () => {
             </View>
           )}
         </View>
+
+        <ProfileStats />
 
         {household && (
           <View style={styles.householdCard}>
