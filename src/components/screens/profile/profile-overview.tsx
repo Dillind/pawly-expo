@@ -48,18 +48,21 @@ const ProfileOverview = () => {
               size={AVATAR}
             />
 
+            {isChangingPhoto && (
+              <View style={styles.uploading}>
+                <ActivityIndicator color="#ffffff" />
+              </View>
+            )}
+
             <View style={styles.editWell}>
-              {isChangingPhoto ? (
-                <ActivityIndicator />
-              ) : (
-                <IconButton
-                  name="camera"
-                  accessibilityLabel="Change your profile photo"
-                  variant="primary"
-                  size={18}
-                  onPress={() => void photoSheetRef.current?.present()}
-                />
-              )}
+              <IconButton
+                name="camera"
+                accessibilityLabel="Change your profile photo"
+                variant="primary"
+                size={18}
+                isDisabled={isChangingPhoto}
+                onPress={() => void photoSheetRef.current?.present()}
+              />
             </View>
           </View>
           <AppText variant="header" size={22}>
@@ -110,6 +113,18 @@ const makeStyles = ({ colors, spacing }: AppTheme) =>
     identity: {
       alignItems: 'center',
       gap: spacing.two
+    },
+    // Over the avatar rather than in the badge's place: the new photo is what
+    // is loading, and a badge that vanishes reads as a button that broke.
+    uploading: {
+      position: 'absolute',
+      width: AVATAR,
+      height: AVATAR,
+      alignItems: 'center',
+      justifyContent: 'center',
+      borderRadius: Radius.full,
+      // A scrim over an image, not a themed surface -- same as the carousel's.
+      backgroundColor: 'rgba(0, 0, 0, 0.4)'
     },
     // The avatar circle is `primary` too, so the button needs a ring of page
     // background around it or the two greens merge into one blob.
