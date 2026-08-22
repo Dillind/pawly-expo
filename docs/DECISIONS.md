@@ -225,3 +225,11 @@ cannot express both. `UserAvatar` is the component every surface now draws, fall
 post author, a post's likers, and the household member list — was the whole of the display work.
 `alert-row` is deliberately not among them: its names come out of the `list_alerts` SQL function,
 which would need a migration to carry an avatar, and it has never drawn one.
+
+**The profile stats are two head-count queries, not a view.** `getStats` counts `feed_logs` by
+`logged_by` and `posts` by `author_id` with `{ count: 'exact', head: true }`, so neither request
+carries a row back. A view or an RPC would be one round trip instead of two, and would need a
+migration to say what RLS already says: both select policies are household-membership based, so a
+Household the Member has left is excluded without a filter naming it. The counts are of surviving
+rows — `feed_logs.logged_by` is `on delete set null` — so they are not a lifetime tally, and the
+labels do not claim to be one. Feed and post mutations invalidate `user-stats`.

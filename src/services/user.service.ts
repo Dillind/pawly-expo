@@ -1,7 +1,7 @@
 import { UserFacingError } from '@/lib/errors';
 import { assertWrote } from '@/lib/supabase/assert-wrote';
 import { supabase } from '@/lib/supabase/client';
-import type { UserProfile } from '@/types/core';
+import type { UserProfile, UserStats } from '@/types/core';
 import * as Crypto from 'expo-crypto';
 
 const BUCKET = 'user-avatars';
@@ -50,6 +50,29 @@ namespace UserService {
     if (error) throw error;
 
     assertWrote(data, 'Your name could not be updated');
+  }
+
+  /**
+   * All-time, across every household the Member is in. RLS is what scopes it:
+   * both select policies are household-membership based, so a household they
+   * have left is already excluded and no filter here has to say so.
+   *
+   * Counts surviving rows. `feed_logs.logged_by` is `on delete set null`, so
+   * this is not a lifetime tally -- it is what is still there.
+   */
+  export async function getStats(userId: string): Promise<UserStats> {
+    const [feeds, posts] = await Promise.all([
+      supabase
+        .from('feed_logs')
+        .select('id', { count: 'exact', head: true })
+        .eq('logged_by', userId),
+      supabase.from('posts').select('id', { count: 'exact', head: true }).eq('author_id', userId)
+    ]);
+
+    if (feeds.error) throw feeds.error;
+    if (posts.error) throw posts.error;
+
+    return { feedsLogged: feeds.count ?? 0, postsCreated: posts.count ?? 0 };
   }
 
   export async function uploadAvatar(params: {
