@@ -21,10 +21,6 @@ type Props = {
   /** Leave off when the content scrolls -- the gestures fight. */
   isSwipeDismissible?: boolean;
   hasAnimation?: boolean;
-  /** `fade` is a plain cross-dissolve, for a surface that fills the screen. */
-  animation?: 'lift' | 'fade';
-  /** Off for a surface that covers the screen -- there is nothing to dim. */
-  hasBackdrop?: boolean;
   onDismissed?: () => void;
 };
 
@@ -42,8 +38,6 @@ const BaseModal = ({
   isBackdropDismissible = true,
   isSwipeDismissible = false,
   hasAnimation = true,
-  animation = 'lift',
-  hasBackdrop = true,
   onDismissed
 }: Props) => {
   const styles = useStyles(makeStyles);
@@ -57,9 +51,9 @@ const BaseModal = ({
       isVisible={isVisible}
       style={[styles.modal, variant === 'card' && styles.centred]}
       backdropColor="#000000"
-      backdropOpacity={hasBackdrop ? BACKDROP_OPACITY : 0}
-      animationIn={hasAnimation && animation === 'lift' ? 'fadeInUp' : 'fadeIn'}
-      animationOut={hasAnimation && animation === 'lift' ? 'fadeOutDown' : 'fadeOut'}
+      backdropOpacity={BACKDROP_OPACITY}
+      animationIn={hasAnimation ? 'fadeInUp' : 'fadeIn'}
+      animationOut={hasAnimation ? 'fadeOutDown' : 'fadeOut'}
       animationInTiming={timing}
       animationOutTiming={timing}
       // Fades even when the content does not, so it never snaps in behind a

@@ -4,11 +4,11 @@ import ErrorState from '@/components/core/error-state';
 import PressableOpacity from '@/components/core/pressable-opacity';
 import AddPhotoTile from '@/components/ui/add-photo-tile';
 import PhotoTile from '@/components/ui/photo-tile';
-import PhotoViewer from '@/components/ui/photo-viewer';
 import type { AppTheme } from '@/constants/theme';
 import { Spacing } from '@/constants/theme';
 import { useAddPetPhotos, useDeletePetPhoto } from '@/hooks/queries/pet/use-pet-photo-mutations';
 import { useHousehold } from '@/hooks/queries/household/use-household';
+import { useRouter } from 'expo-router';
 import { usePetPhotos } from '@/hooks/queries/pet/use-pet-photos';
 import { useStyles } from '@/hooks/use-styles';
 import { hapticLight } from '@/lib/haptics';
@@ -92,15 +92,14 @@ const GalleryStrip = ({ petId }: Props) => {
   const { mutate: addPhotos, isPending: isAdding } = useAddPetPhotos(petId);
   const { mutate: deletePhoto } = useDeletePetPhoto(petId);
   const { data: household } = useHousehold();
+  const router = useRouter();
 
   const isOwner = household?.isOwner ?? false;
 
-  const [viewerIndex, setViewerIndex] = useState<number | null>(null);
   const [gridWidth, setGridWidth] = useState(0);
   const [isEditRequested, setIsEditing] = useState(false);
 
   const photoList = photos ?? [];
-  const viewerPhoto = viewerIndex === null ? undefined : photoList[viewerIndex];
   const remainingSlots = PHOTO_CAP - photoList.length;
   const isAtCap = remainingSlots <= 0;
 
@@ -184,7 +183,9 @@ const GalleryStrip = ({ petId }: Props) => {
                 index={index}
                 size={tileSize}
                 isEditing={isEditing}
-                onPress={() => (isEditing ? setIsEditing(false) : setViewerIndex(index))}
+                onPress={() =>
+                  isEditing ? setIsEditing(false) : router.push(`/home/${petId}/photo/${photo.id}`)
+                }
                 onLongPress={isOwner ? startEditing : undefined}
                 onRemove={() => confirmRemove(photo)}
               />
@@ -204,8 +205,6 @@ const GalleryStrip = ({ petId }: Props) => {
         selectionLimit={remainingSlots}
         onPicked={addPhotos}
       />
-
-      {viewerPhoto && <PhotoViewer photo={viewerPhoto} onClose={() => setViewerIndex(null)} />}
     </View>
   );
 };
