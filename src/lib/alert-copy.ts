@@ -35,9 +35,8 @@ export function alertSentence(alert: InboxRow): string {
         ? `${likers} liked your post ${quoted(alert.postCaption)}`
         : `${likers} liked your photo`;
 
-    // Three sentences, not two. A recipient can be in the thread while owning
-    // neither the post nor the parent -- they commented earlier -- and telling
-    // them it happened on "your post" would simply be untrue.
+    // Three sentences, not two: a recipient can be in the thread while owning
+    // neither the post nor the parent.
     case 'post_commented': {
       const said = alert.commentBody ? ` ${quoted(alert.commentBody)}` : '';
 

@@ -64,8 +64,6 @@ describe('CommentService.list', () => {
     expect(thread[1].replies).toEqual([]);
   });
 
-  // A reply whose parent is absent must not be promoted: rendering it at the
-  // top level turns an answer into a statement addressed to nobody.
   it('drops a reply whose parent is not in the result', async () => {
     listResult = {
       data: [row({ id: 'orphan', parent_comment_id: 'missing' })],

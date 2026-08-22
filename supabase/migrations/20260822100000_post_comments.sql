@@ -1,36 +1,24 @@
--- Comments on a Post. See CRU-049 and the ADR that lands with it.
+-- Comments on a Post. See ADR 0031.
 --
--- TWO LEVELS, NOT A TREE. A comment either stands on its own or answers one
--- that does. A reply to a reply becomes another child of the same parent, and
--- reply_to_user_id records who it was aimed at so the row can render "@Sarah".
--- Unlimited nesting is a Reddit pattern that reads badly on a phone, and the
--- depth is enforced here rather than in the UI because the UI is not the only
--- thing that can insert a row.
---
--- The audience is inherited whole from the Post, which inherits it from the
--- household (20260809090000). There is no visibility column here either, for
--- exactly the same reasons.
+-- Two levels, not a tree: a comment either stands alone or answers one that
+-- does. The audience is inherited whole from the Post, so there is no
+-- visibility column here either -- 20260809090000 says why.
 
 create table public.post_comments (
   id uuid primary key default gen_random_uuid(),
   post_id uuid not null references public.posts (id) on delete cascade,
-  -- Nullable, on delete set null, mirroring posts.author_id: a member who
-  -- leaves keeps their name on what they wrote. Only a deleted account
-  -- anonymises the row.
+  -- Nullable like posts.author_id: only a deleted account anonymises the row.
   author_id uuid references public.users (id) on delete set null,
-  -- Null means top-level. Cascade rather than set null: a reply orphaned into
-  -- a top-level comment is a sentence that answers a question nobody can see.
+  -- Null means top-level. Cascade, not set null -- a reply promoted to
+  -- top-level answers a question nobody can see.
   parent_comment_id uuid references public.post_comments (id) on delete cascade,
-  -- Who the reply is aimed at, which is NOT always the parent's author -- a
-  -- reply to a sibling reply flattens under the same parent but still points at
-  -- the sibling. Null on a top-level comment, and null once that account is
-  -- deleted, in which case the "@name" prefix simply does not render.
+  -- Who the reply is aimed at, which is NOT always the parent's author: a reply
+  -- to a sibling flattens under the same parent but still points at the sibling.
   reply_to_user_id uuid references public.users (id) on delete set null,
   body text not null check (char_length(btrim(body)) between 1 and 500),
   created_at timestamptz not null default now()
 );
 
--- Oldest first at both levels, which is how the thread reads.
 create index post_comments_post_created_idx
   on public.post_comments (post_id, created_at);
 
@@ -38,12 +26,9 @@ create index post_comments_parent_idx
   on public.post_comments (parent_comment_id)
   where parent_comment_id is not null;
 
--- Both invariants need to read ANOTHER row, which a check constraint cannot do.
---
--- Neither is reachable through the app -- the composer only ever offers a
--- top-level comment's id as a parent. They are here because the table must
--- refuse the row on its own: a service-role script, a future RPC, or a
--- hand-written insert are all writers the UI does not mediate.
+-- Both invariants read another row, which a check constraint cannot do. Neither
+-- is reachable through the composer; the table has to refuse the row on its own,
+-- because a service-role script is a writer the UI does not mediate.
 create or replace function public.enforce_comment_depth()
 returns trigger
 language plpgsql
@@ -83,13 +68,11 @@ before insert on public.post_comments
 for each row
 execute function public.enforce_comment_depth();
 
--- Every SECURITY DEFINER function in `public` needs this: the schema is
--- exposed, so without it the function is callable at /rest/v1/rpc/<name>.
+-- Every SECURITY DEFINER function in `public` needs this -- see 20260809090200.
 revoke execute on function public.enforce_comment_depth() from public, anon, authenticated;
 
 -- The composite primary key is what makes "one Like per member per Comment" a
--- database guarantee rather than a UI convention -- the same trick post_likes
--- uses.
+-- database guarantee, the same trick post_likes uses.
 create table public.comment_likes (
   comment_id uuid not null references public.post_comments (id) on delete cascade,
   user_id uuid not null references public.users (id) on delete cascade,
@@ -99,9 +82,8 @@ create table public.comment_likes (
 
 create index comment_likes_comment_id_idx on public.comment_likes (comment_id);
 
--- Reads the comment's post, so it must be definer for the same reason
--- is_post_household_member is: post_comments has RLS enabled and these helpers
--- are called from its own policies.
+-- Definer for the same reason is_post_household_member is: called from the
+-- policies of a table that has RLS enabled.
 create or replace function private.is_comment_household_member(target_comment_id uuid)
 returns boolean
 language sql
@@ -132,10 +114,8 @@ with check (
   and author_id = auth.uid()
 );
 
--- The comment's own author, or anyone who could delete the post itself -- the
--- post's author and the household's Owners. Deliberately the same test
--- can_manage_post already applies to a post's photos and tags: hosting the
--- conversation carries the same authority over it.
+-- Deliberately the same test can_manage_post already applies to a post's photos
+-- and tags: hosting the conversation carries the same authority over it.
 create policy "Comment authors, post authors and owners can delete comments"
 on public.post_comments for delete
 using (
@@ -143,10 +123,7 @@ using (
   or private.can_manage_post(post_id)
 );
 
--- No update policy and no update grant, deliberately. There is no edit: a
--- comment is short enough that delete-and-retype costs nothing, and an edit
--- would need an edited_at, a marker, and a rule about what happens to the
--- replies underneath a rewritten parent.
+-- No update policy and no update grant: there is no edit.
 
 alter table public.comment_likes enable row level security;
 

@@ -133,8 +133,6 @@ describe('alertSentence for a comment', () => {
       ...overrides
     });
 
-  // The three-way split. Getting the last one wrong tells a member the comment
-  // landed on a post they did not write.
   it('names a reply to your own comment', () => {
     expect(alertSentence(commented({ commentIsReplyToMe: true }))).toBe(
       'Sarah Smith replied to your comment \u201Cwhat a face\u201D'
@@ -151,9 +149,7 @@ describe('alertSentence for a comment', () => {
     expect(alertSentence(commented())).toBe('Sarah Smith also commented \u201Cwhat a face\u201D');
   });
 
-  // The sibling case, which is what the column exists for. Carol answers Bob's
-  // reply; both flatten under Alice's top-level comment. Alice owns the parent
-  // but was not answered, so she must NOT be told her comment was replied to.
+  // The sibling case: Alice owns the parent but Bob was the one answered.
   it('does not claim a reply for the parent author when a sibling was answered', () => {
     expect(alertSentence(commented({ commentIsReplyToMe: false, commentPostIsMine: false }))).toBe(
       'Sarah Smith also commented \u201Cwhat a face\u201D'

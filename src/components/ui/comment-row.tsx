@@ -13,7 +13,6 @@ import { StyleSheet, View } from 'react-native';
 
 type Props = {
   comment: PostComment;
-  /** A reply sits inset under its parent, with a smaller avatar. */
   isReply?: boolean;
   canDelete: boolean;
   onToggleLike: () => void;
@@ -44,14 +43,10 @@ const CommentRow = ({
   return (
     <PressableOpacity
       style={styles.row}
-      // Long press rather than a ⋯ on every row: the menu holds one action for
-      // most people and none at all for the rest, and a control that is usually
-      // absent is worse than one that is never drawn.
       onLongPress={canDelete ? onLongPress : undefined}
       delayLongPress={400}
-      // Not an accessibility element itself. A label here collapses the whole
-      // row into one node and VoiceOver loses Reply and the like entirely --
-      // the long press is a shortcut, not the row's only way in.
+      // A label here would collapse the row into one node, hiding Reply and the
+      // like from VoiceOver.
       accessible={false}>
       <UserAvatar
         firstName={comment.author?.firstName}
@@ -71,9 +66,6 @@ const CommentRow = ({
         </View>
 
         <AppText size={15}>
-          {/* Rendered from reply_to_user_id, never parsed out of the body. The
-              prefix is styled but not tappable -- there is no member profile to
-              open, and a link that goes nowhere is worse than plain text. */}
           {comment.replyToName && (
             <AppText size={15} color="primary" fontWeight="bold">
               {`@${comment.replyToName} `}
@@ -93,8 +85,6 @@ const CommentRow = ({
         </PressableOpacity>
       </View>
 
-      {/* Its own column, so a long comment stays ragged-right instead of
-          wrapping around a control. */}
       <PressableOpacity
         style={styles.likeTarget}
         onPress={like}
@@ -127,8 +117,7 @@ const makeStyles = ({ spacing }: AppTheme, isReply: boolean) =>
     row: {
       flexDirection: 'row',
       gap: spacing.two,
-      // The inset is the parent's avatar plus its gap, so a reply lines up with
-      // the parent's words rather than with an arbitrary indent.
+      // Lines a reply up with the parent's words, not an arbitrary indent.
       paddingLeft: isReply ? AVATAR + spacing.two : 0
     },
     content: {
@@ -140,8 +129,6 @@ const makeStyles = ({ spacing }: AppTheme, isReply: boolean) =>
       alignItems: 'center',
       gap: spacing.two
     },
-    // Sits tight under the words: a full 44pt box here would open a gap wide
-    // enough to read as a break between comments.
     replyTarget: {
       paddingVertical: spacing.one,
       alignSelf: 'flex-start',

@@ -10,28 +10,14 @@ import { useEffect, useRef, useState } from 'react';
 import { ScrollView, StyleSheet, TextInput, View } from 'react-native';
 
 type Props = {
-  /** Set while a reply is being written. Null composes a top-level comment. */
   replyingToName: string | null;
   isSending: boolean;
-  /**
-   * Incremented by the caller once a comment has actually landed. The draft
-   * lives in here so a keystroke does not re-render the post and its carousel,
-   * which is why clearing it takes a signal rather than a controlled value.
-   */
+  /** Bumped by the caller once a comment lands; that is what clears the draft. */
   sentCount: number;
   onCancelReply: () => void;
   onSend: (body: string) => void;
 };
 
-/**
- * Pet-flavoured rather than generic. Hevy's bar is barbells and biceps because
- * that is what its members are reacting to; ours is the vocabulary of a
- * household talking about an animal.
- *
- * The bar exists for the member who reads everything and writes nothing. One
- * tap is a low enough price that they actually pay it, and a thread with two
- * emoji in it is a thread, where a thread with none is a broadcast.
- */
 const QUICK_EMOJI = ['🐶', '❤️', '🔥', '😂', '🥺', '🎉', '🦴'] as const;
 
 const SEND_ICON = 18;
@@ -58,9 +44,7 @@ const CommentComposer = ({
   const trimmed = body.trim();
   const canSend = trimmed.length > 0 && !isSending;
 
-  // Not cleared here. The caller bumps `sentCount` once the write has landed,
-  // so a dropped network keeps what the user typed instead of binning it with
-  // the toast as the only trace.
+  // Deliberately does not clear: a failed post must keep what was typed.
   const send = () => {
     if (!canSend) return;
 
@@ -75,8 +59,6 @@ const CommentComposer = ({
           <AppText size={13} color="textSecondary" numberOfLines={1} style={styles.replyLabel}>
             {`Replying to ${replyingToName}`}
           </AppText>
-          {/* The draft survives this. Changing your mind about who you are
-              answering is not changing your mind about what you were saying. */}
           <PressableOpacity
             onPress={onCancelReply}
             accessibilityRole="button"
@@ -87,8 +69,6 @@ const CommentComposer = ({
         </View>
       )}
 
-      {/* Horizontal rather than wrapped: the row must stay one line tall so the
-          input does not move as the keyboard opens. */}
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
@@ -118,9 +98,6 @@ const CommentComposer = ({
           placeholderTextColor={colors.textSecondary}
           multiline
           maxLength={COMMENT_MAX_LENGTH}
-          // The send button is the only way out. `submit` on a multiline field
-          // inserts a newline on iOS, which is what a comment of two sentences
-          // needs.
           accessibilityLabel="Write a comment"
         />
 
@@ -140,7 +117,6 @@ const CommentComposer = ({
 
 const SEND_SIZE = 36;
 const INPUT_MIN_HEIGHT = 38;
-/** Four lines before it stops growing and scrolls -- past that it eats the thread. */
 const INPUT_MAX_HEIGHT = 110;
 
 const makeStyles = ({ colors, spacing }: AppTheme) =>
@@ -148,9 +124,8 @@ const makeStyles = ({ colors, spacing }: AppTheme) =>
     composer: {
       paddingHorizontal: spacing.three,
       paddingTop: spacing.two,
-      // Clears the native tab bar, which floats over content. Its host cancels
-      // this out with a matching negative keyboardVerticalOffset, so with the
-      // keyboard up the composer sits directly on it.
+      // Clears the floating tab bar. The host cancels it with a matching
+      // negative keyboardVerticalOffset once the keyboard is up.
       paddingBottom: BottomTabInset,
       gap: spacing.two,
       backgroundColor: colors.postSurface,

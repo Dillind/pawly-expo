@@ -271,8 +271,6 @@ describe('PostService.get', () => {
     });
   });
 
-  // PostgREST omits the aggregate row entirely rather than returning zero, so
-  // an uncommented Post arrives with an empty array and must read as 0.
   it('reads a missing comment aggregate as no comments', async () => {
     mockSingle.mockResolvedValue({ data: row({ post_comments: [] }), error: null });
 

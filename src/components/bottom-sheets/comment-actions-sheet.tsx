@@ -11,16 +11,10 @@ type Props = {
   onDelete: () => void;
 };
 
-/**
- * One row today. It is a sheet rather than a bare alert because the long press
- * that raises it is imprecise -- the sheet names which action is on offer
- * before anything destructive is confirmed.
- */
 const CommentActionsSheet = ({ sheetRef, onDelete }: Props) => {
   const styles = useStyles(makeStyles);
 
-  // Dismiss first, then confirm. A native alert raised while the sheet is still
-  // up gets swallowed by iOS.
+  // iOS swallows an alert raised while the sheet is still up.
   const confirmDelete = () => {
     void sheetRef.current?.dismiss().then(onDelete);
   };

@@ -155,14 +155,8 @@ export type PostCommentedInput = {
 };
 
 /**
- * The comment itself is the body, for the same reason the caption is on a Post
- * Alert: "Sarah commented on your post" makes you open the app to find out what
- * she said, and seeing the words on the lock screen is the whole value.
- *
- * The title carries the relationship instead, because that is what the reader
- * cannot infer from the words. Three cases, not two: the third is the member
- * who is in the thread but owns neither the post nor the parent, and telling
- * them it happened on "your post" would be a plain lie.
+ * Three cases, not two: the third is the member who is in the thread but owns
+ * neither the post nor the parent, and "your post" would be a lie to them.
  */
 export const buildPostCommentedMessage = (
   input: PostCommentedInput

@@ -34,8 +34,7 @@ const PostDetail = () => {
   const scrollRef = useRef<ScrollView | null>(null);
 
   const [replyTarget, setReplyTarget] = useState<ReplyTarget | null>(null);
-  // Bumped only once a comment has actually landed, which is what clears the
-  // composer. A failed send leaves the draft where the user can retry it.
+  // Bumped only once a comment lands, so a failed send keeps the draft.
   const [sentCount, setSentCount] = useState(0);
   const [managedComment, setManagedComment] = useState<PostComment | null>(null);
 
@@ -57,8 +56,7 @@ const PostDetail = () => {
   const canEdit = post !== undefined && post.authorId === userId;
   const canDelete = canEdit || (post !== undefined && (household?.isOwner ?? false));
 
-  // The same test as private.can_manage_post: the post's author, or an Owner of
-  // its household. It decides which comments offer a delete.
+  // The same test as private.can_manage_post.
   const canManagePost = canDelete;
 
   const leave = () => {
@@ -67,9 +65,9 @@ const PostDetail = () => {
     router.replace('/posts');
   };
 
+  // A reply to a reply flattens under the same parent, still pointing at the
+  // sibling it answers.
   const startReply = (comment: PostComment) => {
-    // A reply to a reply flattens under the same parent -- the thread is two
-    // levels deep -- but still points at the sibling it answers.
     setReplyTarget({
       parentCommentId: comment.parentCommentId ?? comment.id,
       replyToUserId: comment.authorId,
@@ -91,8 +89,6 @@ const PostDetail = () => {
         onSuccess: () => {
           setSentCount((count) => count + 1);
           setReplyTarget(null);
-          // The new comment lands at the bottom of its group, which is usually
-          // off screen on a post with photos.
           scrollRef.current?.scrollToEnd({ animated: true });
         }
       }
@@ -146,17 +142,10 @@ const PostDetail = () => {
         />
       )}
 
-      {/* `padding` rather than a sticky composer: KeyboardStickyView translates
-          the composer up over the thread without shrinking it, so the comment
-          just written ends up behind the keyboard and cannot be scrolled to.
-          Padding the container moves the scroller's own bottom.
-
-          The negative offset is the native tab bar, which floats over content
-          and would otherwise cover the input. The composer carries a matching
-          paddingBottom, so the two cancel once the keyboard is up and it sits
-          directly on it. Same fixed inset the popover uses, and for the same
-          reason: expo-router's native tabs expose no way to read the bar's
-          height. */}
+      {/* `padding`, not KeyboardStickyView: that translates the composer over
+          the thread without shrinking it, trapping the newest comment behind
+          the keyboard. The negative offset clears the floating tab bar, and the
+          composer's own paddingBottom cancels it once the keyboard is up. */}
       {post && (
         <KeyboardAvoidingView
           behavior="padding"

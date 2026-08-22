@@ -40,7 +40,7 @@ export type Post = {
   pets: PostPetTag[];
   likeCount: number;
   likedByMe: boolean;
-  /** The whole thread, replies included -- what the card's comment icon shows. */
+  /** The whole thread, replies included. */
   commentCount: number;
   /** Ordered oldest like first, so the row's lead name is stable between renders. */
   likers: PostLiker[];
@@ -81,8 +81,7 @@ type PostRow = {
       avatar_url: string | null;
     } | null;
   }[];
-  // PostgREST returns an aggregate embed as a one-row array, and omits the row
-  // entirely when the count is zero.
+  // An aggregate embed arrives as a one-row array, and is absent when zero.
   post_comments: { count: number }[];
 };
 

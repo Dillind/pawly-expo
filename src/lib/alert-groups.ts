@@ -21,10 +21,9 @@ export function collapseLikes(alerts: Alert[]): InboxRow[] {
   const rowByGroup = new Map<string, InboxRow>();
 
   for (const alert of alerts) {
-    // Comment likes collapse per COMMENT, not per post. Keying them by post
-    // would fold likes on two different comments into one row that then quotes
-    // only one of them -- and comments are deliberately not grouped at all,
-    // because each one says something different and a count would hide it.
+    // Per COMMENT, not per post: keying by post would fold likes on two
+    // different comments into one row quoting only one. Comments themselves are
+    // never grouped -- a count would hide what each one says.
     const groupKey =
       alert.kind === 'post_liked'
         ? alert.postId

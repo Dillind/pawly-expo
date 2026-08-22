@@ -53,8 +53,6 @@ const PostActionRow = ({
         )}
       </PressableOpacity>
 
-      {/* The same icon-plus-count treatment as the like, so the two read as one
-          row of the same kind of thing rather than a control beside a label. */}
       <PressableOpacity
         style={styles.likeTarget}
         onPress={onOpenComments}

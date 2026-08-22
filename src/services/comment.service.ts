@@ -15,18 +15,14 @@ export type PostComment = {
   authorId: string | null;
   author: CommentAuthor | null;
   parentCommentId: string | null;
-  /**
-   * Who the reply answers, which is not always the parent's author -- a reply
-   * to a sibling flattens under the same parent but still points at the
-   * sibling. Null on a top-level comment, and null once that account is gone.
-   */
+  /** Who the reply answers -- NOT always the parent's author. */
   replyToUserId: string | null;
   replyToName: string | null;
   body: string;
   createdAt: string;
   likeCount: number;
   likedByMe: boolean;
-  /** Empty on a reply -- the thread is two levels deep and no further. */
+  /** Always empty on a reply: the thread is two levels deep. */
   replies: PostComment[];
 };
 
@@ -80,13 +76,8 @@ function mapCommentRow(row: CommentRow, viewerId: string | null): PostComment {
 }
 
 /**
- * Flat rows in, two levels out. The database already guarantees the depth, so
- * this never has to recurse -- a row is a parent or it is a child of one.
- *
- * A reply whose parent is missing is dropped rather than promoted. The cascade
- * means that cannot happen through a delete, so a reply with no parent in the
- * result is a page boundary or a bug, and silently rendering it as a top-level
- * comment would turn either into a sentence answering nothing.
+ * Flat rows in, two levels out. A reply whose parent is absent is dropped, not
+ * promoted -- rendering it top-level turns an answer into a statement to nobody.
  */
 function buildThread(rows: PostComment[]): PostComment[] {
   const topLevel = rows.filter((row) => row.parentCommentId === null);
@@ -102,14 +93,7 @@ function buildThread(rows: PostComment[]): PostComment[] {
 }
 
 namespace CommentService {
-  /**
-   * The whole thread in one request, oldest first at both levels.
-   *
-   * Unpaginated on purpose. A household is three or four people, and a thread
-   * that outgrows one request is a problem worth having before it is worth
-   * solving. The ordering is what makes the flat-to-nested pass below stable:
-   * replies arrive in the order they were written, so no sort is needed after.
-   */
+  /** The whole thread in one request, oldest first. Unpaginated on purpose. */
   export async function list(params: {
     postId: string;
     viewerId: string | null;
@@ -122,8 +106,8 @@ namespace CommentService {
 
     if (error) throw error;
 
-    // The client has no generated Database types, so PostgREST's select parser
-    // infers the to-one embeds as arrays. They arrive as objects.
+    // No generated Database types, so PostgREST infers the to-one embeds as
+    // arrays. They arrive as objects.
     const comments = (data as unknown as CommentRow[]).map((row) =>
       mapCommentRow(row, params.viewerId)
     );
@@ -160,8 +144,7 @@ namespace CommentService {
       .from('comment_likes')
       .insert({ comment_id: params.commentId, user_id: params.userId });
 
-    // 23505 is the composite primary key doing its job -- already liked, which
-    // is the state the caller wanted. Not an error worth surfacing.
+    // 23505 is the composite primary key: already liked, which is what was wanted.
     if (error && error.code !== '23505') throw error;
   }
 

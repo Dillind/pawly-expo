@@ -20,13 +20,10 @@ import type { AlertKind } from './subjects.ts';
  * anyone with Post Alerts off. The author is excluded for the obvious reason --
  * they are holding the phone they just posted from.
  *
- * A Post Commented Alert is the first kind that names its recipient. The rule
- * above cannot express "the people in this conversation" -- that set was known
- * when the comment landed and cannot be worked out again later, because a
- * comment deleted in the meantime would silently drop someone who was in it. So the
- * trigger writes one row per recipient and this narrows to that one person.
- * The preference is still read here, at send time, so turning Post Alerts off
- * between the comment and the delivery is respected exactly as before.
+ * A Post Commented Alert is the first kind that names its recipient: "the
+ * people in this conversation" cannot be worked out again later, so the trigger
+ * writes one row per recipient and this narrows to that person. The preference
+ * is still read here.
  *
  * Resolution happens HERE, at send time, rather than being fanned out when the
  * alert was queued -- so a preference changed between queue and delivery is
@@ -36,8 +33,7 @@ const PREFERENCE_COLUMN: Record<AlertKind, string> = {
   feed_logged: 'feed_logged_alerts',
   missed_feed: 'missed_feed_alerts',
   post: 'post_alerts',
-  // Comments ride the Post Alerts toggle rather than adding a fourth one --
-  // they are the same feature to a member. See 20260822100200.
+  // Comments ride the Post Alerts toggle rather than adding a fourth one.
   post_commented: 'post_alerts'
 };
 
@@ -58,8 +54,7 @@ export const resolveRecipientTokens = async (
     .eq('household_id', alert.household_id)
     .eq(preferenceColumn, true);
 
-  // A null recipient is household news. A set one addresses a single member,
-  // and the membership row is still what carries their preference.
+  // A null recipient is household news; a set one addresses a single member.
   if (alert.recipient_id) {
     query = query.eq('user_id', alert.recipient_id);
   }

@@ -1,26 +1,16 @@
--- Comments reach the inbox. Two kinds, and they behave differently on purpose.
+-- Comments reach the inbox. See ADR 0031.
 --
--- post_commented PUSHES. A comment is addressed to a person -- it is the one
--- social event in this app that asks for an answer, and a reply nobody sees
--- until they next open the app is a conversation that dies. This is the
--- opposite call to post_liked (20260815090100), and the difference is the
--- point: a thumbs-up is an acknowledgement, a comment is a message.
+-- post_commented PUSHES, the opposite call to post_liked (20260815090100): a
+-- thumbs-up is an acknowledgement, a comment is a message that asks for an
+-- answer. comment_liked does not push, for the reason 20260809090200 gives.
 --
--- comment_liked does NOT push. It is a like, and 20260809090200 already said
--- why: the first time three pushes arrive because three people liked one
--- thing, the whole app gets muted -- including the Missed Feed Alert that
--- matters. It reaches the inbox and stops there, exactly as post_liked does.
---
--- ONE ROW PER RECIPIENT, unlike every kind before it. Household news carries a
--- null recipient and is resolved at send time (ADR 0012). A comment cannot: its
--- audience is "the people in this conversation", which is a set the alerts
--- table has no way to recompute later, because a comment deleted in the
--- meantime would silently drop someone who was in it when it happened.
+-- ONE ROW PER RECIPIENT, unlike every kind before it. Household news is
+-- resolved at send time (ADR 0012); "the people in this conversation" cannot
+-- be, because a comment deleted in the meantime would drop someone who was in
+-- it when it happened.
 
--- One row per recipient per comment. A comment is inserted once so the trigger
--- fires once, and this constrains an invariant rather than resolving a race --
--- but the table-wide alerts_idempotency_idx cannot do the job, being
--- (kind, subject_id, subject_date) with a null subject_date and nulls distinct.
+-- The table-wide alerts_idempotency_idx cannot do this job: it is
+-- (kind, subject_id, subject_date), and subject_date is null here.
 create unique index alerts_post_commented_once_idx
   on public.alerts (subject_id, recipient_id)
   where kind = 'post_commented';
@@ -29,10 +19,8 @@ create unique index alerts_comment_liked_once_idx
   on public.alerts (subject_id, actor_id)
   where kind = 'comment_liked';
 
--- Same reasoning as alerts_post_liked_has_recipient: a row with a null
--- recipient is household news, which is the exact inversion of an alert
--- addressed to the people in one conversation. The triggers below always set
--- one; this makes the table refuse the row if they ever stop.
+-- Same reasoning as alerts_post_liked_has_recipient: a null recipient is
+-- household news, the exact inversion of these two kinds.
 alter table public.alerts
   add constraint alerts_comment_kinds_have_recipient
   check (kind not in ('post_commented', 'comment_liked') or recipient_id is not null);
@@ -56,18 +44,12 @@ begin
     return new;
   end if;
 
-  -- The post's author, plus everyone who already commented on it. `distinct`
-  -- rather than one row per prior comment: a member who commented four times
-  -- is one person and gets told once.
-  --
-  -- The actor is excluded at the end rather than in each branch, which also
-  -- covers the case where you are answering yourself on your own post.
+  -- The post's author, plus everyone who already commented. `distinct` because
+  -- a member who commented four times is one person.
   insert into public.alerts
     (household_id, kind, subject_id, actor_id, recipient_id)
-  -- The cast is load-bearing. `insert ... values` coerces an unknown literal to
-  -- the target column's type; `insert ... select` does not, and this fails at
-  -- runtime with "column kind is of type alert_kind but expression is of type
-  -- text" -- inside a trigger, so it surfaces as a failed comment insert.
+  -- The cast is load-bearing: `insert ... select` does not coerce an unknown
+  -- literal to the column's type the way `insert ... values` does.
   select distinct
     target_household_id, 'post_commented'::public.alert_kind, new.id, new.author_id, recipient
   from (
@@ -114,8 +96,7 @@ begin
     return new;
   end if;
 
-  -- suppressed_reason set unconditionally, so dispatch_alert returns early and
-  -- nothing is pushed. Same shape as post_liked.
+  -- suppressed_reason set unconditionally, so dispatch_alert returns early.
   insert into public.alerts
     (household_id, kind, subject_id, actor_id, recipient_id, suppressed_reason)
   values
@@ -132,12 +113,6 @@ for each row
 execute function public.queue_comment_liked_alert();
 
 revoke execute on function public.queue_comment_liked_alert() from public, anon, authenticated;
-
--- Comments ride the existing Post Alerts preference rather than adding a
--- fourth toggle. They are the same feature to a member -- someone who has
--- turned off news about the photo stream has not asked to keep hearing about
--- the talk underneath it -- and a settings screen that distinguishes them is
--- asking a question nobody in a four-person household has an opinion about.
 
 -- Dropped rather than replaced: the returned table gains three columns, and
 -- `create or replace` cannot change a function's return type.
@@ -189,22 +164,16 @@ as $$
     occurrence_pet.id as pet_id,
     occurrence_pet.name as pet_name,
     occurrence.label::text as slot_label,
-    -- A comment alert's subject is the comment, so its post has to be reached
-    -- through it. Both halves resolve to the same route target.
+    -- A comment alert's subject is the comment, so its post is reached through it.
     coalesce(post.id, comment_post.id) as post_id,
     coalesce(post.caption, comment_post.caption) as post_caption,
     comment.id as comment_id,
     comment.body as comment_body,
-    -- These two drive the copy, which is a three-way split rather than a
-    -- two-way one: a recipient can be in the thread while owning neither the
-    -- post nor the parent, and "on your post" would be a lie to them. Derived
-    -- rather than stored, so one kind carries all three sentences.
+    -- A three-way split: a recipient can be in the thread while owning neither
+    -- the post nor the parent, and "on your post" would be a lie to them.
     --
-    -- reply_to_user_id, NOT the parent's author. They differ whenever a reply
-    -- answers a SIBLING: both flatten under the same parent, so the parent's
-    -- author would be told "replied to your comment" about a sentence aimed at
-    -- somebody else, and the person actually answered would get "also
-    -- commented". The column exists precisely because the two are not the same.
+    -- reply_to_user_id, NOT the parent's author -- they differ whenever a reply
+    -- answers a SIBLING, and the column exists for exactly that.
     coalesce(comment.reply_to_user_id = (select auth.uid()), false)
       as comment_is_reply_to_me,
     coalesce(comment_post.author_id = (select auth.uid()), false)

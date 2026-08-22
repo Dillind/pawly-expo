@@ -26,11 +26,9 @@ type AlertSubject = {
  * Null means the row is gone -- deleted between queue and dispatch.
  *
  * The switch is exhaustive: the default branch assigns the kind to `never`, so
- * adding a fifth alert_kind fails to compile rather than being silently
- * handled as a missed feed.
+ * adding a fifth alert_kind fails to compile.
  *
- * comment_liked never reaches here: it is queued with a suppressed_reason, so
- * index.ts returns before building anything.
+ * comment_liked never reaches here -- it is queued suppressed.
  */
 export const buildMessageForAlert = async (
   client: SupabaseClient,
@@ -56,10 +54,9 @@ export const buildMessageForAlert = async (
       return buildPostCommentedMessage({
         authorFirstName: author?.first_name ?? null,
         body: comment.body,
-        // reply_to_user_id, NOT the parent's author. A reply answering a
-        // SIBLING flattens under the same parent, so reading the parent would
-        // tell the wrong member their comment had been replied to. Reading the
-        // column also saves the round trip the parent lookup used to cost.
+        // reply_to_user_id, NOT the parent's author: a reply answering a
+        // SIBLING flattens under the same parent, so the parent's author would
+        // be told about a sentence aimed at someone else.
         isReplyToRecipient:
           comment.reply_to_user_id != null && comment.reply_to_user_id === alert.recipient_id,
         isPostAuthor: post?.author_id != null && post.author_id === alert.recipient_id,

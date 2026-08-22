@@ -7,7 +7,6 @@ import { StyleSheet, View } from 'react-native';
 
 type Props = {
   comments: PostComment[];
-  /** Decides which rows offer a delete: the post's author, or a household Owner. */
   canManagePost: boolean;
   viewerId: string | null;
   onToggleLike: (comment: PostComment) => void;
@@ -25,9 +24,7 @@ const CommentThread = ({
 }: Props) => {
   const styles = useStyles(makeStyles);
 
-  // Matches the delete policy in 20260822100000. Getting this wrong in either
-  // direction is visible: a menu that fails, or an action quietly withheld from
-  // someone entitled to it.
+  // Must match the delete policy in 20260822100000.
   const canDelete = (comment: PostComment) =>
     canManagePost || (viewerId !== null && comment.authorId === viewerId);
 
@@ -53,9 +50,6 @@ const CommentThread = ({
             onLongPress={() => onManage(comment)}
           />
 
-          {/* Always expanded, with no "Hide replies" toggle. Collapse exists to
-              compress threads with hundreds of replies, which a household of
-              four cannot produce. */}
           {comment.replies.map((reply) => (
             <CommentRow
               key={reply.id}
@@ -63,8 +57,6 @@ const CommentThread = ({
               isReply
               canDelete={canDelete(reply)}
               onToggleLike={() => onToggleLike(reply)}
-              // Replying to a reply flattens under the same parent, and the
-              // prefix is what records which sibling was answered.
               onReply={() => onReply(reply)}
               onLongPress={() => onManage(reply)}
             />
@@ -82,7 +74,6 @@ const makeStyles = ({ spacing }: AppTheme) =>
       paddingTop: spacing.three,
       gap: spacing.four
     },
-    /** A reply belongs to its parent, so the gap inside a group is the tighter one. */
     group: {
       gap: spacing.three
     },

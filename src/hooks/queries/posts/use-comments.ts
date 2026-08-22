@@ -14,13 +14,7 @@ export function useComments(postId: string | undefined, viewerId: string | undef
   });
 }
 
-/**
- * No success toast, deliberately.
- *
- * The comment appearing at the bottom of the thread IS the confirmation, and a
- * toast on top of that is the app congratulating itself for doing the one thing
- * the button said it would do. The same reasoning keeps useToggleLike silent.
- */
+/** No success toast: the comment appearing in the thread is the confirmation. */
 export function useCreateComment(postId: string | undefined) {
   const queryClient = useQueryClient();
 
@@ -33,9 +27,7 @@ export function useCreateComment(postId: string | undefined) {
     }) => CommentService.create({ postId: postId!, ...input }),
     onSettled: () => {
       void queryClient.invalidateQueries({ queryKey: commentsKey(postId) });
-      // The count lives on the Post itself, embedded in its select -- so the
-      // card, Post Detail and the Profile list all move together instead of
-      // drifting from a second query of their own.
+      // The count is embedded in the Post's own select, so it rides these.
       void queryClient.invalidateQueries({ queryKey: ['posts'] });
       void queryClient.invalidateQueries({ queryKey: ['post', postId] });
     },
@@ -53,9 +45,6 @@ export function useDeleteComment(postId: string | undefined) {
     mutationFn: (commentId: string) => CommentService.remove(commentId),
     onSettled: () => {
       void queryClient.invalidateQueries({ queryKey: commentsKey(postId) });
-      // The count lives on the Post itself, embedded in its select -- so the
-      // card, Post Detail and the Profile list all move together instead of
-      // drifting from a second query of their own.
       void queryClient.invalidateQueries({ queryKey: ['posts'] });
       void queryClient.invalidateQueries({ queryKey: ['post', postId] });
     },
@@ -67,11 +56,7 @@ export function useDeleteComment(postId: string | undefined) {
   });
 }
 
-/**
- * Optimistic and silent on both sides, matching useToggleLike on a Post: the
- * filled thumb is the confirmation, and a rollback reads as "it didn't happen"
- * without interrupting anyone. The real error still reaches the console.
- */
+/** Optimistic and silent on both sides, matching useToggleLike on a Post. */
 export function useToggleCommentLike(postId: string | undefined) {
   const queryClient = useQueryClient();
   const { userId } = useAuthStore();
@@ -88,9 +73,7 @@ export function useToggleCommentLike(postId: string | undefined) {
 
       const previous = queryClient.getQueryData<PostComment[]>(key);
 
-      // The mutation cannot run without an id, so flipping the heart first
-      // would show a like that is about to fail RLS. Same guard useToggleLike
-      // puts in front of its optimistic liker.
+      // Without an id the write fails RLS, so the heart must not flip.
       if (!userId) return { previous };
 
       const applyLike = (comment: PostComment): PostComment =>
@@ -102,8 +85,6 @@ export function useToggleCommentLike(postId: string | undefined) {
             }
           : comment;
 
-      // Both levels: the tapped thumb may be on a reply, and the tree is only
-      // ever two deep so this needs no recursion.
       queryClient.setQueryData<PostComment[]>(key, (old) =>
         old?.map((comment) => ({
           ...applyLike(comment),

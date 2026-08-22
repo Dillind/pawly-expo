@@ -97,8 +97,6 @@ const Posts = () => {
           void actionsSheetRef.current?.present();
         }}
         onOpen={openPost}
-        // Post Detail is the thread, so the comment icon and the caption lead to
-        // the same place -- the icon just says which part you came for.
         onOpenComments={openPost}
       />
     );
