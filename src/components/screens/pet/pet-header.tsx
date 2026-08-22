@@ -66,19 +66,21 @@ const PetHeader = ({
         <View>
           <Image source={photoUrl} style={styles.photo} contentFit="cover" transition={200} />
 
-          <View style={styles.editWell}>
-            {isChangingPhoto ? (
-              <ActivityIndicator />
-            ) : (
-              <IconButton
-                name="camera"
-                accessibilityLabel="Change photo"
-                variant="primary"
-                size={18}
-                onPress={() => void photoSheetRef.current?.present()}
-              />
-            )}
-          </View>
+          {household?.isOwner && (
+            <View style={styles.editWell}>
+              {isChangingPhoto ? (
+                <ActivityIndicator />
+              ) : (
+                <IconButton
+                  name="camera"
+                  accessibilityLabel="Change photo"
+                  variant="primary"
+                  size={18}
+                  onPress={() => void photoSheetRef.current?.present()}
+                />
+              )}
+            </View>
+          )}
         </View>
 
         <CareCard

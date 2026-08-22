@@ -24,6 +24,8 @@ type Props = {
    * target would fire while paging photos or reaching for the like.
    */
   onOpen?: () => void;
+  /** Post Detail only: opens one photo full screen. */
+  onOpenPhoto?: (photoId: string) => void;
 };
 
 /** The gutter is owned here: a parent that padded this would inset the photo with the words. */
@@ -33,6 +35,7 @@ const PostBody = ({
   householdName,
   titleLines,
   captionLines,
+  onOpenPhoto,
   onToggleLike,
   onOpenActions,
   onOpen
@@ -58,7 +61,7 @@ const PostBody = ({
         <PostPetChips pets={post.pets} />
       </View>
 
-      <PostPhotoCarousel photos={post.photos} onPress={onOpen} />
+      <PostPhotoCarousel photos={post.photos} onPress={onOpen} onPressPhoto={onOpenPhoto} />
 
       <View style={[styles.gutter, styles.actions]}>
         <PostActionRow liked={post.likedByMe} count={post.likeCount} onToggleLike={onToggleLike} />

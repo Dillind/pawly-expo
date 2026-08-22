@@ -340,6 +340,9 @@ namespace PostService {
     if (error) throw error;
   }
 
+  // Deliberately does not confirm the write with `.select()` as the role-gated
+  // updates do: this is the member's own row, it runs on a timer, and a throw
+  // here would surface as a toast nobody asked for.
   export async function markSeen(params: { householdId: string; userId: string }): Promise<void> {
     const { error } = await supabase
       .from('household_members')

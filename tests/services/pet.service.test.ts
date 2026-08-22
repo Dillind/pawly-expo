@@ -1,6 +1,9 @@
 import PetService from '@/services/pet.service';
 
-const mockEq = jest.fn();
+// An update awaits `.select()`; a delete awaits the `.eq()` itself.
+let eqResult: { error: Error | null } = { error: null };
+const mockWriteSelect = jest.fn();
+const mockEq = jest.fn(() => Object.assign(Promise.resolve(eqResult), { select: mockWriteSelect }));
 const mockUpdate = jest.fn(() => ({ eq: mockEq }));
 const mockDelete = jest.fn(() => ({ eq: mockEq }));
 const mockSingle = jest.fn();
@@ -33,7 +36,8 @@ jest.mock('@/services/pet-photo.service', () => ({
 
 beforeEach(() => {
   jest.clearAllMocks();
-  mockEq.mockResolvedValue({ error: null });
+  eqResult = { error: null };
+  mockWriteSelect.mockResolvedValue({ data: [{ id: 'pet-1' }], error: null });
   mockSingle.mockResolvedValue({ data: { photo_url: null }, error: null });
 });
 
@@ -71,10 +75,20 @@ describe('PetService.update', () => {
   });
 
   it('throws when the write is rejected', async () => {
-    mockEq.mockResolvedValue({ error: new Error('row-level security') });
+    mockWriteSelect.mockResolvedValue({ data: null, error: new Error('row-level security') });
 
     await expect(PetService.update('pet-1', { name: 'Crumpet' })).rejects.toThrow(
       'row-level security'
+    );
+  });
+
+  // RLS filters the row out rather than erroring, so an empty result is the
+  // only sign the write never happened.
+  it('throws when the policy matched no rows', async () => {
+    mockWriteSelect.mockResolvedValue({ data: [], error: null });
+
+    await expect(PetService.update('pet-1', { name: 'Crumpet' })).rejects.toThrow(
+      'Only an owner can change this pet'
     );
   });
 });

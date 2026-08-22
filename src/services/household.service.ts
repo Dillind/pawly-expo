@@ -1,3 +1,4 @@
+import { assertWrote } from '@/lib/supabase/assert-wrote';
 import { supabase } from '@/lib/supabase/client';
 import type { HouseholdMember, HouseholdSummary } from '@/types/core';
 
@@ -94,7 +95,7 @@ namespace HouseholdService {
 
   // The service owns snake_case: a column name must never reach a component.
   export async function update(householdId: string, patch: HouseholdPatch): Promise<void> {
-    const { error } = await supabase
+    const { data, error } = await supabase
       .from('households')
       .update({
         ...(patch.name !== undefined && { name: patch.name.trim() }),
@@ -103,9 +104,12 @@ namespace HouseholdService {
           grace_window_minutes: patch.graceWindowMinutes
         })
       })
-      .eq('id', householdId);
+      .eq('id', householdId)
+      .select('id');
 
     if (error) throw error;
+
+    assertWrote(data, 'Only an owner can change household settings');
   }
 
   export async function listMembers(householdId: string): Promise<HouseholdMember[]> {
@@ -216,13 +220,16 @@ namespace HouseholdService {
     preference: AlertPreference;
     value: boolean;
   }): Promise<void> {
-    const { error } = await supabase
+    const { data, error } = await supabase
       .from('household_members')
       .update({ [PREFERENCE_COLUMN[params.preference]]: params.value })
       .eq('household_id', params.householdId)
-      .eq('user_id', params.userId);
+      .eq('user_id', params.userId)
+      .select('user_id');
 
     if (error) throw error;
+
+    assertWrote(data, 'Your notification settings could not be updated');
   }
 }
 

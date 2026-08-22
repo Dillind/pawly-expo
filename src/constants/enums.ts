@@ -28,7 +28,6 @@ export enum MessageType {
 export enum SuccessMessage {
   BioUpdated = 'Bio updated',
   CareCardUpdated = 'Care Card updated',
-  CoverPhotoUpdated = 'Cover photo updated',
   FeedDeleted = 'Feed deleted',
   FeedLoggedAlertsOff = 'Feed Logged Alerts off',
   FeedLoggedAlertsOn = 'Feed Logged Alerts on',
@@ -83,7 +82,6 @@ export enum ErrorMessage {
   CareCardShareFailed = 'Could not make the Care Card PDF',
   CareCardShareUnavailable = 'This device has nowhere to share the PDF to',
   CareCardUpdateFailed = 'Could not update the Care Card',
-  CoverPhotoUpdateFailed = 'Could not set the cover photo',
   FeedTimeRemoveFailed = 'Could not remove the feed time',
   FeedTimeSaveFailed = 'Could not save the feed time',
   FeedsPauseFailed = 'Could not pause feeds',
