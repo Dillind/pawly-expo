@@ -100,6 +100,7 @@ const GalleryStrip = ({ petId }: Props) => {
   const [isEditRequested, setIsEditing] = useState(false);
 
   const photoList = photos ?? [];
+  const viewerPhoto = viewerIndex === null ? undefined : photoList[viewerIndex];
   const remainingSlots = PHOTO_CAP - photoList.length;
   const isAtCap = remainingSlots <= 0;
 
@@ -204,13 +205,7 @@ const GalleryStrip = ({ petId }: Props) => {
         onPicked={addPhotos}
       />
 
-      {viewerIndex !== null && (
-        <PhotoViewer
-          photos={photoList}
-          initialIndex={viewerIndex}
-          onClose={() => setViewerIndex(null)}
-        />
-      )}
+      {viewerPhoto && <PhotoViewer photo={viewerPhoto} onClose={() => setViewerIndex(null)} />}
     </View>
   );
 };
