@@ -13,6 +13,10 @@ const alert = (overrides: Partial<Alert>): Alert => ({
   slotLabel: null,
   postId: 'po1',
   postCaption: 'Muddy paws again',
+  commentId: null,
+  commentBody: null,
+  commentIsReplyToMe: false,
+  commentPostIsMine: false,
   subjectName: null,
   subjectIsMe: false,
   ...overrides

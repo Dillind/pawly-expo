@@ -1,39 +1,123 @@
+import CommentActionsSheet from '@/components/bottom-sheets/comment-actions-sheet';
 import PostActionsSheet from '@/components/bottom-sheets/post-actions-sheet';
 import ErrorState from '@/components/core/error-state';
 import ScreenView from '@/components/layout/screen-view';
+import CommentComposer from '@/components/ui/comment-composer';
+import CommentThread from '@/components/ui/comment-thread';
 import PostBody from '@/components/ui/post-body';
-import { type AppTheme } from '@/constants/theme';
+import { BottomTabInset, type AppTheme } from '@/constants/theme';
 import { useHouseholds } from '@/hooks/queries/household/use-households';
+import {
+  useComments,
+  useCreateComment,
+  useDeleteComment,
+  useToggleCommentLike
+} from '@/hooks/queries/posts/use-comments';
 import { useDeletePost, usePost, useToggleLike } from '@/hooks/queries/posts/use-posts';
 import { useStyles } from '@/hooks/use-styles';
+import type { PostComment } from '@/services/comment.service';
 import { useAuthStore } from '@/stores/auth-store';
 import type { TrueSheet } from '@lodev09/react-native-true-sheet';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
-import { useRef } from 'react';
-import { ActivityIndicator, ScrollView, StyleSheet } from 'react-native';
+import { useRef, useState } from 'react';
+import { ActivityIndicator, Alert, ScrollView, StyleSheet } from 'react-native';
+import { KeyboardAvoidingView } from 'react-native-keyboard-controller';
+
+/** What the composer is answering. Null composes a top-level comment. */
+type ReplyTarget = { parentCommentId: string; replyToUserId: string | null; name: string };
 
 const PostDetail = () => {
   const styles = useStyles(makeStyles);
   const router = useRouter();
   const actionsSheetRef = useRef<TrueSheet | null>(null);
+  const commentSheetRef = useRef<TrueSheet | null>(null);
+  const scrollRef = useRef<ScrollView | null>(null);
+
+  const [replyTarget, setReplyTarget] = useState<ReplyTarget | null>(null);
+  // Bumped only once a comment lands, so a failed send keeps the draft.
+  const [sentCount, setSentCount] = useState(0);
+  const [managedComment, setManagedComment] = useState<PostComment | null>(null);
 
   const { postId } = useLocalSearchParams<{ postId: string }>();
   const { userId } = useAuthStore();
   const { data: households = [] } = useHouseholds();
   const { data: post, isLoading, isError, refetch } = usePost(postId, userId ?? undefined);
 
+  const { data: comments = [] } = useComments(postId, userId ?? undefined);
+
   const { mutate: toggleLike } = useToggleLike();
   const { mutate: deletePost } = useDeletePost();
+  const { mutate: addComment, isPending: isSending } = useCreateComment(postId);
+  const { mutate: deleteComment } = useDeleteComment(postId);
+  const { mutate: toggleCommentLike } = useToggleCommentLike(postId);
 
   const household = households.find((candidate) => candidate.id === post?.householdId);
 
   const canEdit = post !== undefined && post.authorId === userId;
   const canDelete = canEdit || (post !== undefined && (household?.isOwner ?? false));
 
+  // The same test as private.can_manage_post.
+  const canManagePost = canDelete;
+
   const leave = () => {
     if (router.canGoBack()) return router.back();
 
     router.replace('/posts');
+  };
+
+  // A reply to a reply flattens under the same parent, still pointing at the
+  // sibling it answers.
+  const startReply = (comment: PostComment) => {
+    setReplyTarget({
+      parentCommentId: comment.parentCommentId ?? comment.id,
+      replyToUserId: comment.authorId,
+      name: comment.author?.firstName ?? 'Member'
+    });
+  };
+
+  const send = (body: string) => {
+    if (!userId) return;
+
+    addComment(
+      {
+        userId,
+        body,
+        parentCommentId: replyTarget?.parentCommentId ?? null,
+        replyToUserId: replyTarget?.replyToUserId ?? null
+      },
+      {
+        onSuccess: () => {
+          setSentCount((count) => count + 1);
+          setReplyTarget(null);
+          scrollRef.current?.scrollToEnd({ animated: true });
+        }
+      }
+    );
+  };
+
+  const confirmDeleteComment = () => {
+    const target = managedComment;
+    if (!target) return;
+
+    const replyCount = target.replies.length;
+
+    Alert.alert(
+      'Delete this comment?',
+      replyCount > 0
+        ? `The ${replyCount === 1 ? 'reply' : `${replyCount} replies`} underneath will go too.`
+        : undefined,
+      [
+        { text: 'Cancel', style: 'cancel', isPreferred: true },
+        {
+          text: 'Delete',
+          style: 'destructive',
+          onPress: () => {
+            deleteComment(target.id);
+            setManagedComment(null);
+          }
+        }
+      ]
+    );
   };
 
   return (
@@ -58,17 +142,51 @@ const PostDetail = () => {
         />
       )}
 
+      {/* `padding`, not KeyboardStickyView: that translates the composer over
+          the thread without shrinking it, trapping the newest comment behind
+          the keyboard. The negative offset clears the floating tab bar, and the
+          composer's own paddingBottom cancels it once the keyboard is up. */}
       {post && (
-        <ScrollView
-          contentInsetAdjustmentBehavior="automatic"
-          contentContainerStyle={styles.content}>
-          <PostBody
-            post={post}
-            householdName={households.length > 1 ? household?.name : undefined}
-            onToggleLike={() => toggleLike({ postId: post.id, liked: post.likedByMe })}
-            onOpenPhoto={(photoId) => router.push(`/posts/${post.id}/photo/${photoId}`)}
+        <KeyboardAvoidingView
+          behavior="padding"
+          keyboardVerticalOffset={-BottomTabInset}
+          style={styles.fill}>
+          <ScrollView
+            ref={scrollRef}
+            contentInsetAdjustmentBehavior="automatic"
+            keyboardShouldPersistTaps="handled"
+            contentContainerStyle={styles.content}>
+            <PostBody
+              post={post}
+              householdName={households.length > 1 ? household?.name : undefined}
+              commentCount={post.commentCount}
+              onToggleLike={() => toggleLike({ postId: post.id, liked: post.likedByMe })}
+              onOpenPhoto={(photoId) => router.push(`/posts/${post.id}/photo/${photoId}`)}
+            />
+
+            <CommentThread
+              comments={comments}
+              canManagePost={canManagePost}
+              viewerId={userId ?? null}
+              onToggleLike={(comment) =>
+                toggleCommentLike({ commentId: comment.id, liked: comment.likedByMe })
+              }
+              onReply={startReply}
+              onManage={(comment) => {
+                setManagedComment(comment);
+                void commentSheetRef.current?.present();
+              }}
+            />
+          </ScrollView>
+
+          <CommentComposer
+            replyingToName={replyTarget?.name ?? null}
+            isSending={isSending}
+            sentCount={sentCount}
+            onCancelReply={() => setReplyTarget(null)}
+            onSend={send}
           />
-        </ScrollView>
+        </KeyboardAvoidingView>
       )}
 
       <PostActionsSheet
@@ -90,18 +208,23 @@ const PostDetail = () => {
           leave();
         }}
       />
+
+      <CommentActionsSheet sheetRef={commentSheetRef} onDelete={confirmDeleteComment} />
     </ScreenView>
   );
 };
 
 const makeStyles = ({ spacing }: AppTheme) =>
   StyleSheet.create({
+    fill: {
+      flex: 1
+    },
     centred: {
       paddingTop: spacing.six
     },
     content: {
       paddingTop: spacing.three,
-      paddingBottom: spacing.six
+      paddingBottom: spacing.four
     }
   });
 

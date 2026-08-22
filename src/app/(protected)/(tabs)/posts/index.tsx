@@ -82,17 +82,22 @@ const Posts = () => {
   const renderItem = ({ item }: LegendListRenderItemProps<Post>) => {
     const { canEdit, canDelete } = permissions(item);
 
+    const openPost = () =>
+      router.push({ pathname: '/posts/[postId]', params: { postId: item.id } });
+
     return (
       <PostCard
         post={item}
         showActions={canEdit || canDelete}
         householdName={isMultiHousehold ? householdById.get(item.householdId)?.name : undefined}
+        commentCount={item.commentCount}
         onToggleLike={() => toggleLike({ postId: item.id, liked: item.likedByMe })}
         onOpenActions={() => {
           setActivePost(item);
           void actionsSheetRef.current?.present();
         }}
-        onOpen={() => router.push({ pathname: '/posts/[postId]', params: { postId: item.id } })}
+        onOpen={openPost}
+        onOpenComments={openPost}
       />
     );
   };

@@ -143,3 +143,36 @@ export const buildPostMessage = (input: PostInput): Omit<ExpoMessage, 'to'> => {
     data: { screen: '/posts/[postId]', params: { postId: input.postId } }
   };
 };
+
+export type PostCommentedInput = {
+  authorFirstName: string | null;
+  body: string;
+  /** True when the recipient wrote the comment being replied to. */
+  isReplyToRecipient: boolean;
+  /** True when the recipient wrote the post being commented on. */
+  isPostAuthor: boolean;
+  postId: string;
+};
+
+/**
+ * Three cases, not two: the third is the member who is in the thread but owns
+ * neither the post nor the parent, and "your post" would be a lie to them.
+ */
+export const buildPostCommentedMessage = (
+  input: PostCommentedInput
+): Omit<ExpoMessage, 'to'> => {
+  const author = authorName(input.authorFirstName);
+
+  const title = input.isReplyToRecipient
+    ? `${author} replied to your comment`
+    : input.isPostAuthor
+      ? `${author} commented on your post`
+      : `${author} also commented`;
+
+  return {
+    title,
+    sound: 'default',
+    body: truncate(input.body.trim(), CAPTION_PREVIEW_LIMIT),
+    data: { screen: '/posts/[postId]', params: { postId: input.postId } }
+  };
+};

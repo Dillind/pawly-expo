@@ -5,9 +5,11 @@ type Props = {
   post: Post;
   showActions: boolean;
   householdName?: string;
+  commentCount: number;
   onToggleLike: () => void;
   onOpenActions: () => void;
   onOpen: () => void;
+  onOpenComments: () => void;
 };
 
 const TITLE_LINES = 2;
@@ -17,9 +19,11 @@ const PostCard = ({
   post,
   showActions,
   householdName,
+  commentCount,
   onToggleLike,
   onOpenActions,
-  onOpen
+  onOpen,
+  onOpenComments
 }: Props) => (
   <PostBody
     post={post}
@@ -27,9 +31,11 @@ const PostCard = ({
     householdName={householdName}
     titleLines={TITLE_LINES}
     captionLines={CAPTION_LINES}
+    commentCount={commentCount}
     onToggleLike={onToggleLike}
     onOpenActions={onOpenActions}
     onOpen={onOpen}
+    onOpenComments={onOpenComments}
   />
 );
 

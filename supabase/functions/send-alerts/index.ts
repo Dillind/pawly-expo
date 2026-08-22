@@ -25,7 +25,7 @@ Deno.serve(async (request) => {
   const { data: alert, error: alertError } = await client
     .from('alerts')
     .select(
-      'id, household_id, kind, subject_id, subject_date, actor_id, sent_at, suppressed_reason'
+      'id, household_id, kind, subject_id, subject_date, actor_id, recipient_id, sent_at, suppressed_reason'
     )
     .eq('id', alertId)
     .single();
