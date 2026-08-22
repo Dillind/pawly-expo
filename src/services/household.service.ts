@@ -126,15 +126,20 @@ namespace HouseholdService {
 
     const { data: profiles, error: profilesError } = await supabase
       .from('users')
-      .select('id, first_name, last_name')
+      .select('id, first_name, last_name, avatar_url')
       .in('id', userIds);
 
     if (profilesError) throw profilesError;
 
     const profileById = new Map(
-      (profiles as { id: string; first_name: string | null; last_name: string | null }[]).map(
-        (profile) => [profile.id, profile]
-      )
+      (
+        profiles as {
+          id: string;
+          first_name: string | null;
+          last_name: string | null;
+          avatar_url: string | null;
+        }[]
+      ).map((profile) => [profile.id, profile])
     );
 
     return (memberships as MembershipRow[]).map((membership) => ({
@@ -142,6 +147,7 @@ namespace HouseholdService {
       role: membership.role,
       firstName: profileById.get(membership.user_id)?.first_name ?? null,
       lastName: profileById.get(membership.user_id)?.last_name ?? null,
+      avatarUrl: profileById.get(membership.user_id)?.avatar_url ?? null,
       feedLoggedAlerts: membership.feed_logged_alerts
     }));
   }

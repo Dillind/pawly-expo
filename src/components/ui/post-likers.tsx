@@ -1,5 +1,5 @@
 import AppText from '@/components/core/app-text';
-import AvatarInitials from '@/components/core/avatar-initials';
+import UserAvatar from '@/components/core/user-avatar';
 import { type AppTheme } from '@/constants/theme';
 import { useStyles } from '@/hooks/use-styles';
 import type { PostLiker } from '@/services/post.service';
@@ -38,9 +38,10 @@ const PostLikers = ({ likers }: Props) => {
             // Every name is already in the sentence beside this.
             accessibilityElementsHidden
             importantForAccessibility="no-hide-descendants">
-            <AvatarInitials
+            <UserAvatar
               firstName={liker.firstName}
               lastName={liker.lastName}
+              avatarUrl={liker.avatarUrl}
               size={AVATAR_SIZE}
             />
           </View>

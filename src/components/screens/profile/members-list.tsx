@@ -1,6 +1,6 @@
 import MemberActionsSheet from '@/components/bottom-sheets/member-actions-sheet';
 import AppText from '@/components/core/app-text';
-import AvatarInitials from '@/components/core/avatar-initials';
+import UserAvatar from '@/components/core/user-avatar';
 import ErrorState from '@/components/core/error-state';
 import Icon from '@/components/core/icon';
 import PressableOpacity from '@/components/core/pressable-opacity';
@@ -143,9 +143,10 @@ const MembersList = () => {
 
     const row = (
       <View style={styles.row}>
-        <AvatarInitials
+        <UserAvatar
           firstName={member.firstName}
           lastName={member.lastName}
+          avatarUrl={member.avatarUrl}
           size={AVATAR_SIZE}
         />
         {/* No role on the row: the section heading above already says it, and

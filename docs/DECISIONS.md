@@ -215,3 +215,13 @@ signed-in session clears both copies — `useCacheReset` watches the auth status
 **Home's loading state is two skeleton pet cards, not a spinner.** They are built from the same
 measurements as a collapsed `PetSection`, and the "Today" heading renders during the wait too, so
 nothing below moves when the pets arrive.
+
+**A profile photo gets its own bucket, and every member surface reads it.** `user-avatars` mirrors
+`post-photos` — public, path `{user_id}/{uuid}.jpg`, a member may only write under their own folder.
+It is a separate bucket rather than a folder inside `pet-photos` because the two have different
+owners: a pet photo belongs to a household, an avatar belongs to a person, and one storage policy
+cannot express both. `UserAvatar` is the component every surface now draws, falling back to
+`AvatarInitials` when there is no photo, so widening the three selects that carry a member — the
+post author, a post's likers, and the household member list — was the whole of the display work.
+`alert-row` is deliberately not among them: its names come out of the `list_alerts` SQL function,
+which would need a migration to carry an avatar, and it has never drawn one.
