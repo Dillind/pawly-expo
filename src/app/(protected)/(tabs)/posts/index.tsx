@@ -12,7 +12,6 @@ import {
   usePosts,
   useToggleLike
 } from '@/hooks/queries/posts/use-posts';
-import { useCommentCounts } from '@/hooks/queries/posts/use-comments';
 import { usePullToRefresh } from '@/hooks/use-pull-to-refresh';
 import { useRefreshOnFocus } from '@/hooks/use-refresh-on-focus';
 import { useStyles } from '@/hooks/use-styles';
@@ -55,9 +54,6 @@ const Posts = () => {
     isFetchingNextPage
   } = usePosts(householdIds, userId ?? undefined);
 
-  // One request for the whole loaded page rather than one per card.
-  const { data: commentCounts = {} } = useCommentCounts(posts.map((post) => post.id));
-
   useRefreshOnFocus(['posts']);
   const { isRefreshing, onRefresh } = usePullToRefresh([refetch]);
 
@@ -94,7 +90,7 @@ const Posts = () => {
         post={item}
         showActions={canEdit || canDelete}
         householdName={isMultiHousehold ? householdById.get(item.householdId)?.name : undefined}
-        commentCount={commentCounts[item.id] ?? 0}
+        commentCount={item.commentCount}
         onToggleLike={() => toggleLike({ postId: item.id, liked: item.likedByMe })}
         onOpenActions={() => {
           setActivePost(item);

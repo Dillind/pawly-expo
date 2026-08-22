@@ -40,6 +40,8 @@ export type Post = {
   pets: PostPetTag[];
   likeCount: number;
   likedByMe: boolean;
+  /** The whole thread, replies included -- what the card's comment icon shows. */
+  commentCount: number;
   /** Ordered oldest like first, so the row's lead name is stable between renders. */
   likers: PostLiker[];
 };
@@ -55,7 +57,8 @@ const POST_SELECT = `
   users!posts_author_id_fkey(first_name, last_name, avatar_url),
   post_photos(id, storage_path, sort_order),
   post_pets(pets(id, name, photo_url)),
-  post_likes(user_id, created_at, users(first_name, last_name, avatar_url))
+  post_likes(user_id, created_at, users(first_name, last_name, avatar_url)),
+  post_comments(count)
 `;
 
 type PostRow = {
@@ -78,6 +81,9 @@ type PostRow = {
       avatar_url: string | null;
     } | null;
   }[];
+  // PostgREST returns an aggregate embed as a one-row array, and omits the row
+  // entirely when the count is zero.
+  post_comments: { count: number }[];
 };
 
 const publicUrl = (path: string) => supabase.storage.from(BUCKET).getPublicUrl(path).data.publicUrl;
@@ -109,6 +115,7 @@ function mapPostRow(row: PostRow, viewerId: string | null): Post {
       .map((tag) => tag.pets)
       .filter((pet): pet is NonNullable<typeof pet> => pet !== null)
       .map((pet) => ({ id: pet.id, name: pet.name, photoUrl: pet.photo_url })),
+    commentCount: row.post_comments[0]?.count ?? 0,
     likeCount: row.post_likes.length,
     likedByMe: viewerId !== null && row.post_likes.some((like) => like.user_id === viewerId),
     likers: row.post_likes.map((like) => ({

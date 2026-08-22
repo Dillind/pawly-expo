@@ -49,7 +49,10 @@ const CommentRow = ({
       // absent is worse than one that is never drawn.
       onLongPress={canDelete ? onLongPress : undefined}
       delayLongPress={400}
-      accessibilityLabel={`${authorName}: ${comment.body}`}>
+      // Not an accessibility element itself. A label here collapses the whole
+      // row into one node and VoiceOver loses Reply and the like entirely --
+      // the long press is a shortcut, not the row's only way in.
+      accessible={false}>
       <UserAvatar
         firstName={comment.author?.firstName}
         lastName={comment.author?.lastName}

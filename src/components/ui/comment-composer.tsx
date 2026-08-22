@@ -1,7 +1,7 @@
 import AppText from '@/components/core/app-text';
 import Icon from '@/components/core/icon';
 import PressableOpacity from '@/components/core/pressable-opacity';
-import { Radius, type AppTheme } from '@/constants/theme';
+import { BottomTabInset, Radius, type AppTheme } from '@/constants/theme';
 import { useStyles } from '@/hooks/use-styles';
 import { useTheme } from '@/hooks/use-theme';
 import { hapticLight } from '@/lib/haptics';
@@ -129,7 +129,10 @@ const makeStyles = ({ colors, spacing }: AppTheme) =>
     composer: {
       paddingHorizontal: spacing.three,
       paddingTop: spacing.two,
-      paddingBottom: spacing.two,
+      // Clears the native tab bar, which floats over content. Its host cancels
+      // this out with a matching negative keyboardVerticalOffset, so with the
+      // keyboard up the composer sits directly on it.
+      paddingBottom: BottomTabInset,
       gap: spacing.two,
       backgroundColor: colors.postSurface,
       borderTopWidth: StyleSheet.hairlineWidth,

@@ -16,7 +16,6 @@ import { useUserProfile } from '@/hooks/queries/account/use-user-profile';
 import { useHousehold } from '@/hooks/queries/household/use-household';
 import { useHouseholdMembers } from '@/hooks/queries/household/use-household-members';
 import { useHouseholds } from '@/hooks/queries/household/use-households';
-import { useCommentCounts } from '@/hooks/queries/posts/use-comments';
 import { useAuthorPosts, useDeletePost, useToggleLike } from '@/hooks/queries/posts/use-posts';
 import { usePullToRefresh } from '@/hooks/use-pull-to-refresh';
 import { useRefreshOnFocus } from '@/hooks/use-refresh-on-focus';
@@ -62,8 +61,6 @@ const ProfileOverview = () => {
     hasNextPage,
     isFetchingNextPage
   } = useAuthorPosts(userId ?? undefined);
-
-  const { data: commentCounts = {} } = useCommentCounts(posts.map((post) => post.id));
 
   useRefreshOnFocus(['posts', 'author', userId]);
   const { isRefreshing, onRefresh } = usePullToRefresh([refetch]);
@@ -154,7 +151,7 @@ const ProfileOverview = () => {
       post={item}
       showActions
       householdName={isMultiHousehold ? householdById.get(item.householdId)?.name : undefined}
-      commentCount={commentCounts[item.id] ?? 0}
+      commentCount={item.commentCount}
       onToggleLike={() => toggleLike({ postId: item.id, liked: item.likedByMe })}
       onOpenActions={() => {
         setActivePost(item);

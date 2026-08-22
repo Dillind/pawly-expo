@@ -131,25 +131,6 @@ namespace CommentService {
     return buildThread(comments);
   }
 
-  /** Drives the count beside the comment icon on every card in the stream. */
-  export async function countsByPost(postIds: string[]): Promise<Record<string, number>> {
-    if (postIds.length === 0) return {};
-
-    const { data, error } = await supabase
-      .from('post_comments')
-      .select('post_id')
-      .in('post_id', postIds);
-
-    if (error) throw error;
-
-    const counts: Record<string, number> = {};
-    for (const row of (data ?? []) as { post_id: string }[]) {
-      counts[row.post_id] = (counts[row.post_id] ?? 0) + 1;
-    }
-
-    return counts;
-  }
-
   export async function create(params: {
     postId: string;
     userId: string;

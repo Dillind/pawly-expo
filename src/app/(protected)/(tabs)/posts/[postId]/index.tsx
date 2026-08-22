@@ -5,7 +5,7 @@ import ScreenView from '@/components/layout/screen-view';
 import CommentComposer from '@/components/ui/comment-composer';
 import CommentThread from '@/components/ui/comment-thread';
 import PostBody from '@/components/ui/post-body';
-import { type AppTheme } from '@/constants/theme';
+import { BottomTabInset, type AppTheme } from '@/constants/theme';
 import { useHouseholds } from '@/hooks/queries/household/use-households';
 import {
   useComments,
@@ -20,8 +20,8 @@ import { useAuthStore } from '@/stores/auth-store';
 import type { TrueSheet } from '@lodev09/react-native-true-sheet';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import { useRef, useState } from 'react';
-import { ActivityIndicator, Alert, ScrollView, StyleSheet, View } from 'react-native';
-import { KeyboardStickyView } from 'react-native-keyboard-controller';
+import { ActivityIndicator, Alert, ScrollView, StyleSheet } from 'react-native';
+import { KeyboardAvoidingView } from 'react-native-keyboard-controller';
 
 /** What the composer is answering. Null composes a top-level comment. */
 type ReplyTarget = { parentCommentId: string; replyToUserId: string | null; name: string };
@@ -57,8 +57,6 @@ const PostDetail = () => {
   // The same test as private.can_manage_post: the post's author, or an Owner of
   // its household. It decides which comments offer a delete.
   const canManagePost = canDelete;
-
-  const commentCount = comments.reduce((total, comment) => total + 1 + comment.replies.length, 0);
 
   const leave = () => {
     if (router.canGoBack()) return router.back();
@@ -144,8 +142,22 @@ const PostDetail = () => {
         />
       )}
 
+      {/* `padding` rather than a sticky composer: KeyboardStickyView translates
+          the composer up over the thread without shrinking it, so the comment
+          just written ends up behind the keyboard and cannot be scrolled to.
+          Padding the container moves the scroller's own bottom.
+
+          The negative offset is the native tab bar, which floats over content
+          and would otherwise cover the input. The composer carries a matching
+          paddingBottom, so the two cancel once the keyboard is up and it sits
+          directly on it. Same fixed inset the popover uses, and for the same
+          reason: expo-router's native tabs expose no way to read the bar's
+          height. */}
       {post && (
-        <View style={styles.fill}>
+        <KeyboardAvoidingView
+          behavior="padding"
+          keyboardVerticalOffset={-BottomTabInset}
+          style={styles.fill}>
           <ScrollView
             ref={scrollRef}
             contentInsetAdjustmentBehavior="automatic"
@@ -154,7 +166,7 @@ const PostDetail = () => {
             <PostBody
               post={post}
               householdName={households.length > 1 ? household?.name : undefined}
-              commentCount={commentCount}
+              commentCount={post.commentCount}
               onToggleLike={() => toggleLike({ postId: post.id, liked: post.likedByMe })}
               onOpenPhoto={(photoId) => router.push(`/posts/${post.id}/photo/${photoId}`)}
             />
@@ -174,17 +186,13 @@ const PostDetail = () => {
             />
           </ScrollView>
 
-          {/* Rides the keyboard rather than being pushed by a padded scroller:
-              the thread keeps its own scroll position while the composer moves. */}
-          <KeyboardStickyView>
-            <CommentComposer
-              replyingToName={replyTarget?.name ?? null}
-              isSending={isSending}
-              onCancelReply={() => setReplyTarget(null)}
-              onSend={send}
-            />
-          </KeyboardStickyView>
-        </View>
+          <CommentComposer
+            replyingToName={replyTarget?.name ?? null}
+            isSending={isSending}
+            onCancelReply={() => setReplyTarget(null)}
+            onSend={send}
+          />
+        </KeyboardAvoidingView>
       )}
 
       <PostActionsSheet

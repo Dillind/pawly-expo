@@ -4,11 +4,9 @@ let listResult: { data: unknown; error: Error | null } = { data: [], error: null
 
 const mockInsert = jest.fn().mockResolvedValue({ error: null });
 const mockOrder = jest.fn(() => Promise.resolve(listResult));
-const mockIn = jest.fn(() => Promise.resolve(listResult));
 const mockEqDelete = jest.fn().mockResolvedValue({ error: null });
 const mockSelect = jest.fn(() => ({
-  eq: jest.fn(() => ({ order: mockOrder })),
-  in: mockIn
+  eq: jest.fn(() => ({ order: mockOrder }))
 }));
 
 jest.mock('@/lib/supabase/client', () => ({
@@ -140,21 +138,5 @@ describe('CommentService.create', () => {
       parent_comment_id: null,
       reply_to_user_id: null
     });
-  });
-});
-
-describe('CommentService.countsByPost', () => {
-  it('tallies rows per post', async () => {
-    listResult = {
-      data: [{ post_id: 'p1' }, { post_id: 'p2' }, { post_id: 'p1' }],
-      error: null
-    };
-
-    await expect(CommentService.countsByPost(['p1', 'p2'])).resolves.toEqual({ p1: 2, p2: 1 });
-  });
-
-  it('asks for nothing when there are no posts on screen', async () => {
-    await expect(CommentService.countsByPost([])).resolves.toEqual({});
-    expect(mockSelect).not.toHaveBeenCalled();
   });
 });

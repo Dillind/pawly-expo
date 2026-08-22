@@ -59,6 +59,7 @@ const row = (overrides: Record<string, unknown> = {}) => ({
   post_photos: [{ id: 'photo-1', storage_path: 'user-1/house-1/b.jpg', sort_order: 0 }],
   post_pets: [{ pets: { id: 'pet-1', name: 'Bailey', photo_url: null } }],
   post_likes: [],
+  post_comments: [{ count: 3 }],
   ...overrides
 });
 
@@ -263,10 +264,21 @@ describe('PostService.get', () => {
         }
       ],
       pets: [{ id: 'pet-1', name: 'Bailey', photoUrl: null }],
+      commentCount: 3,
       likeCount: 0,
       likedByMe: false,
       likers: []
     });
+  });
+
+  // PostgREST omits the aggregate row entirely rather than returning zero, so
+  // an uncommented Post arrives with an empty array and must read as 0.
+  it('reads a missing comment aggregate as no comments', async () => {
+    mockSingle.mockResolvedValue({ data: row({ post_comments: [] }), error: null });
+
+    const post = await PostService.get({ postId: 'post-1', viewerId: null });
+
+    expect(post.commentCount).toBe(0);
   });
 
   it('carries a null title through, which is every Post made before titles existed', async () => {
