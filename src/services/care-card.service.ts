@@ -1,8 +1,5 @@
-import type {
-  CareCardContactInput,
-  CareCardInput,
-  MedicationInput
-} from '@/lib/form/pet-schemas';
+import type { CareCardContactInput, CareCardInput, MedicationInput } from '@/lib/form/pet-schemas';
+import { assertWrote } from '@/lib/supabase/assert-wrote';
 import { supabase } from '@/lib/supabase/client';
 
 export type CareCard = {
@@ -121,11 +118,14 @@ namespace CareCardService {
     const row = { pet_id: petId, name: input.name, phone: input.phone };
 
     if (input.id) {
-      const { error } = await supabase
+      const { data, error } = await supabase
         .from('care_card_contacts')
         .update(row)
-        .eq('id', input.id);
+        .eq('id', input.id)
+        .select('id');
       if (error) throw error;
+
+      assertWrote(data, 'Only an owner can change this Care Card');
       return;
     }
 
@@ -221,10 +221,19 @@ namespace CareCardService {
       ...(sortOrder !== undefined ? { sort_order: sortOrder } : {})
     };
 
-    const { error } = input.id
-      ? await supabase.from('care_card_medications').update(row).eq('id', input.id)
-      : await supabase.from('care_card_medications').insert(row);
+    if (input.id) {
+      const { data, error } = await supabase
+        .from('care_card_medications')
+        .update(row)
+        .eq('id', input.id)
+        .select('id');
+      if (error) throw error;
 
+      assertWrote(data, 'Only an owner can change this Care Card');
+      return;
+    }
+
+    const { error } = await supabase.from('care_card_medications').insert(row);
     if (error) throw error;
   }
 

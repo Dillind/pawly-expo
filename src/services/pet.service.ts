@@ -1,3 +1,4 @@
+import { assertWrote } from '@/lib/supabase/assert-wrote';
 import { supabase } from '@/lib/supabase/client';
 import PetPhotoService from '@/services/pet-photo.service';
 import type { FeedingScheduleLabel, Pet, PetSex, PetType } from '@/types/core';
@@ -88,13 +89,21 @@ namespace PetService {
       row.birthdate_is_approximate = patch.birthdateIsApproximate;
     }
 
-    const { error } = await supabase.from('pets').update(row).eq('id', petId);
+    const { data, error } = await supabase.from('pets').update(row).eq('id', petId).select('id');
     if (error) throw error;
+
+    assertWrote(data, 'Only an owner can change this pet');
   }
 
   export async function setPhotoUrl(petId: string, publicUrl: string): Promise<void> {
-    const { error } = await supabase.from('pets').update({ photo_url: publicUrl }).eq('id', petId);
+    const { data, error } = await supabase
+      .from('pets')
+      .update({ photo_url: publicUrl })
+      .eq('id', petId)
+      .select('id');
     if (error) throw error;
+
+    assertWrote(data, 'Only an owner can change this pet');
   }
 
   /**

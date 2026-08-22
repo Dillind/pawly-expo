@@ -8,6 +8,7 @@ import PhotoViewer from '@/components/ui/photo-viewer';
 import type { AppTheme } from '@/constants/theme';
 import { Spacing } from '@/constants/theme';
 import { useAddPetPhotos, useDeletePetPhoto } from '@/hooks/queries/pet/use-pet-photo-mutations';
+import { useHousehold } from '@/hooks/queries/household/use-household';
 import { usePetPhotos } from '@/hooks/queries/pet/use-pet-photos';
 import { useStyles } from '@/hooks/use-styles';
 import { hapticLight } from '@/lib/haptics';
@@ -38,7 +39,7 @@ type JigglingPhotoTileProps = {
   size: number;
   isEditing: boolean;
   onPress: () => void;
-  onLongPress: () => void;
+  onLongPress?: () => void;
   onRemove: () => void;
 };
 
@@ -90,6 +91,9 @@ const GalleryStrip = ({ petId }: Props) => {
   const { data: photos, isLoading, isError, refetch } = usePetPhotos(petId);
   const { mutate: addPhotos, isPending: isAdding } = useAddPetPhotos(petId);
   const { mutate: deletePhoto } = useDeletePetPhoto(petId);
+  const { data: household } = useHousehold();
+
+  const isOwner = household?.isOwner ?? false;
 
   const [viewerIndex, setViewerIndex] = useState<number | null>(null);
   const [gridWidth, setGridWidth] = useState(0);
@@ -99,7 +103,7 @@ const GalleryStrip = ({ petId }: Props) => {
   const remainingSlots = PHOTO_CAP - photoList.length;
   const isAtCap = remainingSlots <= 0;
 
-  const isEditing = isEditRequested && photoList.length > 0;
+  const isEditing = isOwner && isEditRequested && photoList.length > 0;
 
   // Measured, not from the window: the grid sits inside padded scroll content.
   const tileSize = (gridWidth - GRID_GAP * (COLUMNS - 1)) / COLUMNS;
@@ -136,6 +140,10 @@ const GalleryStrip = ({ petId }: Props) => {
     );
   }
 
+  // Nothing to show and nothing to add: a heading over an empty row reads as
+  // something that failed to load.
+  if (!isOwner && photoList.length === 0) return null;
+
   return (
     <View style={styles.section}>
       <View style={styles.header}>
@@ -160,7 +168,7 @@ const GalleryStrip = ({ petId }: Props) => {
         {tileSize > 0 && (
           <>
             {/* Hidden at the cap: an 11th tile would strand one on a third row. */}
-            {!isAtCap && (
+            {isOwner && !isAtCap && (
               <AddPhotoTile
                 size={tileSize}
                 isBusy={isAdding}
@@ -176,7 +184,7 @@ const GalleryStrip = ({ petId }: Props) => {
                 size={tileSize}
                 isEditing={isEditing}
                 onPress={() => (isEditing ? setIsEditing(false) : setViewerIndex(index))}
-                onLongPress={startEditing}
+                onLongPress={isOwner ? startEditing : undefined}
                 onRemove={() => confirmRemove(photo)}
               />
             ))}
@@ -184,7 +192,7 @@ const GalleryStrip = ({ petId }: Props) => {
         )}
       </View>
 
-      {isAtCap && !isEditing && (
+      {isOwner && isAtCap && !isEditing && (
         <AppText color="textSecondary" size={13}>
           {`${PHOTO_CAP} of ${PHOTO_CAP} photos. Remove one to add another.`}
         </AppText>

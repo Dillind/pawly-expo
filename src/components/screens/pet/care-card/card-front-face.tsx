@@ -19,7 +19,8 @@ type Props = {
   isSharing: boolean;
   isShareDisabled: boolean;
   onFlip: () => void;
-  onEdit: () => void;
+  /** Omitted for a member who cannot edit the card, which hides the control. */
+  onEdit?: () => void;
   onShare: () => void;
   onHelp: () => void;
 };
@@ -95,12 +96,14 @@ const CardFrontFace = ({
           </PressableOpacity>
 
           <View style={styles.actions}>
-            <CardActionButton
-              text="Edit"
-              accessibilityLabel={`Edit ${petName}'s Care Card`}
-              variant="ghost"
-              onPress={onEdit}
-            />
+            {onEdit && (
+              <CardActionButton
+                text="Edit"
+                accessibilityLabel={`Edit ${petName}'s Care Card`}
+                variant="ghost"
+                onPress={onEdit}
+              />
+            )}
             <CardActionButton
               text="Share"
               accessibilityLabel={`Share ${petName}'s Care Card`}
@@ -118,15 +121,17 @@ const CardFrontFace = ({
             Everything a sitter needs to look after {petName}, on one card you can hand over.
           </AppText>
 
-          <View style={styles.actions}>
-            <CardActionButton
-              text="Get started"
-              accessibilityLabel={`Start ${petName}'s Care Card`}
-              variant="solid"
-              fontWeight="bold"
-              onPress={onEdit}
-            />
-          </View>
+          {onEdit && (
+            <View style={styles.actions}>
+              <CardActionButton
+                text="Get started"
+                accessibilityLabel={`Start ${petName}'s Care Card`}
+                variant="solid"
+                fontWeight="bold"
+                onPress={onEdit}
+              />
+            </View>
+          )}
         </View>
       )}
     </>

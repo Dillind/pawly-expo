@@ -24,6 +24,13 @@ uploading a new one through the header's camera button. Tapping a gallery photo 
 screen, which is what tapping a photo means, and there is nowhere left for "Set as cover photo" that
 does not put an edit action behind a gesture people use to look at things.
 
+**Every write confirms with `.select()`.** A write blocked by RLS matches zero rows and returns no
+error, so `.update().eq()` on its own cannot tell a write that landed from one the policy threw
+away — the success toast fired while nothing had changed. `assertWrote` in
+`src/lib/supabase/assert-wrote.ts` turns the empty result into a `UserFacingError`. The role is
+never checked in TypeScript before the write: that would restate the policy in a second place, and
+the two would drift. Postgres stays the only authority on who may write.
+
 ---
 
 ## 2026-08-21

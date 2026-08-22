@@ -1,3 +1,4 @@
+import { useHousehold } from '@/hooks/queries/household/use-household';
 import { useCareCardData } from '@/hooks/queries/pet/use-care-card';
 import { useShareCareCard } from '@/hooks/use-share-care-card';
 import { useRouter } from 'expo-router';
@@ -18,6 +19,7 @@ const CareCard = ({ petId, petName, petSubtitle, photoUrl }: Props) => {
   const router = useRouter();
   const { card, medications, contacts, isLoading } = useCareCardData(petId);
   const { shareCareCard, isSharing } = useShareCareCard();
+  const { data: household } = useHousehold();
 
   const [origin, setOrigin] = useState<TileFrame | null>(null);
   const helpRef = useRef<CareCardHelpHandle | null>(null);
@@ -55,10 +57,14 @@ const CareCard = ({ petId, petName, petSubtitle, photoUrl }: Props) => {
           onClose={() => setOrigin(null)}
           // Leaving it mounted behind the editor kept `origin` set on return,
           // which hid the tile for good.
-          onEdit={() => {
-            setOrigin(null);
-            openEditor();
-          }}
+          onEdit={
+            household?.isOwner
+              ? () => {
+                  setOrigin(null);
+                  openEditor();
+                }
+              : undefined
+          }
           onShare={() => void shareCareCard([petId])}
           onHelp={() => helpRef.current?.openWhatIsIt()}
         />
