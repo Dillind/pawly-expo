@@ -251,3 +251,29 @@ function. With neither it throws rather than listing every post RLS allows. An a
 household on purpose: the posts a Member wrote span all of theirs, and RLS still hides any they have
 left. The query key is `['posts', 'author', userId]`, so `writeToEveryList` reaches this list through
 the same prefix as the stream — a like on one shows on the other.
+
+**A comment writes directly to the table; only the alert fan-out is a trigger.** `log_feed` and
+`create_post` are RPCs because each writes several tables in one transaction, and `log_feed` also
+guards a Double Feed. A comment is one row with no guard of that kind, so an RPC would buy nothing
+but a second place to look. The after-insert trigger is what keeps the outbox rule intact: anything
+that creates the row queues the alerts, so a path that bypasses the composer still notifies.
+
+**The comment thread is unpaginated, and its counts come from one request per page of posts.**
+`CommentService.list` returns every comment on a post and shapes them into two levels in the
+service, so no component ever sees `parent_comment_id`. `countsByPost` takes the whole loaded page
+of ids at once rather than one query per card. Both bets are on household scale; the first to break
+will be the thread, and it breaks into a `LegendList` rather than into a schema change.
+
+**Posting a comment shows no success toast; deleting one does.** The comment appearing at the
+bottom of the thread is the confirmation, exactly as the filled heart is for a Like. A delete has
+no such evidence — the row simply is not there — so it says so.
+
+**Comment likes collapse per comment, not per post.** `collapseLikes` keys `post_liked` by
+`postId` and `comment_liked` by `commentId`. Keying both by post would fold likes on two different
+comments into one row that then quotes only one of them. Comments themselves are never collapsed:
+each says something different, and a count would hide the words that are the whole point.
+
+**A comment row's delete is a long press, not a ⋯ button.** The menu holds one action for the
+comment's author, the post's author and an Owner, and none at all for everyone else. A control that
+is usually absent reads worse than one that is never drawn, and a per-row ⋯ on a thread of twelve
+is twelve pieces of furniture for an action almost nobody takes.

@@ -35,6 +35,23 @@ export function alertSentence(alert: InboxRow): string {
         ? `${likers} liked your post ${quoted(alert.postCaption)}`
         : `${likers} liked your photo`;
 
+    // Three sentences, not two. A recipient can be in the thread while owning
+    // neither the post nor the parent -- they commented earlier -- and telling
+    // them it happened on "your post" would simply be untrue.
+    case 'post_commented': {
+      const said = alert.commentBody ? ` ${quoted(alert.commentBody)}` : '';
+
+      if (alert.commentIsReplyToMe) return `${actor} replied to your comment${said}`;
+      if (alert.commentPostIsMine) return `${actor} commented on your post${said}`;
+
+      return `${actor} also commented${said}`;
+    }
+
+    case 'comment_liked':
+      return alert.commentBody
+        ? `${likers} liked your comment ${quoted(alert.commentBody)}`
+        : `${likers} liked your comment`;
+
     case 'member_removed':
       return alert.subjectIsMe
         ? `${actor} removed you from the household`
@@ -50,7 +67,7 @@ export function alertSentence(alert: InboxRow): string {
   }
 }
 
-export type AlertGlyph = 'circleAlert' | 'image' | 'heart' | 'users';
+export type AlertGlyph = 'circleAlert' | 'image' | 'heart' | 'comment' | 'users';
 
 export const alertGlyph = (kind: InboxRow['kind']): AlertGlyph => {
   switch (kind) {
@@ -59,7 +76,10 @@ export const alertGlyph = (kind: InboxRow['kind']): AlertGlyph => {
     case 'post':
       return 'image';
     case 'post_liked':
+    case 'comment_liked':
       return 'heart';
+    case 'post_commented':
+      return 'comment';
     default:
       return 'users';
   }

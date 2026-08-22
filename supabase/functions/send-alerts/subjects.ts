@@ -3,34 +3,76 @@ import type { SupabaseClient } from 'npm:@supabase/supabase-js@2';
 import {
   buildFeedLoggedMessage,
   buildMissedFeedMessage,
+  buildPostCommentedMessage,
   buildPostMessage,
   type ExpoMessage,
   type ScheduleLabel
 } from './message.ts';
 
-export type AlertKind = 'feed_logged' | 'missed_feed' | 'post';
+export type AlertKind = 'feed_logged' | 'missed_feed' | 'post' | 'post_commented';
 
 type AlertSubject = {
   kind: AlertKind;
   subject_id: string;
   /** The local day the alert is about. Only a missed_feed carries one. */
   subject_date: string | null;
+  /** Set on a directed alert. post_commented is the only pushing kind with one. */
+  recipient_id: string | null;
 };
 
 /**
  * subject_id is a feed_logs.id for feed_logged, a feed_times.series_id for
- * missed_feed, and a posts.id for post. Null means the row is gone -- deleted
- * between queue and dispatch.
+ * missed_feed, a posts.id for post, and a post_comments.id for post_commented.
+ * Null means the row is gone -- deleted between queue and dispatch.
  *
  * The switch is exhaustive: the default branch assigns the kind to `never`, so
- * adding a fourth alert_kind fails to compile rather than being silently
+ * adding a fifth alert_kind fails to compile rather than being silently
  * handled as a missed feed.
+ *
+ * comment_liked never reaches here: it is queued with a suppressed_reason, so
+ * index.ts returns before building anything.
  */
 export const buildMessageForAlert = async (
   client: SupabaseClient,
   alert: AlertSubject
 ): Promise<Omit<ExpoMessage, 'to'> | null> => {
   switch (alert.kind) {
+    case 'post_commented': {
+      const { data: comment } = await client
+        .from('post_comments')
+        .select('id, body, author_id, post_id, parent_comment_id, posts ( id, author_id )')
+        .eq('id', alert.subject_id)
+        .maybeSingle();
+
+      if (!comment) return null;
+
+      const { data: author } = comment.author_id
+        ? await client.from('users').select('first_name').eq('id', comment.author_id).maybeSingle()
+        : { data: null };
+
+      // Whether this recipient wrote the parent. Only a reply has one, and only
+      // then is the extra read worth making.
+      const { data: parent } = comment.parent_comment_id
+        ? await client
+            .from('post_comments')
+            .select('author_id')
+            .eq('id', comment.parent_comment_id)
+            .maybeSingle()
+        : { data: null };
+
+      // deno-lint-ignore no-explicit-any
+      const post = (comment as any).posts;
+
+      return buildPostCommentedMessage({
+        authorFirstName: author?.first_name ?? null,
+        body: comment.body,
+        isReplyToRecipient:
+          parent?.author_id != null && parent.author_id === alert.recipient_id,
+        isPostAuthor: post?.author_id != null && post.author_id === alert.recipient_id,
+        postId: comment.post_id
+      });
+    }
+
     case 'post': {
       const { data: post } = await client
         .from('posts')

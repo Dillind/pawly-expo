@@ -47,6 +47,24 @@ device — this is exactly how the Feed Logged Alerts toggle shipped broken.
 
 ## Supabase
 
+**`insert ... select` does not coerce a bare string literal to an enum column; `insert ... values`
+does.** The same literal that works in a `values` list fails in a `select` list with *"column kind
+is of type alert_kind but expression is of type text"*. This bit `queue_post_commented_alert`, which
+fans one comment out to several recipient rows and therefore had to be a `select`. Inside a trigger
+it surfaces as the *insert on the parent table* failing, so the error names `post_comments` and not
+the alert at all. Cast explicitly: `'post_commented'::public.alert_kind`.
+
+**Changing what `list_alerts` returns needs a `drop function`, not `create or replace`.** Postgres
+refuses to change a function's return type in place, and the returned `table (...)` is part of it.
+Adding one column to the inbox means dropping and recreating, and the `grant` has to be reissued
+after — a dropped function takes its grants with it.
+
+**A `check` constraint cannot read another row.** Two invariants on `post_comments` — that a reply
+belongs to the same post as its parent, and that its parent is itself top-level — need a
+`before insert` trigger instead. Neither is reachable through the app, which only ever offers a
+top-level id as a parent; they exist because the table has to refuse the row on its own, and a
+service-role script is a writer the UI does not mediate.
+
 **Supabase auth errors are written for developers.** "Token has expired or is invalid", "Invalid
 login credentials". Never let them reach a toast — `toUserFacingError` in `src/lib/auth-errors.ts`
 maps on `error.code`, not the message, because the message is prose the platform can reword.

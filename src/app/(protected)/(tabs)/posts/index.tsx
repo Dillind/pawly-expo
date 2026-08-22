@@ -12,6 +12,7 @@ import {
   usePosts,
   useToggleLike
 } from '@/hooks/queries/posts/use-posts';
+import { useCommentCounts } from '@/hooks/queries/posts/use-comments';
 import { usePullToRefresh } from '@/hooks/use-pull-to-refresh';
 import { useRefreshOnFocus } from '@/hooks/use-refresh-on-focus';
 import { useStyles } from '@/hooks/use-styles';
@@ -54,6 +55,9 @@ const Posts = () => {
     isFetchingNextPage
   } = usePosts(householdIds, userId ?? undefined);
 
+  // One request for the whole loaded page rather than one per card.
+  const { data: commentCounts = {} } = useCommentCounts(posts.map((post) => post.id));
+
   useRefreshOnFocus(['posts']);
   const { isRefreshing, onRefresh } = usePullToRefresh([refetch]);
 
@@ -82,17 +86,24 @@ const Posts = () => {
   const renderItem = ({ item }: LegendListRenderItemProps<Post>) => {
     const { canEdit, canDelete } = permissions(item);
 
+    const openPost = () =>
+      router.push({ pathname: '/posts/[postId]', params: { postId: item.id } });
+
     return (
       <PostCard
         post={item}
         showActions={canEdit || canDelete}
         householdName={isMultiHousehold ? householdById.get(item.householdId)?.name : undefined}
+        commentCount={commentCounts[item.id] ?? 0}
         onToggleLike={() => toggleLike({ postId: item.id, liked: item.likedByMe })}
         onOpenActions={() => {
           setActivePost(item);
           void actionsSheetRef.current?.present();
         }}
-        onOpen={() => router.push({ pathname: '/posts/[postId]', params: { postId: item.id } })}
+        onOpen={openPost}
+        // Post Detail is the thread, so the comment icon and the caption lead to
+        // the same place -- the icon just says which part you came for.
+        onOpenComments={openPost}
       />
     );
   };

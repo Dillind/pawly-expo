@@ -143,3 +143,42 @@ export const buildPostMessage = (input: PostInput): Omit<ExpoMessage, 'to'> => {
     data: { screen: '/posts/[postId]', params: { postId: input.postId } }
   };
 };
+
+export type PostCommentedInput = {
+  authorFirstName: string | null;
+  body: string;
+  /** True when the recipient wrote the comment being replied to. */
+  isReplyToRecipient: boolean;
+  /** True when the recipient wrote the post being commented on. */
+  isPostAuthor: boolean;
+  postId: string;
+};
+
+/**
+ * The comment itself is the body, for the same reason the caption is on a Post
+ * Alert: "Sarah commented on your post" makes you open the app to find out what
+ * she said, and seeing the words on the lock screen is the whole value.
+ *
+ * The title carries the relationship instead, because that is what the reader
+ * cannot infer from the words. Three cases, not two: the third is the member
+ * who is in the thread but owns neither the post nor the parent, and telling
+ * them it happened on "your post" would be a plain lie.
+ */
+export const buildPostCommentedMessage = (
+  input: PostCommentedInput
+): Omit<ExpoMessage, 'to'> => {
+  const author = authorName(input.authorFirstName);
+
+  const title = input.isReplyToRecipient
+    ? `${author} replied to your comment`
+    : input.isPostAuthor
+      ? `${author} commented on your post`
+      : `${author} also commented`;
+
+  return {
+    title,
+    sound: 'default',
+    body: truncate(input.body.trim(), CAPTION_PREVIEW_LIMIT),
+    data: { screen: '/posts/[postId]', params: { postId: input.postId } }
+  };
+};
