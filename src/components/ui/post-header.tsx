@@ -1,5 +1,5 @@
 import AppText from '@/components/core/app-text';
-import AvatarInitials from '@/components/core/avatar-initials';
+import UserAvatar from '@/components/core/user-avatar';
 import IconButton from '@/components/core/icon-button';
 import type { AppTheme } from '@/constants/theme';
 import { useStyles } from '@/hooks/use-styles';
@@ -29,9 +29,10 @@ const PostHeader = ({ post, showActions = false, householdName, onOpenActions }:
 
   return (
     <View style={styles.header}>
-      <AvatarInitials
+      <UserAvatar
         firstName={post.author?.firstName}
         lastName={post.author?.lastName}
+        avatarUrl={post.author?.avatarUrl}
         size={AVATAR}
       />
       <View style={styles.headerText}>

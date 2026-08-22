@@ -326,8 +326,8 @@ describe('PostService.get', () => {
     const post = await PostService.get({ postId: 'post-1', viewerId: null });
 
     expect(post.likers).toEqual([
-      { userId: 'user-2', firstName: 'Sarah', lastName: 'Chen' },
-      { userId: 'user-1', firstName: 'Dylan', lastName: 'Lindsay' }
+      { userId: 'user-2', firstName: 'Sarah', lastName: 'Chen', avatarUrl: null },
+      { userId: 'user-1', firstName: 'Dylan', lastName: 'Lindsay', avatarUrl: null }
     ]);
   });
 
@@ -339,6 +339,8 @@ describe('PostService.get', () => {
 
     const post = await PostService.get({ postId: 'post-1', viewerId: null });
 
-    expect(post.likers).toEqual([{ userId: 'user-9', firstName: null, lastName: null }]);
+    expect(post.likers).toEqual([
+      { userId: 'user-9', firstName: null, lastName: null, avatarUrl: null }
+    ]);
   });
 });

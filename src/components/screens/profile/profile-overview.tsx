@@ -1,10 +1,13 @@
+import PhotoSourceSheet from '@/components/bottom-sheets/photo-source-sheet';
 import AppText from '@/components/core/app-text';
-import AvatarInitials from '@/components/core/avatar-initials';
 import Icon from '@/components/core/icon';
+import IconButton from '@/components/core/icon-button';
+import UserAvatar from '@/components/core/user-avatar';
 import ScreenScrollView from '@/components/layout/screen-scroll-view';
 import ScreenView from '@/components/layout/screen-view';
 import { ROLE_OPTIONS } from '@/constants/options';
 import { BottomTabInset, Radius, type AppTheme } from '@/constants/theme';
+import { useChangeProfilePhoto } from '@/hooks/queries/account/use-change-profile-photo';
 import { useHousehold } from '@/hooks/queries/household/use-household';
 import { useHouseholdMembers } from '@/hooks/queries/household/use-household-members';
 import { useSessionEmail } from '@/hooks/queries/account/use-session-email';
@@ -12,7 +15,11 @@ import { useUserProfile } from '@/hooks/queries/account/use-user-profile';
 import { useStyles } from '@/hooks/use-styles';
 import { fullName } from '@/utils/members';
 import { optionLabel } from '@/utils/options';
-import { StyleSheet, View } from 'react-native';
+import type { TrueSheet } from '@lodev09/react-native-true-sheet';
+import { useRef } from 'react';
+import { ActivityIndicator, StyleSheet, View } from 'react-native';
+
+const AVATAR = 96;
 
 const ProfileOverview = () => {
   const styles = useStyles(makeStyles);
@@ -21,8 +28,11 @@ const ProfileOverview = () => {
   const { data: email } = useSessionEmail();
   const { data: household } = useHousehold();
   const { data: members = [] } = useHouseholdMembers();
+  const { mutate: changePhoto, isPending: isChangingPhoto } = useChangeProfilePhoto();
+  const photoSheetRef = useRef<TrueSheet | null>(null);
 
   const name = fullName(profile);
+  const avatarUrl = profile?.avatarUrl ?? null;
 
   return (
     <ScreenView edges={[]}>
@@ -30,7 +40,28 @@ const ProfileOverview = () => {
         contentContainerStyle={styles.content}
         contentInsetAdjustmentBehavior="automatic">
         <View style={styles.identity}>
-          <AvatarInitials firstName={profile?.firstName} lastName={profile?.lastName} />
+          <View>
+            <UserAvatar
+              firstName={profile?.firstName}
+              lastName={profile?.lastName}
+              avatarUrl={avatarUrl}
+              size={AVATAR}
+            />
+
+            <View style={styles.editWell}>
+              {isChangingPhoto ? (
+                <ActivityIndicator />
+              ) : (
+                <IconButton
+                  name="camera"
+                  accessibilityLabel="Change your profile photo"
+                  variant="primary"
+                  size={18}
+                  onPress={() => void photoSheetRef.current?.present()}
+                />
+              )}
+            </View>
+          </View>
           <AppText variant="header" size={22}>
             {name || 'Your profile'}
           </AppText>
@@ -60,6 +91,12 @@ const ProfileOverview = () => {
           </View>
         )}
       </ScreenScrollView>
+
+      <PhotoSourceSheet
+        sheetRef={photoSheetRef}
+        title="Change your photo"
+        onPicked={([localUri]) => changePhoto({ localUri, previousUrl: avatarUrl })}
+      />
     </ScreenView>
   );
 };
@@ -73,6 +110,16 @@ const makeStyles = ({ colors, spacing }: AppTheme) =>
     identity: {
       alignItems: 'center',
       gap: spacing.two
+    },
+    // The avatar circle is `primary` too, so the button needs a ring of page
+    // background around it or the two greens merge into one blob.
+    editWell: {
+      position: 'absolute',
+      right: -spacing.two,
+      bottom: -spacing.two,
+      padding: spacing.half,
+      borderRadius: Radius.full,
+      backgroundColor: colors.background
     },
     rolePill: {
       paddingHorizontal: spacing.two,

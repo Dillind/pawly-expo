@@ -168,7 +168,8 @@ export function useToggleLike() {
       const me: PostLiker = {
         userId,
         firstName: profile?.firstName ?? null,
-        lastName: profile?.lastName ?? null
+        lastName: profile?.lastName ?? null,
+        avatarUrl: profile?.avatarUrl ?? null
       };
 
       const applyLike = (post: Post): Post => ({

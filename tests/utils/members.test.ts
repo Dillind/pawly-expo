@@ -2,8 +2,22 @@ import type { HouseholdMember } from '@/types/core';
 import { formatAuthorName, memberDisplayName } from '@/utils/members';
 
 const members: HouseholdMember[] = [
-  { userId: 'u1', role: 'owner', firstName: 'Dylan', lastName: 'Lindsay', feedLoggedAlerts: true },
-  { userId: 'u2', role: 'contributor', firstName: null, lastName: null, feedLoggedAlerts: false }
+  {
+    userId: 'u1',
+    role: 'owner',
+    firstName: 'Dylan',
+    lastName: 'Lindsay',
+    avatarUrl: null,
+    feedLoggedAlerts: true
+  },
+  {
+    userId: 'u2',
+    role: 'contributor',
+    firstName: null,
+    lastName: null,
+    avatarUrl: null,
+    feedLoggedAlerts: false
+  }
 ];
 
 describe('formatAuthorName', () => {
