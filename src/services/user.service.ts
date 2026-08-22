@@ -1,3 +1,4 @@
+import { assertWrote } from '@/lib/supabase/assert-wrote';
 import { supabase } from '@/lib/supabase/client';
 import type { UserProfile } from '@/types/core';
 
@@ -23,12 +24,15 @@ namespace UserService {
     userId: string,
     params: { firstName: string; lastName: string }
   ) {
-    const { error } = await supabase
+    const { data, error } = await supabase
       .from('users')
       .update({ first_name: params.firstName, last_name: params.lastName })
-      .eq('id', userId);
+      .eq('id', userId)
+      .select('id');
 
     if (error) throw error;
+
+    assertWrote(data, 'Your name could not be updated');
   }
 }
 

@@ -1,24 +1,19 @@
 import PhotoSourceSheet from '@/components/bottom-sheets/photo-source-sheet';
 import AppText from '@/components/core/app-text';
 import ErrorState from '@/components/core/error-state';
-import MainButton from '@/components/core/main-button';
 import PressableOpacity from '@/components/core/pressable-opacity';
-import Tray, { type TrayStepDescriptor } from '@/components/core/tray';
 import AddPhotoTile from '@/components/ui/add-photo-tile';
 import PhotoTile from '@/components/ui/photo-tile';
 import type { AppTheme } from '@/constants/theme';
-import { Radius, Spacing } from '@/constants/theme';
-import {
-  useAddPetPhotos,
-  useDeletePetPhoto,
-  useSetCoverPhoto
-} from '@/hooks/queries/pet/use-pet-photo-mutations';
+import { Spacing } from '@/constants/theme';
+import { useAddPetPhotos, useDeletePetPhoto } from '@/hooks/queries/pet/use-pet-photo-mutations';
+import { useHousehold } from '@/hooks/queries/household/use-household';
+import { useRouter } from 'expo-router';
 import { usePetPhotos } from '@/hooks/queries/pet/use-pet-photos';
 import { useStyles } from '@/hooks/use-styles';
 import { hapticLight } from '@/lib/haptics';
 import type { PetPhoto } from '@/services/pet-photo.service';
 import type { TrueSheet } from '@lodev09/react-native-true-sheet';
-import { Image } from 'expo-image';
 import { useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, Alert, StyleSheet, View } from 'react-native';
 import Animated, {
@@ -44,7 +39,7 @@ type JigglingPhotoTileProps = {
   size: number;
   isEditing: boolean;
   onPress: () => void;
-  onLongPress: () => void;
+  onLongPress?: () => void;
   onRemove: () => void;
 };
 
@@ -88,56 +83,19 @@ const JigglingPhotoTile = ({
   );
 };
 
-type ActionsStepProps = {
-  photo: PetPhoto;
-  onSetCover: () => void;
-  onDelete: () => void;
-  isSettingCover: boolean;
-  isDeleting: boolean;
-};
-
-const ActionsStep = ({
-  photo,
-  onSetCover,
-  onDelete,
-  isSettingCover,
-  isDeleting
-}: ActionsStepProps) => {
-  const styles = useStyles(makeStyles);
-
-  return (
-    <View style={styles.actionsStep}>
-      <Image source={photo.url} style={styles.actionsPreview} contentFit="cover" transition={200} />
-
-      <MainButton
-        text={isSettingCover ? 'Setting…' : 'Set as cover photo'}
-        isLoading={isSettingCover}
-        isDisabled={isSettingCover || isDeleting}
-        onPress={onSetCover}
-      />
-      <MainButton
-        text={isDeleting ? 'Removing…' : 'Delete photo'}
-        variant="text"
-        isLoading={isDeleting}
-        isDisabled={isSettingCover || isDeleting}
-        onPress={onDelete}
-      />
-    </View>
-  );
-};
-
 type Props = { petId: string };
 
 const GalleryStrip = ({ petId }: Props) => {
   const styles = useStyles(makeStyles);
-  const sheetRef = useRef<TrueSheet | null>(null);
   const photoSheetRef = useRef<TrueSheet | null>(null);
   const { data: photos, isLoading, isError, refetch } = usePetPhotos(petId);
   const { mutate: addPhotos, isPending: isAdding } = useAddPetPhotos(petId);
-  const { mutate: deletePhoto, isPending: isDeleting } = useDeletePetPhoto(petId);
-  const { mutate: setCoverPhoto, isPending: isSettingCover } = useSetCoverPhoto(petId);
+  const { mutate: deletePhoto } = useDeletePetPhoto(petId);
+  const { data: household } = useHousehold();
+  const router = useRouter();
 
-  const [selectedPhoto, setSelectedPhoto] = useState<PetPhoto | null>(null);
+  const isOwner = household?.isOwner ?? false;
+
   const [gridWidth, setGridWidth] = useState(0);
   const [isEditRequested, setIsEditing] = useState(false);
 
@@ -145,7 +103,7 @@ const GalleryStrip = ({ petId }: Props) => {
   const remainingSlots = PHOTO_CAP - photoList.length;
   const isAtCap = remainingSlots <= 0;
 
-  const isEditing = isEditRequested && photoList.length > 0;
+  const isEditing = isOwner && isEditRequested && photoList.length > 0;
 
   // Measured, not from the window: the grid sits inside padded scroll content.
   const tileSize = (gridWidth - GRID_GAP * (COLUMNS - 1)) / COLUMNS;
@@ -155,16 +113,8 @@ const GalleryStrip = ({ petId }: Props) => {
     setIsEditing(true);
   };
 
-  const openActions = (photo: PetPhoto) => {
-    setSelectedPhoto(photo);
-    void sheetRef.current?.present();
-  };
-
   const removePhoto = (photo: PetPhoto) => {
-    deletePhoto(
-      { photoId: photo.id, photoUrl: photo.url },
-      { onSuccess: () => void sheetRef.current?.dismiss() }
-    );
+    deletePhoto({ photoId: photo.id, photoUrl: photo.url });
   };
 
   /** Native alert, not a sheet: delete is one tap from the badge, and a sheet fights the jiggle. */
@@ -174,31 +124,6 @@ const GalleryStrip = ({ petId }: Props) => {
       { text: 'Delete', style: 'destructive', onPress: () => removePhoto(photo) }
     ]);
   };
-
-  const handleSetCover = () => {
-    if (!selectedPhoto) return;
-
-    setCoverPhoto(selectedPhoto.url, {
-      onSuccess: () => void sheetRef.current?.dismiss()
-    });
-  };
-
-  const steps: TrayStepDescriptor[] = [
-    {
-      id: 'actions',
-      title: 'Photo',
-      render: () =>
-        selectedPhoto ? (
-          <ActionsStep
-            photo={selectedPhoto}
-            onSetCover={handleSetCover}
-            onDelete={() => confirmRemove(selectedPhoto)}
-            isSettingCover={isSettingCover}
-            isDeleting={isDeleting}
-          />
-        ) : null
-    }
-  ];
 
   if (isLoading) {
     return <ActivityIndicator />;
@@ -214,6 +139,10 @@ const GalleryStrip = ({ petId }: Props) => {
       />
     );
   }
+
+  // Nothing to show and nothing to add: a heading over an empty row reads as
+  // something that failed to load.
+  if (!isOwner && photoList.length === 0) return null;
 
   return (
     <View style={styles.section}>
@@ -239,7 +168,7 @@ const GalleryStrip = ({ petId }: Props) => {
         {tileSize > 0 && (
           <>
             {/* Hidden at the cap: an 11th tile would strand one on a third row. */}
-            {!isAtCap && (
+            {isOwner && !isAtCap && (
               <AddPhotoTile
                 size={tileSize}
                 isBusy={isAdding}
@@ -254,8 +183,10 @@ const GalleryStrip = ({ petId }: Props) => {
                 index={index}
                 size={tileSize}
                 isEditing={isEditing}
-                onPress={() => (isEditing ? setIsEditing(false) : openActions(photo))}
-                onLongPress={startEditing}
+                onPress={() =>
+                  isEditing ? setIsEditing(false) : router.push(`/home/${petId}/photo/${photo.id}`)
+                }
+                onLongPress={isOwner ? startEditing : undefined}
                 onRemove={() => confirmRemove(photo)}
               />
             ))}
@@ -263,7 +194,7 @@ const GalleryStrip = ({ petId }: Props) => {
         )}
       </View>
 
-      {isAtCap && !isEditing && (
+      {isOwner && isAtCap && !isEditing && (
         <AppText color="textSecondary" size={13}>
           {`${PHOTO_CAP} of ${PHOTO_CAP} photos. Remove one to add another.`}
         </AppText>
@@ -274,13 +205,11 @@ const GalleryStrip = ({ petId }: Props) => {
         selectionLimit={remainingSlots}
         onPicked={addPhotos}
       />
-
-      <Tray sheetRef={sheetRef} steps={steps} onDismiss={() => setSelectedPhoto(null)} />
     </View>
   );
 };
 
-const makeStyles = ({ spacing, colors }: AppTheme) =>
+const makeStyles = ({ spacing }: AppTheme) =>
   StyleSheet.create({
     section: {
       gap: spacing.two
@@ -295,15 +224,6 @@ const makeStyles = ({ spacing, colors }: AppTheme) =>
       alignItems: 'center',
       justifyContent: 'space-between',
       minHeight: 24
-    },
-    actionsStep: {
-      gap: spacing.three
-    },
-    actionsPreview: {
-      width: '100%',
-      aspectRatio: 1,
-      borderRadius: Radius.card,
-      backgroundColor: colors.backgroundElement
     }
   });
 

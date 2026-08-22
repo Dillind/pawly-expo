@@ -66,6 +66,7 @@ const PostDetail = () => {
             post={post}
             householdName={households.length > 1 ? household?.name : undefined}
             onToggleLike={() => toggleLike({ postId: post.id, liked: post.likedByMe })}
+            onOpenPhoto={(photoId) => router.push(`/posts/${post.id}/photo/${photoId}`)}
           />
         </ScrollView>
       )}

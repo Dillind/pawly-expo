@@ -17,6 +17,22 @@ Newest first. Append, don't rewrite.
 
 ---
 
+## 2026-08-22
+
+**A gallery photo cannot be promoted to the profile photo.** The profile photo is set only by
+uploading a new one through the header's camera button. Tapping a gallery photo opens it full
+screen, which is what tapping a photo means, and there is nowhere left for "Set as cover photo" that
+does not put an edit action behind a gesture people use to look at things.
+
+**Every write confirms with `.select()`.** A write blocked by RLS matches zero rows and returns no
+error, so `.update().eq()` on its own cannot tell a write that landed from one the policy threw
+away — the success toast fired while nothing had changed. `assertWrote` in
+`src/lib/supabase/assert-wrote.ts` turns the empty result into a `UserFacingError`. The role is
+never checked in TypeScript before the write: that would restate the policy in a second place, and
+the two would drift. Postgres stays the only authority on who may write.
+
+---
+
 ## 2026-08-21
 
 **Every stack header is declarative, not `options`.** SDK 57 gives `Stack.Title`, `Stack.Header`,
@@ -165,3 +181,16 @@ flight beside it — writing it back emptied a heart that had already succeeded.
 
 **Arriving at the tab marks every Household seen.** Marking only the Active one left a dot on a
 Household whose Posts were already on the screen.
+
+**A photo opened full screen is a route, not a modal.** The pet gallery and Post Detail both push
+`.../photo/[photoId]`, presented as a `fullScreenModal` with `animation: 'fade'`. The first build
+used `BaseModal`, and it was wrong twice over: `react-native-modal` orchestrates its animation in
+JS, so a full-screen surface arrives with a visible slide that a native push does not have; and the
+close button has to be a `GlassView`, which renders almost nothing over a flat page because glass is
+a material with nothing behind it to refract. A native screen fixes both at once — iOS draws the
+glass circle behind a `Stack.Toolbar.Button` itself, exactly as it does for a back button.
+
+**A Post's photos open only from Post Detail.** On the Posts tab a photo tap opens the Post, and
+that stays. `PostPhotoCarousel` takes `onPressPhoto` alongside `onPress`, and only Post Detail
+passes it — a tab row is a summary, so tapping into it should reach the Post, not skip past it to
+one photo.

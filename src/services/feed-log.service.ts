@@ -1,3 +1,4 @@
+import { assertWrote } from '@/lib/supabase/assert-wrote';
 import { supabase } from '@/lib/supabase/client';
 import type { FeedingScheduleLabel, FeedLog } from '@/types/core';
 
@@ -174,8 +175,14 @@ namespace FeedLogService {
     if (input.loggedAt !== undefined) patch.logged_at = input.loggedAt;
     if (input.notes !== undefined) patch.notes = input.notes;
 
-    const { error } = await supabase.from('feed_logs').update(patch).eq('id', input.logId);
+    const { data, error } = await supabase
+      .from('feed_logs')
+      .update(patch)
+      .eq('id', input.logId)
+      .select('id');
     if (error) throw error;
+
+    assertWrote(data, 'This feed log can no longer be edited');
   }
 
   export async function remove(logId: string): Promise<void> {

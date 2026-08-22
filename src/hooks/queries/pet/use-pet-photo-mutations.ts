@@ -64,20 +64,6 @@ export function useDeletePetPhoto(petId: string) {
   });
 }
 
-export function useSetCoverPhoto(petId: string) {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: (publicUrl: string) => PetService.setPhotoUrl(petId, publicUrl),
-    onSettled: () => invalidateCover(queryClient, petId),
-    onSuccess: () => showSuccessToast(SuccessMessage.CoverPhotoUpdated),
-    onError: (error) => {
-      console.error(error);
-      showErrorToast(ErrorMessage.CoverPhotoUpdateFailed);
-    }
-  });
-}
-
 /**
  * Replaces the pet's profile photo. This writes `pets.photo_url` only — the
  * cover is a single image, deliberately not a gallery row, which is the same

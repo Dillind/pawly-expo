@@ -42,7 +42,7 @@ type Props = {
   origin: TileFrame;
   isSharing: boolean;
   onClose: () => void;
-  onEdit: () => void;
+  onEdit?: () => void;
   onShare: () => void;
   onHelp: () => void;
 };
