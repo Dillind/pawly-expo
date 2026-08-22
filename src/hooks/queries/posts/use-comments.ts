@@ -88,6 +88,11 @@ export function useToggleCommentLike(postId: string | undefined) {
 
       const previous = queryClient.getQueryData<PostComment[]>(key);
 
+      // The mutation cannot run without an id, so flipping the heart first
+      // would show a like that is about to fail RLS. Same guard useToggleLike
+      // puts in front of its optimistic liker.
+      if (!userId) return { previous };
+
       const applyLike = (comment: PostComment): PostComment =>
         comment.id === commentId
           ? {

@@ -40,7 +40,7 @@ export const buildMessageForAlert = async (
     case 'post_commented': {
       const { data: comment } = await client
         .from('post_comments')
-        .select('id, body, author_id, post_id, parent_comment_id, posts ( id, author_id )')
+        .select('id, body, author_id, post_id, reply_to_user_id, posts ( id, author_id )')
         .eq('id', alert.subject_id)
         .maybeSingle();
 
@@ -50,24 +50,18 @@ export const buildMessageForAlert = async (
         ? await client.from('users').select('first_name').eq('id', comment.author_id).maybeSingle()
         : { data: null };
 
-      // Whether this recipient wrote the parent. Only a reply has one, and only
-      // then is the extra read worth making.
-      const { data: parent } = comment.parent_comment_id
-        ? await client
-            .from('post_comments')
-            .select('author_id')
-            .eq('id', comment.parent_comment_id)
-            .maybeSingle()
-        : { data: null };
-
       // deno-lint-ignore no-explicit-any
       const post = (comment as any).posts;
 
       return buildPostCommentedMessage({
         authorFirstName: author?.first_name ?? null,
         body: comment.body,
+        // reply_to_user_id, NOT the parent's author. A reply answering a
+        // SIBLING flattens under the same parent, so reading the parent would
+        // tell the wrong member their comment had been replied to. Reading the
+        // column also saves the round trip the parent lookup used to cost.
         isReplyToRecipient:
-          parent?.author_id != null && parent.author_id === alert.recipient_id,
+          comment.reply_to_user_id != null && comment.reply_to_user_id === alert.recipient_id,
         isPostAuthor: post?.author_id != null && post.author_id === alert.recipient_id,
         postId: comment.post_id
       });

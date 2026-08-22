@@ -199,7 +199,13 @@ as $$
     -- two-way one: a recipient can be in the thread while owning neither the
     -- post nor the parent, and "on your post" would be a lie to them. Derived
     -- rather than stored, so one kind carries all three sentences.
-    coalesce(parent_comment.author_id = (select auth.uid()), false)
+    --
+    -- reply_to_user_id, NOT the parent's author. They differ whenever a reply
+    -- answers a SIBLING: both flatten under the same parent, so the parent's
+    -- author would be told "replied to your comment" about a sentence aimed at
+    -- somebody else, and the person actually answered would get "also
+    -- commented". The column exists precisely because the two are not the same.
+    coalesce(comment.reply_to_user_id = (select auth.uid()), false)
       as comment_is_reply_to_me,
     coalesce(comment_post.author_id = (select auth.uid()), false)
       as comment_post_is_mine,
@@ -225,8 +231,6 @@ as $$
   left join public.post_comments comment
     on a.kind in ('post_commented', 'comment_liked') and comment.id = a.subject_id
   left join public.posts comment_post on comment_post.id = comment.post_id
-  left join public.post_comments parent_comment
-    on parent_comment.id = comment.parent_comment_id
 
   left join public.users subject_user
     on a.kind in ('member_removed', 'member_role_changed', 'member_left')

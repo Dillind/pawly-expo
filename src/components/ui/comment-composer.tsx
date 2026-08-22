@@ -6,13 +6,19 @@ import { useStyles } from '@/hooks/use-styles';
 import { useTheme } from '@/hooks/use-theme';
 import { hapticLight } from '@/lib/haptics';
 import { COMMENT_MAX_LENGTH } from '@/services/comment.service';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { ScrollView, StyleSheet, TextInput, View } from 'react-native';
 
 type Props = {
   /** Set while a reply is being written. Null composes a top-level comment. */
   replyingToName: string | null;
   isSending: boolean;
+  /**
+   * Incremented by the caller once a comment has actually landed. The draft
+   * lives in here so a keystroke does not re-render the post and its carousel,
+   * which is why clearing it takes a signal rather than a controlled value.
+   */
+  sentCount: number;
   onCancelReply: () => void;
   onSend: (body: string) => void;
 };
@@ -30,25 +36,36 @@ const QUICK_EMOJI = ['🐶', '❤️', '🔥', '😂', '🥺', '🎉', '🦴'] a
 
 const SEND_ICON = 18;
 
-const CommentComposer = ({ replyingToName, isSending, onCancelReply, onSend }: Props) => {
+const CommentComposer = ({
+  replyingToName,
+  isSending,
+  sentCount,
+  onCancelReply,
+  onSend
+}: Props) => {
   const styles = useStyles(makeStyles);
   const { colors } = useTheme();
   const [body, setBody] = useState('');
+  const lastSent = useRef(sentCount);
+
+  useEffect(() => {
+    if (sentCount === lastSent.current) return;
+
+    lastSent.current = sentCount;
+    setBody('');
+  }, [sentCount]);
 
   const trimmed = body.trim();
   const canSend = trimmed.length > 0 && !isSending;
 
+  // Not cleared here. The caller bumps `sentCount` once the write has landed,
+  // so a dropped network keeps what the user typed instead of binning it with
+  // the toast as the only trace.
   const send = () => {
     if (!canSend) return;
 
     hapticLight();
     onSend(trimmed);
-    setBody('');
-  };
-
-  const cancelReply = () => {
-    onCancelReply();
-    setBody('');
   };
 
   return (
@@ -58,8 +75,10 @@ const CommentComposer = ({ replyingToName, isSending, onCancelReply, onSend }: P
           <AppText size={13} color="textSecondary" numberOfLines={1} style={styles.replyLabel}>
             {`Replying to ${replyingToName}`}
           </AppText>
+          {/* The draft survives this. Changing your mind about who you are
+              answering is not changing your mind about what you were saying. */}
           <PressableOpacity
-            onPress={cancelReply}
+            onPress={onCancelReply}
             accessibilityRole="button"
             accessibilityLabel="Stop replying"
             style={styles.cancelTarget}>

@@ -34,6 +34,9 @@ const PostDetail = () => {
   const scrollRef = useRef<ScrollView | null>(null);
 
   const [replyTarget, setReplyTarget] = useState<ReplyTarget | null>(null);
+  // Bumped only once a comment has actually landed, which is what clears the
+  // composer. A failed send leaves the draft where the user can retry it.
+  const [sentCount, setSentCount] = useState(0);
   const [managedComment, setManagedComment] = useState<PostComment | null>(null);
 
   const { postId } = useLocalSearchParams<{ postId: string }>();
@@ -86,6 +89,7 @@ const PostDetail = () => {
       },
       {
         onSuccess: () => {
+          setSentCount((count) => count + 1);
           setReplyTarget(null);
           // The new comment lands at the bottom of its group, which is usually
           // off screen on a post with photos.
@@ -189,6 +193,7 @@ const PostDetail = () => {
           <CommentComposer
             replyingToName={replyTarget?.name ?? null}
             isSending={isSending}
+            sentCount={sentCount}
             onCancelReply={() => setReplyTarget(null)}
             onSend={send}
           />
