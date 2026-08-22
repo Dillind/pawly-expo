@@ -1,4 +1,5 @@
-import { focusManager, QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { focusManager } from '@tanstack/react-query';
+import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client';
 import { DarkTheme, DefaultTheme, Stack, ThemeProvider } from 'expo-router';
 import { useEffect } from 'react';
 import { AppState, type AppStateStatus } from 'react-native';
@@ -9,19 +10,20 @@ import { Toaster } from 'sonner-native';
 
 import { useUserProfile } from '@/hooks/queries/account/use-user-profile';
 import { useAuthSession } from '@/hooks/use-auth-session';
+import { useCacheReset } from '@/hooks/use-cache-reset';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { usePushNotifications } from '@/hooks/use-push-notifications';
+import { persistOptions, queryClient } from '@/lib/query-client';
 import { useActiveHouseholdStore } from '@/stores/active-household-store';
 import { useAuthStore } from '@/stores/auth-store';
 import { useThemeStore } from '@/stores/theme-store';
 import { isWeb } from '@/utils/platform';
 
-const queryClient = new QueryClient();
-
 if (__DEV__) require('../../ReactotronConfig');
 
 const AuthGate = () => {
   useAuthSession();
+  useCacheReset();
   useUserProfile();
   usePushNotifications();
   const { status, isRecovering } = useAuthStore();
@@ -68,9 +70,9 @@ export default function RootLayout() {
       <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
         <SafeAreaProvider>
           <KeyboardProvider>
-            <QueryClientProvider client={queryClient}>
+            <PersistQueryClientProvider client={queryClient} persistOptions={persistOptions}>
               <AuthGate />
-            </QueryClientProvider>
+            </PersistQueryClientProvider>
           </KeyboardProvider>
           <Toaster richColors position="bottom-center" closeButton swipeToDismissDirection="left" />
         </SafeAreaProvider>

@@ -135,6 +135,22 @@ palette is `#F1F2F5` — the screen background. Used on a screen the rows lose t
 read as plain labels rather than as something tappable. It looks fine in dark mode, so this only
 shows up in a light-mode pass. On a screen, use a card on `backgroundElement`.
 
+## TanStack Query
+
+**There is no `pets` query key.** The pet lists are derived from the `households` query, so
+`invalidateQueries({ queryKey: ['pets'] })` matches nothing and fails silently — the list keeps
+showing the old name, the old photo, or a pet that has been removed. Anything that writes to a pet
+invalidates `['households']`.
+
+**A persisted query is dropped unless `gcTime` outlives `maxAge`.** The restore puts the query into
+the cache, garbage collection takes it out again before anything observes it, and the screen paints
+empty exactly as it did before persistence was added. Nothing warns. Both live in
+`src/lib/query-client.ts`; `gcTime` is a day and `maxAge` is the same day.
+
+**Cached data has to be cleared when a session ends.** AsyncStorage is per-device, not per-account,
+so the next person to sign in on the phone paints from the last one's cache. `useCacheReset` watches
+the auth status, because a revoked or expired token never passes through the logout button.
+
 ## This repo
 
 **`docs/agents/` is gitignored.** `git add` skips new files there silently; `git add -f` is the only

@@ -38,23 +38,9 @@ export type PetPatch = {
   birthdateIsApproximate?: boolean;
 };
 
-const LIST_COLUMNS = 'id, name, photo_url';
-
 const DETAIL_COLUMNS = 'id, name, breed, sex, birthdate, birthdate_is_approximate, photo_url, bio';
 
 namespace PetService {
-  export async function listForHousehold(householdId: string): Promise<Pet[]> {
-    const { data, error } = await supabase
-      .from('pets')
-      .select(LIST_COLUMNS)
-      .eq('household_id', householdId)
-      .order('created_at', { ascending: true });
-
-    if (error) throw error;
-
-    return data.map((row) => ({ id: row.id, name: row.name, photoUrl: row.photo_url }));
-  }
-
   export async function getDetail(petId: string): Promise<PetDetail> {
     const { data, error } = await supabase
       .from('pets')

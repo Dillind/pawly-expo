@@ -8,6 +8,7 @@ import ScreenScrollView from '@/components/layout/screen-scroll-view';
 import ScreenView from '@/components/layout/screen-view';
 import NoHouseholdState from '@/components/screens/home/no-household-state';
 import PetSection from '@/components/screens/home/pet-section';
+import PetSectionSkeleton from '@/components/screens/home/pet-section-skeleton';
 import ActionPopover from '@/components/ui/action-popover';
 import TileGrid from '@/components/ui/tile-grid';
 import { CREATE_ACTIONS } from '@/constants/create-actions';
@@ -29,7 +30,7 @@ import type { Pet } from '@/types/core';
 import type { TrueSheet } from '@lodev09/react-native-true-sheet';
 import * as Notifications from 'expo-notifications';
 import { useEffect, useRef, useState } from 'react';
-import { ActivityIndicator, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import Animated, { LinearTransition } from 'react-native-reanimated';
 
 const Home = () => {
@@ -79,6 +80,10 @@ const Home = () => {
 
   const hasHousehold = households.length > 0;
   const hasPets = pets.length > 0;
+  // No household at all is a valid, permanent state -- the sitter with no pets
+  // of their own. It gets the two doors, not a loading state.
+  const hasNoHousehold = !isLoadingHouseholds && households.length === 0;
+  const isPending = !hasNoHousehold && (isLoading || !timezone || !today);
   const isOnlyPet = pets.length === 1;
 
   useEffect(() => {
@@ -97,9 +102,7 @@ const Home = () => {
   }, [hasPets, requestPermission]);
 
   const renderBody = () => {
-    // No household at all is a valid, permanent state -- the sitter with no
-    // pets of their own. It gets the two doors, not the "no pets" empty state.
-    if (!isLoadingHouseholds && households.length === 0) return <NoHouseholdState />;
+    if (hasNoHousehold) return <NoHouseholdState />;
 
     if (isError) {
       return (
@@ -111,7 +114,17 @@ const Home = () => {
       );
     }
 
-    if (isLoading || !timezone || !today) return <ActivityIndicator />;
+    // Two cards, because the household size is not known yet either. Holding
+    // the shape matters more than the count: the header and the tiles below
+    // stay put instead of sliding down when the pets arrive.
+    if (isPending || !timezone || !today) {
+      return (
+        <View style={styles.sections}>
+          <PetSectionSkeleton />
+          <PetSectionSkeleton />
+        </View>
+      );
+    }
 
     if (!hasPets) {
       return (
@@ -163,7 +176,7 @@ const Home = () => {
           </AppText>
         )}
 
-        {hasPets && (
+        {(hasPets || isPending) && (
           <AppText variant="header" size={32}>
             Today
           </AppText>
