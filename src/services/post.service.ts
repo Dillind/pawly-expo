@@ -124,20 +124,33 @@ namespace PostService {
   /**
    * The keyset below still holds across several households: the order is over
    * the whole result rather than per household.
+   *
+   * Scoped by household for the stream, or by author for a Member's own posts.
+   * One of the two is required -- with neither, this would list every post RLS
+   * allows, which is every household the viewer is in and not what any caller
+   * means. An author scope deliberately names no household: the posts a Member
+   * wrote span all of theirs, and RLS still hides any they have left.
    */
   export async function list(params: {
-    householdIds: string[];
+    householdIds?: string[];
+    authorId?: string;
     viewerId: string | null;
     cursor?: PostsCursor;
   }): Promise<{ posts: Post[]; nextCursor: PostsCursor | null }> {
+    if (!params.householdIds && !params.authorId) {
+      throw new Error('PostService.list needs a household or an author to scope by');
+    }
+
     let query = supabase
       .from('posts')
       .select(POST_SELECT)
-      .in('household_id', params.householdIds)
       .order('occurred_at', { ascending: false })
       .order('id', { ascending: false })
       .order('created_at', { referencedTable: 'post_likes', ascending: true })
       .limit(POSTS_PAGE_SIZE);
+
+    if (params.householdIds) query = query.in('household_id', params.householdIds);
+    if (params.authorId) query = query.eq('author_id', params.authorId);
 
     // Ties on occurred_at are real -- two posts a second apart round to the
     // same instant far less often than two backdated to the same day do. id

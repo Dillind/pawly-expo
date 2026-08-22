@@ -36,6 +36,27 @@ export function usePosts(householdIds: string[], viewerId: string | undefined) {
   });
 }
 
+/**
+ * A Member's own posts, across every household they are in. `['posts', ...]`
+ * so a like or a delete reaches this list through the same prefix as the
+ * stream -- writeToEveryList walks both.
+ */
+export function useAuthorPosts(authorId: string | undefined) {
+  return useInfiniteQuery({
+    queryKey: ['posts', 'author', authorId],
+    queryFn: ({ pageParam }) =>
+      PostService.list({
+        authorId: authorId!,
+        viewerId: authorId ?? null,
+        cursor: pageParam ?? undefined
+      }),
+    initialPageParam: null as PostsCursor | null,
+    getNextPageParam: (lastPage) => lastPage.nextCursor,
+    select: (data) => data.pages.flatMap((page) => page.posts),
+    enabled: Boolean(authorId)
+  });
+}
+
 /** One post, for the edit screen. Its own query so the route survives a cold start. */
 export function usePost(postId: string | undefined, viewerId: string | undefined) {
   return useQuery({

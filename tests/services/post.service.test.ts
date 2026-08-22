@@ -3,34 +3,34 @@ import PostService from '@/services/post.service';
 const mockRpc = jest.fn();
 const mockSingle = jest.fn();
 const mockRemoveObjects = jest.fn();
-const mockEq = jest.fn(() => ({ single: mockSingle }));
-
-// `list` builds `.in().order().order().order().limit()` and may add `.or()`,
-// then awaits the builder itself. One self-returning object covers the chain.
+const mockEq = jest.fn();
 const mockIn = jest.fn();
 const mockOr = jest.fn();
+
+// PostgREST's builder is chainable in any order, so one self-returning object
+// covers every shape here: `list` is .order().order().order().limit() plus an
+// .in() or an .eq() and maybe an .or(), then awaits the builder itself; `get`
+// is .eq().single().
 const listResult: { data: unknown; error: unknown } = { data: [], error: null };
-const listBuilder: Record<string, unknown> = {};
+const listBuilder: Record<string, unknown> = { single: mockSingle };
 
 ['order', 'limit'].forEach((method) => {
   listBuilder[method] = jest.fn(() => listBuilder);
 });
-listBuilder.or = (...args: unknown[]) => {
-  mockOr(...(args as []));
+
+const spyThenReturn = (spy: jest.Mock) => (...args: unknown[]) => {
+  spy(...(args as []));
 
   return listBuilder;
 };
+
+listBuilder.eq = spyThenReturn(mockEq);
+listBuilder.in = spyThenReturn(mockIn);
+listBuilder.or = spyThenReturn(mockOr);
 listBuilder.then = (resolve: (value: unknown) => unknown) =>
   Promise.resolve(listResult).then(resolve);
 
-const mockSelect = jest.fn(() => ({
-  eq: mockEq,
-  in: (...args: unknown[]) => {
-    mockIn(...(args as []));
-
-    return listBuilder;
-  }
-}));
+const mockSelect = jest.fn(() => listBuilder);
 
 jest.mock('@/lib/supabase/client', () => ({
   supabase: {

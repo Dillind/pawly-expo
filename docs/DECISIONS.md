@@ -233,3 +233,21 @@ migration to say what RLS already says: both select policies are household-membe
 Household the Member has left is excluded without a filter naming it. The counts are of surviving
 rows — `feed_logs.logged_by` is `on delete set null` — so they are not a lifetime tally, and the
 labels do not claim to be one. Feed and post mutations invalidate `user-stats`.
+
+**Profile is a list with the identity block as its header.** Your own posts belong on your Profile,
+and a second scroller nested inside the screen's scroll view is the one shape that cannot work. So
+`profile-overview` is a `MainLegendList` of posts whose `ListHeaderComponent` is the avatar, the
+stats and the household card — the same move the Posts tab makes, and `PostCard`, `PostActionsSheet`
+and the like/delete mutations are reused unchanged. It deliberately does not pass `isLoading` to
+`MainLegendList`: that swaps the whole list for a spinner, and the identity block is already known.
+The posts' own wait lives in `ListEmptyComponent`, and a Member with none gets the heading and
+nothing under it — an empty state with an illustration and a call to action only pads a screen whose
+job is the block above it. The heading is grey and regular weight at 17pt, matching Hevy's
+"Workouts" label: the cards below are the content, and a bold heading competes with them.
+
+**`PostService.list` scopes by household or by author, and requires one of them.** The stream passes
+`householdIds`, a Profile passes `authorId`, and the keyset, the select and the mapping stay in one
+function. With neither it throws rather than listing every post RLS allows. An author scope names no
+household on purpose: the posts a Member wrote span all of theirs, and RLS still hides any they have
+left. The query key is `['posts', 'author', userId]`, so `writeToEveryList` reaches this list through
+the same prefix as the stream — a like on one shows on the other.
