@@ -1,4 +1,5 @@
 import AppText from '@/components/core/app-text';
+import { ICON_ACTIVE_OPACITY } from '@/constants/primitives';
 import Icon from '@/components/core/icon';
 import PressableOpacity from '@/components/core/pressable-opacity';
 import type { AppTheme } from '@/constants/theme';
@@ -11,7 +12,6 @@ type Props = {
   count: number;
   commentCount: number;
   onToggleLike: () => void;
-  /** Omitted on Post Detail, which is already showing the thread. */
   onOpenComments?: () => void;
 };
 
@@ -35,7 +35,8 @@ const PostActionRow = ({
   return (
     <View style={styles.row}>
       <PressableOpacity
-        style={styles.likeTarget}
+        style={styles.target}
+        activeOpacity={ICON_ACTIVE_OPACITY}
         onPress={like}
         accessibilityRole="button"
         accessibilityState={{ selected: liked }}
@@ -54,7 +55,8 @@ const PostActionRow = ({
       </PressableOpacity>
 
       <PressableOpacity
-        style={styles.likeTarget}
+        style={styles.target}
+        activeOpacity={ICON_ACTIVE_OPACITY}
         onPress={onOpenComments}
         disabled={!onOpenComments}
         accessibilityRole="button"
@@ -69,9 +71,9 @@ const PostActionRow = ({
         )}
       </PressableOpacity>
 
-      <View style={styles.target}>
+      <PressableOpacity style={styles.target} activeOpacity={ICON_ACTIVE_OPACITY}>
         <Icon name="share" size={ICON_SIZE} color="textSecondary" />
-      </View>
+      </PressableOpacity>
     </View>
   );
 };
@@ -81,19 +83,13 @@ const makeStyles = ({ spacing }: AppTheme) =>
     row: {
       flexDirection: 'row',
       alignItems: 'center',
+      gap: spacing.two,
       marginLeft: -spacing.one
     },
-    // Narrower than they are tall. The full 44pt height keeps the target legal
-    // while the icons sit as close together as Hevy's.
     target: {
-      width: 38,
-      height: 44,
-      alignItems: 'center',
-      justifyContent: 'center'
-    },
-    likeTarget: {
       flexDirection: 'row',
       alignItems: 'center',
+      justifyContent: 'center',
       gap: spacing.one,
       height: 44,
       paddingHorizontal: spacing.one

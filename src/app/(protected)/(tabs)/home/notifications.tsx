@@ -67,15 +67,15 @@ export default function Notifications() {
 
   const openSubject = useCallback(
     (alert: InboxRow) => {
-      // Every post-shaped kind lands on Post Detail, which is also the thread --
-      // so a comment alert needs no route of its own.
-      if (
-        (alert.kind === 'post' ||
-          alert.kind === 'post_liked' ||
-          alert.kind === 'post_commented' ||
-          alert.kind === 'comment_liked') &&
-        alert.postId
-      ) {
+      // A comment alert lands on the conversation it is about, not on the post.
+      if ((alert.kind === 'post_commented' || alert.kind === 'comment_liked') && alert.postId) {
+        return router.push({
+          pathname: '/posts/[postId]/comments',
+          params: { postId: alert.postId }
+        });
+      }
+
+      if ((alert.kind === 'post' || alert.kind === 'post_liked') && alert.postId) {
         return router.push({
           pathname: '/posts/[postId]',
           params: { postId: alert.postId }

@@ -124,8 +124,6 @@ const makeStyles = ({ colors, spacing }: AppTheme) =>
     composer: {
       paddingHorizontal: spacing.three,
       paddingTop: spacing.two,
-      // Clears the floating tab bar. The host cancels it with a matching
-      // negative keyboardVerticalOffset once the keyboard is up.
       paddingBottom: BottomTabInset,
       gap: spacing.two,
       backgroundColor: colors.postSurface,

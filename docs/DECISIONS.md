@@ -277,3 +277,13 @@ each says something different, and a count would hide the words that are the who
 comment's author, the post's author and an Owner, and none at all for everyone else. A control that
 is usually absent reads worse than one that is never drawn, and a per-row ⋯ on a thread of twelve
 is twelve pieces of furniture for an action almost nobody takes.
+
+**The action row's three icons share one metric.** Heart, comment and share used to be measured two
+different ways — the first two by horizontal padding, the third by a fixed 38pt box — so the gaps
+between them could not match, and a like count widened its own target enough to shift the comment
+icon along. One padded, 44pt-high target for all three makes the gaps come from the row's `gap`
+alone, and a count now widens only the box it sits in.
+
+**The Comments screen shows the post's date in full, where the feed shows "3d ago".** A feed is
+scanned and a relative time is the faster read; a conversation is usually entered from a
+notification, where the reader wants to know which day this was.

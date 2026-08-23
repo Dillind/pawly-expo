@@ -146,6 +146,9 @@ const ProfileOverview = () => {
     const openPost = () =>
       router.push({ pathname: '/posts/[postId]', params: { postId: item.id } });
 
+    const openComments = () =>
+      router.push({ pathname: '/posts/[postId]/comments', params: { postId: item.id } });
+
     return (
     <PostCard
       post={item}
@@ -158,7 +161,7 @@ const ProfileOverview = () => {
         void actionsSheetRef.current?.present();
       }}
       onOpen={openPost}
-      onOpenComments={openPost}
+      onOpenComments={openComments}
     />
     );
   };

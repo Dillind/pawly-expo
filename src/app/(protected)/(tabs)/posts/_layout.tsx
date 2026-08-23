@@ -28,6 +28,11 @@ export default function PostsLayout() {
           <Stack.Header transparent />
           <Stack.Screen.BackButton displayMode="minimal" />
         </Stack.Screen>
+        <Stack.Screen name="[postId]/comments" options={{ headerShown: true }}>
+          <Stack.Title style={HeaderTitleStyle}>Comments</Stack.Title>
+          <Stack.Header transparent />
+          <Stack.Screen.BackButton displayMode="minimal" />
+        </Stack.Screen>
         {/* A native screen, not a modal: iOS draws the glass circle behind a
             bar button item, and the push is a render-server transition. */}
         <Stack.Screen
@@ -35,7 +40,7 @@ export default function PostsLayout() {
           options={{
             headerShown: true,
             presentation: 'fullScreenModal',
-            animation: 'fade',
+            animation: 'fade_from_bottom',
             title: ''
           }}>
           <Stack.Header transparent />

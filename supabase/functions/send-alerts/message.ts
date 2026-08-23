@@ -173,6 +173,6 @@ export const buildPostCommentedMessage = (
     title,
     sound: 'default',
     body: truncate(input.body.trim(), CAPTION_PREVIEW_LIMIT),
-    data: { screen: '/posts/[postId]', params: { postId: input.postId } }
+    data: { screen: '/posts/[postId]/comments', params: { postId: input.postId } }
   };
 };

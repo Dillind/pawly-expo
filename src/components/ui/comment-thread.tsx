@@ -1,4 +1,3 @@
-import AppText from '@/components/core/app-text';
 import CommentRow from '@/components/ui/comment-row';
 import { ScreenGutter, type AppTheme } from '@/constants/theme';
 import { useStyles } from '@/hooks/use-styles';
@@ -27,16 +26,6 @@ const CommentThread = ({
   // Must match the delete policy in 20260822100000.
   const canDelete = (comment: PostComment) =>
     canManagePost || (viewerId !== null && comment.authorId === viewerId);
-
-  if (comments.length === 0) {
-    return (
-      <View style={styles.empty}>
-        <AppText size={15} color="textSecondary" align="center">
-          No comments yet. Say something nice.
-        </AppText>
-      </View>
-    );
-  }
 
   return (
     <View style={styles.thread}>
@@ -76,10 +65,6 @@ const makeStyles = ({ spacing }: AppTheme) =>
     },
     group: {
       gap: spacing.three
-    },
-    empty: {
-      paddingHorizontal: ScreenGutter,
-      paddingVertical: spacing.five
     }
   });
 

@@ -180,6 +180,12 @@ way one reaches a commit.
 **Files sometimes change under you** — a deleted file reappearing, a comment silently removed.
 Stage your own paths explicitly rather than `git add -A`, and ask rather than restoring.
 
+**A push payload embeds a route path, so a route change is a deploy-order problem.**
+`supabase/functions/send-alerts/message.ts` carries the path the notification opens. Ship the app
+build first, then redeploy the Edge Function. Redeploying first sends a path the installed build
+cannot resolve, and the tap lands on **Unmatched Route** — which looks like a routing bug in the app
+and is not one.
+
 **A lone `GlassView` over a flat background renders no circle at all.** Glass refracts what is
 behind it, so over a page painted one colour there is nothing to work with — on black the close
 button was a bare teal glyph, and on the light page a bare dark one. Both times it looked like the
