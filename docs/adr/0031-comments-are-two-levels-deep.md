@@ -6,6 +6,10 @@ Date: 2026-08-22
 
 Accepted. Implements CRU-049 ([#56](https://github.com/Dillind/pawly-expo/issues/56)).
 
+**Partly superseded by [ADR 0032](./0032-the-thread-is-its-own-screen.md).** The thread is no
+longer the post screen — it is `posts/[postId]/comments.tsx`. The title of this ADR is now wrong on
+that point. Everything else below still holds.
+
 ## Context
 
 The comment icon on a Post had been decorative since posts shipped. The issue
