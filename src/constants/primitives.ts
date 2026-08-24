@@ -11,5 +11,7 @@ export const SNACKBAR_MAX_SNACK = 3;
 
 export const APP_ACTIVE_OPACITY = 0.9;
 
+export const ICON_ACTIVE_OPACITY = 0.5;
+
 export const SCREEN_WIDTH = Dimensions.get('screen').width;
 export const SCREEN_HEIGHT = Dimensions.get('screen').height;

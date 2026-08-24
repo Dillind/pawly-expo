@@ -26,9 +26,10 @@ type Props = {
   onOpen?: () => void;
   /** Post Detail only: opens one photo full screen. */
   onOpenPhoto?: (photoId: string) => void;
+  commentCount?: number;
+  onOpenComments?: () => void;
 };
 
-/** The gutter is owned here: a parent that padded this would inset the photo with the words. */
 const PostBody = ({
   post,
   showActions,
@@ -38,7 +39,9 @@ const PostBody = ({
   onOpenPhoto,
   onToggleLike,
   onOpenActions,
-  onOpen
+  onOpen,
+  commentCount = 0,
+  onOpenComments
 }: Props) => {
   const styles = useStyles(makeStyles);
 
@@ -64,7 +67,13 @@ const PostBody = ({
       <PostPhotoCarousel photos={post.photos} onPress={onOpen} onPressPhoto={onOpenPhoto} />
 
       <View style={[styles.gutter, styles.actions]}>
-        <PostActionRow liked={post.likedByMe} count={post.likeCount} onToggleLike={onToggleLike} />
+        <PostActionRow
+          liked={post.likedByMe}
+          count={post.likeCount}
+          commentCount={commentCount}
+          onToggleLike={onToggleLike}
+          onOpenComments={onOpenComments}
+        />
 
         <PostLikers likers={post.likers} />
       </View>
@@ -83,12 +92,9 @@ const makeStyles = ({ colors, spacing }: AppTheme) =>
       paddingHorizontal: ScreenGutter,
       gap: spacing.two
     },
-    /** The title names what the description elaborates, so they sit closer. */
     words: {
       gap: spacing.one
     },
-    // The buttons already carry their own tap-target height, so a gap here
-    // lands on top of that and reads as a much wider one than it is.
     actions: {
       gap: 0
     }

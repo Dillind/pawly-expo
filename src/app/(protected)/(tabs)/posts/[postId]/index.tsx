@@ -1,6 +1,7 @@
 import PostActionsSheet from '@/components/bottom-sheets/post-actions-sheet';
 import ErrorState from '@/components/core/error-state';
 import ScreenView from '@/components/layout/screen-view';
+import CommentsLinkRow from '@/components/ui/comments-link-row';
 import PostBody from '@/components/ui/post-body';
 import { type AppTheme } from '@/constants/theme';
 import { useHouseholds } from '@/hooks/queries/household/use-households';
@@ -65,8 +66,19 @@ const PostDetail = () => {
           <PostBody
             post={post}
             householdName={households.length > 1 ? household?.name : undefined}
+            commentCount={post.commentCount}
             onToggleLike={() => toggleLike({ postId: post.id, liked: post.likedByMe })}
             onOpenPhoto={(photoId) => router.push(`/posts/${post.id}/photo/${photoId}`)}
+            onOpenComments={() =>
+              router.push({ pathname: '/posts/[postId]/comments', params: { postId: post.id } })
+            }
+          />
+
+          <CommentsLinkRow
+            count={post.commentCount}
+            onPress={() =>
+              router.push({ pathname: '/posts/[postId]/comments', params: { postId: post.id } })
+            }
           />
         </ScrollView>
       )}
@@ -100,8 +112,7 @@ const makeStyles = ({ spacing }: AppTheme) =>
       paddingTop: spacing.six
     },
     content: {
-      paddingTop: spacing.three,
-      paddingBottom: spacing.six
+      paddingBottom: spacing.four
     }
   });
 

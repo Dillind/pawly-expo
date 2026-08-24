@@ -1,4 +1,5 @@
 import AppText from '@/components/core/app-text';
+import { ICON_ACTIVE_OPACITY } from '@/constants/primitives';
 import Icon from '@/components/core/icon';
 import PressableOpacity from '@/components/core/pressable-opacity';
 import type { AppTheme } from '@/constants/theme';
@@ -9,13 +10,21 @@ import { StyleSheet, View } from 'react-native';
 type Props = {
   liked: boolean;
   count: number;
+  commentCount: number;
   onToggleLike: () => void;
+  onOpenComments?: () => void;
 };
 
 const ICON_SIZE = 22;
 
-/** Comment and share are placed but deliberately not wired yet. */
-const PostActionRow = ({ liked, count, onToggleLike }: Props) => {
+/** Share is placed but deliberately not wired yet. */
+const PostActionRow = ({
+  liked,
+  count,
+  commentCount,
+  onToggleLike,
+  onOpenComments
+}: Props) => {
   const styles = useStyles(makeStyles);
 
   const like = () => {
@@ -26,7 +35,8 @@ const PostActionRow = ({ liked, count, onToggleLike }: Props) => {
   return (
     <View style={styles.row}>
       <PressableOpacity
-        style={styles.likeTarget}
+        style={styles.target}
+        activeOpacity={ICON_ACTIVE_OPACITY}
         onPress={like}
         accessibilityRole="button"
         accessibilityState={{ selected: liked }}
@@ -44,13 +54,26 @@ const PostActionRow = ({ liked, count, onToggleLike }: Props) => {
         )}
       </PressableOpacity>
 
-      <View style={styles.target}>
+      <PressableOpacity
+        style={styles.target}
+        activeOpacity={ICON_ACTIVE_OPACITY}
+        onPress={onOpenComments}
+        disabled={!onOpenComments}
+        accessibilityRole="button"
+        accessibilityLabel={
+          commentCount === 1 ? '1 comment' : `${commentCount} comments`
+        }>
         <Icon name="comment" size={ICON_SIZE} color="textSecondary" />
-      </View>
+        {commentCount > 0 && (
+          <AppText size={14} color="textSecondary" style={styles.count}>
+            {commentCount}
+          </AppText>
+        )}
+      </PressableOpacity>
 
-      <View style={styles.target}>
+      <PressableOpacity style={styles.target} activeOpacity={ICON_ACTIVE_OPACITY}>
         <Icon name="share" size={ICON_SIZE} color="textSecondary" />
-      </View>
+      </PressableOpacity>
     </View>
   );
 };
@@ -60,19 +83,13 @@ const makeStyles = ({ spacing }: AppTheme) =>
     row: {
       flexDirection: 'row',
       alignItems: 'center',
+      gap: spacing.two,
       marginLeft: -spacing.one
     },
-    // Narrower than they are tall. The full 44pt height keeps the target legal
-    // while the icons sit as close together as Hevy's.
     target: {
-      width: 38,
-      height: 44,
-      alignItems: 'center',
-      justifyContent: 'center'
-    },
-    likeTarget: {
       flexDirection: 'row',
       alignItems: 'center',
+      justifyContent: 'center',
       gap: spacing.one,
       height: 44,
       paddingHorizontal: spacing.one

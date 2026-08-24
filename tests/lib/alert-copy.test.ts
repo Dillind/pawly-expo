@@ -13,6 +13,10 @@ const alert = (overrides: Partial<InboxRow>): InboxRow => ({
   slotLabel: null,
   postId: 'po1',
   postCaption: 'Muddy paws again',
+  commentId: null,
+  commentBody: null,
+  commentIsReplyToMe: false,
+  commentPostIsMine: false,
   subjectName: null,
   subjectIsMe: false,
   alertIds: ['a1'],
@@ -120,6 +124,63 @@ describe('alertSentence', () => {
   });
 });
 
+describe('alertSentence for a comment', () => {
+  const commented = (overrides = {}) =>
+    alert({
+      kind: 'post_commented',
+      actorName: 'Sarah Smith',
+      commentBody: 'what a face',
+      ...overrides
+    });
+
+  it('names a reply to your own comment', () => {
+    expect(alertSentence(commented({ commentIsReplyToMe: true }))).toBe(
+      'Sarah Smith replied to your comment \u201Cwhat a face\u201D'
+    );
+  });
+
+  it('names a comment on your own post', () => {
+    expect(alertSentence(commented({ commentPostIsMine: true }))).toBe(
+      'Sarah Smith commented on your post \u201Cwhat a face\u201D'
+    );
+  });
+
+  it('claims neither when the reader owns neither', () => {
+    expect(alertSentence(commented())).toBe('Sarah Smith also commented \u201Cwhat a face\u201D');
+  });
+
+  // The sibling case: Alice owns the parent but Bob was the one answered.
+  it('does not claim a reply for the parent author when a sibling was answered', () => {
+    expect(alertSentence(commented({ commentIsReplyToMe: false, commentPostIsMine: false }))).toBe(
+      'Sarah Smith also commented \u201Cwhat a face\u201D'
+    );
+  });
+
+  it('prefers the reply wording when the reader owns both', () => {
+    expect(
+      alertSentence(commented({ commentIsReplyToMe: true, commentPostIsMine: true }))
+    ).toBe('Sarah Smith replied to your comment \u201Cwhat a face\u201D');
+  });
+
+  it('says less once the comment is gone', () => {
+    expect(alertSentence(commented({ commentBody: null, commentPostIsMine: true }))).toBe(
+      'Sarah Smith commented on your post'
+    );
+  });
+
+  it('counts the others on a collapsed comment-like row', () => {
+    expect(
+      alertSentence(
+        alert({
+          kind: 'comment_liked',
+          commentBody: 'what a face',
+          otherLikeCount: 2
+        })
+      )
+    ).toBe('Sarah Smith and 2 others liked your comment \u201Cwhat a face\u201D');
+  });
+});
+
 describe('alertGlyph', () => {
   it('gives the three membership kinds one shared glyph', () => {
     expect(alertGlyph('member_removed')).toBe('users');
@@ -131,5 +192,7 @@ describe('alertGlyph', () => {
     expect(alertGlyph('missed_feed')).toBe('circleAlert');
     expect(alertGlyph('post')).toBe('image');
     expect(alertGlyph('post_liked')).toBe('heart');
+    expect(alertGlyph('comment_liked')).toBe('heart');
+    expect(alertGlyph('post_commented')).toBe('comment');
   });
 });

@@ -7,7 +7,14 @@ export const ALERTS_PAGE_SIZE = 30;
  * the database as a delivery record and is never read back here (ADR 0023).
  */
 export type AlertKind =
-  'missed_feed' | 'post' | 'post_liked' | 'member_removed' | 'member_role_changed' | 'member_left';
+  | 'missed_feed'
+  | 'post'
+  | 'post_liked'
+  | 'post_commented'
+  | 'comment_liked'
+  | 'member_removed'
+  | 'member_role_changed'
+  | 'member_left';
 
 /** A row survives its subject, so every resolved field here can be null. */
 export type Alert = {
@@ -23,6 +30,12 @@ export type Alert = {
   slotLabel: string | null;
   postId: string | null;
   postCaption: string | null;
+  commentId: string | null;
+  commentBody: string | null;
+  /** True when the reader wrote the comment being replied to. */
+  commentIsReplyToMe: boolean;
+  /** True when the reader wrote the post the comment sits under. */
+  commentPostIsMine: boolean;
   subjectName: string | null;
   subjectIsMe: boolean;
 };
@@ -43,6 +56,10 @@ type AlertRow = {
   slot_label: string | null;
   post_id: string | null;
   post_caption: string | null;
+  comment_id: string | null;
+  comment_body: string | null;
+  comment_is_reply_to_me: boolean;
+  comment_post_is_mine: boolean;
   subject_first_name: string | null;
   subject_last_name: string | null;
   subject_is_me: boolean;
@@ -68,6 +85,10 @@ const toAlert = (row: AlertRow): Alert => ({
   slotLabel: row.slot_label,
   postId: row.post_id,
   postCaption: row.post_caption,
+  commentId: row.comment_id,
+  commentBody: row.comment_body,
+  commentIsReplyToMe: row.comment_is_reply_to_me,
+  commentPostIsMine: row.comment_post_is_mine,
   subjectName: displayName(row.subject_first_name, row.subject_last_name),
   subjectIsMe: row.subject_is_me
 });

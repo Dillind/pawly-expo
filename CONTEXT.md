@@ -161,7 +161,8 @@ Post surface "the feed" is what ADR 0017 exists to prevent.
 **Post Detail**:
 The screen holding one Post on its own — the same author, title, caption, Pet Tags, photos, likes
 and likers the Posts tab shows, with neither the title nor the caption truncated. Where a Post or
-Like notification lands, and where the title, the photo or the caption on a Post opens. Opening one Post does not mark the
+Like notification lands, and where the title, the photo, the caption or the comment count on a Post opens. It holds the
+Thread, so it is also where a Comment notification lands. Opening one Post does not mark the
 Posts tab seen.
 _Avoid_: Post page, permalink, single post view.
 
@@ -189,6 +190,26 @@ Household.
 _Avoid_: Mention, subject, "posting to a pet".
 
 **Like**:
-A Member's single, reversible acknowledgement of a Post. One per Member per Post, counted and
-attributable. Never notifies anyone — a Like is not worth an interruption.
+A Member's single, reversible acknowledgement of a Post or a Comment. One per Member per thing,
+counted and attributable. Never notifies anyone — a Like is not worth an interruption. It reaches
+the inbox and stops there.
 _Avoid_: Reaction (implies a set to choose from), favourite, heart, upvote.
+
+**Comment**:
+Something a Member writes under a Post, up to 500 characters. Its audience is the Post's audience,
+which is the whole Household. Deletable by its author, by the Post's author and by an Owner; never
+editable — delete and write it again. Unlike a Like, a Comment does notify: it is addressed to
+someone and asks for an answer. See
+[ADR 0031](./docs/adr/0031-comments-are-two-levels-deep.md).
+_Avoid_: Note (that word belongs to a Feed Log), message, chat, thread (that is the whole set, not
+one of them), caption (that belongs to the Post).
+
+**Reply**:
+A Comment that answers another Comment. It sits under the top-level Comment it belongs to, and
+names the Member it answers with an "@" prefix. Replying to a Reply produces another Reply under
+the same parent — the thread is two levels deep and never three.
+_Avoid_: Nested comment, sub-comment, child, response.
+
+**Thread**:
+Every Comment on one Post, together, oldest first. Shown on Post Detail beneath the Post itself.
+_Avoid_: Conversation, discussion, comment section.

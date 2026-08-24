@@ -18,22 +18,30 @@ export type InboxRow = Alert & {
  */
 export function collapseLikes(alerts: Alert[]): InboxRow[] {
   const rows: InboxRow[] = [];
-  const rowByPost = new Map<string, InboxRow>();
+  const rowByGroup = new Map<string, InboxRow>();
 
   for (const alert of alerts) {
-    const groupKey = alert.kind === 'post_liked' ? alert.postId : null;
+    // Per COMMENT, not per post: keying by post would fold likes on two
+    // different comments into one row quoting only one. Comments themselves are
+    // never grouped -- a count would hide what each one says.
+    const groupKey =
+      alert.kind === 'post_liked'
+        ? alert.postId
+        : alert.kind === 'comment_liked'
+          ? alert.commentId
+          : null;
 
     if (!groupKey) {
       rows.push({ ...alert, alertIds: [alert.id], otherLikeCount: 0 });
       continue;
     }
 
-    const existing = rowByPost.get(groupKey);
+    const existing = rowByGroup.get(groupKey);
 
     if (!existing) {
       const row = { ...alert, alertIds: [alert.id], otherLikeCount: 0 };
 
-      rowByPost.set(groupKey, row);
+      rowByGroup.set(groupKey, row);
       rows.push(row);
       continue;
     }
