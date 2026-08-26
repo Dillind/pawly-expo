@@ -37,6 +37,7 @@ const labelText: Record<FeedingScheduleLabel, string> = {
 
 const SLOT_MS = 220;
 const EXIT_MS = 120;
+const TICK_MS = 160;
 
 const SlotReflow = LinearTransition.duration(SLOT_MS).reduceMotion(ReduceMotion.System);
 
@@ -50,7 +51,10 @@ const TickIn = new Keyframe({
   },
   100: { opacity: 1, transform: [{ scale: 1 }] }
 })
-  .duration(200)
+  .duration(TICK_MS)
+  // Waits for the Log button to leave. Overlapping the two crossfades them in
+  // the same spot, and the tick reads as a smear across the pill.
+  .delay(EXIT_MS)
   .reduceMotion(ReduceMotion.System);
 
 const SlotOut = FadeOut.duration(EXIT_MS).reduceMotion(ReduceMotion.System);
