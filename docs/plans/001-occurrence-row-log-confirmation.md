@@ -256,3 +256,25 @@ Total budget: 220 ms. This is inside the under-300 ms rule for UI in AUDIT.md §
      the correct final state.
 - **Done when**: `bun run check` passes, and steps 2, 3, 4 and 6 of the feel
   check all read as described on a device.
+
+## Execution notes (added after the work)
+
+Two things came out of the device test that the plan did not predict.
+
+**1. The tick and the Log button crossfaded in the same spot.** Step 5 as
+written gave the tick no delay, so it entered while the button was still
+leaving. Both occupy the same point in the row, and the tick read as a smear
+across the pill. AUDIT.md §7 names this: a crossfade that visibly
+double-exposes is a finding. The fix is `TickIn.delay(EXIT_MS)`, so the tick
+waits the 120 ms the button takes to leave. Total is now 280 ms, still inside
+the under-300 ms budget. Fixed in `77ae5f0`.
+
+**2. A pet with one feed never shows this animation.** When every occurrence
+for a pet is logged, `PetSection` collapses the card to "Logged once today".
+For a single-feed pet the collapse and the log happen together, so the row
+unmounts before the tick can be seen. The animation only shows for a pet with
+two or more feeds. This is not a bug in either component, but it does mean the
+change is worth less than the plan assumed. Whether the collapse should wait
+out the 280 ms is a separate question and was not touched here.
+
+`crossfades` was added to `cspell.json` for the new code comment.
