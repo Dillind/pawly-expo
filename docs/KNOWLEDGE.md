@@ -60,6 +60,21 @@ compute is charged by instance uptime rather than by query, and the Free plan ha
 at all. Edge Function invocations are the metered thing, and one happens per `alerts` row inserted —
 never per sweep that finds nothing.
 
+**`create or replace function` keeps the old ACL, so a stale grant survives a rewrite.** A migration
+that ends `revoke all ... from public; grant execute ... to authenticated;` reads as if it locked the
+function down, and it does not: `public` is not `anon`, and a direct grant to `anon` from an earlier
+migration is still there afterwards. `unread_alert_count` was callable without signing in for weeks
+because every rewrite of it copied that same pair of lines. `list_alerts` was safe only because its
+migration happened to name `anon`. Name both: `revoke execute ... from public, anon`. The Supabase
+security advisor reports this as *Public Can Execute SECURITY DEFINER Function*, and it is the only
+thing that will tell you.
+
+**A `pg_net` dispatch does not fire until the transaction commits, so you cannot wait for it in the
+same one.** `insert into alerts ...; select pg_sleep(8); select ... from alerts` always reports the
+row as still pending, because `net.http_post` only queues the request and the queue is drained after
+commit. It looks exactly like a broken trigger. Run the insert, then read the row back in a
+*separate* statement a few seconds later.
+
 **`insert ... select` does not coerce a bare string literal to an enum column; `insert ... values`
 does.** The same literal that works in a `values` list fails in a `select` list with *"column kind
 is of type alert_kind but expression is of type text"*. This bit `queue_post_commented_alert`, which
