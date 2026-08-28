@@ -177,3 +177,28 @@ $$;
 -- without signing in. list_alerts has always named anon; this catches up.
 revoke execute on function public.unread_alert_count(uuid) from public, anon;
 grant execute on function public.unread_alert_count(uuid) to authenticated;
+
+-- The third reader. ADR 0023: the list, the count and the read-marker move
+-- together. This one sweeps by household rather than by a list of ids, so
+-- without the same filter every "mark all read" writes an alert_reads row for
+-- a feed_due alert that no screen can show -- junk that accumulates for as long
+-- as the household keeps being nudged.
+create or replace function public.mark_all_alerts_read(target_household_id uuid)
+returns void
+language sql
+security definer
+set search_path = ''
+as $$
+  insert into public.alert_reads (alert_id, user_id)
+  select a.id, (select auth.uid())
+  from public.alerts a
+  where a.household_id = target_household_id
+    and a.kind not in ('feed_logged', 'feed_due')
+    and a.created_at >= private.alert_window_start()
+    and private.alert_is_mine(a.household_id, a.recipient_id)
+    and (a.actor_id is null or a.actor_id <> (select auth.uid()))
+  on conflict (alert_id, user_id) do nothing;
+$$;
+
+revoke execute on function public.mark_all_alerts_read(uuid) from public, anon;
+grant execute on function public.mark_all_alerts_read(uuid) to authenticated;
