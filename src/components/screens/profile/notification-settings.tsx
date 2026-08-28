@@ -100,19 +100,13 @@ const NotificationSettings = () => {
             />
           </View>
 
-          {/* Shown while the nudges are on, and shown disabled while iOS is
-              blocking them. Off is the member's own choice, so a dead picker
-              under it would be two controls saying one thing. Denied is not
-              their choice, and hiding the row would leave someone who picked
-              30 minutes unable to see that they did. */}
+          {/* Off is the member's own choice, so hiding this is one control
+              saying one thing. Denied is not, so the row stays and greys out. */}
           {(preferences?.feedDueAlerts || isDenied) && (
             <SettingsRow
               icon="clock"
               label="Nudge me before"
-              value={optionLabel(
-                FEED_DUE_LEAD_OPTIONS,
-                String(preferences?.feedDueLeadMinutes ?? 15)
-              )}
+              value={optionLabel(FEED_DUE_LEAD_OPTIONS, preferences?.feedDueLeadMinutes ?? 15)}
               isDisabled={isDenied}
               onPress={() => void leadSheetRef.current?.present()}
             />
@@ -182,8 +176,8 @@ const NotificationSettings = () => {
         sheetRef={leadSheetRef}
         title="Nudge me before"
         options={FEED_DUE_LEAD_OPTIONS}
-        selected={preferences ? String(preferences.feedDueLeadMinutes) : undefined}
-        onSelect={(minutes) => setLeadMinutes(Number(minutes))}
+        selected={preferences?.feedDueLeadMinutes}
+        onSelect={setLeadMinutes}
       />
     </ScreenView>
   );

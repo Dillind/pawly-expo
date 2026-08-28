@@ -1,14 +1,13 @@
 import { assertWrote } from '@/lib/supabase/assert-wrote';
 import { supabase } from '@/lib/supabase/client';
-import type { HouseholdMember, HouseholdSummary } from '@/types/core';
+import type { HouseholdMember, HouseholdSummary, LeadMinutes } from '@/types/core';
 
 export type NotificationPreferences = {
   feedDueAlerts: boolean;
   missedFeedAlerts: boolean;
   feedLoggedAlerts: boolean;
   postAlerts: boolean;
-  /** Lead Time: how long before a feed the nudge arrives. 10, 15, 30 or 60. */
-  feedDueLeadMinutes: number;
+  feedDueLeadMinutes: LeadMinutes;
 };
 
 /** The switches. feedDueLeadMinutes is a value, not a switch, so it is excluded. */
@@ -258,7 +257,7 @@ namespace HouseholdService {
   export async function setFeedDueLeadMinutes(params: {
     householdId: string;
     userId: string;
-    leadMinutes: number;
+    leadMinutes: LeadMinutes;
   }): Promise<void> {
     const { data, error } = await supabase
       .from('household_members')

@@ -17,7 +17,16 @@ declare
   -- minutes early. Early is right; a nudge that lands after the moment it was
   -- for is an insult.
   window_width constant interval := interval '5 minutes';
-  run_at constant timestamptz := now();
+  -- The five-minute bin the run belongs to, NOT now(). cron fires at 16:45:00
+  -- and now() is a fraction of a second later, so a 5:00 pm feed with a
+  -- 15-minute lead has a send time of exactly 16:45:00 -- already in the past
+  -- by the time the function reads the clock. Compared against now() that feed
+  -- is skipped on this run and every run after, which silently loses the nudge
+  -- for every feed time on the hour. Binning is what makes the boundary case
+  -- the common case it actually is.
+  run_at constant timestamptz := pg_catalog.date_bin(
+    interval '5 minutes', pg_catalog.now(), pg_catalog.timestamptz '2000-01-01 00:00:00+00'
+  );
   inserted_total integer := 0;
   row_inserted integer;
   send_at timestamptz;
@@ -27,19 +36,36 @@ declare
   lead smallint;
 begin
   for pet in
-    select pets.id as pet_id, pets.household_id, households.timezone
+    select
+      pets.id as pet_id,
+      pets.household_id,
+      households.timezone,
+      -- The cohorts this household actually holds. Read once per pet rather
+      -- than once per occurrence: it is a property of the household, and the
+      -- inner loops run it twice a day per feed time otherwise. A null array
+      -- means nobody here wants a nudge, so there is nothing to queue.
+      (
+        select pg_catalog.array_agg(distinct members.feed_due_lead_minutes)
+        from public.household_members as members
+        where members.household_id = pets.household_id
+          and members.feed_due_alerts
+      ) as leads
     from public.pets
     join public.households on households.id = pets.household_id
   loop
+    continue when pet.leads is null;
+
     -- households.timezone is unconstrained text set by the client, so
     -- `at time zone` can raise. Without this block that raise unwinds the whole
     -- function and every household loses the run, not just the broken one.
+    -- `when others` is deliberately wide, as in sweep_missed_feeds: whatever
+    -- breaks for one pet, the rest of the run must still happen.
     begin
       -- Tomorrow too: a 00:30 feed with a 60-minute lead sends at 23:30 the
       -- day before. The missed sweep reads yesterday for the mirror reason.
       foreach local_date in array array[
-        (run_at at time zone pet.timezone)::date,
-        (run_at at time zone pet.timezone)::date + 1
+        (now() at time zone pet.timezone)::date,
+        (now() at time zone pet.timezone)::date + 1
       ]
       loop
         for occurrence in
@@ -50,14 +76,9 @@ begin
           -- nothing about whether it still needs nudging.
           where states.satisfying_log_id is null
         loop
-          -- One cohort per lead time a member of this household actually holds.
-          -- A lead time nobody chose would queue a row that resolves to no
-          -- recipients and pushes nothing.
-          for lead in
-            select distinct members.feed_due_lead_minutes
-            from public.household_members as members
-            where members.household_id = pet.household_id
-              and members.feed_due_alerts
+          -- One cohort per lead time. A lead time nobody chose would queue a
+          -- row that resolves to no recipients and pushes nothing.
+          foreach lead in array pet.leads
           loop
             send_at := occurrence.scheduled_at - pg_catalog.make_interval(mins => lead);
 

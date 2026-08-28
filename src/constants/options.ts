@@ -2,6 +2,7 @@ import { COMMON_TIMEZONES } from '@/constants/timezones';
 import type {
   FeedingScheduleLabel,
   HouseholdRole,
+  LeadMinutes,
   Option,
   PetSex,
   PetType,
@@ -62,12 +63,11 @@ export const TIMEZONE_OPTIONS: Option[] = (
     : [deviceTimezone, ...COMMON_TIMEZONES]
 ).map((timezone) => ({ value: timezone, label: timezone }));
 
-// The stored value is a number of minutes; the label a member reads is "1 hour",
-// never "60 minutes". OptionSheet takes string values, as GRACE_WINDOW_OPTIONS
-// does, so the call site converts with Number.
-export const FEED_DUE_LEAD_OPTIONS: Option[] = [
-  { value: '10', label: '10 minutes' },
-  { value: '15', label: '15 minutes' },
-  { value: '30', label: '30 minutes' },
-  { value: '60', label: '1 hour' }
+// The stored value is a number of minutes; the label a member reads for the
+// last one is "1 hour", never "60 minutes".
+export const FEED_DUE_LEAD_OPTIONS: Option<LeadMinutes>[] = [
+  { value: 10, label: '10 minutes' },
+  { value: 15, label: '15 minutes' },
+  { value: 30, label: '30 minutes' },
+  { value: 60, label: '1 hour' }
 ];

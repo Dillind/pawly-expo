@@ -7,6 +7,7 @@ import {
   buildPostCommentedMessage,
   buildPostMessage,
   type ExpoMessage,
+  type FeedDueInput,
   type FeedDuePet,
   type ScheduleLabel
 } from './message.ts';
@@ -36,6 +37,51 @@ type AlertSubject = {
   subject_at: string | null;
   /** Set on a directed alert. post_commented is the only pushing kind with one. */
   recipient_id: string | null;
+};
+
+/**
+ * The pets in a household still waiting on the feed due at `dueAt`.
+ *
+ * Rebuilt, never stored. The rebuild IS the freshness check: a pet fed since
+ * the sweep drops out of the message on its own, and a household that fed
+ * everything comes back empty, which the caller turns into a suppression rather
+ * than a push. See ADR 0033.
+ *
+ * Null means the household has no pets at all -- the row cannot be sent.
+ */
+const collectDuePets = async (
+  client: SupabaseClient,
+  householdId: string,
+  localDate: string,
+  dueAt: string
+): Promise<FeedDueInput | null> => {
+  const { data: pets } = await client.from('pets').select('id, name').eq('household_id', householdId);
+
+  if (!pets || pets.length === 0) return null;
+
+  const dueInstant = new Date(dueAt).getTime();
+  const duePets: FeedDuePet[] = [];
+  let scheduledTime: string | null = null;
+
+  // One call per pet. A household holds a handful, and occurrence_states is the
+  // only thing that knows about pauses, days of week and versioned feed times.
+  for (const pet of pets) {
+    const { data: states } = await client.rpc('pet_occurrence_states', {
+      target_pet_id: pet.id,
+      target_date: localDate
+    });
+
+    for (const state of states ?? []) {
+      if (new Date(state.scheduled_at).getTime() !== dueInstant) continue;
+      if (state.satisfying_log_id) continue;
+
+      duePets.push({ name: pet.name, label: state.label as ScheduleLabel });
+      scheduledTime = state.local_time;
+    }
+  }
+
+  // An empty set has no time to name, and the caller suppresses it anyway.
+  return { pets: duePets, scheduledTime: scheduledTime ?? '' };
 };
 
 /**
@@ -145,40 +191,12 @@ export const buildMessageForAlert = async (
     case 'feed_due': {
       if (!alert.subject_date || !alert.subject_at) return null;
 
-      const { data: pets } = await client
-        .from('pets')
-        .select('id, name')
-        .eq('household_id', alert.subject_id);
+      const due = await collectDuePets(client, alert.subject_id, alert.subject_date, alert.subject_at);
 
-      if (!pets || pets.length === 0) return null;
+      if (!due) return null;
+      if (due.pets.length === 0) return { suppressed: 'already fed' };
 
-      const due: FeedDuePet[] = [];
-      let scheduledTime: string | null = null;
-
-      // The rebuild IS the freshness check -- there is no separate "was it
-      // logged in the meantime" query. A pet fed since the sweep drops out of
-      // the message on its own, and a household that fed everything produces a
-      // suppression instead of a push.
-      for (const pet of pets) {
-        const { data: states } = await client.rpc('pet_occurrence_states', {
-          target_pet_id: pet.id,
-          target_date: alert.subject_date
-        });
-
-        for (const state of states ?? []) {
-          const isThisInstant =
-            new Date(state.scheduled_at).getTime() === new Date(alert.subject_at).getTime();
-
-          if (!isThisInstant || state.satisfying_log_id) continue;
-
-          due.push({ name: pet.name, label: state.label as ScheduleLabel });
-          scheduledTime = state.local_time;
-        }
-      }
-
-      if (due.length === 0 || !scheduledTime) return { suppressed: 'already fed' };
-
-      return buildFeedDueMessage({ pets: due, scheduledTime });
+      return buildFeedDueMessage(due);
     }
 
     case 'missed_feed': {
