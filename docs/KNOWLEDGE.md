@@ -47,6 +47,19 @@ device — this is exactly how the Feed Logged Alerts toggle shipped broken.
 
 ## Supabase
 
+**A `cron.schedule(...)` in a migration does not mean the job is running.** `cron.job.active` lives
+only in the database. Toggling it in the dashboard leaves no trace in the repo, and a fresh
+`cron.schedule` creates the job active — so `supabase db reset` and the qa project both look healthy
+while production is silent. `sweep-missed-feeds` was switched off in production on 2026-07-31 and
+nobody was told about an unlogged feed for four weeks. The migration is not the source of truth here;
+`select jobname, schedule, active from cron.job` is. Re-enable with
+`select cron.alter_job(job_id := 1, active := true)`.
+
+It was switched off over a cost worry that does not apply. pg_cron has no billed unit on Supabase:
+compute is charged by instance uptime rather than by query, and the Free plan has no compute billing
+at all. Edge Function invocations are the metered thing, and one happens per `alerts` row inserted —
+never per sweep that finds nothing.
+
 **`insert ... select` does not coerce a bare string literal to an enum column; `insert ... values`
 does.** The same literal that works in a `values` list fails in a `select` list with *"column kind
 is of type alert_kind but expression is of type text"*. This bit `queue_post_commented_alert`, which
