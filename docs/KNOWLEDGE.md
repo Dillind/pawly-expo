@@ -60,6 +60,18 @@ compute is charged by instance uptime rather than by query, and the Free plan ha
 at all. Edge Function invocations are the metered thing, and one happens per `alerts` row inserted —
 never per sweep that finds nothing.
 
+**Making a unique index partial breaks every `on conflict` that named it, and the failure hides.**
+Postgres infers a partial unique index as an `on conflict` arbiter only when the statement repeats
+the index predicate. CRU-086 added `where kind <> 'feed_due'` to `alerts_idempotency_idx`, and
+`sweep_missed_feeds` still said a bare `on conflict (kind, subject_id, subject_date)`. From that
+moment its insert raised 42P10 — and the sweep's own per-pet `exception when others` caught it and
+downgraded it to a warning, so `cron.job_run_details` kept saying **succeeded** and no household
+would ever have been told about a missed feed again. Two things follow. **Repeat the predicate:**
+`on conflict (...) where kind <> 'feed_due' do nothing`. And **grep for every `on conflict` naming
+an index before you make that index partial** — `select proname, pg_get_functiondef(oid) from pg_proc`
+finds them in seconds. Jest cannot reach any of this, and a green cron log is not evidence: a sweep
+that finds nothing never reaches its insert.
+
 **`create or replace function` keeps the old ACL, so a stale grant survives a rewrite.** A migration
 that ends `revoke all ... from public; grant execute ... to authenticated;` reads as if it locked the
 function down, and it does not: `public` is not `anon`, and a direct grant to `anon` from an earlier

@@ -6,7 +6,7 @@ import SettingsSection from '@/components/core/settings-section';
 import ToggleSwitch from '@/components/core/toggle-switch';
 import ScreenScrollView from '@/components/layout/screen-scroll-view';
 import ScreenView from '@/components/layout/screen-view';
-import { FEED_DUE_LEAD_OPTIONS } from '@/constants/options';
+import { DEFAULT_LEAD_MINUTES, FEED_DUE_LEAD_OPTIONS } from '@/constants/options';
 import { BottomTabInset, type AppTheme } from '@/constants/theme';
 import { useHousehold } from '@/hooks/queries/household/use-household';
 import { useNotificationPreferences } from '@/hooks/queries/household/use-notification-preferences';
@@ -106,7 +106,7 @@ const NotificationSettings = () => {
             <SettingsRow
               icon="clock"
               label="Nudge me before"
-              value={optionLabel(FEED_DUE_LEAD_OPTIONS, preferences?.feedDueLeadMinutes ?? 15)}
+              value={optionLabel(FEED_DUE_LEAD_OPTIONS, preferences?.feedDueLeadMinutes ?? DEFAULT_LEAD_MINUTES)}
               isDisabled={isDenied}
               onPress={() => void leadSheetRef.current?.present()}
             />

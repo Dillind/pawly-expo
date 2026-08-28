@@ -24,6 +24,106 @@ create unique index alerts_feed_due_idempotency_idx
   on public.alerts (kind, subject_id, subject_date, lead_minutes, subject_at)
   where kind = 'feed_due';
 
+-- Splitting that index is not free, and this is the half that bites.
+--
+-- Postgres infers a PARTIAL unique index as an `on conflict` arbiter only when
+-- the statement repeats the index predicate. `sweep_missed_feeds` did not, so
+-- from the index change onward its insert raises 42P10 -- and its own per-pet
+-- `exception when others` catches that and downgrades it to a warning. The
+-- sweep keeps reporting success, the cron log stays green, and no household is
+-- ever told about a missed feed again. Nothing in Jest can see this; the SQL is
+-- out of its reach entirely.
+--
+-- Recreated verbatim from 20260820090600, changing ONLY the on-conflict clause.
+-- The same move 20260815090200 made for post_liked.
+create or replace function private.sweep_missed_feeds()
+returns integer
+language plpgsql
+security definer
+set search_path = ''
+as $$
+declare
+  nudge_limit constant integer := 3;
+  lookback constant interval := interval '30 minutes';
+  inserted_total integer := 0;
+  row_inserted integer;
+  nudges integer;
+  last_log_created_at timestamptz;
+  local_date date;
+  pet record;
+  occurrence record;
+begin
+  for pet in
+    select
+      pets.id as pet_id,
+      pets.household_id,
+      households.timezone,
+      make_interval(mins => households.grace_window_minutes) as grace
+    from public.pets
+    join public.households on households.id = pets.household_id
+  loop
+    begin
+      select max(feed_logs.created_at) into last_log_created_at
+      from public.feed_logs
+      where feed_logs.pet_id = pet.pet_id;
+
+      select count(*) into nudges
+      from public.alerts
+      where alerts.kind = 'missed_feed'
+        and alerts.error is null
+        and (last_log_created_at is null or alerts.created_at > last_log_created_at)
+        and exists (
+          select 1
+          from public.feed_times
+          where feed_times.series_id = alerts.subject_id
+            and feed_times.pet_id = pet.pet_id
+        );
+
+      if nudges < nudge_limit then
+        foreach local_date in array array[
+          (now() at time zone pet.timezone)::date - 1,
+          (now() at time zone pet.timezone)::date
+        ]
+        loop
+          for occurrence in
+            select states.series_id, states.scheduled_at
+            from private.occurrence_states(pet.pet_id, local_date) as states
+            where states.state = 'missed'
+            order by states.scheduled_at asc
+          loop
+            if occurrence.scheduled_at + pet.grace < now() - lookback then
+              continue;
+            end if;
+
+            insert into public.alerts (household_id, kind, subject_id, subject_date)
+            values (pet.household_id, 'missed_feed', occurrence.series_id, local_date)
+            on conflict (kind, subject_id, subject_date)
+              where kind <> 'feed_due'
+              do nothing;
+
+            get diagnostics row_inserted = row_count;
+
+            if row_inserted = 1 then
+              nudges := nudges + 1;
+              inserted_total := inserted_total + 1;
+
+              exit when nudges >= nudge_limit;
+            end if;
+          end loop;
+
+          exit when nudges >= nudge_limit;
+        end loop;
+      end if;
+    exception
+      when others then
+        raise warning 'sweep_missed_feeds skipped pet %: %', pet.pet_id, sqlerrm;
+    end;
+  end loop;
+
+  return inserted_total;
+end;
+$$;
+
 -- Lead Time is a delivery preference, so it lives on the membership like every
 -- other one (ADR 0012). It never reads the Grace Window: one says how long
 -- BEFORE a feed the app nudges and the member owns it, the other says how long

@@ -65,6 +65,9 @@ export const TIMEZONE_OPTIONS: Option[] = (
 
 // The stored value is a number of minutes; the label a member reads for the
 // last one is "1 hour", never "60 minutes".
+/** Mirrors the column default in 20260828090100. */
+export const DEFAULT_LEAD_MINUTES: LeadMinutes = 15;
+
 export const FEED_DUE_LEAD_OPTIONS: Option<LeadMinutes>[] = [
   { value: 10, label: '10 minutes' },
   { value: 15, label: '15 minutes' },

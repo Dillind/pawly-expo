@@ -3,8 +3,9 @@ import { supabase } from '@/lib/supabase/client';
 export const ALERTS_PAGE_SIZE = 30;
 
 /**
- * The kinds the inbox lists. `feed_logged` is deliberately absent: it stays in
- * the database as a delivery record and is never read back here (ADR 0023).
+ * The kinds the inbox lists. `feed_logged` and `feed_due` are both deliberately
+ * absent: each stays in the database as a delivery record and is never read
+ * back here (ADR 0023, ADR 0033). `list_alerts` filters the same two out.
  */
 export type AlertKind =
   | 'missed_feed'

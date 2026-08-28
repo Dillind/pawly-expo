@@ -55,7 +55,13 @@ const collectDuePets = async (
   localDate: string,
   dueAt: string
 ): Promise<FeedDueInput | null> => {
-  const { data: pets } = await client.from('pets').select('id, name').eq('household_id', householdId);
+  // Ordered, because the 4+ case names the first two pets and counts the rest.
+  // Unordered, the same alert could name a different pair on a retry.
+  const { data: pets } = await client
+    .from('pets')
+    .select('id, name')
+    .eq('household_id', householdId)
+    .order('name');
 
   if (!pets || pets.length === 0) return null;
 
