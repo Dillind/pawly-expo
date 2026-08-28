@@ -1,21 +1,39 @@
 import type { SupabaseClient } from 'npm:@supabase/supabase-js@2';
 
 import {
+  buildFeedDueMessage,
   buildFeedLoggedMessage,
   buildMissedFeedMessage,
   buildPostCommentedMessage,
   buildPostMessage,
   type ExpoMessage,
+  type FeedDuePet,
   type ScheduleLabel
 } from './message.ts';
 
-export type AlertKind = 'feed_logged' | 'missed_feed' | 'post' | 'post_commented';
+export type AlertKind =
+  | 'feed_logged'
+  | 'missed_feed'
+  | 'feed_due'
+  | 'post'
+  | 'post_commented';
+
+/**
+ * A deliberate third outcome, alongside a message and null.
+ *
+ * null means the subject is gone and the alert can never be sent, which is a
+ * failure worth stamping as one. A suppression is not a failure: the household
+ * fed its pets between queue and send, which is the feature working.
+ */
+export type BuiltMessage = Omit<ExpoMessage, 'to'> | { suppressed: string } | null;
 
 type AlertSubject = {
   kind: AlertKind;
   subject_id: string;
-  /** The local day the alert is about. Only a missed_feed carries one. */
+  /** The local day the alert is about. missed_feed and feed_due carry one. */
   subject_date: string | null;
+  /** The instant the feeds are due. feed_due only. */
+  subject_at: string | null;
   /** Set on a directed alert. post_commented is the only pushing kind with one. */
   recipient_id: string | null;
 };
@@ -26,14 +44,17 @@ type AlertSubject = {
  * Null means the row is gone -- deleted between queue and dispatch.
  *
  * The switch is exhaustive: the default branch assigns the kind to `never`, so
- * adding a fifth alert_kind fails to compile.
+ * adding a sixth alert_kind fails to compile.
+ *
+ * feed_due is the exception: its subject_id is the HOUSEHOLD, and the set of
+ * pets is rebuilt here rather than stored. See ADR 0033.
  *
  * comment_liked never reaches here -- it is queued suppressed.
  */
 export const buildMessageForAlert = async (
   client: SupabaseClient,
   alert: AlertSubject
-): Promise<Omit<ExpoMessage, 'to'> | null> => {
+): Promise<BuiltMessage> => {
   switch (alert.kind) {
     case 'post_commented': {
       const { data: comment } = await client
@@ -119,6 +140,45 @@ export const buildMessageForAlert = async (
         notes: log.notes,
         logId: log.id
       });
+    }
+
+    case 'feed_due': {
+      if (!alert.subject_date || !alert.subject_at) return null;
+
+      const { data: pets } = await client
+        .from('pets')
+        .select('id, name')
+        .eq('household_id', alert.subject_id);
+
+      if (!pets || pets.length === 0) return null;
+
+      const due: FeedDuePet[] = [];
+      let scheduledTime: string | null = null;
+
+      // The rebuild IS the freshness check -- there is no separate "was it
+      // logged in the meantime" query. A pet fed since the sweep drops out of
+      // the message on its own, and a household that fed everything produces a
+      // suppression instead of a push.
+      for (const pet of pets) {
+        const { data: states } = await client.rpc('pet_occurrence_states', {
+          target_pet_id: pet.id,
+          target_date: alert.subject_date
+        });
+
+        for (const state of states ?? []) {
+          const isThisInstant =
+            new Date(state.scheduled_at).getTime() === new Date(alert.subject_at).getTime();
+
+          if (!isThisInstant || state.satisfying_log_id) continue;
+
+          due.push({ name: pet.name, label: state.label as ScheduleLabel });
+          scheduledTime = state.local_time;
+        }
+      }
+
+      if (due.length === 0 || !scheduledTime) return { suppressed: 'already fed' };
+
+      return buildFeedDueMessage({ pets: due, scheduledTime });
     }
 
     case 'missed_feed': {

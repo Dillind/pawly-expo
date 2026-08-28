@@ -1,16 +1,10 @@
-import { ErrorMessage } from '@/constants/enums';
-import { showErrorToast } from '@/lib/toast';
+import { ErrorMessage, SuccessMessage } from '@/constants/enums';
+import { showErrorToast, showSuccessToast } from '@/lib/toast';
 import HouseholdService, { type AlertPreference } from '@/services/household.service';
 import { useAuthStore } from '@/stores/auth-store';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
-/**
- * The signed-in member's own delivery preferences.
- *
- * missed_feed_alerts is deliberately not exposed. The column exists, but a
- * toggle for an alert the engine cannot yet fire is a promise the app can't
- * keep.
- */
+/** The signed-in member's own delivery preferences, for this household alone. */
 export function useNotificationPreferences(householdId: string | undefined) {
   const queryClient = useQueryClient();
   const { userId } = useAuthStore();
@@ -41,11 +35,30 @@ export function useNotificationPreferences(householdId: string | undefined) {
     }
   });
 
+  const leadMutation = useMutation({
+    mutationFn: (leadMinutes: number) =>
+      HouseholdService.setFeedDueLeadMinutes({
+        householdId: householdId as string,
+        userId: userId as string,
+        leadMinutes
+      }),
+    onSettled: () => {
+      void queryClient.invalidateQueries({ queryKey });
+    },
+    onSuccess: () => showSuccessToast(SuccessMessage.LeadTimeUpdated),
+    onError: (error) => {
+      console.error(error);
+      showErrorToast(ErrorMessage.NotificationSettingsUpdateFailed);
+    }
+  });
+
   return {
     data: query.data,
     isLoading: query.isLoading,
     isError: query.isError,
     setPreference: mutation.mutate,
-    isSaving: mutation.isPending
+    isSaving: mutation.isPending,
+    setLeadMinutes: leadMutation.mutate,
+    isSavingLeadMinutes: leadMutation.isPending
   };
 }

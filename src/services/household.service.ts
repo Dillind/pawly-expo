@@ -2,10 +2,17 @@ import { assertWrote } from '@/lib/supabase/assert-wrote';
 import { supabase } from '@/lib/supabase/client';
 import type { HouseholdMember, HouseholdSummary } from '@/types/core';
 
-export type NotificationPreferences = { feedLoggedAlerts: boolean; postAlerts: boolean };
+export type NotificationPreferences = {
+  feedDueAlerts: boolean;
+  missedFeedAlerts: boolean;
+  feedLoggedAlerts: boolean;
+  postAlerts: boolean;
+  /** Lead Time: how long before a feed the nudge arrives. 10, 15, 30 or 60. */
+  feedDueLeadMinutes: number;
+};
 
-/** The preferences a member can actually change. missed_feed_alerts is not one — see use-notification-preferences. */
-export type AlertPreference = keyof NotificationPreferences;
+/** The switches. feedDueLeadMinutes is a value, not a switch, so it is excluded. */
+export type AlertPreference = Exclude<keyof NotificationPreferences, 'feedDueLeadMinutes'>;
 
 /**
  * Every membership RPC answers with a jsonb status rather than throwing, the
@@ -201,14 +208,22 @@ namespace HouseholdService {
   ): Promise<NotificationPreferences> {
     const { data, error } = await supabase
       .from('household_members')
-      .select('feed_logged_alerts, post_alerts')
+      .select(
+        'feed_due_alerts, feed_due_lead_minutes, missed_feed_alerts, feed_logged_alerts, post_alerts'
+      )
       .eq('household_id', householdId)
       .eq('user_id', userId)
       .single();
 
     if (error) throw error;
 
-    return { feedLoggedAlerts: data.feed_logged_alerts, postAlerts: data.post_alerts };
+    return {
+      feedDueAlerts: data.feed_due_alerts,
+      feedDueLeadMinutes: data.feed_due_lead_minutes,
+      missedFeedAlerts: data.missed_feed_alerts,
+      feedLoggedAlerts: data.feed_logged_alerts,
+      postAlerts: data.post_alerts
+    };
   }
 
   // household_members takes COLUMN-level update grants, so a new preference
@@ -216,6 +231,8 @@ namespace HouseholdService {
   // The failure is silent: the write reports success and the value reverts on
   // the next refetch.
   const PREFERENCE_COLUMN: Record<AlertPreference, string> = {
+    feedDueAlerts: 'feed_due_alerts',
+    missedFeedAlerts: 'missed_feed_alerts',
     feedLoggedAlerts: 'feed_logged_alerts',
     postAlerts: 'post_alerts'
   };
@@ -229,6 +246,23 @@ namespace HouseholdService {
     const { data, error } = await supabase
       .from('household_members')
       .update({ [PREFERENCE_COLUMN[params.preference]]: params.value })
+      .eq('household_id', params.householdId)
+      .eq('user_id', params.userId)
+      .select('user_id');
+
+    if (error) throw error;
+
+    assertWrote(data, 'Your notification settings could not be updated');
+  }
+
+  export async function setFeedDueLeadMinutes(params: {
+    householdId: string;
+    userId: string;
+    leadMinutes: number;
+  }): Promise<void> {
+    const { data, error } = await supabase
+      .from('household_members')
+      .update({ feed_due_lead_minutes: params.leadMinutes })
       .eq('household_id', params.householdId)
       .eq('user_id', params.userId)
       .select('user_id');
