@@ -2,6 +2,7 @@ import { COMMON_TIMEZONES } from '@/constants/timezones';
 import type {
   FeedingScheduleLabel,
   HouseholdRole,
+  LeadMinutes,
   Option,
   PetSex,
   PetType,
@@ -61,3 +62,15 @@ export const TIMEZONE_OPTIONS: Option[] = (
     ? [...COMMON_TIMEZONES]
     : [deviceTimezone, ...COMMON_TIMEZONES]
 ).map((timezone) => ({ value: timezone, label: timezone }));
+
+// The stored value is a number of minutes; the label a member reads for the
+// last one is "1 hour", never "60 minutes".
+/** Mirrors the column default in 20260828090100. */
+export const DEFAULT_LEAD_MINUTES: LeadMinutes = 15;
+
+export const FEED_DUE_LEAD_OPTIONS: Option<LeadMinutes>[] = [
+  { value: 10, label: '10 minutes' },
+  { value: 15, label: '15 minutes' },
+  { value: 30, label: '30 minutes' },
+  { value: 60, label: '1 hour' }
+];

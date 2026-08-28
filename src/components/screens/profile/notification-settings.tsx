@@ -1,9 +1,12 @@
+import OptionSheet from '@/components/bottom-sheets/option-sheet';
 import AppText from '@/components/core/app-text';
 import MainButton from '@/components/core/main-button';
+import SettingsRow from '@/components/core/settings-row';
 import SettingsSection from '@/components/core/settings-section';
 import ToggleSwitch from '@/components/core/toggle-switch';
 import ScreenScrollView from '@/components/layout/screen-scroll-view';
 import ScreenView from '@/components/layout/screen-view';
+import { DEFAULT_LEAD_MINUTES, FEED_DUE_LEAD_OPTIONS } from '@/constants/options';
 import { BottomTabInset, type AppTheme } from '@/constants/theme';
 import { useHousehold } from '@/hooks/queries/household/use-household';
 import { useNotificationPreferences } from '@/hooks/queries/household/use-notification-preferences';
@@ -12,8 +15,11 @@ import {
   useRequestNotificationPermission
 } from '@/hooks/use-notification-permission';
 import { useStyles } from '@/hooks/use-styles';
+import { optionLabel } from '@/utils/options';
+import type { TrueSheet } from '@lodev09/react-native-true-sheet';
 import { useQuery } from '@tanstack/react-query';
 import * as Notifications from 'expo-notifications';
+import { useRef } from 'react';
 import { ActivityIndicator, Linking, StyleSheet, View } from 'react-native';
 
 /**
@@ -28,9 +34,14 @@ import { ActivityIndicator, Linking, StyleSheet, View } from 'react-native';
 const NotificationSettings = () => {
   const styles = useStyles(makeStyles);
   const { data: household } = useHousehold();
-  const { data: preferences, isLoading, setPreference } = useNotificationPreferences(
-    household?.id
-  );
+  const {
+    data: preferences,
+    isLoading,
+    setPreference,
+    setLeadMinutes
+  } = useNotificationPreferences(household?.id);
+
+  const leadSheetRef = useRef<TrueSheet | null>(null);
 
   const requestPermission = useRequestNotificationPermission();
 
@@ -51,7 +62,8 @@ const NotificationSettings = () => {
       return (
         <View style={styles.section}>
           <AppText size={14} color="textSecondary">
-            Turn on notifications to know the moment someone feeds a pet or shares a photo.
+            Turn on notifications to know before a feed is due, and the moment someone feeds a pet
+            or shares a photo.
           </AppText>
           <MainButton
             text="Turn on notifications"
@@ -80,6 +92,38 @@ const NotificationSettings = () => {
         <SettingsSection title="Feeds">
           <View style={styles.toggleRow}>
             <ToggleSwitch
+              label="Feed Due Alerts"
+              description="Know before a feed is due"
+              value={preferences?.feedDueAlerts ?? false}
+              isDisabled={isDenied}
+              onChange={(value) => setPreference({ preference: 'feedDueAlerts', value })}
+            />
+          </View>
+
+          {/* Off is the member's own choice, so hiding this is one control
+              saying one thing. Denied is not, so the row stays and greys out. */}
+          {(preferences?.feedDueAlerts || isDenied) && (
+            <SettingsRow
+              icon="clock"
+              label="Nudge me before"
+              value={optionLabel(FEED_DUE_LEAD_OPTIONS, preferences?.feedDueLeadMinutes ?? DEFAULT_LEAD_MINUTES)}
+              isDisabled={isDenied}
+              onPress={() => void leadSheetRef.current?.present()}
+            />
+          )}
+
+          <View style={styles.toggleRow}>
+            <ToggleSwitch
+              label="Missed Feed Alerts"
+              description="Know when a feed goes unlogged"
+              value={preferences?.missedFeedAlerts ?? false}
+              isDisabled={isDenied}
+              onChange={(value) => setPreference({ preference: 'missedFeedAlerts', value })}
+            />
+          </View>
+
+          <View style={styles.toggleRow}>
+            <ToggleSwitch
               label="Feed Logged Alerts"
               description="Know when someone feeds a pet"
               value={preferences?.feedLoggedAlerts ?? false}
@@ -104,8 +148,8 @@ const NotificationSettings = () => {
         {isDenied && (
           <View style={styles.section}>
             <AppText size={13} color="textSecondary">
-              Notifications are turned off for Crumpet, so you won&apos;t hear when someone feeds a
-              pet or shares a photo.
+              Notifications are turned off for Crumpet, so you won&apos;t hear when a feed is coming
+              up, when someone feeds a pet, or when someone shares a photo.
             </AppText>
             <MainButton
               text="Open Settings"
@@ -127,6 +171,14 @@ const NotificationSettings = () => {
         contentInsetAdjustmentBehavior="automatic">
         {renderBody()}
       </ScreenScrollView>
+
+      <OptionSheet
+        sheetRef={leadSheetRef}
+        title="Nudge me before"
+        options={FEED_DUE_LEAD_OPTIONS}
+        selected={preferences?.feedDueLeadMinutes}
+        onSelect={setLeadMinutes}
+      />
     </ScreenView>
   );
 };

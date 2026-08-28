@@ -43,6 +43,7 @@ export enum SuccessMessage {
   InviteRevoked = 'Invite revoked',
   InviteSent = 'Invite sent',
   HouseholdRenamed = 'Household renamed',
+  LeadTimeUpdated = 'Nudge time updated',
   MemberRemoved = 'Member removed',
   MemberRoleChanged = 'Role updated',
   ContactAdded = 'Contact added',

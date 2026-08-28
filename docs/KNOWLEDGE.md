@@ -47,6 +47,46 @@ device — this is exactly how the Feed Logged Alerts toggle shipped broken.
 
 ## Supabase
 
+**A `cron.schedule(...)` in a migration does not mean the job is running.** `cron.job.active` lives
+only in the database. Toggling it in the dashboard leaves no trace in the repo, and a fresh
+`cron.schedule` creates the job active — so `supabase db reset` and the qa project both look healthy
+while production is silent. `sweep-missed-feeds` was switched off in production on 2026-07-31 and
+nobody was told about an unlogged feed for four weeks. The migration is not the source of truth here;
+`select jobname, schedule, active from cron.job` is. Re-enable with
+`select cron.alter_job(job_id := 1, active := true)`.
+
+It was switched off over a cost worry that does not apply. pg_cron has no billed unit on Supabase:
+compute is charged by instance uptime rather than by query, and the Free plan has no compute billing
+at all. Edge Function invocations are the metered thing, and one happens per `alerts` row inserted —
+never per sweep that finds nothing.
+
+**Making a unique index partial breaks every `on conflict` that named it, and the failure hides.**
+Postgres infers a partial unique index as an `on conflict` arbiter only when the statement repeats
+the index predicate. CRU-086 added `where kind <> 'feed_due'` to `alerts_idempotency_idx`, and
+`sweep_missed_feeds` still said a bare `on conflict (kind, subject_id, subject_date)`. From that
+moment its insert raised 42P10 — and the sweep's own per-pet `exception when others` caught it and
+downgraded it to a warning, so `cron.job_run_details` kept saying **succeeded** and no household
+would ever have been told about a missed feed again. Two things follow. **Repeat the predicate:**
+`on conflict (...) where kind <> 'feed_due' do nothing`. And **grep for every `on conflict` naming
+an index before you make that index partial** — `select proname, pg_get_functiondef(oid) from pg_proc`
+finds them in seconds. Jest cannot reach any of this, and a green cron log is not evidence: a sweep
+that finds nothing never reaches its insert.
+
+**`create or replace function` keeps the old ACL, so a stale grant survives a rewrite.** A migration
+that ends `revoke all ... from public; grant execute ... to authenticated;` reads as if it locked the
+function down, and it does not: `public` is not `anon`, and a direct grant to `anon` from an earlier
+migration is still there afterwards. `unread_alert_count` was callable without signing in for weeks
+because every rewrite of it copied that same pair of lines. `list_alerts` was safe only because its
+migration happened to name `anon`. Name both: `revoke execute ... from public, anon`. The Supabase
+security advisor reports this as *Public Can Execute SECURITY DEFINER Function*, and it is the only
+thing that will tell you.
+
+**A `pg_net` dispatch does not fire until the transaction commits, so you cannot wait for it in the
+same one.** `insert into alerts ...; select pg_sleep(8); select ... from alerts` always reports the
+row as still pending, because `net.http_post` only queues the request and the queue is drained after
+commit. It looks exactly like a broken trigger. Run the insert, then read the row back in a
+*separate* statement a few seconds later.
+
 **`insert ... select` does not coerce a bare string literal to an enum column; `insert ... values`
 does.** The same literal that works in a `values` list fails in a `select` list with *"column kind
 is of type alert_kind but expression is of type text"*. This bit `queue_post_commented_alert`, which

@@ -168,6 +168,11 @@ tests/lib/dates.test.ts              covers  src/lib/dates.ts
 tests/services/pet.service.test.ts   covers  src/services/pet.service.ts
 ```
 
+The mirror extends past `src/`. An Edge Function's **pure** modules are testable the same way, and
+`tests/functions/send-alerts/message.test.ts` covers
+`supabase/functions/send-alerts/message.ts`. Only the pure ones — anything reaching for `Deno` or a
+Supabase client does not run under Jest.
+
 Name them `<name>.test.ts`. No `__tests__` folders, and nothing beside the source file.
 
 **What is worth testing here:** pure logic (`lib/dates.ts`, `utils/`), the Zod schemas, and the

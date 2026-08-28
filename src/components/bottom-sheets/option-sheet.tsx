@@ -8,7 +8,7 @@ import type { TrueSheet } from '@lodev09/react-native-true-sheet';
 import type { RefObject } from 'react';
 import { StyleSheet, View } from 'react-native';
 
-type Props<T extends string> = {
+type Props<T extends string | number> = {
   sheetRef: RefObject<TrueSheet | null>;
   title: string;
   options: Option<T>[];
@@ -21,7 +21,7 @@ type Props<T extends string> = {
 };
 
 /** Pick one of a fixed set. Dismisses itself on selection. */
-const OptionSheet = <T extends string>({
+const OptionSheet = <T extends string | number>({
   sheetRef,
   title,
   options,

@@ -176,3 +176,67 @@ export const buildPostCommentedMessage = (
     data: { screen: '/posts/[postId]/comments', params: { postId: input.postId } }
   };
 };
+
+export type FeedDuePet = {
+  name: string;
+  label: ScheduleLabel;
+};
+
+export type FeedDueInput = {
+  pets: FeedDuePet[];
+  /** Wall-clock time in the household timezone, as Postgres stores it. */
+  scheduledTime: string;
+};
+
+// slotLabelText reads as a noun on its own for lunch and dinner, and does not
+// for the other two: "Crumpet's morning is coming up" is not a sentence.
+const dueLabelText: Record<ScheduleLabel, string> = {
+  morning: 'morning feed',
+  lunch: 'lunch',
+  dinner: 'dinner',
+  custom: 'scheduled feed'
+};
+
+const sentenceCase = (text: string): string => text.charAt(0).toUpperCase() + text.slice(1);
+
+// Two names join with "and"; three list out; four or more stop at two and count
+// the rest, because a lock screen truncates a longer list anyway and a cut-off
+// name is worse than a number.
+const nameList = (names: string[]): string => {
+  if (names.length === 1) return names[0];
+  if (names.length === 2) return `${names[0]} and ${names[1]}`;
+  if (names.length === 3) return `${names[0]}, ${names[1]} and ${names[2]}`;
+
+  return `${names[0]}, ${names[1]} and ${names.length - 2} more`;
+};
+
+/**
+ * One push per household per feed instant, however many pets it covers. Three
+ * notifications for what a person experiences as one event is how this app
+ * gets muted, and the volume scales with pet count -- so it lands hardest on
+ * exactly the households the multi-pet work is for.
+ *
+ * Two shapes, decided by whether the pets share a label. They do share one
+ * almost always, because a household feeds its pets together; the mixed case
+ * names the pets instead, since no single label is true of all of them.
+ */
+export const buildFeedDueMessage = (input: FeedDueInput): Omit<ExpoMessage, 'to'> => {
+  const names = input.pets.map((pet) => pet.name);
+  const labels = new Set(input.pets.map((pet) => pet.label));
+  const [first] = input.pets;
+
+  const title =
+    labels.size > 1
+      ? `${nameList(names)} have feeds coming up`
+      : names.length === 1
+        ? `${first.name}'s ${dueLabelText[first.label]} is coming up`
+        : `${sentenceCase(dueLabelText[first.label])} is coming up for ${nameList(names)}`;
+
+  return {
+    title,
+    sound: 'default',
+    body: `Due ${wallClockTime(input.scheduledTime)}`,
+    // /home, not a pet: a group has no single pet to open.
+    data: { screen: '/home', params: {} }
+  };
+};

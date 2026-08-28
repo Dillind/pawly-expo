@@ -25,7 +25,7 @@ Deno.serve(async (request) => {
   const { data: alert, error: alertError } = await client
     .from('alerts')
     .select(
-      'id, household_id, kind, subject_id, subject_date, actor_id, recipient_id, sent_at, suppressed_reason'
+      'id, household_id, kind, subject_id, subject_date, subject_at, lead_minutes, actor_id, recipient_id, sent_at, suppressed_reason'
     )
     .eq('id', alertId)
     .single();
@@ -37,6 +37,16 @@ Deno.serve(async (request) => {
   if (alert.sent_at || alert.suppressed_reason) return new Response('Already handled');
 
   const content = await buildMessageForAlert(client, alert);
+
+  // Not a failure: the household fed its pets between queue and send, which is
+  // the cancel path working. Stamped as suppressed so it never dispatches again.
+  if (content && 'suppressed' in content) {
+    await client
+      .from('alerts')
+      .update({ suppressed_reason: content.suppressed })
+      .eq('id', alert.id);
+    return new Response('Suppressed');
+  }
 
   // Stamped rather than left pending: this alert can never become sendable.
   if (!content) {

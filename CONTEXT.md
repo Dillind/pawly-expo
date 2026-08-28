@@ -76,7 +76,7 @@ _Avoid_: **Feed** (reserved for the act of feeding — a Feed Log, a Missed Feed
 **Grace Window**:
 How long an Occurrence may go unlogged before the household is nudged. A 60-minute window on a 18:00 dinner nudges at 19:00. Configured per household (default 60 minutes).
 
-It decides **when to notify** and nothing else. It used to also decide which Feed Time a log belonged to, and that second job is what made late logging confusing — see ADR 0029. The window is no longer symmetric, because it no longer identifies anything: an early log names its Feed Time like any other.
+It decides **how long the app waits after a feed time** before it nudges, and nothing else. The nudge that goes out *before* a feed is governed by the Lead Time, a separate setting with a different owner — the Grace Window belongs to the Household, a Lead Time belongs to a Member. It used to also decide which Feed Time a log belonged to, and that second job is what made late logging confusing — see ADR 0029. The window is no longer symmetric, because it no longer identifies anything: an early log names its Feed Time like any other.
 _Avoid_: Buffer, tolerance, timeout.
 
 **Satisfying Feed**:
@@ -122,6 +122,24 @@ An Alert with one named recipient. Only that person sees it — not the rest of 
 
 **Inbox**:
 The list of Alerts a Member can see, and the badge that counts the unread ones. Both are built from the same rule, so the badge can always be cleared by reading the list. It holds the **last seven days** — older Alerts are not shown, though nothing is deleted. See [ADR 0022](./docs/adr/0022-the-inbox-holds-the-last-seven-days.md). It leaves out Feed Logged Alerts, which have Activity and Home already; see [ADR 0023](./docs/adr/0023-feed-logs-are-delivered-but-not-listed.md).
+
+**Feed Due Alert**:
+The push that goes out shortly before a feed is due — "Crumpet's dinner is coming up". It reaches
+every Member who has Feed Due Alerts on, each at their own Lead Time. One push covers every Pet in
+the Household due at that moment, so a three-pet dinner is one notification and not three. It never
+fires for an Occurrence that already has a Satisfying Feed, and it never fires once the feed time
+has passed — a nudge that arrives late is worse than none. Like a Feed Logged Alert it is a push
+only, and never reaches the Inbox. See
+[ADR 0033](./docs/adr/0033-a-feed-due-alert-is-addressed-to-a-cohort.md).
+_Avoid_: **Reminder** — that word belongs to a dated job on a Pet that is not a feed. Also due
+alert, pre-alert, early warning.
+
+**Lead Time**:
+How long before a feed a Member wants their Feed Due Alert. Chosen per membership from 10, 15, 30
+or 60 minutes, default 15. It is the Member's own setting, which is what makes it the opposite half
+of the Grace Window: a Lead Time says when to nudge *before*, the Household's Grace Window says how
+long to wait *after*.
+_Avoid_: Warning time, offset, advance notice, reminder time.
 
 **Feed Logged Alert**:
 The immediate push when a Member logs a feed ("[Person] fed [Pet]"). It goes to every Member of the Household except the author, unless that Member has turned Feed Logged Alerts off. Role plays no part in who receives it. It is a push only — it never appears in the Inbox.

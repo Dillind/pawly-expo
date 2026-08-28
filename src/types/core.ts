@@ -65,6 +65,9 @@ export type Option<T = string> = {
   label: string;
 };
 
+/** Lead Time: how long before a feed a Member is nudged. Mirrors the check constraint. */
+export type LeadMinutes = 10 | 15 | 30 | 60;
+
 export type PetSex = 'male' | 'female';
 
 export type Pet = {

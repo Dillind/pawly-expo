@@ -1,23 +1,93 @@
 import type { SupabaseClient } from 'npm:@supabase/supabase-js@2';
 
 import {
+  buildFeedDueMessage,
   buildFeedLoggedMessage,
   buildMissedFeedMessage,
   buildPostCommentedMessage,
   buildPostMessage,
   type ExpoMessage,
+  type FeedDueInput,
+  type FeedDuePet,
   type ScheduleLabel
 } from './message.ts';
 
-export type AlertKind = 'feed_logged' | 'missed_feed' | 'post' | 'post_commented';
+export type AlertKind =
+  | 'feed_logged'
+  | 'missed_feed'
+  | 'feed_due'
+  | 'post'
+  | 'post_commented';
+
+/**
+ * A deliberate third outcome, alongside a message and null.
+ *
+ * null means the subject is gone and the alert can never be sent, which is a
+ * failure worth stamping as one. A suppression is not a failure: the household
+ * fed its pets between queue and send, which is the feature working.
+ */
+export type BuiltMessage = Omit<ExpoMessage, 'to'> | { suppressed: string } | null;
 
 type AlertSubject = {
   kind: AlertKind;
   subject_id: string;
-  /** The local day the alert is about. Only a missed_feed carries one. */
+  /** The local day the alert is about. missed_feed and feed_due carry one. */
   subject_date: string | null;
+  /** The instant the feeds are due. feed_due only. */
+  subject_at: string | null;
   /** Set on a directed alert. post_commented is the only pushing kind with one. */
   recipient_id: string | null;
+};
+
+/**
+ * The pets in a household still waiting on the feed due at `dueAt`.
+ *
+ * Rebuilt, never stored. The rebuild IS the freshness check: a pet fed since
+ * the sweep drops out of the message on its own, and a household that fed
+ * everything comes back empty, which the caller turns into a suppression rather
+ * than a push. See ADR 0033.
+ *
+ * Null means the household has no pets at all -- the row cannot be sent.
+ */
+const collectDuePets = async (
+  client: SupabaseClient,
+  householdId: string,
+  localDate: string,
+  dueAt: string
+): Promise<FeedDueInput | null> => {
+  // Ordered, because the 4+ case names the first two pets and counts the rest.
+  // Unordered, the same alert could name a different pair on a retry.
+  const { data: pets } = await client
+    .from('pets')
+    .select('id, name')
+    .eq('household_id', householdId)
+    .order('name');
+
+  if (!pets || pets.length === 0) return null;
+
+  const dueInstant = new Date(dueAt).getTime();
+  const duePets: FeedDuePet[] = [];
+  let scheduledTime: string | null = null;
+
+  // One call per pet. A household holds a handful, and occurrence_states is the
+  // only thing that knows about pauses, days of week and versioned feed times.
+  for (const pet of pets) {
+    const { data: states } = await client.rpc('pet_occurrence_states', {
+      target_pet_id: pet.id,
+      target_date: localDate
+    });
+
+    for (const state of states ?? []) {
+      if (new Date(state.scheduled_at).getTime() !== dueInstant) continue;
+      if (state.satisfying_log_id) continue;
+
+      duePets.push({ name: pet.name, label: state.label as ScheduleLabel });
+      scheduledTime = state.local_time;
+    }
+  }
+
+  // An empty set has no time to name, and the caller suppresses it anyway.
+  return { pets: duePets, scheduledTime: scheduledTime ?? '' };
 };
 
 /**
@@ -26,14 +96,17 @@ type AlertSubject = {
  * Null means the row is gone -- deleted between queue and dispatch.
  *
  * The switch is exhaustive: the default branch assigns the kind to `never`, so
- * adding a fifth alert_kind fails to compile.
+ * adding a sixth alert_kind fails to compile.
+ *
+ * feed_due is the exception: its subject_id is the HOUSEHOLD, and the set of
+ * pets is rebuilt here rather than stored. See ADR 0033.
  *
  * comment_liked never reaches here -- it is queued suppressed.
  */
 export const buildMessageForAlert = async (
   client: SupabaseClient,
   alert: AlertSubject
-): Promise<Omit<ExpoMessage, 'to'> | null> => {
+): Promise<BuiltMessage> => {
   switch (alert.kind) {
     case 'post_commented': {
       const { data: comment } = await client
@@ -119,6 +192,17 @@ export const buildMessageForAlert = async (
         notes: log.notes,
         logId: log.id
       });
+    }
+
+    case 'feed_due': {
+      if (!alert.subject_date || !alert.subject_at) return null;
+
+      const due = await collectDuePets(client, alert.subject_id, alert.subject_date, alert.subject_at);
+
+      if (!due) return null;
+      if (due.pets.length === 0) return { suppressed: 'already fed' };
+
+      return buildFeedDueMessage(due);
     }
 
     case 'missed_feed': {

@@ -16,6 +16,11 @@ import type { AlertKind } from './subjects.ts';
  * the midday dog walker is precisely the person who most needs to know the dog
  * was already fed at 7am.
  *
+ * A Feed Due Alert goes to every member with Feed Due Alerts on WHOSE LEAD TIME
+ * MATCHES THE ROW. The row is one cohort of a feed, not the whole feed, so the
+ * lead-time filter is what keeps the 30-minute members out of the 10-minute
+ * push. Nobody is excluded by actor -- there is no actor.
+ *
  * A Post Alert follows the feed_logged shape: everyone except the author, minus
  * anyone with Post Alerts off. The author is excluded for the obvious reason --
  * they are holding the phone they just posted from.
@@ -32,6 +37,7 @@ import type { AlertKind } from './subjects.ts';
 const PREFERENCE_COLUMN: Record<AlertKind, string> = {
   feed_logged: 'feed_logged_alerts',
   missed_feed: 'missed_feed_alerts',
+  feed_due: 'feed_due_alerts',
   post: 'post_alerts',
   // Comments ride the Post Alerts toggle rather than adding a fourth one.
   post_commented: 'post_alerts'
@@ -44,6 +50,7 @@ export const resolveRecipientTokens = async (
     kind: AlertKind;
     actor_id: string | null;
     recipient_id: string | null;
+    lead_minutes: number | null;
   }
 ): Promise<string[]> => {
   const preferenceColumn = PREFERENCE_COLUMN[alert.kind];
@@ -53,6 +60,13 @@ export const resolveRecipientTokens = async (
     .select('user_id')
     .eq('household_id', alert.household_id)
     .eq(preferenceColumn, true);
+
+  // The cohort. A member who changed their lead time since the sweep has left
+  // this one and hears nothing for this feed -- the same trade ADR 0012 makes
+  // everywhere, because delivery resolves at send time.
+  if (alert.kind === 'feed_due') {
+    query = query.eq('feed_due_lead_minutes', alert.lead_minutes);
+  }
 
   // A null recipient is household news; a set one addresses a single member.
   if (alert.recipient_id) {
