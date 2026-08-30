@@ -99,13 +99,30 @@ The Posts line follows the rule the rest of the list follows: never cap the core
 
 **Vibe:** design-conscious, inviting, polished. **Reference:** Luna Budgeting App — thoughtful micro-interactions, haptics, gestures, native iOS feel, nothing generic.
 
-**Palette (proposed):**
-- Primary: `#0F7173` Stormy Teal
-- Secondary: `#2E5077` Dusk Blue
-- Dark background: `#383961` Twilight Indigo
-- Accent (CTAs, highlights): `#6E44FF` Majorelle Blue — use sparingly
+**Palette — settled 2026-08-30, and it is golden, not teal.** The app icon is a pale cream crumpet
+on a marigold ground, and the palette now answers to it. Full values in
+[THEMING.md](./THEMING.md); the reasoning in [ADR 0034](./adr/0034-a-warm-light-first-palette-with-gold-as-a-fill.md).
 
-> Note: the proposed palette above is aspirational. The theme currently in code (`src/constants/theme.ts`) is a neutral black/white/grey system. Reconcile the two in a dedicated design session before building out the visual system. Styling approach is documented in THEMING.md and [ADR 0004](./adr/0004-custom-theme-no-component-library.md).
+| | | |
+|---|---|---|
+| Page | `#FAF6EF` | Warm off-white. **Not** a cool grey — that mismatch is what made gold look cheap. |
+| Primary | `#F0A81C` | Gold. A **fill**, never a text colour. |
+| On primary | `#2A1D06` | The label on a gold fill. Never white. |
+| Primary text | `#9E6404` | A gold *label* on a light surface. `primary` on white is 2.0:1 and fails. |
+| Success | `#10696B` | The tick, and every "done" state. |
+
+**Gold has three jobs and no more:** the Home banner wash, the Log chip, and the active tab. Adding
+a fourth drains the meaning from the other three. Gold marks what needs doing; teal marks what is
+done. There is no colour per pet — a pet is told apart by its photo.
+
+**Light-first.** Dark mode is a port of this palette, not a second design.
+
+Type is **Gabarito** for headings over **Inter** for body. Both are Google Fonts under the Open Font
+Licence, so there is nothing to buy. Styling approach is documented in THEMING.md and
+[ADR 0004](./adr/0004-custom-theme-no-component-library.md).
+
+The teal/blue/indigo palette that stood here from the start was aspirational and was never built.
+It is recorded in ADR 0034 as the alternative that lost, so nobody proposes it again.
 
 ---
 

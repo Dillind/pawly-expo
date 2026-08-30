@@ -44,7 +44,7 @@ const HowFeedsWorkSheet = ({ sheetRef }: { sheetRef: RefObject<TrueSheet | null>
       <View style={styles.points}>
         {POINTS.map((point) => (
           <View key={point.title} style={styles.point}>
-            <Icon name={point.icon} size={20} color="primary" />
+            <Icon name={point.icon} size={20} color="text" />
             <View style={styles.text}>
               <AppText size={15} fontWeight="bold">
                 {point.title}

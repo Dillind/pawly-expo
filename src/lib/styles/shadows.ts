@@ -23,15 +23,15 @@ const createShadow = (theme: ThemeColors, { radius, opacity, offsetY, elevation 
 
 /** Small and subtle elevation */
 export function createShadowSmall(theme: ThemeColors): ShadowStyle {
-  return createShadow(theme, { radius: 6, opacity: 0.08, offsetY: 2, elevation: 2 });
+  return createShadow(theme, { radius: 6, opacity: 0.05, offsetY: 2, elevation: 2 });
 }
 
 /** Cards and buttons */
 export function createShadowMedium(theme: ThemeColors): ShadowStyle {
-  return createShadow(theme, { radius: 14, opacity: 0.1, offsetY: 4, elevation: 4 });
+  return createShadow(theme, { radius: 16, opacity: 0.07, offsetY: 6, elevation: 4 });
 }
 
 /** Modals and overlays */
 export function createShadowLarge(theme: ThemeColors): ShadowStyle {
-  return createShadow(theme, { radius: 28, opacity: 0.14, offsetY: 10, elevation: 8 });
+  return createShadow(theme, { radius: 32, opacity: 0.11, offsetY: 14, elevation: 8 });
 }

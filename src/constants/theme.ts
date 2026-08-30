@@ -8,50 +8,58 @@ import { Platform } from 'react-native';
 
 export const COLORS = {
   light: {
-    text: '#000000',
-    // Light mode is a grouped-list field, not a white page: cards are white and
-    // the page behind them is tinted. On a white page a white card has only its
-    // shadow to separate it, and at our shadow weight that reads as nothing.
-    background: '#F1F2F5',
+    // Warm near-black, never #000. Pure black on a cream page reads as a hole.
+    text: '#1C1815',
+    // Warm off-white, not the cool #F1F2F5 this used to be. Gold on a cool grey
+    // ground is what made the brand colour look cheap for a year.
+    background: '#FAF6EF',
     backgroundElement: '#FFFFFF',
-    backgroundSelected: '#E4E6EB',
+    backgroundSelected: '#F3EDE2',
     backgroundSheet: '#FFFFFF',
-    backgroundSheetRow: '#F1F2F5',
+    backgroundSheetRow: '#F3EDE2',
     // A Post fills the screen width, so it has no edge of its own -- the band
-    // between two of them is the only thing that separates them. Light mode
-    // draws the Post white on a tinted band; dark mode does the reverse,
-    // because a Post on anything but black loses the photo's own black.
+    // between two of them is the only thing that separates them.
     postSurface: '#FFFFFF',
-    postDivider: '#F1F2F5',
-    textSecondary: '#60646C',
-    // Separators, matched to UIColor.separator. A fill token used as a line
-    // (backgroundSelected) is too close to white to read as one.
-    border: 'rgba(60, 60, 67, 0.29)',
+    postDivider: '#FAF6EF',
+    textSecondary: '#7B7167',
+    border: 'rgba(58, 48, 38, 0.13)',
     error: '#CE3C39',
     like: '#E0405E',
-    primary: '#0F7173',
-    primaryMuted: 'rgba(15, 113, 115, 0.15)',
-    onPrimary: '#ffffff',
-    accent: '#6E44FF',
-    shadow: '#0B0D12'
+    // Gold has three jobs: the Home banner wash, the Log chip, the active tab.
+    // It is a FILL. It never carries text -- #F0A81C on white is 2.0:1.
+    primary: '#F0A81C',
+    primaryMuted: 'rgba(240, 168, 28, 0.14)',
+    // A gold LABEL on a light surface. Clears 4.5:1 where `primary` cannot.
+    primaryText: '#9E6404',
+    onPrimary: '#2A1D06',
+    // The tick, and every "done" state. Gold means "to do", so "done" needed
+    // its own colour the moment primary stopped being teal.
+    success: '#10696B',
+    // Warm brown-black. A neutral grey shadow on cream reads as dirt.
+    shadow: '#4A3A26'
   },
   dark: {
-    text: '#ffffff',
-    background: '#000000',
-    backgroundElement: '#212225',
-    backgroundSelected: '#2E3135',
-    backgroundSheet: '#1C1D20',
-    backgroundSheetRow: '#2E3135',
+    text: '#FBF7F2',
+    background: '#14100E',
+    backgroundElement: '#201A17',
+    backgroundSelected: '#2C2521',
+    backgroundSheet: '#1B1613',
+    backgroundSheetRow: '#2C2521',
+    // Dark reverses the light pairing: a Post on anything but black loses the
+    // photo's own black.
     postSurface: '#000000',
-    postDivider: '#212225',
-    textSecondary: '#B0B4BA',
-    border: 'rgba(84, 84, 88, 0.60)',
-    error: '#CE3C39',
+    postDivider: '#201A17',
+    textSecondary: '#A99C90',
+    border: 'rgba(255, 255, 255, 0.14)',
+    error: '#E05B58',
     like: '#FF4D6D',
-    primary: '#14A8AF',
-    primaryMuted: 'rgba(20, 168, 175, 0.22)',
-    onPrimary: '#ffffff',
-    accent: '#6E44FF',
+    primary: '#F5B435',
+    primaryMuted: 'rgba(245, 180, 53, 0.20)',
+    // On a dark ground gold IS readable as text, so the two collapse. Keep the
+    // token: the call sites must not know which mode they are in.
+    primaryText: '#F5B435',
+    onPrimary: '#2A1D06',
+    success: '#2FA8A2',
     shadow: '#000000'
   }
 } as const;

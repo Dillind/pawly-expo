@@ -22,7 +22,7 @@ const PetManageRow = ({ pet }: Props) => {
           <Image source={pet.photoUrl} style={styles.avatar} contentFit="cover" />
         ) : (
           <View style={[styles.avatar, styles.avatarPlaceholder]}>
-            <Icon name="pawPrint" size={18} color="primary" />
+            <Icon name="pawPrint" size={18} color="text" />
           </View>
         )}
 
@@ -56,7 +56,7 @@ const makeStyles = ({ colors, spacing }: AppTheme) =>
     avatarPlaceholder: {
       alignItems: 'center',
       justifyContent: 'center',
-      backgroundColor: colors.primaryMuted
+      backgroundColor: colors.backgroundSelected
     },
     name: {
       flex: 1

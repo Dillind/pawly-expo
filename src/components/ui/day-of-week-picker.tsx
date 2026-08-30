@@ -58,7 +58,7 @@ const DayOfWeekPicker = ({ label = 'Days', name, value, onChange }: Props) => {
                 size={14}
                 align="center"
                 fontWeight={isOn ? 'bold' : 'regular'}
-                color={isOn ? 'onPrimary' : 'textSecondary'}>
+                color={isOn ? 'primaryText' : 'textSecondary'}>
                 {day.initial}
               </AppText>
             </PressableOpacity>
@@ -95,7 +95,7 @@ const makeStyles = ({ colors, spacing }: AppTheme) =>
       borderRadius: 10,
       borderCurve: 'continuous'
     },
-    on: { backgroundColor: colors.primary },
+    on: { backgroundColor: colors.primaryMuted },
     off: {
       backgroundColor: colors.backgroundElement,
       borderWidth: StyleSheet.hairlineWidth,

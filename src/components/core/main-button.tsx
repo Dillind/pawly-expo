@@ -41,12 +41,17 @@ type MainButtonProps = {
   hapticFeedback?: boolean;
 };
 
+// Fixed heights, not vertical padding: a chip and a label of different sizes
+// otherwise end up different heights in the same row.
 const SIZE_STYLES = {
-  xs: { paddingVertical: 8, paddingHorizontal: 12, borderRadius: 24, fontSize: 14 },
-  sm: { paddingVertical: 12, paddingHorizontal: 18, borderRadius: 24, fontSize: 16 },
-  md: { paddingVertical: 12, paddingHorizontal: 24, borderRadius: 100, fontSize: 18 },
-  lg: { paddingVertical: 12, paddingHorizontal: 40, borderRadius: 100, fontSize: 24 }
+  xs: { height: 28, paddingHorizontal: 12, borderRadius: 100, fontSize: 13 },
+  sm: { height: 34, paddingHorizontal: 14, borderRadius: 100, fontSize: 14 },
+  md: { height: 42, paddingHorizontal: 18, borderRadius: 100, fontSize: 17 },
+  lg: { height: 50, paddingHorizontal: 22, borderRadius: 100, fontSize: 20 }
 } as const;
+
+// xs is 28pt tall, so it needs 8pt either side to clear the 44pt tap target.
+const XS_HIT_SLOP = { top: 8, bottom: 8, left: 0, right: 0 };
 
 const MainButton: FunctionComponent<MainButtonProps> = ({
   text,
@@ -92,13 +97,13 @@ const MainButton: FunctionComponent<MainButtonProps> = ({
     pressed.set(withTiming(0, { duration: PRESS_DURATION_MS }));
   };
 
-  const { paddingVertical, paddingHorizontal, borderRadius, fontSize } = SIZE_STYLES[size];
+  const { height, paddingHorizontal, borderRadius, fontSize } = SIZE_STYLES[size];
 
   // Below iOS 26 there is no material to render, so glass borrows `secondary`'s
-  // fill. Its label is `text`'s primary either way -- onPrimary white would
-  // disappear against clear glass over a light page.
+  // fill. Its label is ink in both paths: gold on clear glass over a warm page
+  // is 2.0:1, and white vanishes entirely.
   const fillVariant = variant === 'glass' ? 'secondary' : variant;
-  const labelVariant = variant === 'glass' ? 'text' : variant;
+  const labelVariant = variant;
 
   const content = (
     <View style={styles.content}>
@@ -133,7 +138,7 @@ const MainButton: FunctionComponent<MainButtonProps> = ({
         <Pressable
           onPress={handlePress}
           disabled={isDisabled || isLoading}
-          style={[styles.base, { paddingVertical, paddingHorizontal }]}>
+          style={[styles.base, { height, paddingHorizontal }]}>
           {content}
         </Pressable>
       </GlassView>
@@ -146,10 +151,11 @@ const MainButton: FunctionComponent<MainButtonProps> = ({
       onPressIn={handlePressIn}
       onPressOut={handlePressOut}
       disabled={isDisabled || isLoading}
+      hitSlop={size === 'xs' ? XS_HIT_SLOP : undefined}
       style={[
         styles.base,
         styles[fillVariant],
-        { paddingVertical, paddingHorizontal, borderRadius },
+        { height, paddingHorizontal, borderRadius },
         containerStyle,
         animatedStyle
       ]}>
@@ -168,8 +174,12 @@ const makeStyles = ({ colors }: AppTheme) =>
     primary: {
       backgroundColor: colors.primary
     },
+    // White with a hairline, not a grey fill. On a cream page a filled
+    // secondary competes with the gold primary beside it.
     secondary: {
-      backgroundColor: colors.backgroundSelected
+      backgroundColor: colors.backgroundElement,
+      borderWidth: StyleSheet.hairlineWidth,
+      borderColor: colors.border
     },
     destructive: {
       backgroundColor: colors.error
@@ -208,7 +218,10 @@ const makeStyles = ({ colors }: AppTheme) =>
       color: colors.onPrimary
     },
     textLabel: {
-      color: colors.primary
+      color: colors.primaryText
+    },
+    glassLabel: {
+      color: colors.text
     },
     destructiveTextLabel: {
       color: colors.error

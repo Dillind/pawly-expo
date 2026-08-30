@@ -30,7 +30,7 @@ const FeedLogRow = ({ log, petName, timezone, onPress }: Props) => {
       accessibilityLabel={`Edit feed logged by ${authorName}${
         petName ? ` for ${petName}` : ''
       } at ${timeOfDay}`}>
-      <Icon name="utensils" size={18} color="primary" />
+      <Icon name="utensils" size={18} color="text" />
       <View style={styles.body}>
         <AppText size={16}>{petName ? `${authorName} fed ${petName}` : authorName}</AppText>
         {log.notes && (

@@ -105,7 +105,7 @@ const OccurrenceRow = ({
       <Animated.View style={styles.slot} layout={SlotReflow}>
         {isFed ? (
           <Animated.View entering={TickIn}>
-            <Icon name="check" size={20} color="primary" />
+            <Icon name="check" size={20} color="success" />
           </Animated.View>
         ) : onLog ? (
           <Animated.View exiting={SlotOut}>

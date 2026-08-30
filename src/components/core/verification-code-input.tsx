@@ -128,11 +128,11 @@ const makeStyles = ({ colors, spacing }: AppTheme) =>
       backgroundColor: colors.backgroundElement
     },
     boxFilled: {
-      borderColor: colors.primary
+      borderColor: colors.primaryText
     },
     boxNext: {
       borderWidth: 2,
-      borderColor: colors.primary
+      borderColor: colors.primaryText
     },
     input: {
       position: 'absolute',

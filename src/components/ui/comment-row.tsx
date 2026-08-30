@@ -67,7 +67,7 @@ const CommentRow = ({
 
         <AppText size={15}>
           {comment.replyToName && (
-            <AppText size={15} color="primary" fontWeight="bold">
+            <AppText size={15} color="primaryText" fontWeight="bold">
               {`@${comment.replyToName} `}
             </AppText>
           )}

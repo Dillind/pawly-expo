@@ -26,7 +26,7 @@ const AvatarInitials = ({ firstName, lastName, size = 72 }: Props) => {
 
   return (
     <View style={styles.circle}>
-      <AppText variant="header" size={size * 0.36} color="onPrimary">
+      <AppText variant="header" size={size * 0.36} color="text">
         {toInitials(firstName, lastName)}
       </AppText>
     </View>
@@ -39,7 +39,9 @@ const makeStyles = ({ colors }: AppTheme, size: number) =>
       width: size,
       height: size,
       borderRadius: Radius.full,
-      backgroundColor: colors.primary,
+      // Not gold. A member without a photo is not an action, and gold's
+      // three jobs are the banner, the Log chip and the active tab.
+      backgroundColor: colors.backgroundSelected,
       alignItems: 'center',
       justifyContent: 'center'
     }

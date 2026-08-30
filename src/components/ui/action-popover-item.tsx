@@ -51,7 +51,7 @@ const ActionPopoverItem = ({
       onPress={handlePress}
       style={[styles.row, isDisabled && styles.disabled]}>
       <View style={styles.tile}>
-        <Icon name={icon} size={20} color="primary" />
+        <Icon name={icon} size={20} color="text" />
       </View>
 
       <View style={styles.copy}>

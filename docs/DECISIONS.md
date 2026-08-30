@@ -287,3 +287,18 @@ alone, and a count now widens only the box it sits in.
 **The Comments screen shows the post's date in full, where the feed shows "3d ago".** A feed is
 scanned and a relative time is the faster read; a conversation is usually entered from a
 notification, where the reader wants to know which day this was.
+
+**One `border` token, not three line weights.** The component sheet drew dividers at 11% and input
+and button rings at 20%. The theme carries a single `border` at 13% and both use it. Three line
+weights is over-specification for a system this small — it invents two more values to keep in step,
+for a difference nobody will name on a device.
+
+**A gold label uses `primaryText`, never `primary`.** `#F0A81C` on white is 2.0:1. Splitting the
+token is what makes the failure impossible rather than merely documented: there is no longer a
+value a call site can reach for that looks like the brand colour and fails contrast. See
+[ADR 0034](./adr/0034-a-warm-light-first-palette-with-gold-as-a-fill.md).
+
+**Decorative icons draw in `text`, not the brand colour.** A tile's glyph, a paw on an avatar
+fallback, a bullet in an info sheet — none of them are actions, so none of them are gold. The
+fourteen `Icon color="primary"` call sites that existed were an artefact of teal being harmless
+everywhere, not a deliberate choice.

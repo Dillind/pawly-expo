@@ -54,3 +54,7 @@ docs/agents
 .docs/superpowers
 
 .mcp
+
+# Design working files: artboards, tokens and briefs for Claude Design.
+# The published canvas and the Claude Design project are the durable copies.
+.design

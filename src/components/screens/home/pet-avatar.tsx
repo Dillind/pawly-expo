@@ -16,7 +16,7 @@ const PetAvatar = ({ photoUrl, size = 40 }: Props) => {
   if (!photoUrl) {
     return (
       <View style={[styles.avatar, styles.placeholder]}>
-        <Icon name="pawPrint" size={size * 0.45} color="primary" />
+        <Icon name="pawPrint" size={size * 0.45} color="textSecondary" />
       </View>
     );
   }
@@ -37,7 +37,7 @@ const makeStyles = ({ colors }: AppTheme, size: number) =>
     placeholder: {
       alignItems: 'center',
       justifyContent: 'center',
-      backgroundColor: colors.primaryMuted
+      backgroundColor: colors.backgroundSelected
     }
   });
 

@@ -113,7 +113,7 @@ const ProfileOverview = () => {
         )}
         {household && (
           <View style={styles.rolePill}>
-            <AppText size={12} color="primary">
+            <AppText size={12} color="primaryText">
               {optionLabel(ROLE_OPTIONS, household.role)}
             </AppText>
           </View>

@@ -29,7 +29,7 @@ const Tile = ({ label, subtitle, icon, href }: Props) => {
       onPress={() => router.navigate(href as Href)}
       style={[styles.container, createShadowMedium(theme.colors)]}>
       <View style={styles.iconWell}>
-        <Icon name={icon} size={22} color="primary" />
+        <Icon name={icon} size={22} color="text" />
       </View>
 
       <View style={styles.labels}>
