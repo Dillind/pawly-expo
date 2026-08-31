@@ -32,17 +32,14 @@ type MainButtonProps = {
   isDisabled?: boolean;
   variant?: 'primary' | 'secondary' | 'destructive' | 'destructiveText' | 'text' | 'glass';
   size?: 'sm' | 'md' | 'lg' | 'xs';
-  // ReactElement, not ReactNode: ReactNode admits a bare string, so passing an
-  // IconName here type-checked and then crashed at render with "Text strings
-  // must be rendered within a <Text> component" -- the icon is wrapped in a
-  // View, and a raw string cannot live there.
+  // ReactElement, not ReactNode: ReactNode admits a bare string, which type-checks
+  // here and then crashes inside the wrapping View.
   leftIcon?: React.ReactElement;
   rightIcon?: React.ReactElement;
   hapticFeedback?: boolean;
 };
 
-// Fixed heights, not vertical padding: a chip and a label of different sizes
-// otherwise end up different heights in the same row.
+// Fixed heights, not padding: two sizes in one row must still line up.
 const SIZE_STYLES = {
   xs: { height: 28, paddingHorizontal: 12, borderRadius: 100, fontSize: 13 },
   sm: { height: 34, paddingHorizontal: 14, borderRadius: 100, fontSize: 14 },
@@ -50,7 +47,7 @@ const SIZE_STYLES = {
   lg: { height: 50, paddingHorizontal: 22, borderRadius: 100, fontSize: 20 }
 } as const;
 
-// xs is 28pt tall, so it needs 8pt either side to clear the 44pt tap target.
+// xs is 28pt, so it needs 8pt either side to clear 44pt.
 const XS_HIT_SLOP = { top: 8, bottom: 8, left: 0, right: 0 };
 
 const MainButton: FunctionComponent<MainButtonProps> = ({
@@ -71,8 +68,7 @@ const MainButton: FunctionComponent<MainButtonProps> = ({
   const router = useRouter();
   const pressed = useSharedValue(0);
 
-  // Opacity is owned here rather than by a `disabled` style in the array below:
-  // an animated style always wins, so a later static opacity never applied.
+  // An animated style always wins, so a static disabled opacity never applied.
   const restingOpacity = isDisabled || isLoading ? DISABLED_OPACITY : 1;
 
   const animatedStyle = useAnimatedStyle(() => ({
@@ -99,9 +95,7 @@ const MainButton: FunctionComponent<MainButtonProps> = ({
 
   const { height, paddingHorizontal, borderRadius, fontSize } = SIZE_STYLES[size];
 
-  // Below iOS 26 there is no material to render, so glass borrows `secondary`'s
-  // fill. Its label is ink in both paths: gold on clear glass over a warm page
-  // is 2.0:1, and white vanishes entirely.
+  // Below iOS 26 there is no material, so glass borrows `secondary`'s fill.
   const fillVariant = variant === 'glass' ? 'secondary' : variant;
   const labelVariant = variant;
 
@@ -121,9 +115,7 @@ const MainButton: FunctionComponent<MainButtonProps> = ({
     </View>
   );
 
-  // The material provides its own press response, so this branch skips the
-  // scale/opacity animation the other variants use -- layering one on top
-  // fights the deformation.
+  // The material provides its own press response; layering one on top fights it.
   if (variant === 'glass' && hasGlass) {
     return (
       <GlassView
@@ -174,8 +166,6 @@ const makeStyles = ({ colors }: AppTheme) =>
     primary: {
       backgroundColor: colors.primary
     },
-    // White with a hairline, not a grey fill. On a cream page a filled
-    // secondary competes with the gold primary beside it.
     secondary: {
       backgroundColor: colors.backgroundElement,
       borderWidth: StyleSheet.hairlineWidth,

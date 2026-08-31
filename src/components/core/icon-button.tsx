@@ -55,8 +55,6 @@ const IconButton = ({
     onPress?.();
   };
 
-  // Only `primary` carries a gold fill, so only it needs the ink-on-gold
-  // glyph. Everything else sits on a light surface and draws in ink.
   const glyphColor = color ?? (variant === 'primary' ? 'onPrimary' : 'text');
 
   const content = isLoading ? (

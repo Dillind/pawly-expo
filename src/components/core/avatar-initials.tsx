@@ -39,8 +39,6 @@ const makeStyles = ({ colors }: AppTheme, size: number) =>
       width: size,
       height: size,
       borderRadius: Radius.full,
-      // Not gold. A member without a photo is not an action, and gold's
-      // three jobs are the banner, the Log chip and the active tab.
       backgroundColor: colors.backgroundSelected,
       alignItems: 'center',
       justifyContent: 'center'

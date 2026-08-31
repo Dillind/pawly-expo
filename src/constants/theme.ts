@@ -8,10 +8,7 @@ import { Platform } from 'react-native';
 
 export const COLORS = {
   light: {
-    // Warm near-black, never #000. Pure black on a cream page reads as a hole.
     text: '#1C1815',
-    // Warm off-white, not the cool #F1F2F5 this used to be. Gold on a cool grey
-    // ground is what made the brand colour look cheap for a year.
     background: '#FAF6EF',
     backgroundElement: '#FFFFFF',
     backgroundSelected: '#F3EDE2',
@@ -25,17 +22,13 @@ export const COLORS = {
     border: 'rgba(58, 48, 38, 0.13)',
     error: '#CE3C39',
     like: '#E0405E',
-    // Gold has three jobs: the Home banner wash, the Log chip, the active tab.
-    // It is a FILL. It never carries text -- #F0A81C on white is 2.0:1.
+    // A fill, never text: #F0A81C on white is 2.0:1.
     primary: '#F0A81C',
     primaryMuted: 'rgba(240, 168, 28, 0.14)',
-    // A gold LABEL on a light surface. Clears 4.5:1 where `primary` cannot.
+    // A gold label. Clears 4.5:1 where `primary` cannot.
     primaryText: '#9E6404',
     onPrimary: '#2A1D06',
-    // The tick, and every "done" state. Gold means "to do", so "done" needed
-    // its own colour the moment primary stopped being teal.
     success: '#10696B',
-    // Warm brown-black. A neutral grey shadow on cream reads as dirt.
     shadow: '#4A3A26'
   },
   dark: {
@@ -137,11 +130,8 @@ export const Spacing = {
 } as const;
 
 export const Radius = {
-  /** Icon tiles: squircle -- clearly neither circle nor square. */
   tile: 12,
-  /** Cards and the action popover bubble. */
   card: 24,
-  /** Fully round; used for circular tap targets. */
   full: 100
 } as const;
 
