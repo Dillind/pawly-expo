@@ -35,6 +35,10 @@ Current colour tokens (keys are the `ThemeColor` union):
 | `onPrimary`          | `#2A1D06`     | `#2A1D06`     | The label on a gold fill            |
 | `success`            | `#10696B`     | `#2FA8A2`     | The tick, and every "done" state    |
 | `ghostBorder`        | 20% ink       | 22% white     | A dashed row that offers, not warns |
+| `medication`         | `#7A5C86`     | `#B49CC0`     | A medication Reminder, on trial     |
+| `medicationMuted`    | 14% med.      | 20% med.      | Tinted fill behind a medication     |
+| `vet`                | `#4B6A8C`     | `#8FB0D2`     | A vet Reminder, on trial            |
+| `vetMuted`           | 14% vet       | 20% vet       | Tinted fill behind a vet Reminder   |
 | `onGlass`            | `#FFFFFF`     | `#FFFFFF`     | Ink on a glass control over a photo |
 | `shadow`             | `#4A3A26`     | `#000000`     | Shadow colour                       |
 

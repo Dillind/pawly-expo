@@ -6,7 +6,7 @@ import { useStyles } from '@/hooks/use-styles';
 import { formatMonthAndYear } from '@/lib/dates';
 import { StyleSheet } from 'react-native';
 
-export type MonthPopoverProps = {
+export type MonthPickerProps = {
   /** The day in view. Its month is the label, and the grid opens on it. */
   selectedDay: string;
   onSelectDay: (day: string) => void;

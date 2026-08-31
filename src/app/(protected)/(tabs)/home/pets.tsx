@@ -5,6 +5,7 @@ import ListCard from '@/components/core/list-card';
 import MainButton from '@/components/core/main-button';
 import ScreenScrollView from '@/components/layout/screen-scroll-view';
 import ScreenView from '@/components/layout/screen-view';
+import AddPetGhostRow from '@/components/screens/home/add-pet-ghost-row';
 import PetManageRow from '@/components/screens/home/pet-manage-row';
 import PetsSkeleton from '@/components/screens/home/pets-skeleton';
 import { BottomTabInset, type AppTheme } from '@/constants/theme';
@@ -68,6 +69,7 @@ const Pets = () => {
             </Fragment>
           ))}
         </ListCard>
+        {isOwner && <AddPetGhostRow />}
       </>
     );
   };

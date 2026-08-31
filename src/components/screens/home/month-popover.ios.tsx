@@ -1,14 +1,11 @@
 import { useStyles } from '@/hooks/use-styles';
 import { useTheme } from '@/hooks/use-theme';
-import type { AppTheme } from '@/constants/theme';
 import { Host } from '@expo/ui';
 import { DatePicker, Popover, RNHostView } from '@expo/ui/swift-ui';
 import { datePickerStyle, frame, padding } from '@expo/ui/swift-ui/modifiers';
 import { useState } from 'react';
 import { StyleSheet } from 'react-native';
-import MonthTrigger, {
-  type MonthPopoverProps
-} from '@/components/screens/home/month-trigger';
+import MonthTrigger, { type MonthPickerProps } from '@/components/screens/home/month-trigger';
 
 // UICalendarView will not go under 320, and spaces its rows out above it.
 const GRID_WIDTH = 344;
@@ -23,7 +20,7 @@ const GRID_INSET = 12;
  * `Popover` does not present itself: the trigger is content, not a button, so
  * the tap comes from the React Native label inside `RNHostView`.
  */
-const MonthPopover = ({ selectedDay, onSelectDay }: MonthPopoverProps) => {
+const MonthPopover = ({ selectedDay, onSelectDay }: MonthPickerProps) => {
   const styles = useStyles(makeStyles);
   const theme = useTheme();
   const [isOpen, setIsOpen] = useState(false);
@@ -75,7 +72,7 @@ const MonthPopover = ({ selectedDay, onSelectDay }: MonthPopoverProps) => {
   );
 };
 
-const makeStyles = (_theme: AppTheme) =>
+const makeStyles = () =>
   StyleSheet.create({
     host: {
       alignSelf: 'center'
