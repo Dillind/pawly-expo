@@ -131,8 +131,8 @@ fires for an Occurrence that already has a Satisfying Feed, and it never fires o
 has passed — a nudge that arrives late is worse than none. Like a Feed Logged Alert it is a push
 only, and never reaches the Inbox. See
 [ADR 0033](./docs/adr/0033-a-feed-due-alert-is-addressed-to-a-cohort.md).
-_Avoid_: **Reminder** — that word belongs to a dated job on a Pet that is not a feed. Also due
-alert, pre-alert, early warning.
+_Avoid_: **Reminder** — see its own entry; that word belongs to a dated job on a Pet that is not a
+feed. Also due alert, pre-alert, early warning.
 
 **Lead Time**:
 How long before a feed a Member wants their Feed Due Alert. Chosen per membership from 10, 15, 30
@@ -146,6 +146,21 @@ The immediate push when a Member logs a feed ("[Person] fed [Pet]"). It goes to 
 
 **Missed Feed Alert**:
 The push to all household members when a Missed Feed is detected server-side, unless that Member has turned Missed Feed Alerts off. Nobody is excluded — there is no actor, because the point is that no one acted. The copy names the absent **log**, never the absent meal: "No one has logged Bailey's morning feed", not "Bailey hasn't been fed". The app only ever knows that nobody tapped Log, and most of the time the pet was fed — claiming otherwise is the trust failure PRODUCT_BRIEF calls fatal.
+
+**Reminder**:
+A dated job on a Pet that is not a feed — a worming tablet, a vet appointment. It has a **Kind**
+(Feed, Medication or Vet), a date, a local time, a repeat of once, weekly or monthly, and a **Lead
+Day** count of 1, 2 or 3. Anyone in the Household can tick one off, and the tick is a
+**Completion** — one row per Reminder per date, written only when someone acts. Absence is the
+not-done state, so a monthly Reminder needs nothing written ahead of it. A Reminder that repeats
+monthly on the 31st lands on the last day of a shorter month rather than skipping it.
+_Avoid_: Task, to-do, event, appointment (an appointment is one Kind of Reminder, not the word for
+all of them).
+
+**Lead Day**:
+How many days before a Reminder the Household is pushed. 1, 2 or 3, default 1. It is the
+Reminder's own setting, chosen when it is made — unlike **Lead Time**, which each Member chooses
+for themselves and which is measured in minutes.
 
 **Nudge Limit**:
 After 3 consecutive Missed Feed Alerts for a pet with no Feed Log in between, Missed Feed Alerts stop for that pet until someone logs a feed. Stops a household that set up a schedule and drifted away from being nudged three times a day forever. Counted per pet, so one dormant pet never silences another.
