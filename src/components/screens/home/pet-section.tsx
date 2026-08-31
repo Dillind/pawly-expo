@@ -184,17 +184,22 @@ const PetSection = ({
                     onPress={() => router.push(`/home/${pet.id}`)}
                   />
                 )}
-                {/* The log tray writes against today, so it is not offered on
-                    another day. */}
-                {isToday && (
-                  <MainButton
-                    text="Just log a feed"
-                    variant="text"
-                    size="sm"
-                    onPress={onLogPress}
-                  />
-                )}
               </View>
+            )}
+
+            {/* The log tray writes against now, so it is not offered on another
+                day. Paused means nothing is expected, including this. */}
+            {isToday && !isPaused && (
+              <PressableOpacity
+                style={styles.other}
+                accessibilityRole="button"
+                accessibilityLabel={`Log something else for ${pet.name}`}
+                onPress={onLogPress}>
+                <Icon name="plus" size={17} color="textSecondary" />
+                <AppText size={15} color="textSecondary">
+                  Other
+                </AppText>
+              </PressableOpacity>
             )}
           </Animated.View>
         ))}
@@ -218,6 +223,20 @@ const makeStyles = ({ colors, spacing }: AppTheme) =>
     empty: {
       gap: spacing.two,
       paddingTop: spacing.three
+    },
+    // Dashed rather than filled: it is always available and never the thing to
+    // do, so it must not read as loud as a Log chip.
+    other: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: spacing.two,
+      height: 44,
+      marginTop: spacing.one,
+      paddingHorizontal: spacing.two,
+      borderWidth: 1.5,
+      borderStyle: 'dashed',
+      borderColor: colors.ghostBorder,
+      borderRadius: 14
     },
     headerRow: {
       flexDirection: 'row',

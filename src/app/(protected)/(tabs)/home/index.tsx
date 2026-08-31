@@ -219,24 +219,6 @@ const Home = () => {
 
         {renderBody()}
 
-        {/* An unscheduled feed is written against now, so it belongs to today
-            and disappears when the strip moves to another day. */}
-        {hasPets && day === today && (
-          <View style={styles.extraFeed}>
-            <MainButton
-              text="Other"
-              variant="text"
-              onPress={() => {
-                setLogPet(undefined);
-                void logTrayRef.current?.present();
-              }}
-            />
-            <AppText size={13} color="textSecondary" align="center">
-              A snack, or a feed that is not on the schedule.
-            </AppText>
-          </View>
-        )}
-
         {hasHousehold && <TileGrid tiles={HOME_TILES} />}
 
         {tip && <HomeTip tip={tip} />}
@@ -267,9 +249,6 @@ const makeStyles = ({ spacing }: AppTheme) =>
     },
     sections: {
       gap: spacing.four
-    },
-    extraFeed: {
-      gap: spacing.one
     },
     header: {
       gap: spacing.two + spacing.one
