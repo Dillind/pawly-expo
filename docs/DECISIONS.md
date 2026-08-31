@@ -331,7 +331,7 @@ household reads.
 second door to the same room. It floated over the content it duplicated, it needed a fixed
 `BottomTabInset` offset because native tabs expose no height, and it forced `minimizeBehavior` off
 so the bar could not change height under it. Removing it deletes all three problems and costs
-nothing: "Other" already covers the unscheduled feed. See
+nothing: the "Other" row in each pet card already covers the unscheduled feed. See
 [ADR 0011](./adr/0011-liquid-glass-progressive-enhancement.md) for the glass reasoning that outlives
 the component.
 
@@ -367,11 +367,15 @@ lie, and a future day where nothing is due yet is not an achievement. `describeD
 and switches from progress to schedule. Live polling switches off with it: an occurrence's `state`
 ages on the server, but a past or future day's states do not move.
 
+**"Other" is a row in the pet card, not a button under the list.** The artboard puts it last inside
+each card, dashed and quiet. That is what the unscheduled feed actually is -- a thing done to one
+pet, alongside that pet's slots. A single button under every card had to ask which pet afterwards.
+
 **A day that is not today is read-only.** The week strip made a past day reachable for the first
 time, and every write path on Home targets *now*: `LogFeedTray` takes `today`, and the `log_feed`
 RPC stamps the record with the current time. A Log chip on last Wednesday would have quietly
-recorded that feed against this morning. So the chip, "Just log a feed" and "Other"
-all disappear off today, and the rows show ticks and "Not logged" alone. Backfilling a past feed is
+recorded that feed against this morning. So the chip and the "Other" row both disappear off today,
+and the rows show ticks and "Not logged" alone. Backfilling a past feed is
 the late-feed flow's job, because it is the one that asks who fed and when.
 
 **"Upcoming" is for an `upcoming` occurrence, not for "no button here".** The trailing slot used to
