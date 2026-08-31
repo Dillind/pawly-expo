@@ -286,3 +286,13 @@ values, and typing then updates nothing.
 **A new `household_members` preference column needs a `grant update (col)`.** The table takes
 COLUMN-level grants, so without it PostgREST reports success and the value reverts on the next
 refetch. Silent in both directions.
+
+**An absolutely positioned indicator will cover a sibling drawn in flow.** The week strip's gold
+underline sits at `bottom: 6` of the row, and the Reminder dots landed in the same four pixels — so
+the dot vanished on exactly one day, the selected one, which is the day you are looking at. It read
+as "the query is broken" and was a stacking problem. Check the selected state as well as the
+unselected one whenever a cell gains a second indicator.
+
+**`formatScheduledTime` parses a Postgres `time`, which has seconds.** A value straight from the
+time picker does not — it stores `HH:mm` — and `dayjs(value, 'HH:mm:ss')` renders that as
+"Invalid Date" on screen rather than throwing. It now accepts both shapes.

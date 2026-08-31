@@ -1,6 +1,7 @@
 import AppText from '@/components/core/app-text';
 import Icon from '@/components/core/icon';
 import MainButton from '@/components/core/main-button';
+import PressableOpacity from '@/components/core/pressable-opacity';
 import type { IconName } from '@/constants/icon-map';
 import type { AppTheme } from '@/constants/theme';
 import { useStyles } from '@/hooks/use-styles';
@@ -62,8 +63,8 @@ const ReminderRow = ({ reminder, isTicking = false, onTick }: Props) => {
   const styles = useStyles(makeStyles);
   const isDone = reminder.state === 'done';
 
-  return (
-    <View style={styles.row}>
+  const body = (
+    <>
       <Icon name={KIND_ICON[reminder.kind]} size={19} color={KIND_COLOUR[reminder.kind]} />
 
       <Animated.View style={styles.text} layout={RowReflow}>
@@ -103,8 +104,26 @@ const ReminderRow = ({ reminder, isTicking = false, onTick }: Props) => {
           </>
         )}
       </Animated.View>
-    </View>
+    </>
   );
+
+  // A done row is tappable as a whole, which is the only way back: unticking is
+  // a delete, and there is no chip left to press. An undone row's action is the
+  // Done chip, and a row that is both tappable and holds a button is the
+  // ambiguous target OccurrenceRow already warns about.
+  if (isDone && onTick) {
+    return (
+      <PressableOpacity
+        style={styles.row}
+        accessibilityRole="button"
+        accessibilityLabel={`Put ${reminder.title} back`}
+        onPress={onTick}>
+        {body}
+      </PressableOpacity>
+    );
+  }
+
+  return <View style={styles.row}>{body}</View>;
 };
 
 const makeStyles = ({ colors, spacing }: AppTheme) =>

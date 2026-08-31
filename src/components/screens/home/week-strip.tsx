@@ -156,11 +156,15 @@ const makeStyles = ({ colors, spacing }: AppTheme) =>
     initial: {
       letterSpacing: 0.6
     },
+    // The underline is absolutely positioned at the bottom of the row, and
+    // without this margin it sits exactly on the dots -- so the selected day,
+    // the one you are actually looking at, is the one that loses them.
     dotSlot: {
       flexDirection: 'row',
       alignItems: 'center',
       gap: 3,
-      height: 4
+      height: 4,
+      marginBottom: 8
     },
     dot: {
       width: 4,

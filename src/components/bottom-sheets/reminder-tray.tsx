@@ -199,9 +199,12 @@ const WhoStep = ({
   startsOn: string;
   localTime: string;
   isSaving: boolean;
-  onSubmit: () => void;
+  onSubmit: (onDone: () => void) => void;
 }) => {
   const styles = useStyles(makeStyles);
+  // Dismissing is the one thing the mutation hook cannot do for itself, so it
+  // stays at the call site -- and the call site has to be inside the Tray.
+  const { close } = useTray();
 
   return (
     <View style={styles.stack}>
@@ -226,7 +229,7 @@ const WhoStep = ({
         text="Add reminder"
         isLoading={isSaving}
         isDisabled={isSaving}
-        onPress={onSubmit}
+        onPress={() => onSubmit(close)}
       />
     </View>
   );
@@ -266,9 +269,20 @@ const ReminderTray = ({ sheetRef, pet, today }: Props) => {
     [setValue]
   );
 
-  const submit = handleSubmit((values) => {
-    createReminder({ petId: pet.id, ...values }, { onSuccess: () => reset() });
-  });
+  // reset() runs AFTER the sheet is told to go. Clearing the form while the
+  // summary is still on screen blanks the title in front of the user.
+  const submit = (onDone: () => void) =>
+    handleSubmit((values) => {
+      createReminder(
+        { petId: pet.id, ...values },
+        {
+          onSuccess: () => {
+            onDone();
+            reset();
+          }
+        }
+      );
+    })();
 
   // Rebuilt each render on purpose: the descriptors carry the current values.
   // The step COMPONENTS are module-level, so this recreates elements, never
@@ -303,7 +317,7 @@ const ReminderTray = ({ sheetRef, pet, today }: Props) => {
           startsOn={startsOn}
           localTime={localTime}
           isSaving={isSaving}
-          onSubmit={() => void submit()}
+          onSubmit={(onDone) => void submit(onDone)}
         />
       )
     }

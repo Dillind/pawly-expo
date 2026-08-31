@@ -59,6 +59,13 @@ describe('formatScheduledTime', () => {
     expect(formatScheduledTime('17:30:00')).toBe('5:30 PM');
     expect(formatScheduledTime('00:15:00')).toBe('12:15 AM');
   });
+
+  // The time picker stores HH:mm, so the Reminder Tray's summary hands it a
+  // value with no seconds. Parsing only HH:mm:ss rendered "Invalid Date".
+  it('accepts a time with no seconds', () => {
+    expect(formatScheduledTime('09:00')).toBe('9:00 AM');
+    expect(formatScheduledTime('17:30')).toBe('5:30 PM');
+  });
 });
 
 describe('yesterdayInTimezone', () => {

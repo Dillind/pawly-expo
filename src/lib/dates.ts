@@ -184,7 +184,10 @@ export function formatTimeOfDay(isoTimestamp: string, zone: string): string {
 
 /** A Postgres `time` column arrives as "07:00:00"; show it as "7:00 AM". */
 export function formatScheduledTime(postgresTime: string): string {
-  return dayjs(postgresTime, 'HH:mm:ss').format('h:mm A');
+  // Both shapes, because a stored Postgres `time` is HH:mm:ss and a value the
+  // time picker just produced is HH:mm. Parsing only the first turns the second
+  // into "Invalid Date" on screen.
+  return dayjs(postgresTime, ['HH:mm:ss', 'HH:mm']).format('h:mm A');
 }
 
 const plural = (count: number, noun: string): string => `${count} ${noun}${count === 1 ? '' : 's'}`;
