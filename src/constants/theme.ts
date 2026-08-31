@@ -64,6 +64,30 @@ export const COLORS = {
   }
 } as const;
 
+/**
+ * The Home banner, by time of day. One surface, four states -- the page never
+ * changes, only this card does. Night is the only dark surface in light mode.
+ *
+ * These sit outside `COLORS` on purpose. `ThemeColor` is the set of keys a
+ * component may pass to `AppText` or `Icon`, and a list of stops is not a
+ * colour. `ink` travels with the stops because the pair is what stays readable.
+ *
+ * `start`/`end` approximate the 118deg of `.design/tokens.css` in the unit box
+ * `expo-linear-gradient` uses.
+ */
+export const BannerGradients = {
+  dawn: { colors: ['#FFF7E6', '#FFECC6', '#FFDDA2'], ink: '#2B1F0C' },
+  day: { colors: ['#FFFCF3', '#FFF3D6', '#FFE6B6'], ink: '#2B1F0C' },
+  dusk: { colors: ['#FFEBCE', '#FFCE9A', '#F0A272'], ink: '#40200A' },
+  night: { colors: ['#241F3E', '#322A57', '#453564'], ink: '#F4F1FC' }
+} as const;
+
+export const BannerGradientLocations = [0, 0.46, 1] as const;
+export const BannerGradientStart = { x: 0, y: 0.15 } as const;
+export const BannerGradientEnd = { x: 1, y: 0.85 } as const;
+
+export type DayPart = keyof typeof BannerGradients;
+
 /** Alias kept for existing imports */
 export const Colors = COLORS;
 

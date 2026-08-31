@@ -13,6 +13,7 @@ import { usePetPause } from '@/hooks/queries/feeding/use-pet-pause';
 import { useStyles } from '@/hooks/use-styles';
 import { useTheme } from '@/hooks/use-theme';
 import { createShadowMedium } from '@/lib/styles/shadows';
+import { todayInTimezone } from '@/lib/dates';
 import { summarisePetDay } from '@/utils/pet-status';
 import type { HouseholdMember, Occurrence, Pet } from '@/types/core';
 import { useRouter } from 'expo-router';
@@ -32,7 +33,8 @@ const COLLAPSE_MS = 160;
 type Props = {
   pet: Pet;
   timezone: string;
-  today: string;
+  /** The day in view. Today until the week strip moves. */
+  day: string;
   members: HouseholdMember[];
   isOnlyPet: boolean;
   onOpenLog: (logId: string) => void;
@@ -49,7 +51,7 @@ type Props = {
 const PetSection = ({
   pet,
   timezone,
-  today,
+  day,
   members,
   isOnlyPet,
   onOpenLog,
@@ -60,8 +62,12 @@ const PetSection = ({
   const theme = useTheme();
   const router = useRouter();
 
-  const { data: occurrences, isLoading } = useOccurrences(pet.id, today, { live: true });
-  const { data: pause } = usePetPause(pet.id, today);
+  // Live polling is for today only. `state` ages on the server, but a past or
+  // future day's states do not move, so polling one is a request per minute for
+  // an answer that cannot change.
+  const isToday = day === todayInTimezone(timezone);
+  const { data: occurrences, isLoading } = useOccurrences(pet.id, day, { live: isToday });
+  const { data: pause } = usePetPause(pet.id, day);
   const { data: feedTimes } = useFeedTimes(pet.id);
   const isPaused = Boolean(pause);
   const hasFeedTimes = Boolean(feedTimes?.length);

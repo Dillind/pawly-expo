@@ -326,3 +326,38 @@ is what has been logged today, which is the same question Home asks — so it is
 `OccurrenceList`, with a Log chip, a teal tick or "Upcoming". The schedule behind those rows is
 edited in a tray, because a keyboard and a destructive remove do not belong on a screen the whole
 household reads.
+
+**The floating action popover is gone; every log path lives inside a pet card.** The popover was a
+second door to the same room. It floated over the content it duplicated, it needed a fixed
+`BottomTabInset` offset because native tabs expose no height, and it forced `minimizeBehavior` off
+so the bar could not change height under it. Removing it deletes all three problems and costs
+nothing: "Log something else" already covers the unscheduled feed. See
+[ADR 0011](./adr/0011-liquid-glass-progressive-enhancement.md) for the glass reasoning that outlives
+the component.
+
+**The banner gradients sit outside `COLORS`.** `ThemeColor` is the set of keys a component may pass
+to `AppText` or `Icon`, and a list of stops is not a colour — putting `bannerDay` in the palette
+would make `<AppText color="bannerDay">` typecheck and render nothing. `BannerGradients` is its own
+export, and each entry carries its own `ink`, because the stops and the text colour that stays
+readable on them are one decision.
+
+**The week strip's underline is one shared value that slides, not seven that fade.** Seven
+per-cell animations cross-fade: the old underline disappears and a new one appears. One that
+translates travels, and travel is the thing that says which way the day moved. It needs the row's
+laid-out width, so the underline is positioned from `onLayout` rather than a guessed cell size.
+
+**Home reads the whole household's feed times and occurrences with `useQueries`, not a new RPC.**
+Both the banner count and the tip need every pet at once, and a hook cannot be called from a loop.
+`useQueries` reuses the exact `['occurrences', petId, day]` and `['feed-times', petId]` keys
+`PetSection` already caches, so the screen issues no extra requests. A bulk RPC would have been a
+second source of the same truth, going stale on its own schedule.
+
+**The Home tip has no fallback string.** `findHomeTip` returns `null` and the slot renders nothing.
+A generic pet tip in the one place the app volunteers something teaches the household to ignore it.
+An absent query result is also `null`, deliberately — claiming a pet has no feeds while its query is
+in flight makes the tip flash on and retract.
+
+**A day that is not today gets different banner copy.** "All done for today" over next Thursday is a
+lie, and a future day where nothing is due yet is not an achievement. `describeDay` takes `isToday`
+and switches from progress to schedule. Live polling switches off with it: an occurrence's `state`
+ages on the server, but a past or future day's states do not move.
