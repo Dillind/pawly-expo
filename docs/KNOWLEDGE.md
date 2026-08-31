@@ -271,3 +271,18 @@ path on it for which date it actually targets.
 then restart the app. Take two full-resolution screenshots about a second apart and diff them: with
 the setting on the banner gave 0% pixel change, and with it off the sun was the only changed region
 on the screen. That proves both halves — the loop stops, and nothing else was animating.
+
+**A `private.*` function is invisible to the app.** PostgREST exposes `public` only, so a read that
+works perfectly in the SQL editor returns "function not found" from the client. Every screen-facing
+read needs a `public` wrapper — `pet_reminders` over `private.reminder_occurrences`, the same split
+`pet_occurrence_states` already makes.
+
+**A component defined inside another component is a new TYPE every render.** React unmounts the old
+tree and mounts a new one, so a text input inside it loses focus on every keystroke. The Reminder
+Tray's three steps are module-level for this reason, taking their values as props. A `useMemo` with
+an empty dependency array does not fix it either — it freezes the steps on the first render's
+values, and typing then updates nothing.
+
+**A new `household_members` preference column needs a `grant update (col)`.** The table takes
+COLUMN-level grants, so without it PostgREST reports success and the value reverts on the next
+refetch. Silent in both directions.

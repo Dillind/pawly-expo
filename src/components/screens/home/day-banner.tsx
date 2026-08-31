@@ -76,7 +76,11 @@ const DayBanner = ({ name, status, timezone }: Props) => {
       end={BannerGradientEnd}
       style={[styles.card, createShadowMedium(theme.colors)]}>
       <View style={styles.copy}>
-        <AppText variant="header" size={27} fontWeight="bold" style={[styles.greeting, { color: ink }]}>
+        <AppText
+          variant="header"
+          size={27}
+          fontWeight="bold"
+          style={[styles.greeting, { color: ink }]}>
           {greeting}, {name}
         </AppText>
         {/* Keyed on the text so the line cross-fades when the count changes,

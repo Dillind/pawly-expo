@@ -9,6 +9,7 @@ import PauseCard from '@/components/screens/pet/pause-card';
 import PetBio from '@/components/screens/pet/pet-bio';
 import PetDetailSkeleton from '@/components/screens/pet/pet-detail-skeleton';
 import PetIdentity from '@/components/screens/pet/pet-identity';
+import RemindersSection from '@/components/screens/pet/reminders-section';
 import SectionCard from '@/components/screens/pet/section-card';
 import { BottomTabInset, ScreenGutter, type AppTheme } from '@/constants/theme';
 import { useFeedTimes } from '@/hooks/queries/feeding/use-feed-times';
@@ -108,6 +109,10 @@ const PetDetail = () => {
             onOpenLog={openLog}
             onPickOccurrence={(occurrence) => flow.pickOccurrence(pet, occurrence)}
           />
+        </View>
+
+        <View style={styles.section}>
+          <RemindersSection pet={pet} today={today} />
         </View>
 
         {isOwner && (

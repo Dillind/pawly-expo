@@ -1,9 +1,5 @@
 import { ErrorMessage, SuccessMessage } from '@/constants/enums';
-import type {
-  CareCardContactInput,
-  CareCardInput,
-  MedicationInput
-} from '@/lib/form/pet-schemas';
+import type { CareCardContactInput, CareCardInput, MedicationInput } from '@/lib/form/pet-schemas';
 import { showErrorToast, showSuccessToast } from '@/lib/toast';
 import CareCardService from '@/services/care-card.service';
 import { useMutation, useQueryClient } from '@tanstack/react-query';

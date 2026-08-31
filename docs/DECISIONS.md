@@ -367,11 +367,33 @@ lie, and a future day where nothing is due yet is not an achievement. `describeD
 and switches from progress to schedule. Live polling switches off with it: an occurrence's `state`
 ages on the server, but a past or future day's states do not move.
 
+**A Reminder is a row in the feed list, not a section of its own.** Artboard 5 draws the two as one
+stack inside the pet card, and a Reminder ticked off uses exactly the feed row's motion because it
+is the same row. Giving Reminders their own card would say they are a different kind of thing; on
+Home they are not, they are another job for that pet today.
+
+**A completion is a row, and absence is the not-done state.** `reminder_completions` holds one row
+per Reminder per date, written only when someone ticks it off. Nothing is materialised ahead of
+time, so a monthly rule runs for years with no backfill and no sweep to create rows. Unticking is a
+delete rather than an update, which is also why there is no update policy: rewriting `done_by` would
+let one member reassign another's action.
+
+**A monthly Reminder on the 31st lands on the last day of a shorter month.** It does not skip. A
+worming tablet that silently misses February is worse than one that arrives a day early.
+
+**A missed Reminder does not push twice.** A missed feed does, capped by the Nudge Limit, because it
+is time-critical within the day. A worming tablet is not, and a second push teaches people to ignore
+the first.
+
 **A Reminder's Kind carries a colour, on trial.** `medication` is a muted plum and `vet` a muted
 blue, each with a muted fill for the selected Kind pill. The batch-2 artboard drew exactly this as
 Variant B and rejected it: a 4px dot cannot carry a hue, and gold and teal already mean *to do* and
 *done*. It ships anyway to be judged on a device rather than on a board. If it reads as noise, the
 revert is Variant A -- one gold dot, the four tokens deleted, and nothing else changes.
+
+**Reminder Alerts are their own toggle, not a rider on an existing one.** ADR 0012 makes delivery
+the recipient's decision, so a new pushing kind needs its own switch. It defaults to true, like the
+Feed Due Alert: the nudge never accuses anyone, and it is the reason the feature exists.
 
 **"Other" is a row in the pet card, not a button under the list.** The artboard puts it last inside
 each card, dashed and quiet. That is what the unscheduled feed actually is -- a thing done to one

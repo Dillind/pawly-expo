@@ -12,6 +12,7 @@ import NoHouseholdState from '@/components/screens/home/no-household-state';
 import PetSection from '@/components/screens/home/pet-section';
 import PetSectionSkeleton from '@/components/screens/home/pet-section-skeleton';
 import WeekStrip from '@/components/screens/home/week-strip';
+import { useReminderDays } from '@/hooks/queries/reminder/use-reminders';
 import TileGrid from '@/components/ui/tile-grid';
 import { HOME_TILES } from '@/constants/home-tiles';
 import { BottomTabInset, type AppTheme } from '@/constants/theme';
@@ -29,7 +30,7 @@ import { useRequestNotificationPermission } from '@/hooks/use-notification-permi
 import { usePullToRefresh } from '@/hooks/use-pull-to-refresh';
 import { useRefreshOnFocus } from '@/hooks/use-refresh-on-focus';
 import { useStyles } from '@/hooks/use-styles';
-import { formatMonthAndYear, formatWeekdayName, todayInTimezone } from '@/lib/dates';
+import { formatMonthAndYear, formatWeekdayName, todayInTimezone, weekOf } from '@/lib/dates';
 import { describeDay } from '@/utils/day-summary';
 import { findHomeTip } from '@/utils/home-tip';
 import type { Pet } from '@/types/core';
@@ -71,6 +72,11 @@ const Home = () => {
   // cache key, and a Date re-serialises every render.
   const [pickedDay, setPickedDay] = useState<string | undefined>(undefined);
   const day = pickedDay ?? today;
+
+  // The strip only ever draws the selected day's week, so the dots ask for
+  // exactly that week and refetch when it pages.
+  const week = day ? weekOf(day) : undefined;
+  const { data: reminderKinds } = useReminderDays(household?.id, week?.at(0), week?.at(-1));
 
   const occurrences = useHouseholdOccurrences(pets, day);
   const feedTimes = useHouseholdFeedTimes(pets);
@@ -205,7 +211,12 @@ const Home = () => {
                 {formatMonthAndYear(day)}
               </AppText>
             </View>
-            <WeekStrip selectedDay={day} today={today} onSelectDay={setPickedDay} />
+            <WeekStrip
+              selectedDay={day}
+              today={today}
+              reminderKinds={reminderKinds}
+              onSelectDay={setPickedDay}
+            />
           </View>
         )}
 

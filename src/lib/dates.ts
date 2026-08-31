@@ -372,3 +372,15 @@ export function formatRelativeTime(isoTimestamp: string, now: Date = new Date())
 
   return dayjs(then).format(then.getFullYear() === now.getFullYear() ? 'D MMM' : 'D MMM YYYY');
 }
+
+/** "Wed 2 Sep" -- the summary line of a Reminder, never a stored value. */
+export function formatReminderDate(day: string): string {
+  const [year, month, date] = day.split('-').map(Number);
+
+  return new Date(Date.UTC(year, month - 1, date)).toLocaleDateString('en-AU', {
+    weekday: 'short',
+    day: 'numeric',
+    month: 'short',
+    timeZone: 'UTC'
+  });
+}

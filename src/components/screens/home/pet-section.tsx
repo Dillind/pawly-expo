@@ -6,10 +6,13 @@ import MainButton from '@/components/core/main-button';
 import PressableOpacity from '@/components/core/pressable-opacity';
 import PetAvatar from '@/components/screens/home/pet-avatar';
 import OccurrenceList from '@/components/ui/occurrence-list';
+import ReminderRow from '@/components/ui/reminder-row';
 import { Radius, type AppTheme } from '@/constants/theme';
 import { useOccurrences } from '@/hooks/queries/feeding/use-occurrences';
 import { useFeedTimes } from '@/hooks/queries/feeding/use-feed-times';
 import { usePetPause } from '@/hooks/queries/feeding/use-pet-pause';
+import { useTickReminder } from '@/hooks/queries/reminder/use-reminder-mutations';
+import { useReminders } from '@/hooks/queries/reminder/use-reminders';
 import { useStyles } from '@/hooks/use-styles';
 import { useTheme } from '@/hooks/use-theme';
 import { createShadowMedium } from '@/lib/styles/shadows';
@@ -69,6 +72,8 @@ const PetSection = ({
   const { data: occurrences, isLoading } = useOccurrences(pet.id, day, { live: isToday });
   const { data: pause } = usePetPause(pet.id, day);
   const { data: feedTimes } = useFeedTimes(pet.id);
+  const { data: reminders = [] } = useReminders(pet.id, day);
+  const { mutate: tickReminder, isPending: isTicking } = useTickReminder();
   const isPaused = Boolean(pause);
   const hasFeedTimes = Boolean(feedTimes?.length);
 
@@ -186,6 +191,28 @@ const PetSection = ({
                 )}
               </View>
             )}
+
+            {/* A Reminder is a row in the same list as the feeds, not a section
+                of its own -- artboard 5 draws the two as one stack. A past day
+                is read-only, so the Done chip goes with everything else. */}
+            {!isPaused &&
+              reminders.map((reminder) => (
+                <ReminderRow
+                  key={reminder.reminderId}
+                  reminder={reminder}
+                  isTicking={isTicking}
+                  onTick={
+                    isToday
+                      ? () =>
+                          tickReminder({
+                            reminderId: reminder.reminderId,
+                            occurrenceDate: reminder.occurrenceDate,
+                            isDone: reminder.state === 'done'
+                          })
+                      : undefined
+                  }
+                />
+              ))}
 
             {/* The log tray writes against now, so it is not offered on another
                 day. Paused means nothing is expected, including this. */}

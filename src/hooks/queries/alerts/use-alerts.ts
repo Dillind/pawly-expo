@@ -54,8 +54,7 @@ export function useMarkAlertsRead(householdId: string | undefined) {
 
   return useMutation({
     mutationFn: (alertIds: string[]) => AlertService.markRead(alertIds),
-    onSettled: () =>
-      queryClient.invalidateQueries({ queryKey: unreadAlertsKey(householdId) }),
+    onSettled: () => queryClient.invalidateQueries({ queryKey: unreadAlertsKey(householdId) }),
     onError: (error) => console.error(error)
   });
 }

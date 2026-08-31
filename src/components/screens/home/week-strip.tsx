@@ -5,6 +5,7 @@ import { useStyles } from '@/hooks/use-styles';
 import { useTheme } from '@/hooks/use-theme';
 import { dayOfMonth, shiftWeeks, weekOf, weekdayInitial } from '@/lib/dates';
 import { hapticSelection } from '@/lib/haptics';
+import type { ReminderKind } from '@/types/core';
 import { useState } from 'react';
 import { StyleSheet, View, type LayoutChangeEvent } from 'react-native';
 import { Directions, Gesture, GestureDetector } from 'react-native-gesture-handler';
@@ -18,15 +19,25 @@ type Props = {
   selectedDay: string;
   /** Today in the household's timezone, so a past day can be told apart. */
   today: string;
+  /** The Reminder kinds on each day, keyed by date. A day with none is absent. */
+  reminderKinds?: Record<string, ReminderKind[]>;
   onSelectDay: (day: string) => void;
 };
+
+// The Kind's colour, on trial. See DECISIONS.md -- reverting to one gold dot
+// means deleting this map and the four tokens it names.
+const DOT_COLOUR = {
+  feed: 'primary',
+  medication: 'medication',
+  vet: 'vet'
+} as const;
 
 /**
  * The week the selected day sits in, Monday to Sunday.
  *
  * This is the day header and the way to move between days, so it stands up on
- * its own. Reminder dots go under the date once CRU-078 lands; the cell already
- * leaves the room for them.
+ * its own. A day carrying a Reminder gets a 4px dot under the date, one per
+ * kind. Feeds get none: a dot on all seven days says nothing.
  *
  * The underline is one shared value that slides across, not seven that fade.
  * Seven animations would cross-fade rather than travel, and travel is the thing
@@ -37,7 +48,7 @@ type Props = {
  * another one. The gesture adds no chrome, so it does not pre-empt whatever the
  * month row's chevron becomes.
  */
-const WeekStrip = ({ selectedDay, today, onSelectDay }: Props) => {
+const WeekStrip = ({ selectedDay, today, reminderKinds, onSelectDay }: Props) => {
   const styles = useStyles(makeStyles);
   const theme = useTheme();
 
@@ -106,9 +117,16 @@ const WeekStrip = ({ selectedDay, today, onSelectDay }: Props) => {
                 color={isPast && !isSelected ? 'textSecondary' : 'text'}>
                 {dayOfMonth(day)}
               </AppText>
-              {/* Held open for the Reminder dot -- CRU-078. Without it the cells
-                would resize the day the dots arrive. */}
-              <View style={styles.dotSlot} />
+              {/* Always rendered, empty or not. A slot that appears with the
+                  first Reminder would resize every cell around it. */}
+              <View style={styles.dotSlot}>
+                {reminderKinds?.[day]?.map((kind) => (
+                  <View
+                    key={kind}
+                    style={[styles.dot, { backgroundColor: theme.colors[DOT_COLOUR[kind]] }]}
+                  />
+                ))}
+              </View>
             </PressableOpacity>
           );
         })}
@@ -139,7 +157,15 @@ const makeStyles = ({ colors, spacing }: AppTheme) =>
       letterSpacing: 0.6
     },
     dotSlot: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 3,
       height: 4
+    },
+    dot: {
+      width: 4,
+      height: 4,
+      borderRadius: 100
     },
     underline: {
       position: 'absolute',

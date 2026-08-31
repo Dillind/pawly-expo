@@ -150,19 +150,19 @@ const ProfileOverview = () => {
       router.push({ pathname: '/posts/[postId]/comments', params: { postId: item.id } });
 
     return (
-    <PostCard
-      post={item}
-      showActions
-      householdName={isMultiHousehold ? householdById.get(item.householdId)?.name : undefined}
-      commentCount={item.commentCount}
-      onToggleLike={() => toggleLike({ postId: item.id, liked: item.likedByMe })}
-      onOpenActions={() => {
-        setActivePost(item);
-        void actionsSheetRef.current?.present();
-      }}
-      onOpen={openPost}
-      onOpenComments={openComments}
-    />
+      <PostCard
+        post={item}
+        showActions
+        householdName={isMultiHousehold ? householdById.get(item.householdId)?.name : undefined}
+        commentCount={item.commentCount}
+        onToggleLike={() => toggleLike({ postId: item.id, liked: item.likedByMe })}
+        onOpenActions={() => {
+          setActivePost(item);
+          void actionsSheetRef.current?.present();
+        }}
+        onOpen={openPost}
+        onOpenComments={openComments}
+      />
     );
   };
 
@@ -194,9 +194,7 @@ const ProfileOverview = () => {
         // list -- the identity block is already known and must not blink out
         // while the posts are on their way.
         ListEmptyComponent={
-          isLoadingPosts ? (
-            <ActivityIndicator style={styles.postsLoader} />
-          ) : null
+          isLoadingPosts ? <ActivityIndicator style={styles.postsLoader} /> : null
         }
         renderItem={renderItem}
       />

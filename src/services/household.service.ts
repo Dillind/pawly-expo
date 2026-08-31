@@ -7,6 +7,7 @@ export type NotificationPreferences = {
   missedFeedAlerts: boolean;
   feedLoggedAlerts: boolean;
   postAlerts: boolean;
+  reminderAlerts: boolean;
   feedDueLeadMinutes: LeadMinutes;
 };
 
@@ -208,7 +209,7 @@ namespace HouseholdService {
     const { data, error } = await supabase
       .from('household_members')
       .select(
-        'feed_due_alerts, feed_due_lead_minutes, missed_feed_alerts, feed_logged_alerts, post_alerts'
+        'feed_due_alerts, feed_due_lead_minutes, missed_feed_alerts, feed_logged_alerts, post_alerts, reminder_alerts'
       )
       .eq('household_id', householdId)
       .eq('user_id', userId)
@@ -221,7 +222,8 @@ namespace HouseholdService {
       feedDueLeadMinutes: data.feed_due_lead_minutes,
       missedFeedAlerts: data.missed_feed_alerts,
       feedLoggedAlerts: data.feed_logged_alerts,
-      postAlerts: data.post_alerts
+      postAlerts: data.post_alerts,
+      reminderAlerts: data.reminder_alerts
     };
   }
 
@@ -233,7 +235,8 @@ namespace HouseholdService {
     feedDueAlerts: 'feed_due_alerts',
     missedFeedAlerts: 'missed_feed_alerts',
     feedLoggedAlerts: 'feed_logged_alerts',
-    postAlerts: 'post_alerts'
+    postAlerts: 'post_alerts',
+    reminderAlerts: 'reminder_alerts'
   };
 
   export async function setAlertPreference(params: {

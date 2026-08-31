@@ -84,8 +84,7 @@ export const careCardBlocks = (
       items: medications.map((medication) => ({
         id: medication.id,
         name: medication.name,
-        detail:
-          [medication.dose, medication.scheduleText].filter(hasValue).join(' · ') || null,
+        detail: [medication.dose, medication.scheduleText].filter(hasValue).join(' · ') || null,
         instructions: hasValue(medication.instructions) ? medication.instructions : null
       }))
     });
@@ -98,7 +97,13 @@ export const careCardBlocks = (
     );
 
     if (rows.length > 0) {
-      blocks.push({ kind: 'fields', id: section.id, title: section.title, isEmergency: false, rows });
+      blocks.push({
+        kind: 'fields',
+        id: section.id,
+        title: section.title,
+        isEmergency: false,
+        rows
+      });
     }
   }
 
