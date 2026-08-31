@@ -26,7 +26,7 @@ import Animated, {
 } from 'react-native-reanimated';
 import { useEffect } from 'react';
 
-const BREATHE_MS = 2000;
+const BREATHE_MS = 4000;
 
 type Props = {
   name: string;

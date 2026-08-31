@@ -172,6 +172,7 @@ const WeekPage = ({
       <View style={styles.row}>
         {days.map((day) => {
           const isSelected = day === selectedDay;
+          const isToday = day === today;
           const isPast = day < today;
 
           return (
@@ -189,11 +190,13 @@ const WeekPage = ({
               <AppText size={11} fontWeight="bold" color="textSecondary" style={styles.initial}>
                 {weekdayInitial(day)}
               </AppText>
+              {/* Today keeps a mark once the strip pages away from it. Gold ink,
+                  not a gold fill -- the fill means "selected". */}
               <AppText
                 variant="header"
                 size={16}
                 fontWeight="bold"
-                color={isPast && !isSelected ? 'textSecondary' : 'text'}>
+                color={todayColour(isSelected, isToday, isPast)}>
                 {dayOfMonth(day)}
               </AppText>
               {/* Always rendered -- a slot that appears would resize the cell. */}
@@ -212,6 +215,13 @@ const WeekPage = ({
       </View>
     </View>
   );
+};
+
+const todayColour = (isSelected: boolean, isToday: boolean, isPast: boolean) => {
+  if (isSelected) return 'text';
+  if (isToday) return 'primaryText';
+
+  return isPast ? 'textSecondary' : 'text';
 };
 
 const makeStyles = ({ colors, spacing }: AppTheme) =>
