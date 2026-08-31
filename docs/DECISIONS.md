@@ -335,6 +335,13 @@ nothing: "Log something else" already covers the unscheduled feed. See
 [ADR 0011](./adr/0011-liquid-glass-progressive-enhancement.md) for the glass reasoning that outlives
 the component.
 
+**The banner gradient is `react-native-svg`, not `expo-linear-gradient`.** The first build used
+the Expo package, typechecked, passed 232 tests, and rendered a red box on the device:
+`Unimplemented component: <ViewManagerAdapter_ExpoLinearGradient>`. It is a native module, so it
+needs a fresh dev client on every machine before Home renders at all. `react-native-svg` is already
+in every build and already draws the sun, so the whole banner surface is one SVG and nobody has to
+rebuild. See KNOWLEDGE.md.
+
 **The banner gradients sit outside `COLORS`.** `ThemeColor` is the set of keys a component may pass
 to `AppText` or `Icon`, and a list of stops is not a colour — putting `bannerDay` in the palette
 would make `<AppText color="bannerDay">` typecheck and render nothing. `BannerGradients` is its own
@@ -361,3 +368,21 @@ in flight makes the tip flash on and retract.
 lie, and a future day where nothing is due yet is not an achievement. `describeDay` takes `isToday`
 and switches from progress to schedule. Live polling switches off with it: an occurrence's `state`
 ages on the server, but a past or future day's states do not move.
+
+**A day that is not today is read-only.** The week strip made a past day reachable for the first
+time, and every write path on Home targets *now*: `LogFeedTray` takes `today`, and the `log_feed`
+RPC stamps the record with the current time. A Log chip on last Wednesday would have quietly
+recorded that feed against this morning. So the chip, "Just log a feed" and "Log something else"
+all disappear off today, and the rows show ticks and "Not logged" alone. Backfilling a past feed is
+the late-feed flow's job, because it is the one that asks who fed and when.
+
+**"Upcoming" is for an `upcoming` occurrence, not for "no button here".** The trailing slot used to
+fall back to the word whenever there was no Log chip. On a past day that put "Upcoming" beside a row
+whose own subtitle read "Not logged". The slot now renders the word only for the state that means
+it, and nothing otherwise.
+
+**The week strip pages by fling, and the month row's chevron is still undecided.** The strip only
+ever draws the selected day's week, so without a way to move between weeks it is a trap. A
+horizontal fling is the natural gesture, adds no chrome, and does not pre-empt whatever the
+artboard's chevron becomes -- a date picker, or a month view. Fling rather than pan: the strip sits
+inside a vertical scroll view, and a week is a discrete step rather than a draggable position.

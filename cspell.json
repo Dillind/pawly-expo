@@ -18,8 +18,8 @@
     "PostgREST",
     "Pressable",
     "Priya",
-    "Ragdoll",
     "RRULE",
+    "Ragdoll",
     "SQLSTATE",
     "TestFlight",
     "TouchableOpacity",
@@ -28,6 +28,8 @@
     "Wayfinding",
     "Wirekitty",
     "appleid",
+    "artboard",
+    "artboards",
     "asyncstorage",
     "attname",
     "attnum",
@@ -114,6 +116,7 @@
     "worklets",
     "worktree",
     "xact",
+    "xcrun",
     "xmark"
   ],
   "ignoreRegExpList": [

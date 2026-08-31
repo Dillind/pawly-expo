@@ -252,3 +252,22 @@ circle, put a `Stack.Toolbar.Button` in a native header and let the bar draw it.
 **A full-screen `BaseModal` never feels native.** `react-native-modal` runs its animation through
 Animatable in JS. Side by side with a native push at the same duration the difference is obvious,
 and no tuning of `animationIn` closes it. A surface that fills the screen belongs on the stack.
+
+**Typecheck and Jest cannot see a missing native module.** Home shipped `expo-linear-gradient`,
+`tsc` passed, all 232 tests passed, and the device showed a red box reading
+`Unimplemented component: <ViewManagerAdapter_ExpoLinearGradient>`. A JS-only dependency works the
+moment it installs; a native one is inert until a new dev client is built and installed on every
+machine. So **adding any native package is a dev-build change, not a code change** — check whether
+something already in the build can do the job first. Here `react-native-svg` could, and did.
+
+**A screen that only ever showed today can hide date-bound write bugs.** The week strip made past
+days reachable and instantly exposed three: the Log chip, "Just log a feed" and "Log something else"
+all wrote against `now()` while the card showed another day. Nothing failed loudly — the feed would
+have been recorded against the wrong date. When a screen gains a date control, audit every write
+path on it for which date it actually targets.
+
+**Reduce Motion is verifiable on the simulator, and worth verifying.**
+`xcrun simctl spawn <udid> defaults write com.apple.Accessibility ReduceMotionEnabled -bool true`,
+then restart the app. Take two full-resolution screenshots about a second apart and diff them: with
+the setting on the banner gave 0% pixel change, and with it off the sun was the only changed region
+on the screen. That proves both halves — the loop stops, and nothing else was animating.

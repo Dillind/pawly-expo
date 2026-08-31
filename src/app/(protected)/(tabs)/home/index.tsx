@@ -219,7 +219,9 @@ const Home = () => {
 
         {renderBody()}
 
-        {hasPets && (
+        {/* An unscheduled feed is written against now, so it belongs to today
+            and disappears when the strip moves to another day. */}
+        {hasPets && day === today && (
           <View style={styles.extraFeed}>
             <MainButton
               text="Log something else"
@@ -283,7 +285,7 @@ const makeStyles = ({ spacing }: AppTheme) =>
     month: {
       letterSpacing: 0.8,
       textTransform: 'uppercase'
-    },
+    }
   });
 
 export default Home;

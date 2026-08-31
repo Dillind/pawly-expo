@@ -13,6 +13,12 @@ type Props = {
   isNested?: boolean;
   /** A rule between rows, for a list drawn as a card of its own. */
   hasDividers?: boolean;
+  /**
+   * Whether the day being shown is today. A past day is read-only: the log
+   * tray writes against today, so a Log chip on Wednesday last week would
+   * quietly record the feed against this morning.
+   */
+  isToday?: boolean;
   onOpenLog: (logId: string) => void;
   onPickOccurrence: (occurrence: Occurrence) => void;
 };
@@ -23,6 +29,10 @@ type Props = {
  *
  * An `upcoming` row has no Log button: its Feed Time is in the future, and RLS
  * rejects a `logged_at` later than now(). There is nothing a tap could write.
+ *
+ * Neither has any row on a day that is not today. A past feed is backfilled
+ * through the late-feed flow, which asks who fed and when -- not by a chip that
+ * would write the record against the wrong day.
  */
 const OccurrenceList = ({
   occurrences,
@@ -30,6 +40,7 @@ const OccurrenceList = ({
   members,
   isNested = false,
   hasDividers = false,
+  isToday = true,
   onOpenLog,
   onPickOccurrence
 }: Props) => {
@@ -49,7 +60,7 @@ const OccurrenceList = ({
                 : undefined
             }
             onLog={
-              occurrence.state === 'due' || occurrence.state === 'missed'
+              isToday && (occurrence.state === 'due' || occurrence.state === 'missed')
                 ? () => onPickOccurrence(occurrence)
                 : undefined
             }

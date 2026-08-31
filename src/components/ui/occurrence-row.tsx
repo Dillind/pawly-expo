@@ -120,11 +120,11 @@ const OccurrenceRow = ({
               onPress={onLog}
             />
           </Animated.View>
-        ) : (
+        ) : occurrence.state === 'upcoming' ? (
           <AppText size={13} color="textSecondary">
             Upcoming
           </AppText>
-        )}
+        ) : null}
       </Animated.View>
     </>
   );

@@ -164,6 +164,7 @@ const PetSection = ({
                 timezone={timezone}
                 members={members}
                 isNested
+                isToday={isToday}
                 onOpenLog={onOpenLog}
                 onPickOccurrence={(occurrence) => onPickOccurrence(pet, occurrence)}
               />
@@ -171,7 +172,7 @@ const PetSection = ({
               <View style={styles.empty}>
                 <AppText size={14} color="textSecondary">
                   {hasFeedTimes
-                    ? `Nothing is due for ${pet.name} today. Their next feed is on the way.`
+                    ? `Nothing is due for ${pet.name} ${isToday ? 'today' : 'that day'}. Their next feed is on the way.`
                     : `Add ${pet.name}'s feed times and everyone will know when they are due.`}
                 </AppText>
                 {/* Skipping the schedule stays viable -- the log is the habit
@@ -183,7 +184,16 @@ const PetSection = ({
                     onPress={() => router.push(`/home/${pet.id}`)}
                   />
                 )}
-                <MainButton text="Just log a feed" variant="text" size="sm" onPress={onLogPress} />
+                {/* The log tray writes against today, so it is not offered on
+                    another day. */}
+                {isToday && (
+                  <MainButton
+                    text="Just log a feed"
+                    variant="text"
+                    size="sm"
+                    onPress={onLogPress}
+                  />
+                )}
               </View>
             )}
           </Animated.View>

@@ -121,6 +121,14 @@ export function weekOf(day: string): string[] {
   });
 }
 
+/** The same weekday, `weeks` weeks away. Negative goes back. */
+export function shiftWeeks(day: string, weeks: number): string {
+  const [year, month, date] = day.split('-').map(Number);
+  const cursor = new Date(Date.UTC(year, month - 1, date + weeks * 7));
+
+  return `${cursor.getUTCFullYear()}-${pad(cursor.getUTCMonth() + 1)}-${pad(cursor.getUTCDate())}`;
+}
+
 /** "M", "T", "W" ... for the week strip. Monday and Sunday are not unique. */
 export function weekdayInitial(day: string): string {
   const [year, month, date] = day.split('-').map(Number);
