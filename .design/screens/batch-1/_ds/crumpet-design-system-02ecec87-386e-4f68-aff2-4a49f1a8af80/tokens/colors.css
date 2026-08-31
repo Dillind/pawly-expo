@@ -1,0 +1,73 @@
+/* Crumpet colour. Light is the design; dark is a first-pass port (ADR 0034).
+ * Gold is a FILL and never a text colour — #F0A81C on white is 2.0:1. */
+:root {
+  /* Surfaces */
+  --background: #FAF6EF;
+  --background-element: #FFFFFF;
+  --background-selected: #F3EDE2;
+  --background-sheet: #FFFFFF;
+  --background-sheet-row: #F3EDE2;
+  --post-surface: #FFFFFF;
+  --post-divider: #FAF6EF;
+
+  /* Text and lines */
+  --text: #1C1815;
+  --text-secondary: #7B7167;
+  --border: rgba(58, 48, 38, 0.13);
+  --ghost-border: rgba(58, 48, 38, 0.20);
+
+  /* Gold — three jobs: the Home banner wash, the Log chip, the active tab */
+  --primary: #F0A81C;
+  --on-primary: #2A1D06;
+  --primary-muted: rgba(240, 168, 28, 0.14);
+  --primary-text: #9E6404;
+
+  /* State */
+  --success: #10696B;
+  --like: #E0405E;
+  --error: #CE3C39;
+
+  /* Banner, by time of day. One surface, four states. */
+  --banner-dawn: linear-gradient(118deg, #FFF7E6 0%, #FFECC6 46%, #FFDDA2 100%); /* @kind color */
+  --banner-day: linear-gradient(118deg, #FFFCF3 0%, #FFF3D6 46%, #FFE6B6 100%); /* @kind color */
+  --banner-dusk: linear-gradient(118deg, #FFEBCE 0%, #FFCE9A 48%, #F0A272 100%); /* @kind color */
+  --banner-night: linear-gradient(118deg, #241F3E 0%, #322A57 48%, #453564 100%); /* @kind color */
+  --banner-ink-warm: #2B1F0C;
+  --banner-ink-dusk: #40200A;
+  --banner-ink-night: #F4F1FC;
+
+  /* Semantic aliases */
+  --surface-page: var(--background);
+  --surface-card: var(--background-element);
+  --surface-sunk: var(--background-selected);
+  --text-body: var(--text);
+  --text-muted: var(--text-secondary);
+  --text-on-fill: var(--on-primary);
+  --line-hairline: var(--border);
+  --scrim: rgba(0, 0, 0, 0.4);
+}
+
+/* Unproven. Written so every key exists, not because it has been designed. */
+[data-theme="dark"] {
+  --background: #14100E;
+  --background-element: #201A17;
+  --background-selected: #2C2521;
+  --background-sheet: #1B1613;
+  --background-sheet-row: #2C2521;
+  --post-surface: #000000;
+  --post-divider: #201A17;
+  --text: #FBF7F2;
+  --text-secondary: #A99C90;
+  --border: rgba(255, 255, 255, 0.14);
+  --ghost-border: rgba(255, 255, 255, 0.22);
+  --primary: #F5B435;
+  --primary-muted: rgba(245, 180, 53, 0.20);
+  --primary-text: #F5B435;
+  --on-primary: #2A1D06;
+  --success: #2FA8A2;
+  --like: #FF4D6D;
+  --error: #E05B58;
+  --shadow-small: 0 1px 2px rgba(0, 0, 0, 0.40);
+  --shadow-medium: 0 1px 2px rgba(0, 0, 0, 0.40), 0 6px 16px rgba(0, 0, 0, 0.45);
+  --shadow-large: 0 2px 4px rgba(0, 0, 0, 0.45), 0 14px 32px rgba(0, 0, 0, 0.55);
+}

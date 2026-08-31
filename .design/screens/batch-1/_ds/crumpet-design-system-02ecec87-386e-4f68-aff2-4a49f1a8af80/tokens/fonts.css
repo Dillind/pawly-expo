@@ -1,0 +1,4 @@
+/* Gabarito (headings) and Inter (body). Both Google Fonts, Open Font Licence —
+ * nothing to buy and nothing to self-host a licence for. The Expo app loads
+ * Inter as bundled TTFs; on the web both come from Google's CDN. */
+@import url("https://fonts.googleapis.com/css2?family=Gabarito:wght@400;500;600;700;800;900&family=Inter:wght@400;500;600;700;800;900&display=swap");

@@ -1,0 +1,27 @@
+/* The spacing scale is named, not numeric: half, one, two … six.
+ * It is not a 4/8 grid — `six` jumps to 64 because it is a section break. */
+:root {
+  --spacing-half: 2px;
+  --spacing-one: 4px;
+  --spacing-two: 8px;
+  --spacing-three: 16px;
+  --spacing-four: 24px;
+  --spacing-five: 32px;
+  --spacing-six: 64px;
+
+  --radius-tile: 12px;
+  --radius-card: 24px;
+  --radius-banner: 28px;
+  --radius-full: 100px;
+
+  --screen-gutter: 24px;
+  --max-content-width: 800px; /* @kind spacing */
+  --bottom-tab-inset: 84px;
+  --tap-target-min: 44px;
+
+  /* Fixed control heights — a chip and a label in one row must line up */
+  --control-height-xs: 28px;
+  --control-height-sm: 34px;
+  --control-height-md: 42px;
+  --control-height-lg: 50px;
+}

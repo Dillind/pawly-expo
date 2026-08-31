@@ -1,0 +1,36 @@
+/* Gabarito for headings, Inter for body. Sizes are the ones the app ships —
+ * they are not on a modular scale and must not be snapped to one. */
+:root {
+  --font-heading: 'Gabarito', Inter, -apple-system, system-ui, sans-serif;
+  --font-body: 'Inter', -apple-system, system-ui, sans-serif;
+
+  /* Composite roles */
+  --type-greeting: 700 27px/1.12 var(--font-heading);
+  --type-screen-title: 700 30px/1.0 var(--font-heading);
+  --type-pet-name: 700 19px/1.2 var(--font-heading);
+  --type-tile-label: 700 17px/1.2 var(--font-heading);
+  --type-body: 400 15px/1.42 var(--font-body);
+  --type-detail: 400 13px/1.35 var(--font-body);
+
+  --tracking-greeting: -0.5px; /* @kind font */
+
+  /* Ramp, in the sizes call sites actually pass */
+  --size-11: 11px;
+  --size-12: 12px;
+  --size-13: 13px;
+  --size-14: 14px;
+  --size-15: 15px;
+  --size-16: 16px;
+  --size-17: 17px;
+  --size-18: 18px;
+  --size-19: 19px;
+  --size-22: 22px;
+  --size-27: 27px;
+  --size-30: 30px;
+  --size-32: 32px;
+
+  --weight-regular: 400; /* @kind font */
+  --weight-medium: 500; /* @kind font */
+  --weight-semibold: 600; /* @kind font */
+  --weight-bold: 700; /* @kind font */
+}
