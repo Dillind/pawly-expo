@@ -1,31 +1,32 @@
 import AppText from '@/components/core/app-text';
+import MainLegendList from '@/components/core/main-legend-list';
 import PressableOpacity from '@/components/core/pressable-opacity';
-import { Radius, type AppTheme } from '@/constants/theme';
+import { Radius, ScreenGutter, type AppTheme } from '@/constants/theme';
 import { useStyles } from '@/hooks/use-styles';
 import { useTheme } from '@/hooks/use-theme';
 import { dayOfMonth, shiftWeeks, weekOf, weekdayInitial } from '@/lib/dates';
 import { hapticSelection } from '@/lib/haptics';
 import type { ReminderKind } from '@/types/core';
-import { useState } from 'react';
-import { StyleSheet, View, type LayoutChangeEvent } from 'react-native';
-import { Directions, Gesture, GestureDetector } from 'react-native-gesture-handler';
-import Animated, { runOnJS, useAnimatedStyle, withTiming } from 'react-native-reanimated';
+import type { LegendListRef } from '@legendapp/list/react-native';
+import { useCallback, useEffect, useMemo, useRef } from 'react';
+import { StyleSheet, View, useWindowDimensions } from 'react-native';
+import Animated, { useAnimatedStyle, withTiming } from 'react-native-reanimated';
 
 const SLIDE_MS = 260;
 const UNDERLINE_WIDTH = 18;
+const WEEKS_EACH_SIDE = 52;
+const VIEWABILITY = { itemVisiblePercentThreshold: 60 };
 
 type Props = {
   /** The day in view. Not necessarily today. */
   selectedDay: string;
   /** Today in the household's timezone, so a past day can be told apart. */
   today: string;
-  /** The Reminder kinds on each day, keyed by date. A day with none is absent. */
   reminderKinds?: Record<string, ReminderKind[]>;
   onSelectDay: (day: string) => void;
 };
 
-// The Kind's colour, on trial. See DECISIONS.md -- reverting to one gold dot
-// means deleting this map and the four tokens it names.
+// On trial. See DECISIONS.md.
 const DOT_COLOUR = {
   feed: 'primary',
   medication: 'medication',
@@ -33,64 +34,142 @@ const DOT_COLOUR = {
 } as const;
 
 /**
- * The week the selected day sits in, Monday to Sunday.
+ * The week the selected day sits in, one full-width page per week.
  *
- * This is the day header and the way to move between days, so it stands up on
- * its own. A day carrying a Reminder gets a 4px dot under the date, one per
- * kind. Feeds get none: a dot on all seven days says nothing.
- *
- * The underline is one shared value that slides across, not seven that fade.
- * Seven animations would cross-fade rather than travel, and travel is the thing
- * that says where you moved.
- *
- * Swiping the strip sideways moves a week. Without it the strip is a trap: it
- * only ever draws the selected day's week, so there would be no way to reach
- * another one. The gesture adds no chrome, so it does not pre-empt whatever the
- * month row's chevron becomes.
+ * The window is anchored on today, not on the selection -- rebuilding it around
+ * the selected day would renumber every index mid-scroll.
  */
 const WeekStrip = ({ selectedDay, today, reminderKinds, onSelectDay }: Props) => {
   const styles = useStyles(makeStyles);
+  const { width: pageWidth } = useWindowDimensions();
+
+  const listRef = useRef<LegendListRef>(null);
+  // The viewability callback must stay stable, so it reads these rather than
+  // closing over them.
+  const selectedRef = useRef(selectedDay);
+  const onSelectRef = useRef(onSelectDay);
+
+  useEffect(() => {
+    selectedRef.current = selectedDay;
+    onSelectRef.current = onSelectDay;
+  }, [selectedDay, onSelectDay]);
+
+  const visibleWeek = useRef(weekOf(selectedDay)[0]);
+  const isJumping = useRef(false);
+
+  const weeks = useMemo(() => {
+    const anchor = weekOf(today)[0];
+
+    return Array.from({ length: WEEKS_EACH_SIDE * 2 + 1 }, (_, index) =>
+      shiftWeeks(anchor, index - WEEKS_EACH_SIDE)
+    );
+  }, [today]);
+
+  // A page is recycled, not rebuilt, so nothing else tells it the day moved.
+  const extraData = useMemo(
+    () => ({ selectedDay, reminderKinds }),
+    [selectedDay, reminderKinds]
+  );
+
+  const selectedWeek = weekOf(selectedDay)[0];
+  const selectedIndex = Math.max(0, weeks.indexOf(selectedWeek));
+
+  // The month popover writes the selection and knows nothing about this list.
+  useEffect(() => {
+    if (visibleWeek.current === selectedWeek) return;
+
+    visibleWeek.current = selectedWeek;
+    isJumping.current = true;
+    listRef.current?.scrollToIndex({ index: selectedIndex, animated: true });
+  }, [selectedWeek, selectedIndex]);
+
+  // LegendList adjusts its own scroll offset, so the offset cannot name the
+  // page -- only viewability can.
+  const onViewableItemsChanged = useCallback(
+    ({ viewableItems }: { viewableItems: { item: string }[] }) => {
+      const week = viewableItems.at(0)?.item;
+
+      if (!week) return;
+
+      const current = weekOf(selectedRef.current);
+
+      // A multi-page jump makes every week in between briefly visible.
+      if (isJumping.current) {
+        if (week === current[0]) isJumping.current = false;
+
+        return;
+      }
+
+      visibleWeek.current = week;
+
+      if (week === current[0]) return;
+
+      // The same weekday, so paging a week does not also move the day.
+      void hapticSelection();
+      onSelectRef.current(weekOf(week)[current.indexOf(selectedRef.current)]);
+    },
+    []
+  );
+
+  return (
+    <View style={styles.bleed}>
+      <MainLegendList
+        ref={listRef}
+        data={weeks}
+        keyExtractor={(week) => week}
+        getFixedItemSize={() => pageWidth}
+        estimatedItemSize={pageWidth}
+        initialScrollIndex={selectedIndex}
+        extraData={extraData}
+        horizontal
+        pagingEnabled
+        onViewableItemsChanged={onViewableItemsChanged}
+        viewabilityConfig={VIEWABILITY}
+        renderItem={({ item }) => (
+          <WeekPage
+            weekStart={item}
+            selectedDay={selectedDay}
+            today={today}
+            reminderKinds={reminderKinds}
+            width={pageWidth}
+            onSelectDay={onSelectDay}
+          />
+        )}
+      />
+    </View>
+  );
+};
+
+type PageProps = Props & { weekStart: string; width: number };
+
+const WeekPage = ({
+  weekStart,
+  selectedDay,
+  today,
+  reminderKinds,
+  width,
+  onSelectDay
+}: PageProps) => {
+  const styles = useStyles(makeStyles);
   const theme = useTheme();
 
-  const days = weekOf(selectedDay);
-  const selectedIndex = Math.max(0, days.indexOf(selectedDay));
-
-  // The cells are equal flex children, so their width is only known once laid
-  // out. The underline cannot be positioned off a guess.
-  const [rowWidth, setRowWidth] = useState(0);
-  const cellWidth = rowWidth > 0 ? (rowWidth - theme.spacing.one * 6) / 7 : 0;
+  const days = weekOf(weekStart);
+  const selectedIndex = days.indexOf(selectedDay);
+  const cellWidth = (width - ScreenGutter * 2 - theme.spacing.one * 6) / 7;
 
   const underlineStyle = useAnimatedStyle(() => {
     const left =
       selectedIndex * (cellWidth + theme.spacing.one) + (cellWidth - UNDERLINE_WIDTH) / 2;
 
     return {
-      opacity: cellWidth > 0 ? 1 : 0,
-      transform: [{ translateX: withTiming(left, { duration: SLIDE_MS }) }]
+      opacity: selectedIndex < 0 ? 0 : 1,
+      transform: [{ translateX: withTiming(Math.max(0, left), { duration: SLIDE_MS }) }]
     };
   });
 
-  const onLayout = (event: LayoutChangeEvent) => setRowWidth(event.nativeEvent.layout.width);
-
-  const goWeek = (weeks: number) => {
-    void hapticSelection();
-    onSelectDay(shiftWeeks(selectedDay, weeks));
-  };
-
-  // Fling rather than pan: a pan would fight the vertical scroll the strip sits
-  // inside, and a week is a discrete step, not a draggable position.
-  const swipe = Gesture.Race(
-    Gesture.Fling()
-      .direction(Directions.LEFT)
-      .onEnd(() => runOnJS(goWeek)(1)),
-    Gesture.Fling()
-      .direction(Directions.RIGHT)
-      .onEnd(() => runOnJS(goWeek)(-1))
-  );
-
   return (
-    <GestureDetector gesture={swipe}>
-      <View style={styles.row} onLayout={onLayout}>
+    <View style={[styles.page, { width }]}>
+      <View style={styles.row}>
         {days.map((day) => {
           const isSelected = day === selectedDay;
           const isPast = day < today;
@@ -117,8 +196,7 @@ const WeekStrip = ({ selectedDay, today, reminderKinds, onSelectDay }: Props) =>
                 color={isPast && !isSelected ? 'textSecondary' : 'text'}>
                 {dayOfMonth(day)}
               </AppText>
-              {/* Always rendered, empty or not. A slot that appears with the
-                  first Reminder would resize every cell around it. */}
+              {/* Always rendered -- a slot that appears would resize the cell. */}
               <View style={styles.dotSlot}>
                 {reminderKinds?.[day]?.map((kind) => (
                   <View
@@ -132,12 +210,20 @@ const WeekStrip = ({ selectedDay, today, reminderKinds, onSelectDay }: Props) =>
         })}
         <Animated.View style={[styles.underline, underlineStyle]} pointerEvents="none" />
       </View>
-    </GestureDetector>
+    </View>
   );
 };
 
 const makeStyles = ({ colors, spacing }: AppTheme) =>
   StyleSheet.create({
+    // Out of the screen's gutter, so a page is exactly the screen width.
+    bleed: {
+      marginHorizontal: -ScreenGutter,
+      height: 58
+    },
+    page: {
+      paddingHorizontal: ScreenGutter
+    },
     row: {
       flexDirection: 'row',
       gap: spacing.one,
@@ -156,9 +242,7 @@ const makeStyles = ({ colors, spacing }: AppTheme) =>
     initial: {
       letterSpacing: 0.6
     },
-    // The underline is absolutely positioned at the bottom of the row, and
-    // without this margin it sits exactly on the dots -- so the selected day,
-    // the one you are actually looking at, is the one that loses them.
+    // Without this margin the underline covers the dots. See KNOWLEDGE.md.
     dotSlot: {
       flexDirection: 'row',
       alignItems: 'center',

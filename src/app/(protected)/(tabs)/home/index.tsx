@@ -8,6 +8,7 @@ import ScreenScrollView from '@/components/layout/screen-scroll-view';
 import ScreenView from '@/components/layout/screen-view';
 import DayBanner from '@/components/screens/home/day-banner';
 import HomeTip from '@/components/screens/home/home-tip';
+import MonthPopover from '@/components/screens/home/month-popover';
 import NoHouseholdState from '@/components/screens/home/no-household-state';
 import PetSection from '@/components/screens/home/pet-section';
 import PetSectionSkeleton from '@/components/screens/home/pet-section-skeleton';
@@ -30,7 +31,7 @@ import { useRequestNotificationPermission } from '@/hooks/use-notification-permi
 import { usePullToRefresh } from '@/hooks/use-pull-to-refresh';
 import { useRefreshOnFocus } from '@/hooks/use-refresh-on-focus';
 import { useStyles } from '@/hooks/use-styles';
-import { formatMonthAndYear, formatWeekdayName, todayInTimezone, weekOf } from '@/lib/dates';
+import { formatWeekdayName, todayInTimezone, weekOf } from '@/lib/dates';
 import { describeDay } from '@/utils/day-summary';
 import { findHomeTip } from '@/utils/home-tip';
 import type { Pet } from '@/types/core';
@@ -207,9 +208,7 @@ const Home = () => {
               <AppText variant="header" size={34} fontWeight="bold" style={styles.heading}>
                 {formatWeekdayName(day)}
               </AppText>
-              <AppText size={13} fontWeight="bold" color="textSecondary" style={styles.month}>
-                {formatMonthAndYear(day)}
-              </AppText>
+              <MonthPopover selectedDay={day} onSelectDay={setPickedDay} />
             </View>
             <WeekStrip
               selectedDay={day}
@@ -271,10 +270,6 @@ const makeStyles = ({ spacing }: AppTheme) =>
     },
     heading: {
       letterSpacing: -0.6
-    },
-    month: {
-      letterSpacing: 0.8,
-      textTransform: 'uppercase'
     }
   });
 

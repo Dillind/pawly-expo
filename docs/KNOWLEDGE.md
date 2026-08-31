@@ -296,3 +296,18 @@ unselected one whenever a cell gains a second indicator.
 **`formatScheduledTime` parses a Postgres `time`, which has seconds.** A value straight from the
 time picker does not — it stores `HH:mm` — and `dayjs(value, 'HH:mm:ss')` renders that as
 "Invalid Date" on screen rather than throwing. It now accepts both shapes.
+
+**A `.ios.tsx` file cannot import its shared half from the plain name.** Metro resolves
+`./month-popover` to `month-popover.ios.tsx` on iOS — the importing file itself — so the import
+comes back `undefined` and the screen throws "Element type is invalid". The shared half needs its
+own third file, which is what `month-trigger.tsx` is.
+
+**`contentOffset.x` does not name the page in a LegendList.** The list anchors and adjusts its own
+scroll offset as it renders, so `Math.round(offset / pageWidth)` picks the wrong index — the week
+strip paged backwards with it. Read the visible item from `onViewableItemsChanged` instead. Guard
+that callback while scrolling programmatically: a jump of several pages makes each week in between
+briefly visible, and the strip would select all of them on the way past.
+
+**A recycled LegendList page does not repaint on a state change it does not own.** The week strip's
+selected day moved and the pill stayed on the old cell. `extraData` is what tells the list the
+pages are stale; nothing warns you, and the data itself looks correct.
