@@ -42,7 +42,12 @@ const MonthPopover = ({ selectedDay, onSelectDay }: MonthPopoverProps) => {
   };
 
   return (
-    <Host matchContents style={styles.host} seedColor={theme.colors.primary}>
+    <Host
+      matchContents
+      style={styles.host}
+      seedColor={theme.colors.primary}
+      // SwiftUI follows the OS, not the app's own theme preference.
+      colorScheme={theme.isDark ? 'dark' : 'light'}>
       <Popover
         isPresented={isOpen}
         onIsPresentedChange={setIsOpen}
