@@ -1,8 +1,9 @@
 import AppText from '@/components/core/app-text';
 import BannerSun from '@/components/screens/home/banner-sun';
 import {
-  BannerGradientAxis,
-  BannerGradientOffsets,
+  BannerGradientEnd,
+  BannerGradientLocations,
+  BannerGradientStart,
   BannerGradients,
   Radius,
   type AppTheme
@@ -11,8 +12,8 @@ import { useStyles } from '@/hooks/use-styles';
 import { useTheme } from '@/hooks/use-theme';
 import { createShadowMedium } from '@/lib/styles/shadows';
 import { dayPartInTimezone, greetingInTimezone } from '@/utils/day-part';
+import { LinearGradient } from 'expo-linear-gradient';
 import { StyleSheet, View } from 'react-native';
-import Svg, { Defs, LinearGradient, Rect, Stop } from 'react-native-svg';
 import Animated, {
   Easing,
   FadeIn,
@@ -67,29 +68,15 @@ const DayBanner = ({ name, status, timezone }: Props) => {
 
   const sunStyle = useAnimatedStyle(() => ({ transform: [{ scale: scale.value }] }));
 
-  // Drawn with `react-native-svg` rather than `expo-linear-gradient`. The sun
-  // mark is already SVG, and svg is already in every build -- a second native
-  // module would make this screen need a fresh dev client on every machine.
-  const gradientId = `banner-${part}`;
-
   return (
-    <View style={[styles.card, createShadowMedium(theme.colors)]}>
-      <Svg style={StyleSheet.absoluteFill}>
-        <Defs>
-          <LinearGradient id={gradientId} {...BannerGradientAxis}>
-            {colors.map((color, index) => (
-              <Stop key={color} offset={BannerGradientOffsets[index]} stopColor={color} />
-            ))}
-          </LinearGradient>
-        </Defs>
-        <Rect x="0" y="0" width="100%" height="100%" fill={`url(#${gradientId})`} />
-      </Svg>
+    <LinearGradient
+      colors={colors}
+      locations={BannerGradientLocations}
+      start={BannerGradientStart}
+      end={BannerGradientEnd}
+      style={[styles.card, createShadowMedium(theme.colors)]}>
       <View style={styles.copy}>
-        <AppText
-          variant="header"
-          size={27}
-          fontWeight="bold"
-          style={[styles.greeting, { color: ink }]}>
+        <AppText variant="header" size={27} fontWeight="bold" style={[styles.greeting, { color: ink }]}>
           {greeting}, {name}
         </AppText>
         {/* Keyed on the text so the line cross-fades when the count changes,
@@ -103,7 +90,7 @@ const DayBanner = ({ name, status, timezone }: Props) => {
       <Animated.View style={sunStyle}>
         <BannerSun part={part} />
       </Animated.View>
-    </View>
+    </LinearGradient>
   );
 };
 

@@ -257,11 +257,11 @@ and no tuning of `animationIn` closes it. A surface that fills the screen belong
 `tsc` passed, all 232 tests passed, and the device showed a red box reading
 `Unimplemented component: <ViewManagerAdapter_ExpoLinearGradient>`. A JS-only dependency works the
 moment it installs; a native one is inert until a new dev client is built and installed on every
-machine. So **adding any native package is a dev-build change, not a code change** — check whether
-something already in the build can do the job first. Here `react-native-svg` could, and did.
+machine. So **adding any native package is a dev-build change, not a code change** — plan the build
+into the work rather than reaching for a substitute at the point the red box appears.
 
 **A screen that only ever showed today can hide date-bound write bugs.** The week strip made past
-days reachable and instantly exposed three: the Log chip, "Just log a feed" and "Log something else"
+days reachable and instantly exposed three: the Log chip, "Just log a feed" and "Other"
 all wrote against `now()` while the card showed another day. Nothing failed loudly — the feed would
 have been recorded against the wrong date. When a screen gains a date control, audit every write
 path on it for which date it actually targets.

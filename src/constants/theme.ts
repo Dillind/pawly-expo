@@ -72,7 +72,8 @@ export const COLORS = {
  * component may pass to `AppText` or `Icon`, and a list of stops is not a
  * colour. `ink` travels with the stops because the pair is what stays readable.
  *
- * The axis approximates the 118deg of `.design/tokens.css`.
+ * `start`/`end` approximate the 118deg of `.design/tokens.css` in the unit box
+ * `expo-linear-gradient` uses.
  */
 export const BannerGradients = {
   dawn: { colors: ['#FFF7E6', '#FFECC6', '#FFDDA2'], ink: '#2B1F0C' },
@@ -81,10 +82,9 @@ export const BannerGradients = {
   night: { colors: ['#241F3E', '#322A57', '#453564'], ink: '#F4F1FC' }
 } as const;
 
-// The stops sit at these offsets, and the axis runs corner to corner -- the
-// 118deg of `.design/tokens.css`, in the 0-1 space `react-native-svg` uses.
-export const BannerGradientOffsets = ['0', '0.46', '1'] as const;
-export const BannerGradientAxis = { x1: '0', y1: '0.15', x2: '1', y2: '0.85' } as const;
+export const BannerGradientLocations = [0, 0.46, 1] as const;
+export const BannerGradientStart = { x: 0, y: 0.15 } as const;
+export const BannerGradientEnd = { x: 1, y: 0.85 } as const;
 
 export type DayPart = keyof typeof BannerGradients;
 

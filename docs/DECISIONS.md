@@ -331,16 +331,14 @@ household reads.
 second door to the same room. It floated over the content it duplicated, it needed a fixed
 `BottomTabInset` offset because native tabs expose no height, and it forced `minimizeBehavior` off
 so the bar could not change height under it. Removing it deletes all three problems and costs
-nothing: "Log something else" already covers the unscheduled feed. See
+nothing: "Other" already covers the unscheduled feed. See
 [ADR 0011](./adr/0011-liquid-glass-progressive-enhancement.md) for the glass reasoning that outlives
 the component.
 
-**The banner gradient is `react-native-svg`, not `expo-linear-gradient`.** The first build used
-the Expo package, typechecked, passed 232 tests, and rendered a red box on the device:
-`Unimplemented component: <ViewManagerAdapter_ExpoLinearGradient>`. It is a native module, so it
-needs a fresh dev client on every machine before Home renders at all. `react-native-svg` is already
-in every build and already draws the sun, so the whole banner surface is one SVG and nobody has to
-rebuild. See KNOWLEDGE.md.
+**The banner gradient is `expo-linear-gradient`.** It was briefly redrawn with `react-native-svg`
+after the first build showed `Unimplemented component: <ViewManagerAdapter_ExpoLinearGradient>` on a
+stale dev client. The package was always the intended one, so it is back and the dev client is
+rebuilt instead. The red box was a missing build, not a wrong dependency. See KNOWLEDGE.md.
 
 **The banner gradients sit outside `COLORS`.** `ThemeColor` is the set of keys a component may pass
 to `AppText` or `Icon`, and a list of stops is not a colour — putting `bannerDay` in the palette
@@ -372,7 +370,7 @@ ages on the server, but a past or future day's states do not move.
 **A day that is not today is read-only.** The week strip made a past day reachable for the first
 time, and every write path on Home targets *now*: `LogFeedTray` takes `today`, and the `log_feed`
 RPC stamps the record with the current time. A Log chip on last Wednesday would have quietly
-recorded that feed against this morning. So the chip, "Just log a feed" and "Log something else"
+recorded that feed against this morning. So the chip, "Just log a feed" and "Other"
 all disappear off today, and the rows show ticks and "Not logged" alone. Backfilling a past feed is
 the late-feed flow's job, because it is the one that asks who fed and when.
 

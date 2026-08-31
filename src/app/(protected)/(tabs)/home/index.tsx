@@ -224,7 +224,7 @@ const Home = () => {
         {hasPets && day === today && (
           <View style={styles.extraFeed}>
             <MainButton
-              text="Log something else"
+              text="Other"
               variant="text"
               onPress={() => {
                 setLogPet(undefined);
