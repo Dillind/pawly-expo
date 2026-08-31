@@ -29,6 +29,12 @@ export const COLORS = {
     primaryText: '#9E6404',
     onPrimary: '#2A1D06',
     success: '#10696B',
+    // A Reminder's Kind. On trial: the batch-2 artboard drew these and rejected
+    // them, and gold is the fallback if they read as noise on device.
+    medication: '#7A5C86',
+    medicationMuted: 'rgba(122, 92, 134, 0.14)',
+    vet: '#4B6A8C',
+    vetMuted: 'rgba(75, 106, 140, 0.14)',
     // The dashed "Other" row and the "Add a pet" ghost row.
     ghostBorder: 'rgba(58, 48, 38, 0.20)',
     // The ink for a control floating over a photo. It cannot be `text`: the
@@ -58,6 +64,10 @@ export const COLORS = {
     primaryText: '#F5B435',
     onPrimary: '#2A1D06',
     success: '#2FA8A2',
+    medication: '#B49CC0',
+    medicationMuted: 'rgba(180, 156, 192, 0.20)',
+    vet: '#8FB0D2',
+    vetMuted: 'rgba(143, 176, 210, 0.20)',
     ghostBorder: 'rgba(255, 255, 255, 0.22)',
     onGlass: '#FFFFFF',
     shadow: '#000000'

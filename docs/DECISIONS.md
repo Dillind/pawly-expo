@@ -367,6 +367,12 @@ lie, and a future day where nothing is due yet is not an achievement. `describeD
 and switches from progress to schedule. Live polling switches off with it: an occurrence's `state`
 ages on the server, but a past or future day's states do not move.
 
+**A Reminder's Kind carries a colour, on trial.** `medication` is a muted plum and `vet` a muted
+blue, each with a muted fill for the selected Kind pill. The batch-2 artboard drew exactly this as
+Variant B and rejected it: a 4px dot cannot carry a hue, and gold and teal already mean *to do* and
+*done*. It ships anyway to be judged on a device rather than on a board. If it reads as noise, the
+revert is Variant A -- one gold dot, the four tokens deleted, and nothing else changes.
+
 **"Other" is a row in the pet card, not a button under the list.** The artboard puts it last inside
 each card, dashed and quiet. That is what the unscheduled feed actually is -- a thing done to one
 pet, alongside that pet's slots. A single button under every card had to ask which pet afterwards.
