@@ -13,7 +13,7 @@ import { usePetPause } from '@/hooks/queries/feeding/use-pet-pause';
 import { useStyles } from '@/hooks/use-styles';
 import { useTheme } from '@/hooks/use-theme';
 import { createShadowMedium } from '@/lib/styles/shadows';
-import { formatScheduledTime } from '@/lib/dates';
+import { summarisePetDay } from '@/utils/pet-status';
 import type { HouseholdMember, Occurrence, Pet } from '@/types/core';
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
@@ -39,47 +39,6 @@ type Props = {
   onPickOccurrence: (pet: Pet, occurrence: Occurrence) => void;
   onLogPress: () => void;
 };
-
-const LABEL_WORD: Record<Occurrence['label'], string> = {
-  morning: 'morning',
-  lunch: 'lunch',
-  dinner: 'dinner',
-  custom: 'feed'
-};
-
-/**
- * The one line under the pet's name. It answers "what, if anything, do I do
- * about this pet right now" — an overdue feed first, then the next one due,
- * then the quiet case.
- *
- * "logged", never "fed" -- the count is of records, not meals, and the app does
- * not know whether the pet ate. CONTEXT.md, Not Logged.
- */
-function summarise(occurrences: Occurrence[], isPaused: boolean, hasFeedTimes: boolean): string {
-  // A paused pet also has no occurrences, so this has to come first — otherwise
-  // a boarding pet reads as one nobody has set up.
-  if (isPaused) return 'Paused — no feeds expected';
-  // Feeds exist but none land today: a new pet's feeds start tomorrow, and a
-  // weekday-only feed says nothing on a Sunday. Claiming there are none reads
-  // as if the app threw the member's work away.
-  if (occurrences.length === 0) return hasFeedTimes ? 'No feeds today' : 'No feeds set up yet';
-
-  const overdue = occurrences.find((occurrence) => occurrence.state === 'missed');
-  if (overdue) {
-    return `${capitalise(LABEL_WORD[overdue.label])} was due at ${formatScheduledTime(overdue.localTime)}`;
-  }
-
-  const next = occurrences.find(
-    (occurrence) => occurrence.state === 'due' || occurrence.state === 'upcoming'
-  );
-  if (next) {
-    return `Next: ${LABEL_WORD[next.label]} at ${formatScheduledTime(next.localTime)}`;
-  }
-
-  return occurrences.length === 1 ? 'Logged once today' : `Logged ${occurrences.length} times today`;
-}
-
-const capitalise = (value: string) => value.charAt(0).toUpperCase() + value.slice(1);
 
 /**
  * One pet's feed times for today, collapsed until asked for.
@@ -148,7 +107,7 @@ const PetSection = ({
             </AppText>
             {occurrences && (
               <AppText size={13} color="textSecondary" numberOfLines={1}>
-                {summarise(occurrences, isPaused, hasFeedTimes)}
+                {summarisePetDay(occurrences, isPaused, hasFeedTimes)}
               </AppText>
             )}
           </View>
@@ -161,9 +120,7 @@ const PetSection = ({
         <Animated.View style={caretStyle}>
           <IconButton
             name="caretDown"
-            accessibilityLabel={
-              isOpen ? `Hide ${pet.name}'s feeds` : `Show ${pet.name}'s feeds`
-            }
+            accessibilityLabel={isOpen ? `Hide ${pet.name}'s feeds` : `Show ${pet.name}'s feeds`}
             variant="ghost"
             size={18}
             hapticFeedback={false}

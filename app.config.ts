@@ -70,7 +70,9 @@ const getConfig = ({ config }: ConfigContext): ExpoConfig => {
             'node_modules/@expo-google-fonts/inter/600SemiBold/Inter_600SemiBold.ttf',
             'node_modules/@expo-google-fonts/inter/700Bold/Inter_700Bold.ttf',
             'node_modules/@expo-google-fonts/inter/800ExtraBold/Inter_800ExtraBold.ttf',
-            'node_modules/@expo-google-fonts/inter/900Black/Inter_900Black.ttf'
+            'node_modules/@expo-google-fonts/inter/900Black/Inter_900Black.ttf',
+            'node_modules/@expo-google-fonts/gabarito/600SemiBold/Gabarito_600SemiBold.ttf',
+            'node_modules/@expo-google-fonts/gabarito/700Bold/Gabarito_700Bold.ttf'
           ]
         }
       ],

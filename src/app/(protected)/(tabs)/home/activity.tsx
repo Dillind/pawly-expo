@@ -1,27 +1,43 @@
 import FeedLogDetailSheet from '@/components/bottom-sheets/feed-log-detail-sheet';
+import Divider from '@/components/core/divider';
 import EmptyState from '@/components/core/empty-state';
-import MainButton from '@/components/core/main-button';
+import ListCard from '@/components/core/list-card';
 import MainLegendList from '@/components/core/main-legend-list';
 import ScreenView from '@/components/layout/screen-view';
 import ActivityDayHeader from '@/components/ui/activity-day-header';
+import ActivitySkeleton from '@/components/ui/activity-skeleton';
 import FeedLogRow from '@/components/ui/feed-log-row';
+import MissedFeedRow from '@/components/ui/missed-feed-row';
 import { BottomTabInset, ScreenGutter, type AppTheme } from '@/constants/theme';
 import { useFeedLog } from '@/hooks/queries/feeding/use-feed-log';
 import { useFeedLogs } from '@/hooks/queries/feeding/use-feed-logs';
+import {
+  useMissedOccurrences,
+  type MissedOccurrence
+} from '@/hooks/queries/feeding/use-missed-occurrences';
 import { useHousehold } from '@/hooks/queries/household/use-household';
 import { usePets } from '@/hooks/queries/pet/use-pets';
 import { usePullToRefresh } from '@/hooks/use-pull-to-refresh';
 import { useRefreshOnFocus } from '@/hooks/use-refresh-on-focus';
 import { useStyles } from '@/hooks/use-styles';
-import { dayInTimezone } from '@/lib/dates';
+import { dayInTimezone, todayInTimezone } from '@/lib/dates';
 import type { FeedLog } from '@/types/core';
 import type { LegendListRenderItemProps } from '@legendapp/list/react-native';
 import type { TrueSheet } from '@lodev09/react-native-true-sheet';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { useEffect, useMemo, useRef, useState } from 'react';
-import { StyleSheet } from 'react-native';
+import { Fragment, useEffect, useMemo, useRef, useState } from 'react';
+import { StyleSheet, View } from 'react-native';
 
-type ActivityItem = { kind: 'header'; day: string } | { kind: 'log'; log: FeedLog };
+// The rule starts under the title rather than under the avatar, matching Pets.
+const DIVIDER_INSET = 64;
+
+type DayEntry =
+  | { kind: 'log'; at: string; log: FeedLog }
+  | { kind: 'missed'; at: string; missed: MissedOccurrence };
+
+type ActivityItem =
+  | { kind: 'header'; day: string; isFirst: boolean }
+  | { kind: 'group'; day: string; entries: DayEntry[] };
 
 const Activity = () => {
   const [activeLogId, setActiveLogId] = useState<string | undefined>(undefined);
@@ -37,9 +53,35 @@ const Activity = () => {
 
   const petIds = useMemo(() => pets.map((pet) => pet.id), [pets]);
   const petNames = useMemo(() => new Map(pets.map((pet) => [pet.id, pet.name])), [pets]);
+  const hasSeveralPets = pets.length > 1;
 
   const { data, isLoading, isError, refetch, fetchNextPage, hasNextPage, isFetchingNextPage } =
     useFeedLogs(petIds);
+
+  const logs = useMemo(() => data?.pages.flat() ?? [], [data]);
+
+  // The days the loaded history covers. A missed feed is only ever asked for on
+  // a day already on screen, so scrolling further back is what fetches more of
+  // them rather than every day since the household was created.
+  //
+  // Today is always in the list, even with nothing logged: a household whose
+  // only news today is a feed nobody logged still has news.
+  const days = useMemo(() => {
+    if (!timezone) return [];
+
+    const seen: string[] = [todayInTimezone(timezone)];
+
+    for (const log of logs) {
+      // The day boundary is the household's timezone, never the device's, or a
+      // travelling member sees feeds land on the wrong day.
+      const day = dayInTimezone(log.loggedAt, timezone);
+      if (!seen.includes(day)) seen.push(day);
+    }
+
+    return seen;
+  }, [logs, timezone]);
+
+  const { missed, labelByLogId } = useMissedOccurrences(petIds, days);
 
   const { isRefreshing, onRefresh } = usePullToRefresh([refetch]);
 
@@ -72,51 +114,101 @@ const Activity = () => {
   const items = useMemo<ActivityItem[]>(() => {
     if (!timezone) return [];
 
-    const logs = data?.pages.flat() ?? [];
-    const result: ActivityItem[] = [];
-    let currentDay: string | null = null;
+    const byDay = new Map<string, DayEntry[]>();
+    const entriesFor = (day: string) => {
+      const existing = byDay.get(day);
+      if (existing) return existing;
+
+      const created: DayEntry[] = [];
+      byDay.set(day, created);
+
+      return created;
+    };
 
     for (const log of logs) {
-      // The day boundary is the household's timezone, never the device's, or a
-      // travelling member sees feeds land on the wrong day.
-      const day = dayInTimezone(log.loggedAt, timezone);
+      entriesFor(dayInTimezone(log.loggedAt, timezone)).push({
+        kind: 'log',
+        at: log.loggedAt,
+        log
+      });
+    }
 
-      if (day !== currentDay) {
-        currentDay = day;
-        result.push({ kind: 'header', day });
-      }
+    for (const entry of missed) {
+      if (!days.includes(entry.occurrence.occurrenceDate)) continue;
 
-      result.push({ kind: 'log', log });
+      entriesFor(entry.occurrence.occurrenceDate).push({
+        kind: 'missed',
+        at: entry.occurrence.scheduledAt,
+        missed: entry
+      });
+    }
+
+    const result: ActivityItem[] = [];
+
+    for (const day of days) {
+      const entries = (byDay.get(day) ?? []).sort((a, b) => b.at.localeCompare(a.at));
+      // A band with nothing under it is a heading over a gap. Today earns its
+      // place by holding something, like every other day.
+      if (entries.length === 0) continue;
+
+      result.push({ kind: 'header', day, isFirst: result.length === 0 });
+      result.push({ kind: 'group', day, entries });
     }
 
     return result;
-  }, [data, timezone]);
+  }, [days, logs, missed, timezone]);
 
   const renderItem = ({ item }: LegendListRenderItemProps<ActivityItem>) => {
     if (!timezone) return null;
 
-    return item.kind === 'header' ? (
-      <ActivityDayHeader day={item.day} timezone={timezone} />
-    ) : (
-      <FeedLogRow
-        log={item.log}
-        petName={petNames.size > 1 ? petNames.get(item.log.petId) : undefined}
-        timezone={timezone}
-        onPress={() => {
-          setActiveLogId(item.log.id);
-          setActivePetId(item.log.petId);
-          void sheetRef.current?.present();
-        }}
-      />
+    if (item.kind === 'header') {
+      return <ActivityDayHeader day={item.day} timezone={timezone} isFirst={item.isFirst} />;
+    }
+
+    return (
+      <View style={styles.group}>
+        <ListCard>
+          {item.entries.map((entry, index) => (
+            <Fragment key={entry.kind === 'log' ? entry.log.id : entry.missed.occurrence.seriesId}>
+              {index > 0 && <Divider inset={DIVIDER_INSET} />}
+              {entry.kind === 'log' ? (
+                <FeedLogRow
+                  log={entry.log}
+                  petName={hasSeveralPets ? petNames.get(entry.log.petId) : undefined}
+                  label={labelByLogId.get(entry.log.id)}
+                  timezone={timezone}
+                  onPress={() => {
+                    setActiveLogId(entry.log.id);
+                    setActivePetId(entry.log.petId);
+                    void sheetRef.current?.present();
+                  }}
+                />
+              ) : (
+                <MissedFeedRow
+                  occurrence={entry.missed.occurrence}
+                  petName={hasSeveralPets ? petNames.get(entry.missed.petId) : undefined}
+                />
+              )}
+            </Fragment>
+          ))}
+        </ListCard>
+      </View>
     );
   };
+
+  if ((isLoading || !timezone) && !isError) {
+    return (
+      <ScreenView edges={[]}>
+        <ActivitySkeleton />
+      </ScreenView>
+    );
+  }
 
   return (
     <ScreenView edges={[]}>
       <MainLegendList<ActivityItem>
         contentInsetAdjustmentBehavior="automatic"
         data={items}
-        isLoading={isLoading || !timezone}
         isError={isError}
         onRetry={() => {
           void refetch();
@@ -128,16 +220,15 @@ const Activity = () => {
         onRefresh={onRefresh}
         isRefreshing={isRefreshing}
         keyExtractor={(item) =>
-          item.kind === 'header' ? `header-${item.day}` : `log-${item.log.id}`
+          item.kind === 'header' ? `header-${item.day}` : `group-${item.day}`
         }
-        estimatedItemSize={72}
+        estimatedItemSize={96}
         contentContainerStyle={styles.listContent}
         ListEmptyComponent={
           <EmptyState
-            icon="utensils"
-            title="No feeds logged yet"
-            description="Log the first feed and it'll show up here for everyone in the household."
-            action={<MainButton text="Log a feed" href="/home" />}
+            icon="clipboardList"
+            title="Nothing logged yet"
+            description="Every feed your household logs shows up here, newest first."
           />
         }
         renderItem={renderItem}
@@ -150,9 +241,14 @@ const Activity = () => {
 
 const makeStyles = ({ spacing }: AppTheme) =>
   StyleSheet.create({
+    // No horizontal padding: the day band runs edge to edge and each group
+    // re-indents itself, which is what lets a card scroll under the band.
     listContent: {
-      paddingHorizontal: ScreenGutter,
       paddingBottom: BottomTabInset + spacing.four
+    },
+    group: {
+      paddingHorizontal: ScreenGutter,
+      paddingTop: spacing.two
     }
   });
 

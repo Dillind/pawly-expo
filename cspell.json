@@ -62,6 +62,7 @@
     "jobid",
     "jobname",
     "legendapp",
+    "libexec",
     "lockfiles",
     "lodev",
     "lookback",

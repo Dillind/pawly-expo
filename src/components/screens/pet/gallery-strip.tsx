@@ -2,10 +2,11 @@ import PhotoSourceSheet from '@/components/bottom-sheets/photo-source-sheet';
 import AppText from '@/components/core/app-text';
 import ErrorState from '@/components/core/error-state';
 import PressableOpacity from '@/components/core/pressable-opacity';
+import SectionLabel from '@/components/core/section-label';
 import AddPhotoTile from '@/components/ui/add-photo-tile';
 import PhotoTile from '@/components/ui/photo-tile';
 import type { AppTheme } from '@/constants/theme';
-import { Spacing } from '@/constants/theme';
+import { ScreenGutter, Spacing } from '@/constants/theme';
 import { useAddPetPhotos, useDeletePetPhoto } from '@/hooks/queries/pet/use-pet-photo-mutations';
 import { useHousehold } from '@/hooks/queries/household/use-household';
 import { useRouter } from 'expo-router';
@@ -15,7 +16,7 @@ import { hapticLight } from '@/lib/haptics';
 import type { PetPhoto } from '@/services/pet-photo.service';
 import type { TrueSheet } from '@lodev09/react-native-true-sheet';
 import { useEffect, useRef, useState } from 'react';
-import { ActivityIndicator, Alert, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, Alert, ScrollView, StyleSheet, View } from 'react-native';
 import Animated, {
   cancelAnimation,
   useAnimatedStyle,
@@ -26,7 +27,7 @@ import Animated, {
 } from 'react-native-reanimated';
 
 const PHOTO_CAP = 10;
-const COLUMNS = 5;
+const TILE_SIZE = 80;
 const GRID_GAP = Spacing.two;
 
 const JIGGLE_DEGREES = 1.4;
@@ -96,7 +97,6 @@ const GalleryStrip = ({ petId }: Props) => {
 
   const isOwner = household?.isOwner ?? false;
 
-  const [gridWidth, setGridWidth] = useState(0);
   const [isEditRequested, setIsEditing] = useState(false);
 
   const photoList = photos ?? [];
@@ -104,9 +104,6 @@ const GalleryStrip = ({ petId }: Props) => {
   const isAtCap = remainingSlots <= 0;
 
   const isEditing = isOwner && isEditRequested && photoList.length > 0;
-
-  // Measured, not from the window: the grid sits inside padded scroll content.
-  const tileSize = (gridWidth - GRID_GAP * (COLUMNS - 1)) / COLUMNS;
 
   const startEditing = () => {
     void hapticLight();
@@ -146,53 +143,54 @@ const GalleryStrip = ({ petId }: Props) => {
 
   return (
     <View style={styles.section}>
-      <View style={styles.header}>
-        <AppText variant="header" size={17}>
-          Photos
-        </AppText>
+      <SectionLabel
+        action={
+          isEditing ? (
+            <PressableOpacity
+              accessibilityRole="button"
+              accessibilityLabel="Done editing photos"
+              hitSlop={12}
+              onPress={() => setIsEditing(false)}>
+              <AppText color="primaryText" size={15}>
+                Done
+              </AppText>
+            </PressableOpacity>
+          ) : undefined
+        }>
+        Photos
+      </SectionLabel>
 
-        {isEditing && (
-          <PressableOpacity
-            accessibilityRole="button"
-            accessibilityLabel="Done editing photos"
-            hitSlop={12}
-            onPress={() => setIsEditing(false)}>
-            <AppText color="primaryText" size={15}>
-              Done
-            </AppText>
-          </PressableOpacity>
+      {/* Horizontal rather than wrapped: the strip runs off the edge of the
+          screen, which is what says there is more of it than fits. */}
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        style={styles.strip}
+        contentContainerStyle={styles.stripContent}>
+        {/* Hidden at the cap: there is nothing an 11th tile could do. */}
+        {isOwner && !isAtCap && (
+          <AddPhotoTile
+            size={TILE_SIZE}
+            isBusy={isAdding}
+            onPress={() => void photoSheetRef.current?.present()}
+          />
         )}
-      </View>
 
-      <View style={styles.grid} onLayout={(event) => setGridWidth(event.nativeEvent.layout.width)}>
-        {tileSize > 0 && (
-          <>
-            {/* Hidden at the cap: an 11th tile would strand one on a third row. */}
-            {isOwner && !isAtCap && (
-              <AddPhotoTile
-                size={tileSize}
-                isBusy={isAdding}
-                onPress={() => void photoSheetRef.current?.present()}
-              />
-            )}
-
-            {photoList.map((photo, index) => (
-              <JigglingPhotoTile
-                key={photo.id}
-                photo={photo}
-                index={index}
-                size={tileSize}
-                isEditing={isEditing}
-                onPress={() =>
-                  isEditing ? setIsEditing(false) : router.push(`/home/${petId}/photo/${photo.id}`)
-                }
-                onLongPress={isOwner ? startEditing : undefined}
-                onRemove={() => confirmRemove(photo)}
-              />
-            ))}
-          </>
-        )}
-      </View>
+        {photoList.map((photo, index) => (
+          <JigglingPhotoTile
+            key={photo.id}
+            photo={photo}
+            index={index}
+            size={TILE_SIZE}
+            isEditing={isEditing}
+            onPress={() =>
+              isEditing ? setIsEditing(false) : router.push(`/home/${petId}/photo/${photo.id}`)
+            }
+            onLongPress={isOwner ? startEditing : undefined}
+            onRemove={() => confirmRemove(photo)}
+          />
+        ))}
+      </ScrollView>
 
       {isOwner && isAtCap && !isEditing && (
         <AppText color="textSecondary" size={13}>
@@ -214,16 +212,15 @@ const makeStyles = ({ spacing }: AppTheme) =>
     section: {
       gap: spacing.two
     },
-    grid: {
-      flexDirection: 'row',
-      flexWrap: 'wrap',
-      gap: GRID_GAP
+    // Escapes the screen gutter its parent applied, then re-indents its own
+    // content -- so the first tile lines up and the last runs off the edge.
+    strip: {
+      marginHorizontal: -ScreenGutter
     },
-    header: {
+    stripContent: {
       flexDirection: 'row',
-      alignItems: 'center',
-      justifyContent: 'space-between',
-      minHeight: 24
+      gap: GRID_GAP,
+      paddingHorizontal: ScreenGutter
     }
   });
 

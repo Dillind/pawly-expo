@@ -28,6 +28,12 @@ type Props = {
   isLoading?: boolean;
   isDisabled?: boolean;
   hapticFeedback?: boolean;
+  /**
+   * The control floats over a photo rather than over the page. Glass then draws
+   * its dark material and a white glyph, because the ground behind it is
+   * arbitrary and a near-black glyph disappears on half of all photos.
+   */
+  isOverContent?: boolean;
   containerStyle?: StyleProp<ViewStyle>;
 };
 
@@ -42,6 +48,7 @@ const IconButton = ({
   isLoading = false,
   isDisabled = false,
   hapticFeedback = true,
+  isOverContent = false,
   containerStyle
 }: Props) => {
   const styles = useStyles(makeStyles);
@@ -55,13 +62,11 @@ const IconButton = ({
     onPress?.();
   };
 
-  const glyphColor = color ?? (variant === 'primary' ? 'onPrimary' : 'text');
+  const glyphColor =
+    color ?? (isOverContent ? 'onGlass' : variant === 'primary' ? 'onPrimary' : 'text');
 
   const content = isLoading ? (
-    <ActivityIndicator
-      size="small"
-      color={variant === 'primary' ? colors.onPrimary : undefined}
-    />
+    <ActivityIndicator size="small" color={variant === 'primary' ? colors.onPrimary : undefined} />
   ) : (
     <Icon name={name} size={size} color={glyphColor} strokeWidth={strokeWidth} />
   );
@@ -70,7 +75,7 @@ const IconButton = ({
     return (
       <GlassView
         isInteractive
-        colorScheme={isDark ? 'dark' : 'light'}
+        colorScheme={isOverContent || isDark ? 'dark' : 'light'}
         style={[styles.base, styles.glassSurface, isInactive && styles.disabled, containerStyle]}>
         <Pressable
           accessibilityRole="button"

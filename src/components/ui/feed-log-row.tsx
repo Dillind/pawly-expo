@@ -1,78 +1,86 @@
 import AppText from '@/components/core/app-text';
-import Icon from '@/components/core/icon';
 import PressableOpacity from '@/components/core/pressable-opacity';
+import UserAvatar from '@/components/core/user-avatar';
 import type { AppTheme } from '@/constants/theme';
-import { formatAuthorName } from '@/utils/members';
 import { useStyles } from '@/hooks/use-styles';
-import { formatTimeOfDay } from '@/lib/dates';
-import type { FeedLog } from '@/types/core';
+import { formatRelativeTime, formatTimeOfDay } from '@/lib/dates';
+import type { FeedingScheduleLabel, FeedLog } from '@/types/core';
+import { formatAuthorName } from '@/utils/members';
 import { StyleSheet, View } from 'react-native';
+
+const AVATAR_SIZE = 36;
+
+const LABEL_WORD: Record<FeedingScheduleLabel, string> = {
+  morning: 'morning feed',
+  lunch: 'lunch feed',
+  dinner: 'dinner feed',
+  custom: 'feed'
+};
 
 type Props = {
   log: FeedLog;
   /** Only passed when the household has several pets — otherwise it is noise. */
   petName?: string;
+  /** Which feed time this log satisfied, where it satisfied one. */
+  label?: FeedingScheduleLabel;
   timezone: string;
   onPress: () => void;
 };
 
-const FeedLogRow = ({ log, petName, timezone, onPress }: Props) => {
+/**
+ * One logged feed. The avatar is the member's, because on this screen the
+ * question is who did it — the pet is named in the line beside it.
+ */
+const FeedLogRow = ({ log, petName, label, timezone, onPress }: Props) => {
   const styles = useStyles(makeStyles);
 
   const authorName = formatAuthorName(log.author);
   const timeOfDay = formatTimeOfDay(log.loggedAt, timezone);
+  const feedWord = LABEL_WORD[label ?? 'custom'];
+  const title = petName ? `${petName}'s ${feedWord}` : capitalise(feedWord);
 
   return (
     <PressableOpacity
       style={styles.row}
       onPress={onPress}
       accessibilityRole="button"
-      accessibilityLabel={`Edit feed logged by ${authorName}${
-        petName ? ` for ${petName}` : ''
-      } at ${timeOfDay}`}>
-      <Icon name="utensils" size={18} color="text" />
+      accessibilityLabel={`Edit ${title}, logged by ${authorName} at ${timeOfDay}`}>
+      <UserAvatar
+        firstName={log.author?.firstName}
+        lastName={log.author?.lastName}
+        size={AVATAR_SIZE}
+      />
+
       <View style={styles.body}>
-        <AppText size={16}>{petName ? `${authorName} fed ${petName}` : authorName}</AppText>
-        {log.notes && (
-          <AppText size={14} color="textSecondary" numberOfLines={2}>
-            {log.notes}
-          </AppText>
-        )}
-      </View>
-      {/* Time and pencil are one trailing cluster at a tighter gap than the row's
-          own: at the row gap the pencil reads as a fourth free-floating item
-          rather than an affordance attached to this log. The pencil is
-          decorative -- the row is the tap target, so tapping the pencil opens
-          the sheet without a second 44pt target nested inside the first. */}
-      <View style={styles.trailing}>
-        <AppText size={14} color="textSecondary">
-          {timeOfDay}
+        <AppText size={15} numberOfLines={1}>
+          {title}
         </AppText>
-        <Icon name="pencil" size={16} color="textSecondary" />
+        <AppText size={13} color="textSecondary" numberOfLines={1}>
+          {log.notes ? `${authorName}, ${timeOfDay} · ${log.notes}` : `${authorName}, ${timeOfDay}`}
+        </AppText>
       </View>
+
+      <AppText size={13} color="textSecondary">
+        {formatRelativeTime(log.loggedAt)}
+      </AppText>
     </PressableOpacity>
   );
 };
 
-const makeStyles = ({ colors, spacing }: AppTheme) =>
+const capitalise = (value: string) => value.charAt(0).toUpperCase() + value.slice(1);
+
+const makeStyles = ({ spacing }: AppTheme) =>
   StyleSheet.create({
     row: {
       flexDirection: 'row',
       alignItems: 'center',
       gap: spacing.three,
-      padding: spacing.three,
-      borderRadius: 12,
-      marginBottom: spacing.two,
-      backgroundColor: colors.backgroundElement
+      paddingVertical: 14,
+      paddingHorizontal: spacing.three
     },
     body: {
       flex: 1,
-      gap: spacing.one
-    },
-    trailing: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      gap: spacing.two
+      gap: spacing.half
     }
   });
 

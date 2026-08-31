@@ -302,3 +302,27 @@ value a call site can reach for that looks like the brand colour and fails contr
 fallback, a bullet in an info sheet — none of them are actions, so none of them are gold. The
 fourteen `Icon color="primary"` call sites that existed were an artefact of teal being harmless
 everywhere, not a deliberate choice.
+
+**Activity's missed rows come from occurrences, merged into the log history client-side.**
+`feed_logs` holds only feeds that were logged, so a missed one has no row to join to. The state
+comes from `pet_occurrence_states`, one call per pet per day over the days the loaded logs already
+cover — `useMissedOccurrences`, keyed the same `['occurrences', petId, date]` the pet screens use,
+so a day Home has already fetched is served from cache. Only days already on screen are asked for,
+which is what stops the screen fetching every day since the household was created.
+
+**A `MissedFeedRow` recesses; it never alarms.** A sunk fill, a hollow dashed ring where the
+member's avatar would be, secondary ink, and always the words "Not logged". Not gold, because gold
+means "act now" and a missed feed in the past cannot be logged from Activity. Not red, because the
+app knows only whether anyone tapped Log — never whether the pet ate.
+
+**Glass over a photo needs its own ink: `onGlass`.** The pet screen's back button is a glass circle
+on an arbitrary photo, and the glass glyph colour is `text` — near-black, invisible on any dark
+photo, on the one control that leaves the screen. `isOverContent` on `IconButton` and `MainButton`
+switches the material to its dark scheme and the glyph to `onGlass` white. It is a separate token
+rather than a hard-coded white so the two components cannot drift apart.
+
+**The pet screen's Feed times card shows occurrences, not Feed Times.** The question on that screen
+is what has been logged today, which is the same question Home asks — so it is the same
+`OccurrenceList`, with a Log chip, a teal tick or "Upcoming". The schedule behind those rows is
+edited in a tray, because a keyboard and a destructive remove do not belong on a screen the whole
+household reads.

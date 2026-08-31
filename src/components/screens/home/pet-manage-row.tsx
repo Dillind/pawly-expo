@@ -1,65 +1,93 @@
 import AppText from '@/components/core/app-text';
 import Icon from '@/components/core/icon';
 import PressableOpacity from '@/components/core/pressable-opacity';
-import { Radius, type AppTheme } from '@/constants/theme';
+import StatusPill from '@/components/core/status-pill';
+import PetAvatar from '@/components/screens/home/pet-avatar';
+import type { AppTheme } from '@/constants/theme';
+import { useFeedTimes } from '@/hooks/queries/feeding/use-feed-times';
+import { useOccurrences } from '@/hooks/queries/feeding/use-occurrences';
+import { usePetPause } from '@/hooks/queries/feeding/use-pet-pause';
 import { useStyles } from '@/hooks/use-styles';
 import type { Pet } from '@/types/core';
-import { Image } from 'expo-image';
+import { summarisePetDay } from '@/utils/pet-status';
 import { Link } from 'expo-router';
 import { StyleSheet, View } from 'react-native';
 
+const AVATAR_SIZE = 48;
+const PAUSED_OPACITY = 0.55;
+
 type Props = {
   pet: Pet;
+  /** The household's today, as YYYY-MM-DD. Absent until the household loads. */
+  today?: string;
 };
 
-const PetManageRow = ({ pet }: Props) => {
+/**
+ * One pet, with the one line that says what to do about it.
+ *
+ * The three queries are per row rather than per screen because a hook cannot be
+ * called once per item from a loop -- the same reason PetSection holds its own.
+ *
+ * A pause is a date range, never a flag, so "paused" is a question about today.
+ */
+const PetManageRow = ({ pet, today }: Props) => {
   const styles = useStyles(makeStyles);
+
+  const { data: occurrences } = useOccurrences(pet.id, today);
+  const { data: pause } = usePetPause(pet.id, today);
+  const { data: feedTimes } = useFeedTimes(pet.id);
+
+  const isPaused = Boolean(pause);
+  const summary = occurrences
+    ? summarisePetDay(occurrences, isPaused, Boolean(feedTimes?.length))
+    : null;
 
   return (
     <Link href={`/home/${pet.id}`} asChild>
       <PressableOpacity style={styles.row} accessibilityLabel={pet.name}>
-        {pet.photoUrl ? (
-          <Image source={pet.photoUrl} style={styles.avatar} contentFit="cover" />
-        ) : (
-          <View style={[styles.avatar, styles.avatarPlaceholder]}>
-            <Icon name="pawPrint" size={18} color="text" />
-          </View>
-        )}
+        <View style={isPaused && styles.dimmed}>
+          <PetAvatar photoUrl={pet.photoUrl} size={AVATAR_SIZE} />
+        </View>
 
-        <AppText size={16} style={styles.name}>
-          {pet.name}
-        </AppText>
+        <View style={styles.body}>
+          <AppText variant="header" size={19} fontWeight="bold" numberOfLines={1}>
+            {pet.name}
+          </AppText>
 
-        <Icon name="caretRight" size={16} color="textSecondary" />
+          {/* A pause is the state that expects nothing, so it recesses into a
+              pill rather than reading as another line of status. */}
+          {isPaused ? (
+            <StatusPill label="Paused — no feeds expected" />
+          ) : (
+            summary && (
+              <AppText size={13} color="textSecondary" numberOfLines={1}>
+                {summary}
+              </AppText>
+            )
+          )}
+        </View>
+
+        <Icon name="caretRight" size={18} color="textSecondary" />
       </PressableOpacity>
     </Link>
   );
 };
 
-const makeStyles = ({ colors, spacing }: AppTheme) =>
+const makeStyles = ({ spacing }: AppTheme) =>
   StyleSheet.create({
     row: {
       flexDirection: 'row',
       alignItems: 'center',
-      gap: spacing.three,
-      paddingVertical: spacing.two,
-      paddingHorizontal: spacing.three,
-      borderRadius: 12,
-      backgroundColor: colors.backgroundElement
+      gap: 14,
+      paddingVertical: 14,
+      paddingHorizontal: spacing.three
     },
-    avatar: {
-      width: 40,
-      height: 40,
-      borderRadius: Radius.full,
-      backgroundColor: colors.backgroundSelected
+    dimmed: {
+      opacity: PAUSED_OPACITY
     },
-    avatarPlaceholder: {
-      alignItems: 'center',
-      justifyContent: 'center',
-      backgroundColor: colors.backgroundSelected
-    },
-    name: {
-      flex: 1
+    body: {
+      flex: 1,
+      gap: spacing.half
     }
   });
 

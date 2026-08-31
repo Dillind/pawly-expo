@@ -1,0 +1,98 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gabarito:wght@400;600;700&family=Inter:wght@400;500;600;700&display=swap">
+<style>
+:root {
+  --background: #FAF6EF;
+  --background-element: #FFFFFF;
+  --background-selected: #F3EDE2;
+  --background-sheet: #FFFFFF;
+  --background-sheet-row: #F3EDE2;
+  --text: #1C1815;
+  --text-secondary: #7B7167;
+  --border: rgba(58, 48, 38, 0.13);
+  --primary: #F0A81C;
+  --on-primary: #2A1D06;
+  --primary-muted: rgba(240, 168, 28, 0.14);
+  --primary-text: #9E6404;
+  --success: #10696B;
+  --error: #CE3C39;
+  --ghost-border: rgba(58, 48, 38, 0.20);
+  --banner-day: linear-gradient(118deg, #FFFCF3 0%, #FFF3D6 46%, #FFE6B6 100%);
+  --banner-ink-warm: #2B1F0C;
+  --shadow-small: 0 1px 2px rgba(74, 58, 38, 0.05);
+  --shadow-medium: 0 1px 2px rgba(74, 58, 38, 0.06), 0 6px 16px rgba(74, 58, 38, 0.07);
+  --shadow-large: 0 2px 4px rgba(74, 58, 38, 0.07), 0 14px 32px rgba(74, 58, 38, 0.11);
+  --font-heading: 'Gabarito', Inter, -apple-system, system-ui, sans-serif;
+  --font-body: 'Inter', -apple-system, system-ui, sans-serif;
+  --radius-tile: 12px;
+  --radius-card: 24px;
+  --radius-full: 100px;
+  --med: #7A5C86;
+  --vet: #4B6A8C;
+}
+body { margin: 0; background: var(--background); font-family: var(--font-body); -webkit-font-smoothing: antialiased; }
+a { color: #9E6404; } a:hover { color: #1C1815; }
+@keyframes breathe { 0%,100% { transform: scale(1) } 50% { transform: scale(1.03) } }
+@media (prefers-reduced-motion: reduce) { .sun { animation: none !important } }
+.card { background: var(--background-element); border-radius: var(--radius-card); box-shadow: var(--shadow-medium); }
+.h { font-family: var(--font-heading); }
+.fut { display:inline-flex; align-items:center; gap:4px; padding:1px 6px; border:1px dashed var(--ghost-border); border-radius:100px; font:600 8.5px/1.4 var(--font-body); letter-spacing:.7px; text-transform:uppercase; color:var(--text-secondary); }
+.chip-gold { display:inline-flex; align-items:center; justify-content:center; height:28px; padding:0 14px; border-radius:100px; background:var(--primary); color:var(--on-primary); font:600 13px/1 var(--font-body); }
+.rowlab { font:400 15px/1.42 var(--font-body); color:var(--text); }
+.rowsub { font:400 13px/1.35 var(--font-body); color:var(--text-secondary); }
+.note { font:400 11.5px/1.45 var(--font-body); color:var(--text-secondary); }
+</style>
+</helmet>
+
+<div style="width:390px;height:620px;background:var(--background);padding:32px 24px;box-sizing:border-box;display:flex;flex-direction:column;gap:22px">
+
+<div style="display:flex;flex-direction:column;gap:5px">
+<span class="h" style="font:700 24px/1.1 var(--font-heading);letter-spacing:-0.4px;color:var(--text)">The week strip</span>
+<span class="note">Same week, same data, two treatments. Monday 31 August is today. A worming tablet on Wednesday, a vet visit on Friday, feeds every day.</span>
+</div>
+
+<div style="display:flex;flex-direction:column;gap:9px">
+<div style="display:flex;align-items:center;gap:8px">
+<span class="h" style="font:700 15px/1.2 var(--font-heading);color:var(--text)">Variant A — one gold dot</span>
+<span class="fut">Future · CRU-078</span>
+</div>
+<div style="display:flex;gap:4px;height:58px"><div style="flex:1;border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;position:relative;background:var(--background-selected);"><span style="font:600 10.5px/1 var(--font-body);letter-spacing:.6px;color:var(--text-secondary)">M</span><span class="h" style="font:700 16px/1 var(--font-heading);color:var(--text)">31</span><span style="height:4px"></span><span style="position:absolute;bottom:6px;width:18px;height:3px;border-radius:2px;background:var(--primary)"></span></div><div style="flex:1;border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;position:relative;"><span style="font:600 10.5px/1 var(--font-body);letter-spacing:.6px;color:var(--text-secondary)">T</span><span class="h" style="font:700 16px/1 var(--font-heading);color:var(--text)">1</span><span style="height:4px"></span></div><div style="flex:1;border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;position:relative;"><span style="font:600 10.5px/1 var(--font-body);letter-spacing:.6px;color:var(--text-secondary)">W</span><span class="h" style="font:700 16px/1 var(--font-heading);color:var(--text)">2</span><span style="display:flex;gap:3px;height:4px;align-items:center"><span style="width:4px;height:4px;border-radius:100px;background:var(--primary)"></span></span></div><div style="flex:1;border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;position:relative;"><span style="font:600 10.5px/1 var(--font-body);letter-spacing:.6px;color:var(--text-secondary)">T</span><span class="h" style="font:700 16px/1 var(--font-heading);color:var(--text)">3</span><span style="height:4px"></span></div><div style="flex:1;border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;position:relative;"><span style="font:600 10.5px/1 var(--font-body);letter-spacing:.6px;color:var(--text-secondary)">F</span><span class="h" style="font:700 16px/1 var(--font-heading);color:var(--text)">4</span><span style="display:flex;gap:3px;height:4px;align-items:center"><span style="width:4px;height:4px;border-radius:100px;background:var(--primary)"></span></span></div><div style="flex:1;border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;position:relative;"><span style="font:600 10.5px/1 var(--font-body);letter-spacing:.6px;color:var(--text-secondary)">S</span><span class="h" style="font:700 16px/1 var(--font-heading);color:var(--text)">5</span><span style="height:4px"></span></div><div style="flex:1;border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;position:relative;"><span style="font:600 10.5px/1 var(--font-body);letter-spacing:.6px;color:var(--text-secondary)">S</span><span class="h" style="font:700 16px/1 var(--font-heading);color:var(--text)">6</span><span style="height:4px"></span></div></div>
+<span class="note">A 4px gold dot under any day that carries a Reminder. Two Reminders give two dots. Feeds get no dot, because a dot on all seven days says nothing.</span>
+<span class="note" style="color:var(--success)">Cost: nothing. No new token, no new rule. Ships with the strip.</span>
+</div>
+
+<div style="display:flex;flex-direction:column;gap:9px">
+<div style="display:flex;align-items:center;gap:8px">
+<span class="h" style="font:700 15px/1.2 var(--font-heading);color:var(--text)">Variant B — a dot per kind</span>
+<span class="fut">Future · CRU-078</span>
+</div>
+<div style="display:flex;gap:4px;height:58px"><div style="flex:1;border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;position:relative;background:var(--background-selected);"><span style="font:600 10.5px/1 var(--font-body);letter-spacing:.6px;color:var(--text-secondary)">M</span><span class="h" style="font:700 16px/1 var(--font-heading);color:var(--text)">31</span><span style="height:4px"></span><span style="position:absolute;bottom:6px;width:18px;height:3px;border-radius:2px;background:var(--primary)"></span></div><div style="flex:1;border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;position:relative;"><span style="font:600 10.5px/1 var(--font-body);letter-spacing:.6px;color:var(--text-secondary)">T</span><span class="h" style="font:700 16px/1 var(--font-heading);color:var(--text)">1</span><span style="height:4px"></span></div><div style="flex:1;border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;position:relative;"><span style="font:600 10.5px/1 var(--font-body);letter-spacing:.6px;color:var(--text-secondary)">W</span><span class="h" style="font:700 16px/1 var(--font-heading);color:var(--text)">2</span><span style="display:flex;gap:3px;height:4px;align-items:center"><span style="width:4px;height:4px;border-radius:100px;background:var(--med)"></span></span></div><div style="flex:1;border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;position:relative;"><span style="font:600 10.5px/1 var(--font-body);letter-spacing:.6px;color:var(--text-secondary)">T</span><span class="h" style="font:700 16px/1 var(--font-heading);color:var(--text)">3</span><span style="height:4px"></span></div><div style="flex:1;border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;position:relative;"><span style="font:600 10.5px/1 var(--font-body);letter-spacing:.6px;color:var(--text-secondary)">F</span><span class="h" style="font:700 16px/1 var(--font-heading);color:var(--text)">4</span><span style="display:flex;gap:3px;height:4px;align-items:center"><span style="width:4px;height:4px;border-radius:100px;background:var(--vet)"></span></span></div><div style="flex:1;border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;position:relative;"><span style="font:600 10.5px/1 var(--font-body);letter-spacing:.6px;color:var(--text-secondary)">S</span><span class="h" style="font:700 16px/1 var(--font-heading);color:var(--text)">5</span><span style="height:4px"></span></div><div style="flex:1;border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;position:relative;"><span style="font:600 10.5px/1 var(--font-body);letter-spacing:.6px;color:var(--text-secondary)">S</span><span class="h" style="font:700 16px/1 var(--font-heading);color:var(--text)">6</span><span style="height:4px"></span></div></div>
+<div style="display:flex;gap:16px;padding-top:1px">
+<span style="display:flex;align-items:center;gap:6px"><span style="width:6px;height:6px;border-radius:100px;background:var(--med)"></span><span class="note">Medication</span></span>
+<span style="display:flex;align-items:center;gap:6px"><span style="width:6px;height:6px;border-radius:100px;background:var(--vet)"></span><span class="note">Vet</span></span>
+</div>
+<span class="note">Muted plum and muted blue. Neither is gold and neither is teal, because those two already mean to do and done. Both are desaturated enough not to fight the gold underline.</span>
+<span class="note" style="color:var(--error)">Cost: two new tokens and a DECISIONS.md entry. It gives colour a meaning the app does not use anywhere else.</span>
+</div>
+
+<div style="margin-top:auto;border-radius:16px;background:var(--background-selected);padding:14px 16px;display:flex;flex-direction:column;gap:4px">
+<span class="h" style="font:700 14px/1.2 var(--font-heading);color:var(--text)">Build Variant A.</span>
+<span class="note">A dot only has to say "something is on this day". The row inside the pet card already names the kind, so a second colour system buys a distinction the user can read one tap away.</span>
+</div>
+
+</div>
+</x-dc>
+<script data-dc-script data-props='{"$preview":{"width":390,"height":620}}'>
+class Component extends DCLogic {}
+</script>
+</body>
+</html>
+

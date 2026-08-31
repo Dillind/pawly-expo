@@ -1,0 +1,176 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gabarito:wght@400;600;700&family=Inter:wght@400;500;600;700&display=swap">
+<style>
+:root {
+  --background: #FAF6EF;
+  --background-element: #FFFFFF;
+  --background-selected: #F3EDE2;
+  --background-sheet: #FFFFFF;
+  --background-sheet-row: #F3EDE2;
+  --text: #1C1815;
+  --text-secondary: #7B7167;
+  --border: rgba(58, 48, 38, 0.13);
+  --primary: #F0A81C;
+  --on-primary: #2A1D06;
+  --primary-muted: rgba(240, 168, 28, 0.14);
+  --primary-text: #9E6404;
+  --success: #10696B;
+  --error: #CE3C39;
+  --ghost-border: rgba(58, 48, 38, 0.20);
+  --banner-day: linear-gradient(118deg, #FFFCF3 0%, #FFF3D6 46%, #FFE6B6 100%);
+  --banner-ink-warm: #2B1F0C;
+  --shadow-small: 0 1px 2px rgba(74, 58, 38, 0.05);
+  --shadow-medium: 0 1px 2px rgba(74, 58, 38, 0.06), 0 6px 16px rgba(74, 58, 38, 0.07);
+  --shadow-large: 0 2px 4px rgba(74, 58, 38, 0.07), 0 14px 32px rgba(74, 58, 38, 0.11);
+  --font-heading: 'Gabarito', Inter, -apple-system, system-ui, sans-serif;
+  --font-body: 'Inter', -apple-system, system-ui, sans-serif;
+  --radius-tile: 12px;
+  --radius-card: 24px;
+  --radius-full: 100px;
+  --med: #7A5C86;
+  --vet: #4B6A8C;
+}
+body { margin: 0; background: var(--background); font-family: var(--font-body); -webkit-font-smoothing: antialiased; }
+a { color: #9E6404; } a:hover { color: #1C1815; }
+@keyframes breathe { 0%,100% { transform: scale(1) } 50% { transform: scale(1.03) } }
+@media (prefers-reduced-motion: reduce) { .sun { animation: none !important } }
+.card { background: var(--background-element); border-radius: var(--radius-card); box-shadow: var(--shadow-medium); }
+.h { font-family: var(--font-heading); }
+.fut { display:inline-flex; align-items:center; gap:4px; padding:1px 6px; border:1px dashed var(--ghost-border); border-radius:100px; font:600 8.5px/1.4 var(--font-body); letter-spacing:.7px; text-transform:uppercase; color:var(--text-secondary); }
+.chip-gold { display:inline-flex; align-items:center; justify-content:center; height:28px; padding:0 14px; border-radius:100px; background:var(--primary); color:var(--on-primary); font:600 13px/1 var(--font-body); }
+.rowlab { font:400 15px/1.42 var(--font-body); color:var(--text); }
+.rowsub { font:400 13px/1.35 var(--font-body); color:var(--text-secondary); }
+.note { font:400 11.5px/1.45 var(--font-body); color:var(--text-secondary); }
+</style>
+</helmet>
+
+<div style="width:390px;height:900px;position:relative;background:var(--background);overflow:hidden;display:flex;flex-direction:column">
+
+<div style="flex:1;display:flex;flex-direction:column;padding:54px 24px 0;gap:12px">
+
+<div style="display:flex;align-items:baseline;justify-content:space-between;height:38px">
+<h1 class="h" style="margin:0;font:700 34px/1 var(--font-heading);letter-spacing:-0.6px;color:var(--text)">Monday</h1>
+<div style="display:flex;align-items:center;gap:5px">
+<span style="font:600 13px/1 var(--font-body);letter-spacing:.8px;text-transform:uppercase;color:var(--text-secondary)">Aug 2026</span>
+<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#7B7167" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+</div>
+</div>
+
+<div style="display:flex;gap:4px;height:58px">
+<div style="flex:1;border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;position:relative;background:var(--background-selected)">
+<span style="font:600 10.5px/1 var(--font-body);letter-spacing:.6px;color:var(--text-secondary)">M</span>
+<span class="h" style="font:700 16px/1 var(--font-heading);color:var(--text)">31</span>
+<span style="width:4px;height:4px;border-radius:100px;background:transparent"></span>
+<span style="position:absolute;bottom:6px;width:18px;height:3px;border-radius:2px;background:var(--primary)"></span>
+</div>
+<div style="flex:1;border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px">
+<span style="font:600 10.5px/1 var(--font-body);letter-spacing:.6px;color:var(--text-secondary)">T</span>
+<span class="h" style="font:700 16px/1 var(--font-heading);color:var(--text)">1</span>
+<span style="width:4px;height:4px;border-radius:100px;background:transparent"></span>
+</div>
+<div style="flex:1;border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px">
+<span style="font:600 10.5px/1 var(--font-body);letter-spacing:.6px;color:var(--text-secondary)">W</span>
+<span class="h" style="font:700 16px/1 var(--font-heading);color:var(--text)">2</span>
+<span style="width:4px;height:4px;border-radius:100px;background:var(--primary)"></span>
+</div>
+<div style="flex:1;border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px">
+<span style="font:600 10.5px/1 var(--font-body);letter-spacing:.6px;color:var(--text-secondary)">T</span>
+<span class="h" style="font:700 16px/1 var(--font-heading);color:var(--text)">3</span>
+<span style="width:4px;height:4px;border-radius:100px;background:transparent"></span>
+</div>
+<div style="flex:1;border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px">
+<span style="font:600 10.5px/1 var(--font-body);letter-spacing:.6px;color:var(--text-secondary)">F</span>
+<span class="h" style="font:700 16px/1 var(--font-heading);color:var(--text)">4</span>
+<span style="width:4px;height:4px;border-radius:100px;background:var(--primary)"></span>
+</div>
+<div style="flex:1;border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px">
+<span style="font:600 10.5px/1 var(--font-body);letter-spacing:.6px;color:var(--text-secondary)">S</span>
+<span class="h" style="font:700 16px/1 var(--font-heading);color:var(--text)">5</span>
+<span style="width:4px;height:4px;border-radius:100px;background:transparent"></span>
+</div>
+<div style="flex:1;border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px">
+<span style="font:600 10.5px/1 var(--font-body);letter-spacing:.6px;color:var(--text-secondary)">S</span>
+<span class="h" style="font:700 16px/1 var(--font-heading);color:var(--text)">6</span>
+<span style="width:4px;height:4px;border-radius:100px;background:transparent"></span>
+</div>
+</div>
+
+<div style="height:92px;border-radius:24px;background:var(--banner-day);box-shadow:var(--shadow-medium);display:flex;align-items:center;padding:0 20px;gap:12px;position:relative;overflow:hidden">
+<div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:5px">
+<span class="h" style="font:700 27px/1.12 var(--font-heading);letter-spacing:-0.5px;color:var(--banner-ink-warm)">Good morning, Dylan</span>
+<span style="font:400 15px/1.42 var(--font-body);color:#5A452A">All done for today</span>
+</div>
+<div class="sun" style="width:76px;height:76px;flex:none;position:relative;animation:breathe 4s ease-in-out infinite">
+<span style="position:absolute;inset:0;border-radius:100px;background:radial-gradient(circle at 50% 50%, rgba(240,168,28,0.20) 0%, rgba(240,168,28,0.10) 55%, rgba(240,168,28,0) 72%)"></span>
+<span style="position:absolute;inset:12px;border-radius:100px;background:radial-gradient(circle at 50% 48%, rgba(240,168,28,0.42) 0%, rgba(240,168,28,0.22) 60%, rgba(240,168,28,0.04) 100%)"></span>
+<span style="position:absolute;inset:23px;border-radius:100px;background:radial-gradient(circle at 46% 42%, #FFE9A8 0%, #F7BE3E 55%, #EFA219 100%)"></span>
+</div>
+</div>
+
+<div class="card" style="height:64px;display:flex;align-items:center;gap:14px;padding:0 16px">
+<span style="width:44px;height:44px;flex:none;border-radius:100px;background:#E7DCCB;display:flex;align-items:center;justify-content:center">
+<svg width="24" height="24" viewBox="0 0 24 24" fill="#B9A88F"><circle cx="7" cy="8" r="2.1"/><circle cx="12" cy="6.4" r="2.1"/><circle cx="17" cy="8" r="2.1"/><path d="M12 10.6c3 0 5.3 2.4 5.3 4.6 0 1.9-1.7 2.9-3.4 2.5-1-.2-2.8-.2-3.8 0-1.7.4-3.4-.6-3.4-2.5 0-2.2 2.3-4.6 5.3-4.6z"/></svg>
+</span>
+<div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:2px">
+<span class="h" style="font:700 19px/1.2 var(--font-heading);color:var(--text)">Crumpet</span>
+<span class="rowsub">All three feeds logged</span>
+</div>
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#10696B" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#7B7167" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" style="margin-left:2px"><polyline points="6 9 12 15 18 9"></polyline></svg>
+</div>
+
+<div class="card" style="height:64px;display:flex;align-items:center;gap:14px;padding:0 16px">
+<span style="width:44px;height:44px;flex:none;border-radius:100px;background:#DED3C4;display:flex;align-items:center;justify-content:center">
+<svg width="24" height="24" viewBox="0 0 24 24" fill="#AD9C86"><circle cx="7" cy="8" r="2.1"/><circle cx="12" cy="6.4" r="2.1"/><circle cx="17" cy="8" r="2.1"/><path d="M12 10.6c3 0 5.3 2.4 5.3 4.6 0 1.9-1.7 2.9-3.4 2.5-1-.2-2.8-.2-3.8 0-1.7.4-3.4-.6-3.4-2.5 0-2.2 2.3-4.6 5.3-4.6z"/></svg>
+</span>
+<div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:2px">
+<span class="h" style="font:700 19px/1.2 var(--font-heading);color:var(--text)">Toby</span>
+<span class="rowsub">Both feeds logged</span>
+</div>
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#10696B" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#7B7167" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" style="margin-left:2px"><polyline points="6 9 12 15 18 9"></polyline></svg>
+</div>
+
+<div style="display:grid;grid-template-columns:repeat(2, minmax(0, 1fr));gap:10px">
+<div class="card" style="height:68px;display:flex;align-items:center;gap:12px;padding:0 14px;box-shadow:var(--shadow-small)">
+<span style="width:34px;height:34px;flex:none;border-radius:10px;background:var(--background-selected);display:flex;align-items:center;justify-content:center"><svg width="18" height="18" viewBox="0 0 24 24" fill="#1C1815"><circle cx="7" cy="8" r="2.1"/><circle cx="12" cy="6.4" r="2.1"/><circle cx="17" cy="8" r="2.1"/><path d="M12 10.6c3 0 5.3 2.4 5.3 4.6 0 1.9-1.7 2.9-3.4 2.5-1-.2-2.8-.2-3.8 0-1.7.4-3.4-.6-3.4-2.5 0-2.2 2.3-4.6 5.3-4.6z"/></svg></span>
+<span class="h" style="font:700 17px/1.2 var(--font-heading);color:var(--text)">Pets</span>
+</div>
+<div class="card" style="height:68px;display:flex;align-items:center;gap:12px;padding:0 14px;box-shadow:var(--shadow-small)">
+<span style="width:34px;height:34px;flex:none;border-radius:10px;background:var(--background-selected);display:flex;align-items:center;justify-content:center"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1C1815" stroke-width="2" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h10"/></svg></span>
+<span class="h" style="font:700 17px/1.2 var(--font-heading);color:var(--text)">Activity</span>
+</div>
+<div class="card" style="height:68px;display:flex;align-items:center;gap:12px;padding:0 14px;box-shadow:var(--shadow-small)">
+<span style="width:34px;height:34px;flex:none;border-radius:10px;background:var(--background-selected);display:flex;align-items:center;justify-content:center"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1C1815" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 20v-1.5A3.5 3.5 0 0 1 6.5 15h3A3.5 3.5 0 0 1 13 18.5V20"/><circle cx="8" cy="8.5" r="3"/><path d="M16 20v-1.5a3.5 3.5 0 0 0-2-3.2"/><path d="M15 5.6a3 3 0 0 1 0 5.8"/></svg></span>
+<span class="h" style="font:700 17px/1.2 var(--font-heading);color:var(--text)">Household</span>
+</div>
+<div class="card" style="height:68px;display:flex;align-items:center;gap:12px;padding:0 14px;box-shadow:var(--shadow-small)">
+<span style="width:34px;height:34px;flex:none;border-radius:10px;background:var(--background-selected);display:flex;align-items:center;justify-content:center"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1C1815" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="4" width="14" height="17" rx="2.5"/><path d="M9 4V3h6v1"/><path d="M9 10h6M9 14h4"/></svg></span>
+<span class="h" style="font:700 17px/1.2 var(--font-heading);color:var(--text)">Care Card</span>
+</div>
+</div>
+
+</div>
+
+<div style="position:absolute;left:24px;right:24px;bottom:26px;height:62px;border-radius:100px;background:var(--background-element);box-shadow:var(--shadow-large);display:flex;align-items:center;justify-content:space-around;padding:0 8px">
+<span style="display:flex;flex-direction:column;align-items:center;gap:3px"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#F0A81C" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 10.5 12 4l8.5 6.5V20a1 1 0 0 1-1 1h-5v-6h-5v6h-5a1 1 0 0 1-1-1z"/></svg><span style="font:600 10px/1 var(--font-body);color:var(--primary-text)">Home</span></span>
+<span style="display:flex;flex-direction:column;align-items:center;gap:3px"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#7B7167" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="4.5" width="17" height="15" rx="3"/><circle cx="9" cy="10" r="1.7"/><path d="m4.5 17 4.7-4.2L20 19"/></svg><span style="font:500 10px/1 var(--font-body);color:var(--text-secondary)">Posts</span></span>
+<span style="display:flex;flex-direction:column;align-items:center;gap:3px"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#7B7167" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 9a6 6 0 0 0-12 0c0 5-2 6-2 6h16s-2-1-2-6"/><path d="M10.5 20a2 2 0 0 0 3 0"/></svg><span style="font:500 10px/1 var(--font-body);color:var(--text-secondary)">Alerts</span></span>
+<span style="display:flex;flex-direction:column;align-items:center;gap:3px"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#7B7167" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8.5" r="3.6"/><path d="M4.5 20a7.5 7.5 0 0 1 15 0"/></svg><span style="font:500 10px/1 var(--font-body);color:var(--text-secondary)">You</span></span>
+</div>
+
+</div>
+</x-dc>
+<script data-dc-script data-props='{"$preview":{"width":390,"height":900}}'>
+class Component extends DCLogic {}
+</script>
+</body>
+</html>

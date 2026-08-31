@@ -29,6 +29,11 @@ export const COLORS = {
     primaryText: '#9E6404',
     onPrimary: '#2A1D06',
     success: '#10696B',
+    // The dashed "Other" row and the "Add a pet" ghost row.
+    ghostBorder: 'rgba(58, 48, 38, 0.20)',
+    // The ink for a control floating over a photo. It cannot be `text`: the
+    // photo is arbitrary, so a near-black glyph vanishes on half of them.
+    onGlass: '#FFFFFF',
     shadow: '#4A3A26'
   },
   dark: {
@@ -53,6 +58,8 @@ export const COLORS = {
     primaryText: '#F5B435',
     onPrimary: '#2A1D06',
     success: '#2FA8A2',
+    ghostBorder: 'rgba(255, 255, 255, 0.22)',
+    onGlass: '#FFFFFF',
     shadow: '#000000'
   }
 } as const;
@@ -71,6 +78,13 @@ export type AppTheme = {
   spacing: typeof Spacing;
 };
 
+/**
+ * The families the `expo-font` config plugin embeds -- see app.config.ts.
+ *
+ * iOS resolves a family by its PostScript name (`Inter-Regular`), every other
+ * platform by the file name (`Inter_400Regular`). They differ, so both are
+ * listed rather than one being assumed to work everywhere.
+ */
 export const InterFontFamily = Platform.select({
   ios: {
     regular: 'Inter-Regular',
@@ -90,6 +104,18 @@ export const InterFontFamily = Platform.select({
   }
 })!;
 
+/** Gabarito carries headings. A warm geometric, not an editorial serif. */
+export const GabaritoFontFamily = Platform.select({
+  ios: {
+    semiBold: 'Gabarito-SemiBold',
+    bold: 'Gabarito-Bold'
+  },
+  default: {
+    semiBold: 'Gabarito_600SemiBold',
+    bold: 'Gabarito_700Bold'
+  }
+})!;
+
 export type InterFontFamilyWeight = keyof typeof InterFontFamily;
 
 export const Fonts = Platform.select({
@@ -101,6 +127,8 @@ export const Fonts = Platform.select({
     bold: 'Inter, var(--font-display)',
     extraBold: 'Inter, var(--font-display)',
     black: 'Inter, var(--font-display)',
+    heading: 'Gabarito, var(--font-display)',
+    headingBold: 'Gabarito, var(--font-display)',
     serif: 'var(--font-serif)',
     rounded: 'var(--font-rounded)',
     mono: 'var(--font-mono)'
@@ -113,6 +141,8 @@ export const Fonts = Platform.select({
     bold: InterFontFamily.bold,
     extraBold: InterFontFamily.extraBold,
     black: InterFontFamily.black,
+    heading: GabaritoFontFamily.semiBold,
+    headingBold: GabaritoFontFamily.bold,
     serif: 'serif',
     rounded: InterFontFamily.regular,
     mono: 'monospace'
@@ -132,6 +162,7 @@ export const Spacing = {
 export const Radius = {
   tile: 12,
   card: 24,
+  banner: 28,
   full: 100
 } as const;
 

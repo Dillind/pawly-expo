@@ -7,7 +7,9 @@ Crumpet uses a small, in-repo theme — **no component library and no NativeWind
 `src/constants/theme.ts` exports the tokens:
 
 - **`COLORS`** (aliased as `Colors`) — a `light` and `dark` palette with matching keys. `ThemeColor` is the union of those keys.
-- **`Fonts`** — platform-selected font families (Inter on native; CSS variables on web).
+- **`Fonts`** — platform-selected font families. **Gabarito for headings, Inter for body**; CSS
+  variables on web. Both are embedded by the `expo-font` config plugin in `app.config.ts`, so adding
+  a face means a prebuild — see KNOWLEDGE.md.
 - **`Spacing`**, plus `BottomTabInset` and `MaxContentWidth`.
 - **`AppTheme`** — the resolved shape returned by `useTheme()`: `{ colors, isDark, spacing }`.
 
@@ -32,6 +34,8 @@ Current colour tokens (keys are the `ThemeColor` union):
 | `primaryText`        | `#9E6404`     | `#F5B435`     | A gold **label** on any surface     |
 | `onPrimary`          | `#2A1D06`     | `#2A1D06`     | The label on a gold fill            |
 | `success`            | `#10696B`     | `#2FA8A2`     | The tick, and every "done" state    |
+| `ghostBorder`        | 20% ink       | 22% white     | A dashed row that offers, not warns |
+| `onGlass`            | `#FFFFFF`     | `#FFFFFF`     | Ink on a glass control over a photo |
 | `shadow`             | `#4A3A26`     | `#000000`     | Shadow colour                       |
 
 ### Gold has three jobs
@@ -186,7 +190,11 @@ const makeStyles = ({ colors }: AppTheme) =>
 
 ## Text: use `AppText`
 
-Prefer the `AppText` primitive (`@/components/core/app-text`) over raw `<Text>`. It applies the Inter font family, resolves colour from a `ThemeColor` key, and handles Android line-height/padding quirks.
+Prefer the `AppText` primitive (`@/components/core/app-text`) over raw `<Text>`. It resolves colour from a `ThemeColor` key, and handles Android line-height/padding quirks.
+
+**`variant` picks the typeface, not merely the weight.** `variant="header"` is Gabarito and
+`variant="body"` is Inter — the two faces are the type system, so setting a heading in bold Inter
+loses the distinction the palette was built around.
 
 ```tsx
 import AppText from '@/components/core/app-text';

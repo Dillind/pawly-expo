@@ -18,6 +18,22 @@ pins Node 24 for interactive shells but agent tool calls can get an older one. C
 ~/.volta/bin/npx cspell --no-progress "**/*.{ts,tsx,md,sql}"
 ```
 
+**A font added to the `expo-font` config plugin is not in the build until you prebuild, and iOS
+does not complain.** `ios/` already exists, so `expo run:ios` compiles the project it finds and the
+plugin never re-runs — the app installs, launches, and every heading silently falls back to San
+Francisco, because iOS resolves an unknown family name to the system font without an error. It
+looks like the font simply is not very distinctive. Run `bunx expo prebuild -p ios`, then check the
+built app rather than the screen:
+
+```bash
+/usr/libexec/PlistBuddy -c "Print :UIAppFonts" ios/Crumpet/Info.plist
+```
+
+Two more traps in the same area. **iOS resolves a family by its PostScript name** (`Inter-Regular`,
+`Gabarito-SemiBold`) and every other platform by the file name (`Inter_400Regular`) — that is why
+`InterFontFamily` is a `Platform.select` and not one list. And the names are in the file, not
+guessable: read them out of the `name` table rather than assuming a pattern.
+
 **A fresh git worktree has no `node_modules` and no `expo-env.d.ts`** — both gitignored. Typecheck
 fails on `@/global.css` before you have touched anything. Run `bun install` and copy
 `expo-env.d.ts` from the main checkout.
