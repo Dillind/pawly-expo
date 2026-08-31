@@ -27,10 +27,10 @@ const CommentsLinkRow = ({ count, onPress }: Props) => {
       onPress={onPress}
       accessibilityRole="button"
       accessibilityLabel={text}>
-      <AppText size={15} color="primary" fontWeight="bold" style={styles.label}>
+      <AppText size={15} color="primaryText" fontWeight="bold" style={styles.label}>
         {text}
       </AppText>
-      <Icon name="caretRight" size={18} color="primary" />
+      <Icon name="caretRight" size={18} color="primaryText" />
     </PressableOpacity>
   );
 };

@@ -1,0 +1,76 @@
+{
+  "artboards": [
+    {
+      "file": "Main.dc.html",
+      "title": "Home",
+      "x": 0,
+      "y": 0,
+      "w": 390,
+      "h": 1140
+    },
+    {
+      "file": "Posts.dc.html",
+      "title": "Posts",
+      "x": 470,
+      "y": 0,
+      "w": 390,
+      "h": 844
+    },
+    {
+      "file": "Daylight.dc.html",
+      "title": "Banner \u2014 a day",
+      "x": 940,
+      "y": 0,
+      "w": 390,
+      "h": 800
+    },
+    {
+      "file": "Tokens.dc.html",
+      "title": "Tokens",
+      "x": 1410,
+      "y": 0,
+      "w": 560,
+      "h": 940
+    }
+  ],
+  "annotations": [
+    {
+      "id": "brief",
+      "x": 0,
+      "y": -300,
+      "w": 1970,
+      "text": "CRU-087 Home hub  \u00b7  CRU-088 golden visual system\n\nLight-first, warm. The page is #FAF6EF, not the cool #F1F2F5 you have now \u2014 that cool grey is a large part of why gold has never looked right in this app.\n\nGold is subtle by rule, not by taste. It appears in exactly three places: the banner wash, the Log chip, and the active tab. The tick is teal, because gold marks what needs doing, not what is done. Type is Gabarito over Inter \u2014 a warm geometric, not an editorial serif.\n\nSettled and built in: loop first, greeting replaces Today, the popover is gone, Other is a ghost row inside the accordion, tips are contextual, four tiles.\n\nThere is no colour per pet \u2014 avatars do that job. The photos are stand-ins. Slide the accent chip on any artboard to move the gold everywhere at once."
+    },
+    {
+      "id": "n-home",
+      "x": 0,
+      "y": -138,
+      "w": 390,
+      "text": "HOME \u2014 the whole scroll, not one screen.\nThe dashed line marks where the first screen ends. Both pets and the start of the tiles sit above it, so the log loop never needs a scroll. That was the 6 August decision and it still holds."
+    },
+    {
+      "id": "n-posts",
+      "x": 470,
+      "y": -138,
+      "w": 390,
+      "text": "POSTS \u2014 gold is almost banned here.\nNo primary action, no state, so nothing earns it except the compose button and the tab. Photos on white, warm page as the divider band. Airbnb's move, and the reason your dark versions felt wrong."
+    },
+    {
+      "id": "n-day",
+      "x": 940,
+      "y": -138,
+      "w": 390,
+      "text": "THE BANNER \u2014 the one piece of motion worth building now.\nFour states, one surface. The sun breathes on a 7s loop and stops under reduced-motion. Night is the only dark surface in light mode, which is what makes it land."
+    },
+    {
+      "id": "n-tokens",
+      "x": 1410,
+      "y": -138,
+      "w": 560,
+      "text": "TOKENS \u2014 what goes into theme.ts.\nRead the contrast note. Two new tokens the current theme has no room for: primaryText, because gold cannot carry text on white, and success, because the tick can no longer be primary.\n\nNo identity palette. A pet is its photo."
+    }
+  ],
+  "launch": {
+    "view": "canvas"
+  }
+}

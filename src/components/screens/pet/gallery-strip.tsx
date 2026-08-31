@@ -157,7 +157,7 @@ const GalleryStrip = ({ petId }: Props) => {
             accessibilityLabel="Done editing photos"
             hitSlop={12}
             onPress={() => setIsEditing(false)}>
-            <AppText color="primary" size={15}>
+            <AppText color="primaryText" size={15}>
               Done
             </AppText>
           </PressableOpacity>

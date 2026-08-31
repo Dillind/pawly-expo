@@ -15,21 +15,51 @@ Current colour tokens (keys are the `ThemeColor` union):
 
 | Token                | Light         | Dark          | Use for                             |
 | -------------------- | ------------- | ------------- | ----------------------------------- |
-| `text`               | `#000000`     | `#ffffff`     | Primary text                        |
-| `textSecondary`      | `#60646C`     | `#B0B4BA`     | Secondary/hint text                 |
-| `border`             | 29% `#3C3C43` | 60% `#545458` | Separators and hairline rules       |
-| `background`         | `#F1F2F5`     | `#000000`     | Screen background                   |
-| `backgroundElement`  | `#FFFFFF`     | `#212225`     | Cards and elements **on a screen**  |
-| `backgroundSelected` | `#E4E6EB`     | `#2E3135`     | Selected/pressed surfaces           |
-| `backgroundSheet`    | `#FFFFFF`     | `#1C1D20`     | The surface of a bottom sheet       |
-| `backgroundSheetRow` | `#F1F2F5`     | `#2E3135`     | Rows and cards **inside a sheet**   |
-| `error`              | `#CE3C39`     | `#CE3C39`     | Errors, destructive                 |
+| `text`               | `#1C1815`     | `#FBF7F2`     | Primary text                        |
+| `textSecondary`      | `#7B7167`     | `#A99C90`     | Secondary/hint text                 |
+| `border`             | 13% `#3A3026` | 14% white     | Separators and hairline rules       |
+| `background`         | `#FAF6EF`     | `#14100E`     | Screen background                   |
+| `backgroundElement`  | `#FFFFFF`     | `#201A17`     | Cards and elements **on a screen**  |
+| `backgroundSelected` | `#F3EDE2`     | `#2C2521`     | Selected/pressed/sunk surfaces      |
+| `backgroundSheet`    | `#FFFFFF`     | `#1B1613`     | The surface of a bottom sheet       |
+| `backgroundSheetRow` | `#F3EDE2`     | `#2C2521`     | Rows and cards **inside a sheet**   |
+| `postSurface`        | `#FFFFFF`     | `#000000`     | The surface of one Post             |
+| `postDivider`        | `#FAF6EF`     | `#201A17`     | The band between two Posts          |
+| `error`              | `#CE3C39`     | `#E05B58`     | Errors, destructive                 |
 | `like`               | `#E0405E`     | `#FF4D6D`     | A Like, and nothing else            |
-| `primary`            | `#0F7173`     | `#14A8AF`     | Brand, primary actions              |
-| `primaryMuted`       | 15% primary   | 22% primary   | Tinted fills behind a primary state |
-| `onPrimary`          | `#ffffff`     | `#ffffff`     | Text and glyphs on a primary fill   |
-| `accent`             | `#6E44FF`     | `#6E44FF`     | Accent                              |
-| `shadow`             | `#0B0D12`     | `#000000`     | Shadow colour                       |
+| `primary`            | `#F0A81C`     | `#F5B435`     | A gold **fill**. Never text.        |
+| `primaryMuted`       | 14% primary   | 20% primary   | Tinted fills behind a primary state |
+| `primaryText`        | `#9E6404`     | `#F5B435`     | A gold **label** on any surface     |
+| `onPrimary`          | `#2A1D06`     | `#2A1D06`     | The label on a gold fill            |
+| `success`            | `#10696B`     | `#2FA8A2`     | The tick, and every "done" state    |
+| `shadow`             | `#4A3A26`     | `#000000`     | Shadow colour                       |
+
+### Gold has three jobs
+
+The banner wash on Home, the Log chip, and the active tab. That is the whole list. A fourth surface
+drains the meaning from the other three, so a new gold surface is a decision, not a default.
+
+The rule the palette turns on: **gold marks what needs doing.** `success` marks what is done. That
+is why a tick is teal and a Log chip is gold, and why an `Icon` that merely decorates a row draws in
+`text` rather than borrowing the brand colour.
+
+### `primary` is a fill. `primaryText` is a label.
+
+`#F0A81C` on white is **2.0:1**. It fails, badly, and it failed silently for every
+`AppText color="primary"` in the app until the two were split. So:
+
+- A gold **fill** — a button, a chip, the active tab — is `primary`, and its label is `onPrimary`
+  (near-black, never white).
+- A gold **label** on a light surface — a text button, a link, a focus ring — is `primaryText`.
+
+In dark mode the two collapse to the same value, because gold is perfectly readable on a dark
+ground. Keep using both names anyway: a call site must not know which mode it is in.
+
+### There is no colour per pet
+
+A pet is told apart by its photo and a member by their avatar. A colour per pet would compete with
+the photo beside it, and it would need a rule for the fifth pet. `AvatarInitials` draws a member
+without a photo on `backgroundSelected`, not on gold — a person is not an action.
 
 ### Two levels of surface, and picking the right one
 
@@ -44,9 +74,8 @@ that needs its own fill uses `backgroundSheetRow`.
 
 ### Lines are `border`, never a fill token
 
-Every separator, hairline rule and input outline uses `border`. It is set to `UIColor.separator` and
-its dark counterpart, so a rule reads as a line at `StyleSheet.hairlineWidth` without drawing
-attention to itself.
+Every separator, hairline rule and input outline uses `border`. A rule reads as a line at
+`StyleSheet.hairlineWidth` without drawing attention to itself.
 
 The two wrong answers both shipped once and were pulled back:
 
@@ -54,7 +83,12 @@ The two wrong answers both shipped once and were pulled back:
 - **`textSecondary`** is text. At full opacity it is far heavier than a separator should be, and it
   makes the rule compete with the content either side of it.
 
-> The proposed brand palette in PRODUCT_BRIEF (teal/blue/indigo) is **not** in the theme yet. Reconcile in a design session before relying on it.
+### The user can override the mode
+
+`useColorScheme` (`@/hooks/use-color-scheme`) resolves a stored preference before it falls back to
+the system setting. A user pinned to Dark never sees light mode, whatever the device is set to. This
+is why changing the simulator's appearance appears to do nothing — change it in Settings →
+Appearance instead.
 
 ## Getting the theme: `useTheme()`
 

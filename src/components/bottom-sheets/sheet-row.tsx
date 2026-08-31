@@ -57,7 +57,7 @@ const SheetRow = ({
           </AppText>
         )}
 
-        {isSelected && <Icon name="check" size={20} color="primary" />}
+        {isSelected && <Icon name="check" size={20} color="success" />}
       </View>
     </PressableOpacity>
   );

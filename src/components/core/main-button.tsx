@@ -32,21 +32,23 @@ type MainButtonProps = {
   isDisabled?: boolean;
   variant?: 'primary' | 'secondary' | 'destructive' | 'destructiveText' | 'text' | 'glass';
   size?: 'sm' | 'md' | 'lg' | 'xs';
-  // ReactElement, not ReactNode: ReactNode admits a bare string, so passing an
-  // IconName here type-checked and then crashed at render with "Text strings
-  // must be rendered within a <Text> component" -- the icon is wrapped in a
-  // View, and a raw string cannot live there.
+  // ReactElement, not ReactNode: ReactNode admits a bare string, which type-checks
+  // here and then crashes inside the wrapping View.
   leftIcon?: React.ReactElement;
   rightIcon?: React.ReactElement;
   hapticFeedback?: boolean;
 };
 
+// Fixed heights, not padding: two sizes in one row must still line up.
 const SIZE_STYLES = {
-  xs: { paddingVertical: 8, paddingHorizontal: 12, borderRadius: 24, fontSize: 14 },
-  sm: { paddingVertical: 12, paddingHorizontal: 18, borderRadius: 24, fontSize: 16 },
-  md: { paddingVertical: 12, paddingHorizontal: 24, borderRadius: 100, fontSize: 18 },
-  lg: { paddingVertical: 12, paddingHorizontal: 40, borderRadius: 100, fontSize: 24 }
+  xs: { height: 28, paddingHorizontal: 12, borderRadius: 100, fontSize: 13 },
+  sm: { height: 34, paddingHorizontal: 14, borderRadius: 100, fontSize: 14 },
+  md: { height: 42, paddingHorizontal: 18, borderRadius: 100, fontSize: 17 },
+  lg: { height: 50, paddingHorizontal: 22, borderRadius: 100, fontSize: 20 }
 } as const;
+
+// xs is 28pt, so it needs 8pt either side to clear 44pt.
+const XS_HIT_SLOP = { top: 8, bottom: 8, left: 0, right: 0 };
 
 const MainButton: FunctionComponent<MainButtonProps> = ({
   text,
@@ -66,8 +68,7 @@ const MainButton: FunctionComponent<MainButtonProps> = ({
   const router = useRouter();
   const pressed = useSharedValue(0);
 
-  // Opacity is owned here rather than by a `disabled` style in the array below:
-  // an animated style always wins, so a later static opacity never applied.
+  // An animated style always wins, so a static disabled opacity never applied.
   const restingOpacity = isDisabled || isLoading ? DISABLED_OPACITY : 1;
 
   const animatedStyle = useAnimatedStyle(() => ({
@@ -92,13 +93,11 @@ const MainButton: FunctionComponent<MainButtonProps> = ({
     pressed.set(withTiming(0, { duration: PRESS_DURATION_MS }));
   };
 
-  const { paddingVertical, paddingHorizontal, borderRadius, fontSize } = SIZE_STYLES[size];
+  const { height, paddingHorizontal, borderRadius, fontSize } = SIZE_STYLES[size];
 
-  // Below iOS 26 there is no material to render, so glass borrows `secondary`'s
-  // fill. Its label is `text`'s primary either way -- onPrimary white would
-  // disappear against clear glass over a light page.
+  // Below iOS 26 there is no material, so glass borrows `secondary`'s fill.
   const fillVariant = variant === 'glass' ? 'secondary' : variant;
-  const labelVariant = variant === 'glass' ? 'text' : variant;
+  const labelVariant = variant;
 
   const content = (
     <View style={styles.content}>
@@ -116,9 +115,7 @@ const MainButton: FunctionComponent<MainButtonProps> = ({
     </View>
   );
 
-  // The material provides its own press response, so this branch skips the
-  // scale/opacity animation the other variants use -- layering one on top
-  // fights the deformation.
+  // The material provides its own press response; layering one on top fights it.
   if (variant === 'glass' && hasGlass) {
     return (
       <GlassView
@@ -133,7 +130,7 @@ const MainButton: FunctionComponent<MainButtonProps> = ({
         <Pressable
           onPress={handlePress}
           disabled={isDisabled || isLoading}
-          style={[styles.base, { paddingVertical, paddingHorizontal }]}>
+          style={[styles.base, { height, paddingHorizontal }]}>
           {content}
         </Pressable>
       </GlassView>
@@ -146,10 +143,11 @@ const MainButton: FunctionComponent<MainButtonProps> = ({
       onPressIn={handlePressIn}
       onPressOut={handlePressOut}
       disabled={isDisabled || isLoading}
+      hitSlop={size === 'xs' ? XS_HIT_SLOP : undefined}
       style={[
         styles.base,
         styles[fillVariant],
-        { paddingVertical, paddingHorizontal, borderRadius },
+        { height, paddingHorizontal, borderRadius },
         containerStyle,
         animatedStyle
       ]}>
@@ -169,7 +167,9 @@ const makeStyles = ({ colors }: AppTheme) =>
       backgroundColor: colors.primary
     },
     secondary: {
-      backgroundColor: colors.backgroundSelected
+      backgroundColor: colors.backgroundElement,
+      borderWidth: StyleSheet.hairlineWidth,
+      borderColor: colors.border
     },
     destructive: {
       backgroundColor: colors.error
@@ -208,7 +208,10 @@ const makeStyles = ({ colors }: AppTheme) =>
       color: colors.onPrimary
     },
     textLabel: {
-      color: colors.primary
+      color: colors.primaryText
+    },
+    glassLabel: {
+      color: colors.text
     },
     destructiveTextLabel: {
       color: colors.error

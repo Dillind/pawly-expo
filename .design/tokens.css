@@ -1,0 +1,97 @@
+/* Crumpet — golden visual system, light.
+ *
+ * The source of truth for the design decided in CRU-087 / CRU-088.
+ * These values are NOT yet in src/constants/theme.ts. That port is the code ticket.
+ *
+ * Dark mode is deliberately absent. It is a port of this palette, not a design,
+ * and it has not been drawn yet. Do not invent it.
+ */
+
+:root {
+  /* --- Surfaces ------------------------------------------------------------
+   * The page is a warm off-white, not the cool #F1F2F5 shipped today.
+   * Warm gold on a cool grey ground is what made gold look cheap in this app.
+   */
+  --background: #FAF6EF;
+  --background-element: #FFFFFF;
+  --background-selected: #F3EDE2;
+  --background-sheet: #FFFFFF;
+  --background-sheet-row: #F3EDE2;
+  --post-surface: #FFFFFF;
+  --post-divider: #FAF6EF;
+
+  /* --- Text and lines ---------------------------------------------------- */
+  --text: #1C1815;            /* warm near-black, never pure #000 */
+  --text-secondary: #7B7167;
+  --border: rgba(58, 48, 38, 0.13);
+
+  /* --- Gold ---------------------------------------------------------------
+   * Gold has exactly three jobs: the Home banner wash, the Log chip, and the
+   * active tab. Adding a fourth drains the meaning from the other three.
+   */
+  --primary: #F0A81C;
+  --on-primary: #2A1D06;               /* near-black. NEVER white on gold. */
+  --primary-muted: rgba(240, 168, 28, 0.14);
+  --primary-text: #9E6404;             /* a gold LABEL on white */
+
+  /* --- State --------------------------------------------------------------
+   * success is new. The tick used to be `primary`; gold now means "to do",
+   * so "done" needs its own colour.
+   */
+  --success: #10696B;
+  --like: #E0405E;
+  --error: #CE3C39;
+  --ghost-border: rgba(58, 48, 38, 0.20);   /* the dashed "Other" row */
+
+  /* --- Banner, by time of day ---------------------------------------------
+   * One surface, four states. The page never changes; only this card does.
+   */
+  --banner-dawn:  linear-gradient(118deg, #FFF7E6 0%, #FFECC6 46%, #FFDDA2 100%);
+  --banner-day:   linear-gradient(118deg, #FFFCF3 0%, #FFF3D6 46%, #FFE6B6 100%);
+  --banner-dusk:  linear-gradient(118deg, #FFEBCE 0%, #FFCE9A 48%, #F0A272 100%);
+  --banner-night: linear-gradient(118deg, #241F3E 0%, #322A57 48%, #453564 100%);
+
+  --banner-ink-warm:  #2B1F0C;
+  --banner-ink-dusk:  #40200A;
+  --banner-ink-night: #F4F1FC;
+
+  /* --- Elevation ----------------------------------------------------------
+   * Two layers each: a 1px contact shadow plus a soft spread. One layer reads
+   * flat. The colour is warm brown-black; neutral grey on cream reads dirty.
+   */
+  --shadow-small:  0 1px 2px rgba(74, 58, 38, 0.05);
+  --shadow-medium: 0 1px 2px rgba(74, 58, 38, 0.06), 0 6px 16px rgba(74, 58, 38, 0.07);
+  --shadow-large:  0 2px 4px rgba(74, 58, 38, 0.07), 0 14px 32px rgba(74, 58, 38, 0.11);
+
+  /* --- Type ---------------------------------------------------------------
+   * Gabarito for headings, Inter for body. Both Google Fonts, Open Font
+   * Licence. Inter already ships; Gabarito is the one addition.
+   */
+  --font-heading: 'Gabarito', Inter, -apple-system, system-ui, sans-serif;
+  --font-body: 'Inter', -apple-system, system-ui, sans-serif;
+
+  --type-greeting: 700 27px/1.12 var(--font-heading);   /* letter-spacing -0.5px */
+  --type-screen-title: 700 30px/1.0 var(--font-heading);
+  --type-pet-name: 700 19px/1.2 var(--font-heading);
+  --type-tile-label: 700 17px/1.2 var(--font-heading);
+  --type-body: 400 15px/1.42 var(--font-body);
+  --type-detail: 400 13px/1.35 var(--font-body);
+
+  /* --- Geometry — unchanged, already shipped ------------------------------ */
+  --spacing-half: 2px;
+  --spacing-one: 4px;
+  --spacing-two: 8px;
+  --spacing-three: 16px;
+  --spacing-four: 24px;
+  --spacing-five: 32px;
+  --spacing-six: 64px;
+
+  --radius-tile: 12px;
+  --radius-card: 24px;
+  --radius-banner: 28px;
+  --radius-full: 100px;
+
+  --screen-gutter: 24px;
+  --max-content-width: 800px;
+  --bottom-tab-inset: 84px;
+}

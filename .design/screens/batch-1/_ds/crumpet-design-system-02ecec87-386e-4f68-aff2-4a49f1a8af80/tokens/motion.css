@@ -1,0 +1,19 @@
+/* Durations and curves lifted from the app. Nothing bounces except the
+ * segmented thumb, and that is critically damped so it does not overshoot. */
+:root {
+  --duration-press: 100ms; /* @kind other */
+  --duration-exit: 120ms; /* @kind other */
+  --duration-tick: 160ms; /* @kind other */
+  --duration-collapse: 160ms; /* @kind other */
+  --duration-expand: 220ms; /* @kind other */
+  --duration-reflow: 220ms; /* @kind other */
+  --duration-spring: 400ms; /* @kind other */
+
+  --ease-standard: cubic-bezier(0.23, 1, 0.32, 1); /* @kind other */
+  --ease-linear: linear; /* @kind other */
+
+  --press-scale: 0.96; /* @kind other */
+  --press-opacity: 0.9; /* @kind other */
+  --icon-press-opacity: 0.5; /* @kind other */
+  --disabled-opacity: 0.5; /* @kind other */
+}

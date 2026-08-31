@@ -156,7 +156,7 @@ const PetSection = ({
 
         {/* Nothing outstanding, so the fast path has nothing to be fast about.
             Every row already carries its own Log button. */}
-        {isAllLogged && <Icon name="check" size={20} color="primary" />}
+        {isAllLogged && <Icon name="check" size={20} color="success" />}
 
         <Animated.View style={caretStyle}>
           <IconButton

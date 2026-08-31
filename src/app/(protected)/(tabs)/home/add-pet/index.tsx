@@ -105,7 +105,7 @@ const AddPetDetails = () => {
         options={{
           headerLeft: () => (
             <PressableOpacity accessibilityRole="button" onPress={cancel}>
-              <AppText color="primary" size={16}>
+              <AppText color="primaryText" size={16}>
                 Cancel
               </AppText>
             </PressableOpacity>
@@ -141,7 +141,7 @@ const AddPetDetails = () => {
               <Icon name="camera" size={24} color="textSecondary" />
             </View>
           )}
-          <AppText color="primary" size={15}>
+          <AppText color="primaryText" size={15}>
             {photoUri ? 'Change photo' : 'Add a photo'}
           </AppText>
         </PressableOpacity>

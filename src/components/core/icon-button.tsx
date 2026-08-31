@@ -45,7 +45,7 @@ const IconButton = ({
   containerStyle
 }: Props) => {
   const styles = useStyles(makeStyles);
-  const { isDark } = useTheme();
+  const { colors, isDark } = useTheme();
 
   const isInactive = isDisabled || isLoading;
 
@@ -55,11 +55,13 @@ const IconButton = ({
     onPress?.();
   };
 
-  const glyphColor =
-    color ?? (variant === 'ghost' ? 'text' : variant === 'glass' ? 'primary' : 'onPrimary');
+  const glyphColor = color ?? (variant === 'primary' ? 'onPrimary' : 'text');
 
   const content = isLoading ? (
-    <ActivityIndicator size="small" color={variant === 'primary' ? '#ffffff' : undefined} />
+    <ActivityIndicator
+      size="small"
+      color={variant === 'primary' ? colors.onPrimary : undefined}
+    />
   ) : (
     <Icon name={name} size={size} color={glyphColor} strokeWidth={strokeWidth} />
   );
@@ -127,7 +129,7 @@ const makeStyles = ({ colors }: AppTheme) =>
       backgroundColor: colors.primary
     },
     secondary: {
-      backgroundColor: colors.error
+      backgroundColor: colors.backgroundSelected
     },
     ghost: {
       backgroundColor: 'transparent'

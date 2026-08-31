@@ -82,7 +82,7 @@ const PetPickerStep = ({
                 {pet.name}
               </AppText>
 
-              {isSelected && <Icon name="check" size={18} color="primary" />}
+              {isSelected && <Icon name="check" size={18} color="success" />}
             </PressableOpacity>
           );
         })}

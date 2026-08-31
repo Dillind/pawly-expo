@@ -27,7 +27,7 @@ const AuthFooterLink = ({ prompt, linkText, href, isReplace, isDismissTo }: Prop
       ) : null}
       <Link href={href} replace={isReplace} dismissTo={isDismissTo} asChild>
         <PressableOpacity>
-          <AppText color="primary" size={14} fontWeight="bold">
+          <AppText color="primaryText" size={14} fontWeight="bold">
             {linkText}
           </AppText>
         </PressableOpacity>

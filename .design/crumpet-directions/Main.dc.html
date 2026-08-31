@@ -1,0 +1,195 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gabarito:wght@500;600;700;800&family=Inter:wght@400;500;600;700&display=swap">
+  <style>
+    body { margin: 0; }
+    a { color: #9E6404; } a:hover { color: #E39A12; }
+    .ab, .ab * { box-sizing: border-box; }
+    .card { background: #FFFFFF; border-radius: 24px; box-shadow: 0 1px 2px rgba(74,58,38,0.06), 0 6px 16px rgba(74,58,38,0.07); }
+    .sun { animation: breathe 7s ease-in-out infinite; }
+    @keyframes breathe { 0%, 100% { transform: scale(1); opacity: 0.95; } 50% { transform: scale(1.045); opacity: 1; } }
+    @media (prefers-reduced-motion: reduce) { .sun { animation: none; } }
+  </style>
+</helmet>
+
+<div class="ab" style="width: 390px; height: 1140px; position: relative; overflow: hidden; background: #FAF6EF; font-family: Inter, -apple-system, system-ui, sans-serif; color: #1C1815;">
+
+  <div style="display: flex; flex-direction: column; gap: 16px; padding: 62px 24px 0 24px;">
+
+    <div style="position: relative; overflow: hidden; border-radius: 28px; padding: 20px 22px; background: linear-gradient(118deg, #FFF7E6 0%, #FFECC6 46%, #FFDDA2 100%); box-shadow: 0 1px 2px rgba(120,90,30,0.07), 0 8px 22px rgba(180,132,32,0.14);">
+      <div style="position: absolute; right: -34px; top: -30px; width: 148px; height: 148px; border-radius: 100px; background: radial-gradient(circle, rgba(255,200,90,0.42) 0%, rgba(255,200,90,0) 68%);"></div>
+      <div class="sun" style="position: absolute; right: -8px; top: 14px; width: 76px; height: 76px; border-radius: 100px; background: radial-gradient(circle at 38% 34%, #FFFDF4 0%, #FFE9A6 32%, {{accent}} 74%, #DE930C 100%); box-shadow: 0 6px 18px rgba(214,146,12,0.34);"></div>
+
+      <div style="position: relative; display: flex; flex-direction: column; gap: 4px; padding-right: 84px;">
+        <div style="font-family: Gabarito, Inter, sans-serif; font-size: 27px; font-weight: 700; line-height: 1.12; letter-spacing: -0.5px; color: #2B1F0C;">Good morning, Dylan</div>
+        <div style="font-size: 13px; line-height: 1.35; color: #8A6E36;">Saturday, 30 August &nbsp;·&nbsp; <span style="font-weight: 700; color: #5C4514;">1 feed to log</span></div>
+      </div>
+    </div>
+
+    <div style="display: flex; flex-direction: column; gap: 24px;">
+
+      <div class="card" style="padding: 8px 16px;">
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <div style="flex: 1; display: flex; align-items: center; gap: 16px; padding: 4px 0;">
+            <div style="width: 40px; height: 40px; border-radius: 100px; background: radial-gradient(circle at 38% 32%, #EFD3A4 0%, #CFA063 46%, #8C6535 100%); box-shadow: inset 0 0 0 1px rgba(58,48,38,0.12); flex: none;"></div>
+            <div style="flex: 1; display: flex; flex-direction: column; gap: 2px; min-width: 0;">
+              <div style="font-family: Gabarito, Inter, sans-serif; font-size: 19px; font-weight: 700; line-height: 1.2; letter-spacing: -0.2px;">Biscuit</div>
+              <div style="font-size: 13px; line-height: 1.3; color: #7B7167;">Lunch was due at 12:30 pm</div>
+            </div>
+          </div>
+          <div style="width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; flex: none;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#9A9086" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="transform: rotate(180deg);"><path d="m6 9 6 6 6-6"></path></svg>
+          </div>
+        </div>
+
+        <div style="margin-top: 8px;">
+          <div style="height: 1px; background: rgba(58,48,38,0.11);"></div>
+
+          <div style="display: flex; align-items: center; gap: 16px; padding: 8px 0;">
+            <div style="flex: 1; display: flex; flex-direction: column; gap: 2px;">
+              <div style="display: flex; align-items: baseline; gap: 8px;">
+                <span style="font-size: 15px; font-weight: 500;">Morning</span>
+                <span style="font-size: 15px; color: #7B7167;">7:00 am</span>
+              </div>
+              <div style="font-size: 13px; color: #7B7167;">Dylan, 7:12 am</div>
+            </div>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#10696B" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" style="flex: none;"><path d="M20 6 9 17l-5-5"></path></svg>
+          </div>
+
+          <div style="display: flex; align-items: center; gap: 16px; padding: 8px 0;">
+            <div style="flex: 1; display: flex; flex-direction: column; gap: 2px;">
+              <div style="display: flex; align-items: baseline; gap: 8px;">
+                <span style="font-size: 15px; font-weight: 500;">Lunch</span>
+                <span style="font-size: 15px; color: #7B7167;">12:30 pm</span>
+              </div>
+              <div style="font-size: 13px; color: #7B7167;">Not logged</div>
+            </div>
+            <div style="background: {{accent}}; color: #2A1D06; font-size: 14px; font-weight: 700; padding: 9px 15px; border-radius: 100px; line-height: 1; flex: none; box-shadow: 0 2px 6px rgba(200,140,20,0.28);">Log</div>
+          </div>
+
+          <div style="display: flex; align-items: center; gap: 16px; padding: 8px 0;">
+            <div style="flex: 1; display: flex; flex-direction: column; gap: 2px;">
+              <div style="display: flex; align-items: baseline; gap: 8px;">
+                <span style="font-size: 15px; font-weight: 500;">Dinner</span>
+                <span style="font-size: 15px; color: #7B7167;">6:00 pm</span>
+              </div>
+              <div style="font-size: 13px; color: #7B7167;">Half a scoop, no toppers</div>
+            </div>
+            <div style="font-size: 13px; color: #9A9086; flex: none;">Upcoming</div>
+          </div>
+
+          <div style="display: flex; align-items: center; gap: 16px; padding: 10px 12px; margin: 4px 0 8px 0; border: 1px dashed rgba(58,48,38,0.20); border-radius: 14px;">
+            <div style="flex: 1; display: flex; flex-direction: column; gap: 2px;">
+              <div style="font-size: 15px; font-weight: 500; color: #6E655C;">Other</div>
+              <div style="font-size: 13px; color: #9A9086;">A snack, or a feed not on the schedule</div>
+            </div>
+            <div style="border: 1px solid rgba(58,48,38,0.22); color: #6E655C; font-size: 14px; font-weight: 600; padding: 8px 14px; border-radius: 100px; line-height: 1; flex: none;">Log</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" style="padding: 8px 16px;">
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <div style="flex: 1; display: flex; align-items: center; gap: 16px; padding: 4px 0;">
+            <div style="width: 40px; height: 40px; border-radius: 100px; background: radial-gradient(circle at 40% 30%, #D8D2C8 0%, #A79E92 46%, #675F55 100%); box-shadow: inset 0 0 0 1px rgba(58,48,38,0.12); flex: none;"></div>
+            <div style="flex: 1; display: flex; flex-direction: column; gap: 2px; min-width: 0;">
+              <div style="font-family: Gabarito, Inter, sans-serif; font-size: 19px; font-weight: 700; line-height: 1.2; letter-spacing: -0.2px;">Miso</div>
+              <div style="font-size: 13px; line-height: 1.3; color: #7B7167;">Logged twice today</div>
+            </div>
+          </div>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#10696B" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" style="flex: none;"><path d="M20 6 9 17l-5-5"></path></svg>
+          <div style="width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; flex: none;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#9A9086" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"></path></svg>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px;">
+      <div class="card" style="min-height: 118px; padding: 16px; display: flex; flex-direction: column; justify-content: space-between; gap: 14px;">
+        <div style="width: 40px; height: 40px; border-radius: 12px; background: #F3EDE2; display: flex; align-items: center; justify-content: center;">
+          <svg width="21" height="21" viewBox="0 0 24 24" fill="#5B534B"><circle cx="9" cy="5" r="2.3"></circle><circle cx="16" cy="7" r="2.1"></circle><circle cx="19" cy="13" r="1.9"></circle><path d="M8.5 11.5c-2 1.2-3 3-3 5a2.8 2.8 0 0 0 4.6 2 3 3 0 0 1 3 0 2.8 2.8 0 0 0 4-2.8c0-2.8-3-5-5.2-5-1 0-2.5.2-3.4.8Z"></path></svg>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 2px;">
+          <div style="font-family: Gabarito, Inter, sans-serif; font-size: 17px; font-weight: 700; letter-spacing: -0.2px;">Pets</div>
+          <div style="font-size: 13px; color: #7B7167;">Pet management</div>
+        </div>
+      </div>
+      <div class="card" style="min-height: 118px; padding: 16px; display: flex; flex-direction: column; justify-content: space-between; gap: 14px;">
+        <div style="width: 40px; height: 40px; border-radius: 12px; background: #F3EDE2; display: flex; align-items: center; justify-content: center;">
+          <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="#5B534B" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"></path></svg>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 2px;">
+          <div style="font-family: Gabarito, Inter, sans-serif; font-size: 17px; font-weight: 700; letter-spacing: -0.2px;">Activity</div>
+          <div style="font-size: 13px; color: #7B7167;">Feed history</div>
+        </div>
+      </div>
+      <div class="card" style="min-height: 118px; padding: 16px; display: flex; flex-direction: column; justify-content: space-between; gap: 14px;">
+        <div style="width: 40px; height: 40px; border-radius: 12px; background: #F3EDE2; display: flex; align-items: center; justify-content: center;">
+          <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="#5B534B" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"></circle><path d="M3 20a6 6 0 0 1 12 0"></path><path d="M16.5 5.6a3.2 3.2 0 0 1 0 5.8M18.5 20a6 6 0 0 0-2.6-4.9"></path></svg>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 2px;">
+          <div style="font-family: Gabarito, Inter, sans-serif; font-size: 17px; font-weight: 700; letter-spacing: -0.2px;">Household</div>
+          <div style="font-size: 13px; color: #7B7167;">People and invites</div>
+        </div>
+      </div>
+      <div class="card" style="min-height: 118px; padding: 16px; display: flex; flex-direction: column; justify-content: space-between; gap: 14px;">
+        <div style="width: 40px; height: 40px; border-radius: 12px; background: #F3EDE2; display: flex; align-items: center; justify-content: center;">
+          <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="#5B534B" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3h8a2 2 0 0 1 2 2v15a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V5a2 2 0 0 1 2-2Z"></path><path d="M9.5 8.5h5M9.5 12.5h5M9.5 16.5h3"></path></svg>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 2px;">
+          <div style="font-family: Gabarito, Inter, sans-serif; font-size: 17px; font-weight: 700; letter-spacing: -0.2px;">Care Card</div>
+          <div style="font-size: 13px; color: #7B7167;">Share with a sitter</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card" style="padding: 16px; display: flex; align-items: flex-start; gap: 14px;">
+      <div style="width: 34px; height: 34px; border-radius: 100px; background: rgba(240,168,28,0.15); display: flex; align-items: center; justify-content: center; flex: none;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#9E6404" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6M10 21h4M12 3a6 6 0 0 1 4 10.5V16H8v-2.5A6 6 0 0 1 12 3Z"></path></svg>
+      </div>
+      <div style="flex: 1; display: flex; flex-direction: column; gap: 3px;">
+        <div style="font-size: 15px; font-weight: 600; line-height: 1.3;">Miso has no dinner set up</div>
+        <div style="font-size: 13px; line-height: 1.35; color: #7B7167;">Add a feed time and everyone gets nudged when it is due.</div>
+        <div style="font-size: 14px; font-weight: 700; color: #9E6404; padding-top: 4px;">Add a feed time</div>
+      </div>
+    </div>
+
+    <div style="height: 96px;"></div>
+  </div>
+
+  <div style="position: absolute; left: 0; right: 0; top: 844px; height: 0; border-top: 1px dashed rgba(58,48,38,0.22);"></div>
+  <div style="position: absolute; right: 10px; top: 850px; font-size: 10px; letter-spacing: 0.4px; text-transform: uppercase; color: #A79C90;">first screen ends here</div>
+
+  <div style="position: absolute; left: 0; right: 0; bottom: 0; height: 84px; background: rgba(250,246,239,0.90); border-top: 1px solid rgba(58,48,38,0.10); backdrop-filter: blur(20px); display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); align-items: start; padding-top: 10px;">
+    <div style="display: flex; flex-direction: column; align-items: center; gap: 4px;">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="{{accent}}"><path d="M12 3 3 10v10a1 1 0 0 0 1 1h5v-6h6v6h5a1 1 0 0 0 1-1V10Z"></path></svg>
+      <span style="font-size: 10px; font-weight: 700; color: #9E6404;">Home</span>
+    </div>
+    <div style="display: flex; flex-direction: column; align-items: center; gap: 4px;">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#9A9086" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6" width="14" height="12" rx="2"></rect><path d="M21 8v9a2 2 0 0 1-2 2H7"></path><circle cx="8" cy="10" r="1.4"></circle><path d="m4 16 3.5-3.5L11 16"></path></svg>
+      <span style="font-size: 10px; color: #9A9086;">Posts</span>
+    </div>
+    <div style="display: flex; flex-direction: column; align-items: center; gap: 4px;">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="#9A9086"><circle cx="12" cy="8" r="4"></circle><path d="M4 21a8 8 0 0 1 16 0Z"></path></svg>
+      <span style="font-size: 10px; color: #9A9086;">Profile</span>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script data-dc-script data-props='{"accent":{"editor":"color","default":"#F0A81C","options":["#F0A81C","#F5AC1B","#E39A12","#FFB933"],"section":"Palette"},"$preview":{"width":390,"height":1140}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return { accent: this.props.accent ?? '#F0A81C' };
+  }
+}
+</script>
+</body>
+</html>

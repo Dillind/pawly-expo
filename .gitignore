@@ -54,3 +54,7 @@ docs/agents
 .docs/superpowers
 
 .mcp
+
+# Design working files are tracked: the artboards and DESIGN_BRIEF.md are the
+# specification for the UI tickets, not scratch output.
+.design/**/.DS_Store
