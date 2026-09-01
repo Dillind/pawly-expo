@@ -138,7 +138,7 @@ const makeStyles = ({ colors }: AppTheme) =>
       height: 46,
       paddingHorizontal: 12,
       gap: 12,
-      backgroundColor: colors.background
+      backgroundColor: colors.backgroundElement
     }
   });
 
