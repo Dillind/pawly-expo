@@ -17,6 +17,14 @@ Newest first. Append, don't rewrite.
 
 ---
 
+## 2026-09-01
+
+**A segmented control with no value shows no thumb.** `selectedIndex` was
+`Math.max(findIndex, 0)`, so an unset field painted the thumb under the first
+option and read as already chosen -- "Male" looked picked when nothing was. The
+-1 is kept and the thumb is not drawn. No caller starts unset today, so this
+changes nothing on screen and exists so the next one cannot lie.
+
 ## 2026-08-22
 
 **A gallery photo cannot be promoted to the profile photo.** The profile photo is set only by

@@ -59,27 +59,30 @@ const SegmentedControl = <T extends string>({
   // The thumb must appear under the initial selection, not slide to it on mount.
   const hasSettled = useSharedValue(false);
 
-  const selectedIndex = Math.max(
-    options.findIndex((option) => option.value === value),
-    0
-  );
+  // -1 is a real answer, not a number to clamp away: a required field whose
+  // value is still unset must not paint a thumb under the first option and
+  // read as already chosen.
+  const selectedIndex = options.findIndex((option) => option.value === value);
+  const hasSelection = selectedIndex >= 0;
 
   const innerWidth = trackWidth - TrackPadding * 2;
   const segmentWidth =
     innerWidth > 0 ? (innerWidth - SegmentGap * (options.length - 1)) / options.length : 0;
 
   useEffect(() => {
-    if (segmentWidth <= 0) return;
+    if (segmentWidth <= 0 || !hasSelection) return;
 
     const target = selectedIndex * (segmentWidth + SegmentGap);
 
+    // An unset control has no thumb, so the first selection places it rather
+    // than sliding it in from the left.
     if (hasSettled.get()) {
       translateX.set(withSpring(target, ThumbSpring));
     } else {
       translateX.set(target);
       hasSettled.set(true);
     }
-  }, [hasSettled, segmentWidth, selectedIndex, translateX]);
+  }, [hasSelection, hasSettled, segmentWidth, selectedIndex, translateX]);
 
   const thumbStyle = useAnimatedStyle(() => ({
     width: segmentWidth,
@@ -105,7 +108,9 @@ const SegmentedControl = <T extends string>({
         </AppText>
       ) : null}
       <View style={styles.track} onLayout={handleLayout}>
-        {segmentWidth > 0 ? <Animated.View style={[styles.thumb, thumbStyle]} /> : null}
+        {segmentWidth > 0 && hasSelection ? (
+          <Animated.View style={[styles.thumb, thumbStyle]} />
+        ) : null}
         {options.map((option) => {
           const isSelected = option.value === value;
 
