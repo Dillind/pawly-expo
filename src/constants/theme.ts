@@ -9,15 +9,15 @@ import { Platform } from 'react-native';
 export const COLORS = {
   light: {
     text: '#1C1815',
-    background: '#FAF6EF',
+    background: '#FBFAF8',
     backgroundElement: '#FFFFFF',
-    backgroundSelected: '#F3EDE2',
+    backgroundSelected: '#F1EFEC',
     backgroundSheet: '#FFFFFF',
-    backgroundSheetRow: '#F3EDE2',
+    backgroundSheetRow: '#F1EFEC',
     // A Post fills the screen width, so it has no edge of its own -- the band
     // between two of them is the only thing that separates them.
     postSurface: '#FFFFFF',
-    postDivider: '#FAF6EF',
+    postDivider: '#FBFAF8',
     textSecondary: '#7B7167',
     border: 'rgba(58, 48, 38, 0.13)',
     error: '#CE3C39',
@@ -44,15 +44,15 @@ export const COLORS = {
   },
   dark: {
     text: '#FBF7F2',
-    background: '#14100E',
-    backgroundElement: '#201A17',
-    backgroundSelected: '#2C2521',
-    backgroundSheet: '#1B1613',
-    backgroundSheetRow: '#2C2521',
+    background: '#111011',
+    backgroundElement: '#1C1B1C',
+    backgroundSelected: '#282728',
+    backgroundSheet: '#191819',
+    backgroundSheetRow: '#282728',
     // Dark reverses the light pairing: a Post on anything but black loses the
     // photo's own black.
     postSurface: '#000000',
-    postDivider: '#201A17',
+    postDivider: '#1C1B1C',
     textSecondary: '#A99C90',
     border: 'rgba(255, 255, 255, 0.14)',
     error: '#E05B58',

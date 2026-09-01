@@ -427,3 +427,14 @@ already ends with the dashed "Other" row, and two dashed rows stacked read as on
 The text button is the same trigger the Pet screen's Reminders section uses, so the two screens
 offer the same thing in the same way. It is gated on today and on the pet not being paused, exactly
 like "Other".
+
+**The grounds are cool neutral, not warm cream.** `background` was `#FAF6EF`, a strong cream, and it
+read as a yellow tint rather than as paper -- most obviously behind a text input, which defaulted to
+it. The screen, the sunk surfaces and the Post divider moved to a near-neutral off-white, and dark
+moved with them. Gold, teal, the Kind colours and every ink are untouched.
+
+Not pure white and pure black, which was the first instinct. Light has a three-step stack -- screen,
+card, sunk surface -- and taking the screen to `#FFFFFF` makes the screen and the card one colour, so
+every card on Home loses its edge and only the shadow holds it apart. Dark has the same stack.
+`backgroundSelected` and `backgroundSheetRow` had to move too: left on the cream they would read as
+yellow patches on a neutral screen.

@@ -20,13 +20,13 @@ Current colour tokens (keys are the `ThemeColor` union):
 | `text`               | `#1C1815`     | `#FBF7F2`     | Primary text                        |
 | `textSecondary`      | `#7B7167`     | `#A99C90`     | Secondary/hint text                 |
 | `border`             | 13% `#3A3026` | 14% white     | Separators and hairline rules       |
-| `background`         | `#FAF6EF`     | `#14100E`     | Screen background                   |
-| `backgroundElement`  | `#FFFFFF`     | `#201A17`     | Cards and elements **on a screen**  |
-| `backgroundSelected` | `#F3EDE2`     | `#2C2521`     | Selected/pressed/sunk surfaces      |
-| `backgroundSheet`    | `#FFFFFF`     | `#1B1613`     | The surface of a bottom sheet       |
-| `backgroundSheetRow` | `#F3EDE2`     | `#2C2521`     | Rows and cards **inside a sheet**   |
+| `background`         | `#FBFAF8`     | `#111011`     | Screen background                   |
+| `backgroundElement`  | `#FFFFFF`     | `#1C1B1C`     | Cards and elements **on a screen**  |
+| `backgroundSelected` | `#F1EFEC`     | `#282728`     | Selected/pressed/sunk surfaces      |
+| `backgroundSheet`    | `#FFFFFF`     | `#191819`     | The surface of a bottom sheet       |
+| `backgroundSheetRow` | `#F1EFEC`     | `#282728`     | Rows and cards **inside a sheet**   |
 | `postSurface`        | `#FFFFFF`     | `#000000`     | The surface of one Post             |
-| `postDivider`        | `#FAF6EF`     | `#201A17`     | The band between two Posts          |
+| `postDivider`        | `#FBFAF8`     | `#1C1B1C`     | The band between two Posts          |
 | `error`              | `#CE3C39`     | `#E05B58`     | Errors, destructive                 |
 | `like`               | `#E0405E`     | `#FF4D6D`     | A Like, and nothing else            |
 | `primary`            | `#F0A81C`     | `#F5B435`     | A gold **fill**. Never text.        |
