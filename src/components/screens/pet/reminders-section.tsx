@@ -1,8 +1,12 @@
+import InfoSheet from '@/components/bottom-sheets/info-sheet';
 import ReminderTray from '@/components/bottom-sheets/reminder-tray';
 import AppText from '@/components/core/app-text';
+import IconButton from '@/components/core/icon-button';
 import MainButton from '@/components/core/main-button';
+import SectionLabel from '@/components/core/section-label';
 import ReminderRow from '@/components/ui/reminder-row';
 import SectionCard from '@/components/screens/pet/section-card';
+import { REMINDERS_HELP } from '@/constants/reminders-help';
 import type { AppTheme } from '@/constants/theme';
 import { useTickReminder } from '@/hooks/queries/reminder/use-reminder-mutations';
 import { useReminders } from '@/hooks/queries/reminder/use-reminders';
@@ -26,6 +30,7 @@ type Props = {
 const RemindersSection = ({ pet, today }: Props) => {
   const styles = useStyles(makeStyles);
   const trayRef = useRef<TrueSheet | null>(null);
+  const helpRef = useRef<TrueSheet | null>(null);
 
   const { data: reminders = [] } = useReminders(pet.id, today);
   const { mutate: tickReminder, isPending: isTicking } = useTickReminder();
@@ -34,9 +39,19 @@ const RemindersSection = ({ pet, today }: Props) => {
     <>
       <SectionCard>
         <View style={styles.stack}>
-          <AppText size={16} fontWeight="bold">
+          <SectionLabel
+            action={
+              <IconButton
+                name="info"
+                accessibilityLabel="What is a Reminder?"
+                variant="ghost"
+                size={20}
+                onPress={() => void helpRef.current?.present()}
+              />
+            }
+            isHeading>
             Reminders
-          </AppText>
+          </SectionLabel>
 
           {reminders.length > 0 ? (
             reminders.map((reminder) => (
@@ -71,6 +86,8 @@ const RemindersSection = ({ pet, today }: Props) => {
       {/* A sibling, never a child: a sheet presented from inside the card it
           belongs to is still a sibling of it in the tree. */}
       <ReminderTray sheetRef={trayRef} pet={pet} today={today} />
+
+      <InfoSheet sheetRef={helpRef} {...REMINDERS_HELP} />
     </>
   );
 };

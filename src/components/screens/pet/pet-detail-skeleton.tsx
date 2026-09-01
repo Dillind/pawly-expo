@@ -21,6 +21,7 @@ const PetDetailSkeleton = () => {
     <SkeletonPulse accessibilityLabel="Loading this pet">
       <View style={styles.hero}>
         <View style={styles.heroRow}>
+          <View style={styles.spacer} />
           <SkeletonBlock width={AvatarSize} height={AvatarSize} radius={Radius.full} />
           <SkeletonBlock width={TileWidth} height={TileHeight} radius={Radius.tile} />
         </View>
@@ -60,13 +61,15 @@ const makeStyles = ({ spacing }: AppTheme) =>
     heroRow: {
       flexDirection: 'row',
       alignItems: 'flex-end',
+      justifyContent: 'center',
       gap: spacing.two
     },
+    spacer: { width: TileWidth },
     strip: {
       flexDirection: 'row',
       gap: spacing.two,
       paddingTop: spacing.four,
-      paddingLeft: ScreenGutter
+      paddingHorizontal: ScreenGutter
     },
     section: {
       paddingTop: spacing.four,

@@ -514,3 +514,13 @@ card, sunk surface -- and taking the screen to `#FFFFFF` makes the screen and th
 every card on Home loses its edge and only the shadow holds it apart. Dark has the same stack.
 `backgroundSelected` and `backgroundSheetRow` had to move too: left on the cream they would read as
 yellow patches on a neutral screen.
+
+**The gold label and the secondary ink are darker, and the grounds are untouched.** `primaryText`
+went from `#9E6404` to `#8F5A03` and `textSecondary` from `#7B7167` to `#746A60`. Both cleared
+4.5:1 before -- 4.91 and 4.77 on white -- but only just, and at 13-15px a gold label that thin reads
+as washed out on a near-white card. They now measure 5.78:1 and 5.29:1.
+
+The screen colour was the other candidate and was rejected. `background` against a white card is
+1.04:1, so the card is held apart by its shadow alone, and warming the screen is what would fix it.
+That is exactly the move the entry above reversed on purpose. Ink was the half of the pair that
+could move.

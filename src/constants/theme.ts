@@ -18,15 +18,15 @@ export const COLORS = {
     // between two of them is the only thing that separates them.
     postSurface: '#FFFFFF',
     postDivider: '#FBFAF8',
-    textSecondary: '#7B7167',
+    textSecondary: '#746A60',
     border: 'rgba(58, 48, 38, 0.13)',
     error: '#CE3C39',
     like: '#E0405E',
     // A fill, never text: #F0A81C on white is 2.0:1.
     primary: '#F0A81C',
     primaryMuted: 'rgba(240, 168, 28, 0.14)',
-    // A gold label. Clears 4.5:1 where `primary` cannot.
-    primaryText: '#9E6404',
+    // A gold label. Clears 4.5:1 where `primary` cannot -- 5.8:1 on white.
+    primaryText: '#8F5A03',
     onPrimary: '#2A1D06',
     success: '#10696B',
     // A Reminder's Kind. On trial: the batch-2 artboard drew these and rejected

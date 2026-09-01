@@ -7,10 +7,10 @@ import { useTheme } from '@/hooks/use-theme';
 import { createShadowMedium } from '@/lib/styles/shadows';
 import { StyleSheet, View } from 'react-native';
 
-export const TileWidth = 84;
-export const TileHeight = 126;
-const TILE_PADDING = 12;
-const WELL_SIZE = 32;
+export const TileWidth = 64;
+export const TileHeight = 96;
+const TILE_PADDING = 8;
+const WELL_SIZE = 26;
 
 /** The three ruled lines standing in for the card's written contents. */
 const LINE_WIDTHS = ['100%', '78%', '56%'] as const;
@@ -33,7 +33,7 @@ const CareCardTile = ({ petName, onPress }: Props) => {
       <View style={styles.column}>
         <View style={[styles.tile, createShadowMedium(theme.colors)]}>
           <View style={styles.well}>
-            <Icon name="pawPrint" size={18} color="text" />
+            <Icon name="pawPrint" size={15} color="text" />
           </View>
 
           <View style={styles.lines}>
@@ -43,7 +43,7 @@ const CareCardTile = ({ petName, onPress }: Props) => {
           </View>
         </View>
 
-        <AppText size={12} color="textSecondary">
+        <AppText size={11} color="textSecondary">
           Care card
         </AppText>
       </View>
@@ -63,9 +63,9 @@ const makeStyles = ({ spacing, colors }: AppTheme) =>
       borderCurve: 'continuous',
       backgroundColor: colors.backgroundElement
     },
-    lines: { alignSelf: 'stretch', gap: 5 },
+    lines: { alignSelf: 'stretch', gap: 4 },
     line: {
-      height: 5,
+      height: 4,
       borderRadius: Radius.full,
       backgroundColor: colors.backgroundSelected
     },
