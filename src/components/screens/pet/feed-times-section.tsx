@@ -17,7 +17,7 @@ import { usePausePet, useResumePet } from '@/hooks/queries/feeding/use-pet-pause
 import { useStyles } from '@/hooks/use-styles';
 import { formatScheduledTime } from '@/lib/dates';
 import type { FeedTime } from '@/services/feed-time.service';
-import type { HouseholdMember, Occurrence, Pet } from '@/types/core';
+import type { HouseholdMember, Pet } from '@/types/core';
 import type { TrueSheet } from '@lodev09/react-native-true-sheet';
 import { useRef, useState } from 'react';
 import { ActivityIndicator, StyleSheet, View } from 'react-native';
@@ -99,7 +99,6 @@ type Props = {
   isPaused: boolean;
   isOwner: boolean;
   onOpenLog: (logId: string) => void;
-  onPickOccurrence: (occurrence: Occurrence) => void;
 };
 
 /**
@@ -120,8 +119,7 @@ const FeedTimesSection = ({
   members,
   isPaused,
   isOwner,
-  onOpenLog,
-  onPickOccurrence
+  onOpenLog
 }: Props) => {
   const styles = useStyles(makeStyles);
   const trayRef = useRef<TrueSheet | null>(null);
@@ -222,7 +220,6 @@ const FeedTimesSection = ({
           isNested
           hasDividers
           onOpenLog={onOpenLog}
-          onPickOccurrence={onPickOccurrence}
         />
       </View>
     );

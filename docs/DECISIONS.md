@@ -19,6 +19,11 @@ Newest first. Append, don't rewrite.
 
 ## 2026-09-01
 
+**Logging lives on Home, never on Pet detail.** Pet detail is the pet — schedule, care card,
+photos, about. It passes no `onPickOccurrence`, so `OccurrenceList` draws state and nothing to tap.
+The chip is the only gold on any screen and the design gives it to Home alone. Reading a logged
+feed stays, because that is not a write.
+
 **`AppText` gained a `semibold` weight.** `bold` maps to Inter 700, and the design asks for 600 in
 several places. `Inter_600SemiBold.ttf` was already embedded by the `expo-font` plugin, so this
 costs one type entry and no bundle. Gabarito ships 600 and 700 only, so a header's non-bold face

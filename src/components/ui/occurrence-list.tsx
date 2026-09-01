@@ -20,12 +20,16 @@ type Props = {
    */
   isToday?: boolean;
   onOpenLog: (logId: string) => void;
-  onPickOccurrence: (occurrence: Occurrence) => void;
+  /** Omitted where the screen does not log. Without it no row draws a Log chip. */
+  onPickOccurrence?: (occurrence: Occurrence) => void;
 };
 
 /**
  * Today's occurrences, as something to act on. Rendered inline by the Home card
  * and as a tray step, which is why it holds no presentation of its own.
+ *
+ * Logging is Home's job. Pet detail passes no `onPickOccurrence`, so its rows
+ * show state and nothing to tap.
  *
  * An `upcoming` row has no Log button: its Feed Time is in the future, and RLS
  * rejects a `logged_at` later than now(). There is nothing a tap could write.
@@ -60,7 +64,9 @@ const OccurrenceList = ({
                 : undefined
             }
             onLog={
-              isToday && (occurrence.state === 'due' || occurrence.state === 'missed')
+              onPickOccurrence &&
+              isToday &&
+              (occurrence.state === 'due' || occurrence.state === 'missed')
                 ? () => onPickOccurrence(occurrence)
                 : undefined
             }

@@ -14,7 +14,6 @@ import { usePetPause } from '@/hooks/queries/feeding/use-pet-pause';
 import { useHousehold } from '@/hooks/queries/household/use-household';
 import { useHouseholdMembers } from '@/hooks/queries/household/use-household-members';
 import { usePetDetail } from '@/hooks/queries/pet/use-pet-detail';
-import { useLogFlow } from '@/hooks/use-log-flow';
 import { useStyles } from '@/hooks/use-styles';
 import { todayInTimezone } from '@/lib/dates';
 import type { TrueSheet } from '@lodev09/react-native-true-sheet';
@@ -39,12 +38,6 @@ const PetDetail = () => {
 
   const { data: pause } = usePetPause(petId, today);
   const isPaused = Boolean(pause);
-
-  const flow = useLogFlow({
-    members,
-    timezone,
-    onWritten: () => undefined
-  });
 
   const openLog = (logId: string) => {
     setActiveLogId(logId);
@@ -101,7 +94,6 @@ const PetDetail = () => {
             isPaused={isPaused}
             isOwner={isOwner}
             onOpenLog={openLog}
-            onPickOccurrence={(occurrence) => flow.pickOccurrence(pet, occurrence)}
           />
         </View>
 
