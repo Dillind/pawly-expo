@@ -1,12 +1,11 @@
 import ListCard from '@/components/core/list-card';
+import { TileHeight, TileWidth } from '@/components/screens/pet/care-card/care-card-tile';
+import { AvatarSize } from '@/components/screens/pet/pet-identity';
 import { SkeletonBlock, SkeletonPulse } from '@/components/core/skeleton';
 import { Radius, ScreenGutter, type AppTheme } from '@/constants/theme';
 import { useStyles } from '@/hooks/use-styles';
 import { StyleSheet, View } from 'react-native';
 
-const AVATAR_SIZE = 140;
-const CARE_CARD_WIDTH = 84;
-const CARE_CARD_HEIGHT = 126;
 const PHOTO_TILE = 80;
 const ROW_WIDTHS = [150, 170, 130] as const;
 
@@ -22,8 +21,8 @@ const PetDetailSkeleton = () => {
     <SkeletonPulse accessibilityLabel="Loading this pet">
       <View style={styles.hero}>
         <View style={styles.heroRow}>
-          <SkeletonBlock width={AVATAR_SIZE} height={AVATAR_SIZE} radius={Radius.full} />
-          <SkeletonBlock width={CARE_CARD_WIDTH} height={CARE_CARD_HEIGHT} radius={Radius.tile} />
+          <SkeletonBlock width={AvatarSize} height={AvatarSize} radius={Radius.full} />
+          <SkeletonBlock width={TileWidth} height={TileHeight} radius={Radius.tile} />
         </View>
 
         <SkeletonBlock width={140} height={28} radius={Radius.tile} />

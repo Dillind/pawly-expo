@@ -7,8 +7,8 @@ import { useTheme } from '@/hooks/use-theme';
 import { createShadowMedium } from '@/lib/styles/shadows';
 import { StyleSheet, View } from 'react-native';
 
-const TILE_WIDTH = 84;
-const TILE_HEIGHT = 126;
+export const TileWidth = 84;
+export const TileHeight = 126;
 const TILE_PADDING = 12;
 const WELL_SIZE = 32;
 
@@ -20,17 +20,7 @@ type Props = {
   onPress: () => void;
 };
 
-/**
- * Always drawn as a card, filled or not. An empty-looking tile promised a
- * different destination than the one tapping it reaches -- the screen opens
- * either way, and asks to be started from there.
- *
- * It is a small portrait tile so it can stand beside the pet's avatar, and it
- * is drawn as a card rather than described in words: at this size the ruled
- * lines say "a written card" faster than a label would.
- *
- * The icon is warm ink on a sunk well, never gold. Gold is the Log chip.
- */
+/** Drawn as a card whether the card has content or not: the screen opens either way. */
 const CareCardTile = ({ petName, onPress }: Props) => {
   const theme = useTheme();
   const styles = useStyles(makeStyles);
@@ -65,8 +55,8 @@ const makeStyles = ({ spacing, colors }: AppTheme) =>
   StyleSheet.create({
     column: { alignItems: 'center', gap: spacing.one },
     tile: {
-      width: TILE_WIDTH,
-      height: TILE_HEIGHT,
+      width: TileWidth,
+      height: TileHeight,
       justifyContent: 'space-between',
       padding: TILE_PADDING,
       borderRadius: Radius.tile,

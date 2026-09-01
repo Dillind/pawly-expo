@@ -89,7 +89,7 @@ namespace CareCardService {
       walkRoutine: data.walk_routine,
       whereThingsAre: data.where_things_are,
       notes: data.notes,
-      updatedAt: data.updated_at as string
+      updatedAt: data.updated_at
     };
   }
 

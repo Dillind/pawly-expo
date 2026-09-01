@@ -19,6 +19,16 @@ Newest first. Append, don't rewrite.
 
 ## 2026-09-01
 
+**`AppText` gained a `semibold` weight.** `bold` maps to Inter 700, and the design asks for 600 in
+several places. `Inter_600SemiBold.ttf` was already embedded by the `expo-font` plugin, so this
+costs one type entry and no bundle. Gabarito ships 600 and 700 only, so a header's non-bold face
+already was the semibold one.
+
+**The care card's updated date falls back to the device zone.** It sits under the title, so gating
+it on the household read made it appear late or not at all.
+
+## 2026-09-01
+
 **The pet's photo is a circle, not a full-bleed header.** It shares its row with the care card
 tile, so the two things a sitter opens this screen for sit one glance apart. The bar is a normal
 transparent header again, which means the pet's name is readable at the top of every photo rather

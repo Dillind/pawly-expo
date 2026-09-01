@@ -19,7 +19,7 @@ import { useRouter } from 'expo-router';
 import { useRef } from 'react';
 import { ActivityIndicator, StyleSheet, View } from 'react-native';
 
-const AVATAR_SIZE = 140;
+export const AvatarSize = 140;
 const CAMERA_BADGE_SIZE = 44;
 
 type Props = {
@@ -77,7 +77,7 @@ const PetIdentity = ({ pet, isOwner }: Props) => {
           accessibilityRole={isOwner ? 'button' : 'image'}
           accessibilityLabel={isOwner ? 'Change photo' : undefined}
           onPress={() => void photoSheetRef.current?.present()}>
-          <PetAvatar photoUrl={pet.photoUrl} size={AVATAR_SIZE} />
+          <PetAvatar photoUrl={pet.photoUrl} size={AvatarSize} />
 
           {isOwner && (
             <View style={styles.badge}>

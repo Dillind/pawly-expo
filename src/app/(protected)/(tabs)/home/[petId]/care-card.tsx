@@ -14,7 +14,7 @@ import { useCareCardData } from '@/hooks/queries/pet/use-care-card';
 import { useShareCareCard } from '@/hooks/use-share-care-card';
 import { useStyles } from '@/hooks/use-styles';
 import { careCardBlocks } from '@/lib/care-card-view';
-import { formatDateWithYear } from '@/lib/dates';
+import { deviceTimezone, formatDateWithYear } from '@/lib/dates';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import { useRef } from 'react';
 import { ActivityIndicator, StyleSheet } from 'react-native';
@@ -39,6 +39,9 @@ const CareCardScreen = () => {
 
   const blocks = careCardBlocks(card, medications, contacts);
   const isOwner = household?.isOwner ?? false;
+  // The date is part of the title block, so it must not wait on the household
+  // read to land.
+  const timezone = household?.timezone ?? deviceTimezone();
 
   return (
     <ScreenView edges={[]}>
@@ -58,12 +61,9 @@ const CareCardScreen = () => {
           disabled={isSharing || blocks.length === 0}
           onPress={() => void shareCareCard([petId])}
         />
-        {/* A view rather than a Button, because the pencil is Lucide's: it is
-            the same glyph the Feed times and About headers draw, and an SF
-            Symbol beside them made one screen use two pencils.
-
-            `hidden` rather than a conditional child: the toolbar reads its
-            children once, so removing one leaves a gap where the item was. */}
+        {/* A view holding a Lucide pencil, not a Button: an SF Symbol made one
+            screen use two pencils. `hidden`, not a conditional child -- the
+            toolbar reads its children once and removing one leaves a gap. */}
         <Stack.Toolbar.View hidden={!isOwner}>
           <PressableOpacity
             accessibilityRole="button"
@@ -83,9 +83,9 @@ const CareCardScreen = () => {
       <ScreenScrollView
         contentContainerStyle={styles.content}
         contentInsetAdjustmentBehavior="automatic">
-        {card.updatedAt && household?.timezone && (
+        {card.updatedAt && (
           <AppText size={13} color="textSecondary">
-            {`Updated ${formatDateWithYear(new Date(card.updatedAt), household.timezone)}`}
+            {`Updated ${formatDateWithYear(new Date(card.updatedAt), timezone)}`}
           </AppText>
         )}
 

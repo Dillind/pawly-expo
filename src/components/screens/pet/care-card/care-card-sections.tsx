@@ -1,5 +1,5 @@
 import AppText from '@/components/core/app-text';
-import Divider from '@/components/core/divider';
+import Divider, { RowInset } from '@/components/core/divider';
 import ListCard from '@/components/core/list-card';
 import type { AppTheme } from '@/constants/theme';
 import { useStyles } from '@/hooks/use-styles';
@@ -7,7 +7,6 @@ import type { CareCardBlock } from '@/lib/care-card-view';
 import { Fragment } from 'react';
 import { StyleSheet, View } from 'react-native';
 
-const ROW_INSET = 16;
 
 type Props = { blocks: CareCardBlock[] };
 
@@ -25,10 +24,10 @@ const CareCardSections = ({ blocks }: Props) => {
     <ListCard>
       {blocks.map((block, index) => (
         <Fragment key={block.id}>
-          {index > 0 && <Divider inset={ROW_INSET} />}
+          {index > 0 && <Divider inset={RowInset} />}
 
           <View style={styles.section}>
-            <AppText size={13} fontWeight="bold" color="textSecondary">
+            <AppText size={13} fontWeight="semibold" color="textSecondary">
               {block.title}
             </AppText>
 

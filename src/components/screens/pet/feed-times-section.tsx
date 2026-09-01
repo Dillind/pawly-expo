@@ -1,7 +1,7 @@
 import SheetRow from '@/components/bottom-sheets/sheet-row';
 import AppText from '@/components/core/app-text';
 import ErrorState from '@/components/core/error-state';
-import Divider from '@/components/core/divider';
+import Divider, { RowInset } from '@/components/core/divider';
 import IconButton from '@/components/core/icon-button';
 import ListCard from '@/components/core/list-card';
 import ToggleSwitch from '@/components/core/toggle-switch';
@@ -22,10 +22,15 @@ import type { TrueSheet } from '@lodev09/react-native-true-sheet';
 import { useRef, useState } from 'react';
 import { ActivityIndicator, StyleSheet, View } from 'react-native';
 
-/** The rule starts under the row's label, matching the rows inside the card. */
-const FEED_ROW_INSET = 16;
-
 const capitalise = (value: string) => value.charAt(0).toUpperCase() + value.slice(1);
+
+// A Contributor has no plus to tap, so the line must not ask them to add one.
+const emptyCopy = (petName: string, hasSchedule: boolean, isOwner: boolean) => {
+  if (hasSchedule) return `Nothing is due for ${petName} today. Their next feed is on the way.`;
+  return isOwner
+    ? `No feed times yet. Add ${petName}'s feed times and everyone will know when they are due.`
+    : `No feed times yet. An owner sets ${petName}'s feed times.`;
+};
 
 type ListStepProps = {
   feedTimes: FeedTime[];
@@ -196,16 +201,13 @@ const FeedTimesSection = ({
       );
     }
 
-    // One quiet line, not an EmptyState: inside a card whose header already
-    // carries the plus, an illustrated empty state is taller than the card it
-    // is explaining and offers a second copy of the same action.
+    // One quiet line, not an EmptyState: the card's header already carries the
+    // plus.
     if (occurrences.length === 0) {
       return (
         <View style={styles.block}>
           <AppText size={13} color="textSecondary">
-            {feedTimes.length > 0
-              ? `Nothing is due for ${pet.name} today. Their next feed is on the way.`
-              : `No feed times yet. Add ${pet.name}'s feed times and everyone will know when they are due.`}
+            {emptyCopy(pet.name, feedTimes.length > 0, isOwner)}
           </AppText>
         </View>
       );
@@ -254,13 +256,13 @@ const FeedTimesSection = ({
           )}
         </View>
 
-        <Divider inset={FEED_ROW_INSET} />
+        <Divider inset={RowInset} />
 
         {renderBody()}
 
         {isOwner && (
           <>
-            <Divider inset={FEED_ROW_INSET} />
+            <Divider inset={RowInset} />
             <View style={styles.block}>
               <ToggleSwitch
                 label="Pause feeds"
