@@ -5,7 +5,7 @@ import IconButton from '@/components/core/icon-button';
 import PetAvatar from '@/components/core/pet-avatar';
 import PressableOpacity from '@/components/core/pressable-opacity';
 import Tray, { type TrayStepDescriptor } from '@/components/core/tray';
-import CareCard from '@/components/screens/pet/care-card';
+import CareCardTile from '@/components/screens/pet/care-card/care-card-tile';
 import EditPetDetails from '@/components/screens/pet/edit-pet-details';
 import { SEX_OPTIONS } from '@/constants/options';
 import { Radius, ScreenGutter, type AppTheme } from '@/constants/theme';
@@ -15,6 +15,7 @@ import { formatAge } from '@/lib/dates';
 import type { PetDetail } from '@/services/pet.service';
 import { optionLabel } from '@/utils/options';
 import type { TrueSheet } from '@lodev09/react-native-true-sheet';
+import { useRouter } from 'expo-router';
 import { useRef } from 'react';
 import { ActivityIndicator, StyleSheet, View } from 'react-native';
 
@@ -35,6 +36,7 @@ type Props = {
  */
 const PetIdentity = ({ pet, isOwner }: Props) => {
   const styles = useStyles(makeStyles);
+  const router = useRouter();
   const detailsTrayRef = useRef<TrueSheet | null>(null);
   const photoSheetRef = useRef<TrueSheet | null>(null);
   const { mutate: changePhoto, isPending: isChangingPhoto } = useChangePetPhoto(pet.id);
@@ -88,7 +90,19 @@ const PetIdentity = ({ pet, isOwner }: Props) => {
           )}
         </PressableOpacity>
 
-        <CareCard petId={pet.id} petName={pet.name} petSubtitle={pet.breed} />
+        <CareCardTile
+          petName={pet.name}
+          onPress={() =>
+            router.push({
+              pathname: '/home/[petId]/care-card',
+              params: {
+                petId: pet.id,
+                petName: pet.name,
+                ...(pet.breed ? { petSubtitle: pet.breed } : {})
+              }
+            })
+          }
+        />
       </View>
 
       <View style={styles.nameRow}>

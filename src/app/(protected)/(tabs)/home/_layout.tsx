@@ -114,6 +114,11 @@ export default function HomeLayout() {
           </Stack.Toolbar>
         </Stack.Screen>
 
+        <Stack.Screen name="[petId]/care-card" options={{ headerShown: true }}>
+          <Stack.Header transparent />
+          <Stack.Screen.BackButton displayMode="minimal" />
+        </Stack.Screen>
+
         <Stack.Screen
           name="[petId]/care-card-editor"
           options={{

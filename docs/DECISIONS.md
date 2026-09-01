@@ -41,14 +41,26 @@ list the user never asked for.
 header already carries the plus, the illustrated empty state was taller than the card it explained
 and offered a second copy of the same action.
 
-**The care card opens as a page, not a gold card that flips.** It grows out of the tile into the
-page colour, with a close button, help, share and the pencil in a bar across the top. A sitter
-reading it wants every section at once, and a face they had to turn over hid half of them behind an
-animation. `card-front-face.tsx`, `card-back-face.tsx`, `card-face-header.tsx` and
-`card-action-button.tsx` are gone with it.
+**The care card is a route, not an overlay.** `home/[petId]/care-card` — a push, a real back
+button, and a URL a notification could reach one day. It was a gold card that morphed out of its
+tile and flipped to show its contents; a sitter reading it wants every section at once, and a face
+they had to turn over hid half of them behind an animation. `care-card-overlay.tsx`,
+`card-front-face.tsx`, `card-back-face.tsx`, `card-face-header.tsx` and `card-action-button.tsx`
+are gone, and `CareCardTile` no longer measures its own frame.
 
-**Share moved into that bar and kept its PDF.** The design drew no Share at all; dropping it would
-have taken the whole of CRU-010 with it, so it is an icon beside the pencil instead.
+**Its bar is `Stack.Toolbar.Button`, three SF Symbols.** `questionmark.circle`,
+`square.and.arrow.up` and `pencil`, which iOS 26 draws as one glass capsule beside the back
+button's own. A row of `IconButton`s stacked our material on the bar's and read visibly heavier.
+
+**The pencil uses `hidden`, not a conditional child.** The toolbar reads its children once, so
+removing one for a Contributor left a gap where the item had been.
+
+**The large title is the heading.** `<Stack.Title large>` collapses into the bar on scroll, so the
+page draws the words once. Rendering both put "Crumpet's care card" on the screen twice.
+
+**Share kept its PDF.** The design drew no Share at all; dropping it would have taken the whole of
+CRU-010 with it, so it is a bar button beside the pencil, disabled while sharing and on an empty
+card.
 
 **`CareCard` now carries `updatedAt`.** The date under the title comes from the column the
 `care_cards_set_updated_at` trigger already maintained. There is no `updated_by`, so the line reads
