@@ -27,7 +27,7 @@ type Props = {
    * dates in this app are birthdates and a pet cannot be born tomorrow. A
    * Reminder is the other way round -- see reminder-tray. Ignored by `time`.
    */
-  bound?: 'past' | 'future' | 'any';
+  bound?: 'past' | 'future';
   selectedDate: string;
   setSelectedDate: (date: string) => void;
 };
@@ -87,7 +87,11 @@ const DateTimePickerValidated = ({
           setIsVisible(false);
         }}
         maximumDate={mode === 'date' && bound === 'past' ? new Date() : undefined}
-        minimumDate={mode === 'date' && bound === 'future' ? new Date() : undefined}
+        // Midnight, not now: a bound at the current instant can grey out today
+        // itself, and today is a legitimate date for a Reminder.
+        minimumDate={
+          mode === 'date' && bound === 'future' ? dayjs().startOf('day').toDate() : undefined
+        }
       />
       {label &&
         (isLabelIndicated ? (

@@ -17,7 +17,7 @@ export const REMINDERS_HELP: HelpTopic = {
     { kind: 'heading', text: 'Today, and what is coming' },
     {
       kind: 'paragraph',
-      text: 'This card shows what is due today first, then what is coming over the next two months. A Reminder that has not come round yet is marked Future, so you can see it without being asked to do it.'
+      text: 'This card shows what is due today first, then what is coming over the next 60 days. A Reminder that has not come round yet is marked Future, so you can see it without being asked to do it.'
     },
     {
       kind: 'paragraph',

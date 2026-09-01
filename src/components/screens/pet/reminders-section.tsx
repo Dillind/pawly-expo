@@ -8,7 +8,7 @@ import ReminderRow from '@/components/ui/reminder-row';
 import SectionCard from '@/components/screens/pet/section-card';
 import { REMINDERS_HELP } from '@/constants/reminders-help';
 import type { AppTheme } from '@/constants/theme';
-import { useTickReminder } from '@/hooks/queries/reminder/use-reminder-mutations';
+import { isTickPending, useTickReminder } from '@/hooks/queries/reminder/use-reminder-mutations';
 import { useUpcomingReminders } from '@/hooks/queries/reminder/use-reminders';
 import { useStyles } from '@/hooks/use-styles';
 import { formatReminderDate, shiftDays } from '@/lib/dates';
@@ -31,7 +31,7 @@ const VISIBLE_LIMIT = 6;
 
 /**
  * The dated jobs that are not feeds. Today first, then what is coming over the
- * next two months. Home's week strip is still where a particular day is
+ * next 60 days. Home's week strip is still where a particular day is
  * reached; this is the list of what is outstanding.
  */
 const RemindersSection = ({ pet, today }: Props) => {
@@ -44,7 +44,7 @@ const RemindersSection = ({ pet, today }: Props) => {
     today,
     shiftDays(today, HORIZON_DAYS)
   );
-  const { mutate: tickReminder, isPending: isTicking } = useTickReminder();
+  const { mutate: tickReminder, isPending: isTicking, variables: tickingInput } = useTickReminder();
 
   const visible = reminders.slice(0, VISIBLE_LIMIT);
   const hiddenCount = reminders.length - visible.length;
@@ -77,7 +77,12 @@ const RemindersSection = ({ pet, today }: Props) => {
                     ? undefined
                     : formatReminderDate(reminder.occurrenceDate)
                 }
-                isTicking={isTicking}
+                isTicking={isTickPending(
+                  isTicking,
+                  tickingInput,
+                  reminder.reminderId,
+                  reminder.occurrenceDate
+                )}
                 // A job that is not due yet has nothing to tick off. The row
                 // says "Future" instead, and the chip would contradict it.
                 onTick={
@@ -100,7 +105,7 @@ const RemindersSection = ({ pet, today }: Props) => {
 
           {hiddenCount > 0 && (
             <AppText size={13} color="textSecondary">
-              {`${hiddenCount} more in the next ${HORIZON_DAYS} days.`}
+              {`${hiddenCount} more still to come.`}
             </AppText>
           )}
 

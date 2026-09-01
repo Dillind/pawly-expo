@@ -36,7 +36,19 @@ export function useRemoveReminder() {
   });
 }
 
-type TickInput = { reminderId: string; occurrenceDate: string; isDone: boolean };
+export type TickInput = { reminderId: string; occurrenceDate: string; isDone: boolean };
+
+/**
+ * One mutation drives a whole card of rows, so `isPending` alone would put
+ * every visible Done chip into its loading state while one row ticks.
+ */
+export const isTickPending = (
+  isPending: boolean,
+  variables: TickInput | undefined,
+  reminderId: string,
+  occurrenceDate: string
+) =>
+  isPending && variables?.reminderId === reminderId && variables?.occurrenceDate === occurrenceDate;
 
 /**
  * One mutation for both directions. The row is a toggle, so splitting it would
