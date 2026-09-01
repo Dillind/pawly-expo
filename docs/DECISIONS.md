@@ -32,6 +32,12 @@ already was the semibold one.
 **The care card's updated date falls back to the device zone.** It sits under the title, so gating
 it on the household read made it appear late or not at all.
 
+**A segmented control with no value shows no thumb.** `selectedIndex` was
+`Math.max(findIndex, 0)`, so an unset field painted the thumb under the first
+option and read as already chosen -- "Male" looked picked when nothing was. The
+-1 is kept and the thumb is not drawn. No caller starts unset today, so this
+changes nothing on screen and exists so the next one cannot lie.
+
 ## 2026-09-01
 
 **The pet's photo is a circle, not a full-bleed header.** It shares its row with the care card

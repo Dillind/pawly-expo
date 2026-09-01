@@ -42,6 +42,8 @@ type Props = {
   day: string;
   members: HouseholdMember[];
   isOnlyPet: boolean;
+  /** Only an Owner may write feed times, so only an Owner is offered them. */
+  isOwner: boolean;
   onOpenLog: (logId: string) => void;
   onPickOccurrence: (pet: Pet, occurrence: Occurrence) => void;
   onLogPress: () => void;
@@ -59,6 +61,7 @@ const PetSection = ({
   day,
   members,
   isOnlyPet,
+  isOwner,
   onOpenLog,
   onPickOccurrence,
   onLogPress
@@ -182,11 +185,13 @@ const PetSection = ({
                   <AppText size={14} color="textSecondary">
                     {hasFeedTimes
                       ? `Nothing is due for ${pet.name} ${isToday ? 'today' : 'that day'}. Their next feed is on the way.`
-                      : `Add ${pet.name}'s feed times and everyone will know when they are due.`}
+                      : isOwner
+                        ? `Add ${pet.name}'s feed times and everyone will know when they are due.`
+                        : `No feed times yet. An owner sets ${pet.name}'s feed times.`}
                   </AppText>
                   {/* Skipping the schedule stays viable -- the log is the habit
                     and the schedule is the upgrade, so this offers both. */}
-                  {!hasFeedTimes && (
+                  {!hasFeedTimes && isOwner && (
                     <MainButton
                       text="Set up feeds"
                       size="sm"

@@ -572,9 +572,11 @@ optional until the user tries to save. The schema is the source of truth, not th
   empty, and an asterisk there is noise.
 
 The four validated inputs take the prop: `TextInputValidated`, `DateTimePickerValidated`, and both
-`DropdownPickerValidated` files. **`SegmentedControl` deliberately does not.** It renders its label
-at a different size, and it always paints a thumb — `Math.max(findIndex, 0)` falls back to the first
-option — so it can never look empty and has nothing to warn about.
+`DropdownPickerValidated` files. **`SegmentedControl` does not take it yet**, only because no caller
+needs it — every one of them carries a value from `defaultValues`. It *can* look unset: since
+CRU-093 a control whose value matches no option paints no thumb. So a segmented control that can
+start empty does need the indicator, and adding it means giving `IndicatedText` a `size` and
+`fontWeight` first — the segmented label is 14/bold and `IndicatedText` is fixed at 16/regular.
 
 When you add a field, set `isLabelIndicated` in the same edit as the schema line. Checking a form
 afterwards means reading every field against every schema, which is how these get missed.

@@ -11,6 +11,11 @@ export type HomeTip = {
  * The one hub slot below the tiles, and it stays empty unless the household's
  * real state gives it something to say.
  *
+ * Every tip it can give is a feed-time tip, and RLS grants feed-time writes to
+ * Owners only -- see "Owners can create feed times". So a Contributor gets
+ * silence rather than a softened version: they cannot act on it, and they
+ * cannot ask for it in the app either.
+ *
  * Filler in this slot is worse than an empty slot: a generic pet tip trains the
  * household to ignore the only place the app volunteers anything. So there is
  * no fallback string, and `null` is a normal answer.
@@ -18,7 +23,13 @@ export type HomeTip = {
  * One tip at a time, and the first pet in order wins. A list of tips is a
  * to-do list, which is a different screen.
  */
-export function findHomeTip(pets: Pet[], feedTimes: Record<string, FeedTime[]>): HomeTip | null {
+export function findHomeTip(
+  pets: Pet[],
+  feedTimes: Record<string, FeedTime[]>,
+  isOwner: boolean
+): HomeTip | null {
+  if (!isOwner) return null;
+
   for (const pet of pets) {
     const times = feedTimes[pet.id];
 
