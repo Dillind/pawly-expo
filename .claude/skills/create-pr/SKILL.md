@@ -32,16 +32,27 @@ chore/CRU-022-bump-expo-57
 
 ### Allocating the next ID
 
-IDs are derived from git history, not from an external tracker. Take the highest existing number across **both** prefixes and add one — the sequence is shared, so a lookup that only matched `CRU-` would hand out 001 again:
+IDs are derived from what already exists, not from an external tracker. Take the highest existing number across **both** prefixes and add one — the sequence is shared, so a lookup that only matched `CRU-` would hand out 001 again:
 
 ```bash
 { git branch -a --format='%(refname:short)'
   git log --all --format='%s'
   gh pr list --state all --limit 200 --json title,headRefName -q '.[].title,.[].headRefName' 2>/dev/null
+  gh issue list --state all --limit 300 --json title -q '.[].title' 2>/dev/null
 } | grep -oE '(PAW|CRU)-[0-9]+' | sort -t- -k2 -n | tail -1
 ```
 
+**Issues are part of the sequence, which is why the last line is there.** An ID can be allocated to
+an issue before any branch or commit carries it. `[CRU-095] Push notification copy` was opened as
+issue #126 on 2026-09-01 with nothing in git to show for it, and a branch took 095 again the same
+day. A lookup over branches, commits and PRs alone finds nothing, hands the number out twice, and
+the collision surfaces in review.
+
 Whatever prefix that highest match carries, the **new** branch always uses `CRU-`. Empty output means none exist yet — start at `CRU-001`. Run this against a **fetched** repo (`git fetch --all --prune` first) so a teammate's pushed branch isn't missed and the same ID handed out twice.
+
+**A collision found after the branch exists is expensive.** A PR's head branch cannot be changed, so
+renumbering means a new branch, rewritten commit subjects and a new PR — the review thread on the
+old one is lost. Run the lookup before the branch, not after.
 
 If the user supplies an ID explicitly, use theirs — don't re-derive.
 

@@ -12,7 +12,7 @@ import { Radius, type AppTheme } from '@/constants/theme';
 import { useOccurrences } from '@/hooks/queries/feeding/use-occurrences';
 import { useFeedTimes } from '@/hooks/queries/feeding/use-feed-times';
 import { usePetPause } from '@/hooks/queries/feeding/use-pet-pause';
-import { useTickReminder } from '@/hooks/queries/reminder/use-reminder-mutations';
+import { isTickPending, useTickReminder } from '@/hooks/queries/reminder/use-reminder-mutations';
 import { useReminders } from '@/hooks/queries/reminder/use-reminders';
 import { useStyles } from '@/hooks/use-styles';
 import { useTheme } from '@/hooks/use-theme';
@@ -78,7 +78,7 @@ const PetSection = ({
   const { data: pause } = usePetPause(pet.id, day);
   const { data: feedTimes } = useFeedTimes(pet.id);
   const { data: reminders = [] } = useReminders(pet.id, day);
-  const { mutate: tickReminder, isPending: isTicking } = useTickReminder();
+  const { mutate: tickReminder, isPending: isTicking, variables: tickingInput } = useTickReminder();
   const reminderTrayRef = useRef<TrueSheet | null>(null);
   const isPaused = Boolean(pause);
   const hasFeedTimes = Boolean(feedTimes?.length);
@@ -209,7 +209,12 @@ const PetSection = ({
                   <ReminderRow
                     key={reminder.reminderId}
                     reminder={reminder}
-                    isTicking={isTicking}
+                    isTicking={isTickPending(
+                      isTicking,
+                      tickingInput,
+                      reminder.reminderId,
+                      reminder.occurrenceDate
+                    )}
                     onTick={
                       isToday
                         ? () =>

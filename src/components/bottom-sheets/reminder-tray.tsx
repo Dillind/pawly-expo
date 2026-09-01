@@ -163,6 +163,7 @@ const WhenStep = ({
       <DateTimePickerValidated
         name="startsOn"
         mode="date"
+        bound="future"
         label="Date"
         isLabelIndicated
         selectedDate={startsOn}

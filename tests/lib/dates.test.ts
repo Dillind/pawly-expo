@@ -13,7 +13,8 @@ import {
   weekdayInitial,
   dayOfMonth,
   formatMonthAndYear,
-  formatWeekdayName
+  formatWeekdayName,
+  shiftDays
 } from '@/lib/dates';
 
 const MELBOURNE = 'Australia/Melbourne';
@@ -248,5 +249,19 @@ describe('week strip labels', () => {
   it('formats the heading and the month line', () => {
     expect(formatWeekdayName('2026-08-31')).toBe('Monday');
     expect(formatMonthAndYear('2026-08-31')).toBe('AUG 2026');
+  });
+});
+
+describe('shiftDays', () => {
+  it('moves forward across a month boundary', () => {
+    expect(shiftDays('2026-09-01', 60)).toBe('2026-10-31');
+  });
+
+  it('moves backward', () => {
+    expect(shiftDays('2026-03-01', -1)).toBe('2026-02-28');
+  });
+
+  it('keeps the leap day', () => {
+    expect(shiftDays('2028-02-28', 1)).toBe('2028-02-29');
   });
 });

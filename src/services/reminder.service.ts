@@ -29,6 +29,8 @@ type ReminderRow = {
   done_at: string | null;
 };
 
+type ReminderRangeRow = ReminderRow & { occurrence_date: string };
+
 type ReminderDayRow = { day: string; kinds: ReminderKind[] };
 
 namespace ReminderService {
@@ -44,6 +46,36 @@ namespace ReminderService {
     return (data as ReminderRow[]).map((row) => ({
       reminderId: row.reminder_id,
       occurrenceDate: date,
+      title: row.title,
+      kind: row.kind,
+      localTime: row.local_time.slice(0, 5),
+      state: row.state,
+      doneBy: row.done_by,
+      doneAt: row.done_at
+    }));
+  }
+
+  /**
+   * Every occurrence between two dates, oldest first. One round trip rather
+   * than one per day: a horizon of two months is two calls a year in practice,
+   * and almost every day in it carries nothing.
+   */
+  export async function listRange(
+    petId: string,
+    fromDate: string,
+    toDate: string
+  ): Promise<ReminderOccurrence[]> {
+    const { data, error } = await supabase.rpc('pet_reminders_range', {
+      target_pet_id: petId,
+      from_date: fromDate,
+      to_date: toDate
+    });
+
+    if (error) throw error;
+
+    return (data as ReminderRangeRow[]).map((row) => ({
+      reminderId: row.reminder_id,
+      occurrenceDate: row.occurrence_date,
       title: row.title,
       kind: row.kind,
       localTime: row.local_time.slice(0, 5),
@@ -128,7 +160,10 @@ namespace ReminderService {
   }
 
   /** Unticking is a delete: a completion is either there or it is not. */
-  export async function removeCompletion(reminderId: string, occurrenceDate: string): Promise<void> {
+  export async function removeCompletion(
+    reminderId: string,
+    occurrenceDate: string
+  ): Promise<void> {
     const { error } = await supabase
       .from('reminder_completions')
       .delete()

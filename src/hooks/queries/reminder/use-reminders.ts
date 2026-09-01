@@ -13,6 +13,23 @@ export function useReminders(petId: string | undefined, date: string | undefined
   });
 }
 
+/**
+ * Today and what is coming, for the Pet screen. `fromDate` and `toDate` are ISO
+ * YYYY-MM-DD strings in the household's timezone.
+ */
+export function useUpcomingReminders(
+  petId: string | undefined,
+  fromDate: string | undefined,
+  toDate: string | undefined
+) {
+  return useQuery({
+    queryKey: ['reminders', petId, fromDate, toDate],
+    queryFn: () => ReminderService.listRange(petId as string, fromDate as string, toDate as string),
+    enabled: Boolean(petId) && Boolean(fromDate) && Boolean(toDate),
+    staleTime: REMINDERS_STALE_MS
+  });
+}
+
 /** The dots under the week strip. One query for the whole week. */
 export function useReminderDays(
   householdId: string | undefined,

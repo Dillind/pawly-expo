@@ -5,7 +5,7 @@ import IconButton from '@/components/core/icon-button';
 import PetAvatar from '@/components/core/pet-avatar';
 import PressableOpacity from '@/components/core/pressable-opacity';
 import Tray, { type TrayStepDescriptor } from '@/components/core/tray';
-import CareCardTile from '@/components/screens/pet/care-card/care-card-tile';
+import CareCardTile, { TileWidth } from '@/components/screens/pet/care-card/care-card-tile';
 import EditPetDetails from '@/components/screens/pet/edit-pet-details';
 import { SEX_OPTIONS } from '@/constants/options';
 import { Radius, ScreenGutter, type AppTheme } from '@/constants/theme';
@@ -72,6 +72,10 @@ const PetIdentity = ({ pet, isOwner }: Props) => {
   return (
     <View style={styles.hero}>
       <View style={styles.row}>
+        {/* The avatar is the centre of the screen, so the care card beside it
+            is balanced by an empty column of its own width. */}
+        <View style={styles.spacer} />
+
         <PressableOpacity
           disabled={!isOwner || isChangingPhoto}
           accessibilityRole={isOwner ? 'button' : 'image'}
@@ -147,8 +151,10 @@ const makeStyles = ({ colors, spacing }: AppTheme) =>
     row: {
       flexDirection: 'row',
       alignItems: 'flex-end',
-      gap: spacing.three
+      justifyContent: 'center',
+      gap: spacing.two
     },
+    spacer: { width: TileWidth },
     // The ring is the page colour, not a border, so the badge reads as cut out
     // of the avatar rather than stuck on top of it.
     badge: {
