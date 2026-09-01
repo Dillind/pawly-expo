@@ -26,9 +26,11 @@ type Props = {
   onSelectDay: (day: string) => void;
 };
 
-// On trial. See DECISIONS.md.
+// Warm ink for a feed, not gold: issue #122 gives gold exactly three jobs --
+// the banner wash, the Log chip, the active tab. A fourth drains the other
+// three. The Kind colours are on trial; see DECISIONS.md.
 const DOT_COLOUR = {
-  feed: 'primary',
+  feed: 'text',
   medication: 'medication',
   vet: 'vet'
 } as const;

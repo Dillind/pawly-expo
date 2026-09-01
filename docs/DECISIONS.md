@@ -416,3 +416,14 @@ ever draws the selected day's week, so without a way to move between weeks it is
 horizontal fling is the natural gesture, adds no chrome, and does not pre-empt whatever the
 artboard's chevron becomes -- a date picker, or a month view. Fling rather than pan: the strip sits
 inside a vertical scroll view, and a week is a discrete step rather than a draggable position.
+
+**A feed Reminder's strip dot is warm ink, not gold.** Issue #122 gives gold exactly three jobs --
+the banner wash, the Log chip, the active tab -- and says a fourth drains the meaning from the other
+three. A gold dot under a date is that fourth. The medication and vet dots keep their Kind colours,
+which are not gold and are still on trial.
+
+**The Reminder Tray's Home trigger is a text button, not a second ghost row.** The Home pet card
+already ends with the dashed "Other" row, and two dashed rows stacked read as one broken control.
+The text button is the same trigger the Pet screen's Reminders section uses, so the two screens
+offer the same thing in the same way. It is gated on today and on the pet not being paused, exactly
+like "Other".

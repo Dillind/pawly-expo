@@ -1,3 +1,4 @@
+import ReminderTray from '@/components/bottom-sheets/reminder-tray';
 import AppText from '@/components/core/app-text';
 import Divider from '@/components/core/divider';
 import Icon from '@/components/core/icon';
@@ -19,8 +20,9 @@ import { createShadowMedium } from '@/lib/styles/shadows';
 import { todayInTimezone } from '@/lib/dates';
 import { summarisePetDay } from '@/utils/pet-status';
 import type { HouseholdMember, Occurrence, Pet } from '@/types/core';
+import type { TrueSheet } from '@lodev09/react-native-true-sheet';
 import { useRouter } from 'expo-router';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { ActivityIndicator, StyleSheet, View } from 'react-native';
 import Animated, {
   FadeIn,
@@ -74,6 +76,7 @@ const PetSection = ({
   const { data: feedTimes } = useFeedTimes(pet.id);
   const { data: reminders = [] } = useReminders(pet.id, day);
   const { mutate: tickReminder, isPending: isTicking } = useTickReminder();
+  const reminderTrayRef = useRef<TrueSheet | null>(null);
   const isPaused = Boolean(pause);
   const hasFeedTimes = Boolean(feedTimes?.length);
 
@@ -99,138 +102,154 @@ const PetSection = ({
   }));
 
   return (
-    <Animated.View
-      style={[styles.card, createShadowMedium(theme.colors)]}
-      layout={LinearTransition.duration(EXPAND_MS)}>
-      {/* Siblings rather than nested: a tap target inside a tap target is
+    <>
+      <Animated.View
+        style={[styles.card, createShadowMedium(theme.colors)]}
+        layout={LinearTransition.duration(EXPAND_MS)}>
+        {/* Siblings rather than nested: a tap target inside a tap target is
           ambiguous, as written up on FeedLogRow's trailing cluster. */}
-      <View style={styles.headerRow}>
-        <PressableOpacity
-          style={styles.identity}
-          accessibilityRole="button"
-          accessibilityLabel={`Open ${pet.name}`}
-          onPress={() => router.push(`/home/${pet.id}`)}>
-          <PetAvatar photoUrl={pet.photoUrl} size={40} />
+        <View style={styles.headerRow}>
+          <PressableOpacity
+            style={styles.identity}
+            accessibilityRole="button"
+            accessibilityLabel={`Open ${pet.name}`}
+            onPress={() => router.push(`/home/${pet.id}`)}>
+            <PetAvatar photoUrl={pet.photoUrl} size={40} />
 
-          <View style={styles.names}>
-            <AppText size={18} fontWeight="bold" numberOfLines={1}>
-              {pet.name}
-            </AppText>
-            {occurrences && (
-              <AppText size={13} color="textSecondary" numberOfLines={1}>
-                {summarisePetDay(occurrences, isPaused, hasFeedTimes)}
+            <View style={styles.names}>
+              <AppText size={18} fontWeight="bold" numberOfLines={1}>
+                {pet.name}
               </AppText>
-            )}
-          </View>
-        </PressableOpacity>
+              {occurrences && (
+                <AppText size={13} color="textSecondary" numberOfLines={1}>
+                  {summarisePetDay(occurrences, isPaused, hasFeedTimes)}
+                </AppText>
+              )}
+            </View>
+          </PressableOpacity>
 
-        {/* Nothing outstanding, so the fast path has nothing to be fast about.
+          {/* Nothing outstanding, so the fast path has nothing to be fast about.
             Every row already carries its own Log button. */}
-        {isAllLogged && <Icon name="check" size={20} color="success" />}
+          {isAllLogged && <Icon name="check" size={20} color="success" />}
 
-        <Animated.View style={caretStyle}>
-          <IconButton
-            name="caretDown"
-            accessibilityLabel={isOpen ? `Hide ${pet.name}'s feeds` : `Show ${pet.name}'s feeds`}
-            variant="ghost"
-            size={18}
-            hapticFeedback={false}
-            onPress={() => setIsExpanded(!isOpen)}
-          />
-        </Animated.View>
-      </View>
+          <Animated.View style={caretStyle}>
+            <IconButton
+              name="caretDown"
+              accessibilityLabel={isOpen ? `Hide ${pet.name}'s feeds` : `Show ${pet.name}'s feeds`}
+              variant="ghost"
+              size={18}
+              hapticFeedback={false}
+              onPress={() => setIsExpanded(!isOpen)}
+            />
+          </Animated.View>
+        </View>
 
-      {isOpen &&
-        (isLoading ? (
-          <ActivityIndicator />
-        ) : (
-          <Animated.View
-            style={styles.occurrences}
-            entering={FadeIn.duration(EXPAND_MS)}
-            exiting={FadeOut.duration(COLLAPSE_MS)}>
-            <Divider />
-            {isPaused ? (
-              // Still on Home, because hiding it would read as deleted. It just
-              // expects nothing.
-              <View style={styles.empty}>
-                <AppText size={14} color="textSecondary">
-                  {pet.name} is paused. No feeds are expected and nobody is nudged.
-                </AppText>
-                <MainButton
-                  text="Manage pause"
-                  variant="text"
-                  size="sm"
-                  onPress={() => router.push(`/home/${pet.id}`)}
-                />
-              </View>
-            ) : occurrences?.length ? (
-              <OccurrenceList
-                occurrences={occurrences}
-                timezone={timezone}
-                members={members}
-                isNested
-                isToday={isToday}
-                onOpenLog={onOpenLog}
-                onPickOccurrence={(occurrence) => onPickOccurrence(pet, occurrence)}
-              />
-            ) : (
-              <View style={styles.empty}>
-                <AppText size={14} color="textSecondary">
-                  {hasFeedTimes
-                    ? `Nothing is due for ${pet.name} ${isToday ? 'today' : 'that day'}. Their next feed is on the way.`
-                    : `Add ${pet.name}'s feed times and everyone will know when they are due.`}
-                </AppText>
-                {/* Skipping the schedule stays viable -- the log is the habit
-                    and the schedule is the upgrade, so this offers both. */}
-                {!hasFeedTimes && (
+        {isOpen &&
+          (isLoading ? (
+            <ActivityIndicator />
+          ) : (
+            <Animated.View
+              style={styles.occurrences}
+              entering={FadeIn.duration(EXPAND_MS)}
+              exiting={FadeOut.duration(COLLAPSE_MS)}>
+              <Divider />
+              {isPaused ? (
+                // Still on Home, because hiding it would read as deleted. It just
+                // expects nothing.
+                <View style={styles.empty}>
+                  <AppText size={14} color="textSecondary">
+                    {pet.name} is paused. No feeds are expected and nobody is nudged.
+                  </AppText>
                   <MainButton
-                    text="Set up feeds"
+                    text="Manage pause"
+                    variant="text"
                     size="sm"
                     onPress={() => router.push(`/home/${pet.id}`)}
                   />
-                )}
-              </View>
-            )}
+                </View>
+              ) : occurrences?.length ? (
+                <OccurrenceList
+                  occurrences={occurrences}
+                  timezone={timezone}
+                  members={members}
+                  isNested
+                  isToday={isToday}
+                  onOpenLog={onOpenLog}
+                  onPickOccurrence={(occurrence) => onPickOccurrence(pet, occurrence)}
+                />
+              ) : (
+                <View style={styles.empty}>
+                  <AppText size={14} color="textSecondary">
+                    {hasFeedTimes
+                      ? `Nothing is due for ${pet.name} ${isToday ? 'today' : 'that day'}. Their next feed is on the way.`
+                      : `Add ${pet.name}'s feed times and everyone will know when they are due.`}
+                  </AppText>
+                  {/* Skipping the schedule stays viable -- the log is the habit
+                    and the schedule is the upgrade, so this offers both. */}
+                  {!hasFeedTimes && (
+                    <MainButton
+                      text="Set up feeds"
+                      size="sm"
+                      onPress={() => router.push(`/home/${pet.id}`)}
+                    />
+                  )}
+                </View>
+              )}
 
-            {/* A Reminder is a row in the same list as the feeds, not a section
+              {/* A Reminder is a row in the same list as the feeds, not a section
                 of its own -- artboard 5 draws the two as one stack. A past day
                 is read-only, so the Done chip goes with everything else. */}
-            {!isPaused &&
-              reminders.map((reminder) => (
-                <ReminderRow
-                  key={reminder.reminderId}
-                  reminder={reminder}
-                  isTicking={isTicking}
-                  onTick={
-                    isToday
-                      ? () =>
-                          tickReminder({
-                            reminderId: reminder.reminderId,
-                            occurrenceDate: reminder.occurrenceDate,
-                            isDone: reminder.state === 'done'
-                          })
-                      : undefined
-                  }
-                />
-              ))}
+              {!isPaused &&
+                reminders.map((reminder) => (
+                  <ReminderRow
+                    key={reminder.reminderId}
+                    reminder={reminder}
+                    isTicking={isTicking}
+                    onTick={
+                      isToday
+                        ? () =>
+                            tickReminder({
+                              reminderId: reminder.reminderId,
+                              occurrenceDate: reminder.occurrenceDate,
+                              isDone: reminder.state === 'done'
+                            })
+                        : undefined
+                    }
+                  />
+                ))}
 
-            {/* The log tray writes against now, so it is not offered on another
+              {/* The log tray writes against now, so it is not offered on another
                 day. Paused means nothing is expected, including this. */}
-            {isToday && !isPaused && (
-              <PressableOpacity
-                style={styles.other}
-                accessibilityRole="button"
-                accessibilityLabel={`Log something else for ${pet.name}`}
-                onPress={onLogPress}>
-                <Icon name="plus" size={17} color="textSecondary" />
-                <AppText size={15} color="textSecondary">
-                  Other
-                </AppText>
-              </PressableOpacity>
-            )}
-          </Animated.View>
-        ))}
-    </Animated.View>
+              {isToday && !isPaused && (
+                <PressableOpacity
+                  style={styles.other}
+                  accessibilityRole="button"
+                  accessibilityLabel={`Log something else for ${pet.name}`}
+                  onPress={onLogPress}>
+                  <Icon name="plus" size={17} color="textSecondary" />
+                  <AppText size={15} color="textSecondary">
+                    Other
+                  </AppText>
+                </PressableOpacity>
+              )}
+
+              {/* A text button, not a second dashed row: two ghost rows stacked
+                read as one broken control. Matches the Pet screen's trigger. */}
+              {isToday && !isPaused && (
+                <MainButton
+                  text="Add a reminder"
+                  variant="text"
+                  size="sm"
+                  onPress={() => void reminderTrayRef.current?.present()}
+                />
+              )}
+            </Animated.View>
+          ))}
+      </Animated.View>
+
+      {/* A sibling, never a child. */}
+      <ReminderTray sheetRef={reminderTrayRef} pet={pet} today={day} />
+    </>
   );
 };
 
