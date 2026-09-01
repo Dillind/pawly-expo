@@ -18,6 +18,8 @@ import Animated, {
 
 type Props = {
   reminder: ReminderOccurrence;
+  /** The occurrence's date, for a row that is not today's. Omit and the row carries none. */
+  dateLabel?: string;
   isTicking?: boolean;
   onTick?: () => void;
 };
@@ -53,7 +55,7 @@ const TickIn = new Keyframe({
 const ChipOut = FadeOut.duration(EXIT_MS).reduceMotion(ReduceMotion.System);
 const LabelIn = FadeIn.duration(160).reduceMotion(ReduceMotion.System);
 
-const ReminderRow = ({ reminder, isTicking = false, onTick }: Props) => {
+const ReminderRow = ({ reminder, dateLabel, isTicking = false, onTick }: Props) => {
   const styles = useStyles(makeStyles);
   const isDone = reminder.state === 'done';
 
@@ -65,6 +67,11 @@ const ReminderRow = ({ reminder, isTicking = false, onTick }: Props) => {
         <AppText size={15} numberOfLines={1}>
           {reminder.title}
         </AppText>
+        {dateLabel && (
+          <AppText size={13} color="textSecondary">
+            {dateLabel}
+          </AppText>
+        )}
       </Animated.View>
 
       <Animated.View style={styles.slot} layout={RowReflow}>
@@ -128,7 +135,7 @@ const makeStyles = ({ colors, spacing }: AppTheme) =>
       gap: spacing.three,
       paddingVertical: spacing.two
     },
-    text: { flex: 1 },
+    text: { flex: 1, gap: 1 },
     slot: {
       flexDirection: 'row',
       alignItems: 'center',

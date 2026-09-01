@@ -14,10 +14,14 @@ export const REMINDERS_HELP: HelpTopic = {
       kind: 'paragraph',
       text: 'Everyone in the household. When one of you ticks it off, the rest see it straight away, so nobody does it twice.'
     },
-    { kind: 'heading', text: 'Today only' },
+    { kind: 'heading', text: 'Today, and what is coming' },
     {
       kind: 'paragraph',
-      text: 'This card shows what is due today. A Reminder that repeats keeps coming back on its own, and the week strip on Home is where you look at another day.'
+      text: 'This card shows what is due today first, then what is coming over the next two months. A Reminder that has not come round yet is marked Future, so you can see it without being asked to do it.'
+    },
+    {
+      kind: 'paragraph',
+      text: 'A Reminder that repeats keeps coming back on its own. The week strip on Home is where you look at one particular day.'
     }
   ]
 };

@@ -524,3 +524,19 @@ The screen colour was the other candidate and was rejected. `background` against
 1.04:1, so the card is held apart by its shadow alone, and warming the screen is what would fix it.
 That is exactly the move the entry above reversed on purpose. Ink was the half of the pair that
 could move.
+
+**The Pet screen's Reminders card reads forward, not just at today.** It listed the household's
+today only, on the reasoning that Home's week strip is where another day is reached. That was
+backwards. A Reminder is written down precisely because the vet appointment is three weeks away,
+so a card that hides it until the morning it is due removes the one thing the feature is for.
+
+The card now shows today first, then the next 60 days, capped at six rows with a count of the rest.
+Both numbers are bounds rather than a view: a weekly rule read over an open range is unbounded, and
+a card listing twenty occurrences of one rule has become a screen.
+
+A new `pet_reminders_range` RPC does it in one round trip. `pet_reminders` stays -- Home still asks
+for one particular day, and a client loop of 60 single-day calls to find the two days that carry
+anything is the alternative it avoids.
+
+A future occurrence no longer offers a Done chip. The row already drew a "Future" badge beside it,
+which said the job is not due and then invited someone to tick it off anyway.
