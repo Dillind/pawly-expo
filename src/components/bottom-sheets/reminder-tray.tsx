@@ -1,4 +1,5 @@
 import AppText from '@/components/core/app-text';
+import Icon from '@/components/core/icon';
 import DateTimePickerValidated from '@/components/core/date-time-picker-validated';
 import MainButton from '@/components/core/main-button';
 import PressableOpacity from '@/components/core/pressable-opacity';
@@ -7,15 +8,17 @@ import Tray, { useTray, type TrayStepDescriptor } from '@/components/core/tray';
 import PetAvatar from '@/components/screens/home/pet-avatar';
 import {
   DEFAULT_REMINDER_LEAD_DAYS,
+  REMINDER_KIND_ICON,
   REMINDER_KIND_OPTIONS,
   REMINDER_LEAD_OPTIONS,
   REMINDER_REPEAT_OPTIONS
 } from '@/constants/options';
 import { reminderSchema, type ReminderFormValues } from '@/constants/schemas/reminder';
-import { Radius, type AppTheme } from '@/constants/theme';
+import { Radius, type AppTheme, type ThemeColor } from '@/constants/theme';
 import { useCreateReminder } from '@/hooks/queries/reminder/use-reminder-mutations';
 import { useStyles } from '@/hooks/use-styles';
 import { formatReminderDate, formatScheduledTime } from '@/lib/dates';
+import type { IconName } from '@/constants/icon-map';
 import type { Option, Pet } from '@/types/core';
 import { zodResolver } from '@hookform/resolvers/zod';
 import type { TrueSheet } from '@lodev09/react-native-true-sheet';
@@ -38,11 +41,13 @@ const PillRow = <T extends string | number>({
   options,
   value,
   fill,
+  icon,
   onChange
 }: {
   options: Option<T>[];
   value: T;
   fill?: (option: Option<T>) => string | undefined;
+  icon?: (option: Option<T>) => { name: IconName; color: ThemeColor } | undefined;
   onChange: (value: T) => void;
 }) => {
   const styles = useStyles(makeStyles);
@@ -52,6 +57,7 @@ const PillRow = <T extends string | number>({
       {options.map((option) => {
         const isSelected = option.value === value;
         const background = isSelected ? fill?.(option) : undefined;
+        const glyph = icon?.(option);
 
         return (
           <PressableOpacity
@@ -64,6 +70,7 @@ const PillRow = <T extends string | number>({
             accessibilityRole="button"
             accessibilityState={{ selected: isSelected }}
             onPress={() => onChange(option.value)}>
+            {glyph && <Icon name={glyph.name} size={15} color={glyph.color} />}
             <AppText size={14} fontWeight={isSelected ? 'bold' : 'regular'}>
               {option.label}
             </AppText>
@@ -73,6 +80,13 @@ const PillRow = <T extends string | number>({
     </View>
   );
 };
+
+// The Kind's ink, on trial with the fills. See DECISIONS.md.
+const KIND_INK = {
+  feed: 'text',
+  medication: 'medication',
+  vet: 'vet'
+} as const;
 
 type StepValues = ReminderFormValues;
 
@@ -107,6 +121,10 @@ const WhatStep = ({
         <PillRow
           options={REMINDER_KIND_OPTIONS}
           value={kind}
+          icon={(option) => ({
+            name: REMINDER_KIND_ICON[option.value],
+            color: KIND_INK[option.value]
+          })}
           fill={(option) =>
             option.value === 'medication'
               ? styles.medicationFill.backgroundColor
@@ -340,6 +358,9 @@ const makeStyles = ({ colors, spacing }: AppTheme) =>
       gap: spacing.two
     },
     pill: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: spacing.one,
       paddingVertical: spacing.two,
       paddingHorizontal: spacing.three,
       borderRadius: Radius.full,

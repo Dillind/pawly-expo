@@ -83,7 +83,7 @@ const TextInputValidated = React.forwardRef<TextInputRef, Props>(
       height = 46,
       rightIcon,
       borderColor = 'textSecondary',
-      backgroundColor = 'background',
+      backgroundColor = 'backgroundElement',
       returnKeyType = 'done',
       maxLength,
       showFieldError = true,

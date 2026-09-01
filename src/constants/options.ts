@@ -1,4 +1,5 @@
 import { COMMON_TIMEZONES } from '@/constants/timezones';
+import type { IconName } from '@/constants/icon-map';
 import type {
   FeedingScheduleLabel,
   ReminderKind,
@@ -77,6 +78,12 @@ export const FEED_DUE_LEAD_OPTIONS: Option<LeadMinutes>[] = [
   { value: 30, label: '30 minutes' },
   { value: 60, label: '1 hour' }
 ];
+
+export const REMINDER_KIND_ICON: Record<ReminderKind, IconName> = {
+  feed: 'utensils',
+  medication: 'pill',
+  vet: 'stethoscope'
+};
 
 export const REMINDER_KIND_OPTIONS: Option<ReminderKind>[] = [
   { value: 'feed', label: 'Feed' },

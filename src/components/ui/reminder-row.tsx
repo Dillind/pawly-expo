@@ -2,7 +2,7 @@ import AppText from '@/components/core/app-text';
 import Icon from '@/components/core/icon';
 import MainButton from '@/components/core/main-button';
 import PressableOpacity from '@/components/core/pressable-opacity';
-import type { IconName } from '@/constants/icon-map';
+import { REMINDER_KIND_ICON } from '@/constants/options';
 import type { AppTheme } from '@/constants/theme';
 import { useStyles } from '@/hooks/use-styles';
 import type { ReminderKind, ReminderOccurrence } from '@/types/core';
@@ -20,12 +20,6 @@ type Props = {
   reminder: ReminderOccurrence;
   isTicking?: boolean;
   onTick?: () => void;
-};
-
-const KIND_ICON: Record<ReminderKind, IconName> = {
-  feed: 'utensils',
-  medication: 'pill',
-  vet: 'stethoscope'
 };
 
 // The Kind's colour, on trial. See DECISIONS.md -- reverting means deleting
@@ -65,7 +59,7 @@ const ReminderRow = ({ reminder, isTicking = false, onTick }: Props) => {
 
   const body = (
     <>
-      <Icon name={KIND_ICON[reminder.kind]} size={19} color={KIND_COLOUR[reminder.kind]} />
+      <Icon name={REMINDER_KIND_ICON[reminder.kind]} size={19} color={KIND_COLOUR[reminder.kind]} />
 
       <Animated.View style={styles.text} layout={RowReflow}>
         <AppText size={15} numberOfLines={1}>
