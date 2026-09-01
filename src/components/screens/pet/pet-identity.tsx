@@ -88,12 +88,7 @@ const PetIdentity = ({ pet, isOwner }: Props) => {
           )}
         </PressableOpacity>
 
-        <CareCard
-          petId={pet.id}
-          petName={pet.name}
-          petSubtitle={pet.breed}
-          photoUrl={pet.photoUrl}
-        />
+        <CareCard petId={pet.id} petName={pet.name} petSubtitle={pet.breed} />
       </View>
 
       <View style={styles.nameRow}>

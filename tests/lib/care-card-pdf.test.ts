@@ -3,6 +3,7 @@ import type { CareCard, Medication } from '@/services/care-card.service';
 
 const emptyCard = (petId = 'pet-1'): CareCard => ({
   petId,
+  updatedAt: null,
   allergies: null,
   behaviourNotes: null,
   vetName: null,

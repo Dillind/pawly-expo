@@ -12,10 +12,9 @@ type Props = {
   petId: string;
   petName: string;
   petSubtitle: string | null;
-  photoUrl: string | null;
 };
 
-const CareCard = ({ petId, petName, petSubtitle, photoUrl }: Props) => {
+const CareCard = ({ petId, petName, petSubtitle }: Props) => {
   const router = useRouter();
   const { card, medications, contacts, isLoading } = useCareCardData(petId);
   const { shareCareCard, isSharing } = useShareCareCard();
@@ -47,8 +46,6 @@ const CareCard = ({ petId, petName, petSubtitle, photoUrl }: Props) => {
       {origin && (
         <CareCardOverlay
           petName={petName}
-          petSubtitle={petSubtitle}
-          photoUrl={photoUrl}
           card={card}
           medications={medications}
           contacts={contacts}

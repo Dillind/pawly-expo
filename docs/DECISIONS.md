@@ -41,6 +41,20 @@ list the user never asked for.
 header already carries the plus, the illustrated empty state was taller than the card it explained
 and offered a second copy of the same action.
 
+**The care card opens as a page, not a gold card that flips.** It grows out of the tile into the
+page colour, with a close button, help, share and the pencil in a bar across the top. A sitter
+reading it wants every section at once, and a face they had to turn over hid half of them behind an
+animation. `card-front-face.tsx`, `card-back-face.tsx`, `card-face-header.tsx` and
+`card-action-button.tsx` are gone with it.
+
+**Share moved into that bar and kept its PDF.** The design drew no Share at all; dropping it would
+have taken the whole of CRU-010 with it, so it is an icon beside the pencil instead.
+
+**`CareCard` now carries `updatedAt`.** The date under the title comes from the column the
+`care_cards_set_updated_at` trigger already maintained. There is no `updated_by`, so the line reads
+"Updated 31 August 2026" rather than the design's "Updated by Sarah" — naming a person would need a
+column that does not exist.
+
 ## 2026-08-22
 
 **A gallery photo cannot be promoted to the profile photo.** The profile photo is set only by
