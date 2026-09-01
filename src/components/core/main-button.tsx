@@ -37,6 +37,8 @@ type MainButtonProps = {
   leftIcon?: React.ReactElement;
   rightIcon?: React.ReactElement;
   hapticFeedback?: boolean;
+  /** See IconButton — a glass control floating over a photo, not over the page. */
+  isOverContent?: boolean;
 };
 
 // Fixed heights, not padding: two sizes in one row must still line up.
@@ -61,7 +63,8 @@ const MainButton: FunctionComponent<MainButtonProps> = ({
   size = 'md',
   leftIcon,
   rightIcon,
-  hapticFeedback = true
+  hapticFeedback = true,
+  isOverContent = false
 }) => {
   const styles = useStyles(makeStyles);
   const { colors, isDark } = useTheme();
@@ -110,7 +113,15 @@ const MainButton: FunctionComponent<MainButtonProps> = ({
       ) : (
         leftIcon && <View style={styles.icon}>{leftIcon}</View>
       )}
-      <Text style={[styles.label, styles[`${labelVariant}Label`], { fontSize }]}>{text}</Text>
+      <Text
+        style={[
+          styles.label,
+          styles[`${labelVariant}Label`],
+          isOverContent && styles.overContentLabel,
+          { fontSize }
+        ]}>
+        {text}
+      </Text>
       {!isLoading && rightIcon && <View style={styles.icon}>{rightIcon}</View>}
     </View>
   );
@@ -120,7 +131,7 @@ const MainButton: FunctionComponent<MainButtonProps> = ({
     return (
       <GlassView
         isInteractive
-        colorScheme={isDark ? 'dark' : 'light'}
+        colorScheme={isOverContent || isDark ? 'dark' : 'light'}
         style={[
           styles.glassSurface,
           { borderRadius },
@@ -212,6 +223,9 @@ const makeStyles = ({ colors }: AppTheme) =>
     },
     glassLabel: {
       color: colors.text
+    },
+    overContentLabel: {
+      color: colors.onGlass
     },
     destructiveTextLabel: {
       color: colors.error

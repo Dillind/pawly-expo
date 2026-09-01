@@ -18,6 +18,22 @@ pins Node 24 for interactive shells but agent tool calls can get an older one. C
 ~/.volta/bin/npx cspell --no-progress "**/*.{ts,tsx,md,sql}"
 ```
 
+**A font added to the `expo-font` config plugin is not in the build until you prebuild, and iOS
+does not complain.** `ios/` already exists, so `expo run:ios` compiles the project it finds and the
+plugin never re-runs — the app installs, launches, and every heading silently falls back to San
+Francisco, because iOS resolves an unknown family name to the system font without an error. It
+looks like the font simply is not very distinctive. Run `bunx expo prebuild -p ios`, then check the
+built app rather than the screen:
+
+```bash
+/usr/libexec/PlistBuddy -c "Print :UIAppFonts" ios/Crumpet/Info.plist
+```
+
+Two more traps in the same area. **iOS resolves a family by its PostScript name** (`Inter-Regular`,
+`Gabarito-SemiBold`) and every other platform by the file name (`Inter_400Regular`) — that is why
+`InterFontFamily` is a `Platform.select` and not one list. And the names are in the file, not
+guessable: read them out of the `name` table rather than assuming a pattern.
+
 **A fresh git worktree has no `node_modules` and no `expo-env.d.ts`** — both gitignored. Typecheck
 fails on `@/global.css` before you have touched anything. Run `bun install` and copy
 `expo-env.d.ts` from the main checkout.
@@ -236,3 +252,62 @@ circle, put a `Stack.Toolbar.Button` in a native header and let the bar draw it.
 **A full-screen `BaseModal` never feels native.** `react-native-modal` runs its animation through
 Animatable in JS. Side by side with a native push at the same duration the difference is obvious,
 and no tuning of `animationIn` closes it. A surface that fills the screen belongs on the stack.
+
+**Typecheck and Jest cannot see a missing native module.** Home shipped `expo-linear-gradient`,
+`tsc` passed, all 232 tests passed, and the device showed a red box reading
+`Unimplemented component: <ViewManagerAdapter_ExpoLinearGradient>`. A JS-only dependency works the
+moment it installs; a native one is inert until a new dev client is built and installed on every
+machine. So **adding any native package is a dev-build change, not a code change** — plan the build
+into the work rather than reaching for a substitute at the point the red box appears.
+
+**A screen that only ever showed today can hide date-bound write bugs.** The week strip made past
+days reachable and instantly exposed three: the Log chip, "Just log a feed" and "Other"
+all wrote against `now()` while the card showed another day. Nothing failed loudly — the feed would
+have been recorded against the wrong date. When a screen gains a date control, audit every write
+path on it for which date it actually targets.
+
+**Reduce Motion is verifiable on the simulator, and worth verifying.**
+`xcrun simctl spawn <udid> defaults write com.apple.Accessibility ReduceMotionEnabled -bool true`,
+then restart the app. Take two full-resolution screenshots about a second apart and diff them: with
+the setting on the banner gave 0% pixel change, and with it off the sun was the only changed region
+on the screen. That proves both halves — the loop stops, and nothing else was animating.
+
+**A `private.*` function is invisible to the app.** PostgREST exposes `public` only, so a read that
+works perfectly in the SQL editor returns "function not found" from the client. Every screen-facing
+read needs a `public` wrapper — `pet_reminders` over `private.reminder_occurrences`, the same split
+`pet_occurrence_states` already makes.
+
+**A component defined inside another component is a new TYPE every render.** React unmounts the old
+tree and mounts a new one, so a text input inside it loses focus on every keystroke. The Reminder
+Tray's three steps are module-level for this reason, taking their values as props. A `useMemo` with
+an empty dependency array does not fix it either — it freezes the steps on the first render's
+values, and typing then updates nothing.
+
+**A new `household_members` preference column needs a `grant update (col)`.** The table takes
+COLUMN-level grants, so without it PostgREST reports success and the value reverts on the next
+refetch. Silent in both directions.
+
+**An absolutely positioned indicator will cover a sibling drawn in flow.** The week strip's gold
+underline sits at `bottom: 6` of the row, and the Reminder dots landed in the same four pixels — so
+the dot vanished on exactly one day, the selected one, which is the day you are looking at. It read
+as "the query is broken" and was a stacking problem. Check the selected state as well as the
+unselected one whenever a cell gains a second indicator.
+
+**`formatScheduledTime` parses a Postgres `time`, which has seconds.** A value straight from the
+time picker does not — it stores `HH:mm` — and `dayjs(value, 'HH:mm:ss')` renders that as
+"Invalid Date" on screen rather than throwing. It now accepts both shapes.
+
+**A `.ios.tsx` file cannot import its shared half from the plain name.** Metro resolves
+`./month-popover` to `month-popover.ios.tsx` on iOS — the importing file itself — so the import
+comes back `undefined` and the screen throws "Element type is invalid". The shared half needs its
+own third file, which is what `month-trigger.tsx` is.
+
+**`contentOffset.x` does not name the page in a LegendList.** The list anchors and adjusts its own
+scroll offset as it renders, so `Math.round(offset / pageWidth)` picks the wrong index — the week
+strip paged backwards with it. Read the visible item from `onViewableItemsChanged` instead. Guard
+that callback while scrolling programmatically: a jump of several pages makes each week in between
+briefly visible, and the strip would select all of them on the way past.
+
+**A recycled LegendList page does not repaint on a state change it does not own.** The week strip's
+selected day moved and the pill stayed on the old cell. `extraData` is what tells the list the
+pages are stale; nothing warns you, and the data itself looks correct.

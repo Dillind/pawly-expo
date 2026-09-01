@@ -7,7 +7,9 @@ Crumpet uses a small, in-repo theme — **no component library and no NativeWind
 `src/constants/theme.ts` exports the tokens:
 
 - **`COLORS`** (aliased as `Colors`) — a `light` and `dark` palette with matching keys. `ThemeColor` is the union of those keys.
-- **`Fonts`** — platform-selected font families (Inter on native; CSS variables on web).
+- **`Fonts`** — platform-selected font families. **Gabarito for headings, Inter for body**; CSS
+  variables on web. Both are embedded by the `expo-font` config plugin in `app.config.ts`, so adding
+  a face means a prebuild — see KNOWLEDGE.md.
 - **`Spacing`**, plus `BottomTabInset` and `MaxContentWidth`.
 - **`AppTheme`** — the resolved shape returned by `useTheme()`: `{ colors, isDark, spacing }`.
 
@@ -18,13 +20,13 @@ Current colour tokens (keys are the `ThemeColor` union):
 | `text`               | `#1C1815`     | `#FBF7F2`     | Primary text                        |
 | `textSecondary`      | `#7B7167`     | `#A99C90`     | Secondary/hint text                 |
 | `border`             | 13% `#3A3026` | 14% white     | Separators and hairline rules       |
-| `background`         | `#FAF6EF`     | `#14100E`     | Screen background                   |
-| `backgroundElement`  | `#FFFFFF`     | `#201A17`     | Cards and elements **on a screen**  |
-| `backgroundSelected` | `#F3EDE2`     | `#2C2521`     | Selected/pressed/sunk surfaces      |
-| `backgroundSheet`    | `#FFFFFF`     | `#1B1613`     | The surface of a bottom sheet       |
-| `backgroundSheetRow` | `#F3EDE2`     | `#2C2521`     | Rows and cards **inside a sheet**   |
+| `background`         | `#FBFAF8`     | `#111011`     | Screen background                   |
+| `backgroundElement`  | `#FFFFFF`     | `#1C1B1C`     | Cards and elements **on a screen**  |
+| `backgroundSelected` | `#F1EFEC`     | `#282728`     | Selected/pressed/sunk surfaces      |
+| `backgroundSheet`    | `#FFFFFF`     | `#191819`     | The surface of a bottom sheet       |
+| `backgroundSheetRow` | `#F1EFEC`     | `#282728`     | Rows and cards **inside a sheet**   |
 | `postSurface`        | `#FFFFFF`     | `#000000`     | The surface of one Post             |
-| `postDivider`        | `#FAF6EF`     | `#201A17`     | The band between two Posts          |
+| `postDivider`        | `#FBFAF8`     | `#1C1B1C`     | The band between two Posts          |
 | `error`              | `#CE3C39`     | `#E05B58`     | Errors, destructive                 |
 | `like`               | `#E0405E`     | `#FF4D6D`     | A Like, and nothing else            |
 | `primary`            | `#F0A81C`     | `#F5B435`     | A gold **fill**. Never text.        |
@@ -32,6 +34,12 @@ Current colour tokens (keys are the `ThemeColor` union):
 | `primaryText`        | `#9E6404`     | `#F5B435`     | A gold **label** on any surface     |
 | `onPrimary`          | `#2A1D06`     | `#2A1D06`     | The label on a gold fill            |
 | `success`            | `#10696B`     | `#2FA8A2`     | The tick, and every "done" state    |
+| `ghostBorder`        | 20% ink       | 22% white     | A dashed row that offers, not warns |
+| `medication`         | `#7A5C86`     | `#B49CC0`     | A medication Reminder, on trial     |
+| `medicationMuted`    | 14% med.      | 20% med.      | Tinted fill behind a medication     |
+| `vet`                | `#4B6A8C`     | `#8FB0D2`     | A vet Reminder, on trial            |
+| `vetMuted`           | 14% vet       | 20% vet       | Tinted fill behind a vet Reminder   |
+| `onGlass`            | `#FFFFFF`     | `#FFFFFF`     | Ink on a glass control over a photo |
 | `shadow`             | `#4A3A26`     | `#000000`     | Shadow colour                       |
 
 ### Gold has three jobs
@@ -186,7 +194,11 @@ const makeStyles = ({ colors }: AppTheme) =>
 
 ## Text: use `AppText`
 
-Prefer the `AppText` primitive (`@/components/core/app-text`) over raw `<Text>`. It applies the Inter font family, resolves colour from a `ThemeColor` key, and handles Android line-height/padding quirks.
+Prefer the `AppText` primitive (`@/components/core/app-text`) over raw `<Text>`. It resolves colour from a `ThemeColor` key, and handles Android line-height/padding quirks.
+
+**`variant` picks the typeface, not merely the weight.** `variant="header"` is Gabarito and
+`variant="body"` is Inter — the two faces are the type system, so setting a heading in bold Inter
+loses the distinction the palette was built around.
 
 ```tsx
 import AppText from '@/components/core/app-text';

@@ -35,6 +35,7 @@ import {
   Moon,
   PawPrint,
   Pencil,
+  Pill,
   Plus,
   FlipHorizontal2,
   Settings,
@@ -48,6 +49,7 @@ import {
   User,
   UserPlus,
   Users,
+  Stethoscope,
   Utensils,
   X
 } from 'lucide-react-native';
@@ -66,9 +68,11 @@ export const iconMap = {
   clock: Clock,
   check: Check,
   circleAlert: CircleAlert,
+  pill: Pill,
   plus: Plus,
   image: Image,
   imagePlus: ImagePlus,
+  stethoscope: Stethoscope,
   utensils: Utensils,
   pencil: Pencil,
   userPlus: UserPlus,

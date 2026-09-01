@@ -24,7 +24,7 @@ export function describeDays(days: number[]): string {
   const runs: number[][] = [];
   for (const day of ordered) {
     const run = runs[runs.length - 1];
-    const isNext = run && ((run[run.length - 1] + 1) % 7 === day);
+    const isNext = run && (run[run.length - 1] + 1) % 7 === day;
 
     if (isNext) run.push(day);
     else runs.push([day]);
@@ -32,7 +32,9 @@ export function describeDays(days: number[]): string {
 
   return runs
     .map((run) =>
-      run.length >= 3 ? `${NAMES[run[0]]}–${NAMES[run[run.length - 1]]}` : run.map((d) => NAMES[d]).join(', ')
+      run.length >= 3
+        ? `${NAMES[run[0]]}–${NAMES[run[run.length - 1]]}`
+        : run.map((d) => NAMES[d]).join(', ')
     )
     .join(', ');
 }

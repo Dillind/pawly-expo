@@ -158,9 +158,7 @@ export type PostCommentedInput = {
  * Three cases, not two: the third is the member who is in the thread but owns
  * neither the post nor the parent, and "your post" would be a lie to them.
  */
-export const buildPostCommentedMessage = (
-  input: PostCommentedInput
-): Omit<ExpoMessage, 'to'> => {
+export const buildPostCommentedMessage = (input: PostCommentedInput): Omit<ExpoMessage, 'to'> => {
   const author = authorName(input.authorFirstName);
 
   const title = input.isReplyToRecipient
@@ -240,3 +238,21 @@ export const buildFeedDueMessage = (input: FeedDueInput): Omit<ExpoMessage, 'to'
     data: { screen: '/home', params: {} }
   };
 };
+
+export type ReminderDueInput = {
+  petName: string;
+  title: string;
+  /** How many days until it is due: 1, 2 or 3. */
+  leadDays: number;
+};
+
+/**
+ * Names the Reminder and the Pet, and says when. It never says "overdue": the
+ * push goes out BEFORE the day, so nothing has been missed yet.
+ */
+export const buildReminderDueMessage = (input: ReminderDueInput): Omit<ExpoMessage, 'to'> => ({
+  title: `${input.petName}: ${input.title}`,
+  sound: 'default',
+  body: input.leadDays === 1 ? 'Due tomorrow' : `Due in ${input.leadDays} days`,
+  data: { screen: '/home', params: {} }
+});

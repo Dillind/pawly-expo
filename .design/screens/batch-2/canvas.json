@@ -1,0 +1,18 @@
+{
+  "artboards": [
+    { "file": "Main.dc.html", "x": 0, "y": 0, "w": 390, "h": 900, "title": "1 · Home, the whole scroll" },
+    { "file": "AllDone.dc.html", "x": 490, "y": 0, "w": 390, "h": 900, "title": "2 · Home, everything logged" },
+    { "file": "TheLink.dc.html", "x": 980, "y": 0, "w": 390, "h": 900, "title": "5 · The link, drawn" },
+    { "file": "WeekStrip.dc.html", "x": 0, "y": 1020, "w": 390, "h": 620, "title": "3 · Week strip, two variants" },
+    { "file": "ReminderTray.dc.html", "x": 490, "y": 1020, "w": 1290, "h": 800, "title": "4 · Create a Reminder, as a Tray" }
+  ],
+  "annotations": [
+    { "id": "brief", "x": 0, "y": -230, "w": 760, "text": "Crumpet — Home and Reminders\n\nFive artboards. iOS, light. Every value comes from .design/tokens.css; nothing here is invented except the two Variant B hues on artboard 3, which are drawn only to be compared and rejected.\n\nGold keeps its three jobs: the banner wash, the Log and Done chips, the active tab. Done is teal. The Log chip sits above the fold on every Home artboard." },
+    { "id": "motion", "x": 1870, "y": 1020, "w": 340, "text": "Motion\n\n• The banner sun breathes, 1.00 to 1.03 over 4s, ease in out, forever. It stops under reduced motion. It is live on artboards 1, 2 and 5.\n• Tap a day: the gold underline slides 260ms; the pet cards cross-fade their contents 180ms. The cards do not move.\n• A pet card expands 220ms, collapses 160ms. The caret rotates with it.\n• A logged feed: the gold chip scales down and fades 140ms, then the teal tick arrives on a spring. The tick never overlaps the chip.\n• A Reminder ticked off uses exactly the same motion, because it is the same row.\n• The Tray height animates 240ms between steps. Content fades at 140ms.\n• The banner's 'what is left' line cross-fades when the count changes.\n• Nothing else moves." },
+    { "id": "future", "x": 1420, "y": 0, "w": 330, "text": "What is future\n\nA Reminder is CRU-078 and is not built. Everything marked with a dashed FUTURE chip is drawn, not shipped:\n\n• the strip dots (all of artboard 3)\n• the 'Worming tablet' row on artboard 5\n• the whole Tray on artboard 4\n\nThe week strip itself is new but ships without dots. It is the day header and the way to move between days, so it stands up with no Reminders at all." },
+    { "id": "link", "x": 1420, "y": 330, "w": 330, "text": "Artboard 5 — why it exists\n\nThe thin dashed line runs from the Wednesday dot to the 'Worming tablet' row inside Toby's card. The dot and the row are one object seen in two places. That is the whole point of the artboard; the line is annotation and is not drawn in the app." },
+    { "id": "quiet", "x": 490, "y": -140, "w": 380, "text": "The quiet end state. A household sees this more often than any other screen, so it is designed rather than assumed. Both cards collapse to a row, every feed carries a teal tick, and the tip card is absent because there is nothing real to say." },
+    { "id": "recommend", "x": 0, "y": 1700, "w": 390, "text": "Recommendation: build Variant A, the single gold dot. The row inside the pet card already names the kind, so a second colour system buys a distinction the user can read one tap away — at the price of two tokens and a rule that colour carries meaning nowhere else in the app." }
+  ],
+  "launch": { "view": "canvas" }
+}

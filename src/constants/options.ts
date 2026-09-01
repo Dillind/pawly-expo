@@ -1,6 +1,10 @@
 import { COMMON_TIMEZONES } from '@/constants/timezones';
+import type { IconName } from '@/constants/icon-map';
 import type {
   FeedingScheduleLabel,
+  ReminderKind,
+  ReminderLeadDays,
+  ReminderRepeat,
   HouseholdRole,
   LeadMinutes,
   Option,
@@ -73,4 +77,30 @@ export const FEED_DUE_LEAD_OPTIONS: Option<LeadMinutes>[] = [
   { value: 15, label: '15 minutes' },
   { value: 30, label: '30 minutes' },
   { value: 60, label: '1 hour' }
+];
+
+export const REMINDER_KIND_ICON: Record<ReminderKind, IconName> = {
+  feed: 'utensils',
+  medication: 'pill',
+  vet: 'stethoscope'
+};
+
+export const REMINDER_KIND_OPTIONS: Option<ReminderKind>[] = [
+  { value: 'feed', label: 'Feed' },
+  { value: 'medication', label: 'Medication' },
+  { value: 'vet', label: 'Vet' }
+];
+
+export const REMINDER_REPEAT_OPTIONS: Option<ReminderRepeat>[] = [
+  { value: 'once', label: 'Never' },
+  { value: 'weekly', label: 'Weekly' },
+  { value: 'monthly', label: 'Monthly' }
+];
+
+export const DEFAULT_REMINDER_LEAD_DAYS: ReminderLeadDays = 1;
+
+export const REMINDER_LEAD_OPTIONS: Option<ReminderLeadDays>[] = [
+  { value: 1, label: '1 day early' },
+  { value: 2, label: '2 days' },
+  { value: 3, label: '3 days' }
 ];

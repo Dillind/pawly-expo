@@ -31,9 +31,7 @@ const DayOfWeekPicker = ({ label = 'Days', name, value, onChange }: Props) => {
 
   const toggle = (day: number) => {
     void hapticSelection();
-    onChange(
-      value.includes(day) ? value.filter((each) => each !== day) : [...value, day].sort()
-    );
+    onChange(value.includes(day) ? value.filter((each) => each !== day) : [...value, day].sort());
   };
 
   return (

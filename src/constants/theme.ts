@@ -9,15 +9,15 @@ import { Platform } from 'react-native';
 export const COLORS = {
   light: {
     text: '#1C1815',
-    background: '#FAF6EF',
+    background: '#FBFAF8',
     backgroundElement: '#FFFFFF',
-    backgroundSelected: '#F3EDE2',
+    backgroundSelected: '#F1EFEC',
     backgroundSheet: '#FFFFFF',
-    backgroundSheetRow: '#F3EDE2',
+    backgroundSheetRow: '#F1EFEC',
     // A Post fills the screen width, so it has no edge of its own -- the band
     // between two of them is the only thing that separates them.
     postSurface: '#FFFFFF',
-    postDivider: '#FAF6EF',
+    postDivider: '#FBFAF8',
     textSecondary: '#7B7167',
     border: 'rgba(58, 48, 38, 0.13)',
     error: '#CE3C39',
@@ -29,19 +29,30 @@ export const COLORS = {
     primaryText: '#9E6404',
     onPrimary: '#2A1D06',
     success: '#10696B',
+    // A Reminder's Kind. On trial: the batch-2 artboard drew these and rejected
+    // them, and gold is the fallback if they read as noise on device.
+    medication: '#7A5C86',
+    medicationMuted: 'rgba(122, 92, 134, 0.14)',
+    vet: '#4B6A8C',
+    vetMuted: 'rgba(75, 106, 140, 0.14)',
+    // The dashed "Other" row and the "Add a pet" ghost row.
+    ghostBorder: 'rgba(58, 48, 38, 0.20)',
+    // The ink for a control floating over a photo. It cannot be `text`: the
+    // photo is arbitrary, so a near-black glyph vanishes on half of them.
+    onGlass: '#FFFFFF',
     shadow: '#4A3A26'
   },
   dark: {
     text: '#FBF7F2',
-    background: '#14100E',
-    backgroundElement: '#201A17',
-    backgroundSelected: '#2C2521',
-    backgroundSheet: '#1B1613',
-    backgroundSheetRow: '#2C2521',
+    background: '#111011',
+    backgroundElement: '#1C1B1C',
+    backgroundSelected: '#282728',
+    backgroundSheet: '#191819',
+    backgroundSheetRow: '#282728',
     // Dark reverses the light pairing: a Post on anything but black loses the
     // photo's own black.
     postSurface: '#000000',
-    postDivider: '#201A17',
+    postDivider: '#1C1B1C',
     textSecondary: '#A99C90',
     border: 'rgba(255, 255, 255, 0.14)',
     error: '#E05B58',
@@ -53,9 +64,39 @@ export const COLORS = {
     primaryText: '#F5B435',
     onPrimary: '#2A1D06',
     success: '#2FA8A2',
+    medication: '#B49CC0',
+    medicationMuted: 'rgba(180, 156, 192, 0.20)',
+    vet: '#8FB0D2',
+    vetMuted: 'rgba(143, 176, 210, 0.20)',
+    ghostBorder: 'rgba(255, 255, 255, 0.22)',
+    onGlass: '#FFFFFF',
     shadow: '#000000'
   }
 } as const;
+
+/**
+ * The Home banner, by time of day. One surface, four states -- the page never
+ * changes, only this card does. Night is the only dark surface in light mode.
+ *
+ * These sit outside `COLORS` on purpose. `ThemeColor` is the set of keys a
+ * component may pass to `AppText` or `Icon`, and a list of stops is not a
+ * colour. `ink` travels with the stops because the pair is what stays readable.
+ *
+ * `start`/`end` approximate the 118deg of `.design/tokens.css` in the unit box
+ * `expo-linear-gradient` uses.
+ */
+export const BannerGradients = {
+  dawn: { colors: ['#FFF7E6', '#FFECC6', '#FFDDA2'], ink: '#2B1F0C' },
+  day: { colors: ['#FFFCF3', '#FFF3D6', '#FFE6B6'], ink: '#2B1F0C' },
+  dusk: { colors: ['#FFEBCE', '#FFCE9A', '#F0A272'], ink: '#40200A' },
+  night: { colors: ['#241F3E', '#322A57', '#453564'], ink: '#F4F1FC' }
+} as const;
+
+export const BannerGradientLocations = [0, 0.46, 1] as const;
+export const BannerGradientStart = { x: 0, y: 0.15 } as const;
+export const BannerGradientEnd = { x: 1, y: 0.85 } as const;
+
+export type DayPart = keyof typeof BannerGradients;
 
 /** Alias kept for existing imports */
 export const Colors = COLORS;
@@ -71,6 +112,13 @@ export type AppTheme = {
   spacing: typeof Spacing;
 };
 
+/**
+ * The families the `expo-font` config plugin embeds -- see app.config.ts.
+ *
+ * iOS resolves a family by its PostScript name (`Inter-Regular`), every other
+ * platform by the file name (`Inter_400Regular`). They differ, so both are
+ * listed rather than one being assumed to work everywhere.
+ */
 export const InterFontFamily = Platform.select({
   ios: {
     regular: 'Inter-Regular',
@@ -90,6 +138,18 @@ export const InterFontFamily = Platform.select({
   }
 })!;
 
+/** Gabarito carries headings. A warm geometric, not an editorial serif. */
+export const GabaritoFontFamily = Platform.select({
+  ios: {
+    semiBold: 'Gabarito-SemiBold',
+    bold: 'Gabarito-Bold'
+  },
+  default: {
+    semiBold: 'Gabarito_600SemiBold',
+    bold: 'Gabarito_700Bold'
+  }
+})!;
+
 export type InterFontFamilyWeight = keyof typeof InterFontFamily;
 
 export const Fonts = Platform.select({
@@ -101,6 +161,8 @@ export const Fonts = Platform.select({
     bold: 'Inter, var(--font-display)',
     extraBold: 'Inter, var(--font-display)',
     black: 'Inter, var(--font-display)',
+    heading: 'Gabarito, var(--font-display)',
+    headingBold: 'Gabarito, var(--font-display)',
     serif: 'var(--font-serif)',
     rounded: 'var(--font-rounded)',
     mono: 'var(--font-mono)'
@@ -113,6 +175,8 @@ export const Fonts = Platform.select({
     bold: InterFontFamily.bold,
     extraBold: InterFontFamily.extraBold,
     black: InterFontFamily.black,
+    heading: GabaritoFontFamily.semiBold,
+    headingBold: GabaritoFontFamily.bold,
     serif: 'serif',
     rounded: InterFontFamily.regular,
     mono: 'monospace'
@@ -132,6 +196,7 @@ export const Spacing = {
 export const Radius = {
   tile: 12,
   card: 24,
+  banner: 28,
   full: 100
 } as const;
 

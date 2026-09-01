@@ -18,13 +18,7 @@ type Props = {
 const ICON_SIZE = 22;
 
 /** Share is placed but deliberately not wired yet. */
-const PostActionRow = ({
-  liked,
-  count,
-  commentCount,
-  onToggleLike,
-  onOpenComments
-}: Props) => {
+const PostActionRow = ({ liked, count, commentCount, onToggleLike, onOpenComments }: Props) => {
   const styles = useStyles(makeStyles);
 
   const like = () => {
@@ -60,9 +54,7 @@ const PostActionRow = ({
         onPress={onOpenComments}
         disabled={!onOpenComments}
         accessibilityRole="button"
-        accessibilityLabel={
-          commentCount === 1 ? '1 comment' : `${commentCount} comments`
-        }>
+        accessibilityLabel={commentCount === 1 ? '1 comment' : `${commentCount} comments`}>
         <Icon name="comment" size={ICON_SIZE} color="textSecondary" />
         {commentCount > 0 && (
           <AppText size={14} color="textSecondary" style={styles.count}>

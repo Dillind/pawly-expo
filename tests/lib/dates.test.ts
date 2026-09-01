@@ -8,7 +8,12 @@ import {
   formatTimeOfDay,
   timeInTimezone,
   todayInTimezone,
-  yesterdayInTimezone
+  yesterdayInTimezone,
+  weekOf,
+  weekdayInitial,
+  dayOfMonth,
+  formatMonthAndYear,
+  formatWeekdayName
 } from '@/lib/dates';
 
 const MELBOURNE = 'Australia/Melbourne';
@@ -53,6 +58,13 @@ describe('formatScheduledTime', () => {
     expect(formatScheduledTime('07:00:00')).toBe('7:00 AM');
     expect(formatScheduledTime('17:30:00')).toBe('5:30 PM');
     expect(formatScheduledTime('00:15:00')).toBe('12:15 AM');
+  });
+
+  // The time picker stores HH:mm, so the Reminder Tray's summary hands it a
+  // value with no seconds. Parsing only HH:mm:ss rendered "Invalid Date".
+  it('accepts a time with no seconds', () => {
+    expect(formatScheduledTime('09:00')).toBe('9:00 AM');
+    expect(formatScheduledTime('17:30')).toBe('5:30 PM');
   });
 });
 
@@ -198,5 +210,43 @@ describe('formatAlertTime', () => {
 
     expect(formatAlertTime(instant, 'Australia/Brisbane', now)).toBe('1 day ago');
     expect(formatAlertTime(instant, 'America/New_York', now)).toBe('20 hours ago');
+  });
+});
+
+describe('weekOf', () => {
+  it('starts the week on Monday', () => {
+    // 2026-08-31 is a Monday, so it leads its own week.
+    expect(weekOf('2026-08-31')).toEqual([
+      '2026-08-31',
+      '2026-09-01',
+      '2026-09-02',
+      '2026-09-03',
+      '2026-09-04',
+      '2026-09-05',
+      '2026-09-06'
+    ]);
+  });
+
+  it('pulls a Sunday back to the week it ends, not the one it starts', () => {
+    expect(weekOf('2026-09-06')[0]).toBe('2026-08-31');
+    expect(weekOf('2026-09-06')[6]).toBe('2026-09-06');
+  });
+
+  it('crosses a month and a year boundary', () => {
+    expect(weekOf('2026-01-01')[0]).toBe('2025-12-29');
+    expect(weekOf('2026-01-01')[6]).toBe('2026-01-04');
+  });
+});
+
+describe('week strip labels', () => {
+  it('reads the initial and the date off the day', () => {
+    expect(weekdayInitial('2026-08-31')).toBe('M');
+    expect(weekdayInitial('2026-09-06')).toBe('S');
+    expect(dayOfMonth('2026-09-02')).toBe(2);
+  });
+
+  it('formats the heading and the month line', () => {
+    expect(formatWeekdayName('2026-08-31')).toBe('Monday');
+    expect(formatMonthAndYear('2026-08-31')).toBe('AUG 2026');
   });
 });

@@ -38,6 +38,7 @@ const PREFERENCE_COLUMN: Record<AlertKind, string> = {
   feed_logged: 'feed_logged_alerts',
   missed_feed: 'missed_feed_alerts',
   feed_due: 'feed_due_alerts',
+  reminder_due: 'reminder_alerts',
   post: 'post_alerts',
   // Comments ride the Post Alerts toggle rather than adding a fourth one.
   post_commented: 'post_alerts'

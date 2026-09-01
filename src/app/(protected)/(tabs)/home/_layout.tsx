@@ -85,11 +85,10 @@ export default function HomeLayout() {
           }}
         />
 
-        {/* The title is the pet's name, so the screen sets it, not this. */}
-        <Stack.Screen name="[petId]/index" options={{ headerShown: true }}>
-          <Stack.Header transparent />
-          <Stack.Screen.BackButton displayMode="minimal" />
-        </Stack.Screen>
+        {/* No bar at all: the photo runs to the top of the screen, and the
+            back button is a glass circle drawn on it. A transparent bar would
+            still reserve its height and push the photo down. */}
+        <Stack.Screen name="[petId]/index" options={{ headerShown: false }} />
 
         {/* A native screen, not a modal: iOS draws the glass circle behind a
             bar button item, and the push is a render-server transition. A

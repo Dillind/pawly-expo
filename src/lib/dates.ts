@@ -100,6 +100,74 @@ export function dayInTimezone(isoTimestamp: string, zone: string): string {
   return formatDay(zonedParts(new Date(isoTimestamp), zone));
 }
 
+/**
+ * The seven days of the week that contains `day`, Monday first.
+ *
+ * Pure calendar arithmetic on a "YYYY-MM-DD" string, so it needs no timezone:
+ * the day has already been resolved in the household's zone by the caller. The
+ * steps go through `Date.UTC` for the same reason `yesterdayInTimezone` does --
+ * adding 24h to an instant is wrong across a DST boundary.
+ */
+export function weekOf(day: string): string[] {
+  const [year, month, date] = day.split('-').map(Number);
+  const anchor = new Date(Date.UTC(year, month - 1, date));
+  // getUTCDay is 0 for Sunday, and the week starts on Monday here.
+  const offset = (anchor.getUTCDay() + 6) % 7;
+
+  return Array.from({ length: 7 }, (_, index) => {
+    const cursor = new Date(Date.UTC(year, month - 1, date - offset + index));
+
+    return `${cursor.getUTCFullYear()}-${pad(cursor.getUTCMonth() + 1)}-${pad(cursor.getUTCDate())}`;
+  });
+}
+
+/** The same weekday, `weeks` weeks away. Negative goes back. */
+export function shiftWeeks(day: string, weeks: number): string {
+  const [year, month, date] = day.split('-').map(Number);
+  const cursor = new Date(Date.UTC(year, month - 1, date + weeks * 7));
+
+  return `${cursor.getUTCFullYear()}-${pad(cursor.getUTCMonth() + 1)}-${pad(cursor.getUTCDate())}`;
+}
+
+/** "M", "T", "W" ... for the week strip. Monday and Sunday are not unique. */
+export function weekdayInitial(day: string): string {
+  const [year, month, date] = day.split('-').map(Number);
+
+  return ['S', 'M', 'T', 'W', 'T', 'F', 'S'][new Date(Date.UTC(year, month - 1, date)).getUTCDay()];
+}
+
+/** The date without its month or year, as the strip cell shows it. */
+export function dayOfMonth(day: string): number {
+  return Number(day.split('-')[2]);
+}
+
+/** "AUG 2026", the month line beside the day heading. */
+export function formatMonthAndYear(day: string): string {
+  const [year, month, date] = day.split('-').map(Number);
+  const label = new Date(Date.UTC(year, month - 1, date)).toLocaleDateString('en-AU', {
+    month: 'short',
+    year: 'numeric',
+    timeZone: 'UTC'
+  });
+
+  return label.toUpperCase();
+}
+
+/** "Monday", the day heading. */
+export function formatWeekdayName(day: string): string {
+  const [year, month, date] = day.split('-').map(Number);
+
+  return new Date(Date.UTC(year, month - 1, date)).toLocaleDateString('en-AU', {
+    weekday: 'long',
+    timeZone: 'UTC'
+  });
+}
+
+/** The hour, 0-23, in the household's timezone rather than the device's. */
+export function hourInTimezone(zone: string, now: Date = new Date()): number {
+  return zonedParts(now, zone).hour;
+}
+
 /** 24-hour "HH:mm", the shape the correction form edits. */
 export function timeInTimezone(isoTimestamp: string, zone: string): string {
   const { hour, minute } = zonedParts(new Date(isoTimestamp), zone);
@@ -116,7 +184,10 @@ export function formatTimeOfDay(isoTimestamp: string, zone: string): string {
 
 /** A Postgres `time` column arrives as "07:00:00"; show it as "7:00 AM". */
 export function formatScheduledTime(postgresTime: string): string {
-  return dayjs(postgresTime, 'HH:mm:ss').format('h:mm A');
+  // Both shapes, because a stored Postgres `time` is HH:mm:ss and a value the
+  // time picker just produced is HH:mm. Parsing only the first turns the second
+  // into "Invalid Date" on screen.
+  return dayjs(postgresTime, ['HH:mm:ss', 'HH:mm']).format('h:mm A');
 }
 
 const plural = (count: number, noun: string): string => `${count} ${noun}${count === 1 ? '' : 's'}`;
@@ -303,4 +374,16 @@ export function formatRelativeTime(isoTimestamp: string, now: Date = new Date())
   if (days < 7) return `${days}d ago`;
 
   return dayjs(then).format(then.getFullYear() === now.getFullYear() ? 'D MMM' : 'D MMM YYYY');
+}
+
+/** "Wed 2 Sep" -- the summary line of a Reminder, never a stored value. */
+export function formatReminderDate(day: string): string {
+  const [year, month, date] = day.split('-').map(Number);
+
+  return new Date(Date.UTC(year, month - 1, date)).toLocaleDateString('en-AU', {
+    weekday: 'short',
+    day: 'numeric',
+    month: 'short',
+    timeZone: 'UTC'
+  });
 }

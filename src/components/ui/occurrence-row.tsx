@@ -10,7 +10,6 @@ import { StyleSheet, View } from 'react-native';
 import Animated, {
   Easing,
   FadeIn,
-  FadeOut,
   Keyframe,
   LinearTransition,
   ReduceMotion
@@ -36,19 +35,21 @@ const labelText: Record<FeedingScheduleLabel, string> = {
 };
 
 const SLOT_MS = 220;
-const EXIT_MS = 120;
+const EXIT_MS = 140;
 const TICK_MS = 160;
 
 const SlotReflow = LinearTransition.duration(SLOT_MS).reduceMotion(ReduceMotion.System);
 
-// Not ZoomIn: it starts at scale 0, and nothing appears from nothing.
+// Not ZoomIn: it starts at scale 0, and nothing appears from nothing. The
+// overshoot is the spring's, not a keyframe's -- see issue #122.
 const TickIn = new Keyframe({
   0: { opacity: 0, transform: [{ scale: 0.9 }] },
-  55: {
+  45: {
     opacity: 1,
-    transform: [{ scale: 1.06 }],
-    easing: Easing.bezier(0.23, 1, 0.32, 1)
+    transform: [{ scale: 1.08 }],
+    easing: Easing.bezier(0.34, 1.56, 0.64, 1)
   },
+  75: { opacity: 1, transform: [{ scale: 0.98 }] },
   100: { opacity: 1, transform: [{ scale: 1 }] }
 })
   .duration(TICK_MS)
@@ -57,7 +58,13 @@ const TickIn = new Keyframe({
   .delay(EXIT_MS)
   .reduceMotion(ReduceMotion.System);
 
-const SlotOut = FadeOut.duration(EXIT_MS).reduceMotion(ReduceMotion.System);
+// Scales down as it fades, so the chip reads as leaving rather than dimming.
+const SlotOut = new Keyframe({
+  0: { opacity: 1, transform: [{ scale: 1 }] },
+  100: { opacity: 0, transform: [{ scale: 0.9 }] }
+})
+  .duration(EXIT_MS)
+  .reduceMotion(ReduceMotion.System);
 const DetailIn = FadeIn.duration(160).reduceMotion(ReduceMotion.System);
 
 const OccurrenceRow = ({
@@ -120,11 +127,11 @@ const OccurrenceRow = ({
               onPress={onLog}
             />
           </Animated.View>
-        ) : (
+        ) : occurrence.state === 'upcoming' ? (
           <AppText size={13} color="textSecondary">
             Upcoming
           </AppText>
-        )}
+        ) : null}
       </Animated.View>
     </>
   );

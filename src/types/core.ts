@@ -137,3 +137,20 @@ export type FeedLog = {
 
 /** What the Member chose on Profile, as opposed to the scheme it resolves to. */
 export type ThemePreference = ThemeMode | 'system';
+
+export type ReminderKind = 'feed' | 'medication' | 'vet';
+export type ReminderRepeat = 'once' | 'weekly' | 'monthly';
+export type ReminderLeadDays = 1 | 2 | 3;
+export type ReminderStateValue = 'due' | 'done' | 'future' | 'missed';
+
+/** One Reminder on one date. The rule itself is never rendered. */
+export type ReminderOccurrence = {
+  reminderId: string;
+  occurrenceDate: string;
+  title: string;
+  kind: ReminderKind;
+  localTime: string;
+  state: ReminderStateValue;
+  doneBy: string | null;
+  doneAt: string | null;
+};

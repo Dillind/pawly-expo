@@ -6,6 +6,7 @@ import {
   buildMissedFeedMessage,
   buildPostCommentedMessage,
   buildPostMessage,
+  buildReminderDueMessage,
   type ExpoMessage,
   type FeedDueInput,
   type FeedDuePet,
@@ -13,11 +14,7 @@ import {
 } from './message.ts';
 
 export type AlertKind =
-  | 'feed_logged'
-  | 'missed_feed'
-  | 'feed_due'
-  | 'post'
-  | 'post_commented';
+  'feed_logged' | 'missed_feed' | 'feed_due' | 'reminder_due' | 'post' | 'post_commented';
 
 /**
  * A deliberate third outcome, alongside a message and null.
@@ -197,12 +194,49 @@ export const buildMessageForAlert = async (
     case 'feed_due': {
       if (!alert.subject_date || !alert.subject_at) return null;
 
-      const due = await collectDuePets(client, alert.subject_id, alert.subject_date, alert.subject_at);
+      const due = await collectDuePets(
+        client,
+        alert.subject_id,
+        alert.subject_date,
+        alert.subject_at
+      );
 
       if (!due) return null;
       if (due.pets.length === 0) return { suppressed: 'already fed' };
 
       return buildFeedDueMessage(due);
+    }
+
+    case 'reminder_due': {
+      if (!alert.subject_date) return null;
+
+      const { data: reminder } = await client
+        .from('reminders')
+        .select('title, lead_days, deleted_at, pets ( name )')
+        .eq('id', alert.subject_id)
+        .maybeSingle();
+
+      if (!reminder || reminder.deleted_at) return null;
+
+      // Ticked off between queue and send. The rebuild is the freshness check,
+      // exactly as it is for feed_due.
+      const { data: completion } = await client
+        .from('reminder_completions')
+        .select('id')
+        .eq('reminder_id', alert.subject_id)
+        .eq('occurrence_date', alert.subject_date)
+        .maybeSingle();
+
+      if (completion) return { suppressed: 'already done' };
+
+      // deno-lint-ignore no-explicit-any
+      const reminderPet = (reminder as any).pets;
+
+      return buildReminderDueMessage({
+        petName: reminderPet.name,
+        title: reminder.title as string,
+        leadDays: reminder.lead_days as number
+      });
     }
 
     case 'missed_feed': {

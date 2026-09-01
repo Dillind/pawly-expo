@@ -1,0 +1,732 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet data-dc-atomics>
+<meta name="design_doc_mode" content="canvas">
+<link rel="stylesheet" href="_ds/crumpet-design-system-02ecec87-386e-4f68-aff2-4a49f1a8af80/tokens/fonts.css">
+<link rel="stylesheet" href="_ds/crumpet-design-system-02ecec87-386e-4f68-aff2-4a49f1a8af80/tokens/colors.css">
+<link rel="stylesheet" href="_ds/crumpet-design-system-02ecec87-386e-4f68-aff2-4a49f1a8af80/tokens/typography.css">
+<link rel="stylesheet" href="_ds/crumpet-design-system-02ecec87-386e-4f68-aff2-4a49f1a8af80/tokens/spacing.css">
+<link rel="stylesheet" href="_ds/crumpet-design-system-02ecec87-386e-4f68-aff2-4a49f1a8af80/tokens/elevation.css">
+<link rel="stylesheet" href="_ds/crumpet-design-system-02ecec87-386e-4f68-aff2-4a49f1a8af80/tokens/motion.css">
+<link rel="stylesheet" href="_ds/crumpet-design-system-02ecec87-386e-4f68-aff2-4a49f1a8af80/styles.css">
+<script src="_ds/crumpet-design-system-02ecec87-386e-4f68-aff2-4a49f1a8af80/_ds_bundle.js"></script>
+<style>
+body { margin: 0; background: #EFE9DE; font-family: 'Inter', -apple-system, system-ui, sans-serif; }
+a { color: #9E6404; } a:hover { color: #1C1815; }
+@keyframes crumpet-spin { to { transform: rotate(360deg); } }
+@keyframes tick-in { 0% { transform: scale(.4); opacity: 0 } 70% { transform: scale(1.06); opacity: 1 } 100% { transform: scale(1); opacity: 1 } }
+@keyframes cc-flip { from { transform: perspective(900px) rotateX(-14deg) scale(.96); opacity: 0 } to { transform: none; opacity: 1 } }
+@keyframes tray-up { from { transform: translateY(24px); opacity: .4 } to { transform: none; opacity: 1 } }
+@keyframes skel { 0%,100% { opacity: 1 } 50% { opacity: .45 } }
+</style>
+</helmet>
+
+<div style="padding:48px 56px 72px;display:flex;flex-direction:column;gap:56px;min-width:1180px">
+
+<header style="max-width:720px;display:flex;flex-direction:column;gap:14px">
+<div style="font:700 11px/1 'Inter',sans-serif;letter-spacing:1.2px;text-transform:uppercase;color:#7B7167">Crumpet · iOS</div>
+<h1 style="margin:0;font:700 34px/1.05 'Gabarito',sans-serif;letter-spacing:-0.5px;color:#1C1815">Pet detail, Activity, Pets</h1>
+<p style="margin:0;font:400 15px/1.5 'Inter',sans-serif;color:#4A423A;text-wrap:pretty">Three pushed screens, each with its empty and loading state beside it. Everything is drawn from the Crumpet system: warm off-white ground, white cards, warm-brown two-layer shadows, Gabarito over Inter.</p>
+<ul style="margin:4px 0 0;padding-left:18px;display:flex;flex-direction:column;gap:6px;font:400 13.5px/1.5 'Inter',sans-serif;color:#4A423A">
+<li>Gold appears once per screen at most: the Log chip. The teal tick carries "done", and warm ink and the page colour carry everything else.</li>
+<li>A missed feed is recessed rather than alarmed — sunk row, hollow ring where the tick would be, secondary ink. Never gold, never red, and the label is always "Not logged".</li>
+<li>The tab bar keeps its gold active tint. That is job three of three, and it is chrome rather than screen content — say the word and it goes ink-only on pushed screens.</li>
+<li>Two different things, kept apart: <strong style="font-weight:600">About</strong> is the bio, read-only in a card and edited in a tray; the <strong style="font-weight:600">care card</strong> is the sitter-facing tile that opens full screen and edits on its own route.</li>
+<li>Photos are the supplied placeholder. Drop real pet photos in and the frames take them as-is; nothing is tinted or filtered.</li>
+</ul>
+</header>
+
+<section style="display:flex;flex-direction:column;gap:18px">
+<div style="display:flex;align-items:baseline;gap:12px">
+<span style="font:700 10px/1 ui-monospace,Menlo,monospace;padding:4px 8px;background:#1C1815;color:#FAF6EF;border-radius:5px">01</span>
+<h2 style="margin:0;font:700 20px/1.1 'Gabarito',sans-serif;color:#1C1815">Pet detail</h2>
+<span style="font:400 13px/1.4 'Inter',sans-serif;color:#7B7167">Tap Log, open the care card, or edit the schedule — the tray steps are drawn beside it.</span>
+</div>
+<div style="display:flex;gap:36px;align-items:flex-start">
+
+<div style="display:flex;flex-direction:column;gap:10px">
+<x-import component-from-global-scope="IOSDevice" from="./ios-frame.jsx" height="{{ n1180 }}" hint-size="402px,1180px">
+<div style="height:100%;position:relative;display:flex;flex-direction:column;background:var(--background);overflow:hidden">
+<div style="flex:1;overflow-y:auto;display:flex;flex-direction:column">
+
+<div style="position:relative;height:164px;flex:none;background:var(--background-selected)">
+<img src="assets/photo-placeholder.png" alt="" style="width:100%;height:100%;object-fit:cover;display:block">
+<div style="position:absolute;top:58px;left:16px;right:16px;display:flex;align-items:center;justify-content:space-between">
+<x-import component-from-global-scope="CrumpetDesignSystem_02ecec.IconButton" name="caretLeft" variant="glass" size="{{ n22 }}" accessibility-label="Back" hint-size="44px,44px"></x-import>
+<x-import component-from-global-scope="CrumpetDesignSystem_02ecec.MainButton" text="Edit" variant="glass" size="sm" hint-size="72px,34px"></x-import>
+</div>
+</div>
+
+<div style="padding:16px 24px 4px;display:flex;flex-direction:column;gap:2px">
+<h1 style="margin:0;font:700 30px/1 'Gabarito',sans-serif;letter-spacing:-0.5px;color:var(--text)">Bailey</h1>
+<div style="font:400 13px/1.35 'Inter',sans-serif;color:var(--text-secondary)">Three feed times a day · Logged once today</div>
+</div>
+
+<div style="padding:14px 24px 0;display:flex;flex-direction:column;gap:8px">
+<div style="display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:28px">
+<span style="font:600 13px/1.35 'Inter',sans-serif;color:var(--text-secondary)">Feed times</span>
+<x-import component-from-global-scope="CrumpetDesignSystem_02ecec.MainButton" text="Edit" variant="secondary" size="xs" on-click="{{ onTrayList }}" hint-size="60px,28px"></x-import>
+</div>
+<sc-if value="{{ notPaused }}" hint-placeholder-val="{{ true }}">
+<div style="background:var(--background-element);border-radius:var(--radius-card);box-shadow:var(--shadow-medium);overflow:hidden">
+
+<div style="display:flex;align-items:center;gap:16px;padding:14px 16px">
+<div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:2px">
+<div style="display:flex;align-items:baseline;gap:8px"><span style="font:400 15px/1.42 'Inter',sans-serif;color:var(--text)">Morning</span><span style="font:400 15px/1.42 'Inter',sans-serif;color:var(--text-secondary)">7:00 am</span></div>
+<div style="font:400 13px/1.35 'Inter',sans-serif;color:var(--text-secondary)">Sarah, 7:04 am</div>
+</div>
+<x-import component-from-global-scope="CrumpetDesignSystem_02ecec.Icon" name="check" size="{{ n20 }}" color="var(--success)" hint-size="20px,20px"></x-import>
+</div>
+
+<div style="height:1px;background:var(--border);margin-left:16px"></div>
+
+<sc-if value="{{ middayOpen }}" hint-placeholder-val="{{ true }}">
+<div style="display:flex;align-items:center;gap:16px;padding:11px 16px">
+<div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:2px">
+<div style="display:flex;align-items:baseline;gap:8px"><span style="font:400 15px/1.42 'Inter',sans-serif;color:var(--text)">Midday</span><span style="font:400 15px/1.42 'Inter',sans-serif;color:var(--text-secondary)">12:30 pm</span></div>
+<div style="font:400 13px/1.35 'Inter',sans-serif;color:var(--text-secondary)">Due now</div>
+</div>
+<x-import component-from-global-scope="CrumpetDesignSystem_02ecec.MainButton" text="Log" size="xs" on-click="{{ onLog }}" hint-size="56px,28px"></x-import>
+</div>
+</sc-if>
+<sc-if value="{{ middayLogged }}" hint-placeholder-val="{{ false }}">
+<div style="display:flex;align-items:center;gap:16px;padding:14px 16px">
+<div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:2px">
+<div style="display:flex;align-items:baseline;gap:8px"><span style="font:400 15px/1.42 'Inter',sans-serif;color:var(--text)">Midday</span><span style="font:400 15px/1.42 'Inter',sans-serif;color:var(--text-secondary)">12:30 pm</span></div>
+<div style="font:400 13px/1.35 'Inter',sans-serif;color:var(--text-secondary)">You, just now</div>
+</div>
+<div style="display:flex;animation:tick-in 300ms cubic-bezier(.23,1,.32,1) both">
+<x-import component-from-global-scope="CrumpetDesignSystem_02ecec.Icon" name="check" size="{{ n20 }}" color="var(--success)" hint-size="20px,20px"></x-import>
+</div>
+</div>
+</sc-if>
+
+<div style="height:1px;background:var(--border);margin-left:16px"></div>
+
+<div style="display:flex;align-items:center;gap:16px;padding:14px 16px">
+<div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:2px">
+<div style="display:flex;align-items:baseline;gap:8px"><span style="font:400 15px/1.42 'Inter',sans-serif;color:var(--text)">Evening</span><span style="font:400 15px/1.42 'Inter',sans-serif;color:var(--text-secondary)">5:30 pm</span></div>
+</div>
+<span style="font:400 13px/1.35 'Inter',sans-serif;color:var(--text-secondary)">Upcoming</span>
+</div>
+
+</div>
+</sc-if>
+<sc-if value="{{ paused }}" hint-placeholder-val="{{ false }}">
+<div style="background:var(--background-selected);border-radius:var(--radius-card);padding:16px;display:flex;flex-direction:column;gap:2px">
+<span style="font:400 15px/1.42 'Inter',sans-serif;color:var(--text)">Paused — no feeds expected</span>
+<span style="font:400 13px/1.35 'Inter',sans-serif;color:var(--text-secondary)">Bailey is paused. No feeds are expected and nobody is nudged.</span>
+</div>
+</sc-if>
+</div>
+
+<div style="padding:14px 24px 0">
+<div style="background:var(--background-element);border-radius:var(--radius-card);box-shadow:var(--shadow-medium);padding:16px">
+<x-import component-from-global-scope="CrumpetDesignSystem_02ecec.ToggleSwitch" label="Pause feeds" description="Boarding, a vet stay, fasting before surgery." value="{{ paused }}" on-change="{{ onPause }}" hint-size="100%,44px"></x-import>
+</div>
+</div>
+
+<div style="padding:14px 24px 0;display:flex">
+<x-import component-from-global-scope="CrumpetDesignSystem_02ecec.Tile" label="Bailey’s care card" subtitle="Everything a sitter needs. Tap to open." icon="clipboardList" on-click="{{ onCardOpen }}" hint-size="100%,120px"></x-import>
+</div>
+
+<div style="padding:14px 0 0;display:flex;flex-direction:column;gap:8px">
+<div style="padding:0 24px;font:600 13px/1.35 'Inter',sans-serif;color:var(--text-secondary)">Photos</div>
+<div style="display:flex;gap:8px;padding:0 24px;overflow-x:auto">
+<img src="assets/photo-placeholder.png" alt="" style="width:80px;height:80px;flex:none;object-fit:cover;border-radius:var(--radius-tile);background:var(--post-divider)">
+<img src="assets/photo-placeholder.png" alt="" style="width:80px;height:80px;flex:none;object-fit:cover;border-radius:var(--radius-tile);background:var(--post-divider)">
+<img src="assets/photo-placeholder.png" alt="" style="width:80px;height:80px;flex:none;object-fit:cover;border-radius:var(--radius-tile);background:var(--post-divider)">
+<img src="assets/photo-placeholder.png" alt="" style="width:80px;height:80px;flex:none;object-fit:cover;border-radius:var(--radius-tile);background:var(--post-divider)">
+</div>
+</div>
+
+<div style="padding:14px 24px 20px">
+<div style="background:var(--background-element);border-radius:var(--radius-card);box-shadow:var(--shadow-medium);padding:16px;display:flex;flex-direction:column;gap:10px">
+<div style="display:flex;align-items:center;justify-content:space-between;gap:12px">
+<span style="font:700 17px/1.2 'Gabarito',sans-serif;color:var(--text)">About</span>
+<x-import component-from-global-scope="CrumpetDesignSystem_02ecec.MainButton" text="Edit" variant="secondary" size="xs" on-click="{{ onBioEdit }}" hint-size="60px,28px"></x-import>
+</div>
+<p style="margin:0;font:400 15px/1.42 'Inter',sans-serif;color:var(--text);text-wrap:pretty">{{ bioText }}</p>
+</div>
+</div>
+
+</div>
+<x-import component-from-global-scope="CrumpetDesignSystem_02ecec.TabBar" active="home" hint-size="100%,84px"></x-import>
+<sc-if value="{{ cardOpen }}" hint-placeholder-val="{{ false }}">
+<div style="position:absolute;inset:0;background:var(--background);display:flex;flex-direction:column;overflow:hidden;animation:cc-flip 280ms cubic-bezier(.23,1,.32,1) both;transform-origin:50% 30%">
+<div style="flex:none;padding:58px 16px 0;display:flex;align-items:center;justify-content:space-between">
+<x-import component-from-global-scope="CrumpetDesignSystem_02ecec.IconButton" name="close" variant="secondary" size="{{ n22 }}" accessibility-label="Close" on-click="{{ onCardClose }}" hint-size="44px,44px"></x-import>
+<x-import component-from-global-scope="CrumpetDesignSystem_02ecec.MainButton" text="Edit" variant="secondary" size="sm" hint-size="72px,34px"></x-import>
+</div>
+<div style="padding:12px 24px 0;display:flex;flex-direction:column;gap:2px">
+<h1 style="margin:0;font:700 30px/1 'Gabarito',sans-serif;letter-spacing:-0.5px;color:var(--text)">Bailey’s care card</h1>
+<div style="font:400 13px/1.35 'Inter',sans-serif;color:var(--text-secondary)">Updated by Sarah, 12 August</div>
+</div>
+<div style="padding:20px 24px;display:flex;flex-direction:column;gap:12px">
+<div style="background:var(--background-element);border-radius:var(--radius-card);box-shadow:var(--shadow-medium);overflow:hidden">
+<div style="padding:16px;display:flex;flex-direction:column;gap:4px"><span style="font:600 13px/1.35 'Inter',sans-serif;color:var(--text-secondary)">Feeding</span><span style="font:400 15px/1.42 'Inter',sans-serif;color:var(--text);text-wrap:pretty">Half a cup of dry food morning and evening. She will ask for more; she has had enough.</span></div>
+<div style="height:1px;background:var(--border);margin-left:16px"></div>
+<div style="padding:16px;display:flex;flex-direction:column;gap:4px"><span style="font:600 13px/1.35 'Inter',sans-serif;color:var(--text-secondary)">Medication</span><span style="font:400 15px/1.42 'Inter',sans-serif;color:var(--text);text-wrap:pretty">One joint tablet with the morning feed. Cupboard above the kettle.</span></div>
+<div style="height:1px;background:var(--border);margin-left:16px"></div>
+<div style="padding:16px;display:flex;flex-direction:column;gap:4px"><span style="font:600 13px/1.35 'Inter',sans-serif;color:var(--text-secondary)">Vet</span><span style="font:400 15px/1.42 'Inter',sans-serif;color:var(--text)">Carlton Veterinary, 9347 1122. Registered to Sarah.</span></div>
+<div style="height:1px;background:var(--border);margin-left:16px"></div>
+<div style="padding:16px;display:flex;flex-direction:column;gap:4px"><span style="font:600 13px/1.35 'Inter',sans-serif;color:var(--text-secondary)">If anything goes wrong</span><span style="font:400 15px/1.42 'Inter',sans-serif;color:var(--text)">Ring Sarah on 0412 336 902. Tom is the backup.</span></div>
+</div>
+</div>
+</div>
+</sc-if>
+<sc-if value="{{ trayList }}" hint-placeholder-val="{{ false }}">
+<div style="position:absolute;inset:0;background:var(--scrim)"></div>
+<div style="position:absolute;left:0;right:0;bottom:0;background:var(--background-sheet);border-radius:28px 28px 0 0;box-shadow:var(--shadow-large);padding:8px 16px 34px;display:flex;flex-direction:column;gap:12px;animation:tray-up 260ms cubic-bezier(.23,1,.32,1) both">
+<div style="align-self:center;width:36px;height:5px;border-radius:100px;background:var(--ghost-border)"></div>
+
+<div style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding:0 4px">
+<span style="font:700 19px/1.2 'Gabarito',sans-serif;color:var(--text)">Feed times</span>
+<x-import component-from-global-scope="CrumpetDesignSystem_02ecec.MainButton" text="Done" variant="text" size="sm" on-click="{{ onTrayClose }}" hint-size="60px,34px"></x-import>
+</div>
+<div style="display:flex;flex-direction:column;gap:8px">
+<x-import component-from-global-scope="CrumpetDesignSystem_02ecec.SheetRow" label="Morning" detail="7:00 am" on-click="{{ onTrayEdit }}" hint-size="100%,54px"></x-import>
+<x-import component-from-global-scope="CrumpetDesignSystem_02ecec.SheetRow" label="Midday" detail="12:30 pm" on-click="{{ onTrayEdit }}" hint-size="100%,54px"></x-import>
+<x-import component-from-global-scope="CrumpetDesignSystem_02ecec.SheetRow" label="Evening" detail="5:30 pm" on-click="{{ onTrayEdit }}" hint-size="100%,54px"></x-import>
+<button type="button" style="display:flex;align-items:center;gap:12px;padding:16px;border:1.5px dashed var(--ghost-border);border-radius:var(--radius-card);background:transparent;cursor:pointer;font:inherit;text-align:left">
+<span style="width:32px;height:32px;flex:none;border-radius:var(--radius-full);background:var(--background-selected);display:flex;align-items:center;justify-content:center"><x-import component-from-global-scope="CrumpetDesignSystem_02ecec.Icon" name="plus" size="{{ n18 }}" color="var(--text)" hint-size="18px,18px"></x-import></span>
+<span style="font:400 17px/1.4 'Inter',sans-serif;color:var(--text)">Add a feed time</span>
+</button>
+</div>
+<p style="margin:2px 4px 0;font:400 13px/1.35 'Inter',sans-serif;color:var(--text-secondary)">Everyone in the household is nudged at these times.</p>
+</div>
+</sc-if>
+<sc-if value="{{ trayEdit }}" hint-placeholder-val="{{ false }}">
+<div style="position:absolute;inset:0;background:var(--scrim)"></div>
+<div style="position:absolute;left:0;right:0;bottom:0;background:var(--background-sheet);border-radius:28px 28px 0 0;box-shadow:var(--shadow-large);padding:8px 16px 34px;display:flex;flex-direction:column;gap:12px;animation:tray-up 260ms cubic-bezier(.23,1,.32,1) both">
+<div style="align-self:center;width:36px;height:5px;border-radius:100px;background:var(--ghost-border)"></div>
+
+<div style="display:flex;align-items:center;gap:4px;padding:0 4px">
+<x-import component-from-global-scope="CrumpetDesignSystem_02ecec.IconButton" name="caretLeft" variant="ghost" size="{{ n22 }}" accessibility-label="Back" on-click="{{ onTrayList }}" style="margin-left:-10px" hint-size="44px,44px"></x-import>
+<span style="font:700 19px/1.2 'Gabarito',sans-serif;color:var(--text)">Edit feed time</span>
+</div>
+<div style="display:flex;flex-direction:column;gap:12px;padding:0 4px">
+<x-import component-from-global-scope="CrumpetDesignSystem_02ecec.TextField" label="Name" value="Midday" on-change="{{ noop }}" hint-size="100%,74px"></x-import>
+<div style="display:flex;align-items:center;gap:12px;padding:14px 16px;border-radius:var(--radius-card);background:var(--background-sheet-row)">
+<span style="width:32px;height:32px;flex:none;border-radius:var(--radius-tile);background:var(--background);display:flex;align-items:center;justify-content:center"><x-import component-from-global-scope="CrumpetDesignSystem_02ecec.Icon" name="clock" size="{{ n18 }}" color="var(--text)" hint-size="18px,18px"></x-import></span>
+<span style="flex:1;font:400 17px/1.4 'Inter',sans-serif;color:var(--text)">Time</span>
+<span style="font:400 17px/1.4 'Inter',sans-serif;color:var(--text-secondary)">12:30 pm</span>
+</div>
+<x-import component-from-global-scope="CrumpetDesignSystem_02ecec.MainButton" text="Remove this feed time" variant="destructiveText" size="sm" style="align-self:flex-start;padding-left:0" hint-size="200px,34px"></x-import>
+</div>
+<div style="display:flex;gap:8px;justify-content:flex-end;padding:4px 4px 0">
+<x-import component-from-global-scope="CrumpetDesignSystem_02ecec.MainButton" text="Cancel" variant="text" size="md" on-click="{{ onTrayList }}" hint-size="88px,42px"></x-import>
+<x-import component-from-global-scope="CrumpetDesignSystem_02ecec.MainButton" text="Save" variant="secondary" size="md" on-click="{{ onTrayClose }}" hint-size="88px,42px"></x-import>
+</div>
+</div>
+</sc-if>
+<sc-if value="{{ trayBio }}" hint-placeholder-val="{{ false }}">
+<div style="position:absolute;inset:0;background:var(--scrim)"></div>
+<div style="position:absolute;left:0;right:0;bottom:0;background:var(--background-sheet);border-radius:28px 28px 0 0;box-shadow:var(--shadow-large);padding:8px 16px 34px;display:flex;flex-direction:column;gap:12px;animation:tray-up 260ms cubic-bezier(.23,1,.32,1) both">
+<div style="align-self:center;width:36px;height:5px;border-radius:100px;background:var(--ghost-border)"></div>
+
+<div style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding:0 4px">
+<span style="font:700 19px/1.2 'Gabarito',sans-serif;color:var(--text)">About Bailey</span>
+</div>
+<div style="padding:0 4px">
+<x-import component-from-global-scope="CrumpetDesignSystem_02ecec.TextField" is-multiline="{{ true }}" value="{{ bioText }}" on-change="{{ onBioChange }}" height="{{ n120 }}" hint-size="100%,120px"></x-import>
+</div>
+<div style="display:flex;gap:8px;justify-content:flex-end;padding:4px 4px 0">
+<x-import component-from-global-scope="CrumpetDesignSystem_02ecec.MainButton" text="Cancel" variant="text" size="md" on-click="{{ onTrayClose }}" hint-size="88px,42px"></x-import>
+<x-import component-from-global-scope="CrumpetDesignSystem_02ecec.MainButton" text="Save" variant="secondary" size="md" on-click="{{ onBioSave }}" hint-size="88px,42px"></x-import>
+</div>
+</div>
+</sc-if>
+</div>
+</x-import>
+<div style="font:400 12px/1.4 'Inter',sans-serif;color:#7B7167">Pet detail · full scroll. Log, the care card tile, the schedule tray and Pause all live.</div>
+</div>
+
+<div style="display:grid;grid-template-columns:225px 225px;gap:24px 16px;align-items:start">
+
+<div style="display:flex;flex-direction:column;gap:10px">
+<div style="width:225px;height:490px"><div style="width:402px;height:874px;transform:scale(.56);transform-origin:top left">
+<x-import component-from-global-scope="IOSDevice" from="./ios-frame.jsx" hint-size="402px,874px">
+<div style="height:100%;position:relative;display:flex;flex-direction:column;background:var(--background);overflow:hidden">
+<div style="position:absolute;inset:0;background:var(--background);display:flex;flex-direction:column;overflow:hidden;animation:cc-flip 280ms cubic-bezier(.23,1,.32,1) both;transform-origin:50% 30%">
+<div style="flex:none;padding:58px 16px 0;display:flex;align-items:center;justify-content:space-between">
+<x-import component-from-global-scope="CrumpetDesignSystem_02ecec.IconButton" name="close" variant="secondary" size="{{ n22 }}" accessibility-label="Close" hint-size="44px,44px"></x-import>
+<x-import component-from-global-scope="CrumpetDesignSystem_02ecec.MainButton" text="Edit" variant="secondary" size="sm" hint-size="72px,34px"></x-import>
+</div>
+<div style="padding:12px 24px 0;display:flex;flex-direction:column;gap:2px">
+<h1 style="margin:0;font:700 30px/1 'Gabarito',sans-serif;letter-spacing:-0.5px;color:var(--text)">Bailey’s care card</h1>
+<div style="font:400 13px/1.35 'Inter',sans-serif;color:var(--text-secondary)">Updated by Sarah, 12 August</div>
+</div>
+<div style="padding:20px 24px;display:flex;flex-direction:column;gap:12px">
+<div style="background:var(--background-element);border-radius:var(--radius-card);box-shadow:var(--shadow-medium);overflow:hidden">
+<div style="padding:16px;display:flex;flex-direction:column;gap:4px"><span style="font:600 13px/1.35 'Inter',sans-serif;color:var(--text-secondary)">Feeding</span><span style="font:400 15px/1.42 'Inter',sans-serif;color:var(--text);text-wrap:pretty">Half a cup of dry food morning and evening. She will ask for more; she has had enough.</span></div>
+<div style="height:1px;background:var(--border);margin-left:16px"></div>
+<div style="padding:16px;display:flex;flex-direction:column;gap:4px"><span style="font:600 13px/1.35 'Inter',sans-serif;color:var(--text-secondary)">Medication</span><span style="font:400 15px/1.42 'Inter',sans-serif;color:var(--text);text-wrap:pretty">One joint tablet with the morning feed. Cupboard above the kettle.</span></div>
+<div style="height:1px;background:var(--border);margin-left:16px"></div>
+<div style="padding:16px;display:flex;flex-direction:column;gap:4px"><span style="font:600 13px/1.35 'Inter',sans-serif;color:var(--text-secondary)">Vet</span><span style="font:400 15px/1.42 'Inter',sans-serif;color:var(--text)">Carlton Veterinary, 9347 1122. Registered to Sarah.</span></div>
+<div style="height:1px;background:var(--border);margin-left:16px"></div>
+<div style="padding:16px;display:flex;flex-direction:column;gap:4px"><span style="font:600 13px/1.35 'Inter',sans-serif;color:var(--text-secondary)">If anything goes wrong</span><span style="font:400 15px/1.42 'Inter',sans-serif;color:var(--text)">Ring Sarah on 0412 336 902. Tom is the backup.</span></div>
+</div>
+</div>
+</div>
+</div>
+</x-import>
+</div></div>
+<div style="font:400 12px/1.4 'Inter',sans-serif;color:#7B7167;width:225px">Care card · the tile flips open, full screen. Edit pushes to its own route.</div>
+</div>
+
+
+<div style="display:flex;flex-direction:column;gap:10px">
+<div style="width:225px;height:490px"><div style="width:402px;height:874px;transform:scale(.56);transform-origin:top left">
+<x-import component-from-global-scope="IOSDevice" from="./ios-frame.jsx" hint-size="402px,874px">
+
+<div style="height:100%;position:relative;display:flex;flex-direction:column;background:var(--background);overflow:hidden">
+<div style="flex:1;display:flex;flex-direction:column;overflow:hidden">
+<div style="height:164px;flex:none;background:var(--background-selected)"><img src="assets/photo-placeholder.png" alt="" style="width:100%;height:100%;object-fit:cover;display:block"></div>
+<div style="padding:16px 24px 4px"><h1 style="margin:0;font:700 30px/1 'Gabarito',sans-serif;letter-spacing:-0.5px;color:var(--text)">Bailey</h1></div>
+<div style="padding:14px 24px 0;display:flex;flex-direction:column;gap:8px">
+<span style="font:600 13px/1.35 'Inter',sans-serif;color:var(--text-secondary)">Feed times</span>
+<div style="background:var(--background-element);border-radius:var(--radius-card);box-shadow:var(--shadow-medium);height:170px"></div>
+</div>
+</div>
+<x-import component-from-global-scope="CrumpetDesignSystem_02ecec.TabBar" active="home" hint-size="100%,84px"></x-import>
+<div style="position:absolute;inset:0;background:var(--scrim)"></div>
+<div style="position:absolute;left:0;right:0;bottom:0;background:var(--background-sheet);border-radius:28px 28px 0 0;box-shadow:var(--shadow-large);padding:8px 16px 34px;display:flex;flex-direction:column;gap:12px;animation:tray-up 260ms cubic-bezier(.23,1,.32,1) both">
+<div style="align-self:center;width:36px;height:5px;border-radius:100px;background:var(--ghost-border)"></div>
+
+<div style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding:0 4px">
+<span style="font:700 19px/1.2 'Gabarito',sans-serif;color:var(--text)">Feed times</span>
+<x-import component-from-global-scope="CrumpetDesignSystem_02ecec.MainButton" text="Done" variant="text" size="sm" hint-size="60px,34px"></x-import>
+</div>
+<div style="display:flex;flex-direction:column;gap:8px">
+<x-import component-from-global-scope="CrumpetDesignSystem_02ecec.SheetRow" label="Morning" detail="7:00 am" hint-size="100%,54px"></x-import>
+<x-import component-from-global-scope="CrumpetDesignSystem_02ecec.SheetRow" label="Midday" detail="12:30 pm" hint-size="100%,54px"></x-import>
+<x-import component-from-global-scope="CrumpetDesignSystem_02ecec.SheetRow" label="Evening" detail="5:30 pm" hint-size="100%,54px"></x-import>
+<button type="button" style="display:flex;align-items:center;gap:12px;padding:16px;border:1.5px dashed var(--ghost-border);border-radius:var(--radius-card);background:transparent;cursor:pointer;font:inherit;text-align:left">
+<span style="width:32px;height:32px;flex:none;border-radius:var(--radius-full);background:var(--background-selected);display:flex;align-items:center;justify-content:center"><x-import component-from-global-scope="CrumpetDesignSystem_02ecec.Icon" name="plus" size="{{ n18 }}" color="var(--text)" hint-size="18px,18px"></x-import></span>
+<span style="font:400 17px/1.4 'Inter',sans-serif;color:var(--text)">Add a feed time</span>
+</button>
+</div>
+<p style="margin:2px 4px 0;font:400 13px/1.35 'Inter',sans-serif;color:var(--text-secondary)">Everyone in the household is nudged at these times.</p>
+</div>
+</div>
+</x-import>
+</div></div>
+<div style="font:400 12px/1.4 'Inter',sans-serif;color:#7B7167;width:225px">Feed times tray · step 1, the schedule itself</div>
+</div>
+
+
+<div style="display:flex;flex-direction:column;gap:10px">
+<div style="width:225px;height:490px"><div style="width:402px;height:874px;transform:scale(.56);transform-origin:top left">
+<x-import component-from-global-scope="IOSDevice" from="./ios-frame.jsx" hint-size="402px,874px">
+
+<div style="height:100%;position:relative;display:flex;flex-direction:column;background:var(--background);overflow:hidden">
+<div style="flex:1;display:flex;flex-direction:column;overflow:hidden">
+<div style="height:164px;flex:none;background:var(--background-selected)"><img src="assets/photo-placeholder.png" alt="" style="width:100%;height:100%;object-fit:cover;display:block"></div>
+<div style="padding:16px 24px 4px"><h1 style="margin:0;font:700 30px/1 'Gabarito',sans-serif;letter-spacing:-0.5px;color:var(--text)">Bailey</h1></div>
+<div style="padding:14px 24px 0;display:flex;flex-direction:column;gap:8px">
+<span style="font:600 13px/1.35 'Inter',sans-serif;color:var(--text-secondary)">Feed times</span>
+<div style="background:var(--background-element);border-radius:var(--radius-card);box-shadow:var(--shadow-medium);height:170px"></div>
+</div>
+</div>
+<x-import component-from-global-scope="CrumpetDesignSystem_02ecec.TabBar" active="home" hint-size="100%,84px"></x-import>
+<div style="position:absolute;inset:0;background:var(--scrim)"></div>
+<div style="position:absolute;left:0;right:0;bottom:0;background:var(--background-sheet);border-radius:28px 28px 0 0;box-shadow:var(--shadow-large);padding:8px 16px 34px;display:flex;flex-direction:column;gap:12px;animation:tray-up 260ms cubic-bezier(.23,1,.32,1) both">
+<div style="align-self:center;width:36px;height:5px;border-radius:100px;background:var(--ghost-border)"></div>
+
+<div style="display:flex;align-items:center;gap:4px;padding:0 4px">
+<x-import component-from-global-scope="CrumpetDesignSystem_02ecec.IconButton" name="caretLeft" variant="ghost" size="{{ n22 }}" accessibility-label="Back" style="margin-left:-10px" hint-size="44px,44px"></x-import>
+<span style="font:700 19px/1.2 'Gabarito',sans-serif;color:var(--text)">Edit feed time</span>
+</div>
+<div style="display:flex;flex-direction:column;gap:12px;padding:0 4px">
+<x-import component-from-global-scope="CrumpetDesignSystem_02ecec.TextField" label="Name" value="Midday" on-change="{{ noop }}" hint-size="100%,74px"></x-import>
+<div style="display:flex;align-items:center;gap:12px;padding:14px 16px;border-radius:var(--radius-card);background:var(--background-sheet-row)">
+<span style="width:32px;height:32px;flex:none;border-radius:var(--radius-tile);background:var(--background);display:flex;align-items:center;justify-content:center"><x-import component-from-global-scope="CrumpetDesignSystem_02ecec.Icon" name="clock" size="{{ n18 }}" color="var(--text)" hint-size="18px,18px"></x-import></span>
+<span style="flex:1;font:400 17px/1.4 'Inter',sans-serif;color:var(--text)">Time</span>
+<span style="font:400 17px/1.4 'Inter',sans-serif;color:var(--text-secondary)">12:30 pm</span>
+</div>
+<x-import component-from-global-scope="CrumpetDesignSystem_02ecec.MainButton" text="Remove this feed time" variant="destructiveText" size="sm" style="align-self:flex-start;padding-left:0" hint-size="200px,34px"></x-import>
+</div>
+<div style="display:flex;gap:8px;justify-content:flex-end;padding:4px 4px 0">
+<x-import component-from-global-scope="CrumpetDesignSystem_02ecec.MainButton" text="Cancel" variant="text" size="md" hint-size="88px,42px"></x-import>
+<x-import component-from-global-scope="CrumpetDesignSystem_02ecec.MainButton" text="Save" variant="secondary" size="md" hint-size="88px,42px"></x-import>
+</div>
+</div>
+</div>
+</x-import>
+</div></div>
+<div style="font:400 12px/1.4 'Inter',sans-serif;color:#7B7167;width:225px">Feed times tray · step 2, one feed time, with remove</div>
+</div>
+
+<div style="display:flex;flex-direction:column;gap:10px">
+<div style="width:225px;height:490px"><div style="width:402px;height:874px;transform:scale(.56);transform-origin:top left">
+<x-import component-from-global-scope="IOSDevice" from="./ios-frame.jsx" hint-size="402px,874px">
+<div style="height:100%;display:flex;flex-direction:column;background:var(--background);overflow:hidden">
+<div style="flex:1;overflow:hidden;display:flex;flex-direction:column">
+<div style="position:relative;height:288px;flex:none;background:var(--background-selected);display:flex;align-items:center;justify-content:center">
+<x-import component-from-global-scope="CrumpetDesignSystem_02ecec.Icon" name="pawPrint" size="{{ n44 }}" color="var(--text-secondary)" hint-size="44px,44px"></x-import>
+<div style="position:absolute;top:58px;left:16px;right:16px;display:flex;align-items:center;justify-content:space-between">
+<x-import component-from-global-scope="CrumpetDesignSystem_02ecec.IconButton" name="caretLeft" variant="glass" size="{{ n22 }}" accessibility-label="Back" hint-size="44px,44px"></x-import>
+<x-import component-from-global-scope="CrumpetDesignSystem_02ecec.MainButton" text="Edit" variant="glass" size="sm" hint-size="72px,34px"></x-import>
+</div>
+</div>
+<div style="padding:20px 24px 0;display:flex;flex-direction:column;gap:2px">
+<h1 style="margin:0;font:700 30px/1 'Gabarito',sans-serif;letter-spacing:-0.5px;color:var(--text)">Bailey</h1>
+<div style="font:400 13px/1.35 'Inter',sans-serif;color:var(--text-secondary)">No feed times yet</div>
+</div>
+<x-import component-from-global-scope="CrumpetDesignSystem_02ecec.EmptyState" icon="clock" title="No feed times yet" description="Add Bailey’s feed times and everyone will know when they are due." hint-size="100%,220px"></x-import>
+<div style="padding:0 24px">
+<x-import component-from-global-scope="CrumpetDesignSystem_02ecec.MainButton" text="Add a feed time" variant="secondary" size="md" stretch="{{ true }}" hint-size="100%,42px"></x-import>
+</div>
+</div>
+<x-import component-from-global-scope="CrumpetDesignSystem_02ecec.TabBar" active="home" hint-size="100%,84px"></x-import>
+</div>
+</x-import>
+</div></div>
+<div style="font:400 12px/1.4 'Inter',sans-serif;color:#7B7167;width:225px">Empty · a pet with no schedule</div>
+</div>
+
+<div style="display:flex;flex-direction:column;gap:10px">
+<div style="width:225px;height:490px"><div style="width:402px;height:874px;transform:scale(.56);transform-origin:top left">
+<x-import component-from-global-scope="IOSDevice" from="./ios-frame.jsx" hint-size="402px,874px">
+<div style="height:100%;display:flex;flex-direction:column;background:var(--background);overflow:hidden">
+<div style="flex:1;overflow:hidden;display:flex;flex-direction:column;animation:skel 1600ms ease-in-out infinite">
+<div style="height:288px;flex:none;background:var(--background-selected)"></div>
+<div style="padding:20px 24px 0;display:flex;flex-direction:column;gap:10px">
+<div style="width:140px;height:28px;border-radius:8px;background:var(--background-selected)"></div>
+<div style="width:200px;height:12px;border-radius:100px;background:var(--background-selected)"></div>
+</div>
+<div style="padding:24px 24px 0;display:flex;flex-direction:column;gap:8px">
+<div style="width:80px;height:11px;border-radius:100px;background:var(--background-selected)"></div>
+<div style="background:var(--background-element);border-radius:var(--radius-card);box-shadow:var(--shadow-medium);padding:16px;display:flex;flex-direction:column;gap:22px">
+<div style="display:flex;align-items:center;justify-content:space-between"><div style="width:150px;height:14px;border-radius:100px;background:var(--background-selected)"></div><div style="width:56px;height:22px;border-radius:100px;background:var(--background-selected)"></div></div>
+<div style="display:flex;align-items:center;justify-content:space-between"><div style="width:170px;height:14px;border-radius:100px;background:var(--background-selected)"></div><div style="width:56px;height:22px;border-radius:100px;background:var(--background-selected)"></div></div>
+<div style="display:flex;align-items:center;justify-content:space-between"><div style="width:130px;height:14px;border-radius:100px;background:var(--background-selected)"></div><div style="width:56px;height:22px;border-radius:100px;background:var(--background-selected)"></div></div>
+</div>
+</div>
+<div style="padding:24px 0 0 24px;display:flex;gap:8px">
+<div style="width:112px;height:112px;flex:none;border-radius:var(--radius-tile);background:var(--background-selected)"></div>
+<div style="width:112px;height:112px;flex:none;border-radius:var(--radius-tile);background:var(--background-selected)"></div>
+<div style="width:112px;height:112px;flex:none;border-radius:var(--radius-tile);background:var(--background-selected)"></div>
+</div>
+</div>
+<x-import component-from-global-scope="CrumpetDesignSystem_02ecec.TabBar" active="home" hint-size="100%,84px"></x-import>
+</div>
+</x-import>
+</div></div>
+<div style="font:400 12px/1.4 'Inter',sans-serif;color:#7B7167;width:225px">Loading · skeleton in the page colour</div>
+</div>
+</div>
+
+</div>
+</section>
+
+<section style="display:flex;flex-direction:column;gap:18px">
+<div style="display:flex;align-items:baseline;gap:12px">
+<span style="font:700 10px/1 ui-monospace,Menlo,monospace;padding:4px 8px;background:#1C1815;color:#FAF6EF;border-radius:5px">02</span>
+<h2 style="margin:0;font:700 20px/1.1 'Gabarito',sans-serif;color:#1C1815">Activity</h2>
+<span style="font:400 13px/1.4 'Inter',sans-serif;color:#7B7167">Grouped by day. A missed feed recesses instead of shouting.</span>
+</div>
+<div style="display:flex;gap:36px;align-items:flex-start">
+
+<div style="display:flex;flex-direction:column;gap:10px">
+<x-import component-from-global-scope="IOSDevice" from="./ios-frame.jsx" hint-size="402px,874px">
+<div style="height:100%;display:flex;flex-direction:column;background:var(--background);overflow:hidden">
+<div style="flex:none;padding:58px 16px 4px;display:flex;align-items:center">
+<x-import component-from-global-scope="CrumpetDesignSystem_02ecec.IconButton" name="caretLeft" variant="ghost" size="{{ n22 }}" accessibility-label="Back" hint-size="44px,44px"></x-import>
+</div>
+<div style="flex:none;padding:4px 24px 12px"><h1 style="margin:0;font:700 30px/1 'Gabarito',sans-serif;letter-spacing:-0.5px;color:var(--text)">Activity</h1></div>
+<div style="flex:1;overflow:hidden;display:flex;flex-direction:column">
+
+<div style="position:sticky;top:0;background:var(--background);padding:8px 24px;border-bottom:1px solid var(--border);font:600 13px/1.35 'Inter',sans-serif;color:var(--text-secondary)">Today</div>
+<div style="padding:12px 24px 0;display:flex;flex-direction:column">
+<div style="background:var(--background-element);border-radius:var(--radius-card);box-shadow:var(--shadow-medium);overflow:hidden">
+
+<div style="display:flex;align-items:center;gap:12px;padding:14px 16px">
+<x-import component-from-global-scope="CrumpetDesignSystem_02ecec.UserAvatar" first-name="Sarah" last-name="Nguyen" size="{{ n36 }}" hint-size="36px,36px"></x-import>
+<div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:2px">
+<div style="font:400 15px/1.42 'Inter',sans-serif;color:var(--text)">Bailey’s morning feed</div>
+<div style="font:400 13px/1.35 'Inter',sans-serif;color:var(--text-secondary)">Sarah, 7:04 am</div>
+</div>
+<span style="font:400 13px/1.35 'Inter',sans-serif;color:var(--text-secondary)">5 hours ago</span>
+</div>
+
+<div style="height:1px;background:var(--border);margin-left:64px"></div>
+
+<div style="display:flex;align-items:center;gap:12px;padding:14px 16px;background:var(--background-selected)">
+<div style="width:36px;height:36px;flex:none;border-radius:var(--radius-full);border:1.5px dashed var(--ghost-border);display:flex;align-items:center;justify-content:center">
+<x-import component-from-global-scope="CrumpetDesignSystem_02ecec.Icon" name="dot" size="{{ n18 }}" color="var(--text-secondary)" hint-size="18px,18px"></x-import>
+</div>
+<div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:2px">
+<div style="font:400 15px/1.42 'Inter',sans-serif;color:var(--text-secondary)">Miso’s midday feed</div>
+<div style="font:400 13px/1.35 'Inter',sans-serif;color:var(--text-secondary)">Not logged</div>
+</div>
+<span style="font:400 13px/1.35 'Inter',sans-serif;color:var(--text-secondary)">12:30 pm</span>
+</div>
+
+<div style="height:1px;background:var(--border);margin-left:64px"></div>
+
+<div style="display:flex;align-items:center;gap:12px;padding:14px 16px">
+<x-import component-from-global-scope="CrumpetDesignSystem_02ecec.UserAvatar" first-name="Tom" last-name="Ellery" size="{{ n36 }}" hint-size="36px,36px"></x-import>
+<div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:2px">
+<div style="font:400 15px/1.42 'Inter',sans-serif;color:var(--text)">Bailey’s snack</div>
+<div style="font:400 13px/1.35 'Inter',sans-serif;color:var(--text-secondary)">Tom, 10:15 am</div>
+</div>
+<span style="font:400 13px/1.35 'Inter',sans-serif;color:var(--text-secondary)">2 hours ago</span>
+</div>
+
+</div>
+</div>
+
+<div style="position:sticky;top:0;background:var(--background);margin-top:20px;padding:8px 24px;border-top:1px solid var(--border);border-bottom:1px solid var(--border);font:600 13px/1.35 'Inter',sans-serif;color:var(--text-secondary)">Saturday, 30 August</div>
+<div style="padding:12px 24px 0;display:flex;flex-direction:column">
+<div style="background:var(--background-element);border-radius:var(--radius-card);box-shadow:var(--shadow-medium);overflow:hidden">
+
+<div style="display:flex;align-items:center;gap:12px;padding:14px 16px">
+<x-import component-from-global-scope="CrumpetDesignSystem_02ecec.UserAvatar" first-name="Tom" last-name="Ellery" size="{{ n36 }}" hint-size="36px,36px"></x-import>
+<div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:2px">
+<div style="font:400 15px/1.42 'Inter',sans-serif;color:var(--text)">Bailey’s evening feed</div>
+<div style="font:400 13px/1.35 'Inter',sans-serif;color:var(--text-secondary)">Tom, 5:38 pm</div>
+</div>
+<span style="font:400 13px/1.35 'Inter',sans-serif;color:var(--text-secondary)">Yesterday</span>
+</div>
+
+<div style="height:1px;background:var(--border);margin-left:64px"></div>
+
+<div style="display:flex;align-items:center;gap:12px;padding:14px 16px">
+<x-import component-from-global-scope="CrumpetDesignSystem_02ecec.UserAvatar" first-name="Sarah" last-name="Nguyen" size="{{ n36 }}" hint-size="36px,36px"></x-import>
+<div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:2px">
+<div style="font:400 15px/1.42 'Inter',sans-serif;color:var(--text)">Miso’s morning feed</div>
+<div style="font:400 13px/1.35 'Inter',sans-serif;color:var(--text-secondary)">Sarah, 7:12 am</div>
+</div>
+<span style="font:400 13px/1.35 'Inter',sans-serif;color:var(--text-secondary)">Yesterday</span>
+</div>
+
+</div>
+</div>
+
+</div>
+<x-import component-from-global-scope="CrumpetDesignSystem_02ecec.TabBar" active="home" hint-size="100%,84px"></x-import>
+</div>
+</x-import>
+<div style="font:400 12px/1.4 'Inter',sans-serif;color:#7B7167">Activity · two days, one not logged</div>
+</div>
+
+<div style="display:flex;flex-direction:column;gap:24px">
+<div style="display:flex;flex-direction:column;gap:10px">
+<div style="width:225px;height:490px"><div style="width:402px;height:874px;transform:scale(.56);transform-origin:top left">
+<x-import component-from-global-scope="IOSDevice" from="./ios-frame.jsx" hint-size="402px,874px">
+<div style="height:100%;display:flex;flex-direction:column;background:var(--background);overflow:hidden">
+<div style="flex:none;padding:58px 16px 4px;display:flex;align-items:center">
+<x-import component-from-global-scope="CrumpetDesignSystem_02ecec.IconButton" name="caretLeft" variant="ghost" size="{{ n22 }}" accessibility-label="Back" hint-size="44px,44px"></x-import>
+</div>
+<div style="flex:none;padding:4px 24px 12px"><h1 style="margin:0;font:700 30px/1 'Gabarito',sans-serif;letter-spacing:-0.5px;color:var(--text)">Activity</h1></div>
+<div style="flex:1;display:flex;align-items:center;justify-content:center;padding-bottom:80px">
+<x-import component-from-global-scope="CrumpetDesignSystem_02ecec.EmptyState" icon="clipboardList" title="Nothing logged yet" description="Every feed your household logs shows up here, newest first." hint-size="100%,240px"></x-import>
+</div>
+<x-import component-from-global-scope="CrumpetDesignSystem_02ecec.TabBar" active="home" hint-size="100%,84px"></x-import>
+</div>
+</x-import>
+</div></div>
+<div style="font:400 12px/1.4 'Inter',sans-serif;color:#7B7167;width:225px">Empty · a new household</div>
+</div>
+
+<div style="display:flex;flex-direction:column;gap:10px">
+<div style="width:225px;height:490px"><div style="width:402px;height:874px;transform:scale(.56);transform-origin:top left">
+<x-import component-from-global-scope="IOSDevice" from="./ios-frame.jsx" hint-size="402px,874px">
+<div style="height:100%;display:flex;flex-direction:column;background:var(--background);overflow:hidden">
+<div style="flex:none;padding:58px 16px 4px;display:flex;align-items:center">
+<x-import component-from-global-scope="CrumpetDesignSystem_02ecec.IconButton" name="caretLeft" variant="ghost" size="{{ n22 }}" accessibility-label="Back" hint-size="44px,44px"></x-import>
+</div>
+<div style="flex:none;padding:4px 24px 12px"><h1 style="margin:0;font:700 30px/1 'Gabarito',sans-serif;letter-spacing:-0.5px;color:var(--text)">Activity</h1></div>
+<div style="flex:1;overflow:hidden;display:flex;flex-direction:column;animation:skel 1600ms ease-in-out infinite">
+<div style="padding:8px 24px;border-bottom:1px solid var(--border)"><div style="width:64px;height:11px;border-radius:100px;background:var(--background-selected)"></div></div>
+<div style="padding:12px 24px 0">
+<div style="background:var(--background-element);border-radius:var(--radius-card);box-shadow:var(--shadow-medium);padding:16px;display:flex;flex-direction:column;gap:20px">
+<div style="display:flex;align-items:center;gap:12px"><div style="width:36px;height:36px;border-radius:100px;background:var(--background-selected)"></div><div style="flex:1;display:flex;flex-direction:column;gap:7px"><div style="width:62%;height:13px;border-radius:100px;background:var(--background-selected)"></div><div style="width:38%;height:11px;border-radius:100px;background:var(--background-selected)"></div></div></div>
+<div style="display:flex;align-items:center;gap:12px"><div style="width:36px;height:36px;border-radius:100px;background:var(--background-selected)"></div><div style="flex:1;display:flex;flex-direction:column;gap:7px"><div style="width:54%;height:13px;border-radius:100px;background:var(--background-selected)"></div><div style="width:44%;height:11px;border-radius:100px;background:var(--background-selected)"></div></div></div>
+<div style="display:flex;align-items:center;gap:12px"><div style="width:36px;height:36px;border-radius:100px;background:var(--background-selected)"></div><div style="flex:1;display:flex;flex-direction:column;gap:7px"><div style="width:68%;height:13px;border-radius:100px;background:var(--background-selected)"></div><div style="width:32%;height:11px;border-radius:100px;background:var(--background-selected)"></div></div></div>
+</div>
+</div>
+<div style="margin-top:20px;padding:8px 24px;border-top:1px solid var(--border);border-bottom:1px solid var(--border)"><div style="width:120px;height:11px;border-radius:100px;background:var(--background-selected)"></div></div>
+<div style="padding:12px 24px 0">
+<div style="background:var(--background-element);border-radius:var(--radius-card);box-shadow:var(--shadow-medium);padding:16px;display:flex;flex-direction:column;gap:20px">
+<div style="display:flex;align-items:center;gap:12px"><div style="width:36px;height:36px;border-radius:100px;background:var(--background-selected)"></div><div style="flex:1;display:flex;flex-direction:column;gap:7px"><div style="width:58%;height:13px;border-radius:100px;background:var(--background-selected)"></div><div style="width:40%;height:11px;border-radius:100px;background:var(--background-selected)"></div></div></div>
+<div style="display:flex;align-items:center;gap:12px"><div style="width:36px;height:36px;border-radius:100px;background:var(--background-selected)"></div><div style="flex:1;display:flex;flex-direction:column;gap:7px"><div style="width:66%;height:13px;border-radius:100px;background:var(--background-selected)"></div><div style="width:30%;height:11px;border-radius:100px;background:var(--background-selected)"></div></div></div>
+</div>
+</div>
+</div>
+<x-import component-from-global-scope="CrumpetDesignSystem_02ecec.TabBar" active="home" hint-size="100%,84px"></x-import>
+</div>
+</x-import>
+</div></div>
+<div style="font:400 12px/1.4 'Inter',sans-serif;color:#7B7167;width:225px">Loading · day bands hold their place</div>
+</div>
+</div>
+
+</div>
+</section>
+
+<section style="display:flex;flex-direction:column;gap:18px">
+<div style="display:flex;align-items:baseline;gap:12px">
+<span style="font:700 10px/1 ui-monospace,Menlo,monospace;padding:4px 8px;background:#1C1815;color:#FAF6EF;border-radius:5px">03</span>
+<h2 style="margin:0;font:700 20px/1.1 'Gabarito',sans-serif;color:#1C1815">Pets</h2>
+<span style="font:400 13px/1.4 'Inter',sans-serif;color:#7B7167">One row per pet, one line of status, and a ghost row to add.</span>
+</div>
+<div style="display:flex;gap:36px;align-items:flex-start">
+
+<div style="display:flex;flex-direction:column;gap:10px">
+<x-import component-from-global-scope="IOSDevice" from="./ios-frame.jsx" hint-size="402px,874px">
+<div style="height:100%;display:flex;flex-direction:column;background:var(--background);overflow:hidden">
+<div style="flex:none;padding:58px 16px 4px;display:flex;align-items:center">
+<x-import component-from-global-scope="CrumpetDesignSystem_02ecec.IconButton" name="caretLeft" variant="ghost" size="{{ n22 }}" accessibility-label="Back" hint-size="44px,44px"></x-import>
+</div>
+<div style="flex:none;padding:4px 24px 16px"><h1 style="margin:0;font:700 30px/1 'Gabarito',sans-serif;letter-spacing:-0.5px;color:var(--text)">Pets</h1></div>
+<div style="flex:1;overflow:hidden;padding:0 24px;display:flex;flex-direction:column;gap:16px">
+
+<div style="background:var(--background-element);border-radius:var(--radius-card);box-shadow:var(--shadow-medium);overflow:hidden">
+
+<div style="display:flex;align-items:center;gap:14px;padding:14px 16px">
+<x-import component-from-global-scope="CrumpetDesignSystem_02ecec.PetAvatar" photo-url="assets/photo-placeholder.png" size="{{ n48 }}" hint-size="48px,48px"></x-import>
+<div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:2px">
+<span style="font:700 19px/1.2 'Gabarito',sans-serif;color:var(--text)">Bailey</span>
+<span style="font:400 13px/1.35 'Inter',sans-serif;color:var(--text-secondary)">Logged twice today · next 5:30 pm</span>
+</div>
+<x-import component-from-global-scope="CrumpetDesignSystem_02ecec.Icon" name="caretRight" size="{{ n18 }}" color="var(--text-secondary)" hint-size="18px,18px"></x-import>
+</div>
+
+<div style="height:1px;background:var(--border);margin-left:78px"></div>
+
+<div style="display:flex;align-items:center;gap:14px;padding:14px 16px">
+<x-import component-from-global-scope="CrumpetDesignSystem_02ecec.PetAvatar" size="{{ n48 }}" hint-size="48px,48px"></x-import>
+<div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:2px">
+<span style="font:700 19px/1.2 'Gabarito',sans-serif;color:var(--text)">Miso</span>
+<span style="font:400 13px/1.35 'Inter',sans-serif;color:var(--text-secondary)">Midday feed not logged</span>
+</div>
+<x-import component-from-global-scope="CrumpetDesignSystem_02ecec.Icon" name="caretRight" size="{{ n18 }}" color="var(--text-secondary)" hint-size="18px,18px"></x-import>
+</div>
+
+<div style="height:1px;background:var(--border);margin-left:78px"></div>
+
+<div style="display:flex;align-items:center;gap:14px;padding:14px 16px">
+<x-import component-from-global-scope="CrumpetDesignSystem_02ecec.PetAvatar" photo-url="assets/photo-placeholder.png" size="{{ n48 }}" style="opacity:.55" hint-size="48px,48px"></x-import>
+<div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:4px">
+<span style="font:700 19px/1.2 'Gabarito',sans-serif;color:var(--text)">Pickle</span>
+<x-import component-from-global-scope="CrumpetDesignSystem_02ecec.StatusPill" label="Paused — no feeds expected" tone="sunk" hint-size="auto,20px"></x-import>
+</div>
+<x-import component-from-global-scope="CrumpetDesignSystem_02ecec.Icon" name="caretRight" size="{{ n18 }}" color="var(--text-secondary)" hint-size="18px,18px"></x-import>
+</div>
+
+</div>
+
+<button type="button" style="display:flex;align-items:center;gap:14px;padding:14px 16px;width:100%;background:transparent;border:1.5px dashed var(--ghost-border);border-radius:var(--radius-card);cursor:pointer;font:inherit;text-align:left">
+<span style="width:48px;height:48px;flex:none;border-radius:var(--radius-full);background:var(--background-selected);display:flex;align-items:center;justify-content:center">
+<x-import component-from-global-scope="CrumpetDesignSystem_02ecec.Icon" name="plus" size="{{ n22 }}" color="var(--text)" hint-size="22px,22px"></x-import>
+</span>
+<span style="font:400 15px/1.42 'Inter',sans-serif;color:var(--text)">Add a pet</span>
+</button>
+
+</div>
+<x-import component-from-global-scope="CrumpetDesignSystem_02ecec.TabBar" active="home" hint-size="100%,84px"></x-import>
+</div>
+</x-import>
+<div style="font:400 12px/1.4 'Inter',sans-serif;color:#7B7167">Pets · three pets, one paused</div>
+</div>
+
+<div style="display:flex;flex-direction:column;gap:24px">
+<div style="display:flex;flex-direction:column;gap:10px">
+<div style="width:225px;height:490px"><div style="width:402px;height:874px;transform:scale(.56);transform-origin:top left">
+<x-import component-from-global-scope="IOSDevice" from="./ios-frame.jsx" hint-size="402px,874px">
+<div style="height:100%;display:flex;flex-direction:column;background:var(--background);overflow:hidden">
+<div style="flex:none;padding:58px 16px 4px;display:flex;align-items:center">
+<x-import component-from-global-scope="CrumpetDesignSystem_02ecec.IconButton" name="caretLeft" variant="ghost" size="{{ n22 }}" accessibility-label="Back" hint-size="44px,44px"></x-import>
+</div>
+<div style="flex:none;padding:4px 24px 16px"><h1 style="margin:0;font:700 30px/1 'Gabarito',sans-serif;letter-spacing:-0.5px;color:var(--text)">Pets</h1></div>
+<div style="flex:1;display:flex;flex-direction:column;justify-content:center;gap:8px;padding:0 24px 80px">
+<x-import component-from-global-scope="CrumpetDesignSystem_02ecec.EmptyState" icon="pawPrint" title="No pets yet" description="Add a pet and your household can start logging feeds." hint-size="100%,240px"></x-import>
+<x-import component-from-global-scope="CrumpetDesignSystem_02ecec.MainButton" text="Add a pet" variant="secondary" size="md" stretch="{{ true }}" hint-size="100%,42px"></x-import>
+</div>
+<x-import component-from-global-scope="CrumpetDesignSystem_02ecec.TabBar" active="home" hint-size="100%,84px"></x-import>
+</div>
+</x-import>
+</div></div>
+<div style="font:400 12px/1.4 'Inter',sans-serif;color:#7B7167;width:225px">Empty · nothing to add to, so one action</div>
+</div>
+
+<div style="display:flex;flex-direction:column;gap:10px">
+<div style="width:225px;height:490px"><div style="width:402px;height:874px;transform:scale(.56);transform-origin:top left">
+<x-import component-from-global-scope="IOSDevice" from="./ios-frame.jsx" hint-size="402px,874px">
+<div style="height:100%;display:flex;flex-direction:column;background:var(--background);overflow:hidden">
+<div style="flex:none;padding:58px 16px 4px;display:flex;align-items:center">
+<x-import component-from-global-scope="CrumpetDesignSystem_02ecec.IconButton" name="caretLeft" variant="ghost" size="{{ n22 }}" accessibility-label="Back" hint-size="44px,44px"></x-import>
+</div>
+<div style="flex:none;padding:4px 24px 16px"><h1 style="margin:0;font:700 30px/1 'Gabarito',sans-serif;letter-spacing:-0.5px;color:var(--text)">Pets</h1></div>
+<div style="flex:1;overflow:hidden;padding:0 24px;display:flex;flex-direction:column;gap:16px;animation:skel 1600ms ease-in-out infinite">
+<div style="background:var(--background-element);border-radius:var(--radius-card);box-shadow:var(--shadow-medium);padding:16px;display:flex;flex-direction:column;gap:24px">
+<div style="display:flex;align-items:center;gap:14px"><div style="width:48px;height:48px;border-radius:100px;background:var(--background-selected)"></div><div style="flex:1;display:flex;flex-direction:column;gap:8px"><div style="width:40%;height:16px;border-radius:100px;background:var(--background-selected)"></div><div style="width:64%;height:11px;border-radius:100px;background:var(--background-selected)"></div></div></div>
+<div style="display:flex;align-items:center;gap:14px"><div style="width:48px;height:48px;border-radius:100px;background:var(--background-selected)"></div><div style="flex:1;display:flex;flex-direction:column;gap:8px"><div style="width:32%;height:16px;border-radius:100px;background:var(--background-selected)"></div><div style="width:52%;height:11px;border-radius:100px;background:var(--background-selected)"></div></div></div>
+<div style="display:flex;align-items:center;gap:14px"><div style="width:48px;height:48px;border-radius:100px;background:var(--background-selected)"></div><div style="flex:1;display:flex;flex-direction:column;gap:8px"><div style="width:36%;height:16px;border-radius:100px;background:var(--background-selected)"></div><div style="width:58%;height:11px;border-radius:100px;background:var(--background-selected)"></div></div></div>
+</div>
+<div style="height:80px;border-radius:var(--radius-card);border:1.5px dashed var(--ghost-border)"></div>
+</div>
+<x-import component-from-global-scope="CrumpetDesignSystem_02ecec.TabBar" active="home" hint-size="100%,84px"></x-import>
+</div>
+</x-import>
+</div></div>
+<div style="font:400 12px/1.4 'Inter',sans-serif;color:#7B7167;width:225px">Loading · the ghost row stays outlined</div>
+</div>
+</div>
+
+</div>
+</section>
+
+<p style="margin:0;max-width:720px;font:400 13px/1.5 'Inter',sans-serif;color:#7B7167;text-wrap:pretty">Next: the log tray that opens when a feed is logged late (who and what time), and the Miso row on Activity linked back to the pet so a missed feed can still be logged from history.</p>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1300,&quot;height&quot;:1200}}">
+class Component extends DCLogic {
+  state = {
+    logged: false,
+    paused: false,
+    cardOpen: false,
+    tray: null,
+    bioText: 'A Labrador who came from the pound in 2022. Nervous around bikes, delighted by everything else. Sleeps on the rug by the back door.'
+  };
+  renderVals() {
+    const tray = this.state.tray;
+    return {
+      n18: 18, n20: 20, n22: 22, n36: 36, n44: 44, n48: 48, n120: 120, n1180: 1180,
+      noop: () => {},
+      middayLogged: this.state.logged,
+      middayOpen: !this.state.logged,
+      paused: this.state.paused,
+      notPaused: !this.state.paused,
+      onPause: (v) => this.setState({ paused: v }),
+      cardOpen: this.state.cardOpen,
+      onCardOpen: () => this.setState({ cardOpen: true }),
+      onCardClose: () => this.setState({ cardOpen: false }),
+      trayList: tray === 'list',
+      trayEdit: tray === 'edit',
+      trayBio: tray === 'bio',
+      bioText: this.state.bioText,
+      onTrayList: () => this.setState({ tray: 'list' }),
+      onTrayEdit: () => this.setState({ tray: 'edit' }),
+      onTrayClose: () => this.setState({ tray: null }),
+      onBioEdit: () => { this.draft = this.state.bioText; this.setState({ tray: 'bio' }); },
+      onBioChange: (v) => { this.draft = v; },
+      onBioSave: () => this.setState({ tray: null, bioText: this.draft ?? this.state.bioText }),
+      onLog: () => this.setState({ logged: true })
+    };
+  }
+}
+</script>
+</body>
+</html>

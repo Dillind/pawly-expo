@@ -105,10 +105,10 @@ const makeStyles = ({ colors }: AppTheme) =>
       borderRadius: 8,
       fontSize: 16,
       borderColor: colors.textSecondary,
-      backgroundColor: colors.background
+      backgroundColor: colors.backgroundElement
     },
     dropdownContainer: {
-      backgroundColor: colors.background
+      backgroundColor: colors.backgroundElement
     },
     placeholderStyle: {
       fontSize: 16,
@@ -120,7 +120,7 @@ const makeStyles = ({ colors }: AppTheme) =>
     },
     item: {
       padding: 12,
-      backgroundColor: colors.background
+      backgroundColor: colors.backgroundElement
     },
     itemSelected: {
       backgroundColor: colors.backgroundSelected

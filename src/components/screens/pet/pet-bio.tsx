@@ -1,5 +1,4 @@
 import AppText from '@/components/core/app-text';
-import IconButton from '@/components/core/icon-button';
 import MainButton from '@/components/core/main-button';
 import TextInputValidated from '@/components/core/text-input-validated';
 import Tray, { type TrayStepDescriptor } from '@/components/core/tray';
@@ -79,7 +78,7 @@ const PetBio = ({ petId, name, bio }: Props) => {
   const steps: TrayStepDescriptor[] = [
     {
       id: 'edit',
-      title: 'Edit bio',
+      title: `About ${name}`,
       render: () => (
         <EditStep petId={petId} bio={bio} onDone={() => void sheetRef.current?.dismiss()} />
       )
@@ -89,15 +88,15 @@ const PetBio = ({ petId, name, bio }: Props) => {
   return (
     <View style={styles.section}>
       <View style={styles.header}>
-        <AppText variant="header" size={20}>
+        <AppText variant="header" size={17} fontWeight="bold">
           About
         </AppText>
         {household?.isOwner && (
-          <IconButton
-            name="pencil"
-            accessibilityLabel="Edit bio"
-            variant="ghost"
-            size={18}
+          <MainButton
+            text="Edit"
+            variant="secondary"
+            size="xs"
+            containerStyle={styles.editButton}
             onPress={() => void sheetRef.current?.present()}
           />
         )}
@@ -119,6 +118,7 @@ const PetBio = ({ petId, name, bio }: Props) => {
 const makeStyles = ({ spacing }: AppTheme) =>
   StyleSheet.create({
     section: { gap: spacing.two },
+    editButton: { alignSelf: 'center' },
     header: {
       flexDirection: 'row',
       alignItems: 'center',

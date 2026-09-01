@@ -106,7 +106,10 @@ const NotificationSettings = () => {
             <SettingsRow
               icon="clock"
               label="Nudge me before"
-              value={optionLabel(FEED_DUE_LEAD_OPTIONS, preferences?.feedDueLeadMinutes ?? DEFAULT_LEAD_MINUTES)}
+              value={optionLabel(
+                FEED_DUE_LEAD_OPTIONS,
+                preferences?.feedDueLeadMinutes ?? DEFAULT_LEAD_MINUTES
+              )}
               isDisabled={isDenied}
               onPress={() => void leadSheetRef.current?.present()}
             />
@@ -129,6 +132,18 @@ const NotificationSettings = () => {
               value={preferences?.feedLoggedAlerts ?? false}
               isDisabled={isDenied}
               onChange={(value) => setPreference({ preference: 'feedLoggedAlerts', value })}
+            />
+          </View>
+        </SettingsSection>
+
+        <SettingsSection title="Reminders">
+          <View style={styles.toggleRow}>
+            <ToggleSwitch
+              label="Reminder Alerts"
+              description="Know before a worming tablet or a vet visit is due"
+              value={preferences?.reminderAlerts ?? false}
+              isDisabled={isDenied}
+              onChange={(value) => setPreference({ preference: 'reminderAlerts', value })}
             />
           </View>
         </SettingsSection>

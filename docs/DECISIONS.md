@@ -302,3 +302,139 @@ value a call site can reach for that looks like the brand colour and fails contr
 fallback, a bullet in an info sheet — none of them are actions, so none of them are gold. The
 fourteen `Icon color="primary"` call sites that existed were an artefact of teal being harmless
 everywhere, not a deliberate choice.
+
+**Activity's missed rows come from occurrences, merged into the log history client-side.**
+`feed_logs` holds only feeds that were logged, so a missed one has no row to join to. The state
+comes from `pet_occurrence_states`, one call per pet per day over the days the loaded logs already
+cover — `useMissedOccurrences`, keyed the same `['occurrences', petId, date]` the pet screens use,
+so a day Home has already fetched is served from cache. Only days already on screen are asked for,
+which is what stops the screen fetching every day since the household was created.
+
+**A `MissedFeedRow` recesses; it never alarms.** A sunk fill, a hollow dashed ring where the
+member's avatar would be, secondary ink, and always the words "Not logged". Not gold, because gold
+means "act now" and a missed feed in the past cannot be logged from Activity. Not red, because the
+app knows only whether anyone tapped Log — never whether the pet ate.
+
+**Glass over a photo needs its own ink: `onGlass`.** The pet screen's back button is a glass circle
+on an arbitrary photo, and the glass glyph colour is `text` — near-black, invisible on any dark
+photo, on the one control that leaves the screen. `isOverContent` on `IconButton` and `MainButton`
+switches the material to its dark scheme and the glyph to `onGlass` white. It is a separate token
+rather than a hard-coded white so the two components cannot drift apart.
+
+**The pet screen's Feed times card shows occurrences, not Feed Times.** The question on that screen
+is what has been logged today, which is the same question Home asks — so it is the same
+`OccurrenceList`, with a Log chip, a teal tick or "Upcoming". The schedule behind those rows is
+edited in a tray, because a keyboard and a destructive remove do not belong on a screen the whole
+household reads.
+
+**The floating action popover is gone; every log path lives inside a pet card.** The popover was a
+second door to the same room. It floated over the content it duplicated, it needed a fixed
+`BottomTabInset` offset because native tabs expose no height, and it forced `minimizeBehavior` off
+so the bar could not change height under it. Removing it deletes all three problems and costs
+nothing: the "Other" row in each pet card already covers the unscheduled feed. See
+[ADR 0011](./adr/0011-liquid-glass-progressive-enhancement.md) for the glass reasoning that outlives
+the component.
+
+**The banner gradient is `expo-linear-gradient`.** It was briefly redrawn with `react-native-svg`
+after the first build showed `Unimplemented component: <ViewManagerAdapter_ExpoLinearGradient>` on a
+stale dev client. The package was always the intended one, so it is back and the dev client is
+rebuilt instead. The red box was a missing build, not a wrong dependency. See KNOWLEDGE.md.
+
+**The banner gradients sit outside `COLORS`.** `ThemeColor` is the set of keys a component may pass
+to `AppText` or `Icon`, and a list of stops is not a colour — putting `bannerDay` in the palette
+would make `<AppText color="bannerDay">` typecheck and render nothing. `BannerGradients` is its own
+export, and each entry carries its own `ink`, because the stops and the text colour that stays
+readable on them are one decision.
+
+**The week strip's underline is one shared value that slides, not seven that fade.** Seven
+per-cell animations cross-fade: the old underline disappears and a new one appears. One that
+translates travels, and travel is the thing that says which way the day moved. It needs the row's
+laid-out width, so the underline is positioned from `onLayout` rather than a guessed cell size.
+
+**Home reads the whole household's feed times and occurrences with `useQueries`, not a new RPC.**
+Both the banner count and the tip need every pet at once, and a hook cannot be called from a loop.
+`useQueries` reuses the exact `['occurrences', petId, day]` and `['feed-times', petId]` keys
+`PetSection` already caches, so the screen issues no extra requests. A bulk RPC would have been a
+second source of the same truth, going stale on its own schedule.
+
+**The Home tip has no fallback string.** `findHomeTip` returns `null` and the slot renders nothing.
+A generic pet tip in the one place the app volunteers something teaches the household to ignore it.
+An absent query result is also `null`, deliberately — claiming a pet has no feeds while its query is
+in flight makes the tip flash on and retract.
+
+**A day that is not today gets different banner copy.** "All done for today" over next Thursday is a
+lie, and a future day where nothing is due yet is not an achievement. `describeDay` takes `isToday`
+and switches from progress to schedule. Live polling switches off with it: an occurrence's `state`
+ages on the server, but a past or future day's states do not move.
+
+**A Reminder is a row in the feed list, not a section of its own.** Artboard 5 draws the two as one
+stack inside the pet card, and a Reminder ticked off uses exactly the feed row's motion because it
+is the same row. Giving Reminders their own card would say they are a different kind of thing; on
+Home they are not, they are another job for that pet today.
+
+**A completion is a row, and absence is the not-done state.** `reminder_completions` holds one row
+per Reminder per date, written only when someone ticks it off. Nothing is materialised ahead of
+time, so a monthly rule runs for years with no backfill and no sweep to create rows. Unticking is a
+delete rather than an update, which is also why there is no update policy: rewriting `done_by` would
+let one member reassign another's action.
+
+**A monthly Reminder on the 31st lands on the last day of a shorter month.** It does not skip. A
+worming tablet that silently misses February is worse than one that arrives a day early.
+
+**A missed Reminder does not push twice.** A missed feed does, capped by the Nudge Limit, because it
+is time-critical within the day. A worming tablet is not, and a second push teaches people to ignore
+the first.
+
+**A Reminder's Kind carries a colour, on trial.** `medication` is a muted plum and `vet` a muted
+blue, each with a muted fill for the selected Kind pill. The batch-2 artboard drew exactly this as
+Variant B and rejected it: a 4px dot cannot carry a hue, and gold and teal already mean *to do* and
+*done*. It ships anyway to be judged on a device rather than on a board. If it reads as noise, the
+revert is Variant A -- one gold dot, the four tokens deleted, and nothing else changes.
+
+**Reminder Alerts are their own toggle, not a rider on an existing one.** ADR 0012 makes delivery
+the recipient's decision, so a new pushing kind needs its own switch. It defaults to true, like the
+Feed Due Alert: the nudge never accuses anyone, and it is the reason the feature exists.
+
+**"Other" is a row in the pet card, not a button under the list.** The artboard puts it last inside
+each card, dashed and quiet. That is what the unscheduled feed actually is -- a thing done to one
+pet, alongside that pet's slots. A single button under every card had to ask which pet afterwards.
+
+**A day that is not today is read-only.** The week strip made a past day reachable for the first
+time, and every write path on Home targets *now*: `LogFeedTray` takes `today`, and the `log_feed`
+RPC stamps the record with the current time. A Log chip on last Wednesday would have quietly
+recorded that feed against this morning. So the chip and the "Other" row both disappear off today,
+and the rows show ticks and "Not logged" alone. Backfilling a past feed is
+the late-feed flow's job, because it is the one that asks who fed and when.
+
+**"Upcoming" is for an `upcoming` occurrence, not for "no button here".** The trailing slot used to
+fall back to the word whenever there was no Log chip. On a past day that put "Upcoming" beside a row
+whose own subtitle read "Not logged". The slot now renders the word only for the state that means
+it, and nothing otherwise.
+
+**The week strip pages by fling, and the month row's chevron is still undecided.** The strip only
+ever draws the selected day's week, so without a way to move between weeks it is a trap. A
+horizontal fling is the natural gesture, adds no chrome, and does not pre-empt whatever the
+artboard's chevron becomes -- a date picker, or a month view. Fling rather than pan: the strip sits
+inside a vertical scroll view, and a week is a discrete step rather than a draggable position.
+
+**A feed Reminder's strip dot is warm ink, not gold.** Issue #122 gives gold exactly three jobs --
+the banner wash, the Log chip, the active tab -- and says a fourth drains the meaning from the other
+three. A gold dot under a date is that fourth. The medication and vet dots keep their Kind colours,
+which are not gold and are still on trial.
+
+**The Reminder Tray's Home trigger is a text button, not a second ghost row.** The Home pet card
+already ends with the dashed "Other" row, and two dashed rows stacked read as one broken control.
+The text button is the same trigger the Pet screen's Reminders section uses, so the two screens
+offer the same thing in the same way. It is gated on today and on the pet not being paused, exactly
+like "Other".
+
+**The grounds are cool neutral, not warm cream.** `background` was `#FAF6EF`, a strong cream, and it
+read as a yellow tint rather than as paper -- most obviously behind a text input, which defaulted to
+it. The screen, the sunk surfaces and the Post divider moved to a near-neutral off-white, and dark
+moved with them. Gold, teal, the Kind colours and every ink are untouched.
+
+Not pure white and pure black, which was the first instinct. Light has a three-step stack -- screen,
+card, sunk surface -- and taking the screen to `#FFFFFF` makes the screen and the card one colour, so
+every card on Home loses its edge and only the shadow holds it apart. Dark has the same stack.
+`backgroundSelected` and `backgroundSheetRow` had to move too: left on the cream they would read as
+yellow patches on a neutral screen.
