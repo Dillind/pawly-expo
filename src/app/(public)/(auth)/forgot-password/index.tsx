@@ -69,6 +69,7 @@ const ForgotPassword = () => {
                 <TextInputValidated
                   name="email"
                   label="Email"
+                  isLabelIndicated
                   value={value}
                   onChangeText={onChange}
                   onBlur={onBlur}

@@ -12,7 +12,7 @@ export type IconBaseProps = {
 
 export type FontVariant = 'header' | 'body';
 
-export type FontWeight = 'regular' | 'bold';
+export type FontWeight = 'regular' | 'semibold' | 'bold';
 
 export type ImageFolderType = 'example';
 

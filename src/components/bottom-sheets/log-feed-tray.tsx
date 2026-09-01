@@ -263,6 +263,7 @@ const ConfirmStep = ({
               name="time"
               mode="time"
               label="Fed at"
+              isLabelIndicated
               selectedDate={value}
               setSelectedDate={onChange}
             />

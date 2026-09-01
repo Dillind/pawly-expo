@@ -560,6 +560,25 @@ Exceptions worth knowing:
 
 `react-hook-form` + **Zod** (`@hookform/resolvers`). Use the shared validated inputs in `src/components/core/` (e.g. `TextInputValidated`, `DatePickerValidated`) which read from `useFormContext` and render `FieldError`. No ad-hoc controlled inputs. Zod schemas are the single validation contract (also used by Edge Functions).
 
+**A required field carries `isLabelIndicated`.** The prop draws the red asterisk through
+`IndicatedText`, and it is off by default — so a field the schema rejects when empty looks
+optional until the user tries to save. The schema is the source of truth, not the label text:
+
+- **Required, so mark it:** anything the Zod field rejects for an empty or absent value — a
+  `.min(1)` string, a `.regex()` on a time or date, an `z.email()`, an `z.enum()` whose form has no
+  default for it.
+- **Not required, so leave it bare:** a `.nullable()` or plain `z.string()` field, and any control
+  the form always gives a value — `defaultValues: { sex: 'male' }` means the user cannot submit it
+  empty, and an asterisk there is noise.
+
+The four validated inputs take the prop: `TextInputValidated`, `DateTimePickerValidated`, and both
+`DropdownPickerValidated` files. **`SegmentedControl` deliberately does not.** It renders its label
+at a different size, and it always paints a thumb — `Math.max(findIndex, 0)` falls back to the first
+option — so it can never look empty and has nothing to warn about.
+
+When you add a field, set `isLabelIndicated` in the same edit as the schema line. Checking a form
+afterwards means reading every field against every schema, which is how these get missed.
+
 **Reading a field value: use `useWatch({ control, name })`, never `watch()`.** `watch()` subscribes
 by mutating during render and returns a fresh value each call, which React Compiler (enabled via
 `app.json` → `experiments.reactCompiler`) cannot memoise — it silently opts the component out of memoisation

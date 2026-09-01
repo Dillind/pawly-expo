@@ -241,6 +241,7 @@ function EditableLogForm({ log, timezone, isOwner, isSaving, onSave }: EditableL
             <DateTimePickerValidated
               name="time"
               label="Time fed"
+              isLabelIndicated
               mode="time"
               selectedDate={value}
               setSelectedDate={onChange}

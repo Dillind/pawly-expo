@@ -52,6 +52,7 @@ const NameStep = () => {
                 <TextInputValidated
                   name="firstName"
                   label="First name"
+                  isLabelIndicated
                   value={value}
                   onChangeText={onChange}
                   onBlur={onBlur}
@@ -69,6 +70,7 @@ const NameStep = () => {
                 <TextInputValidated
                   name="lastName"
                   label="Last name"
+                  isLabelIndicated
                   value={value}
                   onChangeText={onChange}
                   onBlur={onBlur}

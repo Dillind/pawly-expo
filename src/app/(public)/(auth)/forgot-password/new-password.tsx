@@ -84,6 +84,7 @@ const ResetPassword = () => {
                 <TextInputValidated
                   name="password"
                   label="New password"
+                  isLabelIndicated
                   value={value}
                   onChangeText={onChange}
                   onBlur={onBlur}
@@ -103,6 +104,7 @@ const ResetPassword = () => {
                 <TextInputValidated
                   name="confirmPassword"
                   label="Confirm new password"
+                  isLabelIndicated
                   value={value}
                   onChangeText={onChange}
                   onBlur={onBlur}

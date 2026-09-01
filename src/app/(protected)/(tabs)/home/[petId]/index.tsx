@@ -2,28 +2,22 @@ import FeedLogDetailSheet from '@/components/bottom-sheets/feed-log-detail-sheet
 import ErrorState from '@/components/core/error-state';
 import ScreenScrollView from '@/components/layout/screen-scroll-view';
 import ScreenView from '@/components/layout/screen-view';
-import CareCard from '@/components/screens/pet/care-card';
 import FeedTimesSection from '@/components/screens/pet/feed-times-section';
 import GalleryStrip from '@/components/screens/pet/gallery-strip';
-import PauseCard from '@/components/screens/pet/pause-card';
 import PetBio from '@/components/screens/pet/pet-bio';
 import PetDetailSkeleton from '@/components/screens/pet/pet-detail-skeleton';
 import PetIdentity from '@/components/screens/pet/pet-identity';
 import RemindersSection from '@/components/screens/pet/reminders-section';
 import SectionCard from '@/components/screens/pet/section-card';
-import { BottomTabInset, ScreenGutter, type AppTheme } from '@/constants/theme';
-import { useFeedTimes } from '@/hooks/queries/feeding/use-feed-times';
-import { useOccurrences } from '@/hooks/queries/feeding/use-occurrences';
+import { BottomTabInset, HeaderTitleStyle, ScreenGutter, type AppTheme } from '@/constants/theme';
 import { usePetPause } from '@/hooks/queries/feeding/use-pet-pause';
 import { useHousehold } from '@/hooks/queries/household/use-household';
 import { useHouseholdMembers } from '@/hooks/queries/household/use-household-members';
 import { usePetDetail } from '@/hooks/queries/pet/use-pet-detail';
-import { useLogFlow } from '@/hooks/use-log-flow';
 import { useStyles } from '@/hooks/use-styles';
 import { todayInTimezone } from '@/lib/dates';
-import { summarisePetDay } from '@/utils/pet-status';
 import type { TrueSheet } from '@lodev09/react-native-true-sheet';
-import { useLocalSearchParams } from 'expo-router';
+import { Stack, useLocalSearchParams } from 'expo-router';
 import { useRef, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 
@@ -43,24 +37,21 @@ const PetDetail = () => {
   const today = timezone ? todayInTimezone(timezone) : undefined;
 
   const { data: pause } = usePetPause(petId, today);
-  const { data: occurrences } = useOccurrences(petId, today);
-  const { data: feedTimes = [] } = useFeedTimes(petId);
   const isPaused = Boolean(pause);
-
-  const flow = useLogFlow({
-    members,
-    timezone,
-    onWritten: () => undefined
-  });
 
   const openLog = (logId: string) => {
     setActiveLogId(logId);
     void detailSheetRef.current?.present();
   };
 
+  // Outside every early return: behind one the bar has no title and falls back
+  // to the route name.
+  const title = <Stack.Title style={HeaderTitleStyle}>{pet?.name ?? ''}</Stack.Title>;
+
   if (!petId || isError) {
     return (
       <ScreenView edges={[]}>
+        {title}
         <ErrorState
           onRetry={() => {
             void refetch();
@@ -73,30 +64,26 @@ const PetDetail = () => {
   if (isLoading || !pet || !timezone || !today) {
     return (
       <ScreenView edges={[]}>
+        {title}
         <PetDetailSkeleton />
       </ScreenView>
     );
   }
 
-  const summary = occurrences
-    ? [
-        feedTimes.length > 0
-          ? `${feedTimes.length} feed ${feedTimes.length === 1 ? 'time' : 'times'} a day`
-          : null,
-        summarisePetDay(occurrences, isPaused, feedTimes.length > 0)
-      ]
-        .filter(Boolean)
-        .join(' · ')
-    : null;
-
   return (
     <ScreenView edges={[]}>
+      {title}
+
       <ScreenScrollView
         contentContainerStyle={styles.content}
-        contentInsetAdjustmentBehavior="never">
-        {/* The photo runs to the edge, so this screen opts out of the gutter
-            its scroller applies and each section re-indents itself. */}
-        <PetIdentity pet={pet} isOwner={isOwner} summary={summary} />
+        contentInsetAdjustmentBehavior="automatic">
+        {/* The photo strip runs past the right edge, so this screen opts out
+            of the gutter its scroller applies and each section re-indents. */}
+        <PetIdentity pet={pet} isOwner={isOwner} />
+
+        <View style={styles.section}>
+          <GalleryStrip petId={petId} />
+        </View>
 
         <View style={styles.section}>
           <FeedTimesSection
@@ -107,31 +94,11 @@ const PetDetail = () => {
             isPaused={isPaused}
             isOwner={isOwner}
             onOpenLog={openLog}
-            onPickOccurrence={(occurrence) => flow.pickOccurrence(pet, occurrence)}
           />
         </View>
 
         <View style={styles.section}>
           <RemindersSection pet={pet} today={today} />
-        </View>
-
-        {isOwner && (
-          <View style={styles.section}>
-            <PauseCard petId={petId} isPaused={isPaused} />
-          </View>
-        )}
-
-        <View style={styles.section}>
-          <CareCard
-            petId={petId}
-            petName={pet.name}
-            petSubtitle={pet.breed}
-            photoUrl={pet.photoUrl}
-          />
-        </View>
-
-        <View style={styles.section}>
-          <GalleryStrip petId={petId} />
         </View>
 
         <View style={styles.section}>
@@ -154,7 +121,7 @@ const makeStyles = ({ spacing }: AppTheme) =>
       paddingBottom: BottomTabInset + spacing.four
     },
     section: {
-      paddingTop: 14,
+      paddingTop: 18,
       paddingHorizontal: ScreenGutter
     }
   });

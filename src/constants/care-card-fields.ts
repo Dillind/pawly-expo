@@ -139,5 +139,6 @@ export const CARE_CARD_STEPS: CareCardStep[] = [
  */
 export const emptyCareCard = (petId: string): CareCard => ({
   petId,
+  updatedAt: null,
   ...(Object.fromEntries(CARE_CARD_FIELDS.map((field) => [field, null])) as CareCardInput)
 });

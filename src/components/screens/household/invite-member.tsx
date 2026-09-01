@@ -85,6 +85,7 @@ const InviteMember = () => {
                 <TextInputValidated
                   name="email"
                   label="Email address"
+                  isLabelIndicated
                   placeholder="lisa@example.com"
                   value={email ?? ''}
                   onChangeText={onChange}

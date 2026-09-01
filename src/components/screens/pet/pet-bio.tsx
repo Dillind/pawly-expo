@@ -1,4 +1,5 @@
 import AppText from '@/components/core/app-text';
+import IconButton from '@/components/core/icon-button';
 import MainButton from '@/components/core/main-button';
 import TextInputValidated from '@/components/core/text-input-validated';
 import Tray, { type TrayStepDescriptor } from '@/components/core/tray';
@@ -92,11 +93,11 @@ const PetBio = ({ petId, name, bio }: Props) => {
           About
         </AppText>
         {household?.isOwner && (
-          <MainButton
-            text="Edit"
-            variant="secondary"
-            size="xs"
-            containerStyle={styles.editButton}
+          <IconButton
+            name="pencil"
+            accessibilityLabel="Edit about"
+            variant="ghost"
+            size={20}
             onPress={() => void sheetRef.current?.present()}
           />
         )}
@@ -118,11 +119,13 @@ const PetBio = ({ petId, name, bio }: Props) => {
 const makeStyles = ({ spacing }: AppTheme) =>
   StyleSheet.create({
     section: { gap: spacing.two },
-    editButton: { alignSelf: 'center' },
     header: {
       flexDirection: 'row',
       alignItems: 'center',
-      justifyContent: 'space-between'
+      justifyContent: 'space-between',
+      // The pencil owns a 44pt tap target, so the row would otherwise be
+      // taller than the heading beside it.
+      marginVertical: -spacing.two
     },
     form: { gap: spacing.three }
   });
