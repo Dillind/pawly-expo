@@ -150,9 +150,19 @@ build and involves no review at all.
 `autoIncrement` on the production profile with `appVersionSource: "remote"` is what stops a build
 being rejected for reusing a build number. Don't hand-set `buildNumber` in `app.json`.
 
-A **`qa` profile is deliberately absent.** The qa/production split is two _store_ builds pointing at
-two _backends_, both going through TestFlight — it earns its keep once a non-production Supabase
-project exists, and not before. Adding one now means a second binary on the same database.
+A **`qa` profile is still absent, but the reason it was absent has gone.** The qa/production split
+is two _store_ builds pointing at two _backends_, both going through TestFlight, and the note here
+used to say it earns its keep once a non-production Supabase project exists. **One does now** —
+the `crumpet-qa` project, created 2026-08-20, carrying the same schema as
+production and its own users. So a `qa` build would no longer be a second binary on the same
+database, which was the whole objection.
+
+Adding one is not just an `eas.json` entry. It needs a **`qa` EAS environment** holding that
+project's `EXPO_PUBLIC_SUPABASE_URL` and `EXPO_PUBLIC_SUPABASE_KEY` — `.env` never reaches the
+builder, so anything read from `process.env` has to exist there too (`eas env:list`). It also needs
+a `submit.qa`, because `--auto-submit` runs the submit profile whose name matches the build profile.
+Until someone does that, `preview` and `production` are the only two profiles, and **both point at
+production data**.
 
 No Android build scripts until FCM credentials exist.
 
