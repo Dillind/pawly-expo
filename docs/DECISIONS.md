@@ -48,9 +48,14 @@ they had to turn over hid half of them behind an animation. `care-card-overlay.t
 `card-front-face.tsx`, `card-back-face.tsx`, `card-face-header.tsx` and `card-action-button.tsx`
 are gone, and `CareCardTile` no longer measures its own frame.
 
-**Its bar is `Stack.Toolbar.Button`, three SF Symbols.** `questionmark.circle`,
-`square.and.arrow.up` and `pencil`, which iOS 26 draws as one glass capsule beside the back
-button's own. A row of `IconButton`s stacked our material on the bar's and read visibly heavier.
+**Its bar is `Stack.Toolbar`, so iOS 26 draws one glass capsule beside the back button's own.** A
+row of `IconButton`s stacked our material on the bar's and read visibly heavier.
+
+**Help and share are SF Symbols; the pencil is Lucide's.** `questionmark.circle` and
+`square.and.arrow.up` have no equivalent in the icon map, but `pencil` does, and the Feed times and
+About headers already draw it — an SF Symbol here put two different pencils on one screen. It is a
+`Stack.Toolbar.View` holding the `Icon`, which shares the bar's background rather than drawing its
+own.
 
 **The pencil uses `hidden`, not a conditional child.** The toolbar reads its children once, so
 removing one for a Contributor left a gap where the item had been.

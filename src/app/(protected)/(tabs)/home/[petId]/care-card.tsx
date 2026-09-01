@@ -1,5 +1,7 @@
 import AppText from '@/components/core/app-text';
 import EmptyState from '@/components/core/empty-state';
+import Icon from '@/components/core/icon';
+import PressableOpacity from '@/components/core/pressable-opacity';
 import ScreenScrollView from '@/components/layout/screen-scroll-view';
 import ScreenView from '@/components/layout/screen-view';
 import CareCardHelpSheets, {
@@ -56,19 +58,26 @@ const CareCardScreen = () => {
           disabled={isSharing || blocks.length === 0}
           onPress={() => void shareCareCard([petId])}
         />
-        {/* `hidden` rather than a conditional child: the toolbar reads its
+        {/* A view rather than a Button, because the pencil is Lucide's: it is
+            the same glyph the Feed times and About headers draw, and an SF
+            Symbol beside them made one screen use two pencils.
+
+            `hidden` rather than a conditional child: the toolbar reads its
             children once, so removing one leaves a gap where the item was. */}
-        <Stack.Toolbar.Button
-          icon="pencil"
-          accessibilityLabel="Edit the Care Card"
-          hidden={!isOwner}
-          onPress={() =>
-            router.push({
-              pathname: '/home/[petId]/care-card-editor',
-              params: { petId, petName, ...(petSubtitle ? { petSubtitle } : {}) }
-            })
-          }
-        />
+        <Stack.Toolbar.View hidden={!isOwner}>
+          <PressableOpacity
+            accessibilityRole="button"
+            accessibilityLabel="Edit the Care Card"
+            hitSlop={12}
+            onPress={() =>
+              router.push({
+                pathname: '/home/[petId]/care-card-editor',
+                params: { petId, petName, ...(petSubtitle ? { petSubtitle } : {}) }
+              })
+            }>
+            <Icon name="pencil" size={20} />
+          </PressableOpacity>
+        </Stack.Toolbar.View>
       </Stack.Toolbar>
 
       <ScreenScrollView
