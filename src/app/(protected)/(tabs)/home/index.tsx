@@ -81,7 +81,8 @@ const Home = () => {
 
   const occurrences = useHouseholdOccurrences(pets, day);
   const feedTimes = useHouseholdFeedTimes(pets);
-  const tip = findHomeTip(pets, feedTimes);
+  const isOwner = household?.isOwner ?? false;
+  const tip = findHomeTip(pets, feedTimes, isOwner);
 
   useRefreshOnFocus(['occurrences']);
   const detailSheetRef = useRef<TrueSheet | null>(null);
@@ -179,6 +180,7 @@ const Home = () => {
             day={day}
             members={members}
             isOnlyPet={isOnlyPet}
+            isOwner={isOwner}
             onOpenLog={(logId) => openLog(logId, pet.id)}
 
             onPickOccurrence={(pickedPet, occurrence) => {

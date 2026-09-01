@@ -17,16 +17,20 @@ const toby = pet('pet-2', 'Toby');
 
 describe('findHomeTip', () => {
   it('says nothing when every pet is set up', () => {
-    const tip = findHomeTip([crumpet, toby], {
-      'pet-1': [feedTime('morning'), feedTime('dinner')],
-      'pet-2': [feedTime('dinner')]
-    });
+    const tip = findHomeTip(
+      [crumpet, toby],
+      {
+        'pet-1': [feedTime('morning'), feedTime('dinner')],
+        'pet-2': [feedTime('dinner')]
+      },
+      true
+    );
 
     expect(tip).toBeNull();
   });
 
   it('names a pet with no feeds at all', () => {
-    const tip = findHomeTip([crumpet], { 'pet-1': [] });
+    const tip = findHomeTip([crumpet], { 'pet-1': [] }, true);
 
     expect(tip).toEqual({
       petId: 'pet-1',
@@ -36,7 +40,7 @@ describe('findHomeTip', () => {
   });
 
   it('names a pet with feeds but no dinner', () => {
-    const tip = findHomeTip([crumpet], { 'pet-1': [feedTime('morning')] });
+    const tip = findHomeTip([crumpet], { 'pet-1': [feedTime('morning')] }, true);
 
     expect(tip?.title).toBe('Crumpet has no dinner set up.');
   });
@@ -44,11 +48,16 @@ describe('findHomeTip', () => {
   it('holds its tongue while a query is still in flight', () => {
     // An absent key is "not answered yet", not "no feed times". The difference
     // is a tip that flashes on and retracts.
-    expect(findHomeTip([crumpet], {})).toBeNull();
+    expect(findHomeTip([crumpet], {}, true)).toBeNull();
+  });
+
+  it('says nothing to a Contributor, who cannot write a feed time', () => {
+    expect(findHomeTip([crumpet], { 'pet-1': [] }, false)).toBeNull();
+    expect(findHomeTip([crumpet], { 'pet-1': [feedTime('morning')] }, false)).toBeNull();
   });
 
   it('returns one tip, and the first pet in order wins', () => {
-    const tip = findHomeTip([crumpet, toby], { 'pet-1': [], 'pet-2': [] });
+    const tip = findHomeTip([crumpet, toby], { 'pet-1': [], 'pet-2': [] }, true);
 
     expect(tip?.petId).toBe('pet-1');
   });
