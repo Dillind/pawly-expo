@@ -29,16 +29,19 @@ export const useTray = (): TrayControls => {
 type Props = {
   sheetRef: RefObject<TrueSheet | null>;
   steps: TrayStepDescriptor[];
+  /** Opens on this step instead of the first one. It is then the tray's first
+   * step, so it shows a close button rather than a back arrow. */
+  initialStepId?: string;
   onDismiss?: () => void;
   /** Renders inside the context but outside the sheet — navigation effects only. */
   children?: ReactNode;
 };
 
-const Tray = ({ sheetRef, steps, onDismiss, children }: Props) => {
+const Tray = ({ sheetRef, steps, initialStepId, onDismiss, children }: Props) => {
   const [history, setHistory] = useState<string[]>([]);
   const [isPresented, setIsPresented] = useState(false);
 
-  const activeId = history[history.length - 1] ?? steps[0]?.id;
+  const activeId = history[history.length - 1] ?? initialStepId ?? steps[0]?.id;
   const active = steps.find((step) => step.id === activeId) ?? steps[0];
 
   const close = useCallback(() => {

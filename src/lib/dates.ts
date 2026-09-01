@@ -387,3 +387,6 @@ export function formatReminderDate(day: string): string {
     timeZone: 'UTC'
   });
 }
+
+/** The device's own zone, for a display that must not wait on a household read. */
+export const deviceTimezone = (): string => Intl.DateTimeFormat().resolvedOptions().timeZone;

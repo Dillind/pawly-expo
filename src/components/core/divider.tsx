@@ -3,6 +3,9 @@ import { useStyles } from '@/hooks/use-styles';
 import { useCallback } from 'react';
 import { StyleSheet, View } from 'react-native';
 
+/** The rule starts under a row's label, matching the rows inside a card. */
+export const RowInset = 16;
+
 type Props = {
   /** Left indent, for a rule that starts under a row's label rather than its icon. */
   inset?: number;

@@ -21,11 +21,15 @@ type Props = {
 // A heading is Gabarito, body is Inter. The two faces are the type system --
 // picking a weight of the body face for a heading loses the distinction.
 const getFontFamily = (variant: FontVariant, fontWeight: FontWeight): string => {
+  // Gabarito ships 600 and 700 only, so its `heading` face already is the
+  // semibold one.
   if (variant === 'header') {
     return fontWeight === 'bold' ? Fonts.headingBold : Fonts.heading;
   }
 
-  return fontWeight === 'bold' ? Fonts.bold : Fonts.regular;
+  if (fontWeight === 'bold') return Fonts.bold;
+  if (fontWeight === 'semibold') return Fonts.semiBold;
+  return Fonts.regular;
 };
 
 const AppText = ({

@@ -17,6 +17,9 @@ export type CareCard = {
   walkRoutine: string | null;
   whereThingsAre: string | null;
   notes: string | null;
+  /** Kept fresh by the `care_cards_set_updated_at` trigger. Null on a Pet
+   * whose card has never been saved. */
+  updatedAt: string | null;
 };
 
 export type CareCardContact = {
@@ -58,7 +61,7 @@ const CARE_CARD_COLUMNS: Record<keyof CareCardInput, string> = {
   notes: 'notes'
 };
 
-const SELECTED_COLUMNS = ['pet_id', ...Object.values(CARE_CARD_COLUMNS)].join(', ');
+const SELECTED_COLUMNS = ['pet_id', 'updated_at', ...Object.values(CARE_CARD_COLUMNS)].join(', ');
 
 namespace CareCardService {
   export async function getCard(petId: string): Promise<CareCard | null> {
@@ -85,7 +88,8 @@ namespace CareCardService {
       feedingNotes: data.feeding_notes,
       walkRoutine: data.walk_routine,
       whereThingsAre: data.where_things_are,
-      notes: data.notes
+      notes: data.notes,
+      updatedAt: data.updated_at
     };
   }
 

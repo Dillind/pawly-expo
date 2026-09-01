@@ -1,27 +1,36 @@
 import SheetRow from '@/components/bottom-sheets/sheet-row';
 import AppText from '@/components/core/app-text';
-import EmptyState from '@/components/core/empty-state';
 import ErrorState from '@/components/core/error-state';
+import Divider, { RowInset } from '@/components/core/divider';
+import IconButton from '@/components/core/icon-button';
 import ListCard from '@/components/core/list-card';
-import MainButton from '@/components/core/main-button';
-import SectionLabel from '@/components/core/section-label';
+import ToggleSwitch from '@/components/core/toggle-switch';
 import Tray, { useTray, type TrayStepDescriptor } from '@/components/core/tray';
 import AddFeedTimeGhostRow from '@/components/screens/pet/add-feed-time-ghost-row';
 import FeedTimeForm from '@/components/ui/feed-time-form';
 import OccurrenceList from '@/components/ui/occurrence-list';
-import { Radius, type AppTheme } from '@/constants/theme';
+import type { AppTheme } from '@/constants/theme';
 import { useFeedTimes } from '@/hooks/queries/feeding/use-feed-times';
 import { useEndFeedTime, useSaveFeedTime } from '@/hooks/queries/feeding/use-feed-time-mutations';
 import { useOccurrences } from '@/hooks/queries/feeding/use-occurrences';
+import { usePausePet, useResumePet } from '@/hooks/queries/feeding/use-pet-pause';
 import { useStyles } from '@/hooks/use-styles';
 import { formatScheduledTime } from '@/lib/dates';
 import type { FeedTime } from '@/services/feed-time.service';
-import type { HouseholdMember, Occurrence, Pet } from '@/types/core';
+import type { HouseholdMember, Pet } from '@/types/core';
 import type { TrueSheet } from '@lodev09/react-native-true-sheet';
 import { useRef, useState } from 'react';
 import { ActivityIndicator, StyleSheet, View } from 'react-native';
 
 const capitalise = (value: string) => value.charAt(0).toUpperCase() + value.slice(1);
+
+// A Contributor has no plus to tap, so the line must not ask them to add one.
+const emptyCopy = (petName: string, hasSchedule: boolean, isOwner: boolean) => {
+  if (hasSchedule) return `Nothing is due for ${petName} today. Their next feed is on the way.`;
+  return isOwner
+    ? `No feed times yet. Add ${petName}'s feed times and everyone will know when they are due.`
+    : `No feed times yet. An owner sets ${petName}'s feed times.`;
+};
 
 type ListStepProps = {
   feedTimes: FeedTime[];
@@ -90,7 +99,6 @@ type Props = {
   isPaused: boolean;
   isOwner: boolean;
   onOpenLog: (logId: string) => void;
-  onPickOccurrence: (occurrence: Occurrence) => void;
 };
 
 /**
@@ -99,6 +107,10 @@ type Props = {
  * The card shows occurrences, not Feed Times: the question on this screen is
  * what has been logged today. The schedule behind them is edited in the tray,
  * which is where a keyboard and a destructive remove belong.
+ *
+ * Pause is the last row of the same card rather than a card of its own. It
+ * answers the question the rows above raise -- why nothing is due -- and a
+ * separate card put that answer somewhere the reader had already left.
  */
 const FeedTimesSection = ({
   pet,
@@ -107,12 +119,21 @@ const FeedTimesSection = ({
   members,
   isPaused,
   isOwner,
-  onOpenLog,
-  onPickOccurrence
+  onOpenLog
 }: Props) => {
   const styles = useStyles(makeStyles);
   const trayRef = useRef<TrueSheet | null>(null);
   const [editingFeedTime, setEditingFeedTime] = useState<FeedTime | null>(null);
+  const [initialStepId, setInitialStepId] = useState<'list' | 'edit'>('list');
+
+  const { mutate: pausePet, isPending: isPausing } = usePausePet(pet.id);
+  const { mutate: resumePet, isPending: isResuming } = useResumePet(pet.id);
+
+  const openTray = (stepId: 'list' | 'edit') => {
+    setEditingFeedTime(null);
+    setInitialStepId(stepId);
+    void trayRef.current?.present();
+  };
 
   const {
     data: occurrences,
@@ -143,12 +164,12 @@ const FeedTimesSection = ({
     }
   ];
 
-  const renderCard = () => {
+  const renderBody = () => {
     // A pause is not an empty schedule. Saying "no feeds set up" to a member
     // who paused this morning reads as if the app lost their work.
     if (isPaused) {
       return (
-        <View style={styles.pausedCard}>
+        <View style={styles.pausedBlock}>
           <AppText size={15}>Paused — no feeds expected</AppText>
           <AppText size={13} color="textSecondary">
             {pet.name} is paused. No feeds are expected and nobody is nudged.
@@ -159,96 +180,127 @@ const FeedTimesSection = ({
 
     if (isError) {
       return (
-        <ErrorState
-          title="Couldn't load feed times"
-          onRetry={() => {
-            void refetch();
-          }}
-        />
+        <View style={styles.block}>
+          <ErrorState
+            title="Couldn't load feed times"
+            onRetry={() => {
+              void refetch();
+            }}
+          />
+        </View>
       );
     }
 
-    if (isLoading || !occurrences) return <ActivityIndicator />;
+    if (isLoading || !occurrences) {
+      return (
+        <View style={styles.block}>
+          <ActivityIndicator />
+        </View>
+      );
+    }
 
+    // One quiet line, not an EmptyState: the card's header already carries the
+    // plus.
     if (occurrences.length === 0) {
       return (
-        <View style={styles.empty}>
-          <EmptyState
-            icon="clock"
-            title={feedTimes.length > 0 ? 'No feeds today' : 'No feed times yet'}
-            description={
-              feedTimes.length > 0
-                ? `Nothing is due for ${pet.name} today. Their next feed is on the way.`
-                : `Add ${pet.name}'s feed times and everyone will know when they are due.`
-            }
-          />
-          {isOwner && feedTimes.length === 0 && (
-            <MainButton
-              text="Add a feed time"
-              variant="secondary"
-              onPress={() => void trayRef.current?.present()}
-            />
-          )}
+        <View style={styles.block}>
+          <AppText size={13} color="textSecondary">
+            {emptyCopy(pet.name, feedTimes.length > 0, isOwner)}
+          </AppText>
         </View>
       );
     }
 
     return (
-      <ListCard>
-        <View style={styles.rows}>
-          <OccurrenceList
-            occurrences={occurrences}
-            timezone={timezone}
-            members={members}
-            isNested
-            hasDividers
-            onOpenLog={onOpenLog}
-            onPickOccurrence={onPickOccurrence}
-          />
-        </View>
-      </ListCard>
+      <View style={styles.rows}>
+        <OccurrenceList
+          occurrences={occurrences}
+          timezone={timezone}
+          members={members}
+          isNested
+          hasDividers
+          onOpenLog={onOpenLog}
+        />
+      </View>
     );
   };
 
   return (
-    <View style={styles.section}>
-      <SectionLabel
-        action={
-          isOwner ? (
-            <MainButton
-              text="Edit"
-              variant="secondary"
-              size="xs"
-              containerStyle={styles.editButton}
-              onPress={() => void trayRef.current?.present()}
-            />
-          ) : undefined
-        }>
-        Feed times
-      </SectionLabel>
+    <>
+      <ListCard>
+        <View style={styles.header}>
+          <AppText variant="header" size={17} fontWeight="bold" style={styles.headerTitle}>
+            Feed times
+          </AppText>
 
-      {renderCard()}
+          {isOwner && (
+            <>
+              <IconButton
+                name="pencil"
+                accessibilityLabel="Edit feed times"
+                variant="ghost"
+                size={20}
+                onPress={() => openTray('list')}
+              />
+              <IconButton
+                name="plus"
+                accessibilityLabel="Add a feed time"
+                variant="ghost"
+                size={22}
+                onPress={() => openTray('edit')}
+              />
+            </>
+          )}
+        </View>
 
-      <Tray sheetRef={trayRef} steps={steps} onDismiss={() => setEditingFeedTime(null)} />
-    </View>
+        <Divider inset={RowInset} />
+
+        {renderBody()}
+
+        {isOwner && (
+          <>
+            <Divider inset={RowInset} />
+            <View style={styles.block}>
+              <ToggleSwitch
+                label="Pause feeds"
+                description="Boarding, a vet stay, fasting before surgery."
+                value={isPaused}
+                isDisabled={isPausing || isResuming}
+                onChange={(next) => (next ? pausePet(null) : resumePet())}
+              />
+            </View>
+          </>
+        )}
+      </ListCard>
+
+      <Tray
+        sheetRef={trayRef}
+        steps={steps}
+        initialStepId={initialStepId}
+        onDismiss={() => setEditingFeedTime(null)}
+      />
+    </>
   );
 };
 
 const makeStyles = ({ colors, spacing }: AppTheme) =>
   StyleSheet.create({
-    section: { gap: spacing.two },
-    // MainButton stretches by default, which in a label row means it fills the
-    // row's height. Edit is a chip, not a bar.
-    editButton: { alignSelf: 'center' },
+    header: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: spacing.half,
+      paddingLeft: spacing.three,
+      paddingRight: spacing.two,
+      paddingVertical: spacing.two
+    },
+    headerTitle: { flex: 1 },
     rows: { paddingHorizontal: spacing.three, paddingVertical: spacing.one },
-    pausedCard: {
+    block: { padding: spacing.three },
+    pausedBlock: {
       gap: spacing.half,
       padding: spacing.three,
-      borderRadius: Radius.card,
-      borderCurve: 'continuous',
       backgroundColor: colors.backgroundSelected
     },
-    empty: { gap: spacing.two },
     trayRows: { gap: spacing.two }
   });
 

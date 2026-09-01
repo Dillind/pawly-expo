@@ -95,6 +95,7 @@ const EditPetDetails = ({ petId, details, onDone }: Props) => {
             <TextInputValidated
               name="name"
               label="Name"
+              isLabelIndicated
               value={value}
               onChangeText={onChange}
               onBlur={onBlur}
@@ -111,6 +112,7 @@ const EditPetDetails = ({ petId, details, onDone }: Props) => {
             <TextInputValidated
               name="breed"
               label="Breed"
+              isLabelIndicated
               value={value}
               onChangeText={onChange}
               onBlur={onBlur}
@@ -127,6 +129,7 @@ const EditPetDetails = ({ petId, details, onDone }: Props) => {
             <DropdownPickerValidated
               name="sex"
               label="Sex"
+              isLabelIndicated
               options={SEX_OPTIONS}
               value={value ?? ''}
               onChange={onChange}
@@ -141,6 +144,7 @@ const EditPetDetails = ({ petId, details, onDone }: Props) => {
             <DateTimePickerValidated
               name="birthdate"
               label="Birthdate"
+              isLabelIndicated
               selectedDate={value}
               setSelectedDate={onChange}
             />

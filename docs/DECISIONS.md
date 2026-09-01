@@ -19,11 +19,79 @@ Newest first. Append, don't rewrite.
 
 ## 2026-09-01
 
+**Logging lives on Home, never on Pet detail.** Pet detail is the pet — schedule, care card,
+photos, about. It passes no `onPickOccurrence`, so `OccurrenceList` draws state and nothing to tap.
+The chip is the only gold on any screen and the design gives it to Home alone. Reading a logged
+feed stays, because that is not a write.
+
+**`AppText` gained a `semibold` weight.** `bold` maps to Inter 700, and the design asks for 600 in
+several places. `Inter_600SemiBold.ttf` was already embedded by the `expo-font` plugin, so this
+costs one type entry and no bundle. Gabarito ships 600 and 700 only, so a header's non-bold face
+already was the semibold one.
+
+**The care card's updated date falls back to the device zone.** It sits under the title, so gating
+it on the household read made it appear late or not at all.
+
 **A segmented control with no value shows no thumb.** `selectedIndex` was
 `Math.max(findIndex, 0)`, so an unset field painted the thumb under the first
 option and read as already chosen -- "Male" looked picked when nothing was. The
 -1 is kept and the thumb is not drawn. No caller starts unset today, so this
 changes nothing on screen and exists so the next one cannot lie.
+
+## 2026-09-01
+
+**The pet's photo is a circle, not a full-bleed header.** It shares its row with the care card
+tile, so the two things a sitter opens this screen for sit one glance apart. The bar is a normal
+transparent header again, which means the pet's name is readable at the top of every photo rather
+than only the dark ones — the reason the old header drew its own glass back button in the first
+place.
+
+**Pause is the last row of the Feed times card.** It answers the question the rows above raise —
+why nothing is due — and a card of its own put that answer somewhere the reader had already left.
+`pause-card.tsx` is gone.
+
+**The Feed times card carries its own heading and two buttons.** A pencil opens the schedule list,
+a plus opens a new feed time. The `SectionLabel` above the card and its "Edit" chip are gone: one
+chip could not lead to both, and the pair reads faster than a menu.
+
+**`Tray` takes an `initialStepId`.** That is what lets the plus open the edit step directly. The
+step it names becomes the tray's first, so it shows a close button rather than a back arrow into a
+list the user never asked for.
+
+**An empty Feed times card is one line of secondary text, not an `EmptyState`.** Inside a card whose
+header already carries the plus, the illustrated empty state was taller than the card it explained
+and offered a second copy of the same action.
+
+**The care card is a route, not an overlay.** `home/[petId]/care-card` — a push, a real back
+button, and a URL a notification could reach one day. It was a gold card that morphed out of its
+tile and flipped to show its contents; a sitter reading it wants every section at once, and a face
+they had to turn over hid half of them behind an animation. `care-card-overlay.tsx`,
+`card-front-face.tsx`, `card-back-face.tsx`, `card-face-header.tsx` and `card-action-button.tsx`
+are gone, and `CareCardTile` no longer measures its own frame.
+
+**Its bar is `Stack.Toolbar`, so iOS 26 draws one glass capsule beside the back button's own.** A
+row of `IconButton`s stacked our material on the bar's and read visibly heavier.
+
+**Help and share are SF Symbols; the pencil is Lucide's.** `questionmark.circle` and
+`square.and.arrow.up` have no equivalent in the icon map, but `pencil` does, and the Feed times and
+About headers already draw it — an SF Symbol here put two different pencils on one screen. It is a
+`Stack.Toolbar.View` holding the `Icon`, which shares the bar's background rather than drawing its
+own.
+
+**The pencil uses `hidden`, not a conditional child.** The toolbar reads its children once, so
+removing one for a Contributor left a gap where the item had been.
+
+**The large title is the heading.** `<Stack.Title large>` collapses into the bar on scroll, so the
+page draws the words once. Rendering both put "Crumpet's care card" on the screen twice.
+
+**Share kept its PDF.** The design drew no Share at all; dropping it would have taken the whole of
+CRU-010 with it, so it is a bar button beside the pencil, disabled while sharing and on an empty
+card.
+
+**`CareCard` now carries `updatedAt`.** The date under the title comes from the column the
+`care_cards_set_updated_at` trigger already maintained. There is no `updated_by`, so the line reads
+"Updated 31 August 2026" rather than the design's "Updated by Sarah" — naming a person would need a
+column that does not exist.
 
 ## 2026-08-22
 

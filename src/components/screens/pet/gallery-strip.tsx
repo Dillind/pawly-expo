@@ -156,7 +156,8 @@ const GalleryStrip = ({ petId }: Props) => {
               </AppText>
             </PressableOpacity>
           ) : undefined
-        }>
+        }
+        isHeading>
         Photos
       </SectionLabel>
 
