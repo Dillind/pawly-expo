@@ -17,6 +17,30 @@ Newest first. Append, don't rewrite.
 
 ---
 
+## 2026-09-01
+
+**The pet's photo is a circle, not a full-bleed header.** It shares its row with the care card
+tile, so the two things a sitter opens this screen for sit one glance apart. The bar is a normal
+transparent header again, which means the pet's name is readable at the top of every photo rather
+than only the dark ones — the reason the old header drew its own glass back button in the first
+place.
+
+**Pause is the last row of the Feed times card.** It answers the question the rows above raise —
+why nothing is due — and a card of its own put that answer somewhere the reader had already left.
+`pause-card.tsx` is gone.
+
+**The Feed times card carries its own heading and two buttons.** A pencil opens the schedule list,
+a plus opens a new feed time. The `SectionLabel` above the card and its "Edit" chip are gone: one
+chip could not lead to both, and the pair reads faster than a menu.
+
+**`Tray` takes an `initialStepId`.** That is what lets the plus open the edit step directly. The
+step it names becomes the tray's first, so it shows a close button rather than a back arrow into a
+list the user never asked for.
+
+**An empty Feed times card is one line of secondary text, not an `EmptyState`.** Inside a card whose
+header already carries the plus, the illustrated empty state was taller than the card it explained
+and offered a second copy of the same action.
+
 ## 2026-08-22
 
 **A gallery photo cannot be promoted to the profile photo.** The profile photo is set only by
