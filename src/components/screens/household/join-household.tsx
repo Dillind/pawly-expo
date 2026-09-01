@@ -59,6 +59,7 @@ const JoinHousehold = () => {
                 <TextInputValidated
                   name="code"
                   label="Invite code"
+                  isLabelIndicated
                   placeholder="ABCD2345"
                   value={code ?? ''}
                   onChangeText={(value) => onChange(value.toUpperCase())}

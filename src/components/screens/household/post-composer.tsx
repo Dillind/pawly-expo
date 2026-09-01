@@ -85,6 +85,7 @@ const PostComposer = ({ pets, householdName }: Props) => {
             <TextInputValidated
               name="title"
               label="Title"
+              isLabelIndicated
               value={value}
               onChangeText={onChange}
               onBlur={onBlur}

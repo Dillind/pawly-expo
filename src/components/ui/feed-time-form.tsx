@@ -105,6 +105,7 @@ const FeedTimeForm = ({ feedTime, isSaving, isRemoving = false, onSubmit, onRemo
               name="localTime"
               mode="time"
               label="Time"
+              isLabelIndicated
               selectedDate={localTime}
               setSelectedDate={onChange}
             />

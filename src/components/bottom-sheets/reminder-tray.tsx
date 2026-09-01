@@ -109,6 +109,7 @@ const WhatStep = ({
       <TextInputValidated
         name="title"
         label="Name"
+        isLabelIndicated
         placeholder="Worming tablet"
         value={title}
         onChangeText={(next) => onChange('title', next)}
@@ -163,6 +164,7 @@ const WhenStep = ({
         name="startsOn"
         mode="date"
         label="Date"
+        isLabelIndicated
         selectedDate={startsOn}
         setSelectedDate={(next) => onChange('startsOn', next)}
       />
@@ -171,6 +173,7 @@ const WhenStep = ({
         name="localTime"
         mode="time"
         label="Time"
+        isLabelIndicated
         selectedDate={localTime}
         setSelectedDate={(next) => onChange('localTime', next)}
       />

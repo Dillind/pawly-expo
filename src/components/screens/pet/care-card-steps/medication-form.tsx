@@ -15,10 +15,11 @@ type MedicationField = {
   label: string;
   placeholder: string;
   isMultiline?: boolean;
+  isRequired?: boolean;
 };
 
 const MEDICATION_FIELDS: MedicationField[] = [
-  { name: 'name', label: 'Name', placeholder: 'Apoquel' },
+  { name: 'name', label: 'Name', placeholder: 'Apoquel', isRequired: true },
   { name: 'dose', label: 'Dose', placeholder: '16mg, one tablet' },
   { name: 'scheduleText', label: 'When', placeholder: 'Every morning with food' },
   {
@@ -48,6 +49,7 @@ const MedicationFieldInput = ({
         <TextInputValidated
           name={field.name}
           label={field.label}
+          isLabelIndicated={field.isRequired}
           placeholder={field.placeholder}
           value={value ?? ''}
           onChangeText={onChange}
