@@ -222,9 +222,12 @@ The prefix was `PAW-` through `PAW-003`, when the app was called Pawly. `CRU-` p
 Existing `PAW-` branches, commits and PR titles are history; never retroactively renumber them, and
 a PR for a `PAW-` branch keeps its `PAW-` title.
 
-IDs come from git history, not an external tracker: `git fetch --all --prune`, then take the highest
-existing `PAW-nnn` **or** `CRU-nnn` and add one — matching only `CRU-` would restart at 001. Full
-command and PR conventions live in the `create-pr` skill.
+IDs come from what already exists, not an external tracker: `git fetch --all --prune`, then take the
+highest existing `PAW-nnn` **or** `CRU-nnn` and add one — matching only `CRU-` would restart at 001.
+**Look at open issues too, not only git.** A number is often allocated to an issue before any branch
+carries it, and a lookup over branches and commits alone hands the same number out twice — CRU-095
+is on both issue #126 and PR #130 because of exactly that. Full command and PR conventions live in
+the `create-pr` skill.
 
 ## Toolchain
 
