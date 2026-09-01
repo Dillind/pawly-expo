@@ -311,3 +311,16 @@ briefly visible, and the strip would select all of them on the way past.
 **A recycled LegendList page does not repaint on a state change it does not own.** The week strip's
 selected day moved and the pill stayed on the old cell. `extraData` is what tells the list the
 pages are stale; nothing warns you, and the data itself looks correct.
+
+## Every date picker was capped at today
+
+`DateTimePickerValidated` hard-coded `maximumDate={mode === 'date' ? new Date() : undefined}`. That
+is right for a birthdate and wrong for a Reminder, and it was the real reason a Reminder could only
+ever be today's: the Zod schema accepted any date, the service wrote any date, and the calendar
+simply drew every future day greyed out.
+
+Nothing catches this. Typecheck passes, the schema passes, the tests pass, and the tray opens and
+looks correct -- the only symptom is that tapping a future day does nothing at all. If a date field
+will not take the date you are giving it, read the picker's bounds before you read the schema.
+
+The prop is now `bound`, which is `'past'` by default so no existing call site changed.
