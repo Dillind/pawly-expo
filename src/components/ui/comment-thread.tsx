@@ -33,10 +33,9 @@ const CommentThread = ({
         <View key={comment.id} style={styles.group}>
           <CommentRow
             comment={comment}
-            canDelete={canDelete(comment)}
             onToggleLike={() => onToggleLike(comment)}
             onReply={() => onReply(comment)}
-            onLongPress={() => onManage(comment)}
+            onLongPress={canDelete(comment) ? () => onManage(comment) : undefined}
           />
 
           {comment.replies.map((reply) => (
@@ -44,10 +43,9 @@ const CommentThread = ({
               key={reply.id}
               comment={reply}
               isReply
-              canDelete={canDelete(reply)}
               onToggleLike={() => onToggleLike(reply)}
               onReply={() => onReply(reply)}
-              onLongPress={() => onManage(reply)}
+              onLongPress={canDelete(reply) ? () => onManage(reply) : undefined}
             />
           ))}
         </View>

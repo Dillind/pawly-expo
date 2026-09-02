@@ -40,10 +40,6 @@ const PostCommentsPreview = ({ comments, count, onToggleLike, onOpenThread }: Pr
           <CommentRow
             key={comment.id}
             comment={comment}
-            // Deleting belongs to the Thread, which is where the long press is
-            // discoverable and where the row can disappear without the section
-            // around it going strange.
-            canDelete={false}
             onToggleLike={() => onToggleLike(comment)}
             onReply={onOpenThread}
             onLongPress={onOpenThread}
