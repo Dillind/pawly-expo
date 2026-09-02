@@ -19,11 +19,8 @@ type Breed = {
   id: string;
   species: Species;
   name: string;
-  /**
-   * Kept for the next refresh, and for nothing else. Without it a refresh means
-   * re-matching a thousand names by string, which is the problem this feature
-   * exists to remove. It is not a table column.
-   */
+  // Settles two Q-ids sharing one English label. Stripped from the shipped
+  // JSON, which the app bundles; kept in `data/breeds.wikidata.json`.
   wikidataQid: string | null;
 };
 
@@ -134,6 +131,11 @@ const dogs = await fetchSpecies('dog');
 const cats = await fetchSpecies('cat');
 const breeds = [...dogs, ...cats];
 
-writeFileSync('data/breeds.json', `${JSON.stringify(breeds, null, 2)}\n`);
+// Stripped here, not earlier: the duplicate-label rule above needs the Q-id.
+const shipped = breeds.map(({ id, species, name }) => ({ id, species, name }));
+const qidById = Object.fromEntries(breeds.map((breed) => [breed.id, breed.wikidataQid]));
+
+writeFileSync('data/breeds.json', `${JSON.stringify(shipped, null, 2)}\n`);
+writeFileSync('data/breeds.wikidata.json', `${JSON.stringify(qidById, null, 2)}\n`);
 
 console.log(`wrote ${breeds.length} breeds to data/breeds.json`);

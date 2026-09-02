@@ -9,11 +9,8 @@ import { useRouter } from 'expo-router';
 import { useFormContext, useWatch } from 'react-hook-form';
 import { StyleSheet, View } from 'react-native';
 
-/**
- * Pushed inside the modal rather than raised as a sheet — a sheet on a modal
- * is two modals. The same `BreedPicker` is a Tray step when the breed is
- * edited from the pet screen.
- */
+// Pushed inside the modal, not raised as a sheet — a sheet on a modal is two
+// modals.
 const BreedStep = () => {
   const styles = useStyles(makeStyles);
   const router = useRouter();
@@ -49,8 +46,8 @@ const BreedStep = () => {
         <BreedPicker
           species={species}
           value={breedId}
-          onChange={(next) => {
-            setValue('breedId', next, { shouldDirty: true, shouldValidate: true });
+          onChange={(selectedBreedId) => {
+            setValue('breedId', selectedBreedId, { shouldDirty: true, shouldValidate: true });
             router.back();
           }}
         />

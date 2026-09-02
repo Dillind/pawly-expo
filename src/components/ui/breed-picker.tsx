@@ -1,5 +1,6 @@
 import AppText from '@/components/core/app-text';
 import Icon from '@/components/core/icon';
+import MainLegendList from '@/components/core/main-legend-list';
 import PressableOpacity from '@/components/core/pressable-opacity';
 import { breedsFor, type BreedSpecies } from '@/constants/breeds';
 import { Radius, type AppTheme } from '@/constants/theme';
@@ -7,7 +8,6 @@ import { useStyles } from '@/hooks/use-styles';
 import { useTheme } from '@/hooks/use-theme';
 import type { Option } from '@/types/core';
 import type { LegendListRenderItemProps } from '@legendapp/list/react-native';
-import MainLegendList from '@/components/core/main-legend-list';
 import { useMemo, useState } from 'react';
 import { StyleSheet, TextInput, View } from 'react-native';
 
@@ -17,34 +17,33 @@ type Props = {
   onChange: (breedId: string) => void;
 };
 
-/**
- * Search is what makes the list length free. Lyka curates theirs down to ~510
- * because it is a scroll list with no search; ours is searchable, so the full
- * CC0 set costs the member nothing.
- */
+// Search is what makes the list length free, so this carries the full set
+// rather than a curated subset.
 const BreedPicker = ({ species, value, onChange }: Props) => {
   const styles = useStyles(makeStyles);
   const { colors } = useTheme();
-  const [query, setQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState('');
 
-  const all = breedsFor(species);
+  const speciesBreeds = breedsFor(species);
 
-  const results = useMemo(() => {
-    const term = query.trim().toLowerCase();
+  const visibleBreeds = useMemo(() => {
+    const searchTerm = searchQuery.trim().toLowerCase();
 
-    if (!term) return all;
+    if (!searchTerm) return speciesBreeds;
 
     // Rank a prefix match above a match in the middle: typing "lab" should
     // reach Labrador before Black Labrador.
-    return all
-      .map((breed) => ({ breed, at: breed.label.toLowerCase().indexOf(term) }))
-      .filter(({ at }) => at >= 0)
-      .sort((a, b) => a.at - b.at || a.breed.label.localeCompare(b.breed.label, 'en'))
+    return speciesBreeds
+      .map((breed) => ({ breed, matchIndex: breed.label.toLowerCase().indexOf(searchTerm) }))
+      .filter(({ matchIndex }) => matchIndex >= 0)
+      .sort(
+        (a, b) => a.matchIndex - b.matchIndex || a.breed.label.localeCompare(b.breed.label, 'en')
+      )
       .map(({ breed }) => breed);
-  }, [all, query]);
+  }, [speciesBreeds, searchQuery]);
 
-  const renderItem = ({ item, index }: LegendListRenderItemProps<Option>) => {
-    const isSelected = item.value === value;
+  const renderBreedRow = ({ item: breed, index }: LegendListRenderItemProps<Option>) => {
+    const isSelected = breed.value === value;
 
     return (
       <>
@@ -53,9 +52,9 @@ const BreedPicker = ({ species, value, onChange }: Props) => {
           style={[styles.row, isSelected && styles.rowSelected]}
           accessibilityRole="button"
           accessibilityState={{ selected: isSelected }}
-          onPress={() => onChange(item.value)}>
+          onPress={() => onChange(breed.value)}>
           <AppText size={16} fontWeight={isSelected ? 'semibold' : 'regular'}>
-            {item.label}
+            {breed.label}
           </AppText>
           {isSelected && <Icon name="check" size={19} color="primaryText" strokeWidth={2.6} />}
         </PressableOpacity>
@@ -69,8 +68,8 @@ const BreedPicker = ({ species, value, onChange }: Props) => {
         <Icon name="search" size={17} color="textSecondary" strokeWidth={2.2} />
         <TextInput
           style={styles.input}
-          value={query}
-          onChangeText={setQuery}
+          value={searchQuery}
+          onChangeText={setSearchQuery}
           placeholder="Search breeds"
           placeholderTextColor={colors.textSecondary}
           autoCorrect={false}
@@ -80,15 +79,15 @@ const BreedPicker = ({ species, value, onChange }: Props) => {
         />
       </View>
 
-      {results.length === 0 ? (
+      {visibleBreeds.length === 0 ? (
         <AppText size={15} align="center" color="textSecondary" style={styles.noResults}>
-          {`No breed matches "${query.trim()}". Pick Unknown and tell us later.`}
+          {`No breed matches "${searchQuery.trim()}". Pick Unknown and tell us later.`}
         </AppText>
       ) : (
         <MainLegendList<Option>
-          data={results}
-          keyExtractor={(item) => item.value}
-          renderItem={renderItem}
+          data={visibleBreeds}
+          keyExtractor={(breed) => breed.value}
+          renderItem={renderBreedRow}
           estimatedItemSize={53}
           keyboardShouldPersistTaps="handled"
           contentContainerStyle={styles.list}
@@ -101,7 +100,10 @@ const BreedPicker = ({ species, value, onChange }: Props) => {
 
 const makeStyles = ({ colors, spacing }: AppTheme) =>
   StyleSheet.create({
-    container: { flex: 1, gap: spacing.three },
+    container: {
+      flex: 1,
+      gap: spacing.three
+    },
     search: {
       flexDirection: 'row',
       alignItems: 'center',
@@ -112,14 +114,20 @@ const makeStyles = ({ colors, spacing }: AppTheme) =>
       borderCurve: 'continuous',
       backgroundColor: colors.backgroundSelected
     },
-    input: { flex: 1, fontSize: 16, color: colors.text },
+    input: {
+      flex: 1,
+      fontSize: 16,
+      color: colors.text
+    },
     card: {
       flex: 1,
       borderRadius: Radius.card,
       borderCurve: 'continuous',
       backgroundColor: colors.backgroundElement
     },
-    list: { paddingVertical: spacing.one },
+    list: {
+      paddingVertical: spacing.one
+    },
     row: {
       flexDirection: 'row',
       alignItems: 'center',
@@ -127,13 +135,17 @@ const makeStyles = ({ colors, spacing }: AppTheme) =>
       minHeight: 52,
       paddingHorizontal: spacing.four
     },
-    rowSelected: { backgroundColor: colors.primaryMuted },
+    rowSelected: {
+      backgroundColor: colors.primaryMuted
+    },
     rule: {
       height: StyleSheet.hairlineWidth,
       marginLeft: spacing.four,
       backgroundColor: colors.border
     },
-    noResults: { paddingVertical: spacing.six }
+    noResults: {
+      paddingVertical: spacing.six
+    }
   });
 
 export default BreedPicker;
