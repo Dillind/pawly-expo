@@ -10,7 +10,11 @@ import ScreenScrollView from '@/components/layout/screen-scroll-view';
 import ScreenView from '@/components/layout/screen-view';
 import FlowStepper from '@/components/ui/flow-stepper';
 import { PET_TYPE_OPTIONS, SEX_OPTIONS } from '@/constants/options';
-import { ADD_PET_DETAIL_FIELDS, type AddPetFormValues } from '@/constants/schemas/add-pet';
+import {
+  ADD_PET_DETAIL_FIELDS,
+  ADD_PET_STEPS,
+  type AddPetFormValues
+} from '@/constants/schemas/add-pet';
 import { Radius, type AppTheme } from '@/constants/theme';
 import { useStyles } from '@/hooks/use-styles';
 import type { AgeMode } from '@/types/core';
@@ -113,7 +117,7 @@ const AddPetDetails = () => {
         keyboardShouldPersistTaps="handled"
         isKeyboardAware
         contentContainerStyle={styles.content}>
-        <FlowStepper current={1} count={3} />
+        <FlowStepper current={1} steps={ADD_PET_STEPS} />
 
         <View style={styles.intro}>
           <AppText variant="header" size={28}>
