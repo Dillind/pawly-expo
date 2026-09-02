@@ -32,9 +32,6 @@ const makeStyles = ({ colors, spacing }: AppTheme) =>
       gap: spacing.two,
       paddingHorizontal: ScreenGutter,
       paddingTop: spacing.three,
-      // The tab bar stays visible over this modal, so the bar has to clear it.
-      // The offset above takes that clearance back while the keyboard is up,
-      // where there is no tab bar to clear.
       paddingBottom: BottomTabInset,
       borderTopWidth: StyleSheet.hairlineWidth,
       borderTopColor: colors.border,

@@ -6,15 +6,11 @@ import { useStyles } from '@/hooks/use-styles';
 import { StyleSheet, View } from 'react-native';
 
 type Props = {
-  /** The breed's name, not its id. */
   value: string | null;
   description?: string;
   onPress: () => void;
 };
 
-// Not `DropdownPickerValidated`: a menu over 900 rows is unusable and needs
-// search, so this row opens the picker rather than holding it. Breed is
-// optional, so no `isLabelIndicated`.
 const BreedField = ({ value, description, onPress }: Props) => {
   const styles = useStyles(makeStyles);
 
