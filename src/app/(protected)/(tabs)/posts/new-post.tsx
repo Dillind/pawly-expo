@@ -13,7 +13,13 @@ import { FormProvider, useForm, useWatch } from 'react-hook-form';
 import { Alert, StyleSheet } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
 
-const EMPTY_DRAFT: PostFormValues = { title: '', photos: [], caption: '', petIds: [] };
+const EMPTY_DRAFT: PostFormValues = {
+  title: '',
+  photos: [],
+  caption: '',
+  petIds: [],
+  occasionId: null
+};
 
 const NewPost = () => {
   const styles = useStyles(makeStyles);
@@ -62,7 +68,8 @@ const NewPost = () => {
         localUris: values.photos.map((photo) => photo.uri),
         title: values.title.trim(),
         caption: values.caption.trim() || null,
-        petIds: values.petIds
+        petIds: values.petIds,
+        occasionId: values.occasionId
       },
       { onSuccess: () => router.back() }
     );
@@ -86,7 +93,7 @@ const NewPost = () => {
         keyboardShouldPersistTaps="handled"
         keyboardDismissMode="on-drag">
         <FormProvider {...form}>
-          <PostComposer pets={pets} householdName={household?.name} />
+          <PostComposer pets={pets} householdName={household?.name} householdId={household?.id} />
         </FormProvider>
       </KeyboardAwareScrollView>
     </ScreenView>

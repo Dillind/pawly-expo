@@ -2,7 +2,7 @@ import PostActionRow from '@/components/ui/post-action-row';
 import PostCaption from '@/components/ui/post-caption';
 import PostHeader from '@/components/ui/post-header';
 import PostLikers from '@/components/ui/post-likers';
-import PostPetChips from '@/components/ui/post-pet-chips';
+import PostChips from '@/components/ui/post-chips';
 import PostPhotoCarousel from '@/components/ui/post-photo-carousel';
 import PostTitle from '@/components/ui/post-title';
 import { ScreenGutter, type AppTheme } from '@/constants/theme';
@@ -61,7 +61,7 @@ const PostBody = ({
           <PostCaption caption={post.caption} numberOfLines={captionLines} onPress={onOpen} />
         </View>
 
-        <PostPetChips pets={post.pets} />
+        <PostChips occasion={post.occasion} pets={post.pets} />
       </View>
 
       <PostPhotoCarousel photos={post.photos} onPress={onOpen} onPressPhoto={onOpenPhoto} />

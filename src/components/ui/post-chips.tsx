@@ -1,30 +1,41 @@
 import PetAvatar from '@/components/core/pet-avatar';
+import OccasionEmoji from '@/components/ui/occasion-emoji';
 import PostChip from '@/components/ui/post-chip';
 import { type AppTheme } from '@/constants/theme';
 import { useStyles } from '@/hooks/use-styles';
-import type { PostPetTag } from '@/services/post.service';
+import type { PostOccasion, PostPetTag } from '@/services/post.service';
 import { useRouter } from 'expo-router';
 import { StyleSheet, View } from 'react-native';
 
 type Props = {
+  occasion: PostOccasion | null;
   pets: PostPetTag[];
 };
 
 const AVATAR = 20;
 
 /**
- * Who is in the photo, under the caption. Renders nothing when no pet is
- * tagged, which is the common case -- tags are optional and never
- * pre-selected, so an untagged Post genuinely means "no pet in particular".
+ * One row under the caption answering one question -- what this was, and who
+ * was in it. The Occasion leads because it names the day; the Pets follow.
+ *
+ * Renders nothing when a Post has neither, which is the common case. Both are
+ * optional and neither is ever pre-selected.
  */
-const PostPetChips = ({ pets }: Props) => {
+const PostChips = ({ occasion, pets }: Props) => {
   const styles = useStyles(makeStyles);
   const router = useRouter();
 
-  if (pets.length === 0) return null;
+  if (!occasion && pets.length === 0) return null;
 
   return (
     <View style={styles.row}>
+      {occasion && (
+        <PostChip
+          leading={occasion.emoji ? <OccasionEmoji emoji={occasion.emoji} size={AVATAR} /> : null}
+          label={occasion.label}
+        />
+      )}
+
       {pets.map((pet) => (
         <PostChip
           key={pet.id}
@@ -48,4 +59,4 @@ const makeStyles = ({ spacing }: AppTheme) =>
     }
   });
 
-export default PostPetChips;
+export default PostChips;

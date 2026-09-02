@@ -14,6 +14,13 @@ export type PostAuthor = {
 
 export type PostPetTag = { id: string; name: string; photoUrl: string | null };
 
+/**
+ * The Occasion a Post carries, denormalised onto the Post. Soft-deleted rows
+ * are embedded like any other -- a Post keeps the Occasion it was given even
+ * after the household drops it from the picker.
+ */
+export type PostOccasion = { id: string; emoji: string | null; label: string | null };
+
 export type PostLiker = PostAuthor & { userId: string };
 
 /** `storagePath` is the identity an edit works in -- see `update`. */
@@ -38,6 +45,8 @@ export type Post = {
   editedAt: string | null;
   photos: PostPhoto[];
   pets: PostPetTag[];
+  /** Optional, and at most one. */
+  occasion: PostOccasion | null;
   likeCount: number;
   likedByMe: boolean;
   /** The whole thread, replies included. */
@@ -57,6 +66,7 @@ const POST_SELECT = `
   users!posts_author_id_fkey(first_name, last_name, avatar_url),
   post_photos(id, storage_path, sort_order),
   post_pets(pets(id, name, photo_url)),
+  occasions(id, emoji, label),
   post_likes(user_id, created_at, users(first_name, last_name, avatar_url)),
   post_comments(count)
 `;
@@ -72,6 +82,7 @@ type PostRow = {
   users: { first_name: string | null; last_name: string | null; avatar_url: string | null } | null;
   post_photos: { id: string; storage_path: string; sort_order: number }[];
   post_pets: { pets: { id: string; name: string; photo_url: string | null } | null }[];
+  occasions: { id: string; emoji: string | null; label: string | null } | null;
   post_likes: {
     user_id: string;
     created_at: string;
@@ -114,6 +125,9 @@ function mapPostRow(row: PostRow, viewerId: string | null): Post {
       .map((tag) => tag.pets)
       .filter((pet): pet is NonNullable<typeof pet> => pet !== null)
       .map((pet) => ({ id: pet.id, name: pet.name, photoUrl: pet.photo_url })),
+    occasion: row.occasions
+      ? { id: row.occasions.id, emoji: row.occasions.emoji, label: row.occasions.label }
+      : null,
     commentCount: row.post_comments[0]?.count ?? 0,
     likeCount: row.post_likes.length,
     likedByMe: viewerId !== null && row.post_likes.some((like) => like.user_id === viewerId),
@@ -254,6 +268,7 @@ namespace PostService {
     title: string;
     caption?: string | null;
     petIds?: string[];
+    occasionId?: string | null;
   }): Promise<void> {
     const paths = await uploadPhotos({
       userId: params.userId,
@@ -268,7 +283,8 @@ namespace PostService {
       photo_storage_paths: paths,
       post_title: params.title,
       post_caption: params.caption ?? null,
-      tagged_pet_ids: params.petIds ?? []
+      tagged_pet_ids: params.petIds ?? [],
+      post_occasion_id: params.occasionId ?? null
     });
 
     if (rpcError) {
@@ -296,6 +312,7 @@ namespace PostService {
     title: string;
     caption: string | null;
     petIds: string[];
+    occasionId: string | null;
     photos: PostPhotoInput[];
   }): Promise<void> {
     const { data: post, error: readError } = await supabase
@@ -324,7 +341,8 @@ namespace PostService {
       photo_storage_paths: finalPaths,
       post_title: params.title,
       post_caption: params.caption,
-      tagged_pet_ids: params.petIds
+      tagged_pet_ids: params.petIds,
+      post_occasion_id: params.occasionId
     });
 
     if (rpcError) {

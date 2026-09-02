@@ -76,6 +76,7 @@ export function useCreatePost(householdId: string | undefined) {
       title: string;
       caption?: string | null;
       petIds?: string[];
+      occasionId?: string | null;
     }) => PostService.create({ householdId: householdId!, ...input }),
     onSettled: () => {
       void queryClient.invalidateQueries({ queryKey: ALL_POSTS });
@@ -99,6 +100,7 @@ export function useUpdatePost() {
       title: string;
       caption: string | null;
       petIds: string[];
+      occasionId: string | null;
       photos: PostPhotoInput[];
     }) => PostService.update(input),
     onSettled: (_data, _error, input) => {
