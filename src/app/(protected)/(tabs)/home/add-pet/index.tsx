@@ -19,7 +19,6 @@ import { Radius, type AppTheme } from '@/constants/theme';
 import { useStyles } from '@/hooks/use-styles';
 import type { AgeMode } from '@/types/core';
 import { isIOS } from '@/utils/platform';
-import { optionLabel } from '@/utils/options';
 import type { TrueSheet } from '@lodev09/react-native-true-sheet';
 import { Image } from 'expo-image';
 import { Stack, useRouter } from 'expo-router';
@@ -52,7 +51,6 @@ const AddPetDetails = () => {
   const { isDirty } = useFormState({ control });
 
   const petName = useWatch({ control, name: 'name' });
-  const petType = useWatch({ control, name: 'petType' });
   const ageMode = useWatch({ control, name: 'ageMode' });
   const photoUri = useWatch({ control, name: 'photoUri' });
 
@@ -128,23 +126,6 @@ const AddPetDetails = () => {
           </AppText>
         </View>
 
-        <PressableOpacity
-          style={styles.photoPicker}
-          accessibilityRole="button"
-          accessibilityLabel="Add a photo"
-          onPress={() => void photoSheetRef.current?.present()}>
-          {photoUri ? (
-            <Image source={{ uri: photoUri }} style={styles.photo} />
-          ) : (
-            <View style={[styles.photo, styles.photoPlaceholder]}>
-              <Icon name="camera" size={24} color="textSecondary" />
-            </View>
-          )}
-          <AppText color="primaryText" size={15}>
-            {photoUri ? 'Change photo' : 'Add a photo'}
-          </AppText>
-        </PressableOpacity>
-
         <Controller
           control={control}
           name="name"
@@ -162,21 +143,41 @@ const AddPetDetails = () => {
           )}
         />
 
-        <View style={styles.field}>
-          <AppText size={14} fontWeight="bold">
-            Pet type
-          </AppText>
-          <PressableOpacity
-            style={styles.picker}
-            accessibilityRole="button"
-            accessibilityLabel={`Pet type: ${optionLabel(PET_TYPE_OPTIONS, petType)}`}
-            onPress={() => router.push('/home/add-pet/pet-type')}>
-            <AppText size={16} style={styles.pickerValue}>
-              {optionLabel(PET_TYPE_OPTIONS, petType)}
+        <PressableOpacity
+          style={styles.photoPicker}
+          accessibilityRole="button"
+          accessibilityLabel="Add a photo"
+          onPress={() => void photoSheetRef.current?.present()}>
+          {photoUri ? (
+            <Image source={{ uri: photoUri }} style={styles.photo} />
+          ) : (
+            <View style={[styles.photo, styles.photoPlaceholder]}>
+              <Icon name="camera" size={24} color="textSecondary" />
+            </View>
+          )}
+          <View style={styles.photoHint}>
+            <AppText color="primaryText" size={15} fontWeight="semibold">
+              {photoUri ? 'Change photo' : 'Add a photo'}
             </AppText>
-            <Icon name="caretRight" size={16} color="textSecondary" />
-          </PressableOpacity>
-        </View>
+            <AppText color="textSecondary" size={13}>
+              Optional
+            </AppText>
+          </View>
+        </PressableOpacity>
+
+        <Controller
+          control={control}
+          name="petType"
+          render={({ field: { onChange, value } }) => (
+            <SegmentedControl
+              name="petType"
+              label="Pet type"
+              options={PET_TYPE_OPTIONS}
+              value={value}
+              onChange={onChange}
+            />
+          )}
+        />
 
         <Controller
           control={control}
@@ -251,7 +252,6 @@ const makeStyles = ({ colors, spacing }: AppTheme) =>
   StyleSheet.create({
     content: { gap: spacing.three, paddingBottom: spacing.six },
     intro: { gap: spacing.one },
-    field: { gap: spacing.two },
     photoPicker: { flexDirection: 'row', alignItems: 'center', gap: spacing.three },
     photo: { width: 56, height: 56, borderRadius: Radius.full },
     photoPlaceholder: {
@@ -259,18 +259,7 @@ const makeStyles = ({ colors, spacing }: AppTheme) =>
       justifyContent: 'center',
       backgroundColor: colors.backgroundElement
     },
-    picker: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      minHeight: 48,
-      paddingHorizontal: spacing.three,
-      borderRadius: Radius.tile,
-      borderCurve: 'continuous',
-      backgroundColor: colors.backgroundElement,
-      borderWidth: StyleSheet.hairlineWidth,
-      borderColor: colors.border
-    },
-    pickerValue: { flex: 1 }
+    photoHint: { gap: 2 }
   });
 
 export default AddPetDetails;
