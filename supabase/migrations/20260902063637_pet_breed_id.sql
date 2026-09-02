@@ -1,24 +1,21 @@
--- CRU-104, move 1 of 2: expand.
+-- CRU-104, move 1 of 2: expand. Move 2 drops `breed` once no build reads it.
 --
--- `breed_id` lands BESIDE the free text, both nullable, so nothing breaks and
--- the change is reversible. Move 2 contracts -- a later migration drops what
--- nothing reads any more. Separate PR, separate day.
+-- The filename timestamp is the version the remote recorded when this was
+-- applied on 2026-09-02. They have to match or `supabase db push` replays it.
 
--- The text column keeps its value and gains an honest name. It is not only a
--- migration column: it stays the live value for a pet whose type is `other`,
--- where breed_id is always null. A pet carries one of the two, never both.
-alter table public.pets rename column breed to breed_freetext;
+-- Added beside `breed`, never renamed from it. A rename has no safe order: the
+-- shipped build reads `breed`, a build on main reads `breed_freetext`.
+alter table public.pets add column breed_freetext text;
+
+update public.pets set breed_freetext = breed where breed is not null;
 
 alter table public.pets add column breed_id uuid references public.breeds(id);
 
--- Reads are always "this pet's breed", never "every pet of this breed", so the
--- FK needs an index only to keep a future delete of a breed row from scanning.
+-- Partial, because the FK needs an index only to keep a future delete of a
+-- breed row from scanning.
 create index pets_breed_id_idx on public.pets (breed_id) where breed_id is not null;
 
--- The backfill matches what it can by name. An unmatched pet keeps its string
--- and the app shows it, until someone opens the form and picks from the list.
--- Nothing is forced to "Unknown": a member who typed "Cavadoodle" must not
--- open the app and find their dog has no breed.
+-- An unmatched pet keeps its string rather than being forced to "Unknown".
 update public.pets p
 set breed_id = b.id
 from public.breeds b
@@ -26,8 +23,37 @@ where p.breed_freetext is not null
   and b.species::text = p.pet_type::text
   and lower(btrim(p.breed_freetext)) = lower(b.name);
 
--- add_pet gains pet_breed_id. It is last and defaulted, so the signature is
--- unchanged and the existing grants still apply.
+-- Keeps the two text columns in step while both exist. A trigger rather than
+-- dual-writing in add_pet, because PetService.update writes the table directly.
+-- Move 2 drops this with the column.
+create or replace function public.mirror_pet_breed_text()
+returns trigger
+language plpgsql
+set search_path = ''
+as $$
+begin
+  if tg_op = 'INSERT' then
+    if new.breed_freetext is null then
+      new.breed_freetext := new.breed;
+    elsif new.breed is null then
+      new.breed := new.breed_freetext;
+    end if;
+  elsif new.breed is distinct from old.breed then
+    new.breed_freetext := new.breed;
+  elsif new.breed_freetext is distinct from old.breed_freetext then
+    new.breed := new.breed_freetext;
+  end if;
+
+  return new;
+end;
+$$;
+
+create trigger pets_mirror_breed_text
+before insert or update of breed, breed_freetext on public.pets
+for each row execute function public.mirror_pet_breed_text();
+
+-- pet_breed_id is last and defaulted, so the signature is unchanged and the
+-- existing grants still apply.
 create or replace function public.add_pet(
   pet_name text,
   pet_breed text,
