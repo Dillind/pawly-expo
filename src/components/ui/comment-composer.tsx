@@ -56,13 +56,19 @@ const CommentComposer = ({
     <View style={styles.composer}>
       {replyingToName && (
         <View style={styles.replyBar}>
+          {/* The same sentence the placeholder uses. Two wordings for one
+              state read as two different states. The name carries the gold so
+              the bar answers "who", not merely "you are replying". */}
           <AppText size={13} color="textSecondary" numberOfLines={1} style={styles.replyLabel}>
-            {`Replying to ${replyingToName}`}
+            Reply to{' '}
+            <AppText size={13} color="primaryText" fontWeight="bold">
+              {replyingToName}
+            </AppText>
           </AppText>
           <PressableOpacity
             onPress={onCancelReply}
             accessibilityRole="button"
-            accessibilityLabel="Stop replying"
+            accessibilityLabel={`Stop replying to ${replyingToName}`}
             style={styles.cancelTarget}>
             <Icon name="close" size={16} color="textSecondary" />
           </PressableOpacity>
