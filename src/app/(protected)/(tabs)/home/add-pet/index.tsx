@@ -1,4 +1,5 @@
 import PhotoSourceSheet from '@/components/bottom-sheets/photo-source-sheet';
+import AgePickerValidated from '@/components/core/age-picker-validated';
 import AppText from '@/components/core/app-text';
 import DateTimePickerValidated from '@/components/core/date-time-picker-validated';
 import Icon from '@/components/core/icon';
@@ -10,12 +11,16 @@ import ScreenScrollView from '@/components/layout/screen-scroll-view';
 import ScreenView from '@/components/layout/screen-view';
 import FlowStepper from '@/components/ui/flow-stepper';
 import { PET_TYPE_OPTIONS, SEX_OPTIONS } from '@/constants/options';
-import { ADD_PET_DETAIL_FIELDS, type AddPetFormValues } from '@/constants/schemas/add-pet';
+import {
+  ADD_PET_DETAIL_FIELDS,
+  ADD_PET_STEPS,
+  type AddPetFormValues
+} from '@/constants/schemas/add-pet';
 import { Radius, type AppTheme } from '@/constants/theme';
 import { useStyles } from '@/hooks/use-styles';
 import type { AgeMode } from '@/types/core';
+import { birthdateFromAge } from '@/lib/dates';
 import { isIOS } from '@/utils/platform';
-import { optionLabel } from '@/utils/options';
 import type { TrueSheet } from '@lodev09/react-native-true-sheet';
 import { Image } from 'expo-image';
 import { Stack, useRouter } from 'expo-router';
@@ -48,8 +53,8 @@ const AddPetDetails = () => {
   const { isDirty } = useFormState({ control });
 
   const petName = useWatch({ control, name: 'name' });
-  const petType = useWatch({ control, name: 'petType' });
   const ageMode = useWatch({ control, name: 'ageMode' });
+  const birthdate = useWatch({ control, name: 'birthdate' });
   const photoUri = useWatch({ control, name: 'photoUri' });
 
   const leave = () => {
@@ -113,7 +118,7 @@ const AddPetDetails = () => {
         keyboardShouldPersistTaps="handled"
         isKeyboardAware
         contentContainerStyle={styles.content}>
-        <FlowStepper current={1} count={3} />
+        <FlowStepper current={1} steps={ADD_PET_STEPS} />
 
         <View style={styles.intro}>
           <AppText variant="header" size={28}>
@@ -123,23 +128,6 @@ const AddPetDetails = () => {
             The basics. You can fill in the rest later.
           </AppText>
         </View>
-
-        <PressableOpacity
-          style={styles.photoPicker}
-          accessibilityRole="button"
-          accessibilityLabel="Add a photo"
-          onPress={() => void photoSheetRef.current?.present()}>
-          {photoUri ? (
-            <Image source={{ uri: photoUri }} style={styles.photo} />
-          ) : (
-            <View style={[styles.photo, styles.photoPlaceholder]}>
-              <Icon name="camera" size={24} color="textSecondary" />
-            </View>
-          )}
-          <AppText color="primaryText" size={15}>
-            {photoUri ? 'Change photo' : 'Add a photo'}
-          </AppText>
-        </PressableOpacity>
 
         <Controller
           control={control}
@@ -158,21 +146,41 @@ const AddPetDetails = () => {
           )}
         />
 
-        <View style={styles.field}>
-          <AppText size={14} fontWeight="bold">
-            Pet type
-          </AppText>
-          <PressableOpacity
-            style={styles.picker}
-            accessibilityRole="button"
-            accessibilityLabel={`Pet type: ${optionLabel(PET_TYPE_OPTIONS, petType)}`}
-            onPress={() => router.push('/home/add-pet/pet-type')}>
-            <AppText size={16} style={styles.pickerValue}>
-              {optionLabel(PET_TYPE_OPTIONS, petType)}
+        <PressableOpacity
+          style={styles.photoPicker}
+          accessibilityRole="button"
+          accessibilityLabel="Add a photo"
+          onPress={() => void photoSheetRef.current?.present()}>
+          {photoUri ? (
+            <Image source={{ uri: photoUri }} style={styles.photo} />
+          ) : (
+            <View style={[styles.photo, styles.photoPlaceholder]}>
+              <Icon name="camera" size={24} color="textSecondary" />
+            </View>
+          )}
+          <View style={styles.photoHint}>
+            <AppText color="primaryText" size={15} fontWeight="semibold">
+              {photoUri ? 'Change photo' : 'Add a photo'}
             </AppText>
-            <Icon name="caretRight" size={16} color="textSecondary" />
-          </PressableOpacity>
-        </View>
+            <AppText color="textSecondary" size={13}>
+              Optional
+            </AppText>
+          </View>
+        </PressableOpacity>
+
+        <Controller
+          control={control}
+          name="petType"
+          render={({ field: { onChange, value } }) => (
+            <SegmentedControl
+              name="petType"
+              label="Pet type"
+              options={PET_TYPE_OPTIONS}
+              value={value}
+              onChange={onChange}
+            />
+          )}
+        />
 
         <Controller
           control={control}
@@ -197,7 +205,16 @@ const AddPetDetails = () => {
               label="Age"
               options={AGE_OPTIONS}
               value={value}
-              onChange={onChange}
+              onChange={(next) => {
+                onChange(next);
+                // The wheels always read something, so an empty birthdate would
+                // leave the caption disagreeing with what is on screen.
+                if (next === 'approximate' && !birthdate) {
+                  setValue('birthdate', birthdateFromAge({ years: 0, months: 0 }), {
+                    shouldDirty: true
+                  });
+                }
+              }}
             />
           )}
         />
@@ -205,15 +222,25 @@ const AddPetDetails = () => {
         <Controller
           control={control}
           name="birthdate"
-          render={({ field: { onChange, value } }) => (
-            <DateTimePickerValidated
-              name="birthdate"
-              label={ageMode === 'birthdate' ? 'Date of birth' : 'Roughly when were they born?'}
-              isLabelIndicated
-              selectedDate={value}
-              setSelectedDate={onChange}
-            />
-          )}
+          render={({ field: { onChange, value } }) =>
+            ageMode === 'birthdate' ? (
+              <DateTimePickerValidated
+                name="birthdate"
+                label="Date of birth"
+                isLabelIndicated
+                selectedDate={value}
+                setSelectedDate={onChange}
+              />
+            ) : (
+              <AgePickerValidated
+                name="birthdate"
+                label="How old are they?"
+                isLabelIndicated
+                selectedDate={value}
+                setSelectedDate={onChange}
+              />
+            )
+          }
         />
 
         <Controller
@@ -247,7 +274,6 @@ const makeStyles = ({ colors, spacing }: AppTheme) =>
   StyleSheet.create({
     content: { gap: spacing.three, paddingBottom: spacing.six },
     intro: { gap: spacing.one },
-    field: { gap: spacing.two },
     photoPicker: { flexDirection: 'row', alignItems: 'center', gap: spacing.three },
     photo: { width: 56, height: 56, borderRadius: Radius.full },
     photoPlaceholder: {
@@ -255,18 +281,7 @@ const makeStyles = ({ colors, spacing }: AppTheme) =>
       justifyContent: 'center',
       backgroundColor: colors.backgroundElement
     },
-    picker: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      minHeight: 48,
-      paddingHorizontal: spacing.three,
-      borderRadius: Radius.tile,
-      borderCurve: 'continuous',
-      backgroundColor: colors.backgroundElement,
-      borderWidth: StyleSheet.hairlineWidth,
-      borderColor: colors.border
-    },
-    pickerValue: { flex: 1 }
+    photoHint: { gap: 2 }
   });
 
 export default AddPetDetails;
