@@ -5,7 +5,6 @@ import ListCard from '@/components/core/list-card';
 import MainButton from '@/components/core/main-button';
 import ScreenScrollView from '@/components/layout/screen-scroll-view';
 import ScreenView from '@/components/layout/screen-view';
-import AddPetGhostRow from '@/components/screens/home/add-pet-ghost-row';
 import PetManageRow from '@/components/screens/home/pet-manage-row';
 import PetsSkeleton from '@/components/screens/home/pets-skeleton';
 import { BottomTabInset, type AppTheme } from '@/constants/theme';
@@ -17,8 +16,6 @@ import { todayInTimezone } from '@/lib/dates';
 import { Fragment } from 'react';
 import { StyleSheet, View } from 'react-native';
 
-// The rule starts under the name rather than under the avatar: a rule that
-// crosses the avatar column reads as a table, not as a list of pets.
 const DIVIDER_INSET = 78;
 
 const Pets = () => {
@@ -44,8 +41,6 @@ const Pets = () => {
 
     if (isLoading) return <PetsSkeleton />;
 
-    // Nothing to add to, so one action rather than a ghost row beneath a list
-    // that is not there.
     if (pets.length === 0) {
       return (
         <View style={styles.empty}>
@@ -69,7 +64,6 @@ const Pets = () => {
             </Fragment>
           ))}
         </ListCard>
-        {isOwner && <AddPetGhostRow />}
       </>
     );
   };

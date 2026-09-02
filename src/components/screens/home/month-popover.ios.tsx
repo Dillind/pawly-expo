@@ -1,3 +1,4 @@
+import MonthTrigger, { type MonthPickerProps } from '@/components/screens/home/month-trigger';
 import { useStyles } from '@/hooks/use-styles';
 import { useTheme } from '@/hooks/use-theme';
 import { Host } from '@expo/ui';
@@ -5,7 +6,6 @@ import { DatePicker, Popover, RNHostView } from '@expo/ui/swift-ui';
 import { datePickerStyle, frame, padding } from '@expo/ui/swift-ui/modifiers';
 import { useState } from 'react';
 import { StyleSheet } from 'react-native';
-import MonthTrigger, { type MonthPickerProps } from '@/components/screens/home/month-trigger';
 
 // UICalendarView will not go under 320, and spaces its rows out above it.
 const GRID_WIDTH = 344;
@@ -43,7 +43,6 @@ const MonthPopover = ({ selectedDay, onSelectDay }: MonthPickerProps) => {
       matchContents
       style={styles.host}
       seedColor={theme.colors.primary}
-      // SwiftUI follows the OS, not the app's own theme preference.
       colorScheme={theme.isDark ? 'dark' : 'light'}>
       <Popover
         isPresented={isOpen}

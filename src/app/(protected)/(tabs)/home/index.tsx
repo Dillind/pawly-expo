@@ -13,28 +13,28 @@ import NoHouseholdState from '@/components/screens/home/no-household-state';
 import PetSection from '@/components/screens/home/pet-section';
 import PetSectionSkeleton from '@/components/screens/home/pet-section-skeleton';
 import WeekStrip from '@/components/screens/home/week-strip';
-import { useReminderDays } from '@/hooks/queries/reminder/use-reminders';
 import TileGrid from '@/components/ui/tile-grid';
 import { HOME_TILES } from '@/constants/home-tiles';
 import { BottomTabInset, type AppTheme } from '@/constants/theme';
-import { useHousehold } from '@/hooks/queries/household/use-household';
-import { useHouseholdMembers } from '@/hooks/queries/household/use-household-members';
-import { useHouseholds } from '@/hooks/queries/household/use-households';
+import { useUserProfile } from '@/hooks/queries/account/use-user-profile';
 import { useRefreshUnreadAlertCount } from '@/hooks/queries/alerts/use-alerts';
-import { usePets } from '@/hooks/queries/pet/use-pets';
 import { useHouseholdFeedTimes } from '@/hooks/queries/feeding/use-household-feed-times';
 import { useHouseholdOccurrences } from '@/hooks/queries/feeding/use-household-occurrences';
 import { useRefreshOccurrences } from '@/hooks/queries/feeding/use-occurrences';
-import { useUserProfile } from '@/hooks/queries/account/use-user-profile';
+import { useHousehold } from '@/hooks/queries/household/use-household';
+import { useHouseholdMembers } from '@/hooks/queries/household/use-household-members';
+import { useHouseholds } from '@/hooks/queries/household/use-households';
+import { usePets } from '@/hooks/queries/pet/use-pets';
+import { useReminderDays } from '@/hooks/queries/reminder/use-reminders';
 import { useLogFlow } from '@/hooks/use-log-flow';
 import { useRequestNotificationPermission } from '@/hooks/use-notification-permission';
 import { usePullToRefresh } from '@/hooks/use-pull-to-refresh';
 import { useRefreshOnFocus } from '@/hooks/use-refresh-on-focus';
 import { useStyles } from '@/hooks/use-styles';
 import { formatWeekdayName, todayInTimezone, weekOf } from '@/lib/dates';
+import type { Pet } from '@/types/core';
 import { describeDay } from '@/utils/day-summary';
 import { findHomeTip } from '@/utils/home-tip';
-import type { Pet } from '@/types/core';
 import type { TrueSheet } from '@lodev09/react-native-true-sheet';
 import * as Notifications from 'expo-notifications';
 import { useEffect, useRef, useState } from 'react';
@@ -140,9 +140,6 @@ const Home = () => {
       );
     }
 
-    // Two cards, because the household size is not known yet either. Holding
-    // the shape matters more than the count: the header and the tiles below
-    // stay put instead of sliding down when the pets arrive.
     if (isPending || !timezone || !today || !day) {
       return (
         <View style={styles.sections}>
@@ -152,9 +149,6 @@ const Home = () => {
       );
     }
 
-    // The member already has a household, so the question is whether they can
-    // put a pet in it. An Owner sees the action; a Contributor is told to wait
-    // rather than offered a button that creates a household they do not want.
     if (!hasPets) {
       return (
         <EmptyState
@@ -171,8 +165,6 @@ const Home = () => {
     }
 
     return (
-      // Keyed on the day so the cards cross-fade their contents when the strip
-      // moves. The cards themselves must not move -- only what is inside them.
       <Animated.View
         key={day}
         style={styles.sections}
