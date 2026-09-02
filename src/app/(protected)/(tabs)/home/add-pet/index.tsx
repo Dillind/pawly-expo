@@ -20,8 +20,8 @@ import {
 } from '@/constants/schemas/add-pet';
 import { Radius, type AppTheme } from '@/constants/theme';
 import { useStyles } from '@/hooks/use-styles';
-import type { AgeMode } from '@/types/core';
 import { birthdateFromAge } from '@/lib/dates';
+import type { AgeMode } from '@/types/core';
 import { isIOS } from '@/utils/platform';
 import type { TrueSheet } from '@lodev09/react-native-true-sheet';
 import { Image } from 'expo-image';
@@ -63,9 +63,13 @@ const AddPetDetails = () => {
 
   const breedSpecies = breedSpeciesFor(petType);
 
+  // dismissTo, not back(): this is step 1 of a modal, so there is nothing to
+  // pop within the nested stack, and a cold start straight onto this route has
+  // no history at all -- which is what made Cancel a no-op with a GO_BACK
+  // warning rather than an exit.
   const leave = () => {
     reset();
-    router.back();
+    router.dismissTo('/home');
   };
 
   // An action sheet, not an alert: this is a choice attached to something the
@@ -195,6 +199,14 @@ const AddPetDetails = () => {
           )}
         />
 
+        {/* No breed field for `other` */}
+        {breedSpecies && (
+          <BreedField
+            value={breedName(breedId) ?? null}
+            onPress={() => router.push('/home/add-pet/breed')}
+          />
+        )}
+
         <Controller
           control={control}
           name="sex"
@@ -220,8 +232,6 @@ const AddPetDetails = () => {
               value={value}
               onChange={(next) => {
                 onChange(next);
-                // The wheels always read something, so an empty birthdate would
-                // leave the caption disagreeing with what is on screen.
                 if (next === 'approximate' && !birthdate) {
                   setValue('birthdate', birthdateFromAge({ years: 0, months: 0 }), {
                     shouldDirty: true
@@ -255,20 +265,6 @@ const AddPetDetails = () => {
             )
           }
         />
-
-        {/* No breed field for `other`: we hold no breed list for a rabbit or
-            a bird. */}
-        {breedSpecies && (
-          <BreedField
-            value={breedName(breedId) ?? null}
-            description={
-              breedSpecies === 'dog'
-                ? 'Dog breeds. Change the pet type and this list changes with it.'
-                : 'Cat breeds. Change the pet type and this list changes with it.'
-            }
-            onPress={() => router.push('/home/add-pet/breed')}
-          />
-        )}
 
         <MainButton text="Continue" onPress={() => void onContinue()} />
       </ScreenScrollView>
