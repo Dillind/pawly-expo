@@ -33,3 +33,6 @@ export const ADD_PET_DETAIL_FIELDS = [
   'birthdate',
   'breed'
 ] as const;
+
+/** The phase names the stepper draws, in order. */
+export const ADD_PET_STEPS = ['Pet details', 'Feed times', 'What they eat'];

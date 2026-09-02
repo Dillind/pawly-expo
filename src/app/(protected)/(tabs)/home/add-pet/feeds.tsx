@@ -5,6 +5,7 @@ import PressableOpacity from '@/components/core/pressable-opacity';
 import ScreenScrollView from '@/components/layout/screen-scroll-view';
 import ScreenView from '@/components/layout/screen-view';
 import FlowStepper from '@/components/ui/flow-stepper';
+import { ADD_PET_STEPS } from '@/constants/schemas/add-pet';
 import { FEEDING_SCHEDULE_LABEL_OPTIONS } from '@/constants/options';
 import type { AddPetFormValues } from '@/constants/schemas/add-pet';
 import { Radius, type AppTheme } from '@/constants/theme';
@@ -33,7 +34,7 @@ const AddPetFeeds = () => {
       <ScreenScrollView
         contentInsetAdjustmentBehavior="automatic"
         contentContainerStyle={styles.content}>
-        <FlowStepper current={2} count={3} />
+        <FlowStepper current={2} steps={ADD_PET_STEPS} />
 
         <View style={styles.intro}>
           <AppText variant="header" size={28}>
