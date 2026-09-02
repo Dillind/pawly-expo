@@ -1,17 +1,15 @@
 import ZoomablePhoto from '@/components/ui/zoomable-photo';
 import { usePost } from '@/hooks/queries/posts/use-posts';
 import { useAuthStore } from '@/stores/auth-store';
-import { useLocalSearchParams, useRouter } from 'expo-router';
+import { useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
 import { ActivityIndicator, ScrollView, StyleSheet, useWindowDimensions, View } from 'react-native';
-import Animated, { useAnimatedStyle, useSharedValue } from 'react-native-reanimated';
 
 /**
  * A Post's photos, full screen. Always black, whatever the theme -- a photo
  * viewer is a dark room, and a pale ground changes how the photo itself reads.
  */
 export default function PostPhotoScreen() {
-  const router = useRouter();
   const { width } = useWindowDimensions();
 
   const { postId, photoId } = useLocalSearchParams<{ postId: string; photoId: string }>();
@@ -19,25 +17,12 @@ export default function PostPhotoScreen() {
   const { data: post, isLoading } = usePost(postId, userId ?? undefined);
 
   const [isZoomed, setIsZoomed] = useState(false);
-  const dismissProgress = useSharedValue(0);
 
   const photos = post?.photos ?? [];
   const openAt = Math.max(
     0,
     photos.findIndex((candidate) => candidate.id === photoId)
   );
-
-  // The ground fades with the drag, so a downward flick reads as putting the
-  // photo back rather than as the screen falling over.
-  const backdropStyle = useAnimatedStyle(() => ({
-    opacity: 1 - dismissProgress.get() * 0.6
-  }));
-
-  const close = () => {
-    if (router.canGoBack()) return router.back();
-
-    router.replace({ pathname: '/posts/[postId]', params: { postId: postId! } });
-  };
 
   if (isLoading) {
     return (
@@ -50,7 +35,7 @@ export default function PostPhotoScreen() {
   if (photos.length === 0) return <View style={styles.loading} />;
 
   return (
-    <Animated.View style={[styles.root, backdropStyle]}>
+    <View style={styles.root}>
       <ScrollView
         horizontal
         pagingEnabled
@@ -63,13 +48,11 @@ export default function PostPhotoScreen() {
             key={photo.id}
             url={photo.url}
             accessibilityLabel={photos.length > 1 ? `Photo ${at + 1} of ${photos.length}` : 'Photo'}
-            dismissProgress={dismissProgress}
             onZoomChange={setIsZoomed}
-            onDismiss={close}
           />
         ))}
       </ScrollView>
-    </Animated.View>
+    </View>
   );
 }
 

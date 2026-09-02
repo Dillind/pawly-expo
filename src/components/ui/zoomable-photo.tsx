@@ -4,8 +4,7 @@ import Animated, {
   ReduceMotion,
   useAnimatedStyle,
   useSharedValue,
-  withSpring,
-  type SharedValue
+  withSpring
 } from 'react-native-reanimated';
 import { StyleSheet, useWindowDimensions, View } from 'react-native';
 import { useState } from 'react';
@@ -13,10 +12,6 @@ import { scheduleOnRN } from 'react-native-worklets';
 
 const MAX_SCALE = 4;
 const DOUBLE_TAP_SCALE = 2.5;
-
-/** How far a downward flick must travel, or how fast, before it closes. */
-const DISMISS_DISTANCE = 120;
-const DISMISS_VELOCITY = 900;
 
 const SETTLE = { duration: 300, dampingRatio: 0.85, reduceMotion: ReduceMotion.System };
 
@@ -34,20 +29,11 @@ const clamp = (value: number, limit: number) => {
 type Props = {
   url: string;
   accessibilityLabel: string;
-  /** 0 at rest, 1 when the drag has travelled far enough to close. */
-  dismissProgress: SharedValue<number>;
   /** Paging must stop while a photo is zoomed, or a pan would change photos. */
   onZoomChange: (isZoomed: boolean) => void;
-  onDismiss: () => void;
 };
 
-const ZoomablePhoto = ({
-  url,
-  accessibilityLabel,
-  dismissProgress,
-  onZoomChange,
-  onDismiss
-}: Props) => {
+const ZoomablePhoto = ({ url, accessibilityLabel, onZoomChange }: Props) => {
   const { width, height } = useWindowDimensions();
   const [isZoomed, setIsZoomed] = useState(false);
 
@@ -57,9 +43,6 @@ const ZoomablePhoto = ({
   const y = useSharedValue(0);
   const savedX = useSharedValue(0);
   const savedY = useSharedValue(0);
-  // The dismiss drag owns its own offset. Sharing `y` with the zoomed pan let
-  // whichever gesture ran first discard the other's position.
-  const dismissY = useSharedValue(0);
 
   const reportZoom = (next: boolean) => {
     setIsZoomed(next);
@@ -74,8 +57,6 @@ const ZoomablePhoto = ({
     y.set(withSpring(0, SETTLE));
     savedX.set(0);
     savedY.set(0);
-    dismissY.set(withSpring(0, SETTLE));
-    dismissProgress.set(withSpring(0, SETTLE));
     scheduleOnRN(reportZoom, false);
   };
 
@@ -106,8 +87,8 @@ const ZoomablePhoto = ({
       scheduleOnRN(reportZoom, true);
     });
 
-  // Panning the image itself. Only live while zoomed -- at rest the vertical
-  // pan below owns the finger, and the horizontal axis belongs to the pager.
+  // Panning the image itself. Only live while zoomed -- at rest the photo does
+  // not move at all, and the horizontal axis belongs to the pager.
   const panZoomed = Gesture.Pan()
     .enabled(isZoomed)
     .onUpdate((event) => {
@@ -118,28 +99,6 @@ const ZoomablePhoto = ({
     .onEnd(() => {
       savedX.set(x.get());
       savedY.set(y.get());
-    });
-
-  // Drag down to close. Vertical intent only, so a horizontal drag still pages
-  // between photos rather than half-closing the viewer.
-  const panDismiss = Gesture.Pan()
-    .enabled(!isZoomed)
-    .activeOffsetY([-16, 16])
-    .failOffsetX([-24, 24])
-    .onUpdate((event) => {
-      dismissY.set(event.translationY);
-      dismissProgress.set(Math.min(1, Math.max(0, event.translationY) / DISMISS_DISTANCE));
-    })
-    .onEnd((event) => {
-      const isFlick = event.velocityY > DISMISS_VELOCITY;
-
-      if (isFlick || event.translationY > DISMISS_DISTANCE) {
-        scheduleOnRN(onDismiss);
-        return;
-      }
-
-      dismissY.set(withSpring(0, { ...SETTLE, velocity: event.velocityY }));
-      dismissProgress.set(withSpring(0, SETTLE));
     });
 
   const doubleTap = Gesture.Tap()
@@ -170,14 +129,10 @@ const ZoomablePhoto = ({
       scheduleOnRN(reportZoom, true);
     });
 
-  const gesture = Gesture.Race(doubleTap, Gesture.Simultaneous(pinch, panZoomed, panDismiss));
+  const gesture = Gesture.Race(doubleTap, Gesture.Simultaneous(pinch, panZoomed));
 
   const photoStyle = useAnimatedStyle(() => ({
-    transform: [
-      { translateX: x.get() },
-      { translateY: y.get() + dismissY.get() },
-      { scale: scale.get() }
-    ]
+    transform: [{ translateX: x.get() }, { translateY: y.get() }, { scale: scale.get() }]
   }));
 
   return (
