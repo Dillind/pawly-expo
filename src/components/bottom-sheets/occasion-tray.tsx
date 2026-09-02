@@ -21,6 +21,7 @@ import {
 } from '@/hooks/queries/posts/use-occasions';
 import { useStyles } from '@/hooks/use-styles';
 import OccasionService, { type Occasion } from '@/services/occasion.service';
+import type { PostOccasion } from '@/services/post.service';
 import type { TrueSheet } from '@lodev09/react-native-true-sheet';
 import { useState, type RefObject } from 'react';
 import { Alert, ScrollView, StyleSheet, View } from 'react-native';
@@ -45,6 +46,8 @@ type Props = {
   sheetRef: RefObject<TrueSheet | null>;
   householdId: string | undefined;
   selectedId: string | null;
+  /** What the Post carries, which may be an Occasion the household removed. */
+  selectedOccasion: PostOccasion | null;
   preview: OccasionPreview;
   onSelect: (occasionId: string | null) => void;
 };
@@ -57,12 +60,15 @@ const isDraftUsable = (draft: Draft) => Boolean(draft.emoji) || draft.label.trim
 const ChooseStep = ({
   occasions,
   selectedId,
+  removed,
   onChoose,
   onCreate,
   onEditOne
 }: {
   occasions: Occasion[];
   selectedId: string | null;
+  /** The chosen Occasion when it has left the picker, otherwise null. */
+  removed: PostOccasion | null;
   onChoose: (occasionId: string | null) => void;
   onCreate: () => void;
   onEditOne: (occasion: Occasion) => void;
@@ -159,6 +165,25 @@ const ChooseStep = ({
             )}
           </View>
         ))}
+
+        {/* The household removed it, so it is not in the list above. It stays
+            here while the Post carries it, or there is nothing to tap to
+            clear the choice. */}
+        {removed && (
+          <View style={styles.removed}>
+            <SheetRow
+              label={removed.label ?? ''}
+              leading={
+                removed.emoji ? <OccasionEmoji emoji={removed.emoji} size={EMOJI_SLOT} /> : undefined
+              }
+              isSelected={!isEditing}
+              onPress={() => onChoose(null)}
+            />
+            <AppText size={12} color="textSecondary">
+              Removed from the picker. Tap it to take it off this post.
+            </AppText>
+          </View>
+        )}
 
         <SheetRow
           icon="plus"
@@ -334,7 +359,14 @@ const EmojiStep = ({ onPick }: { onPick: (emoji: string) => void }) => {
  * content swaps -- a second sheet raised from the first is the thing the Tray
  * exists to avoid. See ADR 0035.
  */
-const OccasionTray = ({ sheetRef, householdId, selectedId, preview, onSelect }: Props) => {
+const OccasionTray = ({
+  sheetRef,
+  householdId,
+  selectedId,
+  selectedOccasion,
+  preview,
+  onSelect
+}: Props) => {
   const [draft, setDraft] = useState<Draft>(EMPTY_DRAFT);
 
   const { data: occasions = [] } = useOccasions(householdId);
@@ -388,6 +420,11 @@ const OccasionTray = ({ sheetRef, householdId, selectedId, preview, onSelect }: 
         <ChooseStep
           occasions={occasions}
           selectedId={selectedId}
+          removed={
+            selectedOccasion && !occasions.some((entry) => entry.id === selectedOccasion.id)
+              ? selectedOccasion
+              : null
+          }
           onChoose={choose}
           onCreate={() => setDraft(EMPTY_DRAFT)}
           onEditOne={(occasion) =>
@@ -439,6 +476,9 @@ const makeStyles = ({ colors, spacing }: AppTheme) =>
     },
     rows: {
       gap: spacing.two
+    },
+    removed: {
+      gap: spacing.one
     },
     editBar: {
       flexDirection: 'row',

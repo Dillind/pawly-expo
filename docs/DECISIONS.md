@@ -557,3 +557,13 @@ and only night differed -- by a mask that read as a bitten disc. Each state now 
 against a shared horizon: dawn sits on it, day clears it, dusk sinks below it, and night drops the
 horizon entirely for a crescent and three stars. The position carries the hour, so the mark still
 reads at 76pt where a colour shift alone did not.
+
+**A removed Occasion stays in the picker while a Post carries it.** `OccasionService.list` returns
+live rows only, so a Post carrying a removed Occasion had no matching row: the composer said
+"What's the occasion?" over an `occasionId` that was still set, and the tray ticked nothing. Tapping
+the ticked row is the only way back to none, so there was nothing to tap and the Occasion could not
+be taken off the Post.
+
+The tray now appends the carried Occasion as a last row when the picker has lost it, ticked, under
+the line "Removed from the picker. Tap it to take it off this post." That keeps one rule for
+clearing a choice rather than reviving the "No occasion" row.

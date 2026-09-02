@@ -18,6 +18,7 @@ import {
 import { ScreenGutter, type AppTheme } from '@/constants/theme';
 import { useOccasions } from '@/hooks/queries/posts/use-occasions';
 import { useStyles } from '@/hooks/use-styles';
+import type { PostOccasion } from '@/services/post.service';
 import type { Pet } from '@/types/core';
 import type { TrueSheet } from '@lodev09/react-native-true-sheet';
 import { useRef } from 'react';
@@ -31,9 +32,15 @@ type Props = {
   householdName?: string | null;
   /** Whose Occasions the picker offers. The set belongs to the Household. */
   householdId?: string;
+  /**
+   * What the Post already carries. A removed Occasion is gone from the picker
+   * but not from the Post, so without this the row reads as unset and the
+   * member has nothing to tap to clear it.
+   */
+  currentOccasion?: PostOccasion | null;
 };
 
-const PostComposer = ({ pets, householdName, householdId }: Props) => {
+const PostComposer = ({ pets, householdName, householdId, currentOccasion }: Props) => {
   const styles = useStyles(makeStyles);
   const tagSheetRef = useRef<TrueSheet | null>(null);
   const photoSheetRef = useRef<TrueSheet | null>(null);
@@ -54,7 +61,9 @@ const PostComposer = ({ pets, householdName, householdId }: Props) => {
   });
 
   const { data: occasions = [] } = useOccasions(householdId);
-  const occasion = occasions.find((entry) => entry.id === occasionId) ?? null;
+  const occasion =
+    occasions.find((entry) => entry.id === occasionId) ??
+    (currentOccasion && currentOccasion.id === occasionId ? currentOccasion : null);
 
   const title = useWatch({
     control,
@@ -247,6 +256,7 @@ const PostComposer = ({ pets, householdName, householdId }: Props) => {
         sheetRef={occasionTrayRef}
         householdId={householdId}
         selectedId={occasionId}
+        selectedOccasion={occasion}
         preview={{
           title,
           pet: firstTaggedPet && {

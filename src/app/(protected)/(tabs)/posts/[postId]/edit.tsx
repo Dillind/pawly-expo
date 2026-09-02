@@ -117,7 +117,11 @@ const EditPost = () => {
 
         {post && (
           <FormProvider {...form}>
-            <PostComposer pets={pets} householdId={post?.householdId} />
+            <PostComposer
+              pets={pets}
+              householdId={post?.householdId}
+              currentOccasion={post.occasion}
+            />
           </FormProvider>
         )}
       </KeyboardAwareScrollView>
