@@ -146,7 +146,7 @@ const AddPetInstructions = () => {
         />
 
         <MainButton
-          text="Skip for now"
+          text="Add without instructions"
           variant="text"
           isDisabled={isBusy}
           onPress={() => void create()}
