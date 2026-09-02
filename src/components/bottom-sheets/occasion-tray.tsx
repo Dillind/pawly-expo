@@ -143,13 +143,14 @@ const ChooseStep = ({
           }}
         />
 
-        {!isEditing && (
-          <SheetRow
-            label="No occasion"
-            isSelected={selectedId === null}
-            onPress={() => onChoose(null)}
-          />
-        )}
+        <SheetRow
+          label="No occasion"
+          isSelected={!isEditing && selectedId === null}
+          onPress={() => {
+            if (isEditing) return;
+            onChoose(null);
+          }}
+        />
       </View>
     </View>
   );
