@@ -129,7 +129,7 @@ const Posts = () => {
           <View style={styles.emptyGutter}>
             <EmptyState
               icon="image"
-              title="Nothing shared yet"
+              title="No posts yet"
               description="Photos your household shares of your pets show up here. Handy when someone else is looking after them."
               action={<MainButton text="Share a photo" href="/posts/new-post" />}
             />

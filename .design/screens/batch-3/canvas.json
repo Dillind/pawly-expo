@@ -1,0 +1,155 @@
+{
+  "artboards": [
+    {
+      "file": "Main.dc.html",
+      "x": 0,
+      "y": 0,
+      "w": 390,
+      "h": 960,
+      "title": "1 · Posts, the feed"
+    },
+    {
+      "file": "Sources.dc.html",
+      "x": 490,
+      "y": 0,
+      "w": 390,
+      "h": 620,
+      "title": "2 · Filter, the two doors"
+    },
+    {
+      "file": "SourcesList.dc.html",
+      "x": 980,
+      "y": 0,
+      "w": 390,
+      "h": 620,
+      "title": "3 · Filter, one step deeper"
+    },
+    {
+      "file": "Detail.dc.html",
+      "x": 1470,
+      "y": 0,
+      "w": 390,
+      "h": 1000,
+      "title": "4 · Post detail"
+    },
+    {
+      "file": "Comments.dc.html",
+      "x": 0,
+      "y": 1140,
+      "w": 390,
+      "h": 940,
+      "title": "5 · The comment thread"
+    },
+    {
+      "file": "Reply.dc.html",
+      "x": 490,
+      "y": 1140,
+      "w": 390,
+      "h": 640,
+      "title": "6 · The reply state"
+    },
+    {
+      "file": "Photo.dc.html",
+      "x": 980,
+      "y": 1140,
+      "w": 390,
+      "h": 844,
+      "title": "7 · The photo viewer"
+    },
+    {
+      "file": "Composer.dc.html",
+      "x": 1470,
+      "y": 1140,
+      "w": 390,
+      "h": 1060,
+      "title": "8 · The composer"
+    },
+    {
+      "file": "Empty.dc.html",
+      "x": 0,
+      "y": 2340,
+      "w": 390,
+      "h": 760,
+      "title": "9 · The empty feed"
+    },
+    {
+      "file": "TrayChoose.dc.html",
+      "x": 490,
+      "y": 2340,
+      "w": 390,
+      "h": 800,
+      "title": "10 · Occasion tray, choose"
+    },
+    {
+      "file": "TrayCreate.dc.html",
+      "x": 980,
+      "y": 2340,
+      "w": 390,
+      "h": 720,
+      "title": "11 · Occasion tray, create"
+    },
+    {
+      "file": "TrayEmoji.dc.html",
+      "x": 1470,
+      "y": 2340,
+      "w": 390,
+      "h": 820,
+      "title": "12 · Occasion tray, emoji"
+    },
+    {
+      "file": "TrayEdit.dc.html",
+      "x": 0,
+      "y": 3300,
+      "w": 390,
+      "h": 900,
+      "title": "13 · Occasion tray, edit"
+    }
+  ],
+  "annotations": [
+    {
+      "id": "brief",
+      "x": 0,
+      "y": -320,
+      "w": 880,
+      "text": "Crumpet Posts, rebuilt to the golden system\n\nThirteen artboards. iOS, light. Every value is lifted from src/constants/theme.ts, not .design/tokens.css — the two disagree and the shipped file wins. Background is #FBFAF8, textSecondary is #746A60, primaryText is #8F5A03.\n\nGold keeps its three jobs. Nothing here adds a fourth.\n\nPosts last changed at 0298ba5, before the palette landed at 2c34160. This is the whole tab brought forward."
+    },
+    {
+      "id": "header",
+      "x": 1960,
+      "y": 0,
+      "w": 340,
+      "text": "The header, following Care Card\n\nThe filter and the plus sit in ONE Stack.Toolbar placement=\"right\". On iOS 26 a group renders as a single fused glass capsule — care-card.tsx already does this with three buttons.\n\nNO COLOUR is passed to a bar button. iOS owns the ink, and a tinted glyph stops matching the back button beside it.\n\nThe active state is the `selected` prop, not a colour: <Stack.Toolbar.Button icon=\"line.3.horizontal.decrease\" selected={isFiltered} />. iOS draws the selected treatment itself. Expo's own Mail example uses that exact icon with that exact prop.\n\nThe chip under the bar carries the NAME of the filter and the way out. It is absent otherwise.\n\nToolbar buttons are SF Symbols; Lucide governs in-app icons only, through the icon-map allow-list. Where an SF Symbol would collide with one already on screen, that button becomes a Stack.Toolbar.View holding a Lucide icon — and `hidden`, never a conditional child, because the toolbar reads its children once (care-card.tsx).\n\nTwo limits worth knowing: Stack.Toolbar is iOS only, and placement=\"bottom\" is unusable here because native tabs already own the bottom."
+    },
+    {
+      "id": "menu-alt",
+      "x": 1960,
+      "y": 800,
+      "w": 340,
+      "text": "The alternative, considered and rejected\n\nStack.Toolbar.Menu would have done the whole filter natively — a menu on the filter button, a nested menu for Households and another for Following, MenuAction isOn for the current choice. It is how Apple's Mail and Photos filter, it is less code, and the tick state comes free.\n\nIt was rejected for one reason: a menu row is a short label and an SF Symbol, and nothing else. A household in Crumpet is recognised by its avatar, which is the same thing HouseholdSwitcher leans on.\n\nDecided 2 September 2026. Revisit it only if the avatars turn out not to earn the extra code."
+    },
+    {
+      "id": "anatomy",
+      "x": 1960,
+      "y": 680,
+      "w": 340,
+      "text": "The post card, from the source\n\npost-header.tsx puts the HOUSEHOLD in the bold line and the author in the sub-line, not the other way round.\n\npost-action-row.tsx draws three targets — heart, comment, share — each 44px tall, 22px icons, gap 8, marginLeft -4. Share is placed and deliberately not wired.\n\nThe photo frame is a fixed square (aspectRatio 1), full bleed, with the dots on a rgba(0,0,0,0.35) pill 16px from the bottom.\n\nThe send button in the comment composer is caretUp on primary with onPrimary ink — comment-composer.tsx, unchanged."
+    },
+    {
+      "id": "occasion",
+      "x": 1960,
+      "y": 1400,
+      "w": 340,
+      "text": "The Occasion wears the pet chip's clothes\n\nSame pill, same backgroundElement fill, same 13px secondary label. The emoji stands where the pet's avatar stands, and that is the whole difference.\n\nSo it joins the pet chip row rather than sitting beside the title. One row of chips answers one question — who and what was this.\n\nOne per post, optional. It replaces the milestone toggle of issue #124: a switch for one value has nowhere to grow.\n\nAn Occasion carries an emoji, a label, or both. Never neither. Deleting one is a SOFT delete — it leaves the picker and the posts that carry it keep it.\n\nThe risk worth watching on device: two chip styles this close together may read as one system. If they blur, the Occasion moves back beside the title."
+    },
+    {
+      "id": "future",
+      "x": 1960,
+      "y": 2180,
+      "w": 340,
+      "text": "What is drawn but not shipped\n\n• The Following door on artboards 2 and 3 needs the follow system, issue #125.\n• The 'Miso · Mum and Dad's' pet chip on artboard 8 needs cross-household tagging, issue #110. Until then the composer posts to the Active Household and shows only its pets, as new-post.tsx already does.\n• The photo viewer, artboard 7, is issue #151.\n• The Occasion is new and has no issue yet. It wants a table, a nullable column on posts, a seed trigger on household creation, a CONTEXT.md entry and an ADR."
+    }
+  ],
+  "launch": {
+    "view": "canvas"
+  }
+}
