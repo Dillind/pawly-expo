@@ -2,6 +2,7 @@ import { petDetailsEditSchema, petDetailsSchema } from '@/constants/schemas/pet-
 
 const validPet = {
   name: 'Bailey',
+  petType: 'dog' as const,
   breed: 'Labrador',
   sex: 'male' as const,
   birthdate: '2026-03-28',
@@ -45,5 +46,14 @@ describe('petDetailsEditSchema', () => {
 
     expect(petDetailsEditSchema.safeParse({ ...withoutPhoto, name: '' }).success).toBe(false);
     expect(petDetailsEditSchema.safeParse({ ...withoutPhoto, sex: 'unknown' }).success).toBe(false);
+  });
+});
+
+describe('petType', () => {
+  it('rejects a pet type outside the enum', () => {
+    const result = petDetailsSchema.safeParse({ ...validPet, petType: 'dragon' });
+
+    expect(result.success).toBe(false);
+    expect(result.success ? null : result.error.issues[0].message).toBe('Select a pet type');
   });
 });

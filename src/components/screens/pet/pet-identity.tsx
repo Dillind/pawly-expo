@@ -58,6 +58,7 @@ const PetIdentity = ({ pet, isOwner }: Props) => {
           petId={pet.id}
           details={{
             name: pet.name,
+            petType: pet.petType,
             breed: pet.breed,
             sex: pet.sex,
             birthdate: pet.birthdate,
