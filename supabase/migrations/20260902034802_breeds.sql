@@ -1,5 +1,11 @@
 -- CRU-102. The breeds table, and its seed.
 --
+-- APPLIED TO PRODUCTION on 2026-09-02, ahead of this PR merging, so that
+-- CRU-104 can add pets.breed_id against a table that already exists. The
+-- timestamp in this filename is the one the remote recorded, not one chosen
+-- by hand -- they have to match or `supabase db push` replays this file and
+-- fails on `create type`.
+--
 -- The client does NOT read this table. The same list ships in the app bundle
 -- as a static asset keyed by these ids -- see CRU-103 for the cost reasoning.
 -- The table earns its place by making pets.breed_id a real foreign key, and as
