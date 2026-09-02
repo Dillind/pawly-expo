@@ -134,7 +134,9 @@ const ChooseStep = ({
                 isSelected={!isEditing && occasion.id === selectedId}
                 onPress={() => {
                   if (!isEditing) {
-                    onChoose(occasion.id);
+                    // Tapping the chosen one again clears it. There is no
+                    // "No occasion" row, so this is the way back to none.
+                    onChoose(occasion.id === selectedId ? null : occasion.id);
                     return;
                   }
 
@@ -164,15 +166,6 @@ const ChooseStep = ({
           onPress={() => {
             onCreate();
             goTo('edit');
-          }}
-        />
-
-        <SheetRow
-          label="No occasion"
-          isSelected={!isEditing && selectedId === null}
-          onPress={() => {
-            if (isEditing) return;
-            onChoose(null);
           }}
         />
       </View>

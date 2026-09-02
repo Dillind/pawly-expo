@@ -540,3 +540,8 @@ anything is the alternative it avoids.
 
 A future occurrence no longer offers a Done chip. The row already drew a "Future" badge beside it,
 which said the job is not due and then invited someone to tick it off anyway.
+
+**The Occasion picker has no "No occasion" row.** Artboard 8 drew one, and it earned nothing: an
+Occasion is optional, so at first open the row only restated what the picker already showed, and
+closed the sheet with nothing changed. The way back to none is now to tap the chosen row again,
+which is where a member already looks when they want to undo the choice they just made.
