@@ -200,7 +200,6 @@ with nothing to pop to and the back button vanishes — observed on device, not 
 for a person otherwise destroys the only thing that explains it, and `console.error` in every
 `onError` ends up printing our own sentence back at us. `logError` prints both.
 
-
 ---
 
 ## 2026-08-21
@@ -463,8 +462,8 @@ the first.
 
 **A Reminder's Kind carries a colour, on trial.** `medication` is a muted plum and `vet` a muted
 blue, each with a muted fill for the selected Kind pill. The batch-2 artboard drew exactly this as
-Variant B and rejected it: a 4px dot cannot carry a hue, and gold and teal already mean *to do* and
-*done*. It ships anyway to be judged on a device rather than on a board. If it reads as noise, the
+Variant B and rejected it: a 4px dot cannot carry a hue, and gold and teal already mean _to do_ and
+_done_. It ships anyway to be judged on a device rather than on a board. If it reads as noise, the
 revert is Variant A -- one gold dot, the four tokens deleted, and nothing else changes.
 
 **Reminder Alerts are their own toggle, not a rider on an existing one.** ADR 0012 makes delivery
@@ -476,7 +475,7 @@ each card, dashed and quiet. That is what the unscheduled feed actually is -- a 
 pet, alongside that pet's slots. A single button under every card had to ask which pet afterwards.
 
 **A day that is not today is read-only.** The week strip made a past day reachable for the first
-time, and every write path on Home targets *now*: `LogFeedTray` takes `today`, and the `log_feed`
+time, and every write path on Home targets _now_: `LogFeedTray` takes `today`, and the `log_feed`
 RPC stamps the record with the current time. A Log chip on last Wednesday would have quietly
 recorded that feed against this morning. So the chip and the "Other" row both disappear off today,
 and the rows show ticks and "Not logged" alone. Backfilling a past feed is
@@ -567,3 +566,13 @@ be taken off the Post.
 The tray now appends the carried Occasion as a last row when the picker has lost it, ticked, under
 the line "Removed from the picker. Tap it to take it off this post." That keeps one rule for
 clearing a choice rather than reviving the "No occasion" row.
+
+**Prettier is a gate, and it sorts the imports.** `eslint-plugin-prettier` and
+`eslint-config-prettier` were dependencies that `eslint.config.js` never used, and `bun run check`
+ran no formatter at all. So formatting only happened where somebody's editor did it, and the import
+block of every file was ordered by whoever last touched it.
+
+`bun run format:check` now sits inside `bun run check`, and `@ianvs/prettier-plugin-sort-imports`
+owns the order: built-ins, third party, `@/`, relative. The plugin's `<TYPES>` group was tried and
+dropped — it splits `import Tray, { useTray, type TrayStepDescriptor }` into two statements, which
+is the opposite of how this codebase already writes an inline type specifier.

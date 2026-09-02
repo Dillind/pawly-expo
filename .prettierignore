@@ -1,3 +1,8 @@
-.design/
-dist/
 bun.lock
+dist
+.expo
+node_modules
+.design
+.design-canvas
+ios
+android
