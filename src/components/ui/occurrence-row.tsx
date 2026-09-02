@@ -174,9 +174,16 @@ const makeStyles = ({ colors, spacing }: AppTheme) =>
       borderRadius: 0,
       backgroundColor: 'transparent'
     },
-    text: { flex: 1, gap: 2 },
-    slot: { alignSelf: 'center' },
-    logButton: { alignSelf: 'center' },
+    text: {
+      flex: 1,
+      gap: 2
+    },
+    slot: {
+      alignSelf: 'center'
+    },
+    logButton: {
+      alignSelf: 'center'
+    },
     heading: {
       flexDirection: 'row',
       alignItems: 'baseline',

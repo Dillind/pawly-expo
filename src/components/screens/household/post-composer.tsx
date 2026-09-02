@@ -40,23 +40,44 @@ const PostComposer = ({ pets, householdName, householdId }: Props) => {
   const occasionTrayRef = useRef<TrueSheet | null>(null);
 
   const { control, setValue } = useFormContext<PostFormValues>();
-  const photos = useWatch({ control, name: 'photos' });
-  const petIds = useWatch({ control, name: 'petIds' });
-  const occasionId = useWatch({ control, name: 'occasionId' });
+  const photos = useWatch({
+    control,
+    name: 'photos'
+  });
+  const petIds = useWatch({
+    control,
+    name: 'petIds'
+  });
+  const occasionId = useWatch({
+    control,
+    name: 'occasionId'
+  });
 
   const { data: occasions = [] } = useOccasions(householdId);
   const occasion = occasions.find((entry) => entry.id === occasionId) ?? null;
+
+  const title = useWatch({
+    control,
+    name: 'title'
+  });
+  const firstTaggedPet = pets.find((pet) => petIds.includes(pet.id)) ?? null;
 
   const remainingSlots = PHOTO_CAP - photos.length;
   const isAtCap = remainingSlots <= 0;
 
   const setPhotos = (next: PostPhotoValue[]) =>
-    setValue('photos', next, { shouldValidate: true, shouldDirty: true });
+    setValue('photos', next, {
+      shouldValidate: true,
+      shouldDirty: true
+    });
 
   const addPhotos = (uris: string[]) =>
     setPhotos([
       ...photos,
-      ...uris.slice(0, remainingSlots).map((uri) => ({ kind: 'new' as const, uri }))
+      ...uris.slice(0, remainingSlots).map((uri) => ({
+        kind: 'new' as const,
+        uri
+      }))
     ]);
 
   const removeAt = (index: number) => setPhotos(photos.filter((_, at) => at !== index));
@@ -68,8 +89,16 @@ const PostComposer = ({ pets, householdName, householdId }: Props) => {
     }
 
     Alert.alert('Remove this photo?', 'It comes off the post when you save.', [
-      { text: 'Cancel', style: 'cancel', isPreferred: true },
-      { text: 'Remove', style: 'destructive', onPress: () => removeAt(index) }
+      {
+        text: 'Cancel',
+        style: 'cancel',
+        isPreferred: true
+      },
+      {
+        text: 'Remove',
+        style: 'destructive',
+        onPress: () => removeAt(index)
+      }
     ]);
   };
 
@@ -218,6 +247,13 @@ const PostComposer = ({ pets, householdName, householdId }: Props) => {
         sheetRef={occasionTrayRef}
         householdId={householdId}
         selectedId={occasionId}
+        preview={{
+          title,
+          pet: firstTaggedPet && {
+            name: firstTaggedPet.name,
+            photoUrl: firstTaggedPet.photoUrl
+          }
+        }}
         onSelect={(next) => setValue('occasionId', next, { shouldDirty: true })}
       />
 

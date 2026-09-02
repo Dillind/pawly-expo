@@ -7,6 +7,9 @@ import PressableOpacity from '@/components/core/pressable-opacity';
 import TextInputValidated from '@/components/core/text-input-validated';
 import Tray, { useTray, type TrayStepDescriptor } from '@/components/core/tray';
 import OccasionEmoji from '@/components/ui/occasion-emoji';
+import Divider from '@/components/core/divider';
+import PetAvatar from '@/components/core/pet-avatar';
+import SearchBar from '@/components/core/search-bar';
 import PostChip from '@/components/ui/post-chip';
 import { EMOJI_GROUPS } from '@/constants/emoji';
 import { Radius, type AppTheme } from '@/constants/theme';
@@ -26,12 +29,23 @@ export const LABEL_MAX = 24;
 
 type Draft = { id: string | null; emoji: string | null; label: string };
 
-const EMPTY_DRAFT: Draft = { id: null, emoji: null, label: '' };
+const EMPTY_DRAFT: Draft = {
+  id: null,
+  emoji: null,
+  label: ''
+};
+
+/** What the preview borrows from the post being written. */
+export type OccasionPreview = {
+  title: string;
+  pet: { name: string; photoUrl: string | null } | null;
+};
 
 type Props = {
   sheetRef: RefObject<TrueSheet | null>;
   householdId: string | undefined;
   selectedId: string | null;
+  preview: OccasionPreview;
   onSelect: (occasionId: string | null) => void;
 };
 
@@ -71,14 +85,24 @@ const ChooseStep = ({
 
     const name = occasion.label ?? occasion.emoji ?? 'this occasion';
     const carried =
-      count === 1 ? 'The 1 post that carries it keeps it.' : `The ${count} posts that carry it keep it.`;
+      count === 1
+        ? 'The 1 post that carries it keeps it.'
+        : `The ${count} posts that carry it keep it.`;
 
     Alert.alert(
       `Remove "${name}"?`,
       count === 0 ? 'It leaves the picker.' : `It leaves the picker. ${carried}`,
       [
-        { text: 'Cancel', style: 'cancel', isPreferred: true },
-        { text: 'Remove', style: 'destructive', onPress: () => removeOccasion(occasion) }
+        {
+          text: 'Cancel',
+          style: 'cancel',
+          isPreferred: true
+        },
+        {
+          text: 'Remove',
+          style: 'destructive',
+          onPress: () => removeOccasion(occasion)
+        }
       ]
     );
   };
@@ -158,11 +182,13 @@ const ChooseStep = ({
 
 const EditStep = ({
   draft,
+  preview,
   isSaving,
   onChange,
   onSave
 }: {
   draft: Draft;
+  preview: OccasionPreview;
   isSaving: boolean;
   onChange: (next: Draft) => void;
   onSave: () => void;
@@ -170,6 +196,8 @@ const EditStep = ({
   const styles = useStyles(makeStyles);
   const { goTo } = useTray();
   const label = draft.label.trim();
+  const previewTitle = preview.title.trim() || 'Your post';
+  const petPreview = preview.pet;
 
   return (
     <View style={styles.stack}>
@@ -182,43 +210,65 @@ const EditStep = ({
           {draft.emoji ? (
             <AppText size={26}>{draft.emoji}</AppText>
           ) : (
-            <Icon name="plus" size={20} color="textSecondary" />
+            <Icon name="pawPrint" size={26} color="textSecondary" />
           )}
         </PressableOpacity>
 
         <View style={styles.draftField}>
           <TextInputValidated
-            label="Label"
             value={draft.label}
-            onChangeText={(next) => onChange({ ...draft, label: next })}
+            onChangeText={(next) =>
+              onChange({
+                ...draft,
+                label: next
+              })
+            }
             placeholder="First swim"
             maxLength={LABEL_MAX}
           />
         </View>
       </View>
 
-      <AppText size={13} color="textSecondary">
-        Add an emoji, a label, or both. One of the two is enough.
+      <AppText size={12} color="textSecondary">
+        Add an emoji, a label, or both. One of the two is enough &mdash; an occasion with neither is
+        nothing.
       </AppText>
 
-      {/* Absent until there is something to show. An empty pill on the way to
-          a real one reads as a rendering fault, not as a preview. */}
-      {isDraftUsable(draft) && (
-        <View style={styles.preview}>
-          <AppText size={13} fontWeight="bold" color="textSecondary">
-            HOW IT WILL READ
+      <Divider />
+
+      <View style={styles.preview}>
+        <AppText size={11} fontWeight="bold" color="textSecondary" style={styles.caption}>
+          HOW IT WILL READ
+        </AppText>
+
+        {/* On `postSurface`, because that is the only ground the chip is ever
+            seen against -- it disappears on the sheet's own fill. */}
+        <View style={styles.previewSurface}>
+          <AppText size={17} fontWeight="bold">
+            {previewTitle}
           </AppText>
 
-          {/* On `postSurface`, because that is the only ground the chip is ever
-              seen against -- it disappears on the sheet's own fill. */}
-          <View style={styles.previewSurface}>
-            <PostChip
-              leading={draft.emoji ? <OccasionEmoji emoji={draft.emoji} size={20} /> : null}
-              label={label || null}
-            />
+          <View style={styles.previewChips}>
+            {isDraftUsable(draft) ? (
+              <PostChip
+                leading={draft.emoji ? <OccasionEmoji emoji={draft.emoji} size={20} /> : null}
+                label={label || null}
+              />
+            ) : (
+              <AppText size={13} color="textSecondary">
+                Your occasion appears here.
+              </AppText>
+            )}
+
+            {petPreview && (
+              <PostChip
+                leading={<PetAvatar photoUrl={petPreview.photoUrl} size={20} />}
+                label={petPreview.name}
+              />
+            )}
           </View>
         </View>
-      )}
+      </View>
 
       <MainButton
         text={draft.id ? 'Save changes' : 'Save occasion'}
@@ -240,27 +290,20 @@ const EmojiStep = ({ onPick }: { onPick: (emoji: string) => void }) => {
     title: group.title,
     emoji: needle
       ? group.emoji.filter(
-          (entry) =>
-            entry.keywords.includes(needle) || group.title.toLowerCase().includes(needle)
+          (entry) => entry.keywords.includes(needle) || group.title.toLowerCase().includes(needle)
         )
       : group.emoji
   })).filter((group) => group.emoji.length > 0);
 
   return (
     <View style={styles.stack}>
-      <TextInputValidated
-        value={term}
-        onChangeText={setTerm}
-        placeholder="Search"
-        autoCapitalize="none"
-        leftIcon={<Icon name="search" size={18} color="textSecondary" />}
-      />
+      <SearchBar onSearch={setTerm} />
 
       <ScrollView style={styles.emojiScroll} keyboardShouldPersistTaps="handled">
         <View style={styles.emojiGroups}>
           {groups.map((group) => (
             <View key={group.title} style={styles.emojiGroup}>
-              <AppText size={13} fontWeight="bold" color="textSecondary">
+              <AppText size={11} fontWeight="bold" color="textSecondary" style={styles.caption}>
                 {group.title.toUpperCase()}
               </AppText>
 
@@ -298,7 +341,7 @@ const EmojiStep = ({ onPick }: { onPick: (emoji: string) => void }) => {
  * content swaps -- a second sheet raised from the first is the thing the Tray
  * exists to avoid. See ADR 0035.
  */
-const OccasionTray = ({ sheetRef, householdId, selectedId, onSelect }: Props) => {
+const OccasionTray = ({ sheetRef, householdId, selectedId, preview, onSelect }: Props) => {
   const [draft, setDraft] = useState<Draft>(EMPTY_DRAFT);
 
   const { data: occasions = [] } = useOccasions(householdId);
@@ -317,14 +360,24 @@ const OccasionTray = ({ sheetRef, householdId, selectedId, onSelect }: Props) =>
     const label = draft.label.trim() || null;
 
     if (draft.id) {
-      updateOccasion({ id: draft.id, emoji, label }, { onSuccess: close });
+      updateOccasion(
+        {
+          id: draft.id,
+          emoji,
+          label
+        },
+        { onSuccess: close }
+      );
       return;
     }
 
     // The new Occasion is chosen straight away. A member who has just described
     // it is not then asked to find it in the list they came from.
     createOccasion(
-      { emoji, label },
+      {
+        emoji,
+        label
+      },
       {
         onSuccess: (created) => {
           onSelect(created.id);
@@ -360,6 +413,7 @@ const OccasionTray = ({ sheetRef, householdId, selectedId, onSelect }: Props) =>
       render: () => (
         <EditStep
           draft={draft}
+          preview={preview}
           isSaving={isCreating || isUpdating}
           onChange={setDraft}
           onSave={save}
@@ -370,7 +424,14 @@ const OccasionTray = ({ sheetRef, householdId, selectedId, onSelect }: Props) =>
       id: 'emoji',
       title: 'Choose an emoji',
       render: () => (
-        <EmojiStep onPick={(emoji) => setDraft((current) => ({ ...current, emoji }))} />
+        <EmojiStep
+          onPick={(emoji) =>
+            setDraft((current) => ({
+              ...current,
+              emoji
+            }))
+          }
+        />
       )
     }
   ];
@@ -380,36 +441,81 @@ const OccasionTray = ({ sheetRef, householdId, selectedId, onSelect }: Props) =>
 
 const makeStyles = ({ colors, spacing }: AppTheme) =>
   StyleSheet.create({
-    stack: { gap: spacing.three },
-    rows: { gap: spacing.two },
-    editBar: { flexDirection: 'row', justifyContent: 'flex-end' },
-    editableRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.two },
-    rowBody: { flex: 1 },
-    draftRow: { flexDirection: 'row', alignItems: 'flex-end', gap: spacing.two },
-    draftField: { flex: 1 },
+    stack: {
+      gap: spacing.three
+    },
+    rows: {
+      gap: spacing.two
+    },
+    editBar: {
+      flexDirection: 'row',
+      justifyContent: 'flex-end'
+    },
+    editableRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: spacing.two
+    },
+    rowBody: {
+      flex: 1
+    },
+    draftRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: spacing.three
+    },
+    draftField: {
+      flex: 1
+    },
     emojiWell: {
-      width: 56,
-      height: 46,
+      width: 68,
+      height: 68,
       alignItems: 'center',
       justifyContent: 'center',
       borderRadius: Radius.tile,
       borderCurve: 'continuous',
-      borderWidth: StyleSheet.hairlineWidth,
+      // Dashed, because the well is a slot waiting to be filled rather than a
+      // field holding a value.
+      borderWidth: 1,
+      borderStyle: 'dashed',
       borderColor: colors.border,
-      backgroundColor: colors.backgroundElement
+      backgroundColor: colors.backgroundSelected
     },
-    preview: { gap: spacing.two },
+    caption: {
+      letterSpacing: 0.8
+    },
+    preview: {
+      gap: spacing.two
+    },
     previewSurface: {
-      flexDirection: 'row',
+      gap: spacing.two,
       padding: spacing.three,
       borderRadius: Radius.tile,
       borderCurve: 'continuous',
+      borderWidth: StyleSheet.hairlineWidth,
+      borderColor: colors.border,
       backgroundColor: colors.postSurface
     },
-    emojiScroll: { maxHeight: 320 },
-    emojiGroups: { gap: spacing.three },
-    emojiGroup: { gap: spacing.two },
-    emojiGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.one },
+    previewChips: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      alignItems: 'center',
+      gap: spacing.two
+    },
+    emojiScroll: {
+      maxHeight: 320
+    },
+    emojiGroups: {
+      gap: spacing.three
+    },
+    emojiGroup: {
+      gap: spacing.two
+    },
+    emojiGrid: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      gap: spacing.one
+    },
     emojiCell: {
       width: 44,
       height: 44,

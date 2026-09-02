@@ -87,8 +87,13 @@ const BaseModal = ({
 
 const makeStyles = ({ spacing, colors }: AppTheme) =>
   StyleSheet.create({
-    modal: { margin: 0 },
-    centred: { justifyContent: 'center', padding: spacing.four },
+    modal: {
+      margin: 0
+    },
+    centred: {
+      justifyContent: 'center',
+      padding: spacing.four
+    },
     card: {
       backgroundColor: colors.background,
       borderRadius: Radius.card,

@@ -118,7 +118,9 @@ const PetBio = ({ petId, name, bio }: Props) => {
 
 const makeStyles = ({ spacing }: AppTheme) =>
   StyleSheet.create({
-    section: { gap: spacing.two },
+    section: {
+      gap: spacing.two
+    },
     header: {
       flexDirection: 'row',
       alignItems: 'center',
@@ -127,7 +129,9 @@ const makeStyles = ({ spacing }: AppTheme) =>
       // taller than the heading beside it.
       marginVertical: -spacing.two
     },
-    form: { gap: spacing.three }
+    form: {
+      gap: spacing.three
+    }
   });
 
 export default PetBio;

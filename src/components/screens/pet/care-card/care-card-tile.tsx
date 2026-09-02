@@ -53,7 +53,10 @@ const CareCardTile = ({ petName, onPress }: Props) => {
 
 const makeStyles = ({ spacing, colors }: AppTheme) =>
   StyleSheet.create({
-    column: { alignItems: 'center', gap: spacing.one },
+    column: {
+      alignItems: 'center',
+      gap: spacing.one
+    },
     tile: {
       width: TileWidth,
       height: TileHeight,
@@ -63,7 +66,10 @@ const makeStyles = ({ spacing, colors }: AppTheme) =>
       borderCurve: 'continuous',
       backgroundColor: colors.backgroundElement
     },
-    lines: { alignSelf: 'stretch', gap: 4 },
+    lines: {
+      alignSelf: 'stretch',
+      gap: 4
+    },
     line: {
       height: 4,
       borderRadius: Radius.full,

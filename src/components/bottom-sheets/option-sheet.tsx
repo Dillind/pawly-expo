@@ -58,7 +58,9 @@ const OptionSheet = <T extends string | number>({
 
 const makeStyles = ({ spacing }: AppTheme) =>
   StyleSheet.create({
-    rows: { gap: spacing.two }
+    rows: {
+      gap: spacing.two
+    }
   });
 
 export default OptionSheet;

@@ -41,14 +41,22 @@ const PetsSkeleton = () => {
 
 const makeStyles = ({ colors, spacing }: AppTheme) =>
   StyleSheet.create({
-    container: { gap: spacing.three },
-    card: { padding: spacing.three, gap: spacing.four },
+    container: {
+      gap: spacing.three
+    },
+    card: {
+      padding: spacing.three,
+      gap: spacing.four
+    },
     row: {
       flexDirection: 'row',
       alignItems: 'center',
       gap: 14
     },
-    body: { flex: 1, gap: spacing.two },
+    body: {
+      flex: 1,
+      gap: spacing.two
+    },
     ghost: {
       height: GHOST_HEIGHT,
       borderRadius: Radius.card,

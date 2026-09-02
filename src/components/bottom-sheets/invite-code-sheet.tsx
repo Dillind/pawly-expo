@@ -44,7 +44,9 @@ const InviteCodeSheet = ({ sheetRef, invite, householdName, onRevoke }: Props) =
 
 const makeStyles = ({ spacing }: AppTheme) =>
   StyleSheet.create({
-    body: { gap: spacing.four }
+    body: {
+      gap: spacing.four
+    }
   });
 
 export default InviteCodeSheet;

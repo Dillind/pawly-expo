@@ -80,7 +80,9 @@ const RenameHouseholdSheet = ({ sheetRef, householdId, name }: Props) => {
 
 const makeStyles = ({ spacing }: AppTheme) =>
   StyleSheet.create({
-    form: { gap: spacing.three }
+    form: {
+      gap: spacing.three
+    }
   });
 
 export default RenameHouseholdSheet;

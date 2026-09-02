@@ -259,7 +259,6 @@ const AddPetDetails = () => {
             )
           }
         />
-
       </ScreenScrollView>
 
       <ScreenFooter>

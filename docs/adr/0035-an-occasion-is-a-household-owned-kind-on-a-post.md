@@ -34,9 +34,15 @@ and "vet visit" for the same thing, and the Posts tab would show both.
 label, or both — never neither, enforced by the `occasions_carry_something` check constraint rather
 than by the composer. A Post carries at most one, through a nullable `occasion_id`.
 
-**Six are seeded on Household creation** by an after-insert trigger: 🎉 Milestone, 🏥 Vet visit,
-🎂 Birthday, 🏡 Adoption day, 🎓 Training, 🛁 Bath. Every one is editable and removable. They are a
-starting vocabulary, not a fixed enum wearing a table.
+**Four are seeded on Household creation** by an after-insert trigger: 🎉 Milestone, 🎂 Birthday,
+🎓 Training, 🏥 Vet visit. Every one is editable and removable. They are a starting vocabulary, not
+a fixed enum wearing a table.
+
+The first households to be seeded got six, with 🏡 Adoption day and 🛁 Bath. Those two read as
+examples rather than as words a household reaches for, and a short list is easier to add to than a
+long one is to prune. Migration `20260903000000_four_seeded_occasions.sql` changed the seed for new
+Households only. The rows an existing Household already holds are untouched, because removing one
+would rewrite what its old Posts said.
 
 **Removing one is a soft delete.** `deleted_at` is stamped, the row leaves the picker, and every
 Post already carrying it keeps it. `authenticated` holds **no delete grant** on the table, so this
@@ -83,5 +89,5 @@ Compiler, enabled in `app.json`, cannot survive. The full comparison is in
 [`docs/research/emoji-picker-expo-57.md`](../research/emoji-picker-expo-57.md).
 
 **Filtering the feed by Occasion is deliberately not built.** Every household currently holds the
-same six seeded rows, so a filter would sort nothing. It earns its place once households have
+same seeded rows, so a filter would sort nothing. It earns its place once households have
 Occasions of their own.

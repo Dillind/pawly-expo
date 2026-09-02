@@ -354,8 +354,12 @@ const ReminderTray = ({ sheetRef, pet, today }: Props) => {
 
 const makeStyles = ({ colors, spacing }: AppTheme) =>
   StyleSheet.create({
-    stack: { gap: spacing.three },
-    field: { gap: spacing.two },
+    stack: {
+      gap: spacing.three
+    },
+    field: {
+      gap: spacing.two
+    },
     pills: {
       flexDirection: 'row',
       flexWrap: 'wrap',
@@ -377,14 +381,21 @@ const makeStyles = ({ colors, spacing }: AppTheme) =>
     },
     // Read through StyleSheet rather than inline so the two trial tokens have
     // exactly one call site each. See DECISIONS.md.
-    medicationFill: { backgroundColor: colors.medicationMuted },
-    vetFill: { backgroundColor: colors.vetMuted },
+    medicationFill: {
+      backgroundColor: colors.medicationMuted
+    },
+    vetFill: {
+      backgroundColor: colors.vetMuted
+    },
     summary: {
       flexDirection: 'row',
       alignItems: 'center',
       gap: spacing.three
     },
-    summaryText: { flex: 1, gap: 2 }
+    summaryText: {
+      flex: 1,
+      gap: 2
+    }
   });
 
 export default ReminderTray;

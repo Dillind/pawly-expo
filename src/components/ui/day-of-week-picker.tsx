@@ -83,8 +83,13 @@ const SubscribedFieldError = ({
 
 const makeStyles = ({ colors, spacing }: AppTheme) =>
   StyleSheet.create({
-    container: { gap: spacing.two },
-    row: { flexDirection: 'row', gap: spacing.one },
+    container: {
+      gap: spacing.two
+    },
+    row: {
+      flexDirection: 'row',
+      gap: spacing.one
+    },
     day: {
       flex: 1,
       // 44pt is the tap target floor, and seven of them still fit a 390pt screen.
@@ -93,7 +98,9 @@ const makeStyles = ({ colors, spacing }: AppTheme) =>
       borderRadius: 10,
       borderCurve: 'continuous'
     },
-    on: { backgroundColor: colors.primaryMuted },
+    on: {
+      backgroundColor: colors.primaryMuted
+    },
     off: {
       backgroundColor: colors.backgroundElement,
       borderWidth: StyleSheet.hairlineWidth,

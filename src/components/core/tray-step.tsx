@@ -46,9 +46,20 @@ const TrayStep = ({ title, header, isFirst, onBack, onClose, children }: Props) 
 
 const makeStyles = ({ spacing }: AppTheme) =>
   StyleSheet.create({
-    container: { gap: spacing.three },
-    header: { flexDirection: 'row', alignItems: 'center', gap: spacing.two },
-    headerContent: { flex: 1, flexDirection: 'row', alignItems: 'center', gap: spacing.two }
+    container: {
+      gap: spacing.three
+    },
+    header: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: spacing.two
+    },
+    headerContent: {
+      flex: 1,
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: spacing.two
+    }
   });
 
 export default TrayStep;

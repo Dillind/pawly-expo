@@ -170,10 +170,7 @@ const ZoomablePhoto = ({
       scheduleOnRN(reportZoom, true);
     });
 
-  const gesture = Gesture.Race(
-    doubleTap,
-    Gesture.Simultaneous(pinch, panZoomed, panDismiss)
-  );
+  const gesture = Gesture.Race(doubleTap, Gesture.Simultaneous(pinch, panZoomed, panDismiss));
 
   const photoStyle = useAnimatedStyle(() => ({
     transform: [

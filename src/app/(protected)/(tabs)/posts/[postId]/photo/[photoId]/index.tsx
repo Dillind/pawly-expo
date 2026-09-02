@@ -62,9 +62,7 @@ export default function PostPhotoScreen() {
           <ZoomablePhoto
             key={photo.id}
             url={photo.url}
-            accessibilityLabel={
-              photos.length > 1 ? `Photo ${at + 1} of ${photos.length}` : 'Photo'
-            }
+            accessibilityLabel={photos.length > 1 ? `Photo ${at + 1} of ${photos.length}` : 'Photo'}
             dismissProgress={dismissProgress}
             onZoomChange={setIsZoomed}
             onDismiss={close}

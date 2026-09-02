@@ -51,7 +51,9 @@ const HouseholdSwitcherSheet = ({ sheetRef, activeHouseholdId }: Props) => {
 
 const makeStyles = ({ spacing }: AppTheme) =>
   StyleSheet.create({
-    rows: { gap: spacing.two }
+    rows: {
+      gap: spacing.two
+    }
   });
 
 export default HouseholdSwitcherSheet;

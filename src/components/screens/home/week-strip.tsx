@@ -68,10 +68,7 @@ const WeekStrip = ({ selectedDay, today, reminderKinds, onSelectDay }: Props) =>
   }, [today]);
 
   // A page is recycled, not rebuilt, so nothing else tells it the day moved.
-  const extraData = useMemo(
-    () => ({ selectedDay, reminderKinds }),
-    [selectedDay, reminderKinds]
-  );
+  const extraData = useMemo(() => ({ selectedDay, reminderKinds }), [selectedDay, reminderKinds]);
 
   const selectedWeek = weekOf(selectedDay)[0];
   const selectedIndex = Math.max(0, weeks.indexOf(selectedWeek));

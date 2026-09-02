@@ -7,7 +7,6 @@ import type { CareCardBlock } from '@/lib/care-card-view';
 import { Fragment } from 'react';
 import { StyleSheet, View } from 'react-native';
 
-
 type Props = { blocks: CareCardBlock[] };
 
 /**
@@ -64,8 +63,13 @@ const CareCardSections = ({ blocks }: Props) => {
 
 const makeStyles = ({ spacing }: AppTheme) =>
   StyleSheet.create({
-    section: { padding: spacing.three, gap: spacing.one },
-    entry: { gap: 1 }
+    section: {
+      padding: spacing.three,
+      gap: spacing.one
+    },
+    entry: {
+      gap: 1
+    }
   });
 
 export default CareCardSections;

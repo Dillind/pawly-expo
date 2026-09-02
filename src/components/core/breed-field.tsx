@@ -42,7 +42,9 @@ const BreedField = ({ value, description, onPress }: Props) => {
 
 const makeStyles = ({ colors, spacing }: AppTheme) =>
   StyleSheet.create({
-    field: { gap: spacing.two },
+    field: {
+      gap: spacing.two
+    },
     row: {
       flexDirection: 'row',
       alignItems: 'center',
@@ -54,7 +56,9 @@ const makeStyles = ({ colors, spacing }: AppTheme) =>
       borderWidth: StyleSheet.hairlineWidth,
       borderColor: colors.border
     },
-    value: { flex: 1 }
+    value: {
+      flex: 1
+    }
   });
 
 export default BreedField;

@@ -145,7 +145,9 @@ const makeStyles = ({ colors, spacing }: AppTheme) =>
       paddingBottom: BottomTabInset + spacing.four,
       gap: spacing.four
     },
-    form: { gap: spacing.three },
+    form: {
+      gap: spacing.three
+    },
     codeCard: {
       backgroundColor: colors.backgroundElement,
       borderRadius: Radius.card,

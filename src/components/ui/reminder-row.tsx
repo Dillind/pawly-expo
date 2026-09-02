@@ -135,13 +135,18 @@ const makeStyles = ({ colors, spacing }: AppTheme) =>
       gap: spacing.three,
       paddingVertical: spacing.two
     },
-    text: { flex: 1, gap: 1 },
+    text: {
+      flex: 1,
+      gap: 1
+    },
     slot: {
       flexDirection: 'row',
       alignItems: 'center',
       gap: spacing.two
     },
-    doneButton: { alignSelf: 'center' },
+    doneButton: {
+      alignSelf: 'center'
+    },
     future: {
       paddingHorizontal: 6,
       paddingVertical: 1,
@@ -150,7 +155,10 @@ const makeStyles = ({ colors, spacing }: AppTheme) =>
       borderStyle: 'dashed',
       borderColor: colors.ghostBorder
     },
-    futureText: { letterSpacing: 0.7, textTransform: 'uppercase' }
+    futureText: {
+      letterSpacing: 0.7,
+      textTransform: 'uppercase'
+    }
   });
 
 export default ReminderRow;

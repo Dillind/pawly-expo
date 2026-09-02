@@ -379,8 +379,12 @@ const LogFeedTray = ({ sheetRef, pets, today, timezone, pet, flow }: Props) => {
 
 const makeStyles = ({ colors, spacing }: AppTheme) =>
   StyleSheet.create({
-    stack: { gap: spacing.three },
-    list: { gap: spacing.two },
+    stack: {
+      gap: spacing.three
+    },
+    list: {
+      gap: spacing.two
+    },
     petRow: {
       flexDirection: 'row',
       alignItems: 'center',
@@ -391,16 +395,29 @@ const makeStyles = ({ colors, spacing }: AppTheme) =>
       borderCurve: 'continuous',
       backgroundColor: colors.backgroundSheetRow
     },
-    petName: { flex: 1, gap: 2 },
-    petsSummary: { gap: spacing.two },
-    petSummaryRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.three },
+    petName: {
+      flex: 1,
+      gap: 2
+    },
+    petsSummary: {
+      gap: spacing.two
+    },
+    petSummaryRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: spacing.three
+    },
     instructions: {
       padding: spacing.three,
       borderRadius: Radius.tile,
       borderCurve: 'continuous',
       backgroundColor: colors.backgroundSheetRow
     },
-    heading: { flexDirection: 'row', alignItems: 'center', gap: spacing.two }
+    heading: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: spacing.two
+    }
   });
 
 export default LogFeedTray;

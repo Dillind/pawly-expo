@@ -107,7 +107,9 @@ const AgePickerValidated = ({
 
 const makeStyles = ({ colors, spacing }: AppTheme) =>
   StyleSheet.create({
-    wrapper: { gap: spacing.two },
+    wrapper: {
+      gap: spacing.two
+    },
     card: {
       flexDirection: 'row',
       paddingVertical: spacing.two,
@@ -118,8 +120,12 @@ const makeStyles = ({ colors, spacing }: AppTheme) =>
       borderWidth: StyleSheet.hairlineWidth,
       borderColor: colors.border
     },
-    wheel: { flex: 1 },
-    host: { height: WHEEL_HEIGHT },
+    wheel: {
+      flex: 1
+    },
+    host: {
+      height: WHEEL_HEIGHT
+    },
     divider: {
       width: StyleSheet.hairlineWidth,
       marginVertical: spacing.two,

@@ -139,7 +139,9 @@ const ReachingYouStep = ({ petId, contacts, onNext }: Props) => {
 
 const makeStyles = ({ spacing, colors }: AppTheme) =>
   StyleSheet.create({
-    step: { gap: spacing.three },
+    step: {
+      gap: spacing.three
+    },
     contact: {
       flexDirection: 'row',
       alignItems: 'center',
@@ -149,7 +151,10 @@ const makeStyles = ({ spacing, colors }: AppTheme) =>
       borderCurve: 'continuous',
       padding: spacing.three
     },
-    contactText: { flex: 1, gap: spacing.half }
+    contactText: {
+      flex: 1,
+      gap: spacing.half
+    }
   });
 
 export default ReachingYouStep;

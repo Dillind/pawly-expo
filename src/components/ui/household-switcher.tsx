@@ -58,7 +58,11 @@ const CHEVRON_SIZE = 26;
 
 const makeStyles = ({ colors, spacing }: AppTheme) =>
   StyleSheet.create({
-    row: { flexDirection: 'row', alignItems: 'center', gap: spacing.two },
+    row: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: spacing.two
+    },
     chevron: {
       width: CHEVRON_SIZE,
       height: CHEVRON_SIZE,

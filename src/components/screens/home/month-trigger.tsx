@@ -18,13 +18,7 @@ export type MonthPickerProps = {
  * Its own file: a `.ios.tsx` importing the shared half from the plain name
  * resolves back to itself. See KNOWLEDGE.md.
  */
-const MonthTrigger = ({
-  selectedDay,
-  onPress
-}: {
-  selectedDay: string;
-  onPress?: () => void;
-}) => {
+const MonthTrigger = ({ selectedDay, onPress }: { selectedDay: string; onPress?: () => void }) => {
   const styles = useStyles(makeStyles);
 
   return (

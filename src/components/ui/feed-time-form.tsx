@@ -163,9 +163,15 @@ const FeedTimeForm = ({ feedTime, isSaving, isRemoving = false, onSubmit, onRemo
 
 const makeStyles = ({ colors, spacing }: AppTheme) =>
   StyleSheet.create({
-    form: { gap: spacing.three },
-    field: { gap: spacing.two },
-    rows: { gap: spacing.two },
+    form: {
+      gap: spacing.three
+    },
+    field: {
+      gap: spacing.two
+    },
+    rows: {
+      gap: spacing.two
+    },
     picker: {
       flexDirection: 'row',
       alignItems: 'center',
@@ -177,7 +183,9 @@ const makeStyles = ({ colors, spacing }: AppTheme) =>
       borderWidth: StyleSheet.hairlineWidth,
       borderColor: colors.border
     },
-    pickerValue: { flex: 1 }
+    pickerValue: {
+      flex: 1
+    }
   });
 
 export default FeedTimeForm;

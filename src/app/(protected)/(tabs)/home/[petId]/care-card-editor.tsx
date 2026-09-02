@@ -184,7 +184,9 @@ const CareCardEditor = () => {
 
 const makeStyles = ({ spacing, colors }: AppTheme) =>
   StyleSheet.create({
-    flex: { flex: 1 },
+    flex: {
+      flex: 1
+    },
     header: {
       flexDirection: 'row',
       alignItems: 'center',

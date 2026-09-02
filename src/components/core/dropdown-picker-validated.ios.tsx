@@ -108,7 +108,9 @@ const DropdownPickerValidated = <T extends string>({
 
 const makeStyles = ({ colors, spacing }: AppTheme) =>
   StyleSheet.create({
-    label: { marginBottom: spacing.two },
+    label: {
+      marginBottom: spacing.two
+    },
     field: {
       minHeight: 46,
       justifyContent: 'center',
@@ -119,7 +121,9 @@ const makeStyles = ({ colors, spacing }: AppTheme) =>
       borderColor: colors.textSecondary,
       backgroundColor: colors.backgroundElement
     },
-    fieldDisabled: { opacity: 0.5 }
+    fieldDisabled: {
+      opacity: 0.5
+    }
   });
 
 export default DropdownPickerValidated;

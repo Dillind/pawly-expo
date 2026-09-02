@@ -140,7 +140,6 @@ const AddPetInstructions = () => {
             </View>
           );
         })}
-
       </ScreenScrollView>
 
       <ScreenFooter>
@@ -164,8 +163,13 @@ const AddPetInstructions = () => {
 
 const makeStyles = ({ colors, spacing }: AppTheme) =>
   StyleSheet.create({
-    content: { gap: spacing.three, paddingBottom: spacing.four },
-    intro: { gap: spacing.one },
+    content: {
+      gap: spacing.three,
+      paddingBottom: spacing.four
+    },
+    intro: {
+      gap: spacing.one
+    },
     card: {
       gap: spacing.two,
       padding: spacing.three,

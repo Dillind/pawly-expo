@@ -96,7 +96,9 @@ const ReviewStep = ({
 
 const makeStyles = ({ spacing, colors }: AppTheme) =>
   StyleSheet.create({
-    step: { gap: spacing.three },
+    step: {
+      gap: spacing.three
+    },
     preview: {
       backgroundColor: colors.backgroundElement,
       borderRadius: Radius.card,
@@ -104,7 +106,10 @@ const makeStyles = ({ spacing, colors }: AppTheme) =>
       padding: spacing.three,
       gap: spacing.three
     },
-    previewHeader: { flexDirection: 'row', justifyContent: 'space-between' }
+    previewHeader: {
+      flexDirection: 'row',
+      justifyContent: 'space-between'
+    }
   });
 
 export default ReviewStep;

@@ -71,7 +71,10 @@ const AddPetFeed = () => {
 
 const makeStyles = ({ spacing }: AppTheme) =>
   StyleSheet.create({
-    content: { paddingTop: spacing.three, paddingBottom: spacing.six }
+    content: {
+      paddingTop: spacing.three,
+      paddingBottom: spacing.six
+    }
   });
 
 export default AddPetFeed;

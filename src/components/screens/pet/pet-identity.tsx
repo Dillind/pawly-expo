@@ -221,7 +221,9 @@ const makeStyles = ({ colors, spacing }: AppTheme) =>
       justifyContent: 'center',
       gap: spacing.two
     },
-    spacer: { width: TileWidth },
+    spacer: {
+      width: TileWidth
+    },
     // The ring is the page colour, not a border, so the badge reads as cut out
     // of the avatar rather than stuck on top of it.
     badge: {

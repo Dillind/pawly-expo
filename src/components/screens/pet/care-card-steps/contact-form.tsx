@@ -99,7 +99,9 @@ const ContactForm = ({ petId, contact, onDone }: Props) => {
 
 const makeStyles = ({ spacing }: AppTheme) =>
   StyleSheet.create({
-    fields: { gap: spacing.three }
+    fields: {
+      gap: spacing.three
+    }
   });
 
 export default ContactForm;

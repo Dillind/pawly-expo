@@ -53,8 +53,13 @@ const StepFooter = ({
 
 const makeStyles = ({ spacing }: AppTheme) =>
   StyleSheet.create({
-    footer: { flexDirection: 'row', gap: spacing.two },
-    button: { flex: 1 }
+    footer: {
+      flexDirection: 'row',
+      gap: spacing.two
+    },
+    button: {
+      flex: 1
+    }
   });
 
 export default StepFooter;

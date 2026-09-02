@@ -72,7 +72,9 @@ const CareCardBlocks = ({ blocks, tone }: Props) => {
 
 const makeStyles = ({ spacing }: AppTheme) =>
   StyleSheet.create({
-    block: { gap: spacing.two },
+    block: {
+      gap: spacing.two
+    },
     // Mirrors the panel the PDF draws at the top of the page.
     panel: {
       backgroundColor: CARD_WASH_STRONG,
@@ -80,10 +82,22 @@ const makeStyles = ({ spacing }: AppTheme) =>
       borderCurve: 'continuous',
       padding: spacing.three
     },
-    blockTitle: { letterSpacing: 1.4, textTransform: 'uppercase', opacity: 0.8 },
-    row: { gap: 1 },
-    rowLabel: { letterSpacing: 1.1, textTransform: 'uppercase', opacity: 0.7 },
-    detail: { opacity: 0.8 }
+    blockTitle: {
+      letterSpacing: 1.4,
+      textTransform: 'uppercase',
+      opacity: 0.8
+    },
+    row: {
+      gap: 1
+    },
+    rowLabel: {
+      letterSpacing: 1.1,
+      textTransform: 'uppercase',
+      opacity: 0.7
+    },
+    detail: {
+      opacity: 0.8
+    }
   });
 
 export default CareCardBlocks;

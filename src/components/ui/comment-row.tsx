@@ -23,13 +23,7 @@ const AVATAR = 32;
 const REPLY_AVATAR = 26;
 const LIKE_ICON = 16;
 
-const CommentRow = ({
-  comment,
-  isReply = false,
-  onToggleLike,
-  onReply,
-  onLongPress
-}: Props) => {
+const CommentRow = ({ comment, isReply = false, onToggleLike, onReply, onLongPress }: Props) => {
   const styles = useStyles(useCallback((theme: AppTheme) => makeStyles(theme, isReply), [isReply]));
   const authorName = formatAuthorName(comment.author);
 

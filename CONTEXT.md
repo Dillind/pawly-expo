@@ -219,7 +219,7 @@ _Avoid_: Updated, modified, revised — and never call the marker a "version", t
 **Occasion**:
 An optional mark on a Post saying what the day was — 🎉 Milestone, 🏥 Vet visit. An emoji, a
 label, or both, and never neither. At most one per Post. The set belongs to the **Household**, not
-to the Member and not to the app: six are seeded on a new Household and all six can be renamed,
+to the Member and not to the app: four are seeded on a new Household and all four can be renamed,
 re-emoji'd or removed. Removing one is a soft delete — it leaves the picker, and every Post already
 carrying it keeps it, because a Post is a record of a day. It sits in the same chip row as the Pet
 Tags, wearing the same pill, because both answer one question: what this was and who was in it. See

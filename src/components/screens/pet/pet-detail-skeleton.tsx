@@ -64,7 +64,9 @@ const makeStyles = ({ spacing }: AppTheme) =>
       justifyContent: 'center',
       gap: spacing.two
     },
-    spacer: { width: TileWidth },
+    spacer: {
+      width: TileWidth
+    },
     strip: {
       flexDirection: 'row',
       gap: spacing.two,
@@ -75,7 +77,10 @@ const makeStyles = ({ spacing }: AppTheme) =>
       paddingTop: spacing.four,
       paddingHorizontal: ScreenGutter
     },
-    card: { padding: spacing.three, gap: 22 },
+    card: {
+      padding: spacing.three,
+      gap: 22
+    },
     row: {
       flexDirection: 'row',
       alignItems: 'center',

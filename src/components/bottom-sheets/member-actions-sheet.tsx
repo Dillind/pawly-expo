@@ -83,7 +83,9 @@ const MemberActionsSheet = ({ sheetRef, member, onSetRole, onRemove }: Props) =>
 
 const makeStyles = ({ spacing }: AppTheme) =>
   StyleSheet.create({
-    rows: { gap: spacing.two }
+    rows: {
+      gap: spacing.two
+    }
   });
 
 export default MemberActionsSheet;

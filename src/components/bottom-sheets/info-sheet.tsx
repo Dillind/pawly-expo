@@ -93,11 +93,22 @@ const makeStyles = ({ spacing, colors }: AppTheme) =>
       left: -16,
       opacity: 0.14
     },
-    panelHeader: { alignItems: 'flex-end' },
-    closeButton: { backgroundColor: 'rgba(255, 255, 255, 0.18)' },
-    panelText: { gap: spacing.one },
-    subtitle: { opacity: 0.85 },
-    body: { gap: spacing.three, paddingTop: spacing.one }
+    panelHeader: {
+      alignItems: 'flex-end'
+    },
+    closeButton: {
+      backgroundColor: 'rgba(255, 255, 255, 0.18)'
+    },
+    panelText: {
+      gap: spacing.one
+    },
+    subtitle: {
+      opacity: 0.85
+    },
+    body: {
+      gap: spacing.three,
+      paddingTop: spacing.one
+    }
   });
 
 export default InfoSheet;

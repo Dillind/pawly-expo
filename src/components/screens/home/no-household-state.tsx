@@ -100,9 +100,16 @@ const NoHouseholdState = () => {
 
 const makeStyles = ({ colors, spacing }: AppTheme) =>
   StyleSheet.create({
-    container: { gap: spacing.four, paddingTop: spacing.three },
-    intro: { gap: spacing.one },
-    doors: { gap: spacing.three },
+    container: {
+      gap: spacing.four,
+      paddingTop: spacing.three
+    },
+    intro: {
+      gap: spacing.one
+    },
+    doors: {
+      gap: spacing.three
+    },
     door: {
       gap: spacing.three,
       padding: spacing.four,
@@ -111,7 +118,11 @@ const makeStyles = ({ colors, spacing }: AppTheme) =>
       backgroundColor: colors.backgroundElement,
       ...createShadowMedium(colors)
     },
-    doorHeading: { flexDirection: 'row', alignItems: 'center', gap: spacing.two },
+    doorHeading: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: spacing.two
+    },
     tile: {
       width: 38,
       height: 38,
@@ -121,7 +132,9 @@ const makeStyles = ({ colors, spacing }: AppTheme) =>
       justifyContent: 'center',
       backgroundColor: colors.backgroundSelected
     },
-    tilePrimary: { backgroundColor: colors.primaryMuted }
+    tilePrimary: {
+      backgroundColor: colors.primaryMuted
+    }
   });
 
 export default NoHouseholdState;

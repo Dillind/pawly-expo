@@ -106,7 +106,9 @@ const SectionStep = ({ petId, card, section, isFirst, onBack, onNext }: Props) =
 
 const makeStyles = ({ spacing }: AppTheme) =>
   StyleSheet.create({
-    fields: { gap: spacing.three }
+    fields: {
+      gap: spacing.three
+    }
   });
 
 export default SectionStep;

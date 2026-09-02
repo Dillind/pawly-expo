@@ -64,7 +64,9 @@ const makeStyles = ({ colors, spacing }: AppTheme) =>
       overflow: 'hidden',
       backgroundColor: colors.backgroundElement
     },
-    row: { padding: spacing.three }
+    row: {
+      padding: spacing.three
+    }
   });
 
 export default ActionMenu;

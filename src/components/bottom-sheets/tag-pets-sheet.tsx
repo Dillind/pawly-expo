@@ -56,7 +56,9 @@ const TagPetsSheet = ({ sheetRef, pets, selectedPetIds, onToggle, onDone }: Prop
 
 const makeStyles = ({ spacing }: AppTheme) =>
   StyleSheet.create({
-    rows: { gap: spacing.two }
+    rows: {
+      gap: spacing.two
+    }
   });
 
 export default TagPetsSheet;

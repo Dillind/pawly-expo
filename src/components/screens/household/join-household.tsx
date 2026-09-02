@@ -91,7 +91,9 @@ const makeStyles = ({ spacing }: AppTheme) =>
       paddingBottom: BottomTabInset + spacing.four,
       gap: spacing.five
     },
-    form: { gap: spacing.three }
+    form: {
+      gap: spacing.three
+    }
   });
 
 export default JoinHousehold;

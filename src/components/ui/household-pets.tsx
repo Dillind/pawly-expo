@@ -37,7 +37,10 @@ const HouseholdPets = ({ pets, hasUnseenPosts = false }: Props) => {
 
 const makeStyles = ({ colors }: AppTheme) =>
   StyleSheet.create({
-    stack: { flexDirection: 'row', alignItems: 'center' },
+    stack: {
+      flexDirection: 'row',
+      alignItems: 'center'
+    },
     // Negative margin rather than absolute positioning so the row still
     // measures the stack's real width.
     overlap: {

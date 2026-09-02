@@ -85,7 +85,6 @@ const AddPetFeeds = () => {
         <AppText size={13} color="textSecondary">
           Days are set per feed — they can skip dinner on Sundays and still eat breakfast.
         </AppText>
-
       </ScreenScrollView>
 
       <ScreenFooter>
@@ -97,9 +96,16 @@ const AddPetFeeds = () => {
 
 const makeStyles = ({ colors, spacing }: AppTheme) =>
   StyleSheet.create({
-    content: { gap: spacing.three, paddingBottom: spacing.four },
-    intro: { gap: spacing.one },
-    list: { gap: spacing.two },
+    content: {
+      gap: spacing.three,
+      paddingBottom: spacing.four
+    },
+    intro: {
+      gap: spacing.one
+    },
+    list: {
+      gap: spacing.two
+    },
     card: {
       flexDirection: 'row',
       alignItems: 'center',
@@ -109,7 +115,10 @@ const makeStyles = ({ colors, spacing }: AppTheme) =>
       borderCurve: 'continuous',
       backgroundColor: colors.backgroundElement
     },
-    cardBody: { flex: 1, gap: 2 }
+    cardBody: {
+      flex: 1,
+      gap: 2
+    }
   });
 
 export default AddPetFeeds;

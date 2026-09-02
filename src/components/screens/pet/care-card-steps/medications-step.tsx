@@ -119,7 +119,9 @@ const MedicationsStep = ({ petId, medications, onBack, onNext }: Props) => {
 
 const makeStyles = ({ spacing, colors }: AppTheme) =>
   StyleSheet.create({
-    list: { gap: spacing.three },
+    list: {
+      gap: spacing.three
+    },
     row: {
       flexDirection: 'row',
       alignItems: 'center',
@@ -129,7 +131,10 @@ const makeStyles = ({ spacing, colors }: AppTheme) =>
       borderCurve: 'continuous',
       padding: spacing.three
     },
-    rowText: { flex: 1, gap: spacing.half }
+    rowText: {
+      flex: 1,
+      gap: spacing.half
+    }
   });
 
 export default MedicationsStep;

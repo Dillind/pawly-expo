@@ -293,15 +293,24 @@ const makeStyles = ({ colors, spacing }: AppTheme) =>
       paddingRight: spacing.two,
       paddingVertical: spacing.two
     },
-    headerTitle: { flex: 1 },
-    rows: { paddingHorizontal: spacing.three, paddingVertical: spacing.one },
-    block: { padding: spacing.three },
+    headerTitle: {
+      flex: 1
+    },
+    rows: {
+      paddingHorizontal: spacing.three,
+      paddingVertical: spacing.one
+    },
+    block: {
+      padding: spacing.three
+    },
     pausedBlock: {
       gap: spacing.half,
       padding: spacing.three,
       backgroundColor: colors.backgroundSelected
     },
-    trayRows: { gap: spacing.two }
+    trayRows: {
+      gap: spacing.two
+    }
   });
 
 export default FeedTimesSection;

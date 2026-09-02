@@ -62,7 +62,9 @@ const PhotoSourceSheet = ({ sheetRef, title = 'Add a photo', selectionLimit, onP
 
 const makeStyles = ({ spacing }: AppTheme) =>
   StyleSheet.create({
-    rows: { gap: spacing.two }
+    rows: {
+      gap: spacing.two
+    }
   });
 
 export default PhotoSourceSheet;

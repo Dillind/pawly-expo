@@ -65,7 +65,9 @@ const makeStyles = ({ spacing }: AppTheme) =>
       paddingTop: spacing.three,
       paddingBottom: BottomTabInset
     },
-    intro: { gap: spacing.one }
+    intro: {
+      gap: spacing.one
+    }
   });
 
 export default BreedStep;

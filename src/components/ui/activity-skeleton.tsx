@@ -64,13 +64,19 @@ const makeStyles = ({ colors, spacing }: AppTheme) =>
       paddingHorizontal: ScreenGutter,
       paddingTop: spacing.two
     },
-    card: { padding: spacing.three, gap: spacing.four },
+    card: {
+      padding: spacing.three,
+      gap: spacing.four
+    },
     row: {
       flexDirection: 'row',
       alignItems: 'center',
       gap: spacing.three
     },
-    body: { flex: 1, gap: 7 }
+    body: {
+      flex: 1,
+      gap: 7
+    }
   });
 
 export default ActivitySkeleton;

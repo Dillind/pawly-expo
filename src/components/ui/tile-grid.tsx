@@ -64,8 +64,14 @@ const makeStyles = ({ spacing }: AppTheme) =>
     // No flexGrow: a span-1 tile stays half width even when it is the only one
     // in the row. Growing it made a lone tile fill the row and stop reading as
     // a tile at all.
-    half: { flexBasis: '50%', paddingHorizontal: spacing.two },
-    full: { flexBasis: '100%', paddingHorizontal: spacing.two }
+    half: {
+      flexBasis: '50%',
+      paddingHorizontal: spacing.two
+    },
+    full: {
+      flexBasis: '100%',
+      paddingHorizontal: spacing.two
+    }
   });
 
 export default TileGrid;

@@ -129,7 +129,9 @@ const RemindersSection = ({ pet, today }: Props) => {
 
 const makeStyles = ({ spacing }: AppTheme) =>
   StyleSheet.create({
-    stack: { gap: spacing.two }
+    stack: {
+      gap: spacing.two
+    }
   });
 
 export default RemindersSection;

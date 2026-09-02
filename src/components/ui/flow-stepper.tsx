@@ -77,8 +77,13 @@ const FlowStepper = ({ current, steps }: Props) => {
 
 const makeStyles = ({ colors, spacing }: AppTheme) =>
   StyleSheet.create({
-    container: { gap: spacing.one },
-    track: { flexDirection: 'row', paddingVertical: HALO },
+    container: {
+      gap: spacing.one
+    },
+    track: {
+      flexDirection: 'row',
+      paddingVertical: HALO
+    },
     rule: {
       position: 'absolute',
       top: HALO + CIRCLE / 2 - 1,
@@ -93,14 +98,20 @@ const makeStyles = ({ colors, spacing }: AppTheme) =>
       borderRadius: 2,
       backgroundColor: colors.primary
     },
-    phase: { flex: 1, alignItems: 'center', gap: 6 },
+    phase: {
+      flex: 1,
+      alignItems: 'center',
+      gap: 6
+    },
     // The halo grows outward from the circle, so it needs its own box. It is
     // what makes the filled circle read as "you are here" and not one more dot.
     halo: {
       padding: HALO,
       borderRadius: (CIRCLE + HALO * 2) / 2
     },
-    haloCurrent: { backgroundColor: colors.primaryMuted },
+    haloCurrent: {
+      backgroundColor: colors.primaryMuted
+    },
     circle: {
       width: CIRCLE,
       height: CIRCLE,
@@ -111,8 +122,14 @@ const makeStyles = ({ colors, spacing }: AppTheme) =>
       borderWidth: 1.5,
       borderColor: colors.ghostBorder
     },
-    circleDone: { backgroundColor: colors.primaryMuted, borderColor: 'transparent' },
-    circleCurrent: { backgroundColor: colors.primary, borderColor: 'transparent' }
+    circleDone: {
+      backgroundColor: colors.primaryMuted,
+      borderColor: 'transparent'
+    },
+    circleCurrent: {
+      backgroundColor: colors.primary,
+      borderColor: 'transparent'
+    }
   });
 
 export default FlowStepper;

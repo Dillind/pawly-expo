@@ -64,9 +64,18 @@ const HowFeedsWorkSheet = ({ sheetRef }: { sheetRef: RefObject<TrueSheet | null>
 
 const makeStyles = ({ spacing }: AppTheme) =>
   StyleSheet.create({
-    points: { gap: spacing.four },
-    point: { flexDirection: 'row', alignItems: 'flex-start', gap: spacing.three },
-    text: { flex: 1, gap: 2 }
+    points: {
+      gap: spacing.four
+    },
+    point: {
+      flexDirection: 'row',
+      alignItems: 'flex-start',
+      gap: spacing.three
+    },
+    text: {
+      flex: 1,
+      gap: 2
+    }
   });
 
 export default HowFeedsWorkSheet;
