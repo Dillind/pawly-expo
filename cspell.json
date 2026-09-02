@@ -146,6 +146,8 @@
     ".vscode",
     "package.json",
     "bun.lock",
-    "types.d.ts"
+    "types.d.ts",
+    "supabase/migrations/*_breeds.sql",
+    "data/breeds.json"
   ]
 }
