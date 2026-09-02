@@ -7,11 +7,14 @@ import { hourInTimezone } from '@/lib/dates';
  * The bands are deliberately uneven. Dawn and dusk are short because they read
  * as transitions; day carries the working hours, and night takes everything
  * else. A member awake at 2am gets the night surface, not a stale dusk.
+ *
+ * Night starts at 7pm, an hour before the greeting would suggest, so that
+ * "Good evening" reaches the moon rather than staying on a sunset.
  */
 export function dayPartForHour(hour: number): DayPart {
   if (hour >= 5 && hour < 8) return 'dawn';
   if (hour >= 8 && hour < 17) return 'day';
-  if (hour >= 17 && hour < 20) return 'dusk';
+  if (hour >= 17 && hour < 19) return 'dusk';
 
   return 'night';
 }

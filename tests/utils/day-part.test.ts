@@ -12,8 +12,8 @@ describe('dayPartForHour', () => {
     expect(dayPartForHour(8)).toBe('day');
     expect(dayPartForHour(16)).toBe('day');
     expect(dayPartForHour(17)).toBe('dusk');
-    expect(dayPartForHour(19)).toBe('dusk');
-    expect(dayPartForHour(20)).toBe('night');
+    expect(dayPartForHour(18)).toBe('dusk');
+    expect(dayPartForHour(19)).toBe('night');
   });
 
   it('keeps the small hours on night rather than a stale dusk', () => {

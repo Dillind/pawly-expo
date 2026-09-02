@@ -545,3 +545,15 @@ which said the job is not due and then invited someone to tick it off anyway.
 Occasion is optional, so at first open the row only restated what the picker already showed, and
 closed the sheet with nothing changed. The way back to none is now to tap the chosen row again,
 which is where a member already looks when they want to undo the choice they just made.
+
+**The banner's night starts at 7pm, an hour before its own reasoning would put it.** The greeting
+turns to "Good evening" at 5pm, and the banner used to stay on the dusk surface until 8pm. So for
+three hours the card said evening over a daylight sky, which read as a bug rather than as a
+transition. Night now takes over at 7pm, and dusk was rebuilt as a sunset rather than a second
+daytime sun, so the two scales meet in the middle instead of the greeting waiting on the surface.
+
+**The banner mark is a sky, not an icon.** All four states drew the same three concentric circles,
+and only night differed -- by a mask that read as a bitten disc. Each state now places one light
+against a shared horizon: dawn sits on it, day clears it, dusk sinks below it, and night drops the
+horizon entirely for a crescent and three stars. The position carries the hour, so the mark still
+reads at 76pt where a colour shift alone did not.
