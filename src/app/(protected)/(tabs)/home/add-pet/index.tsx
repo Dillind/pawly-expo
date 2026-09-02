@@ -101,17 +101,12 @@ const AddPetDetails = () => {
 
   return (
     <ScreenView edges={[]}>
-      <Stack.Screen
-        options={{
-          headerLeft: () => (
-            <PressableOpacity accessibilityRole="button" onPress={cancel}>
-              <AppText color="primaryText" size={16}>
-                Cancel
-              </AppText>
-            </PressableOpacity>
-          )
-        }}
-      />
+      {/* Cancel reads `isDirty` from this screen, so the toolbar lives here
+          rather than in the layout. A React view in the bar hands its geometry
+          to the next screen's back button and stretches it. */}
+      <Stack.Toolbar placement="left">
+        <Stack.Toolbar.Button onPress={cancel}>Cancel</Stack.Toolbar.Button>
+      </Stack.Toolbar>
 
       <ScreenScrollView
         contentInsetAdjustmentBehavior="automatic"
