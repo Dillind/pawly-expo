@@ -1,3 +1,4 @@
+import OccasionTray from '@/components/bottom-sheets/occasion-tray';
 import PhotoSourceSheet from '@/components/bottom-sheets/photo-source-sheet';
 import TagPetsSheet from '@/components/bottom-sheets/tag-pets-sheet';
 import AppText from '@/components/core/app-text';
@@ -5,6 +6,7 @@ import Icon from '@/components/core/icon';
 import PressableOpacity from '@/components/core/pressable-opacity';
 import TextInputValidated from '@/components/core/text-input-validated';
 import AddPhotoTile from '@/components/ui/add-photo-tile';
+import OccasionEmoji from '@/components/ui/occasion-emoji';
 import PhotoTile from '@/components/ui/photo-tile';
 import {
   CAPTION_MAX,
@@ -14,6 +16,7 @@ import {
   type PostPhotoValue
 } from '@/constants/schemas/post';
 import { ScreenGutter, type AppTheme } from '@/constants/theme';
+import { useOccasions } from '@/hooks/queries/posts/use-occasions';
 import { useStyles } from '@/hooks/use-styles';
 import type { Pet } from '@/types/core';
 import type { TrueSheet } from '@lodev09/react-native-true-sheet';
@@ -26,16 +29,23 @@ const TILE_SIZE = 88;
 type Props = {
   pets: Pet[];
   householdName?: string | null;
+  /** Whose Occasions the picker offers. The set belongs to the Household. */
+  householdId?: string;
 };
 
-const PostComposer = ({ pets, householdName }: Props) => {
+const PostComposer = ({ pets, householdName, householdId }: Props) => {
   const styles = useStyles(makeStyles);
   const tagSheetRef = useRef<TrueSheet | null>(null);
   const photoSheetRef = useRef<TrueSheet | null>(null);
+  const occasionTrayRef = useRef<TrueSheet | null>(null);
 
   const { control, setValue } = useFormContext<PostFormValues>();
   const photos = useWatch({ control, name: 'photos' });
   const petIds = useWatch({ control, name: 'petIds' });
+  const occasionId = useWatch({ control, name: 'occasionId' });
+
+  const { data: occasions = [] } = useOccasions(householdId);
+  const occasion = occasions.find((entry) => entry.id === occasionId) ?? null;
 
   const remainingSlots = PHOTO_CAP - photos.length;
   const isAtCap = remainingSlots <= 0;
@@ -167,12 +177,48 @@ const PostComposer = ({ pets, householdName }: Props) => {
           </AppText>
           <Icon name="caretRight" size={18} color="textSecondary" />
         </PressableOpacity>
+
+        <PressableOpacity
+          style={styles.occasionRow}
+          onPress={() => void occasionTrayRef.current?.present()}
+          accessibilityRole="button"
+          accessibilityLabel="Choose an occasion"
+          disabled={!householdId}>
+          <Icon name="sparkles" size={20} color="textSecondary" />
+          <AppText size={16} style={styles.rowLabel}>
+            Occasion
+          </AppText>
+
+          {occasion ? (
+            <View style={styles.occasionValue}>
+              {occasion.emoji && <OccasionEmoji emoji={occasion.emoji} size={20} />}
+              {occasion.label && (
+                <AppText size={15} color="textSecondary" numberOfLines={1}>
+                  {occasion.label}
+                </AppText>
+              )}
+            </View>
+          ) : (
+            <AppText size={15} color="textSecondary" numberOfLines={1} style={styles.rowValue}>
+              What&rsquo;s the occasion?
+            </AppText>
+          )}
+
+          <Icon name="caretRight" size={18} color="textSecondary" />
+        </PressableOpacity>
       </View>
 
       <PhotoSourceSheet
         sheetRef={photoSheetRef}
         selectionLimit={remainingSlots}
         onPicked={addPhotos}
+      />
+
+      <OccasionTray
+        sheetRef={occasionTrayRef}
+        householdId={householdId}
+        selectedId={occasionId}
+        onSelect={(next) => setValue('occasionId', next, { shouldDirty: true })}
       />
 
       <TagPetsSheet
@@ -211,8 +257,24 @@ const makeStyles = ({ colors, spacing }: AppTheme) =>
       gap: spacing.two,
       paddingVertical: spacing.three,
       borderTopWidth: StyleSheet.hairlineWidth,
+      borderColor: colors.border
+    },
+    occasionRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: spacing.two,
+      paddingVertical: spacing.three,
+      borderTopWidth: StyleSheet.hairlineWidth,
       borderBottomWidth: StyleSheet.hairlineWidth,
       borderColor: colors.border
+    },
+    occasionValue: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: spacing.one,
+      flexShrink: 1,
+      maxWidth: '50%',
+      justifyContent: 'flex-end'
     },
     rowLabel: {
       flex: 1

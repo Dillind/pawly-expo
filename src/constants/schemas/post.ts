@@ -35,7 +35,10 @@ export const postSchema = z.object({
     .min(1, { message: 'Add a photo to post' })
     .max(PHOTO_CAP, { message: `A post holds up to ${PHOTO_CAP} photos` }),
   caption: z.string().max(CAPTION_MAX, { message: `Keep it under ${CAPTION_MAX} characters` }),
-  petIds: z.array(z.string())
+  petIds: z.array(z.string()),
+  // Optional and at most one. Null is "no occasion", which is the default and
+  // stays a legitimate answer -- the picker offers it as a row of its own.
+  occasionId: z.string().nullable()
 });
 
 export type PostPhotoValue = z.infer<typeof postPhotoSchema>;

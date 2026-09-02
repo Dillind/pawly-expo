@@ -132,6 +132,7 @@ describe('PostService.update', () => {
       title: 'Park day',
       caption: 'A better caption',
       petIds: ['pet-1', 'pet-2'],
+      occasionId: null,
       photos: [KEPT_PHOTO],
       ...overrides
     });
@@ -144,6 +145,7 @@ describe('PostService.update', () => {
       photo_storage_paths: ['user-1/house-1/b.jpg'],
       post_title: 'Park day',
       post_caption: 'A better caption',
+      post_occasion_id: null,
       tagged_pet_ids: ['pet-1', 'pet-2']
     });
   });
@@ -156,6 +158,7 @@ describe('PostService.update', () => {
       photo_storage_paths: ['user-1/house-1/b.jpg'],
       post_title: 'Park day',
       post_caption: 'Kept',
+      post_occasion_id: null,
       tagged_pet_ids: []
     });
   });
@@ -168,6 +171,7 @@ describe('PostService.update', () => {
       photo_storage_paths: ['user-1/house-1/b.jpg'],
       post_title: 'Park day',
       post_caption: null,
+      post_occasion_id: null,
       tagged_pet_ids: ['pet-1']
     });
   });
@@ -264,6 +268,7 @@ describe('PostService.get', () => {
         }
       ],
       pets: [{ id: 'pet-1', name: 'Bailey', photoUrl: null }],
+      occasion: null,
       commentCount: 3,
       likeCount: 0,
       likedByMe: false,

@@ -26,7 +26,7 @@ const EditPost = () => {
 
   const form = useForm<PostFormValues>({
     resolver: zodResolver(postSchema),
-    defaultValues: { title: '', photos: [], caption: '', petIds: [] },
+    defaultValues: { title: '', photos: [], caption: '', petIds: [], occasionId: null },
     mode: 'onChange'
   });
 
@@ -47,7 +47,8 @@ const EditPost = () => {
         uri: photo.url
       })),
       caption: post.caption ?? '',
-      petIds: post.pets.map((pet) => pet.id)
+      petIds: post.pets.map((pet) => pet.id),
+      occasionId: post.occasion?.id ?? null
     });
   }, [post, reset]);
 
@@ -75,6 +76,7 @@ const EditPost = () => {
         title: values.title.trim(),
         caption: values.caption.trim() || null,
         petIds: values.petIds,
+        occasionId: values.occasionId,
         photos: values.photos.map((photo) =>
           photo.kind === 'existing'
             ? { kind: 'existing' as const, storagePath: photo.storagePath }
@@ -115,7 +117,7 @@ const EditPost = () => {
 
         {post && (
           <FormProvider {...form}>
-            <PostComposer pets={pets} />
+            <PostComposer pets={pets} householdId={post?.householdId} />
           </FormProvider>
         )}
       </KeyboardAwareScrollView>

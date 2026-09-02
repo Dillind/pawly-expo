@@ -7,8 +7,9 @@ import { StyleSheet, View } from 'react-native';
 
 type Props = {
   /** The avatar or the emoji that stands at the head of the pill. */
-  leading: ReactNode;
-  label: string;
+  leading?: ReactNode;
+  /** Absent on an Occasion that carries an emoji and no words. */
+  label?: string | null;
   onPress?: () => void;
   accessibilityLabel?: string;
 };
@@ -23,17 +24,21 @@ const PostChip = ({ leading, label, onPress, accessibilityLabel }: Props) => {
   const inner = (
     <>
       {leading}
-      <AppText size={13} color="textSecondary">
-        {label}
-      </AppText>
+      {label ? (
+        <AppText size={13} color="textSecondary">
+          {label}
+        </AppText>
+      ) : null}
     </>
   );
 
-  if (!onPress) return <View style={styles.chip}>{inner}</View>;
+  const shell = [styles.chip, !leading && styles.chipWithoutLeading];
+
+  if (!onPress) return <View style={shell}>{inner}</View>;
 
   return (
     <PressableOpacity
-      style={styles.chip}
+      style={shell}
       onPress={onPress}
       accessibilityRole="button"
       accessibilityLabel={accessibilityLabel}>
@@ -50,11 +55,16 @@ const makeStyles = ({ colors, spacing }: AppTheme) =>
       gap: spacing.one,
       paddingVertical: spacing.one,
       paddingRight: spacing.two,
+      // The avatar and the emoji fill the same 20pt slot, so both hug the left
+      // edge. A pill with neither needs the padding back.
       paddingLeft: spacing.one,
       borderRadius: Radius.full,
       // Not `backgroundElement`: it is #FFFFFF, and so is `postSurface`, so the
       // pill had no edge at all in light mode.
       backgroundColor: colors.backgroundSelected
+    },
+    chipWithoutLeading: {
+      paddingLeft: spacing.two
     }
   });
 
