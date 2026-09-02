@@ -6,6 +6,8 @@ import { breedsFor, type BreedSpecies } from '@/constants/breeds';
 import { Radius, type AppTheme } from '@/constants/theme';
 import { useStyles } from '@/hooks/use-styles';
 import { useTheme } from '@/hooks/use-theme';
+import { useDebounce } from '@/hooks/use-debounce';
+import { searchBreeds } from '@/utils/breed-search';
 import type { Option } from '@/types/core';
 import type { LegendListRenderItemProps } from '@legendapp/list/react-native';
 import { useMemo, useState } from 'react';
@@ -24,23 +26,16 @@ const BreedPicker = ({ species, value, onChange }: Props) => {
   const { colors } = useTheme();
   const [searchQuery, setSearchQuery] = useState('');
 
+  // Fuzzy matching walks 900 names, so it runs on the settled term rather than
+  // on every keystroke. 180ms is under the ~200ms a keystroke feels instant.
+  const [settledQuery] = useDebounce(searchQuery, 180);
+
   const speciesBreeds = breedsFor(species);
 
-  const visibleBreeds = useMemo(() => {
-    const searchTerm = searchQuery.trim().toLowerCase();
-
-    if (!searchTerm) return speciesBreeds;
-
-    // Rank a prefix match above a match in the middle: typing "lab" should
-    // reach Labrador before Black Labrador.
-    return speciesBreeds
-      .map((breed) => ({ breed, matchIndex: breed.label.toLowerCase().indexOf(searchTerm) }))
-      .filter(({ matchIndex }) => matchIndex >= 0)
-      .sort(
-        (a, b) => a.matchIndex - b.matchIndex || a.breed.label.localeCompare(b.breed.label, 'en')
-      )
-      .map(({ breed }) => breed);
-  }, [speciesBreeds, searchQuery]);
+  const visibleBreeds = useMemo(
+    () => searchBreeds(speciesBreeds, settledQuery),
+    [speciesBreeds, settledQuery]
+  );
 
   const renderBreedRow = ({ item: breed, index }: LegendListRenderItemProps<Option>) => {
     const isSelected = breed.value === value;
@@ -81,7 +76,7 @@ const BreedPicker = ({ species, value, onChange }: Props) => {
 
       {visibleBreeds.length === 0 ? (
         <AppText size={15} align="center" color="textSecondary" style={styles.noResults}>
-          {`No breed matches "${searchQuery.trim()}". Pick Unknown and tell us later.`}
+          {`No breed matches "${settledQuery.trim()}". Pick Unknown and tell us later.`}
         </AppText>
       ) : (
         <MainLegendList<Option>
