@@ -1,9 +1,10 @@
+import { Fragment } from 'react';
+import { View } from 'react-native';
+
 import Divider from '@/components/core/divider';
 import OccurrenceRow from '@/components/ui/occurrence-row';
 import type { HouseholdMember, Occurrence } from '@/types/core';
 import { memberDisplayName } from '@/utils/members';
-import { Fragment } from 'react';
-import { View } from 'react-native';
 
 type Props = {
   occurrences: Occurrence[];

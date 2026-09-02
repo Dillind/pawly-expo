@@ -1,7 +1,8 @@
+import { useLocalSearchParams, useRouter } from 'expo-router';
+
 import OtpVerifyForm from '@/components/screens/auth/otp-verify-form';
 import AuthService from '@/services/auth.service';
 import { useAuthStore } from '@/stores/auth-store';
-import { useLocalSearchParams, useRouter } from 'expo-router';
 
 const VerifyReset = () => {
   const { email } = useLocalSearchParams<{ email: string }>();

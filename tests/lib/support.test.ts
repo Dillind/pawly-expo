@@ -1,7 +1,7 @@
 import {
-  SUPPORT_EMAIL,
   buildSupportBody,
   buildSupportMailto,
+  SUPPORT_EMAIL,
   type SupportContext
 } from '@/lib/support';
 

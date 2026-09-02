@@ -1,3 +1,7 @@
+import { zodResolver } from '@hookform/resolvers/zod';
+import { Controller, FormProvider, useForm } from 'react-hook-form';
+import { StyleSheet, View } from 'react-native';
+
 import MainButton from '@/components/core/main-button';
 import VerificationCodeInput from '@/components/core/verification-code-input';
 import ScreenScrollView from '@/components/layout/screen-scroll-view';
@@ -11,9 +15,6 @@ import { useStyles } from '@/hooks/use-styles';
 import { userFacingMessage } from '@/lib/errors';
 import { hapticLight } from '@/lib/haptics';
 import { showErrorToast } from '@/lib/toast';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { Controller, FormProvider, useForm } from 'react-hook-form';
-import { StyleSheet, View } from 'react-native';
 
 type Props = {
   title: string;

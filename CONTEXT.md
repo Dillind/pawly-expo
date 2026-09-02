@@ -76,7 +76,7 @@ _Avoid_: **Feed** (reserved for the act of feeding — a Feed Log, a Missed Feed
 **Grace Window**:
 How long an Occurrence may go unlogged before the household is nudged. A 60-minute window on a 18:00 dinner nudges at 19:00. Configured per household (default 60 minutes).
 
-It decides **how long the app waits after a feed time** before it nudges, and nothing else. The nudge that goes out *before* a feed is governed by the Lead Time, a separate setting with a different owner — the Grace Window belongs to the Household, a Lead Time belongs to a Member. It used to also decide which Feed Time a log belonged to, and that second job is what made late logging confusing — see ADR 0029. The window is no longer symmetric, because it no longer identifies anything: an early log names its Feed Time like any other.
+It decides **how long the app waits after a feed time** before it nudges, and nothing else. The nudge that goes out _before_ a feed is governed by the Lead Time, a separate setting with a different owner — the Grace Window belongs to the Household, a Lead Time belongs to a Member. It used to also decide which Feed Time a log belonged to, and that second job is what made late logging confusing — see ADR 0029. The window is no longer symmetric, because it no longer identifies anything: an early log names its Feed Time like any other.
 _Avoid_: Buffer, tolerance, timeout.
 
 **Satisfying Feed**:
@@ -137,8 +137,8 @@ feed. Also due alert, pre-alert, early warning.
 **Lead Time**:
 How long before a feed a Member wants their Feed Due Alert. Chosen per membership from 10, 15, 30
 or 60 minutes, default 15. It is the Member's own setting, which is what makes it the opposite half
-of the Grace Window: a Lead Time says when to nudge *before*, the Household's Grace Window says how
-long to wait *after*.
+of the Grace Window: a Lead Time says when to nudge _before_, the Household's Grace Window says how
+long to wait _after_.
 _Avoid_: Warning time, offset, advance notice, reminder time.
 
 **Feed Logged Alert**:
@@ -202,7 +202,7 @@ _Avoid_: Post page, permalink, single post view.
 **Posts** (the tab):
 The tab holding Posts, newest first — every Household the Member belongs to, together. Named for
 what it holds. Visible only to Members. It is the one surface that does not follow the Active
-Household: the switcher decides where a Member *acts*, and this tab decides what they *read*. Each
+Household: the switcher decides where a Member _acts_, and this tab decides what they _read_. Each
 Post names the Household it came from, which is what keeps the two readable side by side.
 _Avoid_: Household (that word means the group and nothing else), Feed, timeline, stream, news feed,
 social, wall.

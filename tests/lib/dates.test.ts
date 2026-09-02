@@ -1,20 +1,20 @@
 import {
-  formatAlertTime,
   composeLoggedAt,
   dayInTimezone,
+  dayOfMonth,
   formatAge,
+  formatAlertTime,
   formatDayHeading,
+  formatMonthAndYear,
   formatScheduledTime,
   formatTimeOfDay,
+  formatWeekdayName,
+  shiftDays,
   timeInTimezone,
   todayInTimezone,
-  yesterdayInTimezone,
-  weekOf,
   weekdayInitial,
-  dayOfMonth,
-  formatMonthAndYear,
-  formatWeekdayName,
-  shiftDays
+  weekOf,
+  yesterdayInTimezone
 } from '@/lib/dates';
 
 const MELBOURNE = 'Australia/Melbourne';

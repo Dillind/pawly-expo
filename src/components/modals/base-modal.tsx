@@ -1,10 +1,11 @@
-import AppText from '@/components/core/app-text';
-import { Radius, type AppTheme } from '@/constants/theme';
-import { useStyles } from '@/hooks/use-styles';
 import type { ReactNode } from 'react';
 import { StyleSheet, View } from 'react-native';
 import Modal from 'react-native-modal';
 import { useReducedMotion } from 'react-native-reanimated';
+
+import AppText from '@/components/core/app-text';
+import { Radius, type AppTheme } from '@/constants/theme';
+import { useStyles } from '@/hooks/use-styles';
 
 const ANIMATION_MS = 280;
 const BACKDROP_OPACITY = 0.55;

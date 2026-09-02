@@ -1,9 +1,10 @@
-import { type AppTheme } from '@/constants/theme';
-import { usePetPhotos } from '@/hooks/queries/pet/use-pet-photos';
-import { useStyles } from '@/hooks/use-styles';
 import { Image } from 'expo-image';
 import { useLocalSearchParams } from 'expo-router';
 import { ActivityIndicator, StyleSheet, View } from 'react-native';
+
+import { type AppTheme } from '@/constants/theme';
+import { usePetPhotos } from '@/hooks/queries/pet/use-pet-photos';
+import { useStyles } from '@/hooks/use-styles';
 
 export default function PetPhotoScreen() {
   const styles = useStyles(makeStyles);

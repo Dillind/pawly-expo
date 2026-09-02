@@ -1,12 +1,13 @@
+import * as AppleAuthentication from 'expo-apple-authentication';
+import { useEffect, useState } from 'react';
+import { StyleSheet, Text, View } from 'react-native';
+
 import PressableOpacity from '@/components/core/pressable-opacity';
 import GoogleMark from '@/components/screens/auth/google-mark';
 import type { AppTheme } from '@/constants/theme';
 import { useSocialAuth } from '@/hooks/use-social-auth';
 import { useStyles } from '@/hooks/use-styles';
 import { useTheme } from '@/hooks/use-theme';
-import * as AppleAuthentication from 'expo-apple-authentication';
-import { useEffect, useState } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
 
 const SOCIAL_BUTTON = {
   height: 52,

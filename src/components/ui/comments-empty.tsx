@@ -1,9 +1,10 @@
+import { StyleSheet, View } from 'react-native';
+
 import AppText from '@/components/core/app-text';
 import UserAvatar from '@/components/core/user-avatar';
 import { type AppTheme } from '@/constants/theme';
 import { useStyles } from '@/hooks/use-styles';
 import { useAuthStore } from '@/stores/auth-store';
-import { StyleSheet, View } from 'react-native';
 
 const AVATAR = 56;
 

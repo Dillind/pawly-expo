@@ -1,5 +1,6 @@
-import PetPhotoService from '@/services/pet-photo.service';
 import { useQuery } from '@tanstack/react-query';
+
+import PetPhotoService from '@/services/pet-photo.service';
 
 export function usePetPhotos(petId: string) {
   return useQuery({

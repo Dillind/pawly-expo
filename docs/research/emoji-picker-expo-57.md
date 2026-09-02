@@ -32,14 +32,14 @@ All figures below come from the npm registry metadata endpoint
 (`https://registry.npmjs.org/<pkg>`) and the downloads API
 (`https://api.npmjs.org/downloads/point/last-week/<pkg>`), read on 2026-09-02.
 
-| Package | Latest | Published | Downloads/wk | Native code | Licence |
-|---|---|---|---|---|---|
-| [`rn-emoji-keyboard`](https://www.npmjs.com/package/rn-emoji-keyboard) | 1.7.0 | 2024-05-09 | 95,780 | none | MIT |
-| [`@hiraku-ai/react-native-emoji-picker`](https://www.npmjs.com/package/@hiraku-ai/react-native-emoji-picker) | 1.2.4 | 2026-03-04 | 3,437 | none | Apache-2.0 |
-| [`rn-expo-emoji-picker`](https://www.npmjs.com/package/rn-expo-emoji-picker) | 0.1.0 | 2026-07-08 | 1,142 | optional | MIT |
-| [`react-native-emoji-selector`](https://www.npmjs.com/package/react-native-emoji-selector) | 0.2.0 | 2020-12-04 | 5,456 | none | MIT |
-| [`react-native-emoji-keyboard`](https://www.npmjs.com/package/react-native-emoji-keyboard) | 1.1.1 | 2017-10-09 | — | yes | MIT |
-| [`emoji-picker-react`](https://www.npmjs.com/package/emoji-picker-react) | 4.19.4 | 2026-09-01 | 1,462,167 | n/a — web only | MIT |
+| Package                                                                                                      | Latest | Published  | Downloads/wk | Native code    | Licence    |
+| ------------------------------------------------------------------------------------------------------------ | ------ | ---------- | ------------ | -------------- | ---------- |
+| [`rn-emoji-keyboard`](https://www.npmjs.com/package/rn-emoji-keyboard)                                       | 1.7.0  | 2024-05-09 | 95,780       | none           | MIT        |
+| [`@hiraku-ai/react-native-emoji-picker`](https://www.npmjs.com/package/@hiraku-ai/react-native-emoji-picker) | 1.2.4  | 2026-03-04 | 3,437        | none           | Apache-2.0 |
+| [`rn-expo-emoji-picker`](https://www.npmjs.com/package/rn-expo-emoji-picker)                                 | 0.1.0  | 2026-07-08 | 1,142        | optional       | MIT        |
+| [`react-native-emoji-selector`](https://www.npmjs.com/package/react-native-emoji-selector)                   | 0.2.0  | 2020-12-04 | 5,456        | none           | MIT        |
+| [`react-native-emoji-keyboard`](https://www.npmjs.com/package/react-native-emoji-keyboard)                   | 1.1.1  | 2017-10-09 | —            | yes            | MIT        |
+| [`emoji-picker-react`](https://www.npmjs.com/package/emoji-picker-react)                                     | 4.19.4 | 2026-09-01 | 1,462,167    | n/a — web only | MIT        |
 
 ### rn-emoji-keyboard — the incumbent
 
@@ -69,7 +69,7 @@ published 2022-10-16. Three emoji versions have shipped since. Open issue
 (2025-07-14) and [#200 "Emoji update request"](https://github.com/TheWidlarzGroup/rn-emoji-keyboard/issues/200)
 (2025-04-30) both ask for this and are still open.
 
-**Open issues that matter for SDK 57.** None make it *unusable*, but two are relevant here:
+**Open issues that matter for SDK 57.** None make it _unusable_, but two are relevant here:
 
 - [#209 EmojiCategory schedules setState from the render body](https://github.com/TheWidlarzGroup/rn-emoji-keyboard/issues/209)
   (2026-08-03). `EmojiCategory` calls `InteractionManager.runAfterInteractions(() => setMaxIndex(...))`
@@ -90,8 +90,8 @@ TypeScript definition for `enableSearchBar` in 1.7.0, open since 2025-06.
 ### rn-expo-emoji-picker — new, promising, one version old
 
 [JassiSingh08/rn-expo-emoji-picker](https://github.com/JassiSingh08/rn-expo-emoji-picker). Its
-README states plainly: *"This library requires the React Native New Architecture"* and *"100%
-JavaScript core — zero required native modules, works in Expo Go (SDK 53/54) and any dev build"*,
+README states plainly: _"This library requires the React Native New Architecture"_ and _"100%
+JavaScript core — zero required native modules, works in Expo Go (SDK 53/54) and any dev build"_,
 with an optional Expo Modules native row renderer behind a `/native` subpath import.
 
 `peerDependencies` are `@legendapp/list >=3.0.0`, `@shopify/flash-list >=2.0.0`,
@@ -119,8 +119,8 @@ Architecture.
 - **`react-native-emoji-selector`** — last published 2020-12-04, depends on `emoji-datasource`.
   Unmaintained for six years.
 - **`emoji-picker-react`** — 1.46M downloads a week, but it is a **DOM** library, not React Native.
-  Its own README troubleshooting says *"This package relies on the `window` object and must be
-  rendered on the client."* Not usable here. Its 40.8 MB unpacked size is a further hint about what
+  Its own README troubleshooting says _"This package relies on the `window` object and must be
+  rendered on the client."_ Not usable here. Its 40.8 MB unpacked size is a further hint about what
   it is.
 - **`emoji-mart`** / **`@emoji-mart/react`** — same story, web only.
 
@@ -235,12 +235,12 @@ extracted files, 2026-09-02.
 [`unicode-emoji-json@0.9.0`](https://www.npmjs.com/package/unicode-emoji-json), published
 2026-04-18, MIT, no dependencies. Total unpacked 838 KB, of which:
 
-| File | Size |
-|---|---|
-| `data-by-group.json` | 422,110 bytes (412 KB) |
-| `data-by-emoji.json` | 387,444 bytes (378 KB) |
-| `data-ordered-emoji.json` | 23,224 bytes (23 KB) |
-| `data-emoji-components.json` | 248 bytes |
+| File                         | Size                   |
+| ---------------------------- | ---------------------- |
+| `data-by-group.json`         | 422,110 bytes (412 KB) |
+| `data-by-emoji.json`         | 387,444 bytes (378 KB) |
+| `data-ordered-emoji.json`    | 23,224 bytes (23 KB)   |
+| `data-emoji-components.json` | 248 bytes              |
 
 It is [Emoji Version 17.0](https://github.com/muan/unicode-emoji-json/releases) as of 0.9.0, and
 **RGI only** — its README states it excludes minimally-qualified and unqualified sequences. It holds
@@ -273,7 +273,7 @@ heavier.
 [`emoji-datasource@16.0.0`](https://www.npmjs.com/package/emoji-datasource), published 2025-09-24,
 MIT, from [iamcal/emoji-data](https://github.com/iamcal/emoji-data). **28,538,202 bytes unpacked
 (27.2 MB)**, because it bundles sprite sheets and per-vendor PNGs. It is the right dependency if you
-want to render *images* rather than system font glyphs — which we do not. This is what the dead
+want to render _images_ rather than system font glyphs — which we do not. This is what the dead
 `react-native-emoji-selector` pulls in.
 
 ### A curated subset as a plain TypeScript constant
@@ -282,18 +282,18 @@ Yes, comfortably. I generated the constant from `unicode-emoji-json@0.9.0` and m
 bytes for the exact shape this codebase uses (`Option<T>` from `src/types/core.ts` — `{ value,
 label }`, `CONSTANT_CASE`, `as const`):
 
-| Emoji in list | Source bytes | KB |
-|---|---|---|
-| 100 | 5,103 | 5.0 |
-| 200 | 9,804 | 9.6 |
-| 300 | 14,562 | 14.2 |
+| Emoji in list | Source bytes | KB   |
+| ------------- | ------------ | ---- |
+| 100           | 5,103        | 5.0  |
+| 200           | 9,804        | 9.6  |
+| 300           | 14,562       | 14.2 |
 
 The emoji characters alone, with no labels, are 545 / 1,097 / 1,979 bytes for the same three counts.
 
 So a 200-emoji curated list is **9.6 KB of TypeScript** against **222.5 KB** for the JSON
 `rn-emoji-keyboard` bundles, or 378 KB for the full `unicode-emoji-json` file. It has no licence
 question at all, since the emoji characters themselves are Unicode code points, not licensed
-content — only the *names* come from Unicode, and the `unicode-emoji-json` package that derives them
+content — only the _names_ come from Unicode, and the `unicode-emoji-json` package that derives them
 is MIT.
 
 ---
@@ -322,18 +322,18 @@ Three separate failure modes, in increasing severity:
    always worked, and users read it as "my phone's emoji".
 2. **Missing glyphs for newer Unicode versions.** A device whose emoji font predates a code point
    renders **tofu** (☐). Android's own documentation is explicit:
-   [*"later emoji might be displayed as a small square box called tofu (☐) or other incorrectly
-   rendered emoji sequences"*](https://developer.android.com/develop/ui/views/text-and-emoji/emoji2),
-   and that *"Android versions 11 (API level 30) and lower can't update the emoji font, so apps that
-   display them on those versions must be updated manually."* Only Android 12+ updates the emoji
+   [_"later emoji might be displayed as a small square box called tofu (☐) or other incorrectly
+   rendered emoji sequences"_](https://developer.android.com/develop/ui/views/text-and-emoji/emoji2),
+   and that _"Android versions 11 (API level 30) and lower can't update the emoji font, so apps that
+   display them on those versions must be updated manually."_ Only Android 12+ updates the emoji
    font on its own; below that the `androidx.emoji2` library with a downloadable-fonts provider is
    the fix.
 3. **ZWJ sequences and skin-tone modifiers degrade, they do not fail.**
    [UTS #51](https://www.unicode.org/reports/tr51/) specifies the fallback: for an unsupported ZWJ
-   sequence *"the ZWJ characters are ignored and a fallback sequence of separate emoji is
-   displayed"* — so `👩‍❤️‍👩` becomes `👩❤️👩`, three glyphs where one was intended. For skin tones,
-   *"if an emoji modifier base has no skin visible on a particular system, then any following emoji
-   modifier should be suppressed."* Neither shows tofu, but both change what the user sees, and a
+   sequence _"the ZWJ characters are ignored and a fallback sequence of separate emoji is
+   displayed"_ — so `👩‍❤️‍👩` becomes `👩❤️👩`, three glyphs where one was intended. For skin tones,
+   _"if an emoji modifier base has no skin visible on a particular system, then any following emoji
+   modifier should be suppressed."_ Neither shows tofu, but both change what the user sees, and a
    stored string that renders as one glyph on the author's phone can render as three on a
    housemate's.
 
@@ -348,18 +348,18 @@ free.
 Emoji version release dates, taken from the `# Date:` header of `emoji-test.txt` in each version
 folder under [unicode.org/Public/emoji/](https://www.unicode.org/Public/emoji/):
 
-| Emoji version | Data file date | New base emoji in `unicode-emoji-json` | Cumulative |
-|---|---|---|---|
-| E0.6–E5.0 (2010–2017) | — | 1,371 | 1,371 |
-| E11.0 | 2018 | 77 | 1,640 |
-| E12.0 / E12.1 | 2019 | 98 | 1,738 |
-| E13.0 | 2020-01-21 | 67 | 1,805 |
-| E13.1 | 2020-09-12 | 7 | 1,812 |
-| E14.0 | 2021-08-26 | 37 | 1,849 |
-| E15.0 | 2022-08-12 | 21 | 1,870 |
-| E15.1 | 2023-06-05 | 28 | 1,898 |
-| E16.0 | 2024-08-14 | 8 | 1,906 |
-| E17.0 | 2025-08-04 | 8 | 1,914 |
+| Emoji version         | Data file date | New base emoji in `unicode-emoji-json` | Cumulative |
+| --------------------- | -------------- | -------------------------------------- | ---------- |
+| E0.6–E5.0 (2010–2017) | —              | 1,371                                  | 1,371      |
+| E11.0                 | 2018           | 77                                     | 1,640      |
+| E12.0 / E12.1         | 2019           | 98                                     | 1,738      |
+| E13.0                 | 2020-01-21     | 67                                     | 1,805      |
+| E13.1                 | 2020-09-12     | 7                                      | 1,812      |
+| E14.0                 | 2021-08-26     | 37                                     | 1,849      |
+| E15.0                 | 2022-08-12     | 21                                     | 1,870      |
+| E15.1                 | 2023-06-05     | 28                                     | 1,898      |
+| E16.0                 | 2024-08-14     | 8                                      | 1,906      |
+| E17.0                 | 2025-08-04     | 8                                      | 1,914      |
 
 (Counts computed from the `emoji_version` field of `unicode-emoji-json@0.9.0`'s
 `data-by-emoji.json`. The E17.0 chart at
@@ -418,7 +418,7 @@ one-off afternoon, and a small ongoing "add this one" trickle. In exchange: 9.6 
 222.5 KB, zero dependencies, no stale-data problem, no unmaintained-package risk, no React Compiler
 hazard, guaranteed rendering on every device that can install the app, and a grid that matches the
 app's own theming and `BaseSheet` conventions rather than approximating them. For a field that names
-a pet, a household or a care item, a curated set is arguably *better* product design than 1,914
+a pet, a household or a care item, a curated set is arguably _better_ product design than 1,914
 options — it is a shortlist, not a limitation.
 
 **Second choice: `rn-emoji-keyboard`'s static `EmojiKeyboard`, mounted inside a `BaseSheet`.**

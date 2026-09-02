@@ -1,14 +1,15 @@
+import { StyleSheet, View } from 'react-native';
+
 import PostActionRow from '@/components/ui/post-action-row';
 import PostCaption from '@/components/ui/post-caption';
+import PostChips from '@/components/ui/post-chips';
 import PostHeader from '@/components/ui/post-header';
 import PostLikers from '@/components/ui/post-likers';
-import PostChips from '@/components/ui/post-chips';
 import PostPhotoCarousel from '@/components/ui/post-photo-carousel';
 import PostTitle from '@/components/ui/post-title';
 import { ScreenGutter, type AppTheme } from '@/constants/theme';
 import { useStyles } from '@/hooks/use-styles';
 import type { Post } from '@/services/post.service';
-import { StyleSheet, View } from 'react-native';
 
 type Props = {
   post: Post;

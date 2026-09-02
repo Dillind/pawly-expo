@@ -1,5 +1,6 @@
-import type { ThemeColors } from '@/constants/theme';
 import { Platform, type ViewStyle } from 'react-native';
+
+import type { ThemeColors } from '@/constants/theme';
 
 type ShadowStyle = Pick<
   ViewStyle,

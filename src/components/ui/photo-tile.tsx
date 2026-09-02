@@ -1,9 +1,10 @@
+import { Image } from 'expo-image';
+import { Pressable, StyleSheet, View } from 'react-native';
+
 import Icon from '@/components/core/icon';
 import PressableOpacity from '@/components/core/pressable-opacity';
 import { Radius, type AppTheme } from '@/constants/theme';
 import { useStyles } from '@/hooks/use-styles';
-import { Image } from 'expo-image';
-import { Pressable, StyleSheet, View } from 'react-native';
 
 const BADGE_SIZE = 22;
 

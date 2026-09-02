@@ -1,5 +1,6 @@
-import { composeLoggedAt, dayjs } from '@/lib/dates';
 import { z } from 'zod';
+
+import { composeLoggedAt, dayjs } from '@/lib/dates';
 
 // Mirrors the `length(notes) <= 280` check on public.feed_logs. Two layers,
 // one number.

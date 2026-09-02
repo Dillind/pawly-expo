@@ -1,8 +1,3 @@
-import AppText from '@/components/core/app-text';
-import Icon from '@/components/core/icon';
-import Divider from '@/components/core/divider';
-import PressableOpacity from '@/components/core/pressable-opacity';
-import { Spacing } from '@/constants/theme';
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import Animated, {
@@ -14,6 +9,12 @@ import Animated, {
   useSharedValue,
   withTiming
 } from 'react-native-reanimated';
+
+import AppText from '@/components/core/app-text';
+import Divider from '@/components/core/divider';
+import Icon from '@/components/core/icon';
+import PressableOpacity from '@/components/core/pressable-opacity';
+import { Spacing } from '@/constants/theme';
 
 const TIMING_MS = 280;
 

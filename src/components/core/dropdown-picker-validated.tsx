@@ -1,12 +1,14 @@
-import AppText from '@/components/core/app-text';
-import Icon from '@/components/core/icon';
-import type { AppTheme } from '@/constants/theme';
-import type { Option } from '@/types/core';
-import { useStyles } from '@/hooks/use-styles';
-import FieldError from '@/lib/form/components/field-error';
 import { useFormContext } from 'react-hook-form';
 import { StyleProp, StyleSheet, View, ViewStyle } from 'react-native';
 import { Dropdown } from 'react-native-element-dropdown';
+
+import AppText from '@/components/core/app-text';
+import Icon from '@/components/core/icon';
+import type { AppTheme } from '@/constants/theme';
+import { useStyles } from '@/hooks/use-styles';
+import FieldError from '@/lib/form/components/field-error';
+import type { Option } from '@/types/core';
+
 import IndicatedText from './indicated-text';
 
 type Props<T extends string> = {

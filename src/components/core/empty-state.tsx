@@ -1,10 +1,11 @@
+import type { ReactNode } from 'react';
+import { StyleSheet, View } from 'react-native';
+
 import AppText from '@/components/core/app-text';
 import Icon from '@/components/core/icon';
 import type { IconName } from '@/constants/icon-map';
 import type { AppTheme } from '@/constants/theme';
 import { useStyles } from '@/hooks/use-styles';
-import type { ReactNode } from 'react';
-import { StyleSheet, View } from 'react-native';
 
 type Props = {
   icon: IconName;

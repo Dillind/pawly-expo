@@ -1,10 +1,10 @@
-import type { AppTheme } from '@/constants/theme';
-import { Radius } from '@/constants/theme';
+import type { ReactNode } from 'react';
+import { StyleSheet, View } from 'react-native';
+
+import { Radius, type AppTheme } from '@/constants/theme';
 import { useStyles } from '@/hooks/use-styles';
 import { useTheme } from '@/hooks/use-theme';
 import { createShadowSmall } from '@/lib/styles/shadows';
-import type { ReactNode } from 'react';
-import { StyleSheet, View } from 'react-native';
 
 /** The white surface each pet-screen section sits on, over the tinted page. */
 const SectionCard = ({ children }: { children: ReactNode }) => {

@@ -1,7 +1,8 @@
+import { NativeTabs } from 'expo-router/unstable-native-tabs';
+
 import { useHouseholds } from '@/hooks/queries/household/use-households';
 import { useUnseenByHousehold } from '@/hooks/queries/posts/use-posts';
 import { useTheme } from '@/hooks/use-theme';
-import { NativeTabs } from 'expo-router/unstable-native-tabs';
 
 export default function AppTabs() {
   const theme = useTheme();

@@ -1,7 +1,4 @@
-import { Radius, type AppTheme } from '@/constants/theme';
-import { useStyles } from '@/hooks/use-styles';
-import { useTheme } from '@/hooks/use-theme';
-import { createShadowMedium } from '@/lib/styles/shadows';
+import { useEffect } from 'react';
 import { StyleSheet, View } from 'react-native';
 import Animated, {
   useAnimatedStyle,
@@ -11,7 +8,11 @@ import Animated, {
   withSequence,
   withTiming
 } from 'react-native-reanimated';
-import { useEffect } from 'react';
+
+import { Radius, type AppTheme } from '@/constants/theme';
+import { useStyles } from '@/hooks/use-styles';
+import { useTheme } from '@/hooks/use-theme';
+import { createShadowMedium } from '@/lib/styles/shadows';
 
 const PULSE_MS = 700;
 

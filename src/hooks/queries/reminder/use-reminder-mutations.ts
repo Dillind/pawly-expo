@@ -1,7 +1,8 @@
+import { useMutation, useQueryClient, type QueryClient } from '@tanstack/react-query';
+
 import { ErrorMessage, SuccessMessage } from '@/constants/enums';
 import { showErrorToast, showSuccessToast } from '@/lib/toast';
 import ReminderService, { type ReminderInput } from '@/services/reminder.service';
-import { useMutation, useQueryClient, type QueryClient } from '@tanstack/react-query';
 
 function invalidate(queryClient: QueryClient) {
   void queryClient.invalidateQueries({ queryKey: ['reminders'] });

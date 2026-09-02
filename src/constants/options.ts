@@ -1,15 +1,15 @@
-import { COMMON_TIMEZONES } from '@/constants/timezones';
 import type { IconName } from '@/constants/icon-map';
+import { COMMON_TIMEZONES } from '@/constants/timezones';
 import type {
   FeedingScheduleLabel,
-  ReminderKind,
-  ReminderLeadDays,
-  ReminderRepeat,
   HouseholdRole,
   LeadMinutes,
   Option,
   PetSex,
   PetType,
+  ReminderKind,
+  ReminderLeadDays,
+  ReminderRepeat,
   ThemePreference
 } from '@/types/core';
 

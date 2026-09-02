@@ -1,25 +1,3 @@
-import ReminderTray from '@/components/bottom-sheets/reminder-tray';
-import AppText from '@/components/core/app-text';
-import Divider from '@/components/core/divider';
-import Icon from '@/components/core/icon';
-import IconButton from '@/components/core/icon-button';
-import MainButton from '@/components/core/main-button';
-import PressableOpacity from '@/components/core/pressable-opacity';
-import PetAvatar from '@/components/screens/home/pet-avatar';
-import OccurrenceList from '@/components/ui/occurrence-list';
-import ReminderRow from '@/components/ui/reminder-row';
-import { Radius, type AppTheme } from '@/constants/theme';
-import { useOccurrences } from '@/hooks/queries/feeding/use-occurrences';
-import { useFeedTimes } from '@/hooks/queries/feeding/use-feed-times';
-import { usePetPause } from '@/hooks/queries/feeding/use-pet-pause';
-import { isTickPending, useTickReminder } from '@/hooks/queries/reminder/use-reminder-mutations';
-import { useReminders } from '@/hooks/queries/reminder/use-reminders';
-import { useStyles } from '@/hooks/use-styles';
-import { useTheme } from '@/hooks/use-theme';
-import { createShadowMedium } from '@/lib/styles/shadows';
-import { todayInTimezone } from '@/lib/dates';
-import { summarisePetDay } from '@/utils/pet-status';
-import type { HouseholdMember, Occurrence, Pet } from '@/types/core';
 import type { TrueSheet } from '@lodev09/react-native-true-sheet';
 import { useRouter } from 'expo-router';
 import { useRef, useState } from 'react';
@@ -31,6 +9,29 @@ import Animated, {
   useAnimatedStyle,
   withTiming
 } from 'react-native-reanimated';
+
+import ReminderTray from '@/components/bottom-sheets/reminder-tray';
+import AppText from '@/components/core/app-text';
+import Divider from '@/components/core/divider';
+import Icon from '@/components/core/icon';
+import IconButton from '@/components/core/icon-button';
+import MainButton from '@/components/core/main-button';
+import PressableOpacity from '@/components/core/pressable-opacity';
+import PetAvatar from '@/components/screens/home/pet-avatar';
+import OccurrenceList from '@/components/ui/occurrence-list';
+import ReminderRow from '@/components/ui/reminder-row';
+import { Radius, type AppTheme } from '@/constants/theme';
+import { useFeedTimes } from '@/hooks/queries/feeding/use-feed-times';
+import { useOccurrences } from '@/hooks/queries/feeding/use-occurrences';
+import { usePetPause } from '@/hooks/queries/feeding/use-pet-pause';
+import { isTickPending, useTickReminder } from '@/hooks/queries/reminder/use-reminder-mutations';
+import { useReminders } from '@/hooks/queries/reminder/use-reminders';
+import { useStyles } from '@/hooks/use-styles';
+import { useTheme } from '@/hooks/use-theme';
+import { todayInTimezone } from '@/lib/dates';
+import { createShadowMedium } from '@/lib/styles/shadows';
+import type { HouseholdMember, Occurrence, Pet } from '@/types/core';
+import { summarisePetDay } from '@/utils/pet-status';
 
 const EXPAND_MS = 220;
 const COLLAPSE_MS = 160;

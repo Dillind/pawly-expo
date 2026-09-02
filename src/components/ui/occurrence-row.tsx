@@ -1,11 +1,3 @@
-import AppText from '@/components/core/app-text';
-import Icon from '@/components/core/icon';
-import MainButton from '@/components/core/main-button';
-import PressableOpacity from '@/components/core/pressable-opacity';
-import type { AppTheme } from '@/constants/theme';
-import { useStyles } from '@/hooks/use-styles';
-import { formatScheduledTime, formatTimeOfDay } from '@/lib/dates';
-import type { FeedingScheduleLabel, Occurrence } from '@/types/core';
 import { StyleSheet, View } from 'react-native';
 import Animated, {
   Easing,
@@ -14,6 +6,15 @@ import Animated, {
   LinearTransition,
   ReduceMotion
 } from 'react-native-reanimated';
+
+import AppText from '@/components/core/app-text';
+import Icon from '@/components/core/icon';
+import MainButton from '@/components/core/main-button';
+import PressableOpacity from '@/components/core/pressable-opacity';
+import type { AppTheme } from '@/constants/theme';
+import { useStyles } from '@/hooks/use-styles';
+import { formatScheduledTime, formatTimeOfDay } from '@/lib/dates';
+import type { FeedingScheduleLabel, Occurrence } from '@/types/core';
 
 type Props = {
   occurrence: Occurrence;

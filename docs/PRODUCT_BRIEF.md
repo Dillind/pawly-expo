@@ -60,6 +60,7 @@ A pet owner who shares responsibility with at least one other person — partner
 - **Comments, threads, @mentions on Posts** — deferred, not banned. See ADR 0017.
 
 **Amended 2026-08-09.** This list used to read "social media feed / life updates / walk posts", which banned the private version along with the public one. Private, household-only Posts are now in scope — see ADR 0017 and the Household surface in CONTEXT.md. The reasoning is not that sharing is a nice extra. It is that everyone with a relation to the pet is already in the app, so a sitter can post a photo without being added to a family thread and the owner never has to awkwardly ask for one. What stays banned is any audience wider than the household.
+
 - **Custom backend / NestJS / OpenAPI** — Supabase generated types + Zod schemas on Edge Functions cover typing needs without the overhead.
 
 ---
@@ -75,11 +76,11 @@ A pet owner who shares responsibility with at least one other person — partner
 **Freemium — a genuinely useful free tier, paywall for power features.** Modelled on Hevy: the free tier is worth coming back to, not crippled.
 
 - **Free:** core feeding log, household coordination (small household — cap to finalise; see open question), push notifications, one pet, basic history (30 days), Posts — unlimited posting, last 30 days visible.
-- **Paid:** multiple pets, unlimited history (feeding *and* Posts), calendar view, weight tracking, custom notification schedules, priority support, exclusive app icons.
+- **Paid:** multiple pets, unlimited history (feeding _and_ Posts), calendar view, weight tracking, custom notification schedules, priority support, exclusive app icons.
 
 The Posts line follows the rule the rest of the list follows: never cap the core loop, cap breadth and history. A free household still gets the whole away-from-home case, because a trip is a fortnight, not a year.
 
-**None of this is built.** The 30-day Posts limit in particular is deliberately *not* implemented in CRU-011 — every household sees its full history until subscriptions are actually built. Gating history before there is anything to gate adds a code path with no revenue attached to it, and the cut-off is a `where` clause whenever it is wanted.
+**None of this is built.** The 30-day Posts limit in particular is deliberately _not_ implemented in CRU-011 — every household sees its full history until subscriptions are actually built. Gating history before there is anything to gate adds a code path with no revenue attached to it, and the cut-off is a `where` clause whenever it is wanted.
 
 **No paywall in v1.** Get RevenueCat initialised and ready; don't flip the switch until real users are asking for more.
 
@@ -103,13 +104,13 @@ The Posts line follows the rule the rest of the list follows: never cap the core
 on a marigold ground, and the palette now answers to it. Full values in
 [THEMING.md](./THEMING.md); the reasoning in [ADR 0034](./adr/0034-a-warm-light-first-palette-with-gold-as-a-fill.md).
 
-| | | |
-|---|---|---|
-| Page | `#FAF6EF` | Warm off-white. **Not** a cool grey — that mismatch is what made gold look cheap. |
-| Primary | `#F0A81C` | Gold. A **fill**, never a text colour. |
-| On primary | `#2A1D06` | The label on a gold fill. Never white. |
-| Primary text | `#9E6404` | A gold *label* on a light surface. `primary` on white is 2.0:1 and fails. |
-| Success | `#10696B` | The tick, and every "done" state. |
+|              |           |                                                                                   |
+| ------------ | --------- | --------------------------------------------------------------------------------- |
+| Page         | `#FAF6EF` | Warm off-white. **Not** a cool grey — that mismatch is what made gold look cheap. |
+| Primary      | `#F0A81C` | Gold. A **fill**, never a text colour.                                            |
+| On primary   | `#2A1D06` | The label on a gold fill. Never white.                                            |
+| Primary text | `#9E6404` | A gold _label_ on a light surface. `primary` on white is 2.0:1 and fails.         |
+| Success      | `#10696B` | The tick, and every "done" state.                                                 |
 
 **Gold has three jobs and no more:** the Home banner wash, the Log chip, and the active tab. Adding
 a fourth drains the meaning from the other three. Gold marks what needs doing; teal marks what is

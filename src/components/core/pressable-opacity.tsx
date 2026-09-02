@@ -1,6 +1,7 @@
-import { APP_ACTIVE_OPACITY } from '@/constants/primitives';
 import React, { useState } from 'react';
 import { Pressable, PressableProps, StyleProp, View, ViewStyle } from 'react-native';
+
+import { APP_ACTIVE_OPACITY } from '@/constants/primitives';
 
 type Props = {
   style?: StyleProp<ViewStyle>;

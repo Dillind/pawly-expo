@@ -1,4 +1,3 @@
-import { useTheme } from '@/hooks/use-theme';
 import type { PropsWithChildren, ReactElement } from 'react';
 import { StyleSheet, View } from 'react-native';
 import Animated, {
@@ -7,6 +6,8 @@ import Animated, {
   useAnimatedStyle,
   useScrollOffset
 } from 'react-native-reanimated';
+
+import { useTheme } from '@/hooks/use-theme';
 
 const HEADER_HEIGHT = 250;
 

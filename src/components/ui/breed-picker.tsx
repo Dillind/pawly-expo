@@ -1,17 +1,18 @@
+import type { LegendListRenderItemProps } from '@legendapp/list/react-native';
+import { useMemo, useState } from 'react';
+import { StyleSheet, TextInput, View } from 'react-native';
+
 import AppText from '@/components/core/app-text';
 import Icon from '@/components/core/icon';
 import MainLegendList from '@/components/core/main-legend-list';
 import PressableOpacity from '@/components/core/pressable-opacity';
 import { breedsFor, type BreedSpecies } from '@/constants/breeds';
 import { Radius, type AppTheme } from '@/constants/theme';
+import { useDebounce } from '@/hooks/use-debounce';
 import { useStyles } from '@/hooks/use-styles';
 import { useTheme } from '@/hooks/use-theme';
-import { useDebounce } from '@/hooks/use-debounce';
-import { searchBreeds } from '@/utils/breed-search';
 import type { Option } from '@/types/core';
-import type { LegendListRenderItemProps } from '@legendapp/list/react-native';
-import { useMemo, useState } from 'react';
-import { StyleSheet, TextInput, View } from 'react-native';
+import { searchBreeds } from '@/utils/breed-search';
 
 type Props = {
   species: BreedSpecies;

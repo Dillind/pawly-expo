@@ -1,9 +1,10 @@
-import ZoomablePhoto from '@/components/ui/zoomable-photo';
-import { usePost } from '@/hooks/queries/posts/use-posts';
-import { useAuthStore } from '@/stores/auth-store';
 import { useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
 import { ActivityIndicator, ScrollView, StyleSheet, useWindowDimensions, View } from 'react-native';
+
+import ZoomablePhoto from '@/components/ui/zoomable-photo';
+import { usePost } from '@/hooks/queries/posts/use-posts';
+import { useAuthStore } from '@/stores/auth-store';
 
 /**
  * A Post's photos, full screen. Always black, whatever the theme -- a photo

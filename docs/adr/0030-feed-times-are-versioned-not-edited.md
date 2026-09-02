@@ -11,7 +11,7 @@ Accepted
 `feeding_schedules` holds a bare `time` per pet, the same every day, forever. Two problems
 follow.
 
-**Editing rewrites the past.** Slot state is derived at read time from the *current* schedule.
+**Editing rewrites the past.** Slot state is derived at read time from the _current_ schedule.
 Move dinner from 18:00 to 20:00 and last Tuesday's on-time feed retroactively becomes a missed
 one. The history is not wrong in the database; it is recomputed into a different answer every
 time someone edits a time. That makes missed-feed history fiction.

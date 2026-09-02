@@ -1,8 +1,8 @@
 import {
   breedIdByName,
   breedName,
-  breedSpeciesFor,
   breedsFor,
+  breedSpeciesFor,
   isKnownBreedId
 } from '@/constants/breeds';
 

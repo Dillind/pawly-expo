@@ -1,3 +1,7 @@
+import { Host, Picker } from '@expo/ui';
+import { useFormContext } from 'react-hook-form';
+import { StyleSheet, View } from 'react-native';
+
 import AppText from '@/components/core/app-text';
 import Icon from '@/components/core/icon';
 import IndicatedText from '@/components/core/indicated-text';
@@ -5,9 +9,6 @@ import { Radius, type AppTheme } from '@/constants/theme';
 import { useStyles } from '@/hooks/use-styles';
 import { ageFromBirthdate, birthdateFromAge, formatBirthMonth } from '@/lib/dates';
 import FieldError from '@/lib/form/components/field-error';
-import { Host, Picker } from '@expo/ui';
-import { useFormContext } from 'react-hook-form';
-import { StyleSheet, View } from 'react-native';
 
 type Props = {
   name?: string;

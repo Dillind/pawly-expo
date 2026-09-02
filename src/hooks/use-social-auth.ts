@@ -1,9 +1,10 @@
+import { useState } from 'react';
+
 import { ErrorMessage, SuccessMessage } from '@/constants/enums';
 import { logError, userFacingMessage } from '@/lib/errors';
 import { hapticLight } from '@/lib/haptics';
 import { showErrorToast, showSuccessToast } from '@/lib/toast';
 import AuthService from '@/services/auth.service';
-import { useState } from 'react';
 
 const CANCELLED = ['ERR_REQUEST_CANCELED', 'ERR_CANCELED', 'SIGN_IN_CANCELLED', '-5', '12501'];
 

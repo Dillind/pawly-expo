@@ -141,7 +141,7 @@ show it and I did not inspect them.
 One first-party data point exists, and it is a good one. Pawfolio's release notes say: "Smoother
 onboarding: tell us when your pet last ate and your countdown starts straight away"
 ([App Store](https://apps.apple.com/us/app/pawfolio-pet-feeding-tracker/id6743056578)). They shipped
-a change that replaced schedule setup with a single question — *when did the pet last eat* — and got
+a change that replaced schedule setup with a single question — _when did the pet last eat_ — and got
 a working app out of it immediately. The schedule can come later; the countdown cannot.
 
 ---
@@ -197,7 +197,7 @@ From [Apple Support 105064](https://support.apple.com/en-us/105064):
   medication whose schedule the device cannot render shows **Schedule Unavailable**.
 - Reminders are **Dose Reminders**, and there is a second tier: "You can also turn on follow up
   reminders which will alert you if you **haven't logged** a medication 30 minutes after the initial
-  notification." *(emphasis added)*
+  notification." _(emphasis added)_
 - A medication you have stopped is **Archived**, not deleted: "Archive a medication to keep the
   medication details and log history for your records. Delete a medication to remove all information
   and history."
@@ -221,7 +221,7 @@ schedule.
 taken, skipped with a mandatory reason, snoozed, or rescheduled, and a passed dose shows the word
 "Missed" in red ([Tech-enhanced Life](https://www.techenhancedlife.com/citizen-research/how-use-medisafe-app),
 [manuals.plus](https://manuals.plus/medisafe/mum-0100-00-pill-and-med-reminder-manual)). Medisafe's
-own help site is 404 and I could not confirm any of it. What *is* first-party is the **Medfriend**
+own help site is 404 and I could not confirm any of it. What _is_ first-party is the **Medfriend**
 feature: a family member or caregiver who receives a push when the patient misses doses
 ([Medisafe](https://medisafe.com/education-resources/the-impact-of-medisafes-medfriend-caregiver-feature-on-adherence)).
 That is Crumpet's Missed Feed Alert, in a different domain, with a name.
@@ -253,7 +253,7 @@ monetisation line Crumpet is considering.
 ([flatastic-app.com](https://flatastic-app.com/en/)). No calendar is mentioned.
 
 Assignment and rotation are the one capability every chore app has and no pet app surveyed has.
-Crumpet has no concept of *whose turn it is*.
+Crumpet has no concept of _whose turn it is_.
 
 ### Habit apps — how to present a recurring expectation without shaming
 
@@ -282,40 +282,40 @@ source is explicit about it.
 
 ### (a) The expected occurrence of a recurring thing
 
-| Word | Product | User-facing? | Source |
-|---|---|---|---|
-| **Dose** ("Dose Reminders") | Apple Health | Yes | [support.apple.com/105064](https://support.apple.com/en-us/105064) |
-| **Meal** | Fed?, Pawfolio, Did I Feed The Dog? | Yes | [Fed?](https://apps.apple.com/us/app/fed-pet-feeding-tracker/id6760776848) |
-| **Feeding time** / **meal time** | Fed?, Pawfolio | Yes | [Pawfolio](https://apps.apple.com/us/app/pawfolio-pet-feeding-tracker/id6743056578) |
-| **Care task** | Pet Care Reminder & Tracker | Yes | [App Store](https://apps.apple.com/in/app/pet-care-reminder-tracker/id6444908248) |
-| **Up Next** (the imminent one) | Pet Care Reminder & Tracker | Yes | same |
-| **Next action** (as in "the next action is due") | 11pets | Yes | [11pets features](https://www.11pets.com/en/feature) |
-| **Recurrence instance** | RFC 5545 | No — spec | [RFC 5545 §3.8.5.2](https://www.rfc-editor.org/rfc/rfc5545.html) |
-| **Occurrence** | RFC 5545 | No — spec | same |
+| Word                                             | Product                             | User-facing? | Source                                                                              |
+| ------------------------------------------------ | ----------------------------------- | ------------ | ----------------------------------------------------------------------------------- |
+| **Dose** ("Dose Reminders")                      | Apple Health                        | Yes          | [support.apple.com/105064](https://support.apple.com/en-us/105064)                  |
+| **Meal**                                         | Fed?, Pawfolio, Did I Feed The Dog? | Yes          | [Fed?](https://apps.apple.com/us/app/fed-pet-feeding-tracker/id6760776848)          |
+| **Feeding time** / **meal time**                 | Fed?, Pawfolio                      | Yes          | [Pawfolio](https://apps.apple.com/us/app/pawfolio-pet-feeding-tracker/id6743056578) |
+| **Care task**                                    | Pet Care Reminder & Tracker         | Yes          | [App Store](https://apps.apple.com/in/app/pet-care-reminder-tracker/id6444908248)   |
+| **Up Next** (the imminent one)                   | Pet Care Reminder & Tracker         | Yes          | same                                                                                |
+| **Next action** (as in "the next action is due") | 11pets                              | Yes          | [11pets features](https://www.11pets.com/en/feature)                                |
+| **Recurrence instance**                          | RFC 5545                            | No — spec    | [RFC 5545 §3.8.5.2](https://www.rfc-editor.org/rfc/rfc5545.html)                    |
+| **Occurrence**                                   | RFC 5545                            | No — spec    | same                                                                                |
 
 ### (b) The record that it happened
 
-| Word | Product | User-facing? | Source |
-|---|---|---|---|
-| **Taken** / **Log as Taken** | Apple Health | Yes | [support.apple.com/105064](https://support.apple.com/en-us/105064) |
-| **Intake** | MyTherapy | Yes | [mytherapyapp.com](https://www.mytherapyapp.com/) |
-| **Done** ("Mark meals as done") | Fed? | Yes | [App Store](https://apps.apple.com/us/app/fed-pet-feeding-tracker/id6760776848) |
-| **Complete** (notification action) | Done | Yes | [App Store](https://apps.apple.com/us/app/done-habit-tracker/id6757984661) |
-| **Log** / **log entry** | PawLog, Pet Feeder, Nara | Yes | [pawlog.pet](https://www.pawlog.pet/) |
-| **COMPLETED** (status), **COMPLETED** (the timestamp) | RFC 5545 VTODO | No — spec | [RFC 5545 §3.8.1.11](https://www.rfc-editor.org/rfc/rfc5545.html) |
+| Word                                                  | Product                  | User-facing? | Source                                                                          |
+| ----------------------------------------------------- | ------------------------ | ------------ | ------------------------------------------------------------------------------- |
+| **Taken** / **Log as Taken**                          | Apple Health             | Yes          | [support.apple.com/105064](https://support.apple.com/en-us/105064)              |
+| **Intake**                                            | MyTherapy                | Yes          | [mytherapyapp.com](https://www.mytherapyapp.com/)                               |
+| **Done** ("Mark meals as done")                       | Fed?                     | Yes          | [App Store](https://apps.apple.com/us/app/fed-pet-feeding-tracker/id6760776848) |
+| **Complete** (notification action)                    | Done                     | Yes          | [App Store](https://apps.apple.com/us/app/done-habit-tracker/id6757984661)      |
+| **Log** / **log entry**                               | PawLog, Pet Feeder, Nara | Yes          | [pawlog.pet](https://www.pawlog.pet/)                                           |
+| **COMPLETED** (status), **COMPLETED** (the timestamp) | RFC 5545 VTODO           | No — spec    | [RFC 5545 §3.8.1.11](https://www.rfc-editor.org/rfc/rfc5545.html)               |
 
 ### (c) The state where it did not happen
 
-| Word | Product | User-facing? | Source |
-|---|---|---|---|
-| **Skipped** | Apple Health | Yes | [support.apple.com/105064](https://support.apple.com/en-us/105064) |
-| **Overdue** | Fed?, Did I Feed The Dog? ("red = overdue") | Yes | [Did I Feed The Dog?](https://apps.apple.com/ph/app/did-i-feed-the-dog/id6764600152) |
-| **Catch Up** (the section holding them) | Pet Care Reminder & Tracker | Yes | [App Store](https://apps.apple.com/in/app/pet-care-reminder-tracker/id6444908248) |
-| **Missed days** | Fed? | Yes | [App Store](https://apps.apple.com/us/app/fed-pet-feeding-tracker/id6760776848) |
-| **Missed** (red) | Medisafe | Yes | **Unverified** — [Tech-enhanced Life](https://www.techenhancedlife.com/citizen-research/how-use-medisafe-app) |
-| **NEEDS-ACTION** | RFC 5545 VTODO status | No — spec | [RFC 5545 §3.8.1.11](https://www.rfc-editor.org/rfc/rfc5545.html) |
-| **Recovery rate** (the metric, not the state) | Done | Yes | [App Store](https://apps.apple.com/us/app/done-habit-tracker/id6757984661) |
-| **Dueness** (a continuous quantity) | Tody | Yes | [todyapp.com](https://todyapp.com/) |
+| Word                                          | Product                                     | User-facing? | Source                                                                                                        |
+| --------------------------------------------- | ------------------------------------------- | ------------ | ------------------------------------------------------------------------------------------------------------- |
+| **Skipped**                                   | Apple Health                                | Yes          | [support.apple.com/105064](https://support.apple.com/en-us/105064)                                            |
+| **Overdue**                                   | Fed?, Did I Feed The Dog? ("red = overdue") | Yes          | [Did I Feed The Dog?](https://apps.apple.com/ph/app/did-i-feed-the-dog/id6764600152)                          |
+| **Catch Up** (the section holding them)       | Pet Care Reminder & Tracker                 | Yes          | [App Store](https://apps.apple.com/in/app/pet-care-reminder-tracker/id6444908248)                             |
+| **Missed days**                               | Fed?                                        | Yes          | [App Store](https://apps.apple.com/us/app/fed-pet-feeding-tracker/id6760776848)                               |
+| **Missed** (red)                              | Medisafe                                    | Yes          | **Unverified** — [Tech-enhanced Life](https://www.techenhancedlife.com/citizen-research/how-use-medisafe-app) |
+| **NEEDS-ACTION**                              | RFC 5545 VTODO status                       | No — spec    | [RFC 5545 §3.8.1.11](https://www.rfc-editor.org/rfc/rfc5545.html)                                             |
+| **Recovery rate** (the metric, not the state) | Done                                        | Yes          | [App Store](https://apps.apple.com/us/app/done-habit-tracker/id6757984661)                                    |
+| **Dueness** (a continuous quantity)           | Tody                                        | Yes          | [todyapp.com](https://todyapp.com/)                                                                           |
 
 ### (d) The tolerance window around a due time
 
@@ -324,12 +324,12 @@ vocabulary section. Crumpet's "Grace Window" is a concept the category avoids ex
 
 What exists instead:
 
-| Mechanism | Product | Source |
-|---|---|---|
-| **Follow up reminders** — fires "if you haven't logged a medication 30 minutes after the initial notification" | Apple Health | [support.apple.com/105064](https://support.apple.com/en-us/105064) |
-| **Remind Me in 10 Minutes** (notification action on Apple Watch) | Apple Health | same |
-| **Snooze** (notification action) | Done | [App Store](https://apps.apple.com/us/app/done-habit-tracker/id6757984661) |
-| No tolerance at all — a log is just a timestamped entry | PawLog | [pawlog.pet](https://www.pawlog.pet/) |
+| Mechanism                                                                                                      | Product      | Source                                                                     |
+| -------------------------------------------------------------------------------------------------------------- | ------------ | -------------------------------------------------------------------------- |
+| **Follow up reminders** — fires "if you haven't logged a medication 30 minutes after the initial notification" | Apple Health | [support.apple.com/105064](https://support.apple.com/en-us/105064)         |
+| **Remind Me in 10 Minutes** (notification action on Apple Watch)                                               | Apple Health | same                                                                       |
+| **Snooze** (notification action)                                                                               | Done         | [App Store](https://apps.apple.com/us/app/done-habit-tracker/id6757984661) |
+| No tolerance at all — a log is just a timestamped entry                                                        | PawLog       | [pawlog.pet](https://www.pawlog.pet/)                                      |
 
 Apple's window is one-sided and delays a notification. It never decides whether a dose counted,
 because a dose only counts when you tap Taken. Crumpet's Grace Window does something harder — it
@@ -376,12 +376,12 @@ next occurrence is months away and a date is the only thing that identifies it.
 
 **11pets, the most feature-complete pet manager surveyed, did not build a calendar. It integrates
 with the device's.** Its site describes keeping the pet-care schedule synchronised with the
-calendars already on the phone. *(This is a search-engine extract of `11pets.com`; the specific
+calendars already on the phone. _(This is a search-engine extract of `11pets.com`; the specific
 sentence is not on the two pages I fetched directly —
 [home](https://www.11pets.com/en/home) and [features](https://www.11pets.com/en/feature) — so treat
 the calendar-sync detail as **unverified**. What I did verify on the features page is the framing:
 "The application will maintain an automatic schedule and will remind you when the next action is
-due.")*
+due.")_
 
 **Where a grid does appear in a feeding app, it is a heatmap, not a calendar.** Pawfolio's "Feeding
 Patterns" turns "the last 8 weeks into a colour-coded grid" so you can "spot trends in seconds,
@@ -466,7 +466,7 @@ answer that question at all right now.
 dose counts when the user says it does. Crumpet's window also has to guess which Scheduled Time an
 arbitrary timestamp belongs to, and every awkward corner of the model — Extra Feed, Double Feed, the
 symmetry requirement — is downstream of that guess. Let a member attach a log to an occurrence
-explicitly when it matters, keep the window purely for *when to send the nudge*, and both concepts
+explicitly when it matters, keep the window purely for _when to send the nudge_, and both concepts
 collapse.
 
 **3. Support event-anchored schedules, not just clock-anchored ones.** Nara offers Fixed Times or

@@ -1,8 +1,9 @@
-import type { AppTheme } from '@/constants/theme';
-import { useStyles } from '@/hooks/use-styles';
 import type { ReactNode } from 'react';
 import { StyleSheet } from 'react-native';
 import { SafeAreaView, type Edge } from 'react-native-safe-area-context';
+
+import type { AppTheme } from '@/constants/theme';
+import { useStyles } from '@/hooks/use-styles';
 
 type Props = {
   children: ReactNode;

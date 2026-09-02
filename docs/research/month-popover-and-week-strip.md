@@ -42,14 +42,14 @@ Neither answer needs a new dependency.
 
 Read on branch `feat/CRU-091-home-rework`.
 
-| File | What it does |
-|---|---|
-| `src/components/screens/home/week-strip.tsx` | The week strip. Seven flex cells, Reanimated sliding underline, per-day Reminder dots, `Gesture.Fling` left/right to change week. Not virtualised. |
-| `src/app/(protected)/(tabs)/home/index.tsx` | Owns `pickedDay` state, renders the header row (`formatWeekdayName` big, `formatMonthAndYear` small and uppercase) and the strip. |
-| `src/lib/dates.ts` | `weekOf`, `shiftWeeks`, `weekdayInitial`, `dayOfMonth`, `formatMonthAndYear`, `todayInTimezone`. |
-| `src/components/core/tray.tsx`, `src/components/bottom-sheets/base-sheet.tsx` | The sheet stack (TrueSheet). |
-| `src/components/ui/action-popover.tsx` | The existing "popover", which is a hand-drawn glass bubble, not a native popover. |
-| `src/components/core/main-legend-list.tsx` | The list wrapper. Wraps `@legendapp/list`, not FlashList. |
+| File                                                                          | What it does                                                                                                                                       |
+| ----------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `src/components/screens/home/week-strip.tsx`                                  | The week strip. Seven flex cells, Reanimated sliding underline, per-day Reminder dots, `Gesture.Fling` left/right to change week. Not virtualised. |
+| `src/app/(protected)/(tabs)/home/index.tsx`                                   | Owns `pickedDay` state, renders the header row (`formatWeekdayName` big, `formatMonthAndYear` small and uppercase) and the strip.                  |
+| `src/lib/dates.ts`                                                            | `weekOf`, `shiftWeeks`, `weekdayInitial`, `dayOfMonth`, `formatMonthAndYear`, `todayInTimezone`.                                                   |
+| `src/components/core/tray.tsx`, `src/components/bottom-sheets/base-sheet.tsx` | The sheet stack (TrueSheet).                                                                                                                       |
+| `src/components/ui/action-popover.tsx`                                        | The existing "popover", which is a hand-drawn glass bubble, not a native popover.                                                                  |
+| `src/components/core/main-legend-list.tsx`                                    | The list wrapper. Wraps `@legendapp/list`, not FlashList.                                                                                          |
 
 The header month label in `home/index.tsx` is a plain `AppText`. It has no chevron and is not
 tappable. That is the piece the popover would attach to.
@@ -57,12 +57,12 @@ tappable. That is the piece the popover would attach to.
 Two conventions that bear on the recommendation:
 
 - **Sheets vs popovers.** `AGENTS.md` is firm that "sheet" means the native presentation, and a
-  control anchored to what opened it is a *popover*. So this thing is correctly called a popover,
+  control anchored to what opened it is a _popover_. So this thing is correctly called a popover,
   and `ActionPopover` sets the precedent for one existing.
 - **[ADR 0011](../adr/0011-liquid-glass-progressive-enhancement.md)** — glass is additive, always
   guarded by `hasGlass`, always with a complete opaque fallback. It also rejects `expo-blur` as a
-  sub-iOS-26 imitation: *"this app prefers the platform's own thing or an honest plain one, not an
-  imitation."* That line points straight at using the real popover rather than drawing one.
+  sub-iOS-26 imitation: _"this app prefers the platform's own thing or an honest plain one, not an
+  imitation."_ That line points straight at using the real popover rather than drawing one.
 
 ---
 
@@ -86,7 +86,7 @@ export interface DatePickerProps extends CommonViewModifierProps {
   title?: string;
   selection?: Date;
   range?: DateRange;
-  displayedComponents?: DatePickerComponent[];  // default ['date']
+  displayedComponents?: DatePickerComponent[]; // default ['date']
   onDateChange?: (date: Date) => void;
   children?: React.ReactNode;
 }
@@ -100,7 +100,7 @@ export type DatePickerStyleType = 'automatic' | 'compact' | 'graphical' | 'wheel
 ```
 
 `graphical` is the month grid. This maps to SwiftUI's
-[`datePickerStyle(_:)`](https://developer.apple.com/documentation/swiftui/view/datepickerstyle(_:)),
+[`datePickerStyle(_:)`](<https://developer.apple.com/documentation/swiftui/view/datepickerstyle(_:)>),
 which the modifier's own doc comment links to.
 
 Worth knowing before building it: the native implementation carries a workaround comment for
@@ -123,7 +123,7 @@ export interface PopoverViewProps extends CommonViewModifierProps {
   isPresented?: boolean;
   onIsPresentedChange?: (isPresented: boolean) => void;
   attachmentAnchor?: 'leading' | 'trailing' | 'center' | 'top' | 'bottom';
-  arrowEdge?: 'leading' | 'trailing' | 'top' | 'bottom' | 'none';  // default 'none'
+  arrowEdge?: 'leading' | 'trailing' | 'top' | 'bottom' | 'none'; // default 'none'
 }
 // with Popover.Trigger and Popover.Content
 ```
@@ -158,8 +158,8 @@ That is the SwiftUI equivalent of the UIKit delegate returning `.none`. So:
   the way ADR 0011 treats sub-iOS-26.
 
 The Apple pages are the reference for the underlying behaviour —
-[`presentationCompactAdaptation(_:)`](https://developer.apple.com/documentation/swiftui/view/presentationcompactadaptation(_:)),
-[`popover(isPresented:attachmentAnchor:arrowEdge:content:)`](https://developer.apple.com/documentation/swiftui/view/popover(ispresented:attachmentanchor:arrowedge:content:)),
+[`presentationCompactAdaptation(_:)`](<https://developer.apple.com/documentation/swiftui/view/presentationcompactadaptation(_:)>),
+[`popover(isPresented:attachmentAnchor:arrowEdge:content:)`](<https://developer.apple.com/documentation/swiftui/view/popover(ispresented:attachmentanchor:arrowedge:content:)>),
 [HIG: Popovers](https://developer.apple.com/design/human-interface-guidelines/popovers). **I could
 not extract the text of those three pages** — Apple serves them as a JavaScript app and the fetch
 returned only the page title. So I am not quoting Apple here. The behaviour above is taken from
@@ -199,7 +199,7 @@ no.
 ### The realistic alternatives, plainly
 
 **`@expo/ui` `Popover` + `DatePicker` styled `graphical`.** Produces the look, produces the caret,
-because it *is* the system's own popover and the system's own calendar. Costs nothing new. What
+because it _is_ the system's own popover and the system's own calendar. Costs nothing new. What
 it does not give you is control over the grid: Apple draws the weekday header, the selected-day
 circle, the month title and the arrows. Weekday order follows the device locale. You cannot put
 Reminder dots on days inside it.
@@ -332,7 +332,7 @@ Three options, in increasing specificity, all documented on
 [`ScrollView`](https://reactnative.dev/docs/0.86/scrollview):
 
 - **`pagingEnabled`** — "the scroll view stops on multiples of the scroll view's size". Simplest,
-  but it snaps to the *scroll view's own width*, so it is only right when one page equals the full
+  but it snaps to the _scroll view's own width_, so it is only right when one page equals the full
   scroll view width.
 - **`snapToInterval`** — "causes the scroll view to stop at multiples of the value". Docs say it
   "Overrides less configurable `pagingEnabled`" and is "typically used in combination with
@@ -374,7 +374,7 @@ when the target is not rendered ([FlatList docs](https://reactnative.dev/docs/0.
 go wrong.
 
 **Strip → header.** Paging the strip must update the month label, and the label can change
-*mid-page* (a week that spans the end of September). Decide which day of the visible week names the
+_mid-page_ (a week that spans the end of September). Decide which day of the visible week names the
 month; the least surprising rule is "the month of the selected day", and the selected day moves
 with the page. Drive it from `onMomentumScrollEnd`, not `onScroll` — updating React state on every
 scroll frame is the jank.
@@ -462,9 +462,9 @@ No new dependency either way.
 - [React Native 0.86 — FlatList](https://reactnative.dev/docs/0.86/flatlist)
 - [FlashList — v2 changes](https://shopify.github.io/flash-list/docs/v2-changes)
 - [FlashList — usage and props](https://shopify.github.io/flash-list/docs/usage)
-- [SwiftUI — `datePickerStyle(_:)`](https://developer.apple.com/documentation/swiftui/view/datepickerstyle(_:))
-- [SwiftUI — `presentationCompactAdaptation(_:)`](https://developer.apple.com/documentation/swiftui/view/presentationcompactadaptation(_:)) (text not retrievable)
-- [SwiftUI — `popover(isPresented:attachmentAnchor:arrowEdge:content:)`](https://developer.apple.com/documentation/swiftui/view/popover(ispresented:attachmentanchor:arrowedge:content:)) (text not retrievable)
+- [SwiftUI — `datePickerStyle(_:)`](<https://developer.apple.com/documentation/swiftui/view/datepickerstyle(_:)>)
+- [SwiftUI — `presentationCompactAdaptation(_:)`](<https://developer.apple.com/documentation/swiftui/view/presentationcompactadaptation(_:)>) (text not retrievable)
+- [SwiftUI — `popover(isPresented:attachmentAnchor:arrowEdge:content:)`](<https://developer.apple.com/documentation/swiftui/view/popover(ispresented:attachmentanchor:arrowedge:content:)>) (text not retrievable)
 - [Apple HIG — Popovers](https://developer.apple.com/design/human-interface-guidelines/popovers) (text not retrievable)
 - npm registry: [`@shopify/flash-list`](https://registry.npmjs.org/@shopify/flash-list),
   [`react-native-calendars`](https://registry.npmjs.org/react-native-calendars),

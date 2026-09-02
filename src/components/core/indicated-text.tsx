@@ -1,8 +1,9 @@
+import { StyleSheet, View } from 'react-native';
+
 import AppText from '@/components/core/app-text';
 import Icon from '@/components/core/icon';
 import { ThemeColor } from '@/constants/theme';
 import { useStyles } from '@/hooks/use-styles';
-import { StyleSheet, View } from 'react-native';
 
 type Props = {
   marginTop?: number;

@@ -1,11 +1,12 @@
+import { useFormContext, useFormState, type Control, type FieldValues } from 'react-hook-form';
+import { StyleSheet, View } from 'react-native';
+
 import AppText from '@/components/core/app-text';
 import PressableOpacity from '@/components/core/pressable-opacity';
 import type { AppTheme } from '@/constants/theme';
 import { useStyles } from '@/hooks/use-styles';
 import FieldError from '@/lib/form/components/field-error';
 import { hapticSelection } from '@/lib/haptics';
-import { StyleSheet, View } from 'react-native';
-import { useFormContext, useFormState, type Control, type FieldValues } from 'react-hook-form';
 
 /** Sunday first, matching Postgres `extract(dow ...)`, but shown Monday first. */
 const DAYS = [

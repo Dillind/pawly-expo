@@ -1,8 +1,9 @@
+import { useCallback, useState } from 'react';
+
 import { ErrorMessage, SuccessMessage } from '@/constants/enums';
 import { userFacingMessage } from '@/lib/errors';
 import { showErrorToast, showSuccessToast } from '@/lib/toast';
 import AuthService from '@/services/auth.service';
-import { useCallback, useState } from 'react';
 
 export function useLogout() {
   const [isLoading, setIsLoading] = useState(false);

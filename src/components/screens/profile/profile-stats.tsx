@@ -1,9 +1,10 @@
+import { StyleSheet, View } from 'react-native';
+
 import AppText from '@/components/core/app-text';
 import type { AppTheme } from '@/constants/theme';
 import { useUserStats } from '@/hooks/queries/account/use-user-stats';
 import { useStyles } from '@/hooks/use-styles';
 import { formatCount } from '@/lib/numbers';
-import { StyleSheet, View } from 'react-native';
 
 const Stat = ({ value, label }: { value: number | undefined; label: string }) => {
   const styles = useStyles(makeStyles);

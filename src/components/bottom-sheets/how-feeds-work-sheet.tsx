@@ -1,3 +1,7 @@
+import type { TrueSheet } from '@lodev09/react-native-true-sheet';
+import type { RefObject } from 'react';
+import { StyleSheet, View } from 'react-native';
+
 import BaseSheet from '@/components/bottom-sheets/base-sheet';
 import AppText from '@/components/core/app-text';
 import Icon from '@/components/core/icon';
@@ -5,9 +9,6 @@ import MainButton from '@/components/core/main-button';
 import type { IconName } from '@/constants/icon-map';
 import type { AppTheme } from '@/constants/theme';
 import { useStyles } from '@/hooks/use-styles';
-import type { TrueSheet } from '@lodev09/react-native-true-sheet';
-import type { RefObject } from 'react';
-import { StyleSheet, View } from 'react-native';
 
 const POINTS: { icon: IconName; title: string; detail: string }[] = [
   {

@@ -1,16 +1,17 @@
+import { StyleSheet, View } from 'react-native';
+
 import AppText from '@/components/core/app-text';
-import { ICON_ACTIVE_OPACITY } from '@/constants/primitives';
 import Icon from '@/components/core/icon';
 import PressableOpacity from '@/components/core/pressable-opacity';
 import UserAvatar from '@/components/core/user-avatar';
 import PostLikers from '@/components/ui/post-likers';
+import { ICON_ACTIVE_OPACITY } from '@/constants/primitives';
 import { ScreenGutter, type AppTheme } from '@/constants/theme';
 import { useStyles } from '@/hooks/use-styles';
 import { formatRelativeTime } from '@/lib/dates';
 import { hapticLight } from '@/lib/haptics';
 import type { Post } from '@/services/post.service';
 import { formatAuthorName } from '@/utils/members';
-import { StyleSheet, View } from 'react-native';
 
 type Props = {
   post: Post;

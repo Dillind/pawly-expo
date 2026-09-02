@@ -1,3 +1,6 @@
+import { Fragment } from 'react';
+import { StyleSheet, View } from 'react-native';
+
 import Divider from '@/components/core/divider';
 import EmptyState from '@/components/core/empty-state';
 import ErrorState from '@/components/core/error-state';
@@ -13,8 +16,6 @@ import { usePets } from '@/hooks/queries/pet/use-pets';
 import { usePullToRefresh } from '@/hooks/use-pull-to-refresh';
 import { useStyles } from '@/hooks/use-styles';
 import { todayInTimezone } from '@/lib/dates';
-import { Fragment } from 'react';
-import { StyleSheet, View } from 'react-native';
 
 const DIVIDER_INSET = 78;
 

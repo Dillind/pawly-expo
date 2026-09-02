@@ -1,15 +1,17 @@
-import AppText from '@/components/core/app-text';
-import Icon from '@/components/core/icon';
-import PressableOpacity from '@/components/core/pressable-opacity';
-import type { AppTheme } from '@/constants/theme';
-import { useStyles } from '@/hooks/use-styles';
-import FieldError from '@/lib/form/components/field-error';
 import dayjs from 'dayjs';
 import customParseFormat from 'dayjs/plugin/customParseFormat';
 import { useState } from 'react';
 import { useFormContext, useFormState, type Control, type FieldValues } from 'react-hook-form';
 import { StyleSheet, View } from 'react-native';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
+
+import AppText from '@/components/core/app-text';
+import Icon from '@/components/core/icon';
+import PressableOpacity from '@/components/core/pressable-opacity';
+import type { AppTheme } from '@/constants/theme';
+import { useStyles } from '@/hooks/use-styles';
+import FieldError from '@/lib/form/components/field-error';
+
 import IndicatedText from './indicated-text';
 
 dayjs.extend(customParseFormat);

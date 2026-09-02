@@ -1,8 +1,9 @@
+import { StyleSheet, View } from 'react-native';
+
 import AppText from '@/components/core/app-text';
 import type { AppTheme } from '@/constants/theme';
 import { useStyles } from '@/hooks/use-styles';
 import { openExternalUrl } from '@/utils/external-link';
-import { StyleSheet, View } from 'react-native';
 
 // TODO: placeholders. App Store review requires a working privacy policy link.
 const TERMS_URL = 'https://crumpet.com.au/terms';

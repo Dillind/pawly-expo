@@ -1,3 +1,9 @@
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useRouter } from 'expo-router';
+import { FormProvider, useForm, useWatch } from 'react-hook-form';
+import { Alert, StyleSheet } from 'react-native';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
+
 import ScreenView from '@/components/layout/screen-view';
 import PostComposer from '@/components/screens/household/post-composer';
 import PostModalHeader from '@/components/screens/household/post-modal-header';
@@ -7,11 +13,6 @@ import { useHousehold } from '@/hooks/queries/household/use-household';
 import { useCreatePost } from '@/hooks/queries/posts/use-posts';
 import { useStyles } from '@/hooks/use-styles';
 import { useAuthStore } from '@/stores/auth-store';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { useRouter } from 'expo-router';
-import { FormProvider, useForm, useWatch } from 'react-hook-form';
-import { Alert, StyleSheet } from 'react-native';
-import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
 
 const EMPTY_DRAFT: PostFormValues = {
   title: '',

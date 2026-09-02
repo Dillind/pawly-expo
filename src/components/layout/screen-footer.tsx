@@ -1,8 +1,9 @@
-import { BottomTabInset, ScreenGutter, Spacing, type AppTheme } from '@/constants/theme';
-import { useStyles } from '@/hooks/use-styles';
 import type { ReactNode } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { KeyboardStickyView } from 'react-native-keyboard-controller';
+
+import { BottomTabInset, ScreenGutter, Spacing, type AppTheme } from '@/constants/theme';
+import { useStyles } from '@/hooks/use-styles';
 
 type Props = {
   children: ReactNode;

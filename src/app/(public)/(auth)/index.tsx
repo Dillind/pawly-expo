@@ -1,3 +1,7 @@
+import { Image } from 'expo-image';
+import { useRouter } from 'expo-router';
+import { StyleSheet, View } from 'react-native';
+
 import AppText from '@/components/core/app-text';
 import MainButton from '@/components/core/main-button';
 import ScreenScrollView from '@/components/layout/screen-scroll-view';
@@ -7,9 +11,6 @@ import AuthLegalFooter from '@/components/screens/auth/auth-legal-footer';
 import SocialAuthButtons from '@/components/screens/auth/social-auth-buttons';
 import type { AppTheme } from '@/constants/theme';
 import { useStyles } from '@/hooks/use-styles';
-import { useRouter } from 'expo-router';
-import { Image } from 'expo-image';
-import { StyleSheet, View } from 'react-native';
 
 // Fixed so the illustration can drop in without moving the buttons.
 const ART_HEIGHT = 320;

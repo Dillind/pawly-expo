@@ -1,3 +1,10 @@
+import { zodResolver } from '@hookform/resolvers/zod';
+import type { TrueSheet } from '@lodev09/react-native-true-sheet';
+import { useQueries } from '@tanstack/react-query';
+import { useMemo, useState, type RefObject } from 'react';
+import { Controller, FormProvider, useForm } from 'react-hook-form';
+import { ActivityIndicator, StyleSheet, View } from 'react-native';
+
 import AppText from '@/components/core/app-text';
 import DateTimePickerValidated from '@/components/core/date-time-picker-validated';
 import Divider from '@/components/core/divider';
@@ -7,20 +14,14 @@ import PressableOpacity from '@/components/core/pressable-opacity';
 import TextInputValidated from '@/components/core/text-input-validated';
 import Tray, { useTray, type TrayStepDescriptor } from '@/components/core/tray';
 import PetAvatar from '@/components/screens/home/pet-avatar';
+import { newFeedLogSchema, type NewFeedLogFormValues } from '@/constants/schemas/feed-log';
 import { Radius, type AppTheme } from '@/constants/theme';
 import { useOccurrences } from '@/hooks/queries/feeding/use-occurrences';
-import FeedTimeService from '@/services/feed-time.service';
-import { useQueries } from '@tanstack/react-query';
 import type { useLogFlow } from '@/hooks/use-log-flow';
 import { useStyles } from '@/hooks/use-styles';
-import { newFeedLogSchema, type NewFeedLogFormValues } from '@/constants/schemas/feed-log';
 import { composeLoggedAt, formatScheduledTime, timeInTimezone } from '@/lib/dates';
+import FeedTimeService from '@/services/feed-time.service';
 import type { Occurrence, Pet } from '@/types/core';
-import type { TrueSheet } from '@lodev09/react-native-true-sheet';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { useMemo, useState, type RefObject } from 'react';
-import { Controller, FormProvider, useForm } from 'react-hook-form';
-import { ActivityIndicator, StyleSheet, View } from 'react-native';
 
 type Flow = ReturnType<typeof useLogFlow>;
 

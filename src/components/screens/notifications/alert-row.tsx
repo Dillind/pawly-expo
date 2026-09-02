@@ -1,14 +1,15 @@
+import { StyleSheet, View } from 'react-native';
+
 import AppText from '@/components/core/app-text';
 import AvatarInitials from '@/components/core/avatar-initials';
 import Icon from '@/components/core/icon';
-import PressableOpacity from '@/components/core/pressable-opacity';
 import PetAvatar from '@/components/core/pet-avatar';
+import PressableOpacity from '@/components/core/pressable-opacity';
 import { type AppTheme } from '@/constants/theme';
 import { useStyles } from '@/hooks/use-styles';
 import { alertGlyph, alertSentence } from '@/lib/alert-copy';
 import type { InboxRow } from '@/lib/alert-groups';
 import { formatAlertTime } from '@/lib/dates';
-import { StyleSheet, View } from 'react-native';
 
 const AVATAR = 40;
 

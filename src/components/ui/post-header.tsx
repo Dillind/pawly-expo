@@ -1,12 +1,13 @@
+import { StyleSheet, View } from 'react-native';
+
 import AppText from '@/components/core/app-text';
-import UserAvatar from '@/components/core/user-avatar';
 import IconButton from '@/components/core/icon-button';
+import UserAvatar from '@/components/core/user-avatar';
 import type { AppTheme } from '@/constants/theme';
 import { useStyles } from '@/hooks/use-styles';
 import { formatRelativeTime } from '@/lib/dates';
 import type { Post } from '@/services/post.service';
 import { formatAuthorName } from '@/utils/members';
-import { StyleSheet, View } from 'react-native';
 
 type Props = {
   post: Post;

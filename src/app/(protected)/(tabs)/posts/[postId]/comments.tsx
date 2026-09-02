@@ -1,3 +1,9 @@
+import type { TrueSheet } from '@lodev09/react-native-true-sheet';
+import { useLocalSearchParams, useRouter } from 'expo-router';
+import { useRef, useState } from 'react';
+import { ActivityIndicator, Alert, ScrollView, StyleSheet } from 'react-native';
+import { KeyboardAvoidingView } from 'react-native-keyboard-controller';
+
 import CommentActionsSheet from '@/components/bottom-sheets/comment-actions-sheet';
 import ErrorState from '@/components/core/error-state';
 import ScreenView from '@/components/layout/screen-view';
@@ -17,11 +23,6 @@ import { usePost, useToggleLike } from '@/hooks/queries/posts/use-posts';
 import { useStyles } from '@/hooks/use-styles';
 import type { PostComment } from '@/services/comment.service';
 import { useAuthStore } from '@/stores/auth-store';
-import type { TrueSheet } from '@lodev09/react-native-true-sheet';
-import { useLocalSearchParams, useRouter } from 'expo-router';
-import { useRef, useState } from 'react';
-import { ActivityIndicator, Alert, ScrollView, StyleSheet } from 'react-native';
-import { KeyboardAvoidingView } from 'react-native-keyboard-controller';
 
 /** What the composer is answering. Null composes a top-level comment. */
 type ReplyTarget = { parentCommentId: string; replyToUserId: string | null; name: string };

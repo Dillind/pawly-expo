@@ -1,8 +1,17 @@
+import type { TrueSheet } from '@lodev09/react-native-true-sheet';
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+  type ReactNode,
+  type RefObject
+} from 'react';
+
 import BaseSheet from '@/components/bottom-sheets/base-sheet';
 import TrayStep from '@/components/core/tray-step';
-import type { TrueSheet } from '@lodev09/react-native-true-sheet';
-import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
-import type { ReactNode, RefObject } from 'react';
 
 export type TrayStepDescriptor = {
   id: string;

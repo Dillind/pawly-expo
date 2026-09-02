@@ -1,20 +1,5 @@
-import PhotoSourceSheet from '@/components/bottom-sheets/photo-source-sheet';
-import AppText from '@/components/core/app-text';
-import ErrorState from '@/components/core/error-state';
-import PressableOpacity from '@/components/core/pressable-opacity';
-import SectionLabel from '@/components/core/section-label';
-import AddPhotoTile from '@/components/ui/add-photo-tile';
-import PhotoTile from '@/components/ui/photo-tile';
-import type { AppTheme } from '@/constants/theme';
-import { Spacing } from '@/constants/theme';
-import { useAddPetPhotos, useDeletePetPhoto } from '@/hooks/queries/pet/use-pet-photo-mutations';
-import { useHousehold } from '@/hooks/queries/household/use-household';
-import { useRouter } from 'expo-router';
-import { usePetPhotos } from '@/hooks/queries/pet/use-pet-photos';
-import { useStyles } from '@/hooks/use-styles';
-import { hapticLight } from '@/lib/haptics';
-import type { PetPhoto } from '@/services/pet-photo.service';
 import type { TrueSheet } from '@lodev09/react-native-true-sheet';
+import { useRouter } from 'expo-router';
 import { useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, Alert, StyleSheet, View } from 'react-native';
 import Animated, {
@@ -25,6 +10,21 @@ import Animated, {
   withRepeat,
   withTiming
 } from 'react-native-reanimated';
+
+import PhotoSourceSheet from '@/components/bottom-sheets/photo-source-sheet';
+import AppText from '@/components/core/app-text';
+import ErrorState from '@/components/core/error-state';
+import PressableOpacity from '@/components/core/pressable-opacity';
+import SectionLabel from '@/components/core/section-label';
+import AddPhotoTile from '@/components/ui/add-photo-tile';
+import PhotoTile from '@/components/ui/photo-tile';
+import { Spacing, type AppTheme } from '@/constants/theme';
+import { useHousehold } from '@/hooks/queries/household/use-household';
+import { useAddPetPhotos, useDeletePetPhoto } from '@/hooks/queries/pet/use-pet-photo-mutations';
+import { usePetPhotos } from '@/hooks/queries/pet/use-pet-photos';
+import { useStyles } from '@/hooks/use-styles';
+import { hapticLight } from '@/lib/haptics';
+import type { PetPhoto } from '@/services/pet-photo.service';
 
 const PHOTO_CAP = 10;
 const COLUMNS = 5;

@@ -1,5 +1,6 @@
-import { PasswordRules } from '@/constants/enums';
 import { z } from 'zod';
+
+import { PasswordRules } from '@/constants/enums';
 
 export const passwordSchema = z
   .string()

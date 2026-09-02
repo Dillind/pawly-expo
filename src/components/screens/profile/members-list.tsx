@@ -1,32 +1,33 @@
+import type { TrueSheet } from '@lodev09/react-native-true-sheet';
+import { useRouter } from 'expo-router';
+import { useRef, useState } from 'react';
+import { ActivityIndicator, Alert, InteractionManager, StyleSheet, View } from 'react-native';
+
+import InviteCodeSheet from '@/components/bottom-sheets/invite-code-sheet';
 import MemberActionsSheet from '@/components/bottom-sheets/member-actions-sheet';
 import AppText from '@/components/core/app-text';
-import UserAvatar from '@/components/core/user-avatar';
 import ErrorState from '@/components/core/error-state';
 import Icon from '@/components/core/icon';
 import PressableOpacity from '@/components/core/pressable-opacity';
 import SettingsRow from '@/components/core/settings-row';
 import SettingsSection from '@/components/core/settings-section';
+import UserAvatar from '@/components/core/user-avatar';
 import ScreenScrollView from '@/components/layout/screen-scroll-view';
 import ScreenView from '@/components/layout/screen-view';
 import { BottomTabInset, Spacing, type AppTheme } from '@/constants/theme';
 import { useHousehold } from '@/hooks/queries/household/use-household';
 import { useHouseholdMembers } from '@/hooks/queries/household/use-household-members';
+import { usePendingInvites, useRevokeInvite } from '@/hooks/queries/household/use-invites';
 import {
   useLeaveHousehold,
   useRemoveMember,
   useSetMemberRole
 } from '@/hooks/queries/household/use-membership-mutations';
-import InviteCodeSheet from '@/components/bottom-sheets/invite-code-sheet';
-import { usePendingInvites, useRevokeInvite } from '@/hooks/queries/household/use-invites';
-import type { PendingInvite } from '@/services/invite.service';
 import { useStyles } from '@/hooks/use-styles';
+import type { PendingInvite } from '@/services/invite.service';
 import { useAuthStore } from '@/stores/auth-store';
 import type { HouseholdMember, HouseholdRole } from '@/types/core';
 import { fullName, roleLabel } from '@/utils/members';
-import type { TrueSheet } from '@lodev09/react-native-true-sheet';
-import { useRouter } from 'expo-router';
-import { useRef, useState } from 'react';
-import { Alert, ActivityIndicator, InteractionManager, StyleSheet, View } from 'react-native';
 
 const AVATAR_SIZE = 36;
 

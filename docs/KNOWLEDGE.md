@@ -38,7 +38,7 @@ guessable: read them out of the `name` table rather than assuming a pattern.
 fails on `@/global.css` before you have touched anything. Run `bun install` and copy
 `expo-env.d.ts` from the main checkout.
 
-**Squash merges break stacked PRs.** Retarget the child to `main` *before* merging the parent, never
+**Squash merges break stacked PRs.** Retarget the child to `main` _before_ merging the parent, never
 pass `--delete-branch` (deleting a base branch **closes** the child and it cannot be reopened), then
 `git rebase --onto main <old-parent-tip>`. A PR can report `MERGEABLE` while still carrying its
 parent's pre-squash commits — check the diff's file list, not the merge state.
@@ -50,7 +50,7 @@ files move, and a broken route still compiles. It shows up on device as **Unmatc
 open a moved route on a simulator.
 
 **`opacity: 0` removes a view from the iOS accessibility tree.** An invisible-but-focusable control
-— a text field under a custom-drawn one, for instance — must use a transparent *colour* instead.
+— a text field under a custom-drawn one, for instance — must use a transparent _colour_ instead.
 With `opacity: 0` the field vanishes from the AX tree entirely and VoiceOver cannot reach it, so the
 control cannot be used at all. Verified against the live tree in `verification-code-input.tsx`.
 
@@ -94,20 +94,20 @@ function down, and it does not: `public` is not `anon`, and a direct grant to `a
 migration is still there afterwards. `unread_alert_count` was callable without signing in for weeks
 because every rewrite of it copied that same pair of lines. `list_alerts` was safe only because its
 migration happened to name `anon`. Name both: `revoke execute ... from public, anon`. The Supabase
-security advisor reports this as *Public Can Execute SECURITY DEFINER Function*, and it is the only
+security advisor reports this as _Public Can Execute SECURITY DEFINER Function_, and it is the only
 thing that will tell you.
 
 **A `pg_net` dispatch does not fire until the transaction commits, so you cannot wait for it in the
 same one.** `insert into alerts ...; select pg_sleep(8); select ... from alerts` always reports the
 row as still pending, because `net.http_post` only queues the request and the queue is drained after
 commit. It looks exactly like a broken trigger. Run the insert, then read the row back in a
-*separate* statement a few seconds later.
+_separate_ statement a few seconds later.
 
 **`insert ... select` does not coerce a bare string literal to an enum column; `insert ... values`
-does.** The same literal that works in a `values` list fails in a `select` list with *"column kind
-is of type alert_kind but expression is of type text"*. This bit `queue_post_commented_alert`, which
+does.** The same literal that works in a `values` list fails in a `select` list with _"column kind
+is of type alert_kind but expression is of type text"_. This bit `queue_post_commented_alert`, which
 fans one comment out to several recipient rows and therefore had to be a `select`. Inside a trigger
-it surfaces as the *insert on the parent table* failing, so the error names `post_comments` and not
+it surfaces as the _insert on the parent table_ failing, so the error names `post_comments` and not
 the alert at all. Cast explicitly: `'post_commented'::public.alert_kind`.
 
 **Changing what `list_alerts` returns needs a `drop function`, not `create or replace`.** Postgres
@@ -137,7 +137,7 @@ auth settings are not in the repo — check the dashboard before concluding what
 
 **Google sign-in has "Skip nonce checks" on, deliberately.** `signInWithApple` generates a nonce and
 `signInWithGoogle` does not — that asymmetry is forced, not an oversight. Supabase expects the
-provider to store a *hashed* nonce (SHA-256, hex), which is Apple's behaviour; Google stamps the raw
+provider to store a _hashed_ nonce (SHA-256, hex), which is Apple's behaviour; Google stamps the raw
 value in, so the comparison cannot succeed whatever you pass — see
 [supabase/auth#1829](https://github.com/supabase/auth/issues/1829). Choosing our own nonce is a
 paid feature of
@@ -168,7 +168,7 @@ first. Swapping them shifts every weekday-only feed by one day, and nothing fail
 turns up on the wrong days.
 
 **`dayjs.tz` is broken under Hermes in BOTH its forms.** The instance `.tz()`
-silently returns UTC. The *static* `dayjs.tz(string, format, zone)` was believed safe and is not —
+silently returns UTC. The _static_ `dayjs.tz(string, format, zone)` was believed safe and is not —
 measured on device it returned instants about fourteen minutes off, varying by call. Nothing in
 `src/lib/dates.ts` may use either. Zone arithmetic goes through `Intl.formatToParts` (`zonedParts`,
 `instantAt`). This was live: the feed-log correction sheet saved wrong instants.

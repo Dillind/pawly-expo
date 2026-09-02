@@ -1,6 +1,7 @@
+import * as Crypto from 'expo-crypto';
+
 import { UserFacingError } from '@/lib/errors';
 import { supabase } from '@/lib/supabase/client';
-import * as Crypto from 'expo-crypto';
 
 export type PetPhoto = { id: string; url: string; sortOrder: number };
 

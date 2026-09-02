@@ -1,3 +1,9 @@
+import type { TrueSheet } from '@lodev09/react-native-true-sheet';
+import * as Notifications from 'expo-notifications';
+import { useEffect, useRef, useState } from 'react';
+import { StyleSheet, View } from 'react-native';
+import Animated, { FadeIn, FadeOut, LinearTransition } from 'react-native-reanimated';
+
 import FeedLogDetailSheet from '@/components/bottom-sheets/feed-log-detail-sheet';
 import LogFeedTray from '@/components/bottom-sheets/log-feed-tray';
 import AppText from '@/components/core/app-text';
@@ -35,11 +41,6 @@ import { formatWeekdayName, todayInTimezone, weekOf } from '@/lib/dates';
 import type { Pet } from '@/types/core';
 import { describeDay } from '@/utils/day-summary';
 import { findHomeTip } from '@/utils/home-tip';
-import type { TrueSheet } from '@lodev09/react-native-true-sheet';
-import * as Notifications from 'expo-notifications';
-import { useEffect, useRef, useState } from 'react';
-import { StyleSheet, View } from 'react-native';
-import Animated, { FadeIn, FadeOut, LinearTransition } from 'react-native-reanimated';
 
 const Home = () => {
   const [activeLogId, setActiveLogId] = useState<string | undefined>(undefined);

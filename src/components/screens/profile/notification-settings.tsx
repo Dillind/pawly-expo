@@ -1,3 +1,9 @@
+import type { TrueSheet } from '@lodev09/react-native-true-sheet';
+import { useQuery } from '@tanstack/react-query';
+import * as Notifications from 'expo-notifications';
+import { useRef } from 'react';
+import { ActivityIndicator, Linking, StyleSheet, View } from 'react-native';
+
 import OptionSheet from '@/components/bottom-sheets/option-sheet';
 import AppText from '@/components/core/app-text';
 import MainButton from '@/components/core/main-button';
@@ -16,11 +22,6 @@ import {
 } from '@/hooks/use-notification-permission';
 import { useStyles } from '@/hooks/use-styles';
 import { optionLabel } from '@/utils/options';
-import type { TrueSheet } from '@lodev09/react-native-true-sheet';
-import { useQuery } from '@tanstack/react-query';
-import * as Notifications from 'expo-notifications';
-import { useRef } from 'react';
-import { ActivityIndicator, Linking, StyleSheet, View } from 'react-native';
 
 /**
  * What the household will and won't send this member.

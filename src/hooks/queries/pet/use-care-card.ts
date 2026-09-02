@@ -1,6 +1,7 @@
+import { queryOptions, useQuery } from '@tanstack/react-query';
+
 import { emptyCareCard } from '@/constants/care-card-fields';
 import CareCardService from '@/services/care-card.service';
-import { queryOptions, useQuery } from '@tanstack/react-query';
 
 /**
  * Exported so sharing can fetch several pets' cards imperatively through

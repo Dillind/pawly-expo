@@ -1,3 +1,7 @@
+import type { TrueSheet } from '@lodev09/react-native-true-sheet';
+import type { RefObject } from 'react';
+import { StyleSheet, View } from 'react-native';
+
 import BaseSheet from '@/components/bottom-sheets/base-sheet';
 import AppText from '@/components/core/app-text';
 import Icon from '@/components/core/icon';
@@ -6,9 +10,6 @@ import SettingsSection from '@/components/core/settings-section';
 import { Radius, type AppTheme } from '@/constants/theme';
 import { useStyles } from '@/hooks/use-styles';
 import { APP_VERSION } from '@/lib/support';
-import type { TrueSheet } from '@lodev09/react-native-true-sheet';
-import type { RefObject } from 'react';
-import { StyleSheet, View } from 'react-native';
 
 type Props = {
   sheetRef: RefObject<TrueSheet | null>;

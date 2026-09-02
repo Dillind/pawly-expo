@@ -29,7 +29,9 @@ beforeEach(() => {
   jest.clearAllMocks();
   mockGetSession.mockResolvedValue({ data: { session: { user: { id: 'user-1' } } } });
   mockInsert.mockReturnValue({
-    select: jest.fn(() => ({ single: jest.fn().mockResolvedValue({ data: { id: 'rem-1' }, error: null }) }))
+    select: jest.fn(() => ({
+      single: jest.fn().mockResolvedValue({ data: { id: 'rem-1' }, error: null })
+    }))
   });
   mockUpdate.mockReturnValue({ eq: eqChain() });
   mockDelete.mockReturnValue({ eq: eqChain() });

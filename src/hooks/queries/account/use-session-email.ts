@@ -1,6 +1,7 @@
+import { useQuery } from '@tanstack/react-query';
+
 import AuthService from '@/services/auth.service';
 import { useAuthStore } from '@/stores/auth-store';
-import { useQuery } from '@tanstack/react-query';
 
 export function useSessionEmail() {
   const { userId } = useAuthStore();

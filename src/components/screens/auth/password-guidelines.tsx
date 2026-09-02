@@ -1,8 +1,9 @@
+import { StyleSheet, View } from 'react-native';
+
 import AppText from '@/components/core/app-text';
 import { PasswordRules } from '@/constants/enums';
 import { Radius, type AppTheme } from '@/constants/theme';
 import { useStyles } from '@/hooks/use-styles';
-import { StyleSheet, View } from 'react-native';
 
 const PasswordGuidelines = () => {
   const styles = useStyles(makeStyles);

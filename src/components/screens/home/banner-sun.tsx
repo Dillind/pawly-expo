@@ -1,4 +1,3 @@
-import type { DayPart } from '@/constants/theme';
 import Svg, {
   Circle,
   ClipPath,
@@ -11,6 +10,8 @@ import Svg, {
   Rect,
   Stop
 } from 'react-native-svg';
+
+import type { DayPart } from '@/constants/theme';
 
 type Props = {
   part: DayPart;

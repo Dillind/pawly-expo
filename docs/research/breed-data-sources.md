@@ -25,7 +25,10 @@ I fetched `https://lyka.com.au/get-started` with curl. It is an Astro page whose
 `<div id="app" class="bab">` plus a single module script:
 
 ```html
-<script src="https://build-a-box.d2c.lyka.com.au/index.js" type="module" crossorigin="anonymous"></script>
+<script
+  src="https://build-a-box.d2c.lyka.com.au/index.js"
+  type="module"
+  crossorigin="anonymous"></script>
 ```
 
 So the whole sign-up flow is a client-side app ("build-a-box"), and the HTML contains no breed
@@ -38,7 +41,7 @@ The bundle is a Vue app with a Pinia store called `dataStore`. It exposes `breed
 from **one** request:
 
 ```js
-const S = await k.get("marketing/buildabox/initiate", {}, Nne);
+const S = await k.get('marketing/buildabox/initiate', {}, Nne);
 e.value = S.data;
 ```
 
@@ -193,19 +196,19 @@ Australia's group names are the vocabulary an Australian owner expects.
 The [FCI nomenclature](https://www.fci.be/en/nomenclature/) is the international standard. It is
 organised into 10 groups. I scraped the ten group pages and counted the unique breed pages in each:
 
-| Group | Breeds |
-|---|---|
-| 1 Sheepdogs and Cattledogs | 43 |
-| 2 Pinscher and Schnauzer, Molossoid, Swiss Mountain and Cattledogs | 53 |
-| 3 Terriers | 34 |
-| 4 Dachshunds | 1 |
-| 5 Spitz and primitive types | 46 |
-| 6 Scent hounds and related breeds | 70 |
-| 7 Pointing Dogs | 36 |
-| 8 Retrievers, Flushing Dogs, Water Dogs | 22 |
-| 9 Companion and Toy Dogs | 26 |
-| 10 Sighthounds | 13 |
-| **Total** | **344** |
+| Group                                                              | Breeds  |
+| ------------------------------------------------------------------ | ------- |
+| 1 Sheepdogs and Cattledogs                                         | 43      |
+| 2 Pinscher and Schnauzer, Molossoid, Swiss Mountain and Cattledogs | 53      |
+| 3 Terriers                                                         | 34      |
+| 4 Dachshunds                                                       | 1       |
+| 5 Spitz and primitive types                                        | 46      |
+| 6 Scent hounds and related breeds                                  | 70      |
+| 7 Pointing Dogs                                                    | 36      |
+| 8 Retrievers, Flushing Dogs, Water Dogs                            | 22      |
+| 9 Companion and Toy Dogs                                           | 26      |
+| 10 Sighthounds                                                     | 13      |
+| **Total**                                                          | **344** |
 
 Every breed carries a stable FCI number in its own URL — for example
 `AUSTRALIAN-STUMPY-TAIL-CATTLE-DOG-351.html` is breed 351. That is a genuine stable identifier.
@@ -250,7 +253,7 @@ storing, redistributing or bundling the data.
 population types, not just breeds a person owns. It needs curating down. That is a one-off job, not
 a recurring cost.
 
-Note the Wikipedia *articles* are CC BY-SA 4.0, not CC0 — only the structured Wikidata namespaces are
+Note the Wikipedia _articles_ are CC BY-SA 4.0, not CC0 — only the structured Wikidata namespaces are
 CC0. Scraping the prose tables from
 [List of dog breeds](https://en.wikipedia.org/wiki/List_of_dog_breeds) drags a share-alike obligation
 along with it. Querying Wikidata does not.
@@ -289,16 +292,16 @@ inspect the data, only the package metadata.
 
 ## 3. Side by side
 
-| Source | Dogs | Cats | Size | Stable id | Licence | Cost | Offline |
-|---|---|---|---|---|---|---|---|
-| Lyka's own API | yes | no | 510 (497 active) | integer | none granted to us | n/a | n/a |
-| TheDogAPI / TheCatAPI | yes | yes | "650+" dogs | yes | paid, delete-on-cancel, no redistribution | free tier 10k/mo; $99/mo Startup (cat pricing) | no, key required |
-| Dog CEO | yes | no | 108 / 165 with sub-breeds | slug only | code MIT, data unstated | free | could be bundled |
-| AKC | yes | no | 200 | no | all rights reserved | n/a | no API |
-| Dogs Australia (ANKC) | yes | no | not published as data | no | unstated | n/a | no API |
-| FCI | yes | no | 344 | FCI number | unstated | free to read | scrape only |
-| Wikidata | yes | yes | 1,143 / 141 | Q-id | CC0 | free | yes, seed once |
-| `dog-breeds` npm | yes | no | 554 | none | MIT package, mixed data | free | yes |
+| Source                | Dogs | Cats | Size                      | Stable id  | Licence                                   | Cost                                           | Offline          |
+| --------------------- | ---- | ---- | ------------------------- | ---------- | ----------------------------------------- | ---------------------------------------------- | ---------------- |
+| Lyka's own API        | yes  | no   | 510 (497 active)          | integer    | none granted to us                        | n/a                                            | n/a              |
+| TheDogAPI / TheCatAPI | yes  | yes  | "650+" dogs               | yes        | paid, delete-on-cancel, no redistribution | free tier 10k/mo; $99/mo Startup (cat pricing) | no, key required |
+| Dog CEO               | yes  | no   | 108 / 165 with sub-breeds | slug only  | code MIT, data unstated                   | free                                           | could be bundled |
+| AKC                   | yes  | no   | 200                       | no         | all rights reserved                       | n/a                                            | no API           |
+| Dogs Australia (ANKC) | yes  | no   | not published as data     | no         | unstated                                  | n/a                                            | no API           |
+| FCI                   | yes  | no   | 344                       | FCI number | unstated                                  | free to read                                   | scrape only      |
+| Wikidata              | yes  | yes  | 1,143 / 141               | Q-id       | CC0                                       | free                                           | yes, seed once   |
+| `dog-breeds` npm      | yes  | no   | 554                       | none       | MIT package, mixed data                   | free                                           | yes              |
 
 ---
 

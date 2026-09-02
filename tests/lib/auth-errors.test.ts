@@ -1,6 +1,7 @@
+import { AuthApiError } from '@supabase/supabase-js';
+
 import { retryAfterSeconds, toUserFacingError } from '@/lib/auth-errors';
 import { UserFacingError } from '@/lib/errors';
-import { AuthApiError } from '@supabase/supabase-js';
 
 const rateLimited = (message: string) =>
   new AuthApiError(message, 429, 'over_email_send_rate_limit');

@@ -10,11 +10,11 @@ This needs recording because the default assumption is the opposite: Expo Router
 
 ## Considered options
 
-- **Expo Router `presentation: 'formSheet'`** — rejected, narrowly. It is genuinely native (`UISheetPresentationController` via `react-native-screens`), costs no dependency, and gives deep-linking for free since every sheet is a route. Its cost is that *every* sheet must be a route: a URL, a file, an entry in a stack. That's a good trade for destinations and a poor one for the contextual sheets that make up most of this app — a confirmation, a filter, a quick note field. Those belong to one component and should not be addressable.
+- **Expo Router `presentation: 'formSheet'`** — rejected, narrowly. It is genuinely native (`UISheetPresentationController` via `react-native-screens`), costs no dependency, and gives deep-linking for free since every sheet is a route. Its cost is that _every_ sheet must be a route: a URL, a file, an entry in a stack. That's a good trade for destinations and a poor one for the contextual sheets that make up most of this app — a confirmation, a filter, a quick note field. Those belong to one component and should not be addressable.
 - **`@gorhom/bottom-sheet`** — rejected outright. Reimplements sheet behaviour in JS/Reanimated rather than presenting the platform's own sheet. Against the native-feel goal in PRODUCT_BRIEF and against ADR 0004's reasoning.
 - **TrueSheet** (chosen). Wraps the same native primitives as `formSheet` — `UISheetPresentationController` on iOS, `BottomSheetDialog` on Android — but exposes them as a component with an imperative `present()`/`dismiss()` ref. Sheets sit next to their owner, which is where the state they operate on already lives. Actively maintained, and every peer dependency it wants (`react-native-reanimated` ≥4, `react-native-worklets`, `@react-navigation/core` ≥7) was already present.
 
-ADR 0004 rules out component *libraries* that supply the app's visual primitives. TrueSheet is not that — it is a host for presenting native platform UI, and the content inside every sheet is still this project's own `AppText` / `MainButton` / `Divider`. The `BaseSheet` wrapper is what keeps that boundary honest.
+ADR 0004 rules out component _libraries_ that supply the app's visual primitives. TrueSheet is not that — it is a host for presenting native platform UI, and the content inside every sheet is still this project's own `AppText` / `MainButton` / `Divider`. The `BaseSheet` wrapper is what keeps that boundary honest.
 
 ## Consequences
 

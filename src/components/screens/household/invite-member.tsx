@@ -1,3 +1,10 @@
+import { zodResolver } from '@hookform/resolvers/zod';
+import type { TrueSheet } from '@lodev09/react-native-true-sheet';
+import { useNavigation } from 'expo-router';
+import { useLayoutEffect, useRef, useState } from 'react';
+import { Controller, FormProvider, useForm, useWatch } from 'react-hook-form';
+import { StyleSheet, View } from 'react-native';
+
 import InfoSheet from '@/components/bottom-sheets/info-sheet';
 import AppText from '@/components/core/app-text';
 import DropdownPickerValidated from '@/components/core/dropdown-picker-validated';
@@ -14,12 +21,6 @@ import { BottomTabInset, Radius, type AppTheme } from '@/constants/theme';
 import { useHousehold } from '@/hooks/queries/household/use-household';
 import { useCreateInvite } from '@/hooks/queries/household/use-invites';
 import { useStyles } from '@/hooks/use-styles';
-import { zodResolver } from '@hookform/resolvers/zod';
-import type { TrueSheet } from '@lodev09/react-native-true-sheet';
-import { useNavigation } from 'expo-router';
-import { useLayoutEffect, useRef, useState } from 'react';
-import { Controller, FormProvider, useForm, useWatch } from 'react-hook-form';
-import { StyleSheet, View } from 'react-native';
 
 /**
  * A screen rather than a sheet, for two reasons. It carries a form, a role

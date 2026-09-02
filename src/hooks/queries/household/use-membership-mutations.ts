@@ -1,11 +1,12 @@
-import { householdsKey } from '@/hooks/queries/household/use-households';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+
 import { ErrorMessage, SuccessMessage } from '@/constants/enums';
+import { householdsKey } from '@/hooks/queries/household/use-households';
 import { showErrorToast, showSuccessToast } from '@/lib/toast';
 import HouseholdService, { type MembershipStatus } from '@/services/household.service';
 import { useActiveHouseholdStore } from '@/stores/active-household-store';
 import { useAuthStore } from '@/stores/auth-store';
 import type { HouseholdRole } from '@/types/core';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 /**
  * The RPCs answer with a status rather than throwing, so a refused change

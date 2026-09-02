@@ -1,11 +1,12 @@
+import { StyleSheet, View } from 'react-native';
+
 import AppText from '@/components/core/app-text';
-import { ICON_ACTIVE_OPACITY } from '@/constants/primitives';
 import Icon from '@/components/core/icon';
 import PressableOpacity from '@/components/core/pressable-opacity';
+import { ICON_ACTIVE_OPACITY } from '@/constants/primitives';
 import type { AppTheme } from '@/constants/theme';
 import { useStyles } from '@/hooks/use-styles';
 import { hapticLight } from '@/lib/haptics';
-import { StyleSheet, View } from 'react-native';
 
 type Props = {
   liked: boolean;

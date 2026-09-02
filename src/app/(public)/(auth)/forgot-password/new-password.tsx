@@ -1,3 +1,8 @@
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useRouter } from 'expo-router';
+import { Controller, FormProvider, useForm } from 'react-hook-form';
+import { StyleSheet, View } from 'react-native';
+
 import AppText from '@/components/core/app-text';
 import MainButton from '@/components/core/main-button';
 import PressableOpacity from '@/components/core/pressable-opacity';
@@ -18,10 +23,6 @@ import { hapticLight } from '@/lib/haptics';
 import { showErrorToast, showSuccessToast } from '@/lib/toast';
 import AuthService from '@/services/auth.service';
 import { useAuthStore } from '@/stores/auth-store';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { useRouter } from 'expo-router';
-import { Controller, FormProvider, useForm } from 'react-hook-form';
-import { StyleSheet, View } from 'react-native';
 
 const ResetPassword = () => {
   const styles = useStyles(makeStyles);

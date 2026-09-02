@@ -1,8 +1,9 @@
+import { StyleSheet, View } from 'react-native';
+
 import AppText from '@/components/core/app-text';
 import { Radius, type AppTheme, type ThemeColor } from '@/constants/theme';
 import { useStyles } from '@/hooks/use-styles';
 import type { CareCardBlock } from '@/lib/care-card-view';
-import { StyleSheet, View } from 'react-native';
 
 import { CARD_WASH_STRONG } from './wash';
 

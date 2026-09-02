@@ -1,3 +1,8 @@
+import type { TrueSheet } from '@lodev09/react-native-true-sheet';
+import { useRef } from 'react';
+import { Controller, useFormContext, useWatch } from 'react-hook-form';
+import { Alert, ScrollView, StyleSheet, View } from 'react-native';
+
 import OccasionTray from '@/components/bottom-sheets/occasion-tray';
 import PhotoSourceSheet from '@/components/bottom-sheets/photo-source-sheet';
 import TagPetsSheet from '@/components/bottom-sheets/tag-pets-sheet';
@@ -20,10 +25,6 @@ import { useOccasions } from '@/hooks/queries/posts/use-occasions';
 import { useStyles } from '@/hooks/use-styles';
 import type { PostOccasion } from '@/services/post.service';
 import type { Pet } from '@/types/core';
-import type { TrueSheet } from '@lodev09/react-native-true-sheet';
-import { useRef } from 'react';
-import { Controller, useFormContext, useWatch } from 'react-hook-form';
-import { Alert, ScrollView, StyleSheet, View } from 'react-native';
 
 const TILE_SIZE = 88;
 

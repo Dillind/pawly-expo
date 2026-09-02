@@ -1,8 +1,9 @@
+import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useCallback } from 'react';
+
 import { ErrorMessage } from '@/constants/enums';
 import { showErrorToast } from '@/lib/toast';
 import AlertService, { ALERTS_PAGE_SIZE, type AlertsCursor } from '@/services/alert.service';
-import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { useCallback } from 'react';
 
 export const alertsKey = (householdId: string | undefined) => ['alerts', householdId];
 export const unreadAlertsKey = (householdId: string | undefined) => ['alerts-unread', householdId];

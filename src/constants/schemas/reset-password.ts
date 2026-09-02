@@ -1,5 +1,6 @@
-import { passwordSchema } from '@/constants/schemas/password';
 import { z } from 'zod';
+
+import { passwordSchema } from '@/constants/schemas/password';
 
 export const resetPasswordSchema = z
   .object({

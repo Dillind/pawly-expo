@@ -1,3 +1,7 @@
+import { zodResolver } from '@hookform/resolvers/zod';
+import { Controller, FormProvider, useForm } from 'react-hook-form';
+import { StyleSheet, View } from 'react-native';
+
 import MainButton from '@/components/core/main-button';
 import TextInputValidated from '@/components/core/text-input-validated';
 import ScreenScrollView from '@/components/layout/screen-scroll-view';
@@ -13,9 +17,6 @@ import { useStyles } from '@/hooks/use-styles';
 import { userFacingMessage } from '@/lib/errors';
 import { showErrorToast, showSuccessToast } from '@/lib/toast';
 import AuthService from '@/services/auth.service';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { Controller, FormProvider, useForm } from 'react-hook-form';
-import { StyleSheet, View } from 'react-native';
 
 const SignIn = () => {
   const styles = useStyles(makeStyles);

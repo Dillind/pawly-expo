@@ -1,5 +1,6 @@
-import { isIOS } from '@/utils/platform';
 import * as Haptics from 'expo-haptics';
+
+import { isIOS } from '@/utils/platform';
 
 const safe = async (fn: () => Promise<void>) => {
   if (!isIOS) return;

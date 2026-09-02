@@ -1,12 +1,13 @@
+import { TrueSheet, type SheetDetent } from '@lodev09/react-native-true-sheet';
+import type { ReactNode, RefObject } from 'react';
+import { StyleSheet, View } from 'react-native';
+
 import AppText from '@/components/core/app-text';
 import Divider from '@/components/core/divider';
 import IconButton from '@/components/core/icon-button';
 import { Radius, type AppTheme } from '@/constants/theme';
 import { useStyles } from '@/hooks/use-styles';
 import { useTheme } from '@/hooks/use-theme';
-import { TrueSheet, type SheetDetent } from '@lodev09/react-native-true-sheet';
-import type { ReactNode, RefObject } from 'react';
-import { StyleSheet, View } from 'react-native';
 
 type Props = {
   sheetRef: RefObject<TrueSheet | null>;

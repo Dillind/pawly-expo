@@ -1,3 +1,9 @@
+import dayjs from 'dayjs';
+import { useRouter } from 'expo-router';
+import { useState } from 'react';
+import { Controller, useFieldArray, useFormContext, useWatch } from 'react-hook-form';
+import { StyleSheet, View } from 'react-native';
+
 import AppText from '@/components/core/app-text';
 import MainButton from '@/components/core/main-button';
 import TextInputValidated from '@/components/core/text-input-validated';
@@ -5,22 +11,16 @@ import ScreenFooter from '@/components/layout/screen-footer';
 import ScreenScrollView from '@/components/layout/screen-scroll-view';
 import ScreenView from '@/components/layout/screen-view';
 import FlowStepper from '@/components/ui/flow-stepper';
-import { ADD_PET_STEPS } from '@/constants/schemas/add-pet';
-import { FEEDING_SCHEDULE_LABEL_OPTIONS } from '@/constants/options';
-import type { AddPetFormValues } from '@/constants/schemas/add-pet';
-import { Radius, type AppTheme } from '@/constants/theme';
 import { ErrorMessage } from '@/constants/enums';
+import { FEEDING_SCHEDULE_LABEL_OPTIONS } from '@/constants/options';
+import { ADD_PET_STEPS, type AddPetFormValues } from '@/constants/schemas/add-pet';
+import { Radius, type AppTheme } from '@/constants/theme';
 import { useAddPet } from '@/hooks/queries/pet/use-pet-mutations';
 import { useStyles } from '@/hooks/use-styles';
 import { showErrorToast } from '@/lib/toast';
 import PetPhotoService from '@/services/pet-photo.service';
 import { useAuthStore } from '@/stores/auth-store';
 import { optionLabel } from '@/utils/options';
-import dayjs from 'dayjs';
-import { useRouter } from 'expo-router';
-import { useState } from 'react';
-import { Controller, useFieldArray, useFormContext, useWatch } from 'react-hook-form';
-import { StyleSheet, View } from 'react-native';
 
 /**
  * Step 3, and skippable. Instructions are what makes the app useful to a

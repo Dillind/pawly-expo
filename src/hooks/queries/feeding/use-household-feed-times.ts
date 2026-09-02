@@ -1,6 +1,7 @@
+import { useQueries } from '@tanstack/react-query';
+
 import FeedTimeService, { type FeedTime } from '@/services/feed-time.service';
 import type { Pet } from '@/types/core';
-import { useQueries } from '@tanstack/react-query';
 
 /**
  * Every pet's feed times, keyed by pet.

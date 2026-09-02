@@ -1,11 +1,18 @@
+import { zodResolver } from '@hookform/resolvers/zod';
+import type { TrueSheet } from '@lodev09/react-native-true-sheet';
+import { useCallback, type RefObject } from 'react';
+import { FormProvider, useForm, useWatch } from 'react-hook-form';
+import { StyleSheet, View } from 'react-native';
+
 import AppText from '@/components/core/app-text';
-import Icon from '@/components/core/icon';
 import DateTimePickerValidated from '@/components/core/date-time-picker-validated';
+import Icon from '@/components/core/icon';
 import MainButton from '@/components/core/main-button';
 import PressableOpacity from '@/components/core/pressable-opacity';
 import TextInputValidated from '@/components/core/text-input-validated';
 import Tray, { useTray, type TrayStepDescriptor } from '@/components/core/tray';
 import PetAvatar from '@/components/screens/home/pet-avatar';
+import type { IconName } from '@/constants/icon-map';
 import {
   DEFAULT_REMINDER_LEAD_DAYS,
   REMINDER_KIND_ICON,
@@ -18,13 +25,7 @@ import { Radius, type AppTheme, type ThemeColor } from '@/constants/theme';
 import { useCreateReminder } from '@/hooks/queries/reminder/use-reminder-mutations';
 import { useStyles } from '@/hooks/use-styles';
 import { formatReminderDate, formatScheduledTime } from '@/lib/dates';
-import type { IconName } from '@/constants/icon-map';
 import type { Option, Pet } from '@/types/core';
-import { zodResolver } from '@hookform/resolvers/zod';
-import type { TrueSheet } from '@lodev09/react-native-true-sheet';
-import { useCallback, type RefObject } from 'react';
-import { FormProvider, useForm, useWatch } from 'react-hook-form';
-import { StyleSheet, View } from 'react-native';
 
 type Props = {
   sheetRef: RefObject<TrueSheet | null>;

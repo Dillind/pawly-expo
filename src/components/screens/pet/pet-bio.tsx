@@ -1,3 +1,9 @@
+import { zodResolver } from '@hookform/resolvers/zod';
+import type { TrueSheet } from '@lodev09/react-native-true-sheet';
+import { useRef } from 'react';
+import { Controller, FormProvider, useForm, useWatch } from 'react-hook-form';
+import { StyleSheet, View } from 'react-native';
+
 import AppText from '@/components/core/app-text';
 import IconButton from '@/components/core/icon-button';
 import MainButton from '@/components/core/main-button';
@@ -9,11 +15,6 @@ import { useHousehold } from '@/hooks/queries/household/use-household';
 import { useUpdatePet } from '@/hooks/queries/pet/use-update-pet';
 import { useStyles } from '@/hooks/use-styles';
 import { bioSchema, type BioInput } from '@/lib/form/pet-schemas';
-import { zodResolver } from '@hookform/resolvers/zod';
-import type { TrueSheet } from '@lodev09/react-native-true-sheet';
-import { useRef } from 'react';
-import { Controller, FormProvider, useForm, useWatch } from 'react-hook-form';
-import { StyleSheet, View } from 'react-native';
 
 type EditStepProps = {
   petId: string;

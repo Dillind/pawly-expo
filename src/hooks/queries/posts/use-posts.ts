@@ -1,3 +1,11 @@
+import {
+  useInfiniteQuery,
+  useMutation,
+  useQueries,
+  useQuery,
+  useQueryClient
+} from '@tanstack/react-query';
+
 import { ErrorMessage, SuccessMessage } from '@/constants/enums';
 import { showErrorToast, showSuccessToast } from '@/lib/toast';
 import PostService, {
@@ -7,13 +15,6 @@ import PostService, {
   type PostsCursor
 } from '@/services/post.service';
 import { useAuthStore } from '@/stores/auth-store';
-import {
-  useInfiniteQuery,
-  useMutation,
-  useQueries,
-  useQuery,
-  useQueryClient
-} from '@tanstack/react-query';
 
 /** Sorted: the same households in a different order must not fetch a second time. */
 const postsKey = (householdIds: string[]) => ['posts', [...householdIds].sort()];

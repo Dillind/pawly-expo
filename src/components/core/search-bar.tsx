@@ -1,11 +1,12 @@
+import { useEffect, useState } from 'react';
+import { StyleSheet, TextInput, View, type StyleProp, type ViewStyle } from 'react-native';
+
 import Icon from '@/components/core/icon';
 import PressableOpacity from '@/components/core/pressable-opacity';
 import { InterFontFamily, Radius, type AppTheme } from '@/constants/theme';
 import { useDebounce } from '@/hooks/use-debounce';
 import { useStyles } from '@/hooks/use-styles';
 import { useTheme } from '@/hooks/use-theme';
-import { useEffect, useState } from 'react';
-import { StyleSheet, TextInput, View, type StyleProp, type ViewStyle } from 'react-native';
 
 const HEIGHT = 44;
 const DEBOUNCE_MS = 250;

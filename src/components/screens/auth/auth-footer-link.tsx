@@ -1,9 +1,10 @@
+import { Link, type Href } from 'expo-router';
+import { StyleSheet, View } from 'react-native';
+
 import AppText from '@/components/core/app-text';
 import PressableOpacity from '@/components/core/pressable-opacity';
 import type { AppTheme } from '@/constants/theme';
 import { useStyles } from '@/hooks/use-styles';
-import { Link, type Href } from 'expo-router';
-import { StyleSheet, View } from 'react-native';
 
 type Props = {
   prompt?: string;

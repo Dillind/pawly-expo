@@ -1,8 +1,9 @@
+import { useInfiniteQuery } from '@tanstack/react-query';
+
 import FeedLogService, {
   FEED_LOGS_PAGE_SIZE,
   type FeedLogsCursor
 } from '@/services/feed-log.service';
-import { useInfiniteQuery } from '@tanstack/react-query';
 
 /**
  * Activity's list. Cursor on `(logged_at, id) desc`, 30 per page.

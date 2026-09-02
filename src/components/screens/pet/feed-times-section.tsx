@@ -1,7 +1,11 @@
+import type { TrueSheet } from '@lodev09/react-native-true-sheet';
+import { useRef, useState } from 'react';
+import { ActivityIndicator, StyleSheet, View } from 'react-native';
+
 import SheetRow from '@/components/bottom-sheets/sheet-row';
 import AppText from '@/components/core/app-text';
-import ErrorState from '@/components/core/error-state';
 import Divider, { RowInset } from '@/components/core/divider';
+import ErrorState from '@/components/core/error-state';
 import IconButton from '@/components/core/icon-button';
 import ListCard from '@/components/core/list-card';
 import ToggleSwitch from '@/components/core/toggle-switch';
@@ -10,17 +14,14 @@ import AddFeedTimeGhostRow from '@/components/screens/pet/add-feed-time-ghost-ro
 import FeedTimeForm from '@/components/ui/feed-time-form';
 import OccurrenceList from '@/components/ui/occurrence-list';
 import type { AppTheme } from '@/constants/theme';
-import { useFeedTimes } from '@/hooks/queries/feeding/use-feed-times';
 import { useEndFeedTime, useSaveFeedTime } from '@/hooks/queries/feeding/use-feed-time-mutations';
+import { useFeedTimes } from '@/hooks/queries/feeding/use-feed-times';
 import { useOccurrences } from '@/hooks/queries/feeding/use-occurrences';
 import { usePausePet, useResumePet } from '@/hooks/queries/feeding/use-pet-pause';
 import { useStyles } from '@/hooks/use-styles';
 import { formatScheduledTime } from '@/lib/dates';
 import type { FeedTime } from '@/services/feed-time.service';
 import type { HouseholdMember, Pet } from '@/types/core';
-import type { TrueSheet } from '@lodev09/react-native-true-sheet';
-import { useRef, useState } from 'react';
-import { ActivityIndicator, StyleSheet, View } from 'react-native';
 
 const capitalise = (value: string) => value.charAt(0).toUpperCase() + value.slice(1);
 

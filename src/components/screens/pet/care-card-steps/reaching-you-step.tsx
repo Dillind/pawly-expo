@@ -1,3 +1,6 @@
+import { useState } from 'react';
+import { Alert, StyleSheet, View } from 'react-native';
+
 import AppText from '@/components/core/app-text';
 import Icon from '@/components/core/icon';
 import IconButton from '@/components/core/icon-button';
@@ -6,8 +9,6 @@ import { Radius, type AppTheme } from '@/constants/theme';
 import { useDeleteContact } from '@/hooks/queries/pet/use-care-card-mutations';
 import { useStyles } from '@/hooks/use-styles';
 import { MAX_CARE_CARD_CONTACTS, type CareCardContact } from '@/services/care-card.service';
-import { useState } from 'react';
-import { Alert, StyleSheet, View } from 'react-native';
 
 import ContactForm from './contact-form';
 import StepFooter from './step-footer';

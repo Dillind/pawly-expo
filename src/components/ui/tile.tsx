@@ -1,14 +1,14 @@
+import { useRouter, type Href } from 'expo-router';
+import { StyleSheet, View } from 'react-native';
+
 import AppText from '@/components/core/app-text';
 import Icon from '@/components/core/icon';
 import PressableOpacity from '@/components/core/pressable-opacity';
 import type { IconName } from '@/constants/icon-map';
-import type { AppTheme } from '@/constants/theme';
-import { Radius } from '@/constants/theme';
+import { Radius, type AppTheme } from '@/constants/theme';
 import { useStyles } from '@/hooks/use-styles';
 import { useTheme } from '@/hooks/use-theme';
 import { createShadowMedium } from '@/lib/styles/shadows';
-import { useRouter, type Href } from 'expo-router';
-import { StyleSheet, View } from 'react-native';
 
 type Props = {
   label: string;

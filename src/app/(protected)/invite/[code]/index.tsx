@@ -1,3 +1,6 @@
+import { useLocalSearchParams, useRouter } from 'expo-router';
+import { ActivityIndicator, StyleSheet, View } from 'react-native';
+
 import AppText from '@/components/core/app-text';
 import ErrorState from '@/components/core/error-state';
 import MainButton from '@/components/core/main-button';
@@ -8,8 +11,6 @@ import { useInvitePreview, useRedeemInvite } from '@/hooks/queries/household/use
 import { useStyles } from '@/hooks/use-styles';
 import type { PreviewStatus } from '@/services/invite.service';
 import { roleWithArticle } from '@/utils/members';
-import { useLocalSearchParams, useRouter } from 'expo-router';
-import { ActivityIndicator, StyleSheet, View } from 'react-native';
 
 const REFUSALS: Partial<Record<PreviewStatus, string>> = {
   already_member: ErrorMessage.InviteAlreadyJoined,

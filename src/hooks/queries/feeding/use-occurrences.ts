@@ -1,6 +1,7 @@
-import FeedTimeService from '@/services/feed-time.service';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useCallback } from 'react';
+
+import FeedTimeService from '@/services/feed-time.service';
 
 const LIVE_REFETCH_MS = 60_000;
 

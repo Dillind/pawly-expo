@@ -1,5 +1,3 @@
-import { Radius, type AppTheme } from '@/constants/theme';
-import { useStyles } from '@/hooks/use-styles';
 import { useEffect, type ReactNode } from 'react';
 import { StyleSheet, type DimensionValue, type StyleProp, type ViewStyle } from 'react-native';
 import Animated, {
@@ -10,6 +8,9 @@ import Animated, {
   withSequence,
   withTiming
 } from 'react-native-reanimated';
+
+import { Radius, type AppTheme } from '@/constants/theme';
+import { useStyles } from '@/hooks/use-styles';
 
 const PULSE_MS = 800;
 const DIM_OPACITY = 0.45;

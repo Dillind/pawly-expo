@@ -1,4 +1,6 @@
 import { Image } from 'expo-image';
+import { useState } from 'react';
+import { StyleSheet, useWindowDimensions, View } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import Animated, {
   ReduceMotion,
@@ -6,8 +8,6 @@ import Animated, {
   useSharedValue,
   withSpring
 } from 'react-native-reanimated';
-import { StyleSheet, useWindowDimensions, View } from 'react-native';
-import { useState } from 'react';
 import { scheduleOnRN } from 'react-native-worklets';
 
 const MAX_SCALE = 4;

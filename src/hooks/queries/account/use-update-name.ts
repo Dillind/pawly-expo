@@ -1,8 +1,9 @@
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+
 import { ErrorMessage, SuccessMessage } from '@/constants/enums';
 import { showErrorToast, showSuccessToast } from '@/lib/toast';
 import UserService from '@/services/user.service';
 import { useAuthStore } from '@/stores/auth-store';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 export function useUpdateName() {
   const queryClient = useQueryClient();

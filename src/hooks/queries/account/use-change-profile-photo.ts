@@ -1,9 +1,10 @@
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+
 import { ErrorMessage, SuccessMessage } from '@/constants/enums';
 import { UserFacingError, userFacingMessage } from '@/lib/errors';
 import { showErrorToast, showSuccessToast } from '@/lib/toast';
 import UserService from '@/services/user.service';
 import { useAuthStore } from '@/stores/auth-store';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 export type ChangeProfilePhotoInput = { localUri: string; previousUrl: string | null };
 
