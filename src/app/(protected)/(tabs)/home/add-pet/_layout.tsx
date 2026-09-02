@@ -13,7 +13,7 @@ const DEFAULT_FEED_TIMES: AddPetFormValues['feedTimes'] = [
 /**
  * A nested stack inside the modal, so each step pushes rather than presenting.
  * A sheet raised from a modal is two modals, which Apple's modality guidance
- * and AGENTS.md both reject — so the pet-type and feed editors are screens here.
+ * and AGENTS.md both reject — so the feed editor is a screen here.
  *
  * The form lives here rather than on any one step. Every screen the Stack
  * renders is a child of this provider, so the four of them share one form
@@ -41,11 +41,6 @@ export default function AddPetLayout() {
       <Stack>
         <Stack.Screen name="index">
           <Stack.Title style={HeaderTitleStyle}>Add a pet</Stack.Title>
-          <Stack.Header transparent />
-          <Stack.Screen.BackButton displayMode="minimal" />
-        </Stack.Screen>
-        <Stack.Screen name="pet-type">
-          <Stack.Title style={HeaderTitleStyle}>Pet type</Stack.Title>
           <Stack.Header transparent />
           <Stack.Screen.BackButton displayMode="minimal" />
         </Stack.Screen>

@@ -12,6 +12,7 @@ export type PetDetail = {
   birthdateIsApproximate: boolean;
   photoUrl: string | null;
   bio: string | null;
+  petType: PetType;
 };
 
 export type AddPetInput = {
@@ -37,9 +38,11 @@ export type PetPatch = {
   sex?: PetSex;
   birthdate?: string | null;
   birthdateIsApproximate?: boolean;
+  petType?: PetType;
 };
 
-const DETAIL_COLUMNS = 'id, name, breed, sex, birthdate, birthdate_is_approximate, photo_url, bio';
+const DETAIL_COLUMNS =
+  'id, name, breed, sex, birthdate, birthdate_is_approximate, photo_url, bio, pet_type';
 
 namespace PetService {
   export async function getDetail(petId: string): Promise<PetDetail> {
@@ -59,7 +62,8 @@ namespace PetService {
       birthdate: data.birthdate,
       birthdateIsApproximate: data.birthdate_is_approximate,
       photoUrl: data.photo_url,
-      bio: data.bio
+      bio: data.bio,
+      petType: data.pet_type
     };
   }
 
@@ -74,6 +78,7 @@ namespace PetService {
     if (patch.birthdateIsApproximate !== undefined) {
       row.birthdate_is_approximate = patch.birthdateIsApproximate;
     }
+    if (patch.petType !== undefined) row.pet_type = patch.petType;
 
     const { data, error } = await supabase.from('pets').update(row).eq('id', petId).select('id');
     if (error) throw error;

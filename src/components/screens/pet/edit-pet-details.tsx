@@ -1,15 +1,16 @@
 import DateTimePickerValidated from '@/components/core/date-time-picker-validated';
 import DropdownPickerValidated from '@/components/core/dropdown-picker-validated';
 import MainButton from '@/components/core/main-button';
+import SegmentedControl from '@/components/core/segmented-control';
 import TextInputValidated from '@/components/core/text-input-validated';
 import ToggleSwitch from '@/components/core/toggle-switch';
 import { ErrorMessage, SuccessMessage } from '@/constants/enums';
-import { SEX_OPTIONS } from '@/constants/options';
+import { PET_TYPE_OPTIONS, SEX_OPTIONS } from '@/constants/options';
 import { petDetailsEditSchema, type PetDetailsEditValues } from '@/constants/schemas/pet-details';
 import type { AppTheme } from '@/constants/theme';
 import { useRemovePet } from '@/hooks/queries/pet/use-pet-mutations';
 import { useUpdatePet } from '@/hooks/queries/pet/use-update-pet';
-import type { PetSex } from '@/types/core';
+import type { PetSex, PetType } from '@/types/core';
 import { useStyles } from '@/hooks/use-styles';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter } from 'expo-router';
@@ -18,6 +19,7 @@ import { Alert, StyleSheet, View } from 'react-native';
 
 export type EditablePetDetails = {
   name: string;
+  petType: PetType;
   breed: string | null;
   sex: PetSex | null;
   birthdate: string | null;
@@ -43,6 +45,7 @@ const EditPetDetails = ({ petId, details, onDone }: Props) => {
     resolver: zodResolver(petDetailsEditSchema),
     defaultValues: {
       name: details.name,
+      petType: details.petType,
       breed: details.breed ?? '',
       sex: details.sex ?? undefined,
       birthdate: details.birthdate ?? '',
@@ -56,6 +59,7 @@ const EditPetDetails = ({ petId, details, onDone }: Props) => {
     updatePet(
       {
         name: values.name,
+        petType: values.petType,
         breed: values.breed,
         sex: values.sex,
         birthdate: values.birthdate,
@@ -101,6 +105,22 @@ const EditPetDetails = ({ petId, details, onDone }: Props) => {
               onBlur={onBlur}
               placeholder="Bailey"
               returnKeyType="next"
+            />
+          )}
+        />
+
+        {/* No `isLabelIndicated`: the row always carries a type, so the
+            control never starts unset. */}
+        <Controller
+          control={control}
+          name="petType"
+          render={({ field: { onChange, value } }) => (
+            <SegmentedControl
+              name="petType"
+              label="Pet type"
+              options={PET_TYPE_OPTIONS}
+              value={value}
+              onChange={onChange}
             />
           )}
         />
