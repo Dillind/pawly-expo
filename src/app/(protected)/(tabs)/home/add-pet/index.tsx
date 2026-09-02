@@ -1,4 +1,5 @@
 import PhotoSourceSheet from '@/components/bottom-sheets/photo-source-sheet';
+import AgePickerValidated from '@/components/core/age-picker-validated';
 import AppText from '@/components/core/app-text';
 import DateTimePickerValidated from '@/components/core/date-time-picker-validated';
 import Icon from '@/components/core/icon';
@@ -18,6 +19,7 @@ import {
 import { Radius, type AppTheme } from '@/constants/theme';
 import { useStyles } from '@/hooks/use-styles';
 import type { AgeMode } from '@/types/core';
+import { birthdateFromAge } from '@/lib/dates';
 import { isIOS } from '@/utils/platform';
 import type { TrueSheet } from '@lodev09/react-native-true-sheet';
 import { Image } from 'expo-image';
@@ -52,6 +54,7 @@ const AddPetDetails = () => {
 
   const petName = useWatch({ control, name: 'name' });
   const ageMode = useWatch({ control, name: 'ageMode' });
+  const birthdate = useWatch({ control, name: 'birthdate' });
   const photoUri = useWatch({ control, name: 'photoUri' });
 
   const leave = () => {
@@ -202,7 +205,16 @@ const AddPetDetails = () => {
               label="Age"
               options={AGE_OPTIONS}
               value={value}
-              onChange={onChange}
+              onChange={(next) => {
+                onChange(next);
+                // The wheels always read something, so an empty birthdate would
+                // leave the caption disagreeing with what is on screen.
+                if (next === 'approximate' && !birthdate) {
+                  setValue('birthdate', birthdateFromAge({ years: 0, months: 0 }), {
+                    shouldDirty: true
+                  });
+                }
+              }}
             />
           )}
         />
@@ -210,15 +222,25 @@ const AddPetDetails = () => {
         <Controller
           control={control}
           name="birthdate"
-          render={({ field: { onChange, value } }) => (
-            <DateTimePickerValidated
-              name="birthdate"
-              label={ageMode === 'birthdate' ? 'Date of birth' : 'Roughly when were they born?'}
-              isLabelIndicated
-              selectedDate={value}
-              setSelectedDate={onChange}
-            />
-          )}
+          render={({ field: { onChange, value } }) =>
+            ageMode === 'birthdate' ? (
+              <DateTimePickerValidated
+                name="birthdate"
+                label="Date of birth"
+                isLabelIndicated
+                selectedDate={value}
+                setSelectedDate={onChange}
+              />
+            ) : (
+              <AgePickerValidated
+                name="birthdate"
+                label="How old are they?"
+                isLabelIndicated
+                selectedDate={value}
+                setSelectedDate={onChange}
+              />
+            )
+          }
         />
 
         <Controller
