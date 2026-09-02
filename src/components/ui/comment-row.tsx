@@ -14,10 +14,9 @@ import { StyleSheet, View } from 'react-native';
 type Props = {
   comment: PostComment;
   isReply?: boolean;
-  canDelete: boolean;
   onToggleLike: () => void;
   onReply: () => void;
-  onLongPress: () => void;
+  onLongPress?: () => void;
 };
 
 const AVATAR = 32;
@@ -27,7 +26,6 @@ const LIKE_ICON = 16;
 const CommentRow = ({
   comment,
   isReply = false,
-  canDelete,
   onToggleLike,
   onReply,
   onLongPress
@@ -43,7 +41,7 @@ const CommentRow = ({
   return (
     <PressableOpacity
       style={styles.row}
-      onLongPress={canDelete ? onLongPress : undefined}
+      onLongPress={onLongPress}
       delayLongPress={400}
       // A label here would collapse the row into one node, hiding Reply and the
       // like from VoiceOver.
