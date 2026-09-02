@@ -152,13 +152,20 @@ const Home = () => {
       );
     }
 
+    // The member already has a household, so the question is whether they can
+    // put a pet in it. An Owner sees the action; a Contributor is told to wait
+    // rather than offered a button that creates a household they do not want.
     if (!hasPets) {
       return (
         <EmptyState
           icon="pawPrint"
-          title="No pets yet"
-          description="Add a pet to start tracking feeds."
-          action={<MainButton text="Add a pet" href="/home/add-pet" />}
+          title={isOwner ? 'Add your first pet' : 'Nothing to feed yet'}
+          description={
+            isOwner
+              ? 'Their feed times go in once, and everyone in the household sees them.'
+              : `No one has added a pet to ${household?.name ?? 'this household'} yet. The owner will.`
+          }
+          action={isOwner ? <MainButton text="Add a pet" href="/home/add-pet" /> : undefined}
         />
       );
     }

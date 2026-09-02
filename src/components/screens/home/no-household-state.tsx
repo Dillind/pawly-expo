@@ -1,9 +1,44 @@
 import AppText from '@/components/core/app-text';
+import Icon from '@/components/core/icon';
 import MainButton from '@/components/core/main-button';
-import type { AppTheme } from '@/constants/theme';
+import type { IconName } from '@/constants/icon-map';
+import { Radius, type AppTheme } from '@/constants/theme';
 import { useStyles } from '@/hooks/use-styles';
+import { createShadowMedium } from '@/lib/styles/shadows';
 import { useRouter } from 'expo-router';
+import type { ReactNode } from 'react';
 import { StyleSheet, View } from 'react-native';
+
+type DoorProps = {
+  icon: IconName;
+  isPrimaryDoor?: boolean;
+  title: string;
+  description: string;
+  action: ReactNode;
+};
+
+const Door = ({ icon, isPrimaryDoor, title, description, action }: DoorProps) => {
+  const styles = useStyles(makeStyles);
+
+  return (
+    <View style={styles.door}>
+      <View style={styles.doorHeading}>
+        <View style={[styles.tile, isPrimaryDoor && styles.tilePrimary]}>
+          <Icon name={icon} size={20} color={isPrimaryDoor ? 'primaryText' : 'textSecondary'} />
+        </View>
+        <AppText variant="header" size={19}>
+          {title}
+        </AppText>
+      </View>
+
+      <AppText size={14} color="textSecondary">
+        {description}
+      </AppText>
+
+      {action}
+    </View>
+  );
+};
 
 /**
  * Home for someone who belongs to no household. This is the whole of
@@ -24,39 +59,69 @@ const NoHouseholdState = () => {
 
   return (
     <View style={styles.container}>
-      <AppText variant="header" size={24}>
-        No pets yet
-      </AppText>
-      <AppText size={15} color="textSecondary">
-        Add a pet to start tracking feeds, or join a household someone has invited you to.
-      </AppText>
-
-      <View style={styles.door}>
-        <MainButton text="Add a pet" href="/home/add-pet" />
-        <AppText size={13} color="textSecondary">
-          This creates a household you own. You can invite others to it later.
+      <View style={styles.intro}>
+        <AppText variant="header" size={28}>
+          Welcome to Crumpet
+        </AppText>
+        <AppText size={15} color="textSecondary">
+          Two ways in. Pick the one that sounds like you.
         </AppText>
       </View>
 
-      <View style={styles.door}>
-        <MainButton
-          text="Join a household"
-          variant="secondary"
-          onPress={() => router.push('/home/join-household')}
+      <View style={styles.doors}>
+        <Door
+          icon="pawPrint"
+          isPrimaryDoor
+          title="I look after a pet"
+          description="We create a household you own, and your pet is the first thing in it. Invite the rest of the house whenever you like."
+          action={<MainButton text="Add a pet" href="/home/add-pet" />}
         />
-        <AppText size={13} color="textSecondary">
-          You&apos;ll see that household&apos;s pets, feeds and posts. You won&apos;t need to add a
-          pet of your own.
-        </AppText>
+
+        <Door
+          icon="users"
+          title="Someone invited me"
+          description="Join their household with the code they sent. You'll see their pets, feeds and posts. You won't need a pet of your own."
+          action={
+            <MainButton
+              text="Join a household"
+              variant="secondary"
+              onPress={() => router.push('/home/join-household')}
+            />
+          }
+        />
       </View>
+
+      <AppText size={13} align="center" color="textSecondary">
+        You can do the other one later. Neither choice is final.
+      </AppText>
     </View>
   );
 };
 
-const makeStyles = ({ spacing }: AppTheme) =>
+const makeStyles = ({ colors, spacing }: AppTheme) =>
   StyleSheet.create({
-    container: { gap: spacing.four, paddingTop: spacing.four },
-    door: { gap: spacing.two }
+    container: { gap: spacing.four, paddingTop: spacing.three },
+    intro: { gap: spacing.one },
+    doors: { gap: spacing.three },
+    door: {
+      gap: spacing.three,
+      padding: spacing.four,
+      borderRadius: Radius.card,
+      borderCurve: 'continuous',
+      backgroundColor: colors.backgroundElement,
+      ...createShadowMedium(colors)
+    },
+    doorHeading: { flexDirection: 'row', alignItems: 'center', gap: spacing.two },
+    tile: {
+      width: 38,
+      height: 38,
+      borderRadius: Radius.tile,
+      borderCurve: 'continuous',
+      alignItems: 'center',
+      justifyContent: 'center',
+      backgroundColor: colors.backgroundSelected
+    },
+    tilePrimary: { backgroundColor: colors.primaryMuted }
   });
 
 export default NoHouseholdState;
