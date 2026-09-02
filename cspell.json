@@ -137,7 +137,9 @@
     "worktree",
     "xact",
     "xcrun",
-    "xmark"
+    "xmark",
+    "zoomable",
+    "Zoomable"
   ],
   "ignoreRegExpList": [
     "/Author.+/",
