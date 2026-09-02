@@ -1,7 +1,6 @@
 import AppText from '@/components/core/app-text';
 import Divider from '@/components/core/divider';
 import EmptyState from '@/components/core/empty-state';
-import HeaderIconButton from '@/components/core/header-icon-button';
 import MainLegendList from '@/components/core/main-legend-list';
 import ScreenView from '@/components/layout/screen-view';
 import AlertRow from '@/components/screens/notifications/alert-row';
@@ -105,20 +104,17 @@ export default function Notifications() {
 
   return (
     <ScreenView edges={[]}>
-      <Stack.Screen
-        options={{
-          headerRight: hasUnread
-            ? () => (
-                <HeaderIconButton
-                  name="check"
-                  accessibilityLabel="Mark all as read"
-                  isDisabled={isMarkingAll}
-                  onPress={() => markAllRead()}
-                />
-              )
-            : undefined
-        }}
-      />
+      <Stack.Toolbar placement="right">
+        {/* `hidden`, not a conditional child -- the toolbar reads its children
+            once and removing one leaves a gap. */}
+        <Stack.Toolbar.Button
+          icon="checkmark"
+          accessibilityLabel="Mark all as read"
+          hidden={!hasUnread}
+          disabled={isMarkingAll}
+          onPress={() => markAllRead()}
+        />
+      </Stack.Toolbar>
 
       <MainLegendList<InboxRow>
         data={alerts}
