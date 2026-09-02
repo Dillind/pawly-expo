@@ -1,0 +1,114 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gabarito:wght@600;700&family=Inter:wght@400;500;600;700&display=swap">
+  <style>
+    body { margin: 0; }
+    a { color: #8F5A03; } a:hover { color: #E39A12; }
+    .ab, .ab * { box-sizing: border-box; }
+    .h1 { font-family: Gabarito, Inter, sans-serif; font-weight: 700; letter-spacing: -0.5px; }
+    .lbl { font-size: 14px; font-weight: 700; color: #1C1815; }
+    .fld { height: 46px; border-radius: 8px; border: 1px solid #746A60; background: #FFFFFF; display: flex; align-items: center; padding: 0 12px; }
+    .seg { display: flex; gap: 4px; padding: 4px; border-radius: 12px; background: #FFFFFF; }
+    .segi { flex: 1; height: 44px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 14px; color: #746A60; }
+    .segon { background: #F1EFEC; font-weight: 700; color: #1C1815; }
+    .card { background: #FFFFFF; border-radius: 24px; box-shadow: 0 1px 2px rgba(74,58,38,0.06), 0 6px 16px rgba(74,58,38,0.07); }
+  </style>
+</helmet>
+
+<div class="ab" style="width: 390px; height: 1010px; position: relative; overflow: hidden; background: #FBFAF8; font-family: Inter, -apple-system, system-ui, sans-serif; color: #1C1815;">
+
+  <div style="display: flex; align-items: center; justify-content: space-between; height: 44px; padding: 0 24px; margin-top: 62px;">
+    <div style="font-size: 17px; color: #8F5A03; width: 60px;">Cancel</div>
+    <div style="font-size: 17px; font-weight: 700;">Add a pet</div>
+    <div style="width: 60px;"></div>
+  </div>
+
+  <div style="position: relative; height: 52px; margin-top: 12px;">
+    <div style="position: absolute; left: 81px; top: 13px; width: 228px; height: 2px; border-radius: 2px; background: #E6DFD4;"></div>
+    <div style="position: absolute; left: 0; top: 0; right: 0; display: flex; padding: 0 24px;">
+      <div style="flex: 1; display: flex; flex-direction: column; align-items: center; gap: 6px;">
+        <div style="width: 26px; height: 26px; border-radius: 100px; background: #F0A81C; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 0 4px rgba(240,168,28,0.16);"><span style="font-size: 13px; font-weight: 700; color: #2A1D06;">1</span></div>
+        <div style="font-size: 12px; font-weight: 700; color: #1C1815;">Pet details</div>
+      </div>
+      <div style="flex: 1; display: flex; flex-direction: column; align-items: center; gap: 6px;">
+        <div style="width: 26px; height: 26px; border-radius: 100px; background: #FBFAF8; border: 1.5px solid rgba(58,48,38,0.20); display: flex; align-items: center; justify-content: center;"><span style="font-size: 13px; color: #9A9086;">2</span></div>
+        <div style="font-size: 12px; color: #746A60;">Feed times</div>
+      </div>
+      <div style="flex: 1; display: flex; flex-direction: column; align-items: center; gap: 6px;">
+        <div style="width: 26px; height: 26px; border-radius: 100px; background: #FBFAF8; border: 1.5px solid rgba(58,48,38,0.20); display: flex; align-items: center; justify-content: center;"><span style="font-size: 13px; color: #9A9086;">3</span></div>
+        <div style="font-size: 12px; color: #746A60;">What they eat</div>
+      </div>
+    </div>
+  </div>
+
+  <div style="display: flex; flex-direction: column; gap: 20px; padding: 20px 24px 0 24px;">
+
+    <div style="display: flex; flex-direction: column; gap: 6px;">
+      <div class="h1" style="font-size: 30px; line-height: 1.06;">Who are you caring for?</div>
+      <div style="font-size: 15px; line-height: 1.42; color: #746A60;">The basics. You can fill in the rest later.</div>
+    </div>
+
+    <div style="display: flex; flex-direction: column; gap: 8px;">
+      <div class="lbl">Name <span style="color: #CE3C39;">*</span></div>
+      <div class="fld"><span style="font-size: 16px;">Nibbles</span></div>
+    </div>
+
+    <div style="display: flex; align-items: center; gap: 14px;">
+      <div style="width: 56px; height: 56px; border-radius: 100px; background: #F1EFEC; display: flex; align-items: center; justify-content: center; flex: none;">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#746A60" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3Z"></path><circle cx="12" cy="13" r="3.2"></circle></svg>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 2px;">
+        <div style="font-size: 15px; font-weight: 600; color: #8F5A03;">Add a photo</div>
+        <div style="font-size: 13px; color: #9A9086;">Optional</div>
+      </div>
+    </div>
+
+    <div style="display: flex; flex-direction: column; gap: 8px;">
+      <div class="lbl">Pet type</div>
+      <div class="seg">
+        <div class="segi">Dog</div>
+        <div class="segi">Cat</div>
+        <div class="segi segon">Other</div>
+      </div>
+      <div style="display: flex; gap: 10px; align-items: flex-start; padding: 12px 14px; border-radius: 12px; background: #F1EFEC; margin-top: 4px;">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#746A60" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex: none; margin-top: 1px;"><circle cx="12" cy="12" r="10"></circle><path d="M12 16v-4M12 8h.01"></path></svg>
+        <div style="font-size: 13px; line-height: 1.4; color: #746A60;">No breed field. We hold no breed list for a rabbit or a bird, so asking would be worse than not asking.</div>
+      </div>
+    </div>
+
+    <div style="display: flex; flex-direction: column; gap: 8px;">
+      <div class="lbl">Sex</div>
+      <div class="seg">
+        <div class="segi segon">Male</div>
+        <div class="segi">Female</div>
+      </div>
+    </div>
+
+    <div style="display: flex; flex-direction: column; gap: 8px;">
+      <div class="lbl">Age <span style="color: #CE3C39;">*</span></div>
+      <div class="seg">
+        <div class="segi segon">Date of birth</div>
+        <div class="segi">Approximate age</div>
+      </div>
+      <div class="fld" style="justify-content: space-between; margin-top: 4px;">
+        <span style="font-size: 16px;">2 August 2024</span>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#746A60" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="3"></rect><path d="M16 2v4M8 2v4M3 10h18"></path></svg>
+      </div>
+    </div>
+
+    <div style="height: 42px; border-radius: 100px; background: #F0A81C; display: flex; align-items: center; justify-content: center; margin-top: 8px; box-shadow: 0 2px 6px rgba(200,140,20,0.28);">
+      <span style="font-size: 17px; font-weight: 700; color: #2A1D06;">Continue</span>
+    </div>
+
+  </div>
+</div>
+</x-dc>
+</body>
+</html>

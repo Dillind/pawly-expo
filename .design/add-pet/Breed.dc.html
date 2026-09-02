@@ -1,0 +1,78 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gabarito:wght@600;700&family=Inter:wght@400;500;600;700&display=swap">
+  <style>
+    body { margin: 0; }
+    a { color: #8F5A03; } a:hover { color: #E39A12; }
+    .ab, .ab * { box-sizing: border-box; }
+    .h1 { font-family: Gabarito, Inter, sans-serif; font-weight: 700; letter-spacing: -0.5px; }
+    .lbl { font-size: 14px; font-weight: 700; color: #1C1815; }
+    .fld { height: 46px; border-radius: 8px; border: 1px solid #746A60; background: #FFFFFF; display: flex; align-items: center; padding: 0 12px; }
+    .seg { display: flex; gap: 4px; padding: 4px; border-radius: 12px; background: #FFFFFF; }
+    .segi { flex: 1; height: 44px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 14px; color: #746A60; }
+    .segon { background: #F1EFEC; font-weight: 700; color: #1C1815; }
+    .card { background: #FFFFFF; border-radius: 24px; box-shadow: 0 1px 2px rgba(74,58,38,0.06), 0 6px 16px rgba(74,58,38,0.07); }
+    .row { display: flex; align-items: center; justify-content: space-between; min-height: 52px; padding: 0 18px; }
+    .rule { height: 1px; background: rgba(58,48,38,0.09); margin-left: 18px; }
+  </style>
+</helmet>
+
+<div class="ab" style="width: 390px; height: 844px; position: relative; overflow: hidden; background: #FBFAF8; font-family: Inter, -apple-system, system-ui, sans-serif; color: #1C1815;">
+
+  <div style="display: flex; align-items: center; justify-content: space-between; height: 44px; padding: 0 24px; margin-top: 62px;">
+    <div style="width: 60px; display: flex; align-items: center;">
+      <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="#8F5A03" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"></path></svg>
+    </div>
+    <div style="font-size: 17px; font-weight: 700;">Breed</div>
+    <div style="width: 60px;"></div>
+  </div>
+
+  <div style="display: flex; flex-direction: column; gap: 16px; padding: 20px 24px 0 24px;">
+
+    <div style="display: flex; flex-direction: column; gap: 6px;">
+      <div class="h1" style="font-size: 30px; line-height: 1.06;">What breed is Bailey?</div>
+      <div style="font-size: 15px; line-height: 1.42; color: #746A60;">Dogs, because that is the pet type. Not knowing is a real answer.</div>
+    </div>
+
+    <div class="fld" style="gap: 10px; border-color: rgba(58,48,38,0.13); background: #F1EFEC;">
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#9A9086" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"></circle><path d="m21 21-4.3-4.3"></path></svg>
+      <span style="font-size: 16px; color: #9A9086;">Search breeds</span>
+    </div>
+
+    <div class="card" style="padding: 4px 0;">
+      <div class="row"><span style="font-size: 16px;">Border Collie</span></div>
+      <div class="rule"></div>
+      <div class="row" style="background: rgba(240,168,28,0.10);">
+        <span style="font-size: 16px; font-weight: 600;">Cavoodle (Cavapoo)</span>
+        <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#8F5A03" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"></path></svg>
+      </div>
+      <div class="rule"></div>
+      <div class="row"><span style="font-size: 16px;">Golden Retriever</span></div>
+      <div class="rule"></div>
+      <div class="row"><span style="font-size: 16px;">Groodle (Goldendoodle)</span></div>
+      <div class="rule"></div>
+      <div class="row"><span style="font-size: 16px;">Kelpie</span></div>
+      <div class="rule"></div>
+      <div class="row"><span style="font-size: 16px;">Labrador Retriever</span></div>
+      <div class="rule"></div>
+      <div class="row"><span style="font-size: 16px;">Spoodle (Cockapoo)</span></div>
+      <div class="rule"></div>
+      <div class="row"><span style="font-size: 16px;">Staffordshire Bull Terrier</span></div>
+    </div>
+
+    <div class="card" style="padding: 4px 0;">
+      <div class="row"><span style="font-size: 16px; color: #746A60;">I do not know the breed</span></div>
+    </div>
+
+  </div>
+</div>
+</x-dc>
+</body>
+</html>

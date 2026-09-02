@@ -57,4 +57,12 @@ docs/agents
 
 # Design working files are tracked: the artboards and DESIGN_BRIEF.md are the
 # specification for the UI tickets, not scratch output.
+#
+# The published single-file canvases are not. Each packs the canvas editor and
+# a copy of the artboards beside it into one ~2.4 MB file, so it is a generated
+# export of files already in this folder.
 .design/**/.DS_Store
+.design/**/*-backup/
+.design/crumpet-directions/crumpet-golden-system.html
+.design/screens/batch-2/crumpet-home-and-reminders.html
+.design/add-pet/add-pet-flow.html

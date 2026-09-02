@@ -1,0 +1,18 @@
+{
+  "artboards": [
+    { "file": "Welcome.dc.html", "title": "Two doors", "x": 0, "y": 0, "w": 390, "h": 844 },
+    { "file": "Main.dc.html", "title": "Step 1 — Pet details", "x": 490, "y": 0, "w": 390, "h": 1080 },
+    { "file": "Other.dc.html", "title": "Step 1 — pet type is Other", "x": 980, "y": 0, "w": 390, "h": 1010 },
+    { "file": "Age.dc.html", "title": "Step 1 — approximate age", "x": 1470, "y": 0, "w": 390, "h": 700 },
+    { "file": "Breed.dc.html", "title": "Breed picker", "x": 1960, "y": 0, "w": 390, "h": 844 },
+    { "file": "Feeds.dc.html", "title": "Step 2 — Feed times", "x": 0, "y": 1240, "w": 390, "h": 844 },
+    { "file": "FeedEditor.dc.html", "title": "The feed editor", "x": 490, "y": 1240, "w": 390, "h": 880 },
+    { "file": "Instructions.dc.html", "title": "Step 3 — What they eat", "x": 980, "y": 1240, "w": 390, "h": 880 }
+  ],
+  "annotations": [
+    { "id": "brief", "x": 0, "y": -260, "w": 880, "text": "Add a pet — CRU-096 (issue #131)\n\nCreation stays at three steps. Reminders live on the pet screen; health belongs to the Care Card.\n\nWhat changed from the shipped flow:\n· the stepper names its phases (#132)\n· pet type is an inline segmented control, and breed sits under it (#133)\n· approximate age is two wheels, and the derived birthday reads back (#134)\n· the two-door screen becomes a real choice (#135)\n· the photo moves below the name; \"Skip for now\" becomes \"Add without instructions\"\n\nTokens are lifted from src/constants/theme.ts, not from .design/tokens.css — the two disagree on three values and the shipped file wins." },
+    { "id": "breed-note", "x": 1960, "y": -140, "w": 390, "text": "The list is a placeholder set. #116 owns the seeded breeds table, the curation pass and the migration." },
+    { "id": "wheels-note", "x": 1470, "y": -140, "w": 390, "text": "A picker fires no blur, so the wheels must call trigger('birthdate') after a change — see KNOWLEDGE.md." }
+  ],
+  "launch": { "view": "canvas" }
+}
