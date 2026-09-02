@@ -60,3 +60,13 @@ export const breedIdByName = (
   name: string | null | undefined
 ): string | null =>
   name ? (BY_NAME.get(`${species}:${name.trim().toLowerCase()}`) ?? null) : null;
+
+/**
+ * What to show for a pet's breed. Reads prefer `breedId` and fall back to the
+ * free text, which is what stops a pet that typed "Cavadoodle" reading as
+ * nothing while the two columns coexist.
+ */
+export const petBreedLabel = (pet: {
+  breedId: string | null;
+  breedFreetext: string | null;
+}): string | null => breedName(pet.breedId) ?? pet.breedFreetext;

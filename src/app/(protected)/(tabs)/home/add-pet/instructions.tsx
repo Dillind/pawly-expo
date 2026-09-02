@@ -4,7 +4,6 @@ import TextInputValidated from '@/components/core/text-input-validated';
 import ScreenScrollView from '@/components/layout/screen-scroll-view';
 import ScreenView from '@/components/layout/screen-view';
 import FlowStepper from '@/components/ui/flow-stepper';
-import { breedName } from '@/constants/breeds';
 import { ADD_PET_STEPS } from '@/constants/schemas/add-pet';
 import { FEEDING_SCHEDULE_LABEL_OPTIONS } from '@/constants/options';
 import type { AddPetFormValues } from '@/constants/schemas/add-pet';
@@ -60,7 +59,9 @@ const AddPetInstructions = () => {
       addPet(
         {
           name: values.name.trim(),
-          breed: breedName(values.breedId) ?? '',
+          breedId: values.breedId,
+          // A pet created from the list never carries free text.
+          breedFreetext: null,
           sex: values.sex,
           birthdate: values.birthdate,
           birthdateIsApproximate: values.ageMode === 'approximate',

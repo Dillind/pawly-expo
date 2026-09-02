@@ -1,3 +1,4 @@
+import { petBreedLabel } from '@/constants/breeds';
 import { emptyCareCard } from '@/constants/care-card-fields';
 import { ErrorMessage } from '@/constants/enums';
 import { careCardQueryOptions } from '@/hooks/queries/pet/use-care-card';
@@ -31,7 +32,7 @@ export function useShareCareCard() {
 
     return {
       name: detail.name,
-      breed: detail.breed,
+      breed: petBreedLabel(detail),
       ageLabel: formatAge(detail.birthdate, detail.birthdateIsApproximate),
       card: careCard.card ?? emptyCareCard(petId),
       medications: careCard.medications,

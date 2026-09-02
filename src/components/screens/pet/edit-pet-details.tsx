@@ -58,7 +58,9 @@ const EditPetDetails = ({ petId, details, onDone }: Props) => {
       {
         name: values.name,
         petType: values.petType,
-        breed: breedName(values.breedId) ?? null,
+        breedId: values.breedId,
+        // Picking from the list retires the free text this pet was carrying.
+        ...(values.breedId ? { breedFreetext: null } : {}),
         sex: values.sex,
         birthdate: values.birthdate,
         birthdateIsApproximate: values.birthdateIsApproximate
