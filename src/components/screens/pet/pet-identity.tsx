@@ -8,7 +8,7 @@ import Tray, { useTray, type TrayStepDescriptor } from '@/components/core/tray';
 import CareCardTile, { TileWidth } from '@/components/screens/pet/care-card/care-card-tile';
 import EditPetDetails from '@/components/screens/pet/edit-pet-details';
 import BreedPicker from '@/components/ui/breed-picker';
-import { breedIdByName, breedSpeciesFor } from '@/constants/breeds';
+import { breedSpeciesFor, petBreedLabel } from '@/constants/breeds';
 import { petDetailsEditSchema, type PetDetailsEditValues } from '@/constants/schemas/pet-details';
 import { SEX_OPTIONS } from '@/constants/options';
 import { Radius, ScreenGutter, type AppTheme } from '@/constants/theme';
@@ -82,7 +82,7 @@ const PetIdentity = ({ pet, isOwner }: Props) => {
   const { mutate: changePhoto, isPending: isChangingPhoto } = useChangePetPhoto(pet.id);
 
   const subtitle = [
-    pet.breed,
+    petBreedLabel(pet),
     pet.sex ? optionLabel(SEX_OPTIONS, pet.sex) : null,
     formatAge(pet.birthdate, pet.birthdateIsApproximate)
   ]
@@ -99,7 +99,7 @@ const PetIdentity = ({ pet, isOwner }: Props) => {
       // The row still holds free text. Match it to a row in the bundled list
       // so the picker opens with the right one ticked -- CRU-104 makes this a
       // real column and a one-time backfill.
-      breedId: breedIdByName(breedSpeciesFor(pet.petType) ?? 'dog', pet.breed),
+      breedId: pet.breedId,
       sex: pet.sex ?? undefined,
       birthdate: pet.birthdate ?? '',
       birthdateIsApproximate: pet.birthdateIsApproximate
@@ -117,8 +117,8 @@ const PetIdentity = ({ pet, isOwner }: Props) => {
           details={{
             name: pet.name,
             petType: pet.petType,
-            breedId: breedIdByName(breedSpeciesFor(pet.petType) ?? 'dog', pet.breed),
-            breedFreetext: pet.breed,
+            breedId: pet.breedId,
+            breedFreetext: pet.breedFreetext,
             sex: pet.sex,
             birthdate: pet.birthdate,
             birthdateIsApproximate: pet.birthdateIsApproximate
@@ -167,7 +167,7 @@ const PetIdentity = ({ pet, isOwner }: Props) => {
               params: {
                 petId: pet.id,
                 petName: pet.name,
-                ...(pet.breed ? { petSubtitle: pet.breed } : {})
+                ...(petBreedLabel(pet) ? { petSubtitle: petBreedLabel(pet) as string } : {})
               }
             })
           }

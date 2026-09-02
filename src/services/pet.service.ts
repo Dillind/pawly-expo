@@ -6,7 +6,10 @@ import type { FeedingScheduleLabel, Pet, PetSex, PetType } from '@/types/core';
 export type PetDetail = {
   id: string;
   name: string;
-  breed: string | null;
+  breedId: string | null;
+  /** The free text a pet carried before the list existed, and the live value
+   *  for a pet whose type is `other`. A pet carries one of the two, never both. */
+  breedFreetext: string | null;
   sex: PetSex | null;
   birthdate: string | null;
   birthdateIsApproximate: boolean;
@@ -17,7 +20,8 @@ export type PetDetail = {
 
 export type AddPetInput = {
   name: string;
-  breed: string;
+  breedId: string | null;
+  breedFreetext: string | null;
   sex: PetSex;
   birthdate: string;
   birthdateIsApproximate: boolean;
@@ -33,7 +37,8 @@ export type AddPetInput = {
 
 export type PetPatch = {
   name?: string;
-  breed?: string | null;
+  breedId?: string | null;
+  breedFreetext?: string | null;
   bio?: string | null;
   sex?: PetSex;
   birthdate?: string | null;
@@ -42,7 +47,7 @@ export type PetPatch = {
 };
 
 const DETAIL_COLUMNS =
-  'id, name, breed, sex, birthdate, birthdate_is_approximate, photo_url, bio, pet_type';
+  'id, name, breed_id, breed_freetext, sex, birthdate, birthdate_is_approximate, photo_url, bio, pet_type';
 
 namespace PetService {
   export async function getDetail(petId: string): Promise<PetDetail> {
@@ -57,7 +62,8 @@ namespace PetService {
     return {
       id: data.id,
       name: data.name,
-      breed: data.breed,
+      breedId: data.breed_id,
+      breedFreetext: data.breed_freetext,
       sex: data.sex,
       birthdate: data.birthdate,
       birthdateIsApproximate: data.birthdate_is_approximate,
@@ -71,7 +77,8 @@ namespace PetService {
     const row: Record<string, unknown> = {};
 
     if (patch.name !== undefined) row.name = patch.name;
-    if (patch.breed !== undefined) row.breed = patch.breed;
+    if (patch.breedId !== undefined) row.breed_id = patch.breedId;
+    if (patch.breedFreetext !== undefined) row.breed_freetext = patch.breedFreetext;
     if (patch.bio !== undefined) row.bio = patch.bio;
     if (patch.sex !== undefined) row.sex = patch.sex;
     if (patch.birthdate !== undefined) row.birthdate = patch.birthdate;
@@ -110,7 +117,8 @@ namespace PetService {
     const { data, error } = await supabase
       .rpc('add_pet', {
         pet_name: input.name,
-        pet_breed: input.breed,
+        pet_breed: input.breedFreetext,
+        pet_breed_id: input.breedId,
         pet_sex: input.sex,
         pet_birthdate: input.birthdate,
         pet_birthdate_is_approximate: input.birthdateIsApproximate,

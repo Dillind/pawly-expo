@@ -45,13 +45,15 @@ describe('PetService.update', () => {
   it('translates the domain shape into column names', async () => {
     await PetService.update('pet-1', {
       name: 'Crumpet',
-      breed: 'Toy Cavoodle',
+      breedId: 'breed-1',
+      breedFreetext: null,
       birthdateIsApproximate: true
     });
 
     expect(mockUpdate).toHaveBeenCalledWith({
       name: 'Crumpet',
-      breed: 'Toy Cavoodle',
+      breed_id: 'breed-1',
+      breed_freetext: null,
       birthdate_is_approximate: true
     });
   });
@@ -63,9 +65,9 @@ describe('PetService.update', () => {
   });
 
   it('keeps an explicit null, which is how a field is cleared', async () => {
-    await PetService.update('pet-1', { breed: null, birthdate: null });
+    await PetService.update('pet-1', { breedId: null, birthdate: null });
 
-    expect(mockUpdate).toHaveBeenCalledWith({ breed: null, birthdate: null });
+    expect(mockUpdate).toHaveBeenCalledWith({ breed_id: null, birthdate: null });
   });
 
   it('targets the pet by id', async () => {
@@ -105,7 +107,8 @@ describe('PetService.add', () => {
     await PetService.add(
       {
         name: 'Miso',
-        breed: 'Ragdoll',
+        breedId: 'breed-9',
+        breedFreetext: null,
         sex: 'female',
         birthdate: '2024-02-01',
         birthdateIsApproximate: true,
@@ -121,7 +124,8 @@ describe('PetService.add', () => {
 
     expect(mockRpc).toHaveBeenCalledWith('add_pet', {
       pet_name: 'Miso',
-      pet_breed: 'Ragdoll',
+      pet_breed: null,
+      pet_breed_id: 'breed-9',
       pet_sex: 'female',
       pet_birthdate: '2024-02-01',
       pet_birthdate_is_approximate: true,
@@ -141,7 +145,8 @@ describe('PetService.add', () => {
     await PetService.add(
       {
         name: 'Miso',
-        breed: 'Ragdoll',
+        breedId: 'breed-9',
+        breedFreetext: null,
         sex: 'female',
         birthdate: '2024-02-01',
         birthdateIsApproximate: true,
@@ -172,7 +177,8 @@ describe('PetService.add', () => {
       PetService.add(
         {
           name: 'Miso',
-          breed: 'Ragdoll',
+          breedId: 'breed-9',
+          breedFreetext: null,
           sex: 'female',
           birthdate: '2024-02-01',
           birthdateIsApproximate: false,
@@ -212,7 +218,9 @@ describe('PetService.getDetail', () => {
       data: {
         id: 'pet-1',
         name: 'Crumpet',
-        breed: 'Toy Cavoodle',
+        breed_id: null,
+        breed_freetext: 'Toy Cavoodle',
+        pet_type: 'dog',
         sex: 'male',
         birthdate: '2026-03-28',
         birthdate_is_approximate: true,
@@ -225,7 +233,9 @@ describe('PetService.getDetail', () => {
     await expect(PetService.getDetail('pet-1')).resolves.toEqual({
       id: 'pet-1',
       name: 'Crumpet',
-      breed: 'Toy Cavoodle',
+      breedId: null,
+      breedFreetext: 'Toy Cavoodle',
+      petType: 'dog',
       sex: 'male',
       birthdate: '2026-03-28',
       birthdateIsApproximate: true,
