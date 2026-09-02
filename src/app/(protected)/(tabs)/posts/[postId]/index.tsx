@@ -1,10 +1,11 @@
 import PostActionsSheet from '@/components/bottom-sheets/post-actions-sheet';
 import ErrorState from '@/components/core/error-state';
 import ScreenView from '@/components/layout/screen-view';
-import CommentsLinkRow from '@/components/ui/comments-link-row';
 import PostBody from '@/components/ui/post-body';
+import PostCommentsPreview from '@/components/ui/post-comments-preview';
 import { type AppTheme } from '@/constants/theme';
 import { useHouseholds } from '@/hooks/queries/household/use-households';
+import { useComments, useToggleCommentLike } from '@/hooks/queries/posts/use-comments';
 import { useDeletePost, usePost, useToggleLike } from '@/hooks/queries/posts/use-posts';
 import { useStyles } from '@/hooks/use-styles';
 import { useAuthStore } from '@/stores/auth-store';
@@ -23,8 +24,14 @@ const PostDetail = () => {
   const { data: households = [] } = useHouseholds();
   const { data: post, isLoading, isError, refetch } = usePost(postId, userId ?? undefined);
 
+  const { data: comments = [] } = useComments(postId, userId ?? undefined);
+
   const { mutate: toggleLike } = useToggleLike();
+  const { mutate: toggleCommentLike } = useToggleCommentLike(postId);
   const { mutate: deletePost } = useDeletePost();
+
+  const openThread = () =>
+    router.push({ pathname: '/posts/[postId]/comments', params: { postId: postId! } });
 
   const household = households.find((candidate) => candidate.id === post?.householdId);
 
@@ -69,16 +76,16 @@ const PostDetail = () => {
             commentCount={post.commentCount}
             onToggleLike={() => toggleLike({ postId: post.id, liked: post.likedByMe })}
             onOpenPhoto={(photoId) => router.push(`/posts/${post.id}/photo/${photoId}`)}
-            onOpenComments={() =>
-              router.push({ pathname: '/posts/[postId]/comments', params: { postId: post.id } })
-            }
+            onOpenComments={openThread}
           />
 
-          <CommentsLinkRow
+          <PostCommentsPreview
+            comments={comments}
             count={post.commentCount}
-            onPress={() =>
-              router.push({ pathname: '/posts/[postId]/comments', params: { postId: post.id } })
+            onToggleLike={(comment) =>
+              toggleCommentLike({ commentId: comment.id, liked: comment.likedByMe })
             }
+            onOpenThread={openThread}
           />
         </ScrollView>
       )}
