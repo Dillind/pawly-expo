@@ -6,7 +6,7 @@ const valid = {
   sex: 'male' as const,
   ageMode: 'birthdate' as const,
   birthdate: '2021-03-12',
-  breed: '',
+  breedId: null,
   photoUri: null,
   feedTimes: [
     {
@@ -23,7 +23,7 @@ const firstMessage = (result: { success: boolean; error?: { issues: { message: s
 
 describe('addPetSchema', () => {
   it('accepts a pet with no breed and no feeds', () => {
-    expect(addPetSchema.safeParse({ ...valid, breed: '', feedTimes: [] }).success).toBe(true);
+    expect(addPetSchema.safeParse({ ...valid, breedId: null, feedTimes: [] }).success).toBe(true);
   });
 
   it('requires a name that is not just whitespace', () => {

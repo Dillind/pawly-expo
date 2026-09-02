@@ -3,7 +3,7 @@ import { z } from 'zod';
 export const petDetailsSchema = z.object({
   name: z.string().min(1, { message: "Enter your pet's name" }),
   petType: z.enum(['dog', 'cat', 'other'], { message: 'Select a pet type' }),
-  breed: z.string().min(1, { message: "Enter your pet's breed" }),
+  breedId: z.string().nullable(),
   sex: z.enum(['male', 'female'], { message: 'Select a sex' }),
   birthdate: z.string().min(1, { message: "Enter your pet's birthdate" }),
   birthdateIsApproximate: z.boolean(),

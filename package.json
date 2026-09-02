@@ -31,7 +31,12 @@
     ],
     "modulePathIgnorePatterns": [
       "<rootDir>/.claude/"
-    ]
+    ],
+    "moduleNameMapper": {
+      "^@/data/(.*)$": "<rootDir>/data/$1",
+      "^@/assets/(.*)$": "<rootDir>/assets/$1",
+      "^@/(.*)$": "<rootDir>/src/$1"
+    }
   },
   "dependencies": {
     "@expo-google-fonts/gabarito": "^0.4.2",

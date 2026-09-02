@@ -30,7 +30,7 @@ export default function AddPetLayout() {
       sex: 'male',
       ageMode: 'birthdate',
       birthdate: '',
-      breed: '',
+      breedId: null,
       photoUri: null,
       feedTimes: DEFAULT_FEED_TIMES
     }
@@ -42,6 +42,12 @@ export default function AddPetLayout() {
         <Stack.Screen name="index">
           <Stack.Title style={HeaderTitleStyle}>Add a pet</Stack.Title>
           <Stack.Header transparent />
+          <Stack.Screen.BackButton displayMode="minimal" />
+        </Stack.Screen>
+        {/* The only step whose body is a full-height list rather than a
+            scroll view, so an overlaying bar would sit on top of the heading. */}
+        <Stack.Screen name="breed">
+          <Stack.Title style={HeaderTitleStyle}>Breed</Stack.Title>
           <Stack.Screen.BackButton displayMode="minimal" />
         </Stack.Screen>
         <Stack.Screen name="feeds">

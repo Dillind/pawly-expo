@@ -1,6 +1,7 @@
 import PhotoSourceSheet from '@/components/bottom-sheets/photo-source-sheet';
 import AgePickerValidated from '@/components/core/age-picker-validated';
 import AppText from '@/components/core/app-text';
+import BreedField from '@/components/core/breed-field';
 import DateTimePickerValidated from '@/components/core/date-time-picker-validated';
 import Icon from '@/components/core/icon';
 import MainButton from '@/components/core/main-button';
@@ -10,6 +11,7 @@ import TextInputValidated from '@/components/core/text-input-validated';
 import ScreenScrollView from '@/components/layout/screen-scroll-view';
 import ScreenView from '@/components/layout/screen-view';
 import FlowStepper from '@/components/ui/flow-stepper';
+import { breedName, breedSpeciesFor } from '@/constants/breeds';
 import { PET_TYPE_OPTIONS, SEX_OPTIONS } from '@/constants/options';
 import {
   ADD_PET_DETAIL_FIELDS,
@@ -56,6 +58,10 @@ const AddPetDetails = () => {
   const ageMode = useWatch({ control, name: 'ageMode' });
   const birthdate = useWatch({ control, name: 'birthdate' });
   const photoUri = useWatch({ control, name: 'photoUri' });
+  const petType = useWatch({ control, name: 'petType' });
+  const breedId = useWatch({ control, name: 'breedId' });
+
+  const breedSpecies = breedSpeciesFor(petType);
 
   const leave = () => {
     reset();
@@ -177,7 +183,14 @@ const AddPetDetails = () => {
               label="Pet type"
               options={PET_TYPE_OPTIONS}
               value={value}
-              onChange={onChange}
+              onChange={(next) => {
+                onChange(next);
+                // A dog breed is not a cat breed, and `other` has no list at
+                // all. Changing the type clears a value that no longer applies.
+                if (breedSpeciesFor(next) !== breedSpecies) {
+                  setValue('breedId', null, { shouldDirty: true });
+                }
+              }}
             />
           )}
         />
@@ -243,21 +256,19 @@ const AddPetDetails = () => {
           }
         />
 
-        <Controller
-          control={control}
-          name="breed"
-          render={({ field: { onChange, onBlur, value } }) => (
-            <TextInputValidated
-              name="breed"
-              label="Breed"
-              value={value}
-              onChangeText={onChange}
-              onBlur={onBlur}
-              placeholder="Labrador, mixed, not sure..."
-              returnKeyType="done"
-            />
-          )}
-        />
+        {/* No breed field for `other`: we hold no breed list for a rabbit or
+            a bird. */}
+        {breedSpecies && (
+          <BreedField
+            value={breedName(breedId) ?? null}
+            description={
+              breedSpecies === 'dog'
+                ? 'Dog breeds. Change the pet type and this list changes with it.'
+                : 'Cat breeds. Change the pet type and this list changes with it.'
+            }
+            onPress={() => router.push('/home/add-pet/breed')}
+          />
+        )}
 
         <MainButton text="Continue" onPress={() => void onContinue()} />
       </ScreenScrollView>
