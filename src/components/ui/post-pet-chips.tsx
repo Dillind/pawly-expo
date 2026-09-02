@@ -1,7 +1,6 @@
-import AppText from '@/components/core/app-text';
 import PetAvatar from '@/components/core/pet-avatar';
-import PressableOpacity from '@/components/core/pressable-opacity';
-import { Radius, type AppTheme } from '@/constants/theme';
+import PostChip from '@/components/ui/post-chip';
+import { type AppTheme } from '@/constants/theme';
 import { useStyles } from '@/hooks/use-styles';
 import type { PostPetTag } from '@/services/post.service';
 import { useRouter } from 'expo-router';
@@ -27,39 +26,25 @@ const PostPetChips = ({ pets }: Props) => {
   return (
     <View style={styles.row}>
       {pets.map((pet) => (
-        <PressableOpacity
+        <PostChip
           key={pet.id}
-          style={styles.chip}
+          leading={<PetAvatar photoUrl={pet.photoUrl} size={AVATAR} />}
+          label={pet.name}
+          accessibilityLabel={`View ${pet.name}`}
           onPress={() => router.push(`/home/${pet.id}`)}
-          accessibilityRole="button"
-          accessibilityLabel={`View ${pet.name}`}>
-          <PetAvatar photoUrl={pet.photoUrl} size={AVATAR} />
-          <AppText size={13} color="textSecondary">
-            {pet.name}
-          </AppText>
-        </PressableOpacity>
+        />
       ))}
     </View>
   );
 };
 
-const makeStyles = ({ colors, spacing }: AppTheme) =>
+const makeStyles = ({ spacing }: AppTheme) =>
   StyleSheet.create({
     row: {
       flexDirection: 'row',
       flexWrap: 'wrap',
       alignItems: 'center',
       gap: spacing.two
-    },
-    chip: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      gap: spacing.one,
-      paddingVertical: spacing.one,
-      paddingRight: spacing.two,
-      paddingLeft: spacing.one,
-      borderRadius: Radius.full,
-      backgroundColor: colors.backgroundElement
     }
   });
 
