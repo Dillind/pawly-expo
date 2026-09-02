@@ -3,7 +3,7 @@ import { petDetailsEditSchema, petDetailsSchema } from '@/constants/schemas/pet-
 const validPet = {
   name: 'Bailey',
   petType: 'dog' as const,
-  breed: 'Labrador',
+  breedId: null,
   sex: 'male' as const,
   birthdate: '2026-03-28',
   birthdateIsApproximate: false,
@@ -17,7 +17,6 @@ describe('petDetailsSchema', () => {
 
   it.each([
     ['name', "Enter your pet's name"],
-    ['breed', "Enter your pet's breed"],
     ['birthdate', "Enter your pet's birthdate"]
   ])('rejects an empty %s', (field, message) => {
     const result = petDetailsSchema.safeParse({ ...validPet, [field]: '' });

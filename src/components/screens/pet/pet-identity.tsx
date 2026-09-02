@@ -4,9 +4,12 @@ import Icon from '@/components/core/icon';
 import IconButton from '@/components/core/icon-button';
 import PetAvatar from '@/components/core/pet-avatar';
 import PressableOpacity from '@/components/core/pressable-opacity';
-import Tray, { type TrayStepDescriptor } from '@/components/core/tray';
+import Tray, { useTray, type TrayStepDescriptor } from '@/components/core/tray';
 import CareCardTile, { TileWidth } from '@/components/screens/pet/care-card/care-card-tile';
 import EditPetDetails from '@/components/screens/pet/edit-pet-details';
+import BreedPicker from '@/components/ui/breed-picker';
+import { breedIdByName, breedSpeciesFor } from '@/constants/breeds';
+import { petDetailsEditSchema, type PetDetailsEditValues } from '@/constants/schemas/pet-details';
 import { SEX_OPTIONS } from '@/constants/options';
 import { Radius, ScreenGutter, type AppTheme } from '@/constants/theme';
 import { useChangePetPhoto } from '@/hooks/queries/pet/use-pet-photo-mutations';
@@ -14,10 +17,47 @@ import { useStyles } from '@/hooks/use-styles';
 import { formatAge } from '@/lib/dates';
 import type { PetDetail } from '@/services/pet.service';
 import { optionLabel } from '@/utils/options';
+import { zodResolver } from '@hookform/resolvers/zod';
 import type { TrueSheet } from '@lodev09/react-native-true-sheet';
 import { useRouter } from 'expo-router';
 import { useRef } from 'react';
+import { FormProvider, useForm, useFormContext, useWatch } from 'react-hook-form';
 import { ActivityIndicator, StyleSheet, View } from 'react-native';
+
+/**
+ * A Tray step, so the picker swaps the sheet's content instead of stacking a
+ * second sheet on the first.
+ */
+const BreedTrayStep = () => {
+  const { back } = useTray();
+  const { control, setValue } = useFormContext<PetDetailsEditValues>();
+
+  const petType = useWatch({ control, name: 'petType' });
+  const breedId = useWatch({ control, name: 'breedId' });
+
+  const species = breedSpeciesFor(petType);
+
+  if (!species) return null;
+
+  return (
+    <View style={{ height: BreedStepHeight }}>
+      <BreedPicker
+        species={species}
+        value={breedId}
+        onChange={(next) => {
+          setValue('breedId', next, { shouldDirty: true, shouldValidate: true });
+          back();
+        }}
+      />
+    </View>
+  );
+};
+
+/**
+ * A Tray sizes itself to its content, and a list has no natural height. This
+ * is what stops the sheet collapsing to one row.
+ */
+const BreedStepHeight = 460;
 
 export const AvatarSize = 140;
 const CAMERA_BADGE_SIZE = 44;
@@ -49,6 +89,24 @@ const PetIdentity = ({ pet, isOwner }: Props) => {
     .filter(Boolean)
     .join(' · ');
 
+  // The form lives here, not in EditPetDetails, because the breed step is a
+  // sibling step and has to read and write the same instance.
+  const form = useForm<PetDetailsEditValues>({
+    resolver: zodResolver(petDetailsEditSchema),
+    defaultValues: {
+      name: pet.name,
+      petType: pet.petType,
+      // The row still holds free text. Match it to a row in the bundled list
+      // so the picker opens with the right one ticked -- CRU-104 makes this a
+      // real column and a one-time backfill.
+      breedId: breedIdByName(breedSpeciesFor(pet.petType) ?? 'dog', pet.breed),
+      sex: pet.sex ?? undefined,
+      birthdate: pet.birthdate ?? '',
+      birthdateIsApproximate: pet.birthdateIsApproximate
+    },
+    mode: 'onBlur'
+  });
+
   const steps: TrayStepDescriptor[] = [
     {
       id: 'edit',
@@ -59,7 +117,8 @@ const PetIdentity = ({ pet, isOwner }: Props) => {
           details={{
             name: pet.name,
             petType: pet.petType,
-            breed: pet.breed,
+            breedId: breedIdByName(breedSpeciesFor(pet.petType) ?? 'dog', pet.breed),
+            breedFreetext: pet.breed,
             sex: pet.sex,
             birthdate: pet.birthdate,
             birthdateIsApproximate: pet.birthdateIsApproximate
@@ -67,6 +126,11 @@ const PetIdentity = ({ pet, isOwner }: Props) => {
           onDone={() => void detailsTrayRef.current?.dismiss()}
         />
       )
+    },
+    {
+      id: 'breed',
+      title: 'Breed',
+      render: () => <BreedTrayStep />
     }
   ];
 
@@ -131,7 +195,9 @@ const PetIdentity = ({ pet, isOwner }: Props) => {
         </AppText>
       )}
 
-      <Tray sheetRef={detailsTrayRef} steps={steps} />
+      <FormProvider {...form}>
+        <Tray sheetRef={detailsTrayRef} steps={steps} />
+      </FormProvider>
 
       <PhotoSourceSheet
         sheetRef={photoSheetRef}

@@ -6,9 +6,9 @@ import { z } from 'zod';
  * it with `trigger`, so a step gate and the final submit cannot disagree about
  * what "valid" means.
  *
- * `breed` is deliberately optional here, unlike petDetailsSchema — a rescue
- * with an unknown mix is the ordinary case, and the placeholder says "not
- * sure...". `birthdate` is required because add_pet casts it to a Postgres
+ * `breedId` is nullable in both this and petDetailsSchema: with a fixed list
+ * and an "Unknown" row, requiring it pushes a member into a wrong answer
+ * rather than an honest one. `birthdate` is required because add_pet casts it to a Postgres
  * `date`, so an empty string fails there rather than here.
  */
 export const addPetSchema = z.object({
@@ -17,7 +17,9 @@ export const addPetSchema = z.object({
   sex: z.enum(['male', 'female'], { message: 'Select a sex' }),
   ageMode: z.enum(['birthdate', 'approximate']),
   birthdate: z.string().min(1, { message: 'Choose a date' }),
-  breed: z.string(),
+  // The chosen row from the bundled breed list, or null. A pet whose type is
+  // `other` always carries null: we hold no breed list for a rabbit.
+  breedId: z.string().nullable(),
   photoUri: z.string().nullable(),
   feedTimes: z.array(feedTimeSchema)
 });
@@ -31,7 +33,7 @@ export const ADD_PET_DETAIL_FIELDS = [
   'sex',
   'ageMode',
   'birthdate',
-  'breed'
+  'breedId'
 ] as const;
 
 /** The phase names the stepper draws, in order. */

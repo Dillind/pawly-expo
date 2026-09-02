@@ -42,6 +42,7 @@ import {
   Share,
   Shield,
   Sparkles,
+  Search,
   Star,
   Sun,
   SunMoon,
@@ -56,6 +57,7 @@ import {
 
 export const iconMap = {
   camera: Camera,
+  search: Search,
   asterisk: Asterisk,
   caretDown: ChevronDown,
   caretUp: ChevronUp,
