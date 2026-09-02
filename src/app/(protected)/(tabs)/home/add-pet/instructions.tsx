@@ -1,6 +1,7 @@
 import AppText from '@/components/core/app-text';
 import MainButton from '@/components/core/main-button';
 import TextInputValidated from '@/components/core/text-input-validated';
+import ScreenFooter from '@/components/layout/screen-footer';
 import ScreenScrollView from '@/components/layout/screen-scroll-view';
 import ScreenView from '@/components/layout/screen-view';
 import FlowStepper from '@/components/ui/flow-stepper';
@@ -140,6 +141,9 @@ const AddPetInstructions = () => {
           );
         })}
 
+      </ScreenScrollView>
+
+      <ScreenFooter>
         <MainButton
           text={`Add ${name || 'pet'}`}
           isLoading={isBusy}
@@ -153,14 +157,14 @@ const AddPetInstructions = () => {
           isDisabled={isBusy}
           onPress={() => void create()}
         />
-      </ScreenScrollView>
+      </ScreenFooter>
     </ScreenView>
   );
 };
 
 const makeStyles = ({ colors, spacing }: AppTheme) =>
   StyleSheet.create({
-    content: { gap: spacing.three, paddingBottom: spacing.six },
+    content: { gap: spacing.three, paddingBottom: spacing.four },
     intro: { gap: spacing.one },
     card: {
       gap: spacing.two,

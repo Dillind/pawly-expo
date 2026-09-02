@@ -8,6 +8,7 @@ import MainButton from '@/components/core/main-button';
 import PressableOpacity from '@/components/core/pressable-opacity';
 import SegmentedControl from '@/components/core/segmented-control';
 import TextInputValidated from '@/components/core/text-input-validated';
+import ScreenFooter from '@/components/layout/screen-footer';
 import ScreenScrollView from '@/components/layout/screen-scroll-view';
 import ScreenView from '@/components/layout/screen-view';
 import FlowStepper from '@/components/ui/flow-stepper';
@@ -46,12 +47,6 @@ const AddPetDetails = () => {
 
   const { control, setValue, trigger, reset } = useFormContext<AddPetFormValues>();
 
-  // useFormState, not formState off useFormContext. The form lives in the
-  // layout, and its formState Proxy only computes what the LAYOUT's render
-  // reads — so isDirty stayed false forever here and Cancel discarded a
-  // half-entered pet with no confirmation. useFormState subscribes this
-  // component properly, and re-rendering it is also what keeps headerLeft's
-  // closure from going stale.
   const { isDirty } = useFormState({ control });
 
   const petName = useWatch({ control, name: 'name' });
@@ -63,18 +58,20 @@ const AddPetDetails = () => {
 
   const breedSpecies = breedSpeciesFor(petType);
 
-  // dismissTo, not back(): this is step 1 of a modal, so there is nothing to
-  // pop within the nested stack, and a cold start straight onto this route has
-  // no history at all -- which is what made Cancel a no-op with a GO_BACK
-  // warning rather than an exit.
+  // back(), because add-pet opens from five places and Cancel returns to the
+  // one the member came from. The guard is for a cold start onto this route,
+  // where there is no history and GO_BACK goes unhandled.
   const leave = () => {
     reset();
-    router.dismissTo('/home');
+
+    if (router.canGoBack()) {
+      router.back();
+      return;
+    }
+
+    router.replace('/home/pets');
   };
 
-  // An action sheet, not an alert: this is a choice attached to something the
-  // member just did, and Apple sends that to an action sheet. Nothing typed
-  // means nothing to lose, so there is no question to ask.
   const cancel = () => {
     if (!isDirty) {
       leave();
@@ -116,9 +113,6 @@ const AddPetDetails = () => {
 
   return (
     <ScreenView edges={[]}>
-      {/* Cancel reads `isDirty` from this screen, so the toolbar lives here
-          rather than in the layout. A React view in the bar hands its geometry
-          to the next screen's back button and stretches it. */}
       <Stack.Toolbar placement="left">
         <Stack.Toolbar.Button onPress={cancel}>Cancel</Stack.Toolbar.Button>
       </Stack.Toolbar>
@@ -266,8 +260,11 @@ const AddPetDetails = () => {
           }
         />
 
-        <MainButton text="Continue" onPress={() => void onContinue()} />
       </ScreenScrollView>
+
+      <ScreenFooter>
+        <MainButton text="Continue" onPress={() => void onContinue()} />
+      </ScreenFooter>
 
       <PhotoSourceSheet
         sheetRef={photoSheetRef}
@@ -279,16 +276,31 @@ const AddPetDetails = () => {
 
 const makeStyles = ({ colors, spacing }: AppTheme) =>
   StyleSheet.create({
-    content: { gap: spacing.three, paddingBottom: spacing.six },
-    intro: { gap: spacing.one },
-    photoPicker: { flexDirection: 'row', alignItems: 'center', gap: spacing.three },
-    photo: { width: 56, height: 56, borderRadius: Radius.full },
+    content: {
+      gap: spacing.three,
+      paddingBottom: spacing.four
+    },
+    intro: {
+      gap: spacing.one
+    },
+    photoPicker: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: spacing.three
+    },
+    photo: {
+      width: 56,
+      height: 56,
+      borderRadius: Radius.full
+    },
     photoPlaceholder: {
       alignItems: 'center',
       justifyContent: 'center',
       backgroundColor: colors.backgroundElement
     },
-    photoHint: { gap: 2 }
+    photoHint: {
+      gap: 2
+    }
   });
 
 export default AddPetDetails;

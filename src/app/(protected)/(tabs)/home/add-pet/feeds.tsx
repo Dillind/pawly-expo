@@ -2,6 +2,7 @@ import AppText from '@/components/core/app-text';
 import Icon from '@/components/core/icon';
 import MainButton from '@/components/core/main-button';
 import PressableOpacity from '@/components/core/pressable-opacity';
+import ScreenFooter from '@/components/layout/screen-footer';
 import ScreenScrollView from '@/components/layout/screen-scroll-view';
 import ScreenView from '@/components/layout/screen-view';
 import FlowStepper from '@/components/ui/flow-stepper';
@@ -85,15 +86,18 @@ const AddPetFeeds = () => {
           Days are set per feed — they can skip dinner on Sundays and still eat breakfast.
         </AppText>
 
-        <MainButton text="Continue" onPress={() => router.push('/home/add-pet/instructions')} />
       </ScreenScrollView>
+
+      <ScreenFooter>
+        <MainButton text="Continue" onPress={() => router.push('/home/add-pet/instructions')} />
+      </ScreenFooter>
     </ScreenView>
   );
 };
 
 const makeStyles = ({ colors, spacing }: AppTheme) =>
   StyleSheet.create({
-    content: { gap: spacing.three, paddingBottom: spacing.six },
+    content: { gap: spacing.three, paddingBottom: spacing.four },
     intro: { gap: spacing.one },
     list: { gap: spacing.two },
     card: {
