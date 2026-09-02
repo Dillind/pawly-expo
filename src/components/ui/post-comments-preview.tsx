@@ -29,6 +29,11 @@ const PostCommentsPreview = ({ comments, count, onToggleLike, onOpenThread }: Pr
 
   if (count === 0) return <CommentsLinkRow count={0} onPress={onOpenThread} />;
 
+  const shown = comments.slice(0, PREVIEW);
+  // `count` counts replies too, and the preview lists none, so a post with one
+  // comment and one reply must still offer the way in.
+  const hasMore = count > shown.length;
+
   return (
     <View style={styles.section}>
       <AppText size={17} fontWeight="bold" style={styles.heading}>
@@ -36,7 +41,7 @@ const PostCommentsPreview = ({ comments, count, onToggleLike, onOpenThread }: Pr
       </AppText>
 
       <View style={styles.rows}>
-        {comments.slice(0, PREVIEW).map((comment) => (
+        {shown.map((comment) => (
           <CommentRow
             key={comment.id}
             comment={comment}
@@ -47,7 +52,7 @@ const PostCommentsPreview = ({ comments, count, onToggleLike, onOpenThread }: Pr
         ))}
       </View>
 
-      <CommentsLinkRow count={count} onPress={onOpenThread} />
+      <CommentsLinkRow count={hasMore ? count : 0} onPress={onOpenThread} />
     </View>
   );
 };
