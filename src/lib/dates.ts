@@ -395,3 +395,38 @@ export function formatReminderDate(day: string): string {
 
 /** The device's own zone, for a display that must not wait on a household read. */
 export const deviceTimezone = (): string => Intl.DateTimeFormat().resolvedOptions().timeZone;
+
+export type ApproximateAge = { years: number; months: number };
+
+/**
+ * The birthdate a rough age implies. Snapped to the first of the month,
+ * because the member said "about three" and not a day.
+ */
+export function birthdateFromAge({ years, months }: ApproximateAge, now = new Date()): string {
+  return dayjs(now)
+    .date(1)
+    .subtract(years * 12 + months, 'month')
+    .format(DAY_FORMAT);
+}
+
+/** The inverse, so an approximate birthdate loads back into the two wheels. */
+export function ageFromBirthdate(birthdate: string, now = new Date()): ApproximateAge {
+  const [year, month] = birthdate.split('-').map(Number);
+  const today = dayjs(now);
+
+  const total = Math.max(0, (today.year() - year) * 12 + (today.month() + 1 - month));
+
+  return { years: Math.floor(total / 12), months: total % 12 };
+}
+
+/** "Born around March 2023", the caption under the age wheels. */
+export function formatBirthMonth(birthdate: string): string {
+  const [year, month] = birthdate.split('-').map(Number);
+  const label = new Date(Date.UTC(year, month - 1, 1)).toLocaleDateString('en-AU', {
+    month: 'long',
+    year: 'numeric',
+    timeZone: 'UTC'
+  });
+
+  return `Born around ${label}`;
+}
