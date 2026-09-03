@@ -17,6 +17,26 @@ Newest first. Append, don't rewrite.
 
 ---
 
+## 2026-09-03
+
+**The welcome screen ships someone else's art, deliberately and temporarily.** A commissioned
+character set costs AUD 2,500-6,000 for five to eight drawings, which is well past the budget
+today. The choice was a stock Lottie, a bare typographic screen, or the old 1 MB placeholder PNG.
+The Lottie wins because it holds the slot without pretending to be finished: it carries a
+`TODO(CRU-030)` naming its source and licence, and the crumpets drifting around it are ours. When
+the hero is commissioned it drops into the same 320pt slot. Bands and named illustrators are in
+[docs/research/auth-art-and-motion.md](./research/auth-art-and-motion.md).
+
+**The crumpet field is sprites and Reanimated, not Skia.** Six drifting marks sit far below every
+reported jank threshold, so Skia's `<Atlas>` buys nothing for about 6 MB of download. Rive cannot
+export a `.riv` on its free tier, and its state machines are wasted on an ambient loop. The upgrade
+path is recorded if the field ever grows to thirty.
+
+**The `Crumpet` wordmark left the welcome screen.** The icon the user just tapped already said the
+name, so the tagline is the headline instead of a caption under a repeat.
+
+---
+
 ## 2026-09-01
 
 **Logging lives on Home, never on Pet detail.** Pet detail is the pet — schedule, care card,

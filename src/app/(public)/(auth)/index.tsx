@@ -1,4 +1,3 @@
-import { Image } from 'expo-image';
 import { useRouter } from 'expo-router';
 import { StyleSheet, View } from 'react-native';
 
@@ -8,13 +7,11 @@ import ScreenScrollView from '@/components/layout/screen-scroll-view';
 import ScreenView from '@/components/layout/screen-view';
 import AuthFooterLink from '@/components/screens/auth/auth-footer-link';
 import AuthLegalFooter from '@/components/screens/auth/auth-legal-footer';
+import CrumpetBand from '@/components/screens/auth/crumpet-band';
 import SocialAuthButtons from '@/components/screens/auth/social-auth-buttons';
+import WelcomeArt from '@/components/screens/auth/welcome-art';
 import type { AppTheme } from '@/constants/theme';
 import { useStyles } from '@/hooks/use-styles';
-
-// Fixed so the illustration can drop in without moving the buttons.
-const ART_HEIGHT = 320;
-const MARK_SIZE = 140;
 
 const Welcome = () => {
   const styles = useStyles(makeStyles);
@@ -23,24 +20,14 @@ const Welcome = () => {
   return (
     <ScreenView edges={['top', 'bottom']}>
       <ScreenScrollView contentContainerStyle={styles.scrollContent}>
-        <View style={styles.art}>
-          {/* TODO(CRU-030): placeholder mark. The corners are painted, not
-              transparent, so the tile is clipped rather than drawn as-is. */}
-          <Image
-            source={require('@/assets/images/crumpet-welcome.png')}
-            style={styles.mark}
-            contentFit="cover"
-            accessibilityIgnoresInvertColors
-          />
-          <AppText variant="header" size={44} align="center" fontWeight="bold">
-            Crumpet
-          </AppText>
-          <AppText color="textSecondary" size={17} align="center">
-            Every feed, every pet, everyone in the loop.
-          </AppText>
-        </View>
+        <WelcomeArt />
+
+        <AppText variant="header" size={34} align="center" fontWeight="bold">
+          Every feed, every pet, everyone in the loop.
+        </AppText>
 
         <View style={styles.actions}>
+          <CrumpetBand />
           <SocialAuthButtons />
           <MainButton text="Continue with email" onPress={() => router.push('/sign-up')} />
           <AuthFooterLink
@@ -61,19 +48,6 @@ const makeStyles = ({ spacing }: AppTheme) =>
       flexGrow: 1,
       paddingVertical: spacing.four,
       gap: spacing.three
-    },
-    art: {
-      height: ART_HEIGHT,
-      alignItems: 'center',
-      justifyContent: 'center',
-      gap: spacing.two
-    },
-    mark: {
-      width: MARK_SIZE,
-      height: MARK_SIZE,
-      borderRadius: MARK_SIZE * 0.24,
-      borderCurve: 'continuous',
-      marginBottom: spacing.two
     },
     // One block: anchoring the buttons alone pushes the legal line past the fold.
     actions: {
