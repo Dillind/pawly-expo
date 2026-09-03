@@ -35,7 +35,7 @@ const getConfig = ({ config }: ConfigContext): ExpoConfig => {
         backgroundColor: '#ffffff'
       }
     },
-    web: { output: 'server' },
+    platforms: ['ios', 'android'],
     plugins: [
       'expo-router',
       'expo-video',
