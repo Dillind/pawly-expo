@@ -6,3 +6,6 @@ node_modules
 .design-canvas
 ios
 android
+
+# A vendor Lottie export. Prettier would re-inflate the minified JSON.
+assets/animations

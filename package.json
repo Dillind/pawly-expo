@@ -85,6 +85,7 @@
     "expo-system-ui": "~57.0.2",
     "expo-video": "~57.0.2",
     "expo-web-browser": "~57.0.2",
+    "lottie-react-native": "~7.3.8",
     "lucide-react-native": "^1.26.0",
     "react": "19.2.3",
     "react-dom": "19.2.3",
