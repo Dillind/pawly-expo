@@ -1,11 +1,9 @@
 import Svg, { Circle } from 'react-native-svg';
 
-import { ThemeColor } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 
-// Redrawn from `assets/images/icon.png`, which is geometry rather than
-// illustration -- so the mark stays sharp at any size and follows the theme.
-// Holes are fixed, not random: a random field reads as noise at 20pt.
+// Redrawn from assets/images/icon.png so it stays sharp and takes theme colours.
+// Holes are hand-placed: a random field reads as noise at 20pt.
 const HOLES = [
   { cx: 36, cy: 32, r: 7 },
   { cx: 60, cy: 26, r: 5 },
@@ -20,18 +18,16 @@ const HOLES = [
 
 type Props = {
   size?: number;
-  color?: ThemeColor;
-  holeColor?: ThemeColor;
 };
 
-const CrumpetMark = ({ size = 24, color = 'primary', holeColor = 'background' }: Props) => {
+const CrumpetMark = ({ size = 24 }: Props) => {
   const { colors } = useTheme();
 
   return (
     <Svg width={size} height={size} viewBox="0 0 100 100">
-      <Circle cx={50} cy={50} r={46} fill={colors[color]} />
+      <Circle cx={50} cy={50} r={46} fill={colors.primary} />
       {HOLES.map((hole) => (
-        <Circle key={`${hole.cx}-${hole.cy}`} {...hole} fill={colors[holeColor]} />
+        <Circle key={`${hole.cx}-${hole.cy}`} {...hole} fill={colors.background} />
       ))}
     </Svg>
   );
