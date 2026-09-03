@@ -2,8 +2,7 @@ import Svg, { Circle } from 'react-native-svg';
 
 import { useTheme } from '@/hooks/use-theme';
 
-// Redrawn from assets/images/icon.png so it stays sharp and takes theme colours.
-// Holes are hand-placed: a random field reads as noise at 20pt.
+// Redrawn from assets/images/icon.png. Holes are hand-placed: random reads as noise at 20pt.
 const HOLES = [
   { cx: 36, cy: 32, r: 7 },
   { cx: 60, cy: 26, r: 5 },

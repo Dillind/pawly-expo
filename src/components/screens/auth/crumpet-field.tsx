@@ -28,8 +28,7 @@ export type CrumpetSpec = {
   delayMs: number;
 };
 
-// `travelPt` and `spinDeg` are peak to peak, not amplitude. Past ~8pt the drift
-// stops reading as air and starts reading as a bug.
+// Peak to peak, not amplitude. Past ~8pt the drift reads as a bug, not as air.
 const DriftingCrumpet = ({
   left,
   top,
@@ -40,8 +39,7 @@ const DriftingCrumpet = ({
   delayMs,
   isStill
 }: CrumpetSpec & { isStill: boolean }) => {
-  // 0.5 is the middle of the arc, so a still crumpet rests rather than parking
-  // at one extreme of its drift.
+  // 0.5 is mid-arc, so a still crumpet rests rather than parking at one extreme.
   const drift = useSharedValue(isStill ? 0.5 : 0);
   const entrance = useSharedValue(isStill ? 1 : 0);
 

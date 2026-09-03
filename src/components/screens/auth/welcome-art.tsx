@@ -9,11 +9,9 @@ import CrumpetField, { type CrumpetSpec } from '@/components/screens/auth/crumpe
 
 const ART_HEIGHT = 320;
 
-// Leaves the corners free for the crumpets.
 const SCENE_SIZE = '88%';
 
-// Corners only, tuned to this exact Lottie: over the scene's gold the primary
-// disc vanishes and only holes show. Re-check these if the art is replaced.
+// Tuned to this exact Lottie: over the scene's gold the disc vanishes. Re-check if art changes.
 const CRUMPETS: CrumpetSpec[] = [
   { left: '3%', top: '5%', size: 30, travelPt: 7, spinDeg: 3, durationMs: 5200, delayMs: 0 },
   { left: '85%', top: '2%', size: 20, travelPt: 5, spinDeg: -3, durationMs: 6400, delayMs: 90 },
@@ -30,7 +28,7 @@ const WelcomeArt = () => {
         source={require('@/assets/animations/welcome.json')}
         autoPlay={!isReducedMotion}
         loop={!isReducedMotion}
-        // Held mid-loop, not at frame 0 -- a loop often starts from nothing.
+        // Mid-loop, not frame 0 -- a loop often starts from nothing.
         {...(isReducedMotion && { progress: 0.5 })}
         resizeMode="contain"
         style={styles.lottie}
