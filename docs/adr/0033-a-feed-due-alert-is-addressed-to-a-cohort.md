@@ -27,7 +27,7 @@ receive three notifications for what a person experiences as one event. Notifica
 this app gets muted, and the volume scales with pet count, so it hits exactly the households the
 multi-pet work is for.
 
-Neither fits the table. `alerts` is one row per *event*, with recipients resolved at send time, and
+Neither fits the table. `alerts` is one row per _event_, with recipients resolved at send time, and
 `subject_id` is `uuid not null` holding exactly one id. The first requirement multiplies the events.
 The second turns the subject into a set.
 
@@ -42,11 +42,11 @@ The second turns the subject into a set.
   due.
 - `send-alerts` **rebuilds the set** at send time: for each pet in the household, call
   `occurrence_states`, keep the occurrences at `subject_at` that have no Satisfying Feed. The
-  rebuild *is* the freshness check — there is no separate query for "was it logged in the
+  rebuild _is_ the freshness check — there is no separate query for "was it logged in the
   meantime".
 - Idempotency splits in two. `alerts_idempotency_idx` gains `where kind <> 'feed_due'`, and a new
   partial unique index covers `(kind, subject_id, subject_date, lead_minutes, subject_at)
-  where kind = 'feed_due'`.
+where kind = 'feed_due'`.
 
 **The sweep runs every five minutes and fires early.** All four lead times divide by five. A feed
 time on a five-minute boundary is therefore exact; one at 5:07 pm sends up to five minutes early.
@@ -77,7 +77,7 @@ behaviours have to be written by hand.
 
 **The cancel path helps less often than it appears to.** Two members who both chose fifteen minutes
 are pushed at the same instant, so neither can silence the other. The check only saves someone when
-a feed is logged *before* any nudge fires, or when two members hold different lead times. The first
+a feed is logged _before_ any nudge fires, or when two members hold different lead times. The first
 case is common enough to carry the feature; the promise is smaller than "the app knows somebody
 already did it" sounds.
 

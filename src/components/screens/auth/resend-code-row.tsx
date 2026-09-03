@@ -1,3 +1,6 @@
+import { useEffect, useState } from 'react';
+import { StyleSheet, View } from 'react-native';
+
 import AppText from '@/components/core/app-text';
 import PressableOpacity from '@/components/core/pressable-opacity';
 import { ErrorMessage, SuccessMessage } from '@/constants/enums';
@@ -6,8 +9,6 @@ import { useStyles } from '@/hooks/use-styles';
 import { retryAfterSeconds } from '@/lib/auth-errors';
 import { logError, userFacingMessage } from '@/lib/errors';
 import { showErrorToast, showSuccessToast } from '@/lib/toast';
-import { useEffect, useState } from 'react';
-import { StyleSheet, View } from 'react-native';
 
 type Props = {
   onResend: () => Promise<void>;

@@ -102,7 +102,7 @@ fixed `BottomTabInset` constant.
 There is no component library and no Tailwind (ADR 0004). Colours come from `useTheme()`, styles
 from a module-level `makeStyles` factory via `useStyles`.
 
-Several surfaces are genuinely native and only *look* like React components: TrueSheet bottom
+Several surfaces are genuinely native and only _look_ like React components: TrueSheet bottom
 sheets, the SwiftUI picker in `dropdown-picker-validated.ios.tsx`, native tabs, liquid glass.
 
 **Jest renders mocks of all of them.** A test can pass against a control that is dead on device —
@@ -110,10 +110,10 @@ this has already happened. Native surfaces are verified on a device, not in Jest
 
 ## What testing can and cannot see
 
-| Layer | Covered by |
-|---|---|
-| Pure logic, Zod schemas, row↔domain mapping | Jest (`tests/` mirrors `src/`) |
-| SQL: `log_feed`, `slot_states`, grace window, sweep | **nothing yet** — wants pgTAP |
-| Native surfaces, navigation, real routes | a device, via Argent |
+| Layer                                               | Covered by                     |
+| --------------------------------------------------- | ------------------------------ |
+| Pure logic, Zod schemas, row↔domain mapping         | Jest (`tests/` mirrors `src/`) |
+| SQL: `log_feed`, `slot_states`, grace window, sweep | **nothing yet** — wants pgTAP  |
+| Native surfaces, navigation, real routes            | a device, via Argent           |
 
 A route that does not resolve still typechecks. A migration that is wrong still passes CI.

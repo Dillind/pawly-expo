@@ -1,8 +1,8 @@
+import { ScrollView, type ScrollViewProps } from 'react-native';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
+
 import ThemedRefreshControl from '@/components/core/themed-refresh-control';
 import { ScreenGutter } from '@/constants/theme';
-import { type ScrollViewProps } from 'react-native';
-import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
-import { ScrollView } from 'react-native';
 
 type Props = ScrollViewProps & {
   onRefresh?: () => void;

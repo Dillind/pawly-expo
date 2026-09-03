@@ -7,9 +7,9 @@ describe('feedTimeSchema', () => {
   const base = { daysOfWeek: [0, 1, 2, 3, 4, 5, 6], instructions: null };
 
   it('accepts a known label and a 24-hour time', () => {
-    expect(feedTimeSchema.safeParse({ ...base, label: 'morning', localTime: '07:00' }).success).toBe(
-      true
-    );
+    expect(
+      feedTimeSchema.safeParse({ ...base, label: 'morning', localTime: '07:00' }).success
+    ).toBe(true);
     expect(feedTimeSchema.safeParse({ ...base, label: 'custom', localTime: '23:59' }).success).toBe(
       true
     );

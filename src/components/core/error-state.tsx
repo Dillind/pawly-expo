@@ -1,9 +1,10 @@
+import { StyleSheet, View } from 'react-native';
+
 import AppText from '@/components/core/app-text';
 import Icon from '@/components/core/icon';
 import MainButton from '@/components/core/main-button';
 import type { AppTheme } from '@/constants/theme';
 import { useStyles } from '@/hooks/use-styles';
-import { StyleSheet, View } from 'react-native';
 
 type Props = {
   title?: string;

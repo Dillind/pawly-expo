@@ -1,10 +1,11 @@
-import AppText from '@/components/core/app-text';
-import PressableOpacity from '@/components/core/pressable-opacity';
-import type { AppTheme } from '@/constants/theme';
-import { Radius } from '@/constants/theme';
-import { useStyles } from '@/hooks/use-styles';
 import { useState } from 'react';
 import { Modal, Pressable, StyleSheet, View } from 'react-native';
+
+import AppText from '@/components/core/app-text';
+import PressableOpacity from '@/components/core/pressable-opacity';
+import { Radius, type AppTheme } from '@/constants/theme';
+import { useStyles } from '@/hooks/use-styles';
+
 import type { ActionMenuProps } from './action-menu.types';
 
 /**

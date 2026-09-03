@@ -1,7 +1,8 @@
+import { StyleSheet } from 'react-native';
+
 import IconButton from '@/components/core/icon-button';
 import type { IconName } from '@/constants/icon-map';
 import type { ThemeColor } from '@/constants/theme';
-import { StyleSheet } from 'react-native';
 
 const HEADER_GLYPH_SIZE = 28;
 const HEADER_GLYPH_STROKE = 1.8;

@@ -1,18 +1,5 @@
-import AppText from '@/components/core/app-text';
-import BannerSun from '@/components/screens/home/banner-sun';
-import {
-  BannerGradientEnd,
-  BannerGradientLocations,
-  BannerGradientStart,
-  BannerGradients,
-  Radius,
-  type AppTheme
-} from '@/constants/theme';
-import { useStyles } from '@/hooks/use-styles';
-import { useTheme } from '@/hooks/use-theme';
-import { createShadowMedium } from '@/lib/styles/shadows';
-import { dayPartInTimezone, greetingInTimezone } from '@/utils/day-part';
 import { LinearGradient } from 'expo-linear-gradient';
+import { useEffect } from 'react';
 import { StyleSheet, View } from 'react-native';
 import Animated, {
   Easing,
@@ -24,7 +11,21 @@ import Animated, {
   withRepeat,
   withTiming
 } from 'react-native-reanimated';
-import { useEffect } from 'react';
+
+import AppText from '@/components/core/app-text';
+import BannerSun from '@/components/screens/home/banner-sun';
+import {
+  BannerGradientEnd,
+  BannerGradientLocations,
+  BannerGradients,
+  BannerGradientStart,
+  Radius,
+  type AppTheme
+} from '@/constants/theme';
+import { useStyles } from '@/hooks/use-styles';
+import { useTheme } from '@/hooks/use-theme';
+import { createShadowMedium } from '@/lib/styles/shadows';
+import { dayPartInTimezone, greetingInTimezone } from '@/utils/day-part';
 
 const BREATHE_MS = 4000;
 

@@ -8,8 +8,8 @@ Unlike `public.users` (populated automatically by the `handle_new_user` trigger 
 
 ## Considered options
 
-- **Auto-create a household on signup, mirroring `handle_new_user`** — rejected. `public.users` needs exactly one row per signup, unconditionally, regardless of how that user came to exist (organic signup now, Apple/Google OAuth later). A household is different: a future Contributor who signs up via an invite link (ADR 0003) should join an *existing* household, not get a second, empty, orphaned one auto-created alongside it. A blanket trigger can't tell those two cases apart at signup time — only the onboarding UI, which knows whether the user arrived with an invite code, can.
-- **Explicit creation, triggered by the onboarding flow itself** (chosen). Nothing happens until the user submits the pet-creation step. When Contributor-invite-redemption is built later, it becomes a *different* action entirely (insert into `household_members` for an existing household as `contributor`) that never touches this path, so this decision doesn't need to be revisited or reworked when that lands.
+- **Auto-create a household on signup, mirroring `handle_new_user`** — rejected. `public.users` needs exactly one row per signup, unconditionally, regardless of how that user came to exist (organic signup now, Apple/Google OAuth later). A household is different: a future Contributor who signs up via an invite link (ADR 0003) should join an _existing_ household, not get a second, empty, orphaned one auto-created alongside it. A blanket trigger can't tell those two cases apart at signup time — only the onboarding UI, which knows whether the user arrived with an invite code, can.
+- **Explicit creation, triggered by the onboarding flow itself** (chosen). Nothing happens until the user submits the pet-creation step. When Contributor-invite-redemption is built later, it becomes a _different_ action entirely (insert into `household_members` for an existing household as `contributor`) that never touches this path, so this decision doesn't need to be revisited or reworked when that lands.
 
 ## Consequences
 

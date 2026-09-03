@@ -13,7 +13,7 @@ ADR 0018 gave authors the caption and the Pet Tags and stopped there:
 
 > **The photo is not replaceable.** Replacing it means a second upload and an orphaned
 > storage object, with the row already rewritten by the time the upload fails. An edit
-> changes what a Post *says*, never what it *shows*.
+> changes what a Post _says_, never what it _shows_.
 
 The objection is real and the ordering problem it describes is real. What it missed is that
 the same paragraph of ADR 0018 already rejected the only remaining remedy. If the photo is
@@ -44,7 +44,7 @@ channel.
 
 **Upload first, RPC second, delete last.** This is the whole answer to 0018's objection.
 The failure it describes — a rewritten row pointing at an upload that did not land — is a
-consequence of the *order*, not of replacement being impossible. Run it the other way and
+consequence of the _order_, not of replacement being impossible. Run it the other way and
 the worst case is an object nothing references: wasteful, invisible, and recoverable. The
 reverse is a Post rendering a broken image, which is neither.
 

@@ -1,7 +1,8 @@
-import InfoSheet from '@/components/bottom-sheets/info-sheet';
-import { CARE_CARD_HELP, SHARING_HELP } from '@/constants/care-card-help';
 import type { TrueSheet } from '@lodev09/react-native-true-sheet';
 import { useImperativeHandle, useRef, type Ref } from 'react';
+
+import InfoSheet from '@/components/bottom-sheets/info-sheet';
+import { CARE_CARD_HELP, SHARING_HELP } from '@/constants/care-card-help';
 
 export type CareCardHelpHandle = {
   openWhatIsIt: () => void;

@@ -1,3 +1,5 @@
+import { StyleSheet } from 'react-native';
+
 import SettingsRow from '@/components/core/settings-row';
 import SettingsSection from '@/components/core/settings-section';
 import ScreenScrollView from '@/components/layout/screen-scroll-view';
@@ -7,7 +9,6 @@ import { useSessionEmail } from '@/hooks/queries/account/use-session-email';
 import { useUserProfile } from '@/hooks/queries/account/use-user-profile';
 import { useStyles } from '@/hooks/use-styles';
 import { fullName } from '@/utils/members';
-import { StyleSheet } from 'react-native';
 
 // TODO: Delete account is an App Store 5.1.1(v) requirement -- see CRU-013.
 const AccountSettings = () => {

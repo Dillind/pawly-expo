@@ -1,11 +1,12 @@
+import { useRouter } from 'expo-router';
+import { StyleSheet, View } from 'react-native';
+
 import PetAvatar from '@/components/core/pet-avatar';
 import OccasionEmoji from '@/components/ui/occasion-emoji';
 import PostChip from '@/components/ui/post-chip';
 import { type AppTheme } from '@/constants/theme';
 import { useStyles } from '@/hooks/use-styles';
 import type { PostOccasion, PostPetTag } from '@/services/post.service';
-import { useRouter } from 'expo-router';
-import { StyleSheet, View } from 'react-native';
 
 type Props = {
   occasion: PostOccasion | null;

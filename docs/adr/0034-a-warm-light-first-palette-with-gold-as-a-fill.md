@@ -35,7 +35,7 @@ that overloading. Gold cannot: `#F0A81C` on white is 2.0:1.
 design.
 
 **`primary` is a fill and nothing else**, `#F0A81C`, labelled with `onPrimary` `#2A1D06` — near
-black, never white. A gold *label* is a separate token, `primaryText` `#9E6404`, which clears
+black, never white. A gold _label_ is a separate token, `primaryText` `#9E6404`, which clears
 4.5:1 where `primary` cannot. In dark mode the two collapse to one value; the call sites still use
 both names, because a call site must not know which mode it is in.
 

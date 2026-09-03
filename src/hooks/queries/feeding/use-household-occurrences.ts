@@ -1,6 +1,7 @@
+import { useQueries } from '@tanstack/react-query';
+
 import FeedTimeService from '@/services/feed-time.service';
 import type { Occurrence, Pet } from '@/types/core';
-import { useQueries } from '@tanstack/react-query';
 
 // Matches `useOccurrences`, so the two never disagree about how fresh the same
 // cache key is.

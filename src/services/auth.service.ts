@@ -1,12 +1,13 @@
+import { GoogleSignin } from '@react-native-google-signin/google-signin';
+import * as AppleAuthentication from 'expo-apple-authentication';
+import Constants from 'expo-constants';
+import * as Crypto from 'expo-crypto';
+
 import { toUserFacingError } from '@/lib/auth-errors';
 import { UserFacingError } from '@/lib/errors';
 import { supabase } from '@/lib/supabase/client';
 import PushTokenService from '@/services/push-token.service';
 import UserService from '@/services/user.service';
-import { GoogleSignin } from '@react-native-google-signin/google-signin';
-import * as AppleAuthentication from 'expo-apple-authentication';
-import Constants from 'expo-constants';
-import * as Crypto from 'expo-crypto';
 
 const googleConfig = Constants.expoConfig?.extra?.googleSignIn as
   { iosClientId: string; webClientId: string } | undefined;

@@ -1,6 +1,6 @@
 import { breedsFor } from '@/constants/breeds';
-import { MIN_SEARCH_LENGTH, searchBreeds } from '@/utils/breed-search';
 import type { Option } from '@/types/core';
+import { MIN_SEARCH_LENGTH, searchBreeds } from '@/utils/breed-search';
 
 const breed = (label: string): Option => ({ value: label, label });
 

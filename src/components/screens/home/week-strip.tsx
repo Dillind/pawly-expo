@@ -1,16 +1,17 @@
+import type { LegendListRef } from '@legendapp/list/react-native';
+import { useCallback, useEffect, useMemo, useRef } from 'react';
+import { StyleSheet, useWindowDimensions, View } from 'react-native';
+import Animated, { useAnimatedStyle, withTiming } from 'react-native-reanimated';
+
 import AppText from '@/components/core/app-text';
 import MainLegendList from '@/components/core/main-legend-list';
 import PressableOpacity from '@/components/core/pressable-opacity';
 import { Radius, ScreenGutter, type AppTheme } from '@/constants/theme';
 import { useStyles } from '@/hooks/use-styles';
 import { useTheme } from '@/hooks/use-theme';
-import { dayOfMonth, shiftWeeks, weekOf, weekdayInitial } from '@/lib/dates';
+import { dayOfMonth, shiftWeeks, weekdayInitial, weekOf } from '@/lib/dates';
 import { hapticSelection } from '@/lib/haptics';
 import type { ReminderKind } from '@/types/core';
-import type { LegendListRef } from '@legendapp/list/react-native';
-import { useCallback, useEffect, useMemo, useRef } from 'react';
-import { StyleSheet, View, useWindowDimensions } from 'react-native';
-import Animated, { useAnimatedStyle, withTiming } from 'react-native-reanimated';
 
 const SLIDE_MS = 260;
 const UNDERLINE_WIDTH = 18;

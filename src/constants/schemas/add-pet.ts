@@ -1,5 +1,6 @@
-import { feedTimeSchema } from '@/lib/form/pet-schemas';
 import { z } from 'zod';
+
+import { feedTimeSchema } from '@/lib/form/pet-schemas';
 
 /**
  * The whole flow's contract, in one schema. The three steps validate slices of

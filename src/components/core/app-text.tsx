@@ -1,9 +1,10 @@
+import React from 'react';
+import { StyleProp, Text, TextStyle } from 'react-native';
+
 import { Fonts, ThemeColor } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { FontVariant, FontWeight } from '@/types/core';
 import { isAndroid } from '@/utils/platform';
-import React from 'react';
-import { StyleProp, Text, TextStyle } from 'react-native';
 
 type Props = {
   children?: React.ReactNode;

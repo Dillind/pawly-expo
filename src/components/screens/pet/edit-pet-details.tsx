@@ -1,23 +1,24 @@
+import { useRouter } from 'expo-router';
+import { Controller, useFormContext, useWatch } from 'react-hook-form';
+import { Alert, StyleSheet, View } from 'react-native';
+
+import BreedField from '@/components/core/breed-field';
 import DateTimePickerValidated from '@/components/core/date-time-picker-validated';
 import DropdownPickerValidated from '@/components/core/dropdown-picker-validated';
-import BreedField from '@/components/core/breed-field';
 import MainButton from '@/components/core/main-button';
 import SegmentedControl from '@/components/core/segmented-control';
 import TextInputValidated from '@/components/core/text-input-validated';
 import ToggleSwitch from '@/components/core/toggle-switch';
-import { ErrorMessage, SuccessMessage } from '@/constants/enums';
+import { useTray } from '@/components/core/tray';
 import { breedName, breedSpeciesFor } from '@/constants/breeds';
+import { ErrorMessage, SuccessMessage } from '@/constants/enums';
 import { PET_TYPE_OPTIONS, SEX_OPTIONS } from '@/constants/options';
 import type { PetDetailsEditValues } from '@/constants/schemas/pet-details';
 import type { AppTheme } from '@/constants/theme';
 import { useRemovePet } from '@/hooks/queries/pet/use-pet-mutations';
 import { useUpdatePet } from '@/hooks/queries/pet/use-update-pet';
-import type { PetSex, PetType } from '@/types/core';
 import { useStyles } from '@/hooks/use-styles';
-import { useTray } from '@/components/core/tray';
-import { useRouter } from 'expo-router';
-import { Controller, useFormContext, useWatch } from 'react-hook-form';
-import { Alert, StyleSheet, View } from 'react-native';
+import type { PetSex, PetType } from '@/types/core';
 
 export type EditablePetDetails = {
   name: string;

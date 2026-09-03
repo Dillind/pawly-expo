@@ -1,3 +1,15 @@
+import { useLocalSearchParams, useRouter } from 'expo-router';
+import { useRef, useState } from 'react';
+import {
+  ActivityIndicator,
+  KeyboardAvoidingView,
+  ScrollView,
+  StyleSheet,
+  View
+} from 'react-native';
+import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+
 import AppText from '@/components/core/app-text';
 import Icon from '@/components/core/icon';
 import IconButton from '@/components/core/icon-button';
@@ -11,24 +23,13 @@ import CareCardHelpSheets, {
 } from '@/components/screens/pet/care-card/care-card-help-sheets';
 import { CARE_CARD_STEPS } from '@/constants/care-card-fields';
 import { Radius, Spacing, type AppTheme } from '@/constants/theme';
-import { useCareCardData } from '@/hooks/queries/pet/use-care-card';
 import { useHousehold } from '@/hooks/queries/household/use-household';
+import { useCareCardData } from '@/hooks/queries/pet/use-care-card';
 import { useShareCareCard } from '@/hooks/use-share-care-card';
 import { useStyles } from '@/hooks/use-styles';
 import { formatDateWithYear } from '@/lib/dates';
 import { hapticLight } from '@/lib/haptics';
 import { isIOS } from '@/utils/platform';
-import { useLocalSearchParams, useRouter } from 'expo-router';
-import { useRef, useState } from 'react';
-import {
-  ActivityIndicator,
-  KeyboardAvoidingView,
-  ScrollView,
-  StyleSheet,
-  View
-} from 'react-native';
-import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const PROGRESS_DURATION_MS = 260;
 

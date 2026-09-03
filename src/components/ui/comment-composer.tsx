@@ -1,3 +1,6 @@
+import { useEffect, useRef, useState } from 'react';
+import { ScrollView, StyleSheet, TextInput, View } from 'react-native';
+
 import AppText from '@/components/core/app-text';
 import Icon from '@/components/core/icon';
 import PressableOpacity from '@/components/core/pressable-opacity';
@@ -6,8 +9,6 @@ import { useStyles } from '@/hooks/use-styles';
 import { useTheme } from '@/hooks/use-theme';
 import { hapticLight } from '@/lib/haptics';
 import { COMMENT_MAX_LENGTH } from '@/services/comment.service';
-import { useEffect, useRef, useState } from 'react';
-import { ScrollView, StyleSheet, TextInput, View } from 'react-native';
 
 type Props = {
   replyingToName: string | null;

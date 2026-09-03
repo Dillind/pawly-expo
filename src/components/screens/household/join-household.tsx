@@ -1,3 +1,8 @@
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useRouter } from 'expo-router';
+import { Controller, FormProvider, useForm, useWatch } from 'react-hook-form';
+import { StyleSheet, View } from 'react-native';
+
 import AppText from '@/components/core/app-text';
 import MainButton from '@/components/core/main-button';
 import TextInputValidated from '@/components/core/text-input-validated';
@@ -7,10 +12,6 @@ import { joinSchema, type JoinInput } from '@/constants/schemas/invite';
 import { BottomTabInset, type AppTheme } from '@/constants/theme';
 import { useRedeemInvite } from '@/hooks/queries/household/use-invites';
 import { useStyles } from '@/hooks/use-styles';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { useRouter } from 'expo-router';
-import { Controller, FormProvider, useForm, useWatch } from 'react-hook-form';
-import { StyleSheet, View } from 'react-native';
 
 const JoinHousehold = () => {
   const styles = useStyles(makeStyles);

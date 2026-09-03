@@ -1,6 +1,7 @@
+import { useQuery } from '@tanstack/react-query';
+
 import { useHousehold } from '@/hooks/queries/household/use-household';
 import HouseholdService from '@/services/household.service';
-import { useQuery } from '@tanstack/react-query';
 
 const FIVE_MINUTES_MS = 5 * 60_000;
 

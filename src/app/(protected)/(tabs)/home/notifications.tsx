@@ -1,3 +1,11 @@
+import type {
+  LegendListRenderItemProps,
+  OnViewableItemsChangedInfo
+} from '@legendapp/list/react-native';
+import { Stack, useRouter } from 'expo-router';
+import { useCallback, useMemo, useRef } from 'react';
+import { StyleSheet, View } from 'react-native';
+
 import AppText from '@/components/core/app-text';
 import Divider from '@/components/core/divider';
 import EmptyState from '@/components/core/empty-state';
@@ -16,13 +24,6 @@ import { useHousehold } from '@/hooks/queries/household/use-household';
 import { usePullToRefresh } from '@/hooks/use-pull-to-refresh';
 import { useStyles } from '@/hooks/use-styles';
 import { collapseLikes, type InboxRow } from '@/lib/alert-groups';
-import type {
-  LegendListRenderItemProps,
-  OnViewableItemsChangedInfo
-} from '@legendapp/list/react-native';
-import { Stack, useRouter } from 'expo-router';
-import { useCallback, useMemo, useRef } from 'react';
-import { StyleSheet, View } from 'react-native';
 
 export default function Notifications() {
   const styles = useStyles(makeStyles);

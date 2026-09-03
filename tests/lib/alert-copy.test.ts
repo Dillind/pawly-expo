@@ -157,9 +157,9 @@ describe('alertSentence for a comment', () => {
   });
 
   it('prefers the reply wording when the reader owns both', () => {
-    expect(
-      alertSentence(commented({ commentIsReplyToMe: true, commentPostIsMine: true }))
-    ).toBe('Sarah Smith replied to your comment \u201Cwhat a face\u201D');
+    expect(alertSentence(commented({ commentIsReplyToMe: true, commentPostIsMine: true }))).toBe(
+      'Sarah Smith replied to your comment \u201Cwhat a face\u201D'
+    );
   });
 
   it('says less once the comment is gone', () => {

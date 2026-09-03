@@ -1,5 +1,6 @@
-import { useAuthStore } from '@/stores/auth-store';
 import { Stack } from 'expo-router';
+
+import { useAuthStore } from '@/stores/auth-store';
 
 /**
  * No household gate. Signing in always lands in the tabs, and a user with no

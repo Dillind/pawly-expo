@@ -1,7 +1,3 @@
-import ErrorState from '@/components/core/error-state';
-import type { AppTheme } from '@/constants/theme';
-import { useStyles } from '@/hooks/use-styles';
-import { useTheme } from '@/hooks/use-theme';
 import {
   LegendList,
   type LegendListProps,
@@ -10,6 +6,11 @@ import {
 } from '@legendapp/list/react-native';
 import type { ReactElement, ReactNode, Ref } from 'react';
 import { ActivityIndicator, StyleSheet, View } from 'react-native';
+
+import ErrorState from '@/components/core/error-state';
+import type { AppTheme } from '@/constants/theme';
+import { useStyles } from '@/hooks/use-styles';
+import { useTheme } from '@/hooks/use-theme';
 
 export type MainLegendListProps<T> = Omit<
   LegendListProps<T>,

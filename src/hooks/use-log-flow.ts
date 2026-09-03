@@ -1,3 +1,6 @@
+import { useCallback } from 'react';
+import { Alert } from 'react-native';
+
 import { useLogFeed } from '@/hooks/queries/feeding/use-feed-log-mutations';
 import { formatTimeOfDay } from '@/lib/dates';
 import { feedLogErrorMessage } from '@/lib/feed-log-errors';
@@ -5,8 +8,6 @@ import { showErrorToast, showSuccessToast } from '@/lib/toast';
 import type { LogFeedResult } from '@/services/feed-log.service';
 import type { FeedingScheduleLabel, HouseholdMember, Occurrence, Pet } from '@/types/core';
 import { memberDisplayName } from '@/utils/members';
-import { useCallback } from 'react';
-import { Alert } from 'react-native';
 
 type DoubleFeed = Extract<LogFeedResult, { status: 'double_feed' }>;
 

@@ -1,12 +1,13 @@
+import type { TrueSheet } from '@lodev09/react-native-true-sheet';
+import type { RefObject } from 'react';
+import { StyleSheet, View } from 'react-native';
+
 import BaseSheet from '@/components/bottom-sheets/base-sheet';
 import SheetRow from '@/components/bottom-sheets/sheet-row';
 import type { IconName } from '@/constants/icon-map';
 import type { AppTheme } from '@/constants/theme';
 import { useStyles } from '@/hooks/use-styles';
 import type { Option } from '@/types/core';
-import type { TrueSheet } from '@lodev09/react-native-true-sheet';
-import type { RefObject } from 'react';
-import { StyleSheet, View } from 'react-native';
 
 type Props<T extends string | number> = {
   sheetRef: RefObject<TrueSheet | null>;

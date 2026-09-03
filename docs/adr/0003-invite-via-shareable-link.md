@@ -8,7 +8,7 @@ address and delivered inside the app, with the code and a QR as the fallback. No
 was ever built.
 
 What survives: the code is still revocable and expiring, and Crumpet still sends no email. What
-this ADR called "server-sent email invites" and rejected is *not* what replaced it — ADR 0020 uses
+this ADR called "server-sent email invites" and rejected is _not_ what replaced it — ADR 0020 uses
 the address only as a lookup key.
 
 ## Original decision

@@ -1,10 +1,11 @@
+import { StyleSheet, View } from 'react-native';
+
 import ListCard from '@/components/core/list-card';
+import { SkeletonBlock, SkeletonPulse } from '@/components/core/skeleton';
 import { TileHeight, TileWidth } from '@/components/screens/pet/care-card/care-card-tile';
 import { AvatarSize } from '@/components/screens/pet/pet-identity';
-import { SkeletonBlock, SkeletonPulse } from '@/components/core/skeleton';
 import { Radius, ScreenGutter, type AppTheme } from '@/constants/theme';
 import { useStyles } from '@/hooks/use-styles';
-import { StyleSheet, View } from 'react-native';
 
 const PHOTO_TILE = 80;
 const ROW_WIDTHS = [150, 170, 130] as const;

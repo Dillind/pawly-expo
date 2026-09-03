@@ -1,9 +1,10 @@
-import Icon from '@/components/core/icon';
-import { Radius, type AppTheme } from '@/constants/theme';
-import { useStyles } from '@/hooks/use-styles';
 import { Image } from 'expo-image';
 import { useCallback } from 'react';
 import { StyleSheet, View } from 'react-native';
+
+import Icon from '@/components/core/icon';
+import { Radius, type AppTheme } from '@/constants/theme';
+import { useStyles } from '@/hooks/use-styles';
 
 type Props = {
   photoUrl: string | null;

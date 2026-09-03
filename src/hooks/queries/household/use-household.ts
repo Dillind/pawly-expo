@@ -1,6 +1,7 @@
+import { useEffect } from 'react';
+
 import { useHouseholds } from '@/hooks/queries/household/use-households';
 import { useActiveHouseholdStore } from '@/stores/active-household-store';
-import { useEffect } from 'react';
 
 /**
  * The household the user is currently looking at. Two of its fields are read

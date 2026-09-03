@@ -1,6 +1,7 @@
+import { useLocalSearchParams } from 'expo-router';
+
 import OtpVerifyForm from '@/components/screens/auth/otp-verify-form';
 import AuthService from '@/services/auth.service';
-import { useLocalSearchParams } from 'expo-router';
 
 const VerifySignUp = () => {
   const { email } = useLocalSearchParams<{ email: string }>();

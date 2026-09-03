@@ -1,10 +1,11 @@
+import { StyleSheet, View } from 'react-native';
+
 import AppText from '@/components/core/app-text';
 import CommentRow from '@/components/ui/comment-row';
 import CommentsLinkRow from '@/components/ui/comments-link-row';
 import { ScreenGutter, type AppTheme } from '@/constants/theme';
 import { useStyles } from '@/hooks/use-styles';
 import type { PostComment } from '@/services/comment.service';
-import { StyleSheet, View } from 'react-native';
 
 type Props = {
   comments: PostComment[];

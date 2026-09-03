@@ -1,5 +1,6 @@
-import { useTheme } from '@/hooks/use-theme';
 import { RefreshControl } from 'react-native';
+
+import { useTheme } from '@/hooks/use-theme';
 
 type Props = {
   isRefreshing: boolean;

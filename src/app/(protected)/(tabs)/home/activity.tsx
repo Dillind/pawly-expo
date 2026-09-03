@@ -1,3 +1,9 @@
+import type { LegendListRenderItemProps } from '@legendapp/list/react-native';
+import type { TrueSheet } from '@lodev09/react-native-true-sheet';
+import { useLocalSearchParams, useRouter } from 'expo-router';
+import { Fragment, useEffect, useMemo, useRef, useState } from 'react';
+import { StyleSheet, View } from 'react-native';
+
 import FeedLogDetailSheet from '@/components/bottom-sheets/feed-log-detail-sheet';
 import Divider from '@/components/core/divider';
 import EmptyState from '@/components/core/empty-state';
@@ -22,11 +28,6 @@ import { useRefreshOnFocus } from '@/hooks/use-refresh-on-focus';
 import { useStyles } from '@/hooks/use-styles';
 import { dayInTimezone, todayInTimezone } from '@/lib/dates';
 import type { FeedLog } from '@/types/core';
-import type { LegendListRenderItemProps } from '@legendapp/list/react-native';
-import type { TrueSheet } from '@lodev09/react-native-true-sheet';
-import { useLocalSearchParams, useRouter } from 'expo-router';
-import { Fragment, useEffect, useMemo, useRef, useState } from 'react';
-import { StyleSheet, View } from 'react-native';
 
 // The rule starts under the title rather than under the avatar, matching Pets.
 const DIVIDER_INSET = 64;

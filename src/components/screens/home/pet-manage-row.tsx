@@ -1,3 +1,6 @@
+import { Link } from 'expo-router';
+import { StyleSheet, View } from 'react-native';
+
 import AppText from '@/components/core/app-text';
 import Icon from '@/components/core/icon';
 import PressableOpacity from '@/components/core/pressable-opacity';
@@ -10,8 +13,6 @@ import { usePetPause } from '@/hooks/queries/feeding/use-pet-pause';
 import { useStyles } from '@/hooks/use-styles';
 import type { Pet } from '@/types/core';
 import { summarisePetDay } from '@/utils/pet-status';
-import { Link } from 'expo-router';
-import { StyleSheet, View } from 'react-native';
 
 const AVATAR_SIZE = 48;
 const PAUSED_OPACITY = 0.55;

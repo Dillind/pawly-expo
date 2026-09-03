@@ -1,8 +1,9 @@
+import { StyleSheet, View } from 'react-native';
+
 import AppText from '@/components/core/app-text';
 import { ScreenGutter, type AppTheme } from '@/constants/theme';
 import { useStyles } from '@/hooks/use-styles';
 import { formatDayHeading } from '@/lib/dates';
-import { StyleSheet, View } from 'react-native';
 
 type Props = {
   day: string;

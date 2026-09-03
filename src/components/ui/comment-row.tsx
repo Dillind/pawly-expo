@@ -1,3 +1,6 @@
+import { useCallback } from 'react';
+import { StyleSheet, View } from 'react-native';
+
 import AppText from '@/components/core/app-text';
 import Icon from '@/components/core/icon';
 import PressableOpacity from '@/components/core/pressable-opacity';
@@ -8,8 +11,6 @@ import { formatRelativeTime } from '@/lib/dates';
 import { hapticLight } from '@/lib/haptics';
 import type { PostComment } from '@/services/comment.service';
 import { formatAuthorName } from '@/utils/members';
-import { useCallback } from 'react';
-import { StyleSheet, View } from 'react-native';
 
 type Props = {
   comment: PostComment;

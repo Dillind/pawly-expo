@@ -23,34 +23,38 @@ jarring change."
 Current code, `src/components/ui/occurrence-row.tsx:70-87`:
 
 ```tsx
-      {isFed ? (
-        <Icon name="check" size={20} color="primary" />
-      ) : onLog ? (
-        <MainButton
-          text="Log"
-          size="xs"
-          // MainButton stretches by default, which in a row means it fills the
-          // row's height. The Log button is a chip, not a bar.
-          containerStyle={styles.logButton}
-          isLoading={isLogging}
-          isDisabled={isLogging}
-          onPress={onLog}
-        />
-      ) : (
-        <AppText size={13} color="textSecondary">
-          Upcoming
-        </AppText>
-      )}
+{
+  isFed ? (
+    <Icon name="check" size={20} color="primary" />
+  ) : onLog ? (
+    <MainButton
+      text="Log"
+      size="xs"
+      // MainButton stretches by default, which in a row means it fills the
+      // row's height. The Log button is a chip, not a bar.
+      containerStyle={styles.logButton}
+      isLoading={isLogging}
+      isDisabled={isLogging}
+      onPress={onLog}
+    />
+  ) : (
+    <AppText size={13} color="textSecondary">
+      Upcoming
+    </AppText>
+  );
+}
 ```
 
 The detail line, `src/components/ui/occurrence-row.tsx:60-66`:
 
 ```tsx
-        {detail ? (
-          <AppText size={13} color="textSecondary" numberOfLines={2}>
-            {detail}
-          </AppText>
-        ) : null}
+{
+  detail ? (
+    <AppText size={13} color="textSecondary" numberOfLines={2}>
+      {detail}
+    </AppText>
+  ) : null;
+}
 ```
 
 The row is keyed on `occurrence.seriesId` by its parent
@@ -157,13 +161,15 @@ Total budget: 220 ms. This is inside the under-300 ms rule for UI in AUDIT.md §
 3. Replace the detail block at lines 60-66 with a keyed, animated version:
 
    ```tsx
-           {detail ? (
-             <Animated.View key={occurrence.state} entering={DetailIn}>
-               <AppText size={13} color="textSecondary" numberOfLines={2}>
-                 {detail}
-               </AppText>
-             </Animated.View>
-           ) : null}
+   {
+     detail ? (
+       <Animated.View key={occurrence.state} entering={DetailIn}>
+         <AppText size={13} color="textSecondary" numberOfLines={2}>
+           {detail}
+         </AppText>
+       </Animated.View>
+     ) : null;
+   }
    ```
 
 4. Add the layout animation to the text column so a change in the number of
@@ -178,30 +184,30 @@ Total budget: 220 ms. This is inside the under-300 ms rule for UI in AUDIT.md §
 5. Replace the trailing-slot conditional at lines 70-87 with:
 
    ```tsx
-         <Animated.View layout={SlotReflow}>
-           {isFed ? (
-             <Animated.View entering={TickIn}>
-               <Icon name="check" size={20} color="primary" />
-             </Animated.View>
-           ) : onLog ? (
-             <Animated.View exiting={SlotOut}>
-               <MainButton
-                 text="Log"
-                 size="xs"
-                 // MainButton stretches by default, which in a row means it fills
-                 // the row's height. The Log button is a chip, not a bar.
-                 containerStyle={styles.logButton}
-                 isLoading={isLogging}
-                 isDisabled={isLogging}
-                 onPress={onLog}
-               />
-             </Animated.View>
-           ) : (
-             <AppText size={13} color="textSecondary">
-               Upcoming
-             </AppText>
-           )}
-         </Animated.View>
+   <Animated.View layout={SlotReflow}>
+     {isFed ? (
+       <Animated.View entering={TickIn}>
+         <Icon name="check" size={20} color="primary" />
+       </Animated.View>
+     ) : onLog ? (
+       <Animated.View exiting={SlotOut}>
+         <MainButton
+           text="Log"
+           size="xs"
+           // MainButton stretches by default, which in a row means it fills
+           // the row's height. The Log button is a chip, not a bar.
+           containerStyle={styles.logButton}
+           isLoading={isLogging}
+           isDisabled={isLogging}
+           onPress={onLog}
+         />
+       </Animated.View>
+     ) : (
+       <AppText size={13} color="textSecondary">
+         Upcoming
+       </AppText>
+     )}
+   </Animated.View>
    ```
 
 6. Leave `styles.logButton` (`{ alignSelf: 'center' }`) as it is. If the Log

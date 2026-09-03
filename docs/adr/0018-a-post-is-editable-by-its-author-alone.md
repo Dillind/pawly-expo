@@ -42,10 +42,10 @@ else's — not even an Owner.**
 
 The card's single `canManage` boolean splits accordingly:
 
-| | Edit own | Delete own | Edit others' | Delete others' |
-|---|---|---|---|---|
-| Contributor | yes | yes | no | no |
-| Owner | yes | yes | **no** | yes |
+|             | Edit own | Delete own | Edit others' | Delete others' |
+| ----------- | -------- | ---------- | ------------ | -------------- |
+| Contributor | yes      | yes        | no           | no             |
+| Owner       | yes      | yes        | **no**       | yes            |
 
 Four things follow, and all four are load-bearing:
 
@@ -58,7 +58,7 @@ Four things follow, and all four are load-bearing:
    cannot move a Post in the stream, hand it to another Household, or reassign authorship.
 3. **The photo is not replaceable.** Replacing it means a second upload and an orphaned
    storage object, with the row already rewritten by the time the upload fails. An edit
-   changes what a Post *says*, never what it *shows*.
+   changes what a Post _says_, never what it _shows_.
 4. **`post_pets` becomes author-only too.** Its write policy used
    `private.can_manage_post`, which includes Owners — so an Owner could already change the
    Pet Tags on a Member's Post. That was unreachable only because no edit UI existed to

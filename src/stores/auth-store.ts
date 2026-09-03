@@ -1,5 +1,6 @@
-import type { UserProfile } from '@/types/core';
 import { create } from 'zustand';
+
+import type { UserProfile } from '@/types/core';
 
 type AuthStatus = 'loading' | 'signedIn' | 'signedOut';
 

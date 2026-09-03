@@ -52,20 +52,18 @@ describe('careCardBlocks', () => {
   });
 
   it('joins a medication dose and schedule, and keeps instructions separate', () => {
-    const [block] = careCardBlocks(card(), [
-      medication({ instructions: 'Hide it in cheese.' })
-    ]);
+    const [block] = careCardBlocks(card(), [medication({ instructions: 'Hide it in cheese.' })]);
 
     expect(block).toMatchObject({
       kind: 'medications',
-      items: [{ name: 'Apoquel', detail: '16mg · Every morning', instructions: 'Hide it in cheese.' }]
+      items: [
+        { name: 'Apoquel', detail: '16mg · Every morning', instructions: 'Hide it in cheese.' }
+      ]
     });
   });
 
   it('leaves detail null when a medication has neither dose nor schedule', () => {
-    const [block] = careCardBlocks(card(), [
-      medication({ dose: null, scheduleText: null })
-    ]);
+    const [block] = careCardBlocks(card(), [medication({ dose: null, scheduleText: null })]);
 
     expect(block).toMatchObject({ items: [{ name: 'Apoquel', detail: null }] });
   });
@@ -99,10 +97,11 @@ describe('careCardBlocks with contacts', () => {
   });
 
   it('keeps the order the contacts were given in', () => {
-    const [block] = careCardBlocks(card(), [], [
-      contact({ id: 'a', name: 'Priya' }),
-      contact({ id: 'b', name: 'Sam' })
-    ]);
+    const [block] = careCardBlocks(
+      card(),
+      [],
+      [contact({ id: 'a', name: 'Priya' }), contact({ id: 'b', name: 'Sam' })]
+    );
 
     expect(block).toMatchObject({
       rows: [{ label: 'Priya' }, { label: 'Sam' }]

@@ -1,3 +1,7 @@
+import { zodResolver } from '@hookform/resolvers/zod';
+import { Controller, FormProvider, useForm } from 'react-hook-form';
+import { StyleSheet, View } from 'react-native';
+
 import MainButton from '@/components/core/main-button';
 import TextInputValidated from '@/components/core/text-input-validated';
 import ScreenScrollView from '@/components/layout/screen-scroll-view';
@@ -8,9 +12,6 @@ import type { AppTheme } from '@/constants/theme';
 import { useUpdateName } from '@/hooks/queries/account/use-update-name';
 import { useStyles } from '@/hooks/use-styles';
 import { useAuthStore } from '@/stores/auth-store';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { Controller, FormProvider, useForm } from 'react-hook-form';
-import { StyleSheet, View } from 'react-native';
 
 const NameStep = () => {
   const styles = useStyles(makeStyles);

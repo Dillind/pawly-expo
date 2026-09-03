@@ -1,10 +1,11 @@
+import { useEffect } from 'react';
+import { StyleSheet, View } from 'react-native';
+import Animated, { FadeInDown, ReduceMotion } from 'react-native-reanimated';
+
 import Tile from '@/components/ui/tile';
 import type { IconName } from '@/constants/icon-map';
 import type { AppTheme } from '@/constants/theme';
 import { useStyles } from '@/hooks/use-styles';
-import { useEffect } from 'react';
-import { StyleSheet, View } from 'react-native';
-import Animated, { FadeInDown, ReduceMotion } from 'react-native-reanimated';
 
 export type TileDescriptor = {
   id: string;

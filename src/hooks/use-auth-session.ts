@@ -1,6 +1,7 @@
+import { useEffect } from 'react';
+
 import AuthService from '@/services/auth.service';
 import { useAuthStore } from '@/stores/auth-store';
-import { useEffect } from 'react';
 
 /**
  * Subscribes to Supabase auth state exactly once. Call this only from the

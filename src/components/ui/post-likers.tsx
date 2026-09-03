@@ -1,10 +1,11 @@
+import { StyleSheet, View } from 'react-native';
+
 import AppText from '@/components/core/app-text';
 import UserAvatar from '@/components/core/user-avatar';
 import { type AppTheme } from '@/constants/theme';
 import { useStyles } from '@/hooks/use-styles';
 import type { PostLiker } from '@/services/post.service';
 import { formatAuthorName } from '@/utils/members';
-import { StyleSheet, View } from 'react-native';
 
 type Props = {
   likers: PostLiker[];

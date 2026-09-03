@@ -1,17 +1,18 @@
-import { petBreedLabel } from '@/constants/breeds';
-import { emptyCareCard } from '@/constants/care-card-fields';
-import { ErrorMessage } from '@/constants/enums';
-import { careCardQueryOptions } from '@/hooks/queries/pet/use-care-card';
-import { useHousehold } from '@/hooks/queries/household/use-household';
-import { petDetailQueryOptions } from '@/hooks/queries/pet/use-pet-detail';
-import { buildCareCardHtml, careCardFileName, type CareCardPdfPet } from '@/lib/care-card-pdf';
-import { formatAge, formatDateWithYear } from '@/lib/dates';
-import { showErrorToast } from '@/lib/toast';
 import { useQueryClient } from '@tanstack/react-query';
 import { File, Paths } from 'expo-file-system';
 import * as Print from 'expo-print';
 import * as Sharing from 'expo-sharing';
 import { useRef, useState } from 'react';
+
+import { petBreedLabel } from '@/constants/breeds';
+import { emptyCareCard } from '@/constants/care-card-fields';
+import { ErrorMessage } from '@/constants/enums';
+import { useHousehold } from '@/hooks/queries/household/use-household';
+import { careCardQueryOptions } from '@/hooks/queries/pet/use-care-card';
+import { petDetailQueryOptions } from '@/hooks/queries/pet/use-pet-detail';
+import { buildCareCardHtml, careCardFileName, type CareCardPdfPet } from '@/lib/care-card-pdf';
+import { formatAge, formatDateWithYear } from '@/lib/dates';
+import { showErrorToast } from '@/lib/toast';
 
 // A4 at 72ppi. expo-print defaults to US Letter (612x792), which crops or
 // letterboxes on every printer this document is likely to meet.

@@ -14,9 +14,9 @@ Source of the values: `.claude/skills/improve-animations/AUDIT.md`.
 Source of the opportunities: a `find-animation-opportunities` sweep at commit
 `0298ba5`.
 
-| # | Title | Severity | Status |
-| --- | --- | --- | --- |
-| [001](./001-occurrence-row-log-confirmation.md) | Animate the feed-log confirmation on OccurrenceRow | MEDIUM | DONE |
+| #                                               | Title                                              | Severity | Status |
+| ----------------------------------------------- | -------------------------------------------------- | -------- | ------ |
+| [001](./001-occurrence-row-log-confirmation.md) | Animate the feed-log confirmation on OccurrenceRow | MEDIUM   | DONE   |
 
 ## Execution order
 

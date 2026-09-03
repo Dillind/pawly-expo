@@ -18,11 +18,13 @@ const listBuilder: Record<string, unknown> = { single: mockSingle };
   listBuilder[method] = jest.fn(() => listBuilder);
 });
 
-const spyThenReturn = (spy: jest.Mock) => (...args: unknown[]) => {
-  spy(...(args as []));
+const spyThenReturn =
+  (spy: jest.Mock) =>
+  (...args: unknown[]) => {
+    spy(...(args as []));
 
-  return listBuilder;
-};
+    return listBuilder;
+  };
 
 listBuilder.eq = spyThenReturn(mockEq);
 listBuilder.in = spyThenReturn(mockIn);

@@ -1,6 +1,7 @@
+import * as ImagePicker from 'expo-image-picker';
+
 import { UserFacingError } from '@/lib/errors';
 import { pickPhotoFromLibrary, pickPhotosFromLibrary, takePhotoWithCamera } from '@/lib/photo';
-import * as ImagePicker from 'expo-image-picker';
 
 jest.mock('expo-image-picker', () => ({
   launchImageLibraryAsync: jest.fn(),

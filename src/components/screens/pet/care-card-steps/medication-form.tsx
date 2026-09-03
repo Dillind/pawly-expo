@@ -1,12 +1,13 @@
+import { zodResolver } from '@hookform/resolvers/zod';
+import { Controller, FormProvider, useForm, useWatch, type Control } from 'react-hook-form';
+import { StyleSheet, View } from 'react-native';
+
 import TextInputValidated from '@/components/core/text-input-validated';
 import type { AppTheme } from '@/constants/theme';
 import { useUpsertMedication } from '@/hooks/queries/pet/use-care-card-mutations';
 import { useStyles } from '@/hooks/use-styles';
 import { medicationSchema, type MedicationInput } from '@/lib/form/pet-schemas';
 import type { Medication } from '@/services/care-card.service';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { Controller, FormProvider, useForm, useWatch, type Control } from 'react-hook-form';
-import { StyleSheet, View } from 'react-native';
 
 import StepFooter from './step-footer';
 

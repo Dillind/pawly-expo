@@ -15,32 +15,32 @@ Crumpet uses a small, in-repo theme — **no component library and no NativeWind
 
 Current colour tokens (keys are the `ThemeColor` union):
 
-| Token                | Light         | Dark          | Use for                             |
-| -------------------- | ------------- | ------------- | ----------------------------------- |
-| `text`               | `#1C1815`     | `#FBF7F2`     | Primary text                        |
-| `textSecondary`      | `#7B7167`     | `#A99C90`     | Secondary/hint text                 |
-| `border`             | 13% `#3A3026` | 14% white     | Separators and hairline rules       |
-| `background`         | `#FBFAF8`     | `#111011`     | Screen background                   |
-| `backgroundElement`  | `#FFFFFF`     | `#1C1B1C`     | Cards and elements **on a screen**  |
-| `backgroundSelected` | `#F1EFEC`     | `#282728`     | Selected/pressed/sunk surfaces      |
-| `backgroundSheet`    | `#FFFFFF`     | `#191819`     | The surface of a bottom sheet       |
-| `backgroundSheetRow` | `#F1EFEC`     | `#282728`     | Rows and cards **inside a sheet**   |
-| `postSurface`        | `#FFFFFF`     | `#000000`     | The surface of one Post             |
-| `postDivider`        | `#FBFAF8`     | `#1C1B1C`     | The band between two Posts          |
-| `error`              | `#CE3C39`     | `#E05B58`     | Errors, destructive                 |
-| `like`               | `#E0405E`     | `#FF4D6D`     | A Like, and nothing else            |
-| `primary`            | `#F0A81C`     | `#F5B435`     | A gold **fill**. Never text.        |
-| `primaryMuted`       | 14% primary   | 20% primary   | Tinted fills behind a primary state |
-| `primaryText`        | `#9E6404`     | `#F5B435`     | A gold **label** on any surface     |
-| `onPrimary`          | `#2A1D06`     | `#2A1D06`     | The label on a gold fill            |
-| `success`            | `#10696B`     | `#2FA8A2`     | The tick, and every "done" state    |
-| `ghostBorder`        | 20% ink       | 22% white     | A dashed row that offers, not warns |
-| `medication`         | `#7A5C86`     | `#B49CC0`     | A medication Reminder, on trial     |
-| `medicationMuted`    | 14% med.      | 20% med.      | Tinted fill behind a medication     |
-| `vet`                | `#4B6A8C`     | `#8FB0D2`     | A vet Reminder, on trial            |
-| `vetMuted`           | 14% vet       | 20% vet       | Tinted fill behind a vet Reminder   |
-| `onGlass`            | `#FFFFFF`     | `#FFFFFF`     | Ink on a glass control over a photo |
-| `shadow`             | `#4A3A26`     | `#000000`     | Shadow colour                       |
+| Token                | Light         | Dark        | Use for                             |
+| -------------------- | ------------- | ----------- | ----------------------------------- |
+| `text`               | `#1C1815`     | `#FBF7F2`   | Primary text                        |
+| `textSecondary`      | `#7B7167`     | `#A99C90`   | Secondary/hint text                 |
+| `border`             | 13% `#3A3026` | 14% white   | Separators and hairline rules       |
+| `background`         | `#FBFAF8`     | `#111011`   | Screen background                   |
+| `backgroundElement`  | `#FFFFFF`     | `#1C1B1C`   | Cards and elements **on a screen**  |
+| `backgroundSelected` | `#F1EFEC`     | `#282728`   | Selected/pressed/sunk surfaces      |
+| `backgroundSheet`    | `#FFFFFF`     | `#191819`   | The surface of a bottom sheet       |
+| `backgroundSheetRow` | `#F1EFEC`     | `#282728`   | Rows and cards **inside a sheet**   |
+| `postSurface`        | `#FFFFFF`     | `#000000`   | The surface of one Post             |
+| `postDivider`        | `#FBFAF8`     | `#1C1B1C`   | The band between two Posts          |
+| `error`              | `#CE3C39`     | `#E05B58`   | Errors, destructive                 |
+| `like`               | `#E0405E`     | `#FF4D6D`   | A Like, and nothing else            |
+| `primary`            | `#F0A81C`     | `#F5B435`   | A gold **fill**. Never text.        |
+| `primaryMuted`       | 14% primary   | 20% primary | Tinted fills behind a primary state |
+| `primaryText`        | `#9E6404`     | `#F5B435`   | A gold **label** on any surface     |
+| `onPrimary`          | `#2A1D06`     | `#2A1D06`   | The label on a gold fill            |
+| `success`            | `#10696B`     | `#2FA8A2`   | The tick, and every "done" state    |
+| `ghostBorder`        | 20% ink       | 22% white   | A dashed row that offers, not warns |
+| `medication`         | `#7A5C86`     | `#B49CC0`   | A medication Reminder, on trial     |
+| `medicationMuted`    | 14% med.      | 20% med.    | Tinted fill behind a medication     |
+| `vet`                | `#4B6A8C`     | `#8FB0D2`   | A vet Reminder, on trial            |
+| `vetMuted`           | 14% vet       | 20% vet     | Tinted fill behind a vet Reminder   |
+| `onGlass`            | `#FFFFFF`     | `#FFFFFF`   | Ink on a glass control over a photo |
+| `shadow`             | `#4A3A26`     | `#000000`   | Shadow colour                       |
 
 ### Gold has three jobs
 
@@ -123,9 +123,10 @@ const { colors, isDark, spacing } = useTheme();
 Define styles at **module scope** with a `makeStyles` factory (normal `StyleSheet.create`), then memoise inside the component with `useStyles`. Styles recompute when the colour scheme changes.
 
 ```tsx
+import { StyleSheet, View } from 'react-native';
+
 import type { AppTheme } from '@/constants/theme';
 import { useStyles } from '@/hooks/use-styles';
-import { StyleSheet, View } from 'react-native';
 
 const MyComponent = () => {
   const styles = useStyles(makeStyles);

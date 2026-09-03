@@ -1,3 +1,8 @@
+import type { TrueSheet } from '@lodev09/react-native-true-sheet';
+import { useRouter } from 'expo-router';
+import { useRef } from 'react';
+import { StyleSheet, View } from 'react-native';
+
 import AboutSheet from '@/components/bottom-sheets/about-sheet';
 import AppearanceSheet from '@/components/bottom-sheets/appearance-sheet';
 import OptionSheet from '@/components/bottom-sheets/option-sheet';
@@ -21,10 +26,6 @@ import { useAuthStore } from '@/stores/auth-store';
 import { useThemeStore } from '@/stores/theme-store';
 import { openExternalURL } from '@/utils/linking';
 import { optionLabel } from '@/utils/options';
-import type { TrueSheet } from '@lodev09/react-native-true-sheet';
-import { useRouter } from 'expo-router';
-import { useRef } from 'react';
-import { StyleSheet, View } from 'react-native';
 
 const SettingsList = () => {
   const styles = useStyles(makeStyles);

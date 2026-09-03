@@ -1,3 +1,14 @@
+import React, { useCallback, useState } from 'react';
+import { useFormContext, useFormState, type Control, type FieldValues } from 'react-hook-form';
+import {
+  StyleProp,
+  StyleSheet,
+  TextInput,
+  View,
+  ViewStyle,
+  type TextInputProps
+} from 'react-native';
+
 import AppText from '@/components/core/app-text';
 import Icon from '@/components/core/icon';
 import IndicatedText from '@/components/core/indicated-text';
@@ -7,16 +18,6 @@ import { useStyles } from '@/hooks/use-styles';
 import { useTheme } from '@/hooks/use-theme';
 import CharacterCount from '@/lib/form/components/character-count';
 import FieldError from '@/lib/form/components/field-error';
-import React, { useCallback, useState } from 'react';
-import { useFormContext, useFormState, type Control, type FieldValues } from 'react-hook-form';
-import {
-  StyleProp,
-  StyleSheet,
-  TextInput,
-  type TextInputProps,
-  View,
-  ViewStyle
-} from 'react-native';
 
 export type TextInputRef = React.ElementRef<typeof TextInput>;
 

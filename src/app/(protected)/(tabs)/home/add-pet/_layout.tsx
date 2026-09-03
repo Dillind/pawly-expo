@@ -1,9 +1,10 @@
-import { EVERY_DAY } from '@/lib/form/pet-schemas';
-import { addPetSchema, type AddPetFormValues } from '@/constants/schemas/add-pet';
-import { HeaderTitleStyle } from '@/constants/theme';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Stack } from 'expo-router';
 import { FormProvider, useForm } from 'react-hook-form';
+
+import { addPetSchema, type AddPetFormValues } from '@/constants/schemas/add-pet';
+import { HeaderTitleStyle } from '@/constants/theme';
+import { EVERY_DAY } from '@/lib/form/pet-schemas';
 
 const DEFAULT_FEED_TIMES: AddPetFormValues['feedTimes'] = [
   { label: 'morning', localTime: '07:00', daysOfWeek: [...EVERY_DAY], instructions: null },

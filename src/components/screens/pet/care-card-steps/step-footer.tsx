@@ -1,8 +1,9 @@
+import type { ReactElement } from 'react';
+import { StyleSheet, View } from 'react-native';
+
 import MainButton from '@/components/core/main-button';
 import type { AppTheme } from '@/constants/theme';
 import { useStyles } from '@/hooks/use-styles';
-import type { ReactElement } from 'react';
-import { StyleSheet, View } from 'react-native';
 
 type Props = {
   /** The first step has nowhere back, so Next takes the full width. */

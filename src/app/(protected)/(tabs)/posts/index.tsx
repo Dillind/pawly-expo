@@ -1,3 +1,9 @@
+import type { LegendListRenderItemProps } from '@legendapp/list/react-native';
+import type { TrueSheet } from '@lodev09/react-native-true-sheet';
+import { useFocusEffect, useRouter } from 'expo-router';
+import { useCallback, useMemo, useRef, useState } from 'react';
+import { StyleSheet, View } from 'react-native';
+
 import PostActionsSheet from '@/components/bottom-sheets/post-actions-sheet';
 import EmptyState from '@/components/core/empty-state';
 import MainButton from '@/components/core/main-button';
@@ -17,11 +23,6 @@ import { useRefreshOnFocus } from '@/hooks/use-refresh-on-focus';
 import { useStyles } from '@/hooks/use-styles';
 import type { Post } from '@/services/post.service';
 import { useAuthStore } from '@/stores/auth-store';
-import type { LegendListRenderItemProps } from '@legendapp/list/react-native';
-import type { TrueSheet } from '@lodev09/react-native-true-sheet';
-import { useFocusEffect, useRouter } from 'expo-router';
-import { useCallback, useMemo, useRef, useState } from 'react';
-import { StyleSheet, View } from 'react-native';
 
 const PostGap = 12;
 

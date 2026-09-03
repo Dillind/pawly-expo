@@ -1,9 +1,10 @@
+import { StyleSheet } from 'react-native';
+
 import AppText from '@/components/core/app-text';
 import Icon from '@/components/core/icon';
 import PressableOpacity from '@/components/core/pressable-opacity';
 import { ScreenGutter, type AppTheme } from '@/constants/theme';
 import { useStyles } from '@/hooks/use-styles';
-import { StyleSheet } from 'react-native';
 
 type Props = {
   count: number;

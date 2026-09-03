@@ -1,10 +1,11 @@
+import { StyleSheet } from 'react-native';
+
 import AppText from '@/components/core/app-text';
 import Icon from '@/components/core/icon';
 import PressableOpacity from '@/components/core/pressable-opacity';
 import type { AppTheme } from '@/constants/theme';
 import { useStyles } from '@/hooks/use-styles';
 import { formatMonthAndYear } from '@/lib/dates';
-import { StyleSheet } from 'react-native';
 
 export type MonthPickerProps = {
   /** The day in view. Its month is the label, and the grid opens on it. */

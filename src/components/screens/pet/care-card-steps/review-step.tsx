@@ -1,3 +1,5 @@
+import { StyleSheet, View } from 'react-native';
+
 import AppText from '@/components/core/app-text';
 import Icon from '@/components/core/icon';
 import MainButton from '@/components/core/main-button';
@@ -7,7 +9,6 @@ import { useStyles } from '@/hooks/use-styles';
 import { careCardBlocks } from '@/lib/care-card-view';
 import { hapticSuccess } from '@/lib/haptics';
 import type { CareCard, CareCardContact, Medication } from '@/services/care-card.service';
-import { StyleSheet, View } from 'react-native';
 
 import StepFooter from './step-footer';
 

@@ -1,8 +1,9 @@
+import { useCallback } from 'react';
+import { StyleSheet, View } from 'react-native';
+
 import AppText from '@/components/core/app-text';
 import { Radius, type AppTheme } from '@/constants/theme';
 import { useStyles } from '@/hooks/use-styles';
-import { useCallback } from 'react';
-import { StyleSheet, View } from 'react-native';
 
 type Props = {
   firstName: string | null | undefined;

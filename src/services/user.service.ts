@@ -1,8 +1,9 @@
+import * as Crypto from 'expo-crypto';
+
 import { UserFacingError } from '@/lib/errors';
 import { assertWrote } from '@/lib/supabase/assert-wrote';
 import { supabase } from '@/lib/supabase/client';
 import type { UserProfile, UserStats } from '@/types/core';
-import * as Crypto from 'expo-crypto';
 
 const BUCKET = 'user-avatars';
 

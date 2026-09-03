@@ -1,5 +1,6 @@
-import FeedTimeService from '@/services/feed-time.service';
 import { useQuery } from '@tanstack/react-query';
+
+import FeedTimeService from '@/services/feed-time.service';
 
 export function useFeedTimes(petId: string | undefined) {
   return useQuery({

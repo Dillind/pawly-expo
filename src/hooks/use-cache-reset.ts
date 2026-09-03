@@ -1,6 +1,7 @@
+import { useEffect, useRef } from 'react';
+
 import { clearPersistedQueryCache } from '@/lib/query-client';
 import { useAuthStore } from '@/stores/auth-store';
-import { useEffect, useRef } from 'react';
 
 /**
  * Empties the query cache, in memory and on disk, when a signed-in session

@@ -1,3 +1,10 @@
+import type { TrueSheet } from '@lodev09/react-native-true-sheet';
+import { Image } from 'expo-image';
+import { Stack, useRouter } from 'expo-router';
+import { useRef } from 'react';
+import { Controller, useFormContext, useFormState, useWatch } from 'react-hook-form';
+import { ActionSheetIOS, Alert, StyleSheet, View } from 'react-native';
+
 import PhotoSourceSheet from '@/components/bottom-sheets/photo-source-sheet';
 import AgePickerValidated from '@/components/core/age-picker-validated';
 import AppText from '@/components/core/app-text';
@@ -24,12 +31,6 @@ import { useStyles } from '@/hooks/use-styles';
 import { birthdateFromAge } from '@/lib/dates';
 import type { AgeMode } from '@/types/core';
 import { isIOS } from '@/utils/platform';
-import type { TrueSheet } from '@lodev09/react-native-true-sheet';
-import { Image } from 'expo-image';
-import { Stack, useRouter } from 'expo-router';
-import { useRef } from 'react';
-import { Controller, useFormContext, useFormState, useWatch } from 'react-hook-form';
-import { ActionSheetIOS, Alert, StyleSheet, View } from 'react-native';
 
 const AGE_OPTIONS: { value: AgeMode; label: string }[] = [
   { value: 'birthdate', label: 'Date of birth' },

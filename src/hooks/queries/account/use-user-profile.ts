@@ -1,7 +1,8 @@
-import UserService from '@/services/user.service';
-import { useAuthStore } from '@/stores/auth-store';
 import { useQuery } from '@tanstack/react-query';
 import { useEffect } from 'react';
+
+import UserService from '@/services/user.service';
+import { useAuthStore } from '@/stores/auth-store';
 
 /**
  * Fetches/caches the public.users profile row via Query, then mirrors it into

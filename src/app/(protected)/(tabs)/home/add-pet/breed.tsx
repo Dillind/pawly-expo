@@ -1,13 +1,14 @@
-import ScreenView from '@/components/layout/screen-view';
+import { useRouter } from 'expo-router';
+import { useFormContext, useWatch } from 'react-hook-form';
+import { StyleSheet, View } from 'react-native';
+
 import AppText from '@/components/core/app-text';
+import ScreenView from '@/components/layout/screen-view';
 import BreedPicker from '@/components/ui/breed-picker';
 import { breedSpeciesFor } from '@/constants/breeds';
 import type { AddPetFormValues } from '@/constants/schemas/add-pet';
 import { BottomTabInset, type AppTheme } from '@/constants/theme';
 import { useStyles } from '@/hooks/use-styles';
-import { useRouter } from 'expo-router';
-import { useFormContext, useWatch } from 'react-hook-form';
-import { StyleSheet, View } from 'react-native';
 
 // Pushed inside the modal, not raised as a sheet — a sheet on a modal is two
 // modals.

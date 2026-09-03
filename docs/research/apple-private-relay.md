@@ -35,7 +35,7 @@ under the heading **"Prevent duplicate accounts"**:
 >   account, and ask if they have any existing accounts to link to.
 
 Two things to notice. First, Apple names the problem in the ticket exactly, including the case where
-the *real* email does not match either. Second, the advice is documentation, not an App Review rule,
+the _real_ email does not match either. Second, the advice is documentation, not an App Review rule,
 so it is a recommendation and not a requirement.
 
 ### Asking for the real email is allowed, with conditions
@@ -53,7 +53,7 @@ So asking is fine. Making it required, or blocking a feature until they answer, 
 except when directly relevant to the core functionality of the app or required by law."
 
 This is the part that is genuinely ambiguous. The guidelines never mention the relay address, so
-they never say whether asking a user who *just chose* to hide their email for that same email counts
+they never say whether asking a user who _just chose_ to hide their email for that same email counts
 as attempting to "manipulate, trick, or force people to consent" (5.1.1(iv)). The safe reading is
 that a plainly-worded, skippable prompt is fine and a nagging or blocking one is not. Nobody at Apple
 has written that down.

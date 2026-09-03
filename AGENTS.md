@@ -38,13 +38,13 @@ choice looks wrong, check whether it was already made deliberately.
 Keep them current in the same change, not afterwards. All four are prose for a reader — no bloat,
 no restating what the code already says.
 
-| You have | Write it in |
-|---|---|
-| Introduced or sharpened a domain term | `CONTEXT.md` |
-| Made a choice someone would question, explainable in a sentence or two | `DECISIONS.md` |
-| Made a choice that changes the system's shape, or needs its alternatives spelled out | a new ADR |
-| Lost time to something non-obvious, or found a trap that survives the fix | `KNOWLEDGE.md` |
-| Changed how the layers fit together | `ARCHITECTURE.md` |
+| You have                                                                             | Write it in       |
+| ------------------------------------------------------------------------------------ | ----------------- |
+| Introduced or sharpened a domain term                                                | `CONTEXT.md`      |
+| Made a choice someone would question, explainable in a sentence or two               | `DECISIONS.md`    |
+| Made a choice that changes the system's shape, or needs its alternatives spelled out | a new ADR         |
+| Lost time to something non-obvious, or found a trap that survives the fix            | `KNOWLEDGE.md`    |
+| Changed how the layers fit together                                                  | `ARCHITECTURE.md` |
 
 The `DECISIONS.md` / ADR line is the one that needs judgement: if you can give the reasoning in two
 sentences it is a `DECISIONS.md` entry, and if you need to lay out the options it is an ADR.
@@ -94,12 +94,14 @@ bun start           # Expo dev server (or: expo start)
 bun run ios         # Run on iOS simulator
 bun run android     # Run on Android emulator
 bun run web         # Run on web
-bun run lint        # ESLint (eslint-config-expo)
-bun run typecheck   # tsc --noEmit
-bun run spellcheck  # cspell across ts/tsx/md/sql
-bun run test        # Jest, single run
-bun run test:watch  # Jest, watch mode
-bun run check       # all four above, in order, stopping at the first failure
+bun run lint         # ESLint (eslint-config-expo)
+bun run typecheck    # tsc --noEmit
+bun run format       # Prettier, writes
+bun run format:check # Prettier, reports only -- this is the one `check` runs
+bun run spellcheck   # cspell across ts/tsx/md/sql
+bun run test         # Jest, single run
+bun run test:watch   # Jest, watch mode
+bun run check        # all five above, in order, stopping at the first failure
 
 bun run build:dev         # EAS development build, iOS (simulator-capable)
 bun run build:preview     # EAS preview build, iOS
@@ -169,7 +171,7 @@ No Android build scripts until FCM credentials exist.
 ## Tests
 
 `jest-expo` + `@testing-library/react-native`. **Run `bun run check` before finishing** — it is
-typecheck, lint, spellcheck and test in one, and stops at the first failure.
+typecheck, lint, format:check, spellcheck and test in one, and stops at the first failure.
 
 Tests live in a top-level **`tests/` mirroring `src/`**, so the path tells you what is covered:
 
@@ -586,7 +588,7 @@ optional until the user tries to save. The schema is the source of truth, not th
 
 The four validated inputs take the prop: `TextInputValidated`, `DateTimePickerValidated`, and both
 `DropdownPickerValidated` files. **`SegmentedControl` does not take it yet**, only because no caller
-needs it — every one of them carries a value from `defaultValues`. It *can* look unset: since
+needs it — every one of them carries a value from `defaultValues`. It _can_ look unset: since
 CRU-093 a control whose value matches no option paints no thumb. So a segmented control that can
 start empty does need the indicator, and adding it means giving `IndicatedText` a `size` and
 `fontWeight` first — the segmented label is 14/bold and `IndicatedText` is fixed at 16/regular.
@@ -665,7 +667,7 @@ Unlike `MainButton`, it never stretches to fill its parent — it is a fixed cir
 ```tsx
 headerRight: () => (
   <HeaderIconButton name="ellipsis" accessibilityLabel="Manage this post" onPress={openMenu} />
-)
+);
 ```
 
 **Pass nothing but `name`, `accessibilityLabel` and `onPress`.** Its size, stroke and 36×40 box were
@@ -774,7 +776,8 @@ All user-facing text uses **Australian/British English** (colour, organise, canc
 
 ### Code style
 
-- Prettier: 100-char width, single quotes, **no trailing commas**, `bracketSameLine: true`, no tabs (`.prettierrc.json`).
+- Prettier: 100-char width, single quotes, **no trailing commas**, `bracketSameLine: true`, no tabs (`.prettierrc.json`). `bun run format:check` is in `bun run check`, so formatting is a gate, not a suggestion — run `bun run format` before you commit.
+- **Imports are sorted by Prettier, not by hand.** `@ianvs/prettier-plugin-sort-imports` orders them: built-ins, third party, `@/` aliases, then relative, with a blank line between each group. An inline `type` specifier stays with its value import — the plugin merges them rather than splitting type imports into their own group. Never reorder an import block yourself; run `bun run format`.
 - ESLint via `eslint-config-expo` (flat config). Run `bun run lint` before finishing.
 - Spelling is checked with cspell (`bun run spellcheck`); add project words to `cspell.json` rather than disabling. The locale is `en,en-GB` deliberately — prose is British (`colour`), but code identifiers are American (`backgroundColor`, `colors`), so both dictionaries have to be active.
 

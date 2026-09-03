@@ -91,7 +91,7 @@ turns a reversible step into a cliff.
 ### 3. `log_feed` and the alerts edge
 
 - `log_feed` takes `target_series_id uuid default null` and `target_occurrence_date date default
-  null`. Keep the advisory lock and the single transaction — what changes is what is checked.
+null`. Keep the advisory lock and the single transaction — what changes is what is checked.
   `double_feed` now means "this occurrence already has a log", which is a lookup, not a guess.
 - **`alerts.subject_id` must hold the `series_id`, not a row id.** The idempotency index is
   `(kind, subject_id, subject_date)`; under versioning a row id changes on every edit, so a
@@ -149,13 +149,13 @@ thing that can verify any of the SQL.
 
 **The test target already exists.** A second Supabase project was created for it on 2026-08-20:
 
-| | |
-| --- | --- |
-| Name | `crumpet-qa` |
-| Project ref | <!-- cspell:disable-line -->`zkckgmvykrmswnjxvfii` |
-| Region | `ap-northeast-2`, matching production |
-| Organisation | dylan-personal |
-| Cost | free tier |
+|              |                                                    |
+| ------------ | -------------------------------------------------- |
+| Name         | `crumpet-qa`                                       |
+| Project ref  | <!-- cspell:disable-line -->`zkckgmvykrmswnjxvfii` |
+| Region       | `ap-northeast-2`, matching production              |
+| Organisation | dylan-personal                                     |
+| Cost         | free tier                                          |
 
 All 67 migrations are applied there and it matches production: 18 tables, 46 functions, 47 RLS
 policies, the same seven `alert_kind` values in the same order, and the missed-feed cron job.
@@ -179,7 +179,7 @@ Two things to know about the QA project:
 - **Its migration history is ten batches, not 67 files.** Several objects are defined repeatedly
   across the migrations — `slot_states` five times, `create_post` four, `list_alerts` five — and
   only the final definition of each was applied. The schema matches production, which was verified
-  by comparing counts. The *history* does not, so `supabase migration list` will not line up.
+  by comparing counts. The _history_ does not, so `supabase migration list` will not line up.
 
 Still to do before the first assertion:
 
@@ -205,14 +205,14 @@ being worth having.
 
 ## Naming map
 
-| Old | New |
-| --- | --- |
-| Slot, Scheduled Time | Feed Time (on screen), Occurrence (in code) |
-| `feeding_schedules` | `feed_times` |
-| `slot_states` | `occurrence_states` |
-| `useSlotStates` | `useOccurrences` |
-| `upsertSlot` / `deleteSlot` | `saveFeedTime` / `endFeedTime` |
-| Extra Feed (accidental) | Extra Feed (deliberate — "Log something else") |
+| Old                         | New                                            |
+| --------------------------- | ---------------------------------------------- |
+| Slot, Scheduled Time        | Feed Time (on screen), Occurrence (in code)    |
+| `feeding_schedules`         | `feed_times`                                   |
+| `slot_states`               | `occurrence_states`                            |
+| `useSlotStates`             | `useOccurrences`                               |
+| `upsertSlot` / `deleteSlot` | `saveFeedTime` / `endFeedTime`                 |
+| Extra Feed (accidental)     | Extra Feed (deliberate — "Log something else") |
 
 ## Sharp edges
 

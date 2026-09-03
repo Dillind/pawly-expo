@@ -1,5 +1,6 @@
-import FeedLogService from '@/services/feed-log.service';
 import { useQuery } from '@tanstack/react-query';
+
+import FeedLogService from '@/services/feed-log.service';
 
 /**
  * One log, fetched directly by id. A notification tapped three weeks later

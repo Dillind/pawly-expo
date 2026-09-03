@@ -1,16 +1,16 @@
-import AppText from '@/components/core/app-text';
-import IndicatedText from '@/components/core/indicated-text';
-import type { AppTheme } from '@/constants/theme';
-import { Radius } from '@/constants/theme';
-import { useStyles } from '@/hooks/use-styles';
-import FieldError from '@/lib/form/components/field-error';
-import type { Option } from '@/types/core';
-import { optionLabel } from '@/utils/options';
-import { useTheme } from '@/hooks/use-theme';
 import { Host, Picker, Text } from '@expo/ui/swift-ui';
 import { foregroundStyle, pickerStyle, tag } from '@expo/ui/swift-ui/modifiers';
 import { useFormContext } from 'react-hook-form';
 import { StyleProp, StyleSheet, View, ViewStyle } from 'react-native';
+
+import AppText from '@/components/core/app-text';
+import IndicatedText from '@/components/core/indicated-text';
+import { Radius, type AppTheme } from '@/constants/theme';
+import { useStyles } from '@/hooks/use-styles';
+import { useTheme } from '@/hooks/use-theme';
+import FieldError from '@/lib/form/components/field-error';
+import type { Option } from '@/types/core';
+import { optionLabel } from '@/utils/options';
 
 type Props<T extends string> = {
   marginTop?: number;

@@ -1,5 +1,6 @@
-import { UserFacingError } from '@/lib/errors';
 import { AuthError } from '@supabase/supabase-js';
+
+import { UserFacingError } from '@/lib/errors';
 
 const COPY: Record<string, string> = {
   otp_expired: 'That code has expired. Send a new one.',

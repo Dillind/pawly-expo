@@ -1,11 +1,15 @@
+import type { TrueSheet } from '@lodev09/react-native-true-sheet';
+import { useRef } from 'react';
+import { StyleSheet, View } from 'react-native';
+
 import InfoSheet from '@/components/bottom-sheets/info-sheet';
 import ReminderTray from '@/components/bottom-sheets/reminder-tray';
 import AppText from '@/components/core/app-text';
 import IconButton from '@/components/core/icon-button';
 import MainButton from '@/components/core/main-button';
 import SectionLabel from '@/components/core/section-label';
-import ReminderRow from '@/components/ui/reminder-row';
 import SectionCard from '@/components/screens/pet/section-card';
+import ReminderRow from '@/components/ui/reminder-row';
 import { REMINDERS_HELP } from '@/constants/reminders-help';
 import type { AppTheme } from '@/constants/theme';
 import { isTickPending, useTickReminder } from '@/hooks/queries/reminder/use-reminder-mutations';
@@ -13,9 +17,6 @@ import { useUpcomingReminders } from '@/hooks/queries/reminder/use-reminders';
 import { useStyles } from '@/hooks/use-styles';
 import { formatReminderDate, shiftDays } from '@/lib/dates';
 import type { Pet } from '@/types/core';
-import type { TrueSheet } from '@lodev09/react-native-true-sheet';
-import { useRef } from 'react';
-import { StyleSheet, View } from 'react-native';
 
 type Props = {
   pet: Pet;

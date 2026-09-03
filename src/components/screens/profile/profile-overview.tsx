@@ -1,3 +1,9 @@
+import type { LegendListRenderItemProps } from '@legendapp/list/react-native';
+import type { TrueSheet } from '@lodev09/react-native-true-sheet';
+import { useRouter } from 'expo-router';
+import { useMemo, useRef, useState } from 'react';
+import { ActivityIndicator, StyleSheet, View } from 'react-native';
+
 import PhotoSourceSheet from '@/components/bottom-sheets/photo-source-sheet';
 import PostActionsSheet from '@/components/bottom-sheets/post-actions-sheet';
 import AppText from '@/components/core/app-text';
@@ -24,11 +30,6 @@ import type { Post } from '@/services/post.service';
 import { useAuthStore } from '@/stores/auth-store';
 import { fullName } from '@/utils/members';
 import { optionLabel } from '@/utils/options';
-import type { LegendListRenderItemProps } from '@legendapp/list/react-native';
-import type { TrueSheet } from '@lodev09/react-native-true-sheet';
-import { useRouter } from 'expo-router';
-import { useMemo, useRef, useState } from 'react';
-import { ActivityIndicator, StyleSheet, View } from 'react-native';
 
 const AVATAR = 96;
 const PostGap = 12;

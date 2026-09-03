@@ -1,7 +1,8 @@
-import FeedTimeService from '@/services/feed-time.service';
-import type { FeedingScheduleLabel, Occurrence } from '@/types/core';
 import { useQueries } from '@tanstack/react-query';
 import { useMemo } from 'react';
+
+import FeedTimeService from '@/services/feed-time.service';
+import type { FeedingScheduleLabel, Occurrence } from '@/types/core';
 
 const OCCURRENCES_STALE_MS = 15_000;
 

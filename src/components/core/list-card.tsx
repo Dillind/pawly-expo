@@ -1,9 +1,10 @@
+import type { ReactNode } from 'react';
+import { StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native';
+
 import { Radius, type AppTheme } from '@/constants/theme';
 import { useStyles } from '@/hooks/use-styles';
 import { useTheme } from '@/hooks/use-theme';
 import { createShadowMedium } from '@/lib/styles/shadows';
-import type { ReactNode } from 'react';
-import { StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native';
 
 type Props = {
   children: ReactNode;

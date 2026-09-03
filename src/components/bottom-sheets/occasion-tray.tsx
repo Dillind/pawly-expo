@@ -1,15 +1,19 @@
+import type { TrueSheet } from '@lodev09/react-native-true-sheet';
+import { useState, type RefObject } from 'react';
+import { Alert, ScrollView, StyleSheet, View } from 'react-native';
+
 import SheetRow from '@/components/bottom-sheets/sheet-row';
 import AppText from '@/components/core/app-text';
+import Divider from '@/components/core/divider';
 import Icon from '@/components/core/icon';
 import IconButton from '@/components/core/icon-button';
 import MainButton from '@/components/core/main-button';
+import PetAvatar from '@/components/core/pet-avatar';
 import PressableOpacity from '@/components/core/pressable-opacity';
+import SearchBar from '@/components/core/search-bar';
 import TextInputValidated from '@/components/core/text-input-validated';
 import Tray, { useTray, type TrayStepDescriptor } from '@/components/core/tray';
 import OccasionEmoji from '@/components/ui/occasion-emoji';
-import Divider from '@/components/core/divider';
-import PetAvatar from '@/components/core/pet-avatar';
-import SearchBar from '@/components/core/search-bar';
 import PostChip from '@/components/ui/post-chip';
 import { EMOJI_GROUPS } from '@/constants/emoji';
 import { Radius, type AppTheme } from '@/constants/theme';
@@ -22,9 +26,6 @@ import {
 import { useStyles } from '@/hooks/use-styles';
 import OccasionService, { type Occasion } from '@/services/occasion.service';
 import type { PostOccasion } from '@/services/post.service';
-import type { TrueSheet } from '@lodev09/react-native-true-sheet';
-import { useState, type RefObject } from 'react';
-import { Alert, ScrollView, StyleSheet, View } from 'react-native';
 
 export const LABEL_MAX = 24;
 
@@ -174,7 +175,9 @@ const ChooseStep = ({
             <SheetRow
               label={removed.label ?? ''}
               leading={
-                removed.emoji ? <OccasionEmoji emoji={removed.emoji} size={EMOJI_SLOT} /> : undefined
+                removed.emoji ? (
+                  <OccasionEmoji emoji={removed.emoji} size={EMOJI_SLOT} />
+                ) : undefined
               }
               isSelected={!isEditing}
               onPress={() => onChoose(null)}

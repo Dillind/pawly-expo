@@ -1,3 +1,8 @@
+import type { TrueSheet } from '@lodev09/react-native-true-sheet';
+import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
+import { useRef } from 'react';
+import { ActivityIndicator, ScrollView, StyleSheet } from 'react-native';
+
 import PostActionsSheet from '@/components/bottom-sheets/post-actions-sheet';
 import ErrorState from '@/components/core/error-state';
 import ScreenView from '@/components/layout/screen-view';
@@ -9,10 +14,6 @@ import { useComments, useToggleCommentLike } from '@/hooks/queries/posts/use-com
 import { useDeletePost, usePost, useToggleLike } from '@/hooks/queries/posts/use-posts';
 import { useStyles } from '@/hooks/use-styles';
 import { useAuthStore } from '@/stores/auth-store';
-import type { TrueSheet } from '@lodev09/react-native-true-sheet';
-import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
-import { useRef } from 'react';
-import { ActivityIndicator, ScrollView, StyleSheet } from 'react-native';
 
 const PostDetail = () => {
   const styles = useStyles(makeStyles);

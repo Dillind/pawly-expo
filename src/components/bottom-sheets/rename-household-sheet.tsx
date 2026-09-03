@@ -1,20 +1,21 @@
-import BaseSheet from '@/components/bottom-sheets/base-sheet';
-import MainButton from '@/components/core/main-button';
-import TextInputValidated from '@/components/core/text-input-validated';
-import { SuccessMessage } from '@/constants/enums';
-import type { AppTheme } from '@/constants/theme';
-import { useUpdateHousehold } from '@/hooks/queries/household/use-update-household';
-import { useStyles } from '@/hooks/use-styles';
-import {
-  HOUSEHOLD_NAME_MAX,
-  householdNameSchema,
-  type HouseholdNameInput
-} from '@/constants/schemas/household';
 import { zodResolver } from '@hookform/resolvers/zod';
 import type { TrueSheet } from '@lodev09/react-native-true-sheet';
 import type { RefObject } from 'react';
 import { Controller, FormProvider, useForm, useWatch } from 'react-hook-form';
 import { StyleSheet, View } from 'react-native';
+
+import BaseSheet from '@/components/bottom-sheets/base-sheet';
+import MainButton from '@/components/core/main-button';
+import TextInputValidated from '@/components/core/text-input-validated';
+import { SuccessMessage } from '@/constants/enums';
+import {
+  HOUSEHOLD_NAME_MAX,
+  householdNameSchema,
+  type HouseholdNameInput
+} from '@/constants/schemas/household';
+import type { AppTheme } from '@/constants/theme';
+import { useUpdateHousehold } from '@/hooks/queries/household/use-update-household';
+import { useStyles } from '@/hooks/use-styles';
 
 type Props = {
   sheetRef: RefObject<TrueSheet | null>;

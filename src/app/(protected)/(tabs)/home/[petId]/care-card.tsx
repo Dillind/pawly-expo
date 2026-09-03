@@ -1,3 +1,7 @@
+import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
+import { useRef } from 'react';
+import { ActivityIndicator, StyleSheet } from 'react-native';
+
 import AppText from '@/components/core/app-text';
 import EmptyState from '@/components/core/empty-state';
 import Icon from '@/components/core/icon';
@@ -15,9 +19,6 @@ import { useShareCareCard } from '@/hooks/use-share-care-card';
 import { useStyles } from '@/hooks/use-styles';
 import { careCardBlocks } from '@/lib/care-card-view';
 import { deviceTimezone, formatDateWithYear } from '@/lib/dates';
-import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
-import { useRef } from 'react';
-import { ActivityIndicator, StyleSheet } from 'react-native';
 
 /**
  * The care card as a screen of its own, which is what a handover document is:

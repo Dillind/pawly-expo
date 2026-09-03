@@ -1,11 +1,17 @@
+import { zodResolver } from '@hookform/resolvers/zod';
+import type { TrueSheet } from '@lodev09/react-native-true-sheet';
+import { useRef } from 'react';
+import { Controller, FormProvider, useForm, useWatch } from 'react-hook-form';
+import { StyleSheet, View } from 'react-native';
+
+import BaseSheet from '@/components/bottom-sheets/base-sheet';
+import SheetRow from '@/components/bottom-sheets/sheet-row';
 import AppText from '@/components/core/app-text';
 import DateTimePickerValidated from '@/components/core/date-time-picker-validated';
+import Icon from '@/components/core/icon';
 import MainButton from '@/components/core/main-button';
 import PressableOpacity from '@/components/core/pressable-opacity';
 import TextInputValidated from '@/components/core/text-input-validated';
-import Icon from '@/components/core/icon';
-import BaseSheet from '@/components/bottom-sheets/base-sheet';
-import SheetRow from '@/components/bottom-sheets/sheet-row';
 import DayOfWeekPicker from '@/components/ui/day-of-week-picker';
 import { FEEDING_SCHEDULE_LABEL_OPTIONS } from '@/constants/options';
 import { Radius, type AppTheme } from '@/constants/theme';
@@ -14,11 +20,6 @@ import { EVERY_DAY, feedTimeSchema, type FeedTimeInput } from '@/lib/form/pet-sc
 import type { FeedTime } from '@/services/feed-time.service';
 import type { FeedingScheduleLabel } from '@/types/core';
 import { optionLabel } from '@/utils/options';
-import { zodResolver } from '@hookform/resolvers/zod';
-import type { TrueSheet } from '@lodev09/react-native-true-sheet';
-import { useRef } from 'react';
-import { Controller, FormProvider, useForm, useWatch } from 'react-hook-form';
-import { StyleSheet, View } from 'react-native';
 
 type Props = {
   feedTime: FeedTime | null;

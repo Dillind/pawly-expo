@@ -1,11 +1,12 @@
+import { Fragment } from 'react';
+import { StyleSheet, View } from 'react-native';
+
 import AppText from '@/components/core/app-text';
 import Divider, { RowInset } from '@/components/core/divider';
 import ListCard from '@/components/core/list-card';
 import type { AppTheme } from '@/constants/theme';
 import { useStyles } from '@/hooks/use-styles';
 import type { CareCardBlock } from '@/lib/care-card-view';
-import { Fragment } from 'react';
-import { StyleSheet, View } from 'react-native';
 
 type Props = { blocks: CareCardBlock[] };
 

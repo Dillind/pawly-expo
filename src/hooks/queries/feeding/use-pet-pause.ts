@@ -1,7 +1,8 @@
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+
 import { ErrorMessage, SuccessMessage } from '@/constants/enums';
 import { showErrorToast, showSuccessToast } from '@/lib/toast';
 import FeedTimeService from '@/services/feed-time.service';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 export function usePetPause(petId: string | undefined, date: string | undefined) {
   return useQuery({

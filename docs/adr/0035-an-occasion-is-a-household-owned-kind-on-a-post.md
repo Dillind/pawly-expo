@@ -10,7 +10,7 @@ Accepted. Replaces the design in [issue #124](https://github.com/Dillind/pawly-e
 
 ## Context
 
-A Post says what happened, but nothing on it says what *kind* of day it was. A vet visit and a walk
+A Post says what happened, but nothing on it says what _kind_ of day it was. A vet visit and a walk
 in the park read identically on the card. Issue #124 proposed the smallest possible fix: a
 `is_milestone` boolean and a switch in the composer.
 

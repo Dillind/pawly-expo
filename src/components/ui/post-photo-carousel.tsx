@@ -1,9 +1,10 @@
-import { Radius, type AppTheme } from '@/constants/theme';
-import { useStyles } from '@/hooks/use-styles';
-import type { PostPhoto } from '@/services/post.service';
 import { Image } from 'expo-image';
 import { useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, View, type NativeScrollEvent } from 'react-native';
+
+import { Radius, type AppTheme } from '@/constants/theme';
+import { useStyles } from '@/hooks/use-styles';
+import type { PostPhoto } from '@/services/post.service';
 
 const DOT_SIZE = 6;
 

@@ -1,22 +1,23 @@
+import { GlassView } from 'expo-glass-effect';
+import { useRouter, type Href } from 'expo-router';
+import React, { type FunctionComponent } from 'react';
+import {
+  ActivityIndicator,
+  Pressable,
+  StyleSheet,
+  Text,
+  View,
+  type StyleProp,
+  type ViewStyle
+} from 'react-native';
+import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
+
 import { APP_ACTIVE_OPACITY } from '@/constants/primitives';
 import type { AppTheme } from '@/constants/theme';
 import { useStyles } from '@/hooks/use-styles';
 import { useTheme } from '@/hooks/use-theme';
 import { hapticLight } from '@/lib/haptics';
 import { hasGlass } from '@/utils/platform';
-import { GlassView } from 'expo-glass-effect';
-import { type Href, useRouter } from 'expo-router';
-import React, { type FunctionComponent } from 'react';
-import {
-  ActivityIndicator,
-  Pressable,
-  type StyleProp,
-  StyleSheet,
-  Text,
-  View,
-  type ViewStyle
-} from 'react-native';
-import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 

@@ -1,6 +1,7 @@
-import type { ThemeMode } from '@/constants/theme';
 import { Href } from 'expo-router';
 import { StyleProp, ViewStyle } from 'react-native';
+
+import type { ThemeMode } from '@/constants/theme';
 
 export type IconBaseProps = {
   style?: StyleProp<ViewStyle>;

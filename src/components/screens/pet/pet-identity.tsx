@@ -1,3 +1,10 @@
+import { zodResolver } from '@hookform/resolvers/zod';
+import type { TrueSheet } from '@lodev09/react-native-true-sheet';
+import { useRouter } from 'expo-router';
+import { useRef } from 'react';
+import { FormProvider, useForm, useFormContext, useWatch } from 'react-hook-form';
+import { ActivityIndicator, StyleSheet, View } from 'react-native';
+
 import PhotoSourceSheet from '@/components/bottom-sheets/photo-source-sheet';
 import AppText from '@/components/core/app-text';
 import Icon from '@/components/core/icon';
@@ -9,20 +16,14 @@ import CareCardTile, { TileWidth } from '@/components/screens/pet/care-card/care
 import EditPetDetails from '@/components/screens/pet/edit-pet-details';
 import BreedPicker from '@/components/ui/breed-picker';
 import { breedSpeciesFor, petBreedLabel } from '@/constants/breeds';
-import { petDetailsEditSchema, type PetDetailsEditValues } from '@/constants/schemas/pet-details';
 import { SEX_OPTIONS } from '@/constants/options';
+import { petDetailsEditSchema, type PetDetailsEditValues } from '@/constants/schemas/pet-details';
 import { Radius, ScreenGutter, type AppTheme } from '@/constants/theme';
 import { useChangePetPhoto } from '@/hooks/queries/pet/use-pet-photo-mutations';
 import { useStyles } from '@/hooks/use-styles';
 import { formatAge } from '@/lib/dates';
 import type { PetDetail } from '@/services/pet.service';
 import { optionLabel } from '@/utils/options';
-import { zodResolver } from '@hookform/resolvers/zod';
-import type { TrueSheet } from '@lodev09/react-native-true-sheet';
-import { useRouter } from 'expo-router';
-import { useRef } from 'react';
-import { FormProvider, useForm, useFormContext, useWatch } from 'react-hook-form';
-import { ActivityIndicator, StyleSheet, View } from 'react-native';
 
 /**
  * A Tray step, so the picker swaps the sheet's content instead of stacking a

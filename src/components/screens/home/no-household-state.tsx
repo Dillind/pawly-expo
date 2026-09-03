@@ -1,3 +1,7 @@
+import { useRouter } from 'expo-router';
+import type { ReactNode } from 'react';
+import { StyleSheet, View } from 'react-native';
+
 import AppText from '@/components/core/app-text';
 import Icon from '@/components/core/icon';
 import MainButton from '@/components/core/main-button';
@@ -5,9 +9,6 @@ import type { IconName } from '@/constants/icon-map';
 import { Radius, type AppTheme } from '@/constants/theme';
 import { useStyles } from '@/hooks/use-styles';
 import { createShadowMedium } from '@/lib/styles/shadows';
-import { useRouter } from 'expo-router';
-import type { ReactNode } from 'react';
-import { StyleSheet, View } from 'react-native';
 
 type DoorProps = {
   icon: IconName;

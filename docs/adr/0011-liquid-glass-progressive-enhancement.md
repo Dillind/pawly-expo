@@ -12,7 +12,7 @@ This needs recording because the failure mode is silent and looks like nothing a
 
 `expo-glass-effect` requires **iOS 26+**. `app.json` sets no `deploymentTarget` and does not include `expo-build-properties`, so the project's floor is the Expo SDK 57 default — far below 26. The gap is not a rounding error; it is most of the installed base.
 
-The Expo docs add a second wrinkle: *some iOS 26 beta versions do not have the Liquid Glass API available*. So the guard has to be the runtime check the library ships, not a version comparison written by hand.
+The Expo docs add a second wrinkle: _some iOS 26 beta versions do not have the Liquid Glass API available_. So the guard has to be the runtime check the library ships, not a version comparison written by hand.
 
 ## Decision
 

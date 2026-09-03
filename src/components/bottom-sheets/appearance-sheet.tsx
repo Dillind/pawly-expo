@@ -1,10 +1,11 @@
+import type { TrueSheet } from '@lodev09/react-native-true-sheet';
+import type { RefObject } from 'react';
+
 import OptionSheet from '@/components/bottom-sheets/option-sheet';
 import type { IconName } from '@/constants/icon-map';
 import { APPEARANCE_OPTIONS } from '@/constants/options';
 import { useThemeStore } from '@/stores/theme-store';
 import type { ThemePreference } from '@/types/core';
-import type { TrueSheet } from '@lodev09/react-native-true-sheet';
-import type { RefObject } from 'react';
 
 type Props = {
   sheetRef: RefObject<TrueSheet | null>;

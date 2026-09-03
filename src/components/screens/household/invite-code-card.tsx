@@ -1,10 +1,11 @@
+import { Share, StyleSheet, View } from 'react-native';
+import QRCode from 'react-native-qrcode-svg';
+
 import AppText from '@/components/core/app-text';
 import MainButton from '@/components/core/main-button';
 import { inviteLink } from '@/constants/invite-link';
 import { Radius, type AppTheme } from '@/constants/theme';
 import { useStyles } from '@/hooks/use-styles';
-import { Share, StyleSheet, View } from 'react-native';
-import QRCode from 'react-native-qrcode-svg';
 
 const QR_SIZE = 168;
 

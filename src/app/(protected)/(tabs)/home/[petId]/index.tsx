@@ -1,3 +1,8 @@
+import type { TrueSheet } from '@lodev09/react-native-true-sheet';
+import { Stack, useLocalSearchParams } from 'expo-router';
+import { useRef, useState } from 'react';
+import { StyleSheet, View } from 'react-native';
+
 import FeedLogDetailSheet from '@/components/bottom-sheets/feed-log-detail-sheet';
 import ErrorState from '@/components/core/error-state';
 import ScreenScrollView from '@/components/layout/screen-scroll-view';
@@ -16,10 +21,6 @@ import { useHouseholdMembers } from '@/hooks/queries/household/use-household-mem
 import { usePetDetail } from '@/hooks/queries/pet/use-pet-detail';
 import { useStyles } from '@/hooks/use-styles';
 import { todayInTimezone } from '@/lib/dates';
-import type { TrueSheet } from '@lodev09/react-native-true-sheet';
-import { Stack, useLocalSearchParams } from 'expo-router';
-import { useRef, useState } from 'react';
-import { StyleSheet, View } from 'react-native';
 
 const PetDetail = () => {
   const { petId } = useLocalSearchParams<{ petId: string }>();

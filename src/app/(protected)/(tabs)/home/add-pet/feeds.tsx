@@ -1,3 +1,8 @@
+import dayjs from 'dayjs';
+import { useRouter } from 'expo-router';
+import { useFieldArray, useFormContext, useWatch } from 'react-hook-form';
+import { StyleSheet, View } from 'react-native';
+
 import AppText from '@/components/core/app-text';
 import Icon from '@/components/core/icon';
 import MainButton from '@/components/core/main-button';
@@ -6,17 +11,12 @@ import ScreenFooter from '@/components/layout/screen-footer';
 import ScreenScrollView from '@/components/layout/screen-scroll-view';
 import ScreenView from '@/components/layout/screen-view';
 import FlowStepper from '@/components/ui/flow-stepper';
-import { ADD_PET_STEPS } from '@/constants/schemas/add-pet';
 import { FEEDING_SCHEDULE_LABEL_OPTIONS } from '@/constants/options';
-import type { AddPetFormValues } from '@/constants/schemas/add-pet';
+import { ADD_PET_STEPS, type AddPetFormValues } from '@/constants/schemas/add-pet';
 import { Radius, type AppTheme } from '@/constants/theme';
 import { useStyles } from '@/hooks/use-styles';
 import { describeDays } from '@/utils/days';
 import { optionLabel } from '@/utils/options';
-import dayjs from 'dayjs';
-import { useRouter } from 'expo-router';
-import { useFieldArray, useFormContext, useWatch } from 'react-hook-form';
-import { StyleSheet, View } from 'react-native';
 
 /** Step 2. Back goes to step 1, and from there Cancel leaves. One exit. */
 const AddPetFeeds = () => {

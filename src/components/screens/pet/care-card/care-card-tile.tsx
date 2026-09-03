@@ -1,3 +1,5 @@
+import { StyleSheet, View } from 'react-native';
+
 import AppText from '@/components/core/app-text';
 import Icon from '@/components/core/icon';
 import PressableOpacity from '@/components/core/pressable-opacity';
@@ -5,7 +7,6 @@ import { Radius, type AppTheme } from '@/constants/theme';
 import { useStyles } from '@/hooks/use-styles';
 import { useTheme } from '@/hooks/use-theme';
 import { createShadowMedium } from '@/lib/styles/shadows';
-import { StyleSheet, View } from 'react-native';
 
 export const TileWidth = 64;
 export const TileHeight = 96;

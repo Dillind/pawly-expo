@@ -1,3 +1,7 @@
+import type { TrueSheet } from '@lodev09/react-native-true-sheet';
+import { useRef } from 'react';
+import { StyleSheet, View } from 'react-native';
+
 import HouseholdSwitcherSheet from '@/components/bottom-sheets/household-switcher-sheet';
 import AppText from '@/components/core/app-text';
 import Icon from '@/components/core/icon';
@@ -6,9 +10,6 @@ import type { AppTheme } from '@/constants/theme';
 import { useHousehold } from '@/hooks/queries/household/use-household';
 import { useHouseholds } from '@/hooks/queries/household/use-households';
 import { useStyles } from '@/hooks/use-styles';
-import type { TrueSheet } from '@lodev09/react-native-true-sheet';
-import { useRef } from 'react';
-import { StyleSheet, View } from 'react-native';
 
 /**
  * The active household's name, and a chevron that opens the switcher.

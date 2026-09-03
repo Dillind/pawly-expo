@@ -1,3 +1,5 @@
+import { StyleSheet, View } from 'react-native';
+
 import AppText from '@/components/core/app-text';
 import PressableOpacity from '@/components/core/pressable-opacity';
 import UserAvatar from '@/components/core/user-avatar';
@@ -6,7 +8,6 @@ import { useStyles } from '@/hooks/use-styles';
 import { formatRelativeTime, formatTimeOfDay } from '@/lib/dates';
 import type { FeedingScheduleLabel, FeedLog } from '@/types/core';
 import { formatAuthorName } from '@/utils/members';
-import { StyleSheet, View } from 'react-native';
 
 const AVATAR_SIZE = 36;
 

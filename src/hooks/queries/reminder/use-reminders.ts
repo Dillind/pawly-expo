@@ -1,5 +1,6 @@
-import ReminderService from '@/services/reminder.service';
 import { useQuery } from '@tanstack/react-query';
+
+import ReminderService from '@/services/reminder.service';
 
 const REMINDERS_STALE_MS = 15_000;
 

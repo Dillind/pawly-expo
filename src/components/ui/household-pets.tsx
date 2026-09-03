@@ -1,8 +1,9 @@
+import { StyleSheet, View } from 'react-native';
+
 import PetAvatar from '@/components/core/pet-avatar';
 import { Radius, type AppTheme } from '@/constants/theme';
 import { useStyles } from '@/hooks/use-styles';
 import type { Pet } from '@/types/core';
-import { StyleSheet, View } from 'react-native';
 
 const AVATAR_SIZE = 34;
 const SHOWN = 3;

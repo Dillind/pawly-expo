@@ -40,7 +40,7 @@ The de facto standard is the `RRULE` property of iCalendar,
   manner", and must match the value type of `DTSTART`.
 - **`COUNT`** bounds by number of occurrences. `UNTIL` and `COUNT` "MUST NOT occur in the same
   'recur'".
-- **`BYDAY`, `BYMONTHDAY`, `BYSETPOS`** and the rest are *expanders* or *limiters* depending on
+- **`BYDAY`, `BYMONTHDAY`, `BYSETPOS`** and the rest are _expanders_ or _limiters_ depending on
   which `FREQ` they sit under. `BYSETPOS` selects from the set the other `BYxxx` parts generated —
   `-2` is the second-to-last occurrence in each period.
 
@@ -67,8 +67,8 @@ default, matching RFC 5545), `BACKWARD` or `FORWARD`. The RFC notes that humans 
 occurrence to shift to a nearby valid date rather than vanish, and that which direction they expect
 varies by calendar system.
 
-That is the whole problem with RRULE in one example. The grammar is expressive; the *semantics of
-the edge cases* are where users and implementers disagree.
+That is the whole problem with RRULE in one example. The grammar is expressive; the _semantics of
+the edge cases_ are where users and implementers disagree.
 
 ### What practitioners say
 
@@ -134,14 +134,14 @@ demand.
 
 ### The case for computing
 
-[Martin Fowler's *Recurring Events for Calendars*](https://martinfowler.com/apsupp/recurring.pdf)
+[Martin Fowler's _Recurring Events for Calendars_](https://martinfowler.com/apsupp/recurring.pdf)
 is the canonical argument. His **Temporal Expression** is an object that answers one question: does
 this event occur on a given date? The point is that you never enumerate. Expressions compose with
 set operations — union for "or", intersection for "and", **difference for exceptions** — so
 "every Tuesday except public holidays" is a composition, not a special case. An unbounded rule is
 representable because nothing is ever expanded.
 
-The standards agree by construction. CalDAV requires the *server* to expand on read, not on write:
+The standards agree by construction. CalDAV requires the _server_ to expand on read, not on write:
 "The server MUST expand recurring components to determine whether any recurrence instances overlap
 the specified time range" ([RFC 4791](https://www.rfc-editor.org/rfc/rfc4791.html)). And it forbids
 splitting a series across resources: "Calendar components with the same UID property value, in a
@@ -172,12 +172,12 @@ That last point is small and immediately useful.
 Both major calendar APIs are hybrids that keep the rule as the source of truth and expand for reads:
 
 - **Microsoft Graph.** Listing `/events` "contains single instance meetings and series masters".
-  Getting expanded occurrences requires a *different* endpoint,
+  Getting expanded occurrences requires a _different_ endpoint,
   [`calendarView`](https://learn.microsoft.com/en-us/graph/api/calendar-list-calendarview), which
   takes a mandatory `startDateTime` and `endDateTime` and returns "the occurrences, exceptions and
   single instances of events in a calendar view defined by a time range". Expansion is bounded by
   the caller's window, by design.
-- **Google Calendar.** "A recurring event consists of several *instances*: its particular
+- **Google Calendar.** "A recurring event consists of several _instances_: its particular
   occurrences at different times. These instances act as events themselves." Instances come from
   [`events.instances`](https://developers.google.com/workspace/calendar/api/v3/reference/events/instances),
   bounded by `timeMin`/`timeMax` and capped at 2500 results.
@@ -188,18 +188,18 @@ Neither exposes an unbounded expansion. Both make the caller name a window.
 
 The trade-offs, honestly:
 
-| | Compute | Materialise |
-|---|---|---|
-| Storage | One row per rule | One row per occurrence, forever, per pet |
-| "What is due today?" | A function call | An indexed lookup |
-| Unbounded rules | Free | Impossible; needs a horizon and a backfill job |
-| "Skip Tuesday" | A difference/exception row | Delete or flag a row |
-| Rule change | Instant, one row | O(n) rewrite of every future row |
-| Drift risk | None — one source of truth | Rows can disagree with the rule |
-| History stability | Past changes when the rule changes | Past is frozen by construction |
+|                      | Compute                            | Materialise                                    |
+| -------------------- | ---------------------------------- | ---------------------------------------------- |
+| Storage              | One row per rule                   | One row per occurrence, forever, per pet       |
+| "What is due today?" | A function call                    | An indexed lookup                              |
+| Unbounded rules      | Free                               | Impossible; needs a horizon and a backfill job |
+| "Skip Tuesday"       | A difference/exception row         | Delete or flag a row                           |
+| Rule change          | Instant, one row                   | O(n) rewrite of every future row               |
+| Drift risk           | None — one source of truth         | Rows can disagree with the rule                |
+| History stability    | Past changes when the rule changes | Past is frozen by construction                 |
 
 The last row is the only genuine argument for materialising, and it is a real one. But it solves the
-history problem *by accident*, and it introduces a class of bug — materialised rows silently out of
+history problem _by accident_, and it introduces a class of bug — materialised rows silently out of
 step with their rule — that is much harder to notice than the problem it fixes. Section 3 gets the
 same frozen history with none of the rows.
 
@@ -221,7 +221,7 @@ Three mechanisms, all in RFC 5545:
 - **`RECURRENCE-ID`** (§3.8.4.4) overrides one instance. It "is used in conjunction with the UID and
   SEQUENCE properties to identify a specific instance of a recurring VEVENT, VTODO, or VJOURNAL",
   and — the load-bearing detail — **"the property value is the original value of the DTSTART property
-  of the recurrence instance"**. The *original* time is the key. Move the instance and the key does
+  of the recurrence instance"**. The _original_ time is the key. Move the instance and the key does
   not move with it. ([§3.8.4.4](https://icalendar.org/iCalendar-RFC-5545/3-8-4-4-recurrence-id.html))
 
 For "this and all future", RFC 5545 offers the `RANGE=THISANDFUTURE` parameter: "a range defined by
@@ -324,8 +324,8 @@ From the [Date/Time Types](https://www.postgresql.org/docs/current/datatype-date
 and
 
 > "The type `time with time zone` is defined by the SQL standard, but the definition exhibits
-> properties which lead to questionable usefulness. … We do *not* recommend using the type `time
-> with time zone`."
+> properties which lead to questionable usefulness. … We do _not_ recommend using the type `time
+with time zone`."
 
 The [Don't Do This](https://wiki.postgresql.org/wiki/Don%27t_Do_This) wiki repeats it, and adds
 "Don't use `CURRENT_TIME`" — it returns `timetz`.
@@ -360,7 +360,7 @@ gives the rule verbatim:
 
 With the worked examples: under `America/New_York`, `'2018-03-11 02:30'::timestamptz` becomes
 `2018-03-11 03:30:00-04` (the 2:30am that never happened slides forward an hour), and
-`'2018-11-04 01:30'::timestamptz` becomes `2018-11-04 01:30:00-05` (the *second* 1:30am).
+`'2018-11-04 01:30'::timestamptz` becomes `2018-11-04 01:30:00-05` (the _second_ 1:30am).
 
 So the behaviour is deterministic and defensible. A 7am feed is never affected — transitions are at
 2am or 3am in every zone Crumpet will see. A household that genuinely sets a 2:30am feed gets one
@@ -410,7 +410,7 @@ Two further details worth stealing:
 FHIR also uses "slot", but for something else entirely:
 [Slot](https://build.fhir.org/slot.html) is "a slot of time on a schedule that may be available for
 booking appointments" — "effectively spaces of free/busy time". Relevant to the naming section: in
-the one standard that uses the word, a slot is a *bookable capacity*, not a *scheduled event*.
+the one standard that uses the word, a slot is a _bookable capacity_, not a _scheduled event_.
 
 ### Medication adherence: the words for the comparison itself
 
@@ -435,10 +435,10 @@ copying when choosing between "Missed" and "Not Logged".
 ### The tolerance window
 
 The [ISMP Acute Care Guidelines for Timely Administration of Scheduled Medications](https://www.ismp.org/sites/default/files/attachments/2018-02/tasm.pdf)
-define the categories and the tolerances. *(A caveat on sourcing: this PDF's text layer uses a
+define the categories and the tolerances. _(A caveat on sourcing: this PDF's text layer uses a
 subset font. I reconstructed the prose from it directly; the numerals did not survive extraction and
 are corroborated against
-[Medscape's summary of the same guidelines](https://www.medscape.com/viewarticle/772501_4).)*
+[Medscape's summary of the same guidelines](https://www.medscape.com/viewarticle/772501_4).)_
 
 - **Scheduled medications** "include all maintenance doses administered according to a standard
   repeated cycle of frequency". The guidelines exclude PRN (as-needed) doses.
@@ -470,7 +470,7 @@ Both are defensible and the sources genuinely disagree, so here is the honest tr
 
 - The history is stable. What the app said in March still says that in June.
 - Reads are a join, not a computation.
-- The match is auditable — you can ask *why* a day looked fed.
+- The match is auditable — you can ask _why_ a day looked fed.
 - But every input to the match must trigger recomputation: editing a log's `logged_at`, editing the
   rule, adding an exception, changing the Grace Window. Crumpet's `logged_at` is deliberately
   mutable — backdating is a trust feature — so this is not hypothetical. Miss one trigger and you
@@ -497,20 +497,20 @@ March's schedule gives March's answer. That is section 3, and it costs one range
 
 The real technical vocabulary, from the sources.
 
-| Concept | RFC 5545 | Microsoft Graph | Google Calendar | FHIR / clinical |
-|---|---|---|---|---|
-| The rule | `RRULE`, *recurrence rule*; the whole component is the **master** | `recurrence` (`patternedRecurrence`); the row is a **`seriesMaster`** | **recurring event** | `Timing`; the order is a **MedicationRequest** |
-| All instances of it | **recurrence set** | the **series** | — | *prescribed dosing regimen* |
-| One expected instance | **recurrence instance**; also *occurrence* | **`occurrence`** (an `eventType` value) | **instance** | *scheduled dose*; `occurrence[x]` |
-| Its stable identity | **`RECURRENCE-ID`** — "the original value of the DTSTART property of the recurrence instance" | `seriesMasterId` + **`originalStart`** | `recurringEventId` + `originalStartTime` | — |
-| It happened | — (calendars do not model this) | — | — | **MedicationAdministration**; the set is the **dosing history** |
-| Link from actual to intended | — | — | — | **`.request`** — "the original request, instruction or authority" |
-| Deliberately removed | **`EXDATE`** (*exception date*) | **`cancelledOccurrences`** | *cancelled* instance | `status: not-done` + `statusReason` |
-| Changed for one date | **override** / *modified instance*; `RECURRENCE-ID` | **`exception`** (an `eventType` value) | **exception** | — |
-| Added one-off date | **`RDATE`** | — | — | `Timing.event` |
-| This and all future | **`RANGE=THISANDFUTURE`** | — | — | — |
-| Tolerance around the time | — | — | — | no noun; "within N minutes before or after the scheduled time" |
-| Actual vs intended, compared | — | — | — | **implementation** (ABC taxonomy) |
+| Concept                      | RFC 5545                                                                                      | Microsoft Graph                                                       | Google Calendar                          | FHIR / clinical                                                   |
+| ---------------------------- | --------------------------------------------------------------------------------------------- | --------------------------------------------------------------------- | ---------------------------------------- | ----------------------------------------------------------------- |
+| The rule                     | `RRULE`, _recurrence rule_; the whole component is the **master**                             | `recurrence` (`patternedRecurrence`); the row is a **`seriesMaster`** | **recurring event**                      | `Timing`; the order is a **MedicationRequest**                    |
+| All instances of it          | **recurrence set**                                                                            | the **series**                                                        | —                                        | _prescribed dosing regimen_                                       |
+| One expected instance        | **recurrence instance**; also _occurrence_                                                    | **`occurrence`** (an `eventType` value)                               | **instance**                             | _scheduled dose_; `occurrence[x]`                                 |
+| Its stable identity          | **`RECURRENCE-ID`** — "the original value of the DTSTART property of the recurrence instance" | `seriesMasterId` + **`originalStart`**                                | `recurringEventId` + `originalStartTime` | —                                                                 |
+| It happened                  | — (calendars do not model this)                                                               | —                                                                     | —                                        | **MedicationAdministration**; the set is the **dosing history**   |
+| Link from actual to intended | —                                                                                             | —                                                                     | —                                        | **`.request`** — "the original request, instruction or authority" |
+| Deliberately removed         | **`EXDATE`** (_exception date_)                                                               | **`cancelledOccurrences`**                                            | _cancelled_ instance                     | `status: not-done` + `statusReason`                               |
+| Changed for one date         | **override** / _modified instance_; `RECURRENCE-ID`                                           | **`exception`** (an `eventType` value)                                | **exception**                            | —                                                                 |
+| Added one-off date           | **`RDATE`**                                                                                   | —                                                                     | —                                        | `Timing.event`                                                    |
+| This and all future          | **`RANGE=THISANDFUTURE`**                                                                     | —                                                                     | —                                        | —                                                                 |
+| Tolerance around the time    | —                                                                                             | —                                                                     | —                                        | no noun; "within N minutes before or after the scheduled time"    |
+| Actual vs intended, compared | —                                                                                             | —                                                                     | —                                        | **implementation** (ABC taxonomy)                                 |
 
 Observations worth carrying into the design:
 
@@ -520,8 +520,8 @@ Observations worth carrying into the design:
 - **Every system keys an occurrence by its original scheduled time**, not by a row id. `RECURRENCE-ID`,
   `originalStart` and `originalStartTime` are the same idea three times. A moved occurrence keeps the
   key it was born with.
-- **"Exception" is overloaded and worth avoiding.** RFC 5545 uses `EXDATE` for a *removal*; Graph
-  uses `exception` for a *modification* and `cancelledOccurrence` for a removal. Two standards, two
+- **"Exception" is overloaded and worth avoiding.** RFC 5545 uses `EXDATE` for a _removal_; Graph
+  uses `exception` for a _modification_ and `cancelledOccurrence` for a removal. Two standards, two
   opposite meanings for one word.
 - **"Slot" has a meaning in FHIR, and it is not this one.** A FHIR Slot is bookable capacity — "spaces
   of free/busy time". Crumpet's slot is a commitment, not an opening. That is a genuine reason to
@@ -546,7 +546,7 @@ real. Everything a materialised table would buy is bought more cheaply below.
 **2. Effective-date the rule. That is the whole history fix.**
 
 An edit closes the current version and opens a successor from tomorrow. Recomputing March reads
-March's rule, so history is stable *without* freezing any match. This is Fowler's Effectivity, one
+March's rule, so history is stable _without_ freezing any match. This is Fowler's Effectivity, one
 time dimension, and it is what the calendar world does anyway when it splits a series on
 `THISANDFUTURE`.
 
@@ -698,7 +698,7 @@ recomputation on four separate events, and every path that forgets one becomes a
 between Home and the sweep. FHIR stores its equivalent link, and that is a real counter-argument —
 but FHIR's administrations are not routinely backdated by the people who performed them.
 
-**Would not use `timetz`.** Postgres itself: "we do *not* recommend using the type `time with time
+**Would not use `timetz`.** Postgres itself: "we do _not_ recommend using the type `time with time
 zone`."
 
 **Would not precompute a UTC instant for a future occurrence.** Skeet's argument: store what the user
@@ -730,16 +730,16 @@ the rule is a **series** or **master**; for one expected instance it is an **occ
 
 Prose keeps **Feeding Schedule** (the set) and **Grace Window** (nothing in the sources beats it).
 
-| Today | Proposed | Why |
-|---|---|---|
-| Scheduled Time / slot | **Feed Time** (`feed_times`) | What a member already calls it — "Bailey's morning feed" |
-| — | **Occurrence** (`feed_occurrences`) | One expected feed on one date. Graph's `occurrence`, RFC 5545's recurrence instance |
-| — | **Series** (`series_id`) | The identity that survives an edit. Graph's `seriesMaster` |
-| — | **Skipped Feed** (`kind = 'skipped'`) | A deliberate `EXDATE`. **Collides with CONTEXT.md**, which currently lists "Skipped feed" as a term to avoid for Missed Feed — resolve before adopting, or use **Cancelled Feed** after Graph's `cancelledOccurrences` |
-| — | **Moved Feed** (`kind = 'moved'`) | A one-date override. Graph's `exception`, RFC 5545's override |
-| Feed Log | **Feed Log** | Keep. FHIR's MedicationAdministration; the set is the dosing history |
-| Satisfying Feed | **Satisfying Feed** | Keep. FHIR names the link `.request`, which is worse here |
-| Missed Feed / Not Logged | Keep both | The ABC taxonomy retired "compliance" for its connotations; the same instinct produced "Not Logged", and it was right |
+| Today                    | Proposed                              | Why                                                                                                                                                                                                                    |
+| ------------------------ | ------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Scheduled Time / slot    | **Feed Time** (`feed_times`)          | What a member already calls it — "Bailey's morning feed"                                                                                                                                                               |
+| —                        | **Occurrence** (`feed_occurrences`)   | One expected feed on one date. Graph's `occurrence`, RFC 5545's recurrence instance                                                                                                                                    |
+| —                        | **Series** (`series_id`)              | The identity that survives an edit. Graph's `seriesMaster`                                                                                                                                                             |
+| —                        | **Skipped Feed** (`kind = 'skipped'`) | A deliberate `EXDATE`. **Collides with CONTEXT.md**, which currently lists "Skipped feed" as a term to avoid for Missed Feed — resolve before adopting, or use **Cancelled Feed** after Graph's `cancelledOccurrences` |
+| —                        | **Moved Feed** (`kind = 'moved'`)     | A one-date override. Graph's `exception`, RFC 5545's override                                                                                                                                                          |
+| Feed Log                 | **Feed Log**                          | Keep. FHIR's MedicationAdministration; the set is the dosing history                                                                                                                                                   |
+| Satisfying Feed          | **Satisfying Feed**                   | Keep. FHIR names the link `.request`, which is worse here                                                                                                                                                              |
+| Missed Feed / Not Logged | Keep both                             | The ABC taxonomy retired "compliance" for its connotations; the same instinct produced "Not Logged", and it was right                                                                                                  |
 
 ## Sources
 

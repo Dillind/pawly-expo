@@ -1,3 +1,7 @@
+import type { TrueSheet } from '@lodev09/react-native-true-sheet';
+import type { RefObject } from 'react';
+import { StyleSheet, View } from 'react-native';
+
 import BaseSheet from '@/components/bottom-sheets/base-sheet';
 import SheetRow from '@/components/bottom-sheets/sheet-row';
 import HouseholdPets from '@/components/ui/household-pets';
@@ -5,11 +9,8 @@ import type { AppTheme } from '@/constants/theme';
 import { useHouseholds } from '@/hooks/queries/household/use-households';
 import { useUnseenByHousehold } from '@/hooks/queries/posts/use-posts';
 import { useStyles } from '@/hooks/use-styles';
-import { roleLabel } from '@/utils/members';
 import { useActiveHouseholdStore } from '@/stores/active-household-store';
-import type { TrueSheet } from '@lodev09/react-native-true-sheet';
-import type { RefObject } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { roleLabel } from '@/utils/members';
 
 type Props = {
   sheetRef: RefObject<TrueSheet | null>;
