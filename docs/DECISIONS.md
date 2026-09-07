@@ -34,6 +34,32 @@ and snaps the sheet back to the notification's log. Activity had no competing se
 the three `invalidateQueries({ queryKey: ['feed-logs'] })` calls left over were invalidating nothing.
 `FeedLogService.listPage`, `FEED_LOGS_PAGE_SIZE` and `FeedLogsCursor` had the same single caller and
 went too.
+**A push says what happened and nothing else, and that reverses the caption decision.**
+`buildPostMessage` used to lead with the caption, and its comment argued that seeing
+"Sarah: beach day, he's shattered" on the lock screen _is_ the feature -- the member who is away
+gets reassurance without unlocking. That is a real thing, and it is now gone. Every kind is one
+sentence naming the action, no caption, no feed notes, no comment body. What was traded away is
+reassurance without unlocking; what was bought is a notification that reads clean and does not
+put a household's photos and comments on a lock screen anyone can see.
+
+**The sentence is the `body`, and there is no `title`.** iOS draws the app name on the top line by
+itself, so a title would add a second, bolder line above the sentence and break the shape. The
+original issue asked to drop the body _and_ set no title, which would have sent a push with no
+text.
+
+**A time is not content, so it joins the sentence.** Four of the six kinds exist because something
+is due or was done at a time, and a two-line shape cannot stay consistent -- a post and a comment
+have no time and would need invented filler underneath. So `feed_due` reads "Crumpet's dinner is
+due at 5:00 pm" rather than a title plus "Due 5:00 pm".
+
+**`feed_due` counts pets from the third rather than listing them.** The old wording listed two and
+counted the rest. Listing three names plus a time is longer than a lock screen shows, and a
+truncated name is worse than a number -- so three or more become "3 pets" and the time always
+fits.
+
+**A Reminder's title is the one piece of typed text a push still carries.** "Crumpet has a reminder
+tomorrow" tells nobody anything they can act on, and the title is the whole point of the push.
+This is a deliberate exception, not one that was missed.
 
 **A Username is how the app names a person, and a first name is only the fallback.** Two things
 needed it at once: the `@name` reply prefix wants something unique, which a first name is not, and
