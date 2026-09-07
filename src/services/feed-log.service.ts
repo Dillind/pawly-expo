@@ -2,8 +2,6 @@ import { assertWrote } from '@/lib/supabase/assert-wrote';
 import { supabase } from '@/lib/supabase/client';
 import type { FeedingScheduleLabel, FeedLog } from '@/types/core';
 
-export const FEED_LOGS_PAGE_SIZE = 30;
-
 // feed_logs.logged_by references public.users, so PostgREST can embed the
 // author directly. It is null when the author deleted their account.
 const FEED_LOG_SELECT =
@@ -18,8 +16,6 @@ type FeedLogRow = {
   created_at: string;
   users: { first_name: string | null; last_name: string | null } | null;
 };
-
-export type FeedLogsCursor = { loggedAt: string; id: string };
 
 export type LogFeedResult =
   | { status: 'logged'; logId: string; isExtraFeed: boolean }
@@ -79,40 +75,6 @@ function mapLogFeedResult(data: unknown): LogFeedResult {
 }
 
 namespace FeedLogService {
-  export async function listPage(
-    petIds: string[],
-    cursor: FeedLogsCursor | null
-  ): Promise<FeedLog[]> {
-    let query = supabase
-      .from('feed_logs')
-      .select(FEED_LOG_SELECT)
-      .in('pet_id', petIds)
-      .order('logged_at', { ascending: false })
-      .order('id', { ascending: false })
-      .limit(FEED_LOGS_PAGE_SIZE);
-
-    // Compound cursor, not a bare `logged_at < cursor`. Backdated edits compose
-    // logged_at from a picked time rather than now(), so two logs landing on the
-    // identical instant is ordinary -- and a strict inequality on logged_at alone
-    // would skip the tied row past a page boundary entirely, so it appears on no
-    // page at all. Values are double-quoted because a timestamptz contains `:`
-    // and `+`, which are PostgREST filter syntax.
-    if (cursor) {
-      query = query.or(
-        `logged_at.lt."${cursor.loggedAt}",and(logged_at.eq."${cursor.loggedAt}",id.lt.${cursor.id})`
-      );
-    }
-
-    const { data, error } = await query;
-
-    if (error) throw error;
-
-    // No generated database.types.ts exists, so the untyped client infers the
-    // `users` embed as to-many from the select string alone -- it has no FK
-    // metadata to know feed_logs.logged_by -> users.id is to-one.
-    return (data as unknown as FeedLogRow[]).map(mapFeedLogRow);
-  }
-
   export async function getById(logId: string): Promise<FeedLog> {
     const { data, error } = await supabase
       .from('feed_logs')

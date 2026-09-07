@@ -17,6 +17,26 @@ Newest first. Append, don't rewrite.
 
 ---
 
+## 2026-09-08
+
+**The Activity screen is gone.** It listed every Feed Log the Household had written, and nobody went
+looking for it — Home and the Pet's schedule card already carry that information, next to where the
+logging happens. The part that could not simply be deleted is the deep link: a `feed_logged` push
+sent Members to `/home/activity?logId=…`, and Activity was the only screen that read the param.
+Home already renders `FeedLogDetailSheet`, so the effect moved there and the path is `/home?logId=…`.
+Pushes already on a device keep the old path and cannot be rewritten.
+
+**The deep-link mirror on Home is gated on `logId`, which Activity's copy did not need.** Home also
+has `openLog`, so without the gate a tap on a different occurrence row makes the ids differ again
+and snaps the sheet back to the notification's log. Activity had no competing setter.
+
+**The `feed-logs` query key went with it.** `useFeedLogs` was the only query behind that prefix, so
+the three `invalidateQueries({ queryKey: ['feed-logs'] })` calls left over were invalidating nothing.
+`FeedLogService.listPage`, `FEED_LOGS_PAGE_SIZE` and `FeedLogsCursor` had the same single caller and
+went too.
+
+---
+
 ## 2026-09-03
 
 **The welcome screen ships someone else's art, deliberately and temporarily.** A commissioned
@@ -398,14 +418,17 @@ fallback, a bullet in an info sheet — none of them are actions, so none of the
 fourteen `Icon color="primary"` call sites that existed were an artefact of teal being harmless
 everywhere, not a deliberate choice.
 
-**Activity's missed rows come from occurrences, merged into the log history client-side.**
+**Activity's missed rows came from occurrences, merged into the log history client-side.** _Removed
+in CRU-124 along with the screen; kept because the pattern is what a future history surface would
+reach for again._
 `feed_logs` holds only feeds that were logged, so a missed one has no row to join to. The state
 comes from `pet_occurrence_states`, one call per pet per day over the days the loaded logs already
 cover — `useMissedOccurrences`, keyed the same `['occurrences', petId, date]` the pet screens use,
 so a day Home has already fetched is served from cache. Only days already on screen are asked for,
 which is what stops the screen fetching every day since the household was created.
 
-**A `MissedFeedRow` recesses; it never alarms.** A sunk fill, a hollow dashed ring where the
+**A `MissedFeedRow` recessed; it never alarmed.** _Removed in CRU-124 with Activity, its only
+caller._ A sunk fill, a hollow dashed ring where the
 member's avatar would be, secondary ink, and always the words "Not logged". Not gold, because gold
 means "act now" and a missed feed in the past cannot be logged from Activity. Not red, because the
 app knows only whether anyone tapped Log — never whether the pet ate.

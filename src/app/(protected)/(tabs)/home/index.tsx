@@ -103,8 +103,8 @@ const Home = () => {
     }
   });
 
-  const openLog = (id: string, petId: string) => {
-    setActiveLogId(id);
+  const openLog = (openedLogId: string, petId: string) => {
+    setActiveLogId(openedLogId);
     setActivePetId(petId);
     void detailSheetRef.current?.present();
   };
@@ -115,7 +115,12 @@ const Home = () => {
   // the effect below -- react-hooks flags a setState call synchronous with an
   // effect body as a cascading-render risk. Comparing against activeLogId
   // itself keeps this a one-shot assignment per resolved id rather than a loop.
-  if (deepLinkedLog && deepLinkedLog.id !== activeLogId) {
+  //
+  // Gated on logId, which the effect clears as soon as the sheet is up. Home
+  // also has openLog, and without the gate a tap on a different occurrence row
+  // would make the ids differ again and snap the sheet back to the
+  // notification's log. Activity had no competing setter and did not need this.
+  if (logId && deepLinkedLog && deepLinkedLog.id !== activeLogId) {
     setActiveLogId(deepLinkedLog.id);
     setActivePetId(deepLinkedLog.petId);
   }

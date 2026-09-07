@@ -94,7 +94,7 @@ export function yesterdayInTimezone(zone: string): string {
 /**
  * The calendar day a timestamp belongs to, in the household's timezone. Using
  * device-local time here would land a travelling member's feeds on the wrong
- * day in Activity.
+ * day.
  */
 export function dayInTimezone(isoTimestamp: string, zone: string): string {
   return formatDay(zonedParts(new Date(isoTimestamp), zone));
