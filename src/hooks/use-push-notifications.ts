@@ -69,7 +69,7 @@ export const usePushNotifications = () => {
   useEffect(() => {
     if (!lastResponse) return;
 
-    // A cold-start tap must not try to push /home/activity at the auth stack, and
+    // A cold-start tap must not try to push /home at the auth stack, and
     // must not race the household query the destination screen depends on.
     if (status !== 'signedIn' || !household) return;
 

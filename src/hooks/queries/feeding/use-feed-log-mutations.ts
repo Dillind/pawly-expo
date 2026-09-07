@@ -9,7 +9,7 @@ import FeedLogService from '@/services/feed-log.service';
 /**
  * Every mutation invalidates the same two prefixes on settle. Prefix
  * invalidation catches every cached date without enumerating them, which
- * matters because Activity holds one occurrences entry per visible day.
+ * matters because Home holds one occurrences entry per visible day.
  */
 function useInvalidateFeedData(petId: string | undefined) {
   const queryClient = useQueryClient();

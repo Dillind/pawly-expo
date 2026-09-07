@@ -246,7 +246,7 @@ export function formatAlertTime(
   return then.format(then.year() === zonedParts(now, zone).year ? 'D MMM' : 'D MMM YYYY');
 }
 
-/** Activity's day headers: "Today", "Yesterday", then "23 July 2026". */
+/** Day headings in the feed log sheet: "Today", "Yesterday", then "23 July 2026". */
 export function formatDayHeading(day: string, zone: string): string {
   if (day === todayInTimezone(zone)) return 'Today';
   if (day === yesterdayInTimezone(zone)) return 'Yesterday';

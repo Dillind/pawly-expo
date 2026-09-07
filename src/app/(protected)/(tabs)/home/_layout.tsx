@@ -60,12 +60,6 @@ export default function HomeLayout() {
           </Stack.Toolbar>
         </Stack.Screen>
 
-        <Stack.Screen name="activity" options={{ headerShown: true }}>
-          <Stack.Title style={HeaderTitleStyle}>Activity</Stack.Title>
-          <Stack.Header transparent />
-          <Stack.Screen.BackButton displayMode="minimal" />
-        </Stack.Screen>
-
         <Stack.Screen name="notifications" options={{ headerShown: true }}>
           <Stack.Title style={HeaderTitleStyle}>Notifications</Stack.Title>
           <Stack.Header transparent />
