@@ -115,7 +115,11 @@ export const buildMessageForAlert = async (
       if (!comment) return null;
 
       const { data: author } = comment.author_id
-        ? await client.from('users').select('first_name').eq('id', comment.author_id).maybeSingle()
+        ? await client
+            .from('users')
+            .select('first_name, username')
+            .eq('id', comment.author_id)
+            .maybeSingle()
         : { data: null };
 
       // deno-lint-ignore no-explicit-any
@@ -123,6 +127,7 @@ export const buildMessageForAlert = async (
 
       return buildPostCommentedMessage({
         authorFirstName: author?.first_name ?? null,
+        authorUsername: author?.username ?? null,
         body: comment.body,
         // reply_to_user_id, NOT the parent's author: a reply answering a
         // SIBLING flattens under the same parent, so the parent's author would
@@ -146,7 +151,11 @@ export const buildMessageForAlert = async (
       // author_id is nullable with on delete set null, same as logged_by: a post
       // outlives its author's account and renders as "Member".
       const { data: author } = post.author_id
-        ? await client.from('users').select('first_name').eq('id', post.author_id).maybeSingle()
+        ? await client
+            .from('users')
+            .select('first_name, username')
+            .eq('id', post.author_id)
+            .maybeSingle()
         : { data: null };
 
       // deno-lint-ignore no-explicit-any
@@ -157,6 +166,7 @@ export const buildMessageForAlert = async (
 
       return buildPostMessage({
         authorFirstName: author?.first_name ?? null,
+        authorUsername: author?.username ?? null,
         caption: post.caption,
         petNames,
         postId: post.id
@@ -175,7 +185,11 @@ export const buildMessageForAlert = async (
       // logged_by is nullable with on delete set null -- a log can outlive its
       // author, and buildFeedLoggedMessage renders that as "Member".
       const { data: author } = log.logged_by
-        ? await client.from('users').select('first_name').eq('id', log.logged_by).maybeSingle()
+        ? await client
+            .from('users')
+            .select('first_name, username')
+            .eq('id', log.logged_by)
+            .maybeSingle()
         : { data: null };
 
       // deno-lint-ignore no-explicit-any
@@ -183,6 +197,7 @@ export const buildMessageForAlert = async (
 
       return buildFeedLoggedMessage({
         authorFirstName: author?.first_name ?? null,
+        authorUsername: author?.username ?? null,
         petName: pet.name,
         loggedAt: log.logged_at,
         householdTimezone: pet.households.timezone,

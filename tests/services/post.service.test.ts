@@ -314,8 +314,14 @@ describe('PostService.get', () => {
     mockSingle.mockResolvedValue({
       data: row({
         post_likes: [
-          { user_id: 'user-2', users: { first_name: 'Sarah', last_name: 'Chen' } },
-          { user_id: 'user-1', users: { first_name: 'Dylan', last_name: 'Lindsay' } }
+          {
+            user_id: 'user-2',
+            users: { first_name: 'Sarah', last_name: 'Chen', username: 'sarah0s4f' }
+          },
+          {
+            user_id: 'user-1',
+            users: { first_name: 'Dylan', last_name: 'Lindsay', username: 'dylanpk9g' }
+          }
         ]
       }),
       error: null
@@ -333,8 +339,14 @@ describe('PostService.get', () => {
     mockSingle.mockResolvedValue({
       data: row({
         post_likes: [
-          { user_id: 'user-2', users: { first_name: 'Sarah', last_name: 'Chen' } },
-          { user_id: 'user-1', users: { first_name: 'Dylan', last_name: 'Lindsay' } }
+          {
+            user_id: 'user-2',
+            users: { first_name: 'Sarah', last_name: 'Chen', username: 'sarah0s4f' }
+          },
+          {
+            user_id: 'user-1',
+            users: { first_name: 'Dylan', last_name: 'Lindsay', username: 'dylanpk9g' }
+          }
         ]
       }),
       error: null
@@ -343,8 +355,20 @@ describe('PostService.get', () => {
     const post = await PostService.get({ postId: 'post-1', viewerId: null });
 
     expect(post.likers).toEqual([
-      { userId: 'user-2', firstName: 'Sarah', lastName: 'Chen', avatarUrl: null },
-      { userId: 'user-1', firstName: 'Dylan', lastName: 'Lindsay', avatarUrl: null }
+      {
+        userId: 'user-2',
+        firstName: 'Sarah',
+        lastName: 'Chen',
+        username: 'sarah0s4f',
+        avatarUrl: null
+      },
+      {
+        userId: 'user-1',
+        firstName: 'Dylan',
+        lastName: 'Lindsay',
+        username: 'dylanpk9g',
+        avatarUrl: null
+      }
     ]);
   });
 
@@ -357,7 +381,7 @@ describe('PostService.get', () => {
     const post = await PostService.get({ postId: 'post-1', viewerId: null });
 
     expect(post.likers).toEqual([
-      { userId: 'user-9', firstName: null, lastName: null, avatarUrl: null }
+      { userId: 'user-9', firstName: null, lastName: null, username: null, avatarUrl: null }
     ]);
   });
 });

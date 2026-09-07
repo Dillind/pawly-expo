@@ -4,6 +4,7 @@
 
 export type FeedLoggedInput = {
   authorFirstName: string | null;
+  authorUsername: string | null;
   petName: string;
   loggedAt: string;
   householdTimezone: string;
@@ -19,11 +20,15 @@ export type ExpoMessage = {
   data: { screen: string; params: Record<string, string> };
 };
 
-// Matches formatAuthorName in src/hooks/use-household-members.ts. Every surface
-// must agree -- the Home slot row, the Activity row, the detail sheet and this
-// notification all render the same feed log, and three different names for one
-// person reads as a bug.
-const authorName = (firstName: string | null): string => firstName ?? 'Member';
+// Matches formatAuthorName in src/utils/members.ts. Every surface must agree --
+// the Home occurrence row, the detail sheet and this notification all render the
+// same feed log, and two different names for one person reads as a bug.
+//
+// The handle first: it is unique, and it is what the post and comment surfaces
+// show. The first name is the fallback, because a signup collision writes no
+// handle rather than failing the signup.
+const authorName = (username: string | null, firstName: string | null): string =>
+  username ?? firstName ?? 'A member';
 
 // The household's timezone, never the recipient's device timezone -- the same
 // rule every other surface follows.
@@ -64,7 +69,7 @@ export const buildFeedLoggedMessage = (input: FeedLoggedInput): Omit<ExpoMessage
   const trimmedNotes = input.notes?.trim();
 
   return {
-    title: `${authorName(input.authorFirstName)} fed ${input.petName}`,
+    title: `${authorName(input.authorUsername, input.authorFirstName)} fed ${input.petName}`,
     sound: 'default',
     // The " · notes" half drops entirely when there are no notes. Whitespace-
     // only notes count as none.
@@ -106,6 +111,7 @@ const truncate = (text: string, limit: number): string => {
 
 export type PostInput = {
   authorFirstName: string | null;
+  authorUsername: string | null;
   caption: string | null;
   petNames: string[];
   postId: string;
@@ -124,7 +130,7 @@ export type PostInput = {
  * nothing, and tags are optional anyway.
  */
 export const buildPostMessage = (input: PostInput): Omit<ExpoMessage, 'to'> => {
-  const author = authorName(input.authorFirstName);
+  const author = authorName(input.authorUsername, input.authorFirstName);
   const caption = input.caption?.trim();
 
   const title = caption
@@ -146,6 +152,7 @@ export const buildPostMessage = (input: PostInput): Omit<ExpoMessage, 'to'> => {
 
 export type PostCommentedInput = {
   authorFirstName: string | null;
+  authorUsername: string | null;
   body: string;
   /** True when the recipient wrote the comment being replied to. */
   isReplyToRecipient: boolean;
@@ -159,7 +166,7 @@ export type PostCommentedInput = {
  * neither the post nor the parent, and "your post" would be a lie to them.
  */
 export const buildPostCommentedMessage = (input: PostCommentedInput): Omit<ExpoMessage, 'to'> => {
-  const author = authorName(input.authorFirstName);
+  const author = authorName(input.authorUsername, input.authorFirstName);
 
   const title = input.isReplyToRecipient
     ? `${author} replied to your comment`

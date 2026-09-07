@@ -1,5 +1,6 @@
 import {
   Asterisk,
+  AtSign,
   Bell,
   Calendar,
   Camera,
@@ -100,6 +101,7 @@ export const iconMap = {
   sparkles: Sparkles,
   house: House,
   users: Users,
+  atSign: AtSign,
   user: User,
   globe: Globe,
   hourglass: Hourglass,
