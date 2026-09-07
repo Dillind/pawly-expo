@@ -34,6 +34,7 @@ and snaps the sheet back to the notification's log. Activity had no competing se
 the three `invalidateQueries({ queryKey: ['feed-logs'] })` calls left over were invalidating nothing.
 `FeedLogService.listPage`, `FEED_LOGS_PAGE_SIZE` and `FeedLogsCursor` had the same single caller and
 went too.
+
 **A push says what happened and nothing else, and that reverses the caption decision.**
 `buildPostMessage` used to lead with the caption, and its comment argued that seeing
 "Sarah: beach day, he's shattered" on the lock screen _is_ the feature -- the member who is away
