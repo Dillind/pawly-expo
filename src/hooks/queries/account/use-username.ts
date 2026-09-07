@@ -18,7 +18,11 @@ export function useUsernameAvailable(candidate: string | undefined) {
     queryKey: ['username-available', candidate],
     queryFn: () => UserService.isUsernameAvailable(candidate as string),
     enabled: Boolean(candidate),
-    staleTime: 0
+    staleTime: 0,
+    // One entry per candidate the Member pauses on. Without a bound, a long
+    // session of trying handles keeps every answer for the default five
+    // minutes, and none of them is worth re-reading anyway.
+    gcTime: 30_000
   });
 }
 

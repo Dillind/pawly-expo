@@ -1,5 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Controller, FormProvider, useForm, useWatch } from 'react-hook-form';
+import { FormProvider, useForm, useWatch } from 'react-hook-form';
 import { StyleSheet, View } from 'react-native';
 
 import AppText from '@/components/core/app-text';
@@ -29,7 +29,7 @@ const UsernameSettings = () => {
     values: profile ? { username: profile.username ?? '' } : undefined,
     mode: 'onChange'
   });
-  const { control, handleSubmit, formState } = form;
+  const { control, handleSubmit, formState, setValue } = form;
 
   const username = useWatch({ control, name: 'username' });
   const [settled, isTyping] = useDebounce(username);
@@ -59,27 +59,22 @@ const UsernameSettings = () => {
         contentContainerStyle={styles.content}
         contentInsetAdjustmentBehavior="automatic">
         <FormProvider {...form}>
-          <Controller
-            control={control}
+          <TextInputValidated
             name="username"
-            render={({ field: { onChange, onBlur, value } }) => (
-              <TextInputValidated
-                name="username"
-                label="Username"
-                isLabelIndicated
-                value={value}
-                // Lowercased here as well as in the schema: the field shows what
-                // will be stored, rather than correcting it on submit.
-                onChangeText={(next) => onChange(next.toLowerCase())}
-                onBlur={onBlur}
-                placeholder="your_name"
-                autoCapitalize="none"
-                autoCorrect={false}
-                autoComplete="username"
-                maxLength={USERNAME_MAX}
-                description="This is the name other members see on posts, comments and notifications."
-              />
-            )}
+            label="Username"
+            isLabelIndicated
+            value={username}
+            // Lowercased here as well as in the schema: the field shows what
+            // will be stored, rather than correcting it on submit.
+            onChangeText={(next) =>
+              setValue('username', next.toLowerCase(), { shouldValidate: true })
+            }
+            placeholder="your_name"
+            autoCapitalize="none"
+            autoCorrect={false}
+            autoComplete="username"
+            maxLength={USERNAME_MAX}
+            description="This is the name other members see on posts, comments and notifications."
           />
 
           {status && (

@@ -175,3 +175,66 @@ begin
   return new;
 end;
 $$;
+
+-- Review follow-ups.
+
+-- seed_username reads no table, so definer rights are privilege it never earns.
+alter function private.seed_username(text) security invoker;
+
+-- The fallback insert was catching every unique_violation and check_violation,
+-- including a primary-key collision on new.id -- which the retry would hit
+-- again, escaping the block and failing the signup, the one outcome it exists
+-- to prevent. Narrowed to the username: the handle is dropped first, and only
+-- then is the row written, so nothing here can retry a failure it cannot fix.
+create or replace function private.handle_new_user()
+returns trigger
+language plpgsql
+security definer
+set search_path = ''
+as $$
+declare
+  meta jsonb := coalesce(new.raw_user_meta_data, '{}'::jsonb);
+  resolved_first text;
+  resolved_last text;
+  resolved_username text;
+  whole_name text;
+begin
+  resolved_first := nullif(trim(coalesce(meta ->> 'first_name', meta ->> 'given_name')), '');
+  resolved_last := nullif(trim(coalesce(meta ->> 'last_name', meta ->> 'family_name')), '');
+
+  if resolved_first is null then
+    whole_name := nullif(trim(coalesce(meta ->> 'full_name', meta ->> 'name')), '');
+
+    if whole_name is not null then
+      resolved_first := split_part(whole_name, ' ', 1);
+      resolved_last := coalesce(
+        resolved_last,
+        nullif(trim(substr(whole_name, length(split_part(whole_name, ' ', 1)) + 1)), '')
+      );
+    end if;
+  end if;
+
+  -- A handle the user typed on the signup form wins over a seeded one.
+  resolved_username := nullif(trim(lower(meta ->> 'username')), '');
+
+  if resolved_username is null then
+    resolved_username := private.seed_username(resolved_first);
+  end if;
+
+  -- Settle the handle BEFORE the insert, so the insert itself has nothing to
+  -- fall back from. A taken or malformed handle costs the handle, never the
+  -- account.
+  if not public.username_available(resolved_username) then
+    resolved_username := null;
+  end if;
+
+  insert into public.users (id, first_name, last_name, username)
+  values (new.id, resolved_first, resolved_last, resolved_username);
+
+  if new.email is not null then
+    perform private.resolve_pending_invites(new.id, new.email);
+  end if;
+
+  return new;
+end;
+$$;

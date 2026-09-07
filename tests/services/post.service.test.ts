@@ -316,11 +316,11 @@ describe('PostService.get', () => {
         post_likes: [
           {
             user_id: 'user-2',
-            users: { first_name: 'Sarah', last_name: 'Chen', username: 'sarah0s4f' }
+            users: { first_name: 'Sarah', last_name: 'Chen', username: 'sarah_c' }
           },
           {
             user_id: 'user-1',
-            users: { first_name: 'Dylan', last_name: 'Lindsay', username: 'dylanpk9g' }
+            users: { first_name: 'Dylan', last_name: 'Lindsay', username: 'dylan_l' }
           }
         ]
       }),
@@ -341,11 +341,11 @@ describe('PostService.get', () => {
         post_likes: [
           {
             user_id: 'user-2',
-            users: { first_name: 'Sarah', last_name: 'Chen', username: 'sarah0s4f' }
+            users: { first_name: 'Sarah', last_name: 'Chen', username: 'sarah_c' }
           },
           {
             user_id: 'user-1',
-            users: { first_name: 'Dylan', last_name: 'Lindsay', username: 'dylanpk9g' }
+            users: { first_name: 'Dylan', last_name: 'Lindsay', username: 'dylan_l' }
           }
         ]
       }),
@@ -359,14 +359,14 @@ describe('PostService.get', () => {
         userId: 'user-2',
         firstName: 'Sarah',
         lastName: 'Chen',
-        username: 'sarah0s4f',
+        username: 'sarah_c',
         avatarUrl: null
       },
       {
         userId: 'user-1',
         firstName: 'Dylan',
         lastName: 'Lindsay',
-        username: 'dylanpk9g',
+        username: 'dylan_l',
         avatarUrl: null
       }
     ]);
