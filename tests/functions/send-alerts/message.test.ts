@@ -234,7 +234,9 @@ describe('buildFeedDueMessage', () => {
     ).toBe('Dinner is due at 5:00 pm for 3 pets');
   });
 
-  it('counts the pets when the labels differ', () => {
+  // No single label is true of all of them, so the pets carry the sentence
+  // instead. Two are still named; the count starts at three, as everywhere else.
+  it('names two pets when the labels differ', () => {
     expect(
       buildFeedDueMessage({
         pets: [
@@ -244,6 +246,19 @@ describe('buildFeedDueMessage', () => {
         scheduledTime: '17:00:00'
       }).body
     ).toBe('Crumpet and Luna have feeds due at 5:00 pm');
+  });
+
+  it('counts three or more pets when the labels differ', () => {
+    expect(
+      buildFeedDueMessage({
+        pets: [
+          { name: 'Crumpet', label: 'dinner' },
+          { name: 'Luna', label: 'lunch' },
+          { name: 'Toby', label: 'morning' }
+        ],
+        scheduledTime: '17:00:00'
+      }).body
+    ).toBe('3 pets have feeds due at 5:00 pm');
   });
 
   it('reads as a sentence for the labels that are not nouns', () => {

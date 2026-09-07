@@ -12,7 +12,7 @@ describe('buildReminderDueMessage', () => {
     });
 
     expect(message.title).toBeUndefined();
-    expect(message.body).toBe("Toby's Worming tablet is due tomorrow");
+    expect(message.body).toBe("Toby's worming tablet is due tomorrow");
     expect(message.data.screen).toBe('/home');
   });
 
@@ -21,7 +21,7 @@ describe('buildReminderDueMessage', () => {
   it('keeps the reminder title, which every other kind would drop', () => {
     expect(
       buildReminderDueMessage({ petName: 'Toby', title: 'Worming tablet', leadDays: 1 }).body
-    ).toContain('Worming tablet');
+    ).toContain('worming tablet');
   });
 
   it('counts the days when the lead is longer than one', () => {
@@ -31,7 +31,19 @@ describe('buildReminderDueMessage', () => {
       leadDays: 3
     });
 
-    expect(message.body).toBe("Crumpet's Vet appointment is due in 3 days");
+    expect(message.body).toBe("Crumpet's vet appointment is due in 3 days");
+  });
+
+  // A brand or an acronym has a second capital in its first word, and must
+  // survive the mid-sentence lowering that "Worming tablet" gets.
+  it('leaves a brand name alone', () => {
+    expect(
+      buildReminderDueMessage({ petName: 'Toby', title: 'NexGard chew', leadDays: 1 }).body
+    ).toBe("Toby's NexGard chew is due tomorrow");
+
+    expect(
+      buildReminderDueMessage({ petName: 'Toby', title: 'RSPCA check-up', leadDays: 1 }).body
+    ).toBe("Toby's RSPCA check-up is due tomorrow");
   });
 
   // It fires BEFORE the day, so nothing has been missed yet.

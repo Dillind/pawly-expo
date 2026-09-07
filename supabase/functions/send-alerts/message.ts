@@ -178,10 +178,10 @@ const dueLabelText: Record<ScheduleLabel, string> = {
 
 const sentenceCase = (text: string): string => text.charAt(0).toUpperCase() + text.slice(1);
 
-// Two names join with "and". Three or more are counted instead of listed, so
-// the time always fits: a lock screen truncates a long list, and the time is
-// the fact a person acts on where a list of their own pets is not.
-const nameList = (names: string[]): string => {
+// Not a list past two: three or more are counted, so the time always fits. A
+// lock screen truncates a long list, and the time is the fact a person acts on
+// where a list of their own pets is not.
+const petsPhrase = (names: string[]): string => {
   if (names.length === 1) return names[0];
   if (names.length === 2) return `${names[0]} and ${names[1]}`;
 
@@ -206,10 +206,10 @@ export const buildFeedDueMessage = (input: FeedDueInput): Omit<ExpoMessage, 'to'
 
   const body =
     labels.size > 1
-      ? `${nameList(names)} have feeds due at ${time}`
+      ? `${petsPhrase(names)} have feeds due at ${time}`
       : names.length === 1
         ? `${first.name}'s ${dueLabelText[first.label]} is due at ${time}`
-        : `${sentenceCase(dueLabelText[first.label])} is due at ${time} for ${nameList(names)}`;
+        : `${sentenceCase(dueLabelText[first.label])} is due at ${time} for ${petsPhrase(names)}`;
 
   return {
     body,
@@ -226,6 +226,18 @@ export type ReminderDueInput = {
   leadDays: number;
 };
 
+// A Reminder title is free text and sits mid-sentence, so "Worming tablet"
+// would read as "Toby's Worming tablet". Only the plain case is lowered: a
+// second capital anywhere in the first word means a brand or an acronym --
+// NexGard, RSPCA -- which must survive untouched.
+const midSentence = (title: string): string => {
+  const [first = ''] = title.split(' ');
+
+  return first.slice(1) === first.slice(1).toLowerCase()
+    ? title.charAt(0).toLowerCase() + title.slice(1)
+    : title;
+};
+
 /**
  * The one kind that still carries text a person typed, deliberately. A
  * Reminder's title is the only thing in this push anyone can act on -- "Crumpet
@@ -235,7 +247,7 @@ export type ReminderDueInput = {
  * been missed yet.
  */
 export const buildReminderDueMessage = (input: ReminderDueInput): Omit<ExpoMessage, 'to'> => ({
-  body: `${input.petName}'s ${input.title} is due ${input.leadDays === 1 ? 'tomorrow' : `in ${input.leadDays} days`}`,
+  body: `${input.petName}'s ${midSentence(input.title)} is due ${input.leadDays === 1 ? 'tomorrow' : `in ${input.leadDays} days`}`,
   sound: 'default',
   data: { screen: '/home', params: {} }
 });
