@@ -266,3 +266,45 @@ _Avoid_: Nested comment, sub-comment, child, response.
 **Thread**:
 Every Comment on one Post, together, oldest first. Shown on Post Detail beneath the Post itself.
 _Avoid_: Conversation, discussion, comment section.
+
+## Following
+
+**Follow**:
+A one-way link from a User to a **Household** they are not in, which lets them read that
+Household's Posts and Pet Profiles. Never on a Pet — a Pet moves Household, and a Follow does not
+move with it. Exclusive with membership: one relationship per person per Household, so a Member
+cannot also Follow the Household they are in. See
+[ADR 0036](./docs/adr/0036-a-follow-is-a-household-scoped-read-plus-a-voice.md).
+_Avoid_: Subscribe, watch, friend, connection — and never "Viewer", which was a Member role and is
+the thing a Follow replaced.
+
+**Follower**:
+A User whose Follow of a Household has been accepted. Reads Posts and Pet Profiles, and may Like
+and Comment. Never sees Feed Times, Feed Logs, Reminders or the Care Card, and never appears in the
+Members list, because a Follower is not a Member and holds no role.
+_Avoid_: Viewer, guest, fan, subscriber, spectator.
+
+**Following** (the list):
+The Households one User Follows. Belongs to the person, not to a Household — the mirror of the
+Followers list, which belongs to a Household.
+_Avoid_: Subscriptions, feeds, watchlist.
+
+**Follow Request**:
+A Follow that has been asked for and not yet answered. Every Household is private, so every Follow
+starts here. Only an Owner accepts or denies one, exactly as with an Invite, and the Owner is
+notified. A Follower is not.
+_Avoid_: Application, invitation (an Invite runs the other way — an Owner offers it, and it makes a
+Member).
+
+**Removed** (a Follower):
+The end state after an **Owner** ends a Follow. It also blocks: the same User cannot request that
+Household again. Distinct from an unfollow, which the Follower does themselves and which they may
+undo by requesting again. Removal ends access and nothing else — the Likes and Comments they
+already wrote stay, because Members replied to them.
+_Avoid_: Blocked (that names only half of it), banned, kicked, revoked.
+
+**Pet Profile**:
+The part of a Pet a Follower sees: name, photo, breed, bio and gallery. Not a screen a Member has —
+a Member sees the whole Pet. It is the name for the boundary, and it holds no care information of
+any kind.
+_Avoid_: Pet page, public pet, pet detail (that is the Member's screen).
