@@ -75,6 +75,18 @@ namespace UserService {
     return data === true;
   }
 
+  /**
+   * Free handles built from what the Member typed, each one checked. Shown when
+   * their own choice is taken or reserved.
+   */
+  export async function getUsernameSuggestions(stem: string, wanted = 3): Promise<string[]> {
+    const { data, error } = await supabase.rpc('username_suggestions', { stem, wanted });
+
+    if (error) throw error;
+
+    return (data ?? []) as string[];
+  }
+
   export async function updateUsername(userId: string, username: string) {
     const { data, error } = await supabase
       .from('users')

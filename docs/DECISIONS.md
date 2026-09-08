@@ -19,6 +19,36 @@ Newest first. Append, don't rewrite.
 
 ## 2026-09-08
 
+**Onboarding gates on the handle as well as the name.** ADR 0027 allows a name gate because
+everyone can answer it, and a handle is answerable by everyone too. It has to be its own gate
+rather than a step after the name one: `(protected)/_layout.tsx` only holds a Member without a
+first name, and an Apple or Google Member arrives with one, so they would never see the step at
+all.
+
+**Which is why signup stopped seeding a handle.** A seeded handle is not null, so `!profile.username`
+would never fire and nobody would ever be asked. The alternative — a second column recording that a
+human chose it — exists only to undo the seed. `private.seed_username` stays in migration history
+because the CRU-125 backfill used it, and existing Members keep what it gave them.
+
+**The email signup form does not carry a username.** Hevy puts it there because that form is their
+only chance; Crumpet has onboarding, and one step covers the email, Apple and Google paths at once.
+`private.handle_new_user` still reads a `username` metadata key, so reversing this needs no
+migration.
+
+**Suggestions are checked, not counted.** `username_suggestions` returns the first free handles of
+`stem1…stem30`, so the row can read `ben1 ben3 ben4` — `ben2` is missing because someone holds it.
+One round trip rather than thirty calls to `username_available`.
+
+**Availability is delivered as a form error, not a status line.** `setError('username', …)` puts
+"Username already exists" exactly where a Zod message goes, and the available state says nothing at
+all — the green tick inside the field is the whole message. Continue is still gated on an explicit
+availability flag rather than on `formState.isValid`, because a manually set error does not make a
+form invalid in react-hook-form.
+
+**`UsernameField` remounts itself when a suggestion is tapped.** `TextInputValidated` drives its
+native field with `defaultValue`, so writing to form state alone leaves the visible text unchanged.
+A bumped `key` is what makes the tap land.
+
 **The Activity screen is gone.** It listed every Feed Log the Household had written, and nobody went
 looking for it — Home and the Pet's schedule card already carry that information, next to where the
 logging happens. The part that could not simply be deleted is the deep link: a `feed_logged` push
