@@ -15,8 +15,9 @@ _Avoid_: User (a User is the account; a Member is that account's place in a hous
 **Username**:
 The unique handle a User is known by wherever the app names a person — a Post header, a comment,
 the `@name` reply prefix, the Home occurrence row, a push notification. Lowercase, 3 to 20
-characters, chosen by the User and changeable in Profile. Seeded from the first name at signup so
-nobody has to pick one before they can start.
+characters, chosen by the User and changeable in Profile. Null until they choose one: onboarding
+asks for it, and a User with no Username is held there. Members who signed up before that step
+keep the handle the old seed gave them.
 _Avoid_: Handle, display name, nickname. The first name is not a Username — it is what the Profile
 header and the Members list show, where a real name is what the reader wants.
 

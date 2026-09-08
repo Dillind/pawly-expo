@@ -26,6 +26,20 @@ export function useUsernameAvailable(candidate: string | undefined) {
   });
 }
 
+/**
+ * Alternatives for a handle that is taken or reserved. Enabled only then --
+ * a Member whose first choice is free is never shown a list.
+ */
+export function useUsernameSuggestions(stem: string | undefined) {
+  return useQuery({
+    queryKey: ['username-suggestions', stem],
+    queryFn: () => UserService.getUsernameSuggestions(stem as string),
+    enabled: Boolean(stem),
+    staleTime: 0,
+    gcTime: 30_000
+  });
+}
+
 export function useUpdateUsername() {
   const queryClient = useQueryClient();
   const { userId } = useAuthStore();
