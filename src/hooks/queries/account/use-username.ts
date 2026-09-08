@@ -5,6 +5,7 @@ import { userFacingMessage } from '@/lib/errors';
 import { showErrorToast, showSuccessToast } from '@/lib/toast';
 import UserService from '@/services/user.service';
 import { useAuthStore } from '@/stores/auth-store';
+import type { UserProfile } from '@/types/core';
 
 /**
  * Answers "free to take" for one candidate. The caller debounces, so this is
@@ -48,11 +49,24 @@ export function useUpdateUsername() {
     mutationFn: (username: string) => UserService.updateUsername(userId as string, username),
     onSettled: () => {
       // Every surface that names a person reads the handle, not just Profile.
+      // Comments carry it twice -- the author and the `@name` reply prefix.
       void queryClient.invalidateQueries({ queryKey: ['profile', userId] });
       void queryClient.invalidateQueries({ queryKey: ['household-members'] });
       void queryClient.invalidateQueries({ queryKey: ['posts'] });
+      void queryClient.invalidateQueries({ queryKey: ['post'] });
+      void queryClient.invalidateQueries({ queryKey: ['comments'] });
+      void queryClient.invalidateQueries({ queryKey: ['feed-log'] });
     },
-    onSuccess: () => showSuccessToast(SuccessMessage.UsernameSaved),
+    onSuccess: (_data, username) => {
+      // Written straight into the cache rather than waited for. The onboarding
+      // gate reads the handle through the auth store, so a refetch that fails
+      // right after a successful write would hold the Member on the step they
+      // just completed.
+      queryClient.setQueryData(['profile', userId], (profile?: UserProfile) =>
+        profile ? { ...profile, username } : profile
+      );
+      showSuccessToast(SuccessMessage.UsernameSaved);
+    },
     onError: (error) => {
       console.error(error);
       showErrorToast(userFacingMessage(error, ErrorMessage.UsernameSaveFailed));

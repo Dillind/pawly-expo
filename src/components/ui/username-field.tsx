@@ -53,11 +53,12 @@ const UsernameField = ({
   // Only ask about a handle the schema already accepts. Asking about "ab" would
   // come back unavailable and read as taken, which is a different problem.
   const candidate = isWellFormed && !isUnchanged ? settled : undefined;
-  const { data: isAvailable, isLoading } = useUsernameAvailable(candidate);
+  const { data: isAvailable, isLoading, isError, refetch } = useUsernameAvailable(candidate);
 
   const isChecking = isTyping || (Boolean(candidate) && isLoading);
   const isFree = !isChecking && isAvailable === true;
   const isTaken = !isChecking && Boolean(candidate) && isAvailable === false;
+  const hasFailed = !isChecking && Boolean(candidate) && isError;
 
   // A reserved word never reaches the availability check -- the schema rejects
   // it first -- so it has to ask for alternatives on its own.
@@ -70,8 +71,15 @@ const UsernameField = ({
 
   useEffect(() => {
     if (isTaken) setError('username', { type: 'taken', message: 'Username already exists' });
+    // Continue is gated on a positive answer, so a check that never lands would
+    // otherwise disable it with nothing on screen to explain why.
+    else if (hasFailed)
+      setError('username', {
+        type: 'unchecked',
+        message: 'We could not check that username. Tap to try again.'
+      });
     else if (isFree) clearErrors('username');
-  }, [isTaken, isFree, setError, clearErrors]);
+  }, [isTaken, isFree, hasFailed, setError, clearErrors]);
 
   const choose = useCallback(
     (suggestion: string) => {
@@ -87,6 +95,7 @@ const UsernameField = ({
     if (isChecking) return 'checking' as const;
     if (isFree) return 'free' as const;
     if (isTaken || isReserved) return 'rejected' as const;
+    if (hasFailed) return 'unchecked' as const;
 
     return null;
   })();
@@ -114,6 +123,10 @@ const UsernameField = ({
             <View style={styles.statusIcon}>
               {status === 'checking' ? (
                 <ActivityIndicator size="small" color={colors.textSecondary} />
+              ) : status === 'unchecked' ? (
+                <PressableOpacity onPress={() => void refetch()}>
+                  <Icon name="refresh" size={20} color="textSecondary" />
+                </PressableOpacity>
               ) : (
                 <Icon
                   name={status === 'free' ? 'circleCheck' : 'circleX'}

@@ -41,6 +41,7 @@ import {
   Pencil,
   Pill,
   Plus,
+  RefreshCw,
   Search,
   Settings,
   Share,
@@ -60,6 +61,7 @@ import {
 
 export const iconMap = {
   camera: Camera,
+  refresh: RefreshCw,
   search: Search,
   asterisk: Asterisk,
   caretDown: ChevronDown,
