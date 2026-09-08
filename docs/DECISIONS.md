@@ -700,7 +700,7 @@ is the opposite of how this codebase already writes an inline type specifier.
 
 **Household settings are their own screen, one row per household.** Notifications, members and the
 household's own fields lived in a `Household` section on Profile → Settings, labelled with the
-active household. With one household nobody noticed. With several, a member could silence one and
+active household. With one household nobody noticed. With several, a Member could silence one and
 believe she had silenced all of them.
 
 Profile now lists every household you are in, each row opening `household/[householdId]/`, which
@@ -715,7 +715,7 @@ Members row with no invite beside it otherwise reads as a gap.
 
 **A Contributor reads the household's own fields rather than losing them.** `Name`, `Timezone` and
 `Feed timing` used to render for an owner only. Absence explains nothing, and Feed timing decides
-when a Contributor is nudged. The three rows now render for everyone; without an owner's role they
+when a Contributor is nudged. The three rows now render for everyone; without an Owner's role they
 carry the value, no chevron and no tap, under "Only an Owner can change these". This is the first
 place in the app where the two roles look different.
 

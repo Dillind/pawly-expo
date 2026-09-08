@@ -122,7 +122,18 @@ const MembersList = ({ householdId }: Props) => {
 
     Alert.alert(`Leave ${household?.name ?? 'this household'}?`, 'You lose access to its pets.', [
       { text: 'Cancel', style: 'cancel', isPreferred: true },
-      { text: 'Leave', style: 'destructive', onPress: () => leaveHousehold() }
+      {
+        text: 'Leave',
+        style: 'destructive',
+        // The hook cannot navigate, and this screen sits under the household
+        // the user has just left -- popping back would land on it.
+        onPress: () =>
+          leaveHousehold(undefined, {
+            onSuccess: (status) => {
+              if (status === 'left') router.dismissTo('/profile/settings');
+            }
+          })
+      }
     ]);
   };
 

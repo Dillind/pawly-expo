@@ -4,13 +4,13 @@ import { StyleSheet, View } from 'react-native';
 import AppText from '@/components/core/app-text';
 import Icon from '@/components/core/icon';
 import PressableOpacity from '@/components/core/pressable-opacity';
-import HouseholdPets from '@/components/ui/household-pets';
+import HouseholdPets, { HOUSEHOLD_PETS_WIDTH } from '@/components/ui/household-pets';
 import { Spacing, type AppTheme } from '@/constants/theme';
 import { useStyles } from '@/hooks/use-styles';
 import type { HouseholdSummary } from '@/types/core';
 
 /** The divider inset a section needs to clear the pet stack rather than a glyph. */
-export const HOUSEHOLD_ROW_DIVIDER_INSET = Spacing.three + 34 + Spacing.three;
+export const HOUSEHOLD_ROW_DIVIDER_INSET = Spacing.three + HOUSEHOLD_PETS_WIDTH + Spacing.three;
 
 type Props = {
   household: HouseholdSummary;
@@ -34,7 +34,9 @@ const HouseholdRow = ({ household }: Props) => {
       accessibilityLabel={`${household.name} settings`}
       onPress={() => router.push(`/profile/household/${household.id}`)}>
       <View style={styles.row}>
-        <HouseholdPets pets={household.pets} ringColor="backgroundElement" />
+        <View style={styles.avatars}>
+          <HouseholdPets pets={household.pets} ringColor="backgroundElement" />
+        </View>
 
         <View style={styles.text}>
           <AppText size={16} numberOfLines={1}>
@@ -59,6 +61,9 @@ const makeStyles = ({ spacing }: AppTheme) =>
       gap: spacing.three,
       minHeight: 56,
       paddingHorizontal: spacing.three
+    },
+    avatars: {
+      width: HOUSEHOLD_PETS_WIDTH
     },
     text: {
       flex: 1,

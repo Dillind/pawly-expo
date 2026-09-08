@@ -8,6 +8,14 @@ import type { Pet } from '@/types/core';
 
 const AVATAR_SIZE = 34;
 const SHOWN = 3;
+const OVERLAP = AVATAR_SIZE / 3;
+
+/**
+ * The width of the widest stack. A list of households shows one to three pets
+ * per row, so the leading column is fixed to this and every row's text starts
+ * on the same line.
+ */
+export const HOUSEHOLD_PETS_WIDTH = AVATAR_SIZE + (SHOWN - 1) * (AVATAR_SIZE - OVERLAP);
 
 type Props = {
   pets: Pet[];
@@ -54,7 +62,7 @@ const makeStyles = ({ colors }: AppTheme, ringColor: ThemeColor) =>
     // Negative margin rather than absolute positioning so the row still
     // measures the stack's real width.
     overlap: {
-      marginLeft: -AVATAR_SIZE / 3,
+      marginLeft: -OVERLAP,
       borderRadius: Radius.full,
       borderWidth: 2,
       borderColor: colors[ringColor]

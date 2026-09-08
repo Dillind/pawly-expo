@@ -1,7 +1,7 @@
 import type { TrueSheet } from '@lodev09/react-native-true-sheet';
 import { useRouter } from 'expo-router';
 import { useRef } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { ActivityIndicator, StyleSheet, View } from 'react-native';
 
 import OptionSheet from '@/components/bottom-sheets/option-sheet';
 import RenameHouseholdSheet from '@/components/bottom-sheets/rename-household-sheet';
@@ -33,7 +33,13 @@ const HouseholdSettings = ({ householdId }: Props) => {
   const timezoneSheetRef = useRef<TrueSheet | null>(null);
   const graceSheetRef = useRef<TrueSheet | null>(null);
 
-  const { data: household, isError, refetch } = useHouseholdById(householdId);
+  const {
+    data: household,
+    isLoading,
+    isError,
+    isNotFound,
+    refetch
+  } = useHouseholdById(householdId);
   const { data: members = [] } = useHouseholdMembers(householdId);
 
   const { mutate: updateTimezone } = useUpdateHousehold(
@@ -45,22 +51,30 @@ const HouseholdSettings = ({ householdId }: Props) => {
     SuccessMessage.GraceWindowUpdated
   );
 
-  if (isError || !household) {
+  const isOwner = household?.isOwner ?? false;
+
+  // Every state renders inside the same scroll view. A bare ScreenView under a
+  // transparent header draws its content beneath the navigation bar.
+  const renderBody = () => {
+    if (isLoading) return <ActivityIndicator style={styles.loading} />;
+
+    // A household the user has left is not a failed request, and the retry an
+    // ErrorState offers would never succeed.
+    if (isNotFound) {
+      return (
+        <ErrorState
+          title="You are no longer in this household"
+          description="Go back to Settings to see the households you are in."
+        />
+      );
+    }
+
+    if (isError || !household) {
+      return <ErrorState title="Couldn't load this household" onRetry={() => void refetch()} />;
+    }
+
     return (
-      <ScreenView edges={[]}>
-        <ErrorState title="Couldn't load this household" onRetry={() => void refetch()} />
-      </ScreenView>
-    );
-  }
-
-  const isOwner = household.isOwner;
-  const graceWindow = optionLabel(GRACE_WINDOW_OPTIONS, String(household.graceWindowMinutes));
-
-  return (
-    <ScreenView edges={[]}>
-      <ScreenScrollView
-        contentContainerStyle={styles.content}
-        contentInsetAdjustmentBehavior="automatic">
+      <>
         <View style={styles.identity}>
           <HouseholdPets pets={household.pets} ringColor="background" />
           <View style={styles.identityText}>
@@ -95,8 +109,6 @@ const HouseholdSettings = ({ householdId }: Props) => {
           />
         </SettingsSection>
 
-        {/* A Contributor reads the same three rows without a chevron. The feed
-            timing decides when they are nudged, so hiding it explains nothing. */}
         <View style={styles.group}>
           <SettingsSection title="Household">
             <SettingsRow
@@ -114,7 +126,7 @@ const HouseholdSettings = ({ householdId }: Props) => {
             <SettingsRow
               icon="hourglass"
               label="Feed timing"
-              value={graceWindow}
+              value={optionLabel(GRACE_WINDOW_OPTIONS, String(household.graceWindowMinutes))}
               onPress={isOwner ? () => void graceSheetRef.current?.present() : undefined}
             />
           </SettingsSection>
@@ -124,33 +136,53 @@ const HouseholdSettings = ({ householdId }: Props) => {
             </AppText>
           )}
         </View>
+      </>
+    );
+  };
+
+  return (
+    <ScreenView edges={[]}>
+      <ScreenScrollView
+        contentContainerStyle={styles.content}
+        contentInsetAdjustmentBehavior="automatic">
+        {renderBody()}
       </ScreenScrollView>
 
-      <RenameHouseholdSheet
-        sheetRef={renameSheetRef}
-        householdId={householdId}
-        name={household.name}
-      />
-      <OptionSheet
-        sheetRef={timezoneSheetRef}
-        title="Timezone"
-        options={TIMEZONE_OPTIONS}
-        selected={household.timezone}
-        isScrollable
-        onSelect={(timezone) =>
-          updateTimezone(
-            { timezone },
-            { onSuccess: () => void timezoneSheetRef.current?.dismiss() }
-          )
-        }
-      />
-      <OptionSheet
-        sheetRef={graceSheetRef}
-        title="Feed timing"
-        options={GRACE_WINDOW_OPTIONS}
-        selected={String(household.graceWindowMinutes)}
-        onSelect={(minutes) => updateGraceWindow({ graceWindowMinutes: Number(minutes) })}
-      />
+      {/* Owner-only surfaces, so they are never presented without a household. */}
+      {household && isOwner && (
+        <>
+          <RenameHouseholdSheet
+            sheetRef={renameSheetRef}
+            householdId={householdId}
+            name={household.name}
+          />
+          <OptionSheet
+            sheetRef={timezoneSheetRef}
+            title="Timezone"
+            options={TIMEZONE_OPTIONS}
+            selected={household.timezone}
+            isScrollable
+            onSelect={(timezone) =>
+              updateTimezone(
+                { timezone },
+                { onSuccess: () => void timezoneSheetRef.current?.dismiss() }
+              )
+            }
+          />
+          <OptionSheet
+            sheetRef={graceSheetRef}
+            title="Feed timing"
+            options={GRACE_WINDOW_OPTIONS}
+            selected={String(household.graceWindowMinutes)}
+            onSelect={(minutes) =>
+              updateGraceWindow(
+                { graceWindowMinutes: Number(minutes) },
+                { onSuccess: () => void graceSheetRef.current?.dismiss() }
+              )
+            }
+          />
+        </>
+      )}
     </ScreenView>
   );
 };
@@ -176,6 +208,9 @@ const makeStyles = ({ spacing }: AppTheme) =>
     },
     caption: {
       paddingHorizontal: spacing.one
+    },
+    loading: {
+      marginTop: spacing.five
     }
   });
 

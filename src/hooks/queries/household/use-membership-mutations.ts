@@ -73,7 +73,7 @@ export function useRemoveMember(householdId: string | undefined) {
 
 export function useLeaveHousehold(householdId: string | undefined) {
   const invalidate = useInvalidateMembership();
-  const { clearActiveHousehold } = useActiveHouseholdStore();
+  const { activeHouseholdId, clearActiveHousehold } = useActiveHouseholdStore();
 
   return useMutation({
     mutationFn: () => HouseholdService.leave(householdId as string),
@@ -85,7 +85,11 @@ export function useLeaveHousehold(householdId: string | undefined) {
       if (status !== 'left') return;
 
       showSuccessToast(SuccessMessage.HouseholdLeft);
-      void clearActiveHousehold();
+
+      // Members is reachable for any household, not only the active one. Leaving
+      // a household you were not looking at must not move you out of the one you
+      // were.
+      if (householdId === activeHouseholdId) void clearActiveHousehold();
     },
     onError: (error) => {
       console.error(error);

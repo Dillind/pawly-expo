@@ -68,16 +68,18 @@ const SettingsList = () => {
         {/* One row per household, because these settings belong to one alone.
             A single row for the active household is what made a member of
             several believe she had silenced all of them. */}
-        <View style={styles.group}>
-          <SettingsSection title="Your households" dividerInset={HOUSEHOLD_ROW_DIVIDER_INSET}>
-            {households.map((household) => (
-              <HouseholdRow key={household.id} household={household} />
-            ))}
-          </SettingsSection>
-          <AppText size={13} color="textSecondary" style={styles.caption}>
-            Notifications, members and feed timing live inside the household they belong to.
-          </AppText>
-        </View>
+        {households.length > 0 && (
+          <View style={styles.group}>
+            <SettingsSection title="Your households" dividerInset={HOUSEHOLD_ROW_DIVIDER_INSET}>
+              {households.map((household) => (
+                <HouseholdRow key={household.id} household={household} />
+              ))}
+            </SettingsSection>
+            <AppText size={13} color="textSecondary" style={styles.caption}>
+              Notifications, members and feed timing live inside the household they belong to.
+            </AppText>
+          </View>
+        )}
 
         <SettingsSection title="Help & Support">
           <SettingsRow

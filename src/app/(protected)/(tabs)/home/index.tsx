@@ -55,7 +55,7 @@ const Home = () => {
   const { data: household } = useHousehold();
   const { data: households = [], isLoading: isLoadingHouseholds } = useHouseholds();
   const { data: pets = [], isLoading, isError, refetch } = usePets();
-  const { data: members = [] } = useHouseholdMembers();
+  const { data: members = [] } = useHouseholdMembers(household?.id);
 
   const refreshOccurrences = useRefreshOccurrences();
   const refreshUnread = useRefreshUnreadAlertCount(household?.id);
