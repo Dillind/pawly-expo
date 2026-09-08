@@ -1,6 +1,15 @@
 // Pure: no network, no database. Everything here is a decision about wording,
-// which is the part worth reasoning about on its own -- and the part a future
-// missed_feed kind will extend rather than rewrite.
+// which is the part worth reasoning about on its own.
+//
+// Every kind is one sentence and no title. iOS draws the app name on the top
+// line by itself, so the sentence below it is the `body` -- a title would put a
+// second, bolder line above it and break the shape.
+//
+// Nothing a person typed ever appears: no captions, no feed notes, no comment
+// bodies. A time is not content, so where a time is the reason the push exists
+// it joins the sentence rather than sitting under it. The one exception is a
+// Reminder's title, which is free text and is also the only thing in that push
+// a person can act on -- see buildReminderDueMessage.
 
 export type FeedLoggedInput = {
   authorFirstName: string | null;
@@ -8,13 +17,13 @@ export type FeedLoggedInput = {
   petName: string;
   loggedAt: string;
   householdTimezone: string;
-  notes: string | null;
   logId: string;
 };
 
 export type ExpoMessage = {
   to: string[];
-  title: string;
+  /** Omitted on purpose. iOS draws the app name; a title would add a line. */
+  title?: string;
   body: string;
   sound: 'default';
   data: { screen: string; params: Record<string, string> };
@@ -64,23 +73,15 @@ const wallClockTime = (time: string): string => {
   return `${hour12}:${minutes} ${period}`;
 };
 
-export const buildFeedLoggedMessage = (input: FeedLoggedInput): Omit<ExpoMessage, 'to'> => {
-  const time = timeOfDay(input.loggedAt, input.householdTimezone);
-  const trimmedNotes = input.notes?.trim();
-
-  return {
-    title: `${authorName(input.authorUsername, input.authorFirstName)} fed ${input.petName}`,
-    sound: 'default',
-    // The " · notes" half drops entirely when there are no notes. Whitespace-
-    // only notes count as none.
-    body: trimmedNotes ? `${time} · ${trimmedNotes}` : time,
-    // data.screen and data.params are the exact shape usePushNotifications
-    // reads, and /home?logId=... is a deep link home/index.tsx already handles
-    // -- so a tap lands on the correction sheet with no new routing. This path
-    // must be redeployed whenever the route moves.
-    data: { screen: '/home', params: { logId: input.logId } }
-  };
-};
+export const buildFeedLoggedMessage = (input: FeedLoggedInput): Omit<ExpoMessage, 'to'> => ({
+  body: `${authorName(input.authorUsername, input.authorFirstName)} fed ${input.petName} at ${timeOfDay(input.loggedAt, input.householdTimezone)}`,
+  sound: 'default',
+  // data.screen and data.params are the exact shape usePushNotifications reads,
+  // and /home?logId=... is a deep link home/index.tsx already handles -- so a
+  // tap lands on the correction sheet with no new routing. This path must be
+  // redeployed whenever the route moves.
+  data: { screen: '/home', params: { logId: input.logId } }
+});
 
 export type MissedFeedInput = {
   petName: string;
@@ -89,63 +90,40 @@ export type MissedFeedInput = {
 };
 
 // Names the absent log, never the absent meal -- see ADR 0013 and CONTEXT.md.
+// Keeps the label as well as the time: the label is the word the schedule card
+// and the log sheet use, and the time is what says which one was missed when a
+// pet has two feeds with the same label on different days.
 export const buildMissedFeedMessage = (input: MissedFeedInput): Omit<ExpoMessage, 'to'> => ({
-  title: `No one has logged ${input.petName}'s ${slotLabelText[input.label]} feed`,
+  body: `No one has logged ${input.petName}'s ${slotLabelText[input.label]} feed, due ${wallClockTime(input.scheduledTime)}`,
   sound: 'default',
-  body: `Due ${wallClockTime(input.scheduledTime)}`,
   data: { screen: '/home', params: {} }
 });
-
-// Roughly what fits on a lock screen before iOS truncates it anyway. Cutting it
-// here means the ellipsis lands on a word boundary rather than mid-syllable.
-const CAPTION_PREVIEW_LIMIT = 100;
-
-const truncate = (text: string, limit: number): string => {
-  if (text.length <= limit) return text;
-
-  const cut = text.slice(0, limit);
-  const lastSpace = cut.lastIndexOf(' ');
-
-  return `${(lastSpace > limit * 0.6 ? cut.slice(0, lastSpace) : cut).trimEnd()}…`;
-};
 
 export type PostInput = {
   authorFirstName: string | null;
   authorUsername: string | null;
-  caption: string | null;
   petNames: string[];
   postId: string;
 };
 
 /**
- * Caption first, deliberately.
+ * The caption used to be the whole line, on the argument that seeing
+ * "Sarah: beach day, he's shattered" on the lock screen IS the feature for the
+ * member who is away. That was reversed deliberately -- see DECISIONS.md. A
+ * push now says what happened and nothing else, and the photo is one tap away.
  *
- * "Sarah posted a photo" makes you open the app to find out whether anything is
- * wrong, which is the opposite of the reassurance this feature exists to give.
- * Seeing "Sarah: beach day, he's shattered" on the lock screen IS the feature --
- * the person who is away has what they wanted without unlocking anything.
- *
- * Only without a caption does a pet name earn its place, and only when exactly
- * one pet is tagged: "a photo of Crumpet and Bailey" is worse than saying
- * nothing, and tags are optional anyway.
+ * A pet name earns its place only when exactly one pet is tagged: "a photo of
+ * Crumpet and Bailey" is worse than saying nothing, and tags are optional.
  */
 export const buildPostMessage = (input: PostInput): Omit<ExpoMessage, 'to'> => {
   const author = authorName(input.authorUsername, input.authorFirstName);
-  const caption = input.caption?.trim();
-
-  const title = caption
-    ? `${author}: ${truncate(caption, CAPTION_PREVIEW_LIMIT)}`
-    : input.petNames.length === 1
-      ? `${author} posted a photo of ${input.petNames[0]}`
-      : `${author} posted a photo`;
 
   return {
-    title,
+    body:
+      input.petNames.length === 1
+        ? `${author} posted a photo of ${input.petNames[0]}`
+        : `${author} posted a photo`,
     sound: 'default',
-    // Empty rather than restating the title. iOS renders a lone title cleanly,
-    // and there is nothing second-tier to say -- the photo is the content and
-    // it is one tap away.
-    body: '',
     data: { screen: '/posts/[postId]', params: { postId: input.postId } }
   };
 };
@@ -153,7 +131,6 @@ export const buildPostMessage = (input: PostInput): Omit<ExpoMessage, 'to'> => {
 export type PostCommentedInput = {
   authorFirstName: string | null;
   authorUsername: string | null;
-  body: string;
   /** True when the recipient wrote the comment being replied to. */
   isReplyToRecipient: boolean;
   /** True when the recipient wrote the post being commented on. */
@@ -168,16 +145,13 @@ export type PostCommentedInput = {
 export const buildPostCommentedMessage = (input: PostCommentedInput): Omit<ExpoMessage, 'to'> => {
   const author = authorName(input.authorUsername, input.authorFirstName);
 
-  const title = input.isReplyToRecipient
-    ? `${author} replied to your comment`
-    : input.isPostAuthor
-      ? `${author} commented on your post`
-      : `${author} also commented`;
-
   return {
-    title,
+    body: input.isReplyToRecipient
+      ? `${author} replied to your comment`
+      : input.isPostAuthor
+        ? `${author} commented on your post`
+        : `${author} also commented`,
     sound: 'default',
-    body: truncate(input.body.trim(), CAPTION_PREVIEW_LIMIT),
     data: { screen: '/posts/[postId]/comments', params: { postId: input.postId } }
   };
 };
@@ -204,15 +178,14 @@ const dueLabelText: Record<ScheduleLabel, string> = {
 
 const sentenceCase = (text: string): string => text.charAt(0).toUpperCase() + text.slice(1);
 
-// Two names join with "and"; three list out; four or more stop at two and count
-// the rest, because a lock screen truncates a longer list anyway and a cut-off
-// name is worse than a number.
-const nameList = (names: string[]): string => {
+// Not a list past two: three or more are counted, so the time always fits. A
+// lock screen truncates a long list, and the time is the fact a person acts on
+// where a list of their own pets is not.
+const petsPhrase = (names: string[]): string => {
   if (names.length === 1) return names[0];
   if (names.length === 2) return `${names[0]} and ${names[1]}`;
-  if (names.length === 3) return `${names[0]}, ${names[1]} and ${names[2]}`;
 
-  return `${names[0]}, ${names[1]} and ${names.length - 2} more`;
+  return `${names.length} pets`;
 };
 
 /**
@@ -223,24 +196,24 @@ const nameList = (names: string[]): string => {
  *
  * Two shapes, decided by whether the pets share a label. They do share one
  * almost always, because a household feeds its pets together; the mixed case
- * names the pets instead, since no single label is true of all of them.
+ * cannot name a single label that is true of all of them.
  */
 export const buildFeedDueMessage = (input: FeedDueInput): Omit<ExpoMessage, 'to'> => {
   const names = input.pets.map((pet) => pet.name);
   const labels = new Set(input.pets.map((pet) => pet.label));
   const [first] = input.pets;
+  const time = wallClockTime(input.scheduledTime);
 
-  const title =
+  const body =
     labels.size > 1
-      ? `${nameList(names)} have feeds coming up`
+      ? `${petsPhrase(names)} have feeds due at ${time}`
       : names.length === 1
-        ? `${first.name}'s ${dueLabelText[first.label]} is coming up`
-        : `${sentenceCase(dueLabelText[first.label])} is coming up for ${nameList(names)}`;
+        ? `${first.name}'s ${dueLabelText[first.label]} is due at ${time}`
+        : `${sentenceCase(dueLabelText[first.label])} is due at ${time} for ${petsPhrase(names)}`;
 
   return {
-    title,
+    body,
     sound: 'default',
-    body: `Due ${wallClockTime(input.scheduledTime)}`,
     // /home, not a pet: a group has no single pet to open.
     data: { screen: '/home', params: {} }
   };
@@ -253,13 +226,28 @@ export type ReminderDueInput = {
   leadDays: number;
 };
 
+// A Reminder title is free text and sits mid-sentence, so "Worming tablet"
+// would read as "Toby's Worming tablet". Only the plain case is lowered: a
+// second capital anywhere in the first word means a brand or an acronym --
+// NexGard, RSPCA -- which must survive untouched.
+const midSentence = (title: string): string => {
+  const [first = ''] = title.split(' ');
+
+  return first.slice(1) === first.slice(1).toLowerCase()
+    ? title.charAt(0).toLowerCase() + title.slice(1)
+    : title;
+};
+
 /**
- * Names the Reminder and the Pet, and says when. It never says "overdue": the
- * push goes out BEFORE the day, so nothing has been missed yet.
+ * The one kind that still carries text a person typed, deliberately. A
+ * Reminder's title is the only thing in this push anyone can act on -- "Crumpet
+ * has a reminder tomorrow" says nothing. Do not remove it later as an oversight.
+ *
+ * It never says "overdue": the push goes out BEFORE the day, so nothing has
+ * been missed yet.
  */
 export const buildReminderDueMessage = (input: ReminderDueInput): Omit<ExpoMessage, 'to'> => ({
-  title: `${input.petName}: ${input.title}`,
+  body: `${input.petName}'s ${midSentence(input.title)} is due ${input.leadDays === 1 ? 'tomorrow' : `in ${input.leadDays} days`}`,
   sound: 'default',
-  body: input.leadDays === 1 ? 'Due tomorrow' : `Due in ${input.leadDays} days`,
   data: { screen: '/home', params: {} }
 });

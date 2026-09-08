@@ -128,7 +128,6 @@ export const buildMessageForAlert = async (
       return buildPostCommentedMessage({
         authorFirstName: author?.first_name ?? null,
         authorUsername: author?.username ?? null,
-        body: comment.body,
         // reply_to_user_id, NOT the parent's author: a reply answering a
         // SIBLING flattens under the same parent, so the parent's author would
         // be told about a sentence aimed at someone else.
@@ -142,7 +141,7 @@ export const buildMessageForAlert = async (
     case 'post': {
       const { data: post } = await client
         .from('posts')
-        .select('id, caption, author_id, post_pets ( pets ( name ) )')
+        .select('id, author_id, post_pets ( pets ( name ) )')
         .eq('id', alert.subject_id)
         .maybeSingle();
 
@@ -167,7 +166,6 @@ export const buildMessageForAlert = async (
       return buildPostMessage({
         authorFirstName: author?.first_name ?? null,
         authorUsername: author?.username ?? null,
-        caption: post.caption,
         petNames,
         postId: post.id
       });
@@ -176,7 +174,7 @@ export const buildMessageForAlert = async (
     case 'feed_logged': {
       const { data: log } = await client
         .from('feed_logs')
-        .select('id, logged_at, notes, logged_by, pets ( name, households ( timezone ) )')
+        .select('id, logged_at, logged_by, pets ( name, households ( timezone ) )')
         .eq('id', alert.subject_id)
         .maybeSingle();
 
@@ -201,7 +199,6 @@ export const buildMessageForAlert = async (
         petName: pet.name,
         loggedAt: log.logged_at,
         householdTimezone: pet.households.timezone,
-        notes: log.notes,
         logId: log.id
       });
     }
