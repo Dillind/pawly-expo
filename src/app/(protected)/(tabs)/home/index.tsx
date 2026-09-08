@@ -1,5 +1,6 @@
 import type { TrueSheet } from '@lodev09/react-native-true-sheet';
 import * as Notifications from 'expo-notifications';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useEffect, useRef, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import Animated, { FadeIn, FadeOut, LinearTransition } from 'react-native-reanimated';
@@ -24,6 +25,7 @@ import { HOME_TILES } from '@/constants/home-tiles';
 import { BottomTabInset, type AppTheme } from '@/constants/theme';
 import { useUserProfile } from '@/hooks/queries/account/use-user-profile';
 import { useRefreshUnreadAlertCount } from '@/hooks/queries/alerts/use-alerts';
+import { useFeedLog } from '@/hooks/queries/feeding/use-feed-log';
 import { useHouseholdFeedTimes } from '@/hooks/queries/feeding/use-household-feed-times';
 import { useHouseholdOccurrences } from '@/hooks/queries/feeding/use-household-occurrences';
 import { useRefreshOccurrences } from '@/hooks/queries/feeding/use-occurrences';
@@ -46,7 +48,9 @@ const Home = () => {
   const [activeLogId, setActiveLogId] = useState<string | undefined>(undefined);
   const [activePetId, setActivePetId] = useState<string | undefined>(undefined);
   const [logPet, setLogPet] = useState<Pet | undefined>(undefined);
+  const { logId } = useLocalSearchParams<{ logId?: string }>();
   const styles = useStyles(makeStyles);
+  const router = useRouter();
 
   const { data: household } = useHousehold();
   const { data: households = [], isLoading: isLoadingHouseholds } = useHouseholds();
@@ -99,11 +103,36 @@ const Home = () => {
     }
   });
 
-  const openLog = (logId: string, petId: string) => {
-    setActiveLogId(logId);
+  const openLog = (openedLogId: string, petId: string) => {
+    setActiveLogId(openedLogId);
     setActivePetId(petId);
     void detailSheetRef.current?.present();
   };
+
+  const { data: deepLinkedLog } = useFeedLog(logId || undefined);
+
+  // Mirroring the resolved query result here, during render, rather than inside
+  // the effect below -- react-hooks flags a setState call synchronous with an
+  // effect body as a cascading-render risk. Comparing against activeLogId
+  // itself keeps this a one-shot assignment per resolved id rather than a loop.
+  //
+  // Gated on logId, which the effect clears as soon as the sheet is up. Home
+  // also has openLog, and without the gate a tap on a different occurrence row
+  // would make the ids differ again and snap the sheet back to the
+  // notification's log. Activity had no competing setter and did not need this.
+  if (logId && deepLinkedLog && deepLinkedLog.id !== activeLogId) {
+    setActiveLogId(deepLinkedLog.id);
+    setActivePetId(deepLinkedLog.petId);
+  }
+
+  useEffect(() => {
+    if (!logId || !deepLinkedLog) return;
+
+    void detailSheetRef.current?.present();
+    // Clearing the param immediately means back-navigation and a second tap on
+    // the same notification both behave.
+    router.setParams({ logId: '' });
+  }, [logId, deepLinkedLog, router]);
 
   const hasHousehold = households.length > 0;
   const hasPets = pets.length > 0;

@@ -70,8 +70,8 @@ A record that a pet was fed — who fed it (`logged_by`), when (`logged_at`, adj
 _Avoid_: Feed event, meal record, entry.
 
 **Activity**:
-A Pet's chronological history of Feed Logs. The word for this history, in both the product and the UI. It is not a Household-wide surface and does not own a tab — "when did Bailey last eat" is the question people ask, so the history is read per Pet.
-_Avoid_: **Feed** (reserved for the act of feeding — a Feed Log, a Missed Feed), timeline, stream, news feed. Naming this surface "the feed" invites the public social product PRODUCT_BRIEF still puts out of scope. Do not confuse Activity with the Posts tab: Activity is feeding history, the Posts tab holds Posts.
+A Pet's chronological history of Feed Logs. The word for this history, in both the product and the UI. It has no screen of its own: the screen that listed it was removed in CRU-124, because Home and the Pet's schedule card already answer "when did Bailey last eat" next to where the logging happens.
+_Avoid_: **Feed** (reserved for the act of feeding — a Feed Log, a Missed Feed), timeline, stream, news feed. Naming this history "the feed" invites the public social product PRODUCT_BRIEF still puts out of scope. Do not confuse Activity with the Posts tab: Activity is feeding history, the Posts tab holds Posts.
 
 **Grace Window**:
 How long an Occurrence may go unlogged before the household is nudged. A 60-minute window on a 18:00 dinner nudges at 19:00. Configured per household (default 60 minutes).
@@ -121,7 +121,7 @@ An Alert with no recipient. Every Member of the Household sees it — Posts, Mis
 An Alert with one named recipient. Only that person sees it — not the rest of the Household. Like Alerts and role changes are Addressed. Invites are meant to be, and that is the case being built towards: an invitee is not a Member yet, so nothing scoped to a Household can reach them.
 
 **Inbox**:
-The list of Alerts a Member can see, and the badge that counts the unread ones. Both are built from the same rule, so the badge can always be cleared by reading the list. It holds the **last seven days** — older Alerts are not shown, though nothing is deleted. See [ADR 0022](./docs/adr/0022-the-inbox-holds-the-last-seven-days.md). It leaves out Feed Logged Alerts, which have Activity and Home already; see [ADR 0023](./docs/adr/0023-feed-logs-are-delivered-but-not-listed.md).
+The list of Alerts a Member can see, and the badge that counts the unread ones. Both are built from the same rule, so the badge can always be cleared by reading the list. It holds the **last seven days** — older Alerts are not shown, though nothing is deleted. See [ADR 0022](./docs/adr/0022-the-inbox-holds-the-last-seven-days.md). It leaves out Feed Logged Alerts, which Home already carries; see [ADR 0023](./docs/adr/0023-feed-logs-are-delivered-but-not-listed.md).
 
 **Feed Due Alert**:
 The push that goes out shortly before a feed is due — "Crumpet's dinner is coming up". It reaches

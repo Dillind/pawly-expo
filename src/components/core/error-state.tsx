@@ -13,8 +13,8 @@ type Props = {
 };
 
 /**
- * Never let a failed query render as an empty list: an empty Activity and a
- * broken Activity must not look identical.
+ * Never let a failed query render as an empty list: an empty list and a broken
+ * one must not look identical.
  */
 const ErrorState = ({
   title = "Couldn't load this",

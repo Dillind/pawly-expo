@@ -17,6 +17,11 @@ A feed log already has two homes. Activity is the full feeding history grouped b
 today's state for each pet. The bell was a third place saying the same thing, and it buried the
 handful of events that have nowhere else to go.
 
+> **2026-09-08 (CRU-124):** Activity was removed, so a feed log now has one home rather than two.
+> The decision below is unchanged and, if anything, is now argued more strongly: the bell would be
+> a _second_ place saying what Home already says, and the events with nowhere else to go would
+> still be buried. Home carries today's state, and the Pet's schedule card carries the history.
+
 ## Decision
 
 The inbox does not list `feed_logged`. `list_alerts`, `unread_alert_count` and

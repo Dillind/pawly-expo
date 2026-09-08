@@ -141,7 +141,7 @@ const OccurrenceRow = ({
 
   // Only a logged row is tappable as a whole: it opens the log for correction.
   // An unlogged row's action is the Log button, and a row that is both tappable
-  // and holds a button is the ambiguous target FeedLogRow already warns about.
+  // and holds a button is an ambiguous target.
   if (isFed && onOpenLog) {
     return (
       <PressableOpacity

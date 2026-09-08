@@ -42,10 +42,9 @@ export function useRemovePet() {
   return useMutation<void, Error, string>({
     mutationFn: (petId) => PetService.remove(petId),
     onSettled: () => {
-      // Home and Activity both keep rendering a removed pet otherwise.
+      // Home keeps rendering a removed pet otherwise.
       void queryClient.invalidateQueries({ queryKey: ['households'], refetchType: 'all' });
       void queryClient.invalidateQueries({ queryKey: ['occurrences'], refetchType: 'all' });
-      void queryClient.invalidateQueries({ queryKey: ['feed-logs'], refetchType: 'all' });
     },
     onSuccess: () => showSuccessToast(SuccessMessage.PetRemoved),
     onError: (error) => {

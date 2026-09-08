@@ -9,14 +9,13 @@ import FeedLogService from '@/services/feed-log.service';
 /**
  * Every mutation invalidates the same two prefixes on settle. Prefix
  * invalidation catches every cached date without enumerating them, which
- * matters because Activity holds one occurrences entry per visible day.
+ * matters because Home holds one occurrences entry per visible day.
  */
 function useInvalidateFeedData(petId: string | undefined) {
   const queryClient = useQueryClient();
 
   return useCallback(() => {
     void queryClient.invalidateQueries({ queryKey: ['occurrences', petId] });
-    void queryClient.invalidateQueries({ queryKey: ['feed-logs', petId] });
     void queryClient.invalidateQueries({ queryKey: ['user-stats'] });
   }, [queryClient, petId]);
 }
@@ -50,7 +49,6 @@ export function useLogFeed() {
     // serves a Home screen holding several pets.
     onSettled: (_data, _error, variables) => {
       void queryClient.invalidateQueries({ queryKey: ['occurrences', variables.petId] });
-      void queryClient.invalidateQueries({ queryKey: ['feed-logs', variables.petId] });
       void queryClient.invalidateQueries({ queryKey: ['user-stats'] });
     }
   });

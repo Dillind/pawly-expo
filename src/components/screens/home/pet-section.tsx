@@ -111,7 +111,7 @@ const PetSection = ({
         style={[styles.card, createShadowMedium(theme.colors)]}
         layout={LinearTransition.duration(EXPAND_MS)}>
         {/* Siblings rather than nested: a tap target inside a tap target is
-          ambiguous, as written up on FeedLogRow's trailing cluster. */}
+          ambiguous. */}
         <View style={styles.headerRow}>
           <PressableOpacity
             style={styles.identity}

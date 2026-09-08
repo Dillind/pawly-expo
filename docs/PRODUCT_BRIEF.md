@@ -33,7 +33,7 @@ A pet owner who shares responsibility with at least one other person — partner
 - **Invite flow** — Owner generates a shareable, revocable, expiring invite link/code; invitee signs up and joins as a Contributor. See [ADR 0003](./adr/0003-invite-via-shareable-link.md).
 - **Push on feed logged** — "[Person] fed [Pet] at 2:34pm" to all household members instantly.
 - **Missed feed alert** — if no satisfying feed is logged within the grace window after a scheduled time, the whole household gets a nudge. Server-side via Edge Function cron. See [ADR 0002](./adr/0002-missed-feed-alert-engine.md).
-- **Activity feed / history** — chronological log of all feed events, visible to the whole household.
+- **Feeding history** — every feed event is recorded and visible to the whole household. It is read on Home and on the Pet, not on a screen of its own; the Activity screen was removed in CRU-124.
 - **Settings screen** — notification preferences, manage members, manage subscription (ready for v2), app icon changes, log out, delete account, request/vote on features (Canny), app info.
 - **Email/password auth** — simple and frictionless. No SSO in v1.
 - **Light and dark mode** — the theme already ships both palettes and follows the system setting (`userInterfaceStyle: automatic`).

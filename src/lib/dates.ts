@@ -94,7 +94,7 @@ export function yesterdayInTimezone(zone: string): string {
 /**
  * The calendar day a timestamp belongs to, in the household's timezone. Using
  * device-local time here would land a travelling member's feeds on the wrong
- * day in Activity.
+ * day.
  */
 export function dayInTimezone(isoTimestamp: string, zone: string): string {
   return formatDay(zonedParts(new Date(isoTimestamp), zone));
@@ -246,7 +246,7 @@ export function formatAlertTime(
   return then.format(then.year() === zonedParts(now, zone).year ? 'D MMM' : 'D MMM YYYY');
 }
 
-/** Activity's day headers: "Today", "Yesterday", then "23 July 2026". */
+/** Day headings in the feed log sheet: "Today", "Yesterday", then "23 July 2026". */
 export function formatDayHeading(day: string, zone: string): string {
   if (day === todayInTimezone(zone)) return 'Today';
   if (day === yesterdayInTimezone(zone)) return 'Yesterday';
