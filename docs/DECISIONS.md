@@ -35,6 +35,27 @@ the three `invalidateQueries({ queryKey: ['feed-logs'] })` calls left over were 
 `FeedLogService.listPage`, `FEED_LOGS_PAGE_SIZE` and `FeedLogsCursor` had the same single caller and
 went too.
 
+**A Username is how the app names a person, and a first name is only the fallback.** Two things
+needed it at once: the `@name` reply prefix wants something unique, which a first name is not, and
+a push that says one name on the lock screen and another when you tap it reads as a bug. So
+`formatAuthorName` and the Edge Function's `authorName` both resolve handle, then first name, then
+a generic word. The first name still wins in the Profile header and the Members list, where the
+reader wants a person rather than a handle.
+
+**A seeded handle never fails a signup.** `private.handle_new_user` writes
+`private.seed_username(first_name)` — the stripped, lowercased first name plus four random
+characters from a 36-symbol alphabet. There is deliberately no retry on collision. 36^4 is 1.7
+million combinations per stem, and a retry loop inside the signup transaction is a way to make
+signup slow or fail. A collision instead writes no handle at all, which is why `username` is
+nullable and why every caller has a fallback.
+
+**Availability is a Postgres function, not an Edge Function.** `public.username_available` is
+`SECURITY DEFINER` so a signed-out user on the signup form can ask. It is one round trip through
+the client that already exists and needs no deploy step. It returns a boolean and nothing else, so
+it confirms a guess rather than reading anyone's handle — which is what a unique namespace exposes
+anyway. The unique index on `lower(username)` is the real guard; the function only makes the answer
+arrive before the Member taps Save.
+
 ---
 
 ## 2026-09-03

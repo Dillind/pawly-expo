@@ -5,7 +5,7 @@ import type { FeedingScheduleLabel, FeedLog } from '@/types/core';
 // feed_logs.logged_by references public.users, so PostgREST can embed the
 // author directly. It is null when the author deleted their account.
 const FEED_LOG_SELECT =
-  'id, pet_id, logged_by, logged_at, notes, created_at, users(first_name, last_name)';
+  'id, pet_id, logged_by, logged_at, notes, created_at, users(first_name, last_name, username)';
 
 type FeedLogRow = {
   id: string;
@@ -14,7 +14,7 @@ type FeedLogRow = {
   logged_at: string;
   notes: string | null;
   created_at: string;
-  users: { first_name: string | null; last_name: string | null } | null;
+  users: { first_name: string | null; last_name: string | null; username: string | null } | null;
 };
 
 export type LogFeedResult =
@@ -33,7 +33,13 @@ function mapFeedLogRow(row: FeedLogRow): FeedLog {
     loggedAt: row.logged_at,
     notes: row.notes,
     createdAt: row.created_at,
-    author: row.users ? { firstName: row.users.first_name, lastName: row.users.last_name } : null
+    author: row.users
+      ? {
+          firstName: row.users.first_name,
+          lastName: row.users.last_name,
+          username: row.users.username
+        }
+      : null
   };
 }
 

@@ -6,6 +6,7 @@ export const COMMENT_MAX_LENGTH = 500;
 export type CommentAuthor = {
   firstName: string | null;
   lastName: string | null;
+  username: string | null;
   avatarUrl: string | null;
 };
 
@@ -28,14 +29,15 @@ export type PostComment = {
 
 const COMMENT_SELECT = `
   id, post_id, author_id, parent_comment_id, reply_to_user_id, body, created_at,
-  users!post_comments_author_id_fkey(first_name, last_name, avatar_url),
-  reply_to:users!post_comments_reply_to_user_id_fkey(first_name),
+  users!post_comments_author_id_fkey(first_name, last_name, username, avatar_url),
+  reply_to:users!post_comments_reply_to_user_id_fkey(first_name, username),
   comment_likes(user_id)
 `;
 
 type UserEmbed = {
   first_name: string | null;
   last_name: string | null;
+  username: string | null;
   avatar_url: string | null;
 };
 
@@ -48,7 +50,7 @@ type CommentRow = {
   body: string;
   created_at: string;
   users: UserEmbed | null;
-  reply_to: { first_name: string | null } | null;
+  reply_to: { first_name: string | null; username: string | null } | null;
   comment_likes: { user_id: string }[];
 };
 
@@ -61,12 +63,13 @@ function mapCommentRow(row: CommentRow, viewerId: string | null): PostComment {
       ? {
           firstName: row.users.first_name,
           lastName: row.users.last_name,
+          username: row.users.username,
           avatarUrl: row.users.avatar_url
         }
       : null,
     parentCommentId: row.parent_comment_id,
     replyToUserId: row.reply_to_user_id,
-    replyToName: row.reply_to?.first_name ?? null,
+    replyToName: row.reply_to?.username ?? row.reply_to?.first_name ?? null,
     body: row.body,
     createdAt: row.created_at,
     likeCount: row.comment_likes.length,

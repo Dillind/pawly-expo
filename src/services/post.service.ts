@@ -10,6 +10,7 @@ const BUCKET = 'post-photos';
 export type PostAuthor = {
   firstName: string | null;
   lastName: string | null;
+  username: string | null;
   avatarUrl: string | null;
 };
 
@@ -64,11 +65,11 @@ export type PostsCursor = { occurredAt: string; id: string };
 // member leaves the household, which only costs them access.
 const POST_SELECT = `
   id, household_id, author_id, title, caption, occurred_at, edited_at,
-  users!posts_author_id_fkey(first_name, last_name, avatar_url),
+  users!posts_author_id_fkey(first_name, last_name, username, avatar_url),
   post_photos(id, storage_path, sort_order),
   post_pets(pets(id, name, photo_url)),
   occasions(id, emoji, label),
-  post_likes(user_id, created_at, users(first_name, last_name, avatar_url)),
+  post_likes(user_id, created_at, users(first_name, last_name, username, avatar_url)),
   post_comments(count)
 `;
 
@@ -80,7 +81,12 @@ type PostRow = {
   caption: string | null;
   occurred_at: string;
   edited_at: string | null;
-  users: { first_name: string | null; last_name: string | null; avatar_url: string | null } | null;
+  users: {
+    first_name: string | null;
+    last_name: string | null;
+    username: string | null;
+    avatar_url: string | null;
+  } | null;
   post_photos: { id: string; storage_path: string; sort_order: number }[];
   post_pets: { pets: { id: string; name: string; photo_url: string | null } | null }[];
   occasions: { id: string; emoji: string | null; label: string | null } | null;
@@ -90,6 +96,7 @@ type PostRow = {
     users: {
       first_name: string | null;
       last_name: string | null;
+      username: string | null;
       avatar_url: string | null;
     } | null;
   }[];
@@ -108,6 +115,7 @@ function mapPostRow(row: PostRow, viewerId: string | null): Post {
       ? {
           firstName: row.users.first_name,
           lastName: row.users.last_name,
+          username: row.users.username,
           avatarUrl: row.users.avatar_url
         }
       : null,
@@ -136,6 +144,7 @@ function mapPostRow(row: PostRow, viewerId: string | null): Post {
       userId: like.user_id,
       firstName: like.users?.first_name ?? null,
       lastName: like.users?.last_name ?? null,
+      username: like.users?.username ?? null,
       avatarUrl: like.users?.avatar_url ?? null
     }))
   };

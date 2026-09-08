@@ -7,18 +7,24 @@ import { optionLabel } from '@/utils/options';
  * author. That is deliberate -- a cascade would erase a household's whole
  * feeding history the day a Contributor deletes their account.
  *
- * Both entry points below resolve to a first name. A household is a handful of
- * trusted people, so "Dylan fed Bailey" is how a member would say it, and the
- * compact occurrence row has no space for more. Every surface must agree: the
- * same feed log is rendered by the Home occurrence row and the log sheet, and
- * showing two different names for one person reads as a bug.
+ * Both entry points below resolve to the handle. A handle is unique, which a
+ * first name is not, and it is what the @name reply prefix and the push copy
+ * both read -- so every surface that names a person must agree, or the same
+ * feed log gets one name on the lock screen and another when you tap it.
+ *
+ * The first name is the fallback, not the preference. A handle is seeded at
+ * signup, but a collision writes none rather than failing the signup, so
+ * `username` can be null on a real account.
  */
 export function formatAuthorName(
-  author: { firstName: string | null; lastName: string | null } | null | undefined
+  author:
+    | { firstName: string | null; lastName: string | null; username?: string | null }
+    | null
+    | undefined
 ): string {
   if (!author) return 'Removed member';
 
-  return author.firstName ?? 'Member';
+  return author.username ?? author.firstName ?? 'Member';
 }
 
 /** Both names where there is room for both, e.g. the Profile header and Members list. */

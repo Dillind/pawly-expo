@@ -7,6 +7,7 @@ const members: HouseholdMember[] = [
     role: 'owner',
     firstName: 'Dylan',
     lastName: 'Lindsay',
+    username: 'dylan',
     avatarUrl: null,
     feedLoggedAlerts: true
   },
@@ -15,14 +16,23 @@ const members: HouseholdMember[] = [
     role: 'contributor',
     firstName: null,
     lastName: null,
+    username: null,
     avatarUrl: null,
     feedLoggedAlerts: false
   }
 ];
 
 describe('formatAuthorName', () => {
-  it('uses the first name', () => {
-    expect(formatAuthorName({ firstName: 'Dylan', lastName: 'Lindsay' })).toBe('Dylan');
+  it('uses the handle, not the first name', () => {
+    expect(
+      formatAuthorName({ firstName: 'Dylan', lastName: 'Lindsay', username: 'dylan4k2p' })
+    ).toBe('dylan4k2p');
+  });
+
+  it('falls back to the first name when a signup collision wrote no handle', () => {
+    expect(formatAuthorName({ firstName: 'Dylan', lastName: 'Lindsay', username: null })).toBe(
+      'Dylan'
+    );
   });
 
   it('says Removed member when the author is gone', () => {
@@ -31,14 +41,16 @@ describe('formatAuthorName', () => {
     expect(formatAuthorName(undefined)).toBe('Removed member');
   });
 
-  it('falls back to Member when the profile has no first name', () => {
-    expect(formatAuthorName({ firstName: null, lastName: 'Lindsay' })).toBe('Member');
+  it('falls back to Member when there is neither a handle nor a first name', () => {
+    expect(formatAuthorName({ firstName: null, lastName: 'Lindsay', username: null })).toBe(
+      'Member'
+    );
   });
 });
 
 describe('memberDisplayName', () => {
   it('resolves a household member by id', () => {
-    expect(memberDisplayName(members, 'u1')).toBe('Dylan');
+    expect(memberDisplayName(members, 'u1')).toBe('dylan');
     expect(memberDisplayName(members, 'u2')).toBe('Member');
   });
 

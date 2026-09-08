@@ -24,7 +24,7 @@ namespace UserService {
   export async function getProfile(userId: string): Promise<UserProfile> {
     const { data, error } = await supabase
       .from('users')
-      .select('id, first_name, last_name, avatar_url')
+      .select('id, first_name, last_name, username, avatar_url')
       .eq('id', userId)
       .single();
 
@@ -34,6 +34,7 @@ namespace UserService {
       id: data.id,
       firstName: data.first_name,
       lastName: data.last_name,
+      username: data.username,
       avatarUrl: data.avatar_url
     };
   }
@@ -61,6 +62,37 @@ namespace UserService {
    * Counts surviving rows. `feed_logs.logged_by` is `on delete set null`, so
    * this is not a lifetime tally -- it is what is still there.
    */
+  /**
+   * Free to take: not reserved, not already held. The unique index on
+   * `lower(username)` is the real guard -- this only exists so the answer
+   * arrives before the Member taps Save.
+   */
+  export async function isUsernameAvailable(candidate: string): Promise<boolean> {
+    const { data, error } = await supabase.rpc('username_available', { candidate });
+
+    if (error) throw error;
+
+    return data === true;
+  }
+
+  export async function updateUsername(userId: string, username: string) {
+    const { data, error } = await supabase
+      .from('users')
+      .update({ username })
+      .eq('id', userId)
+      .select('id');
+
+    // 23505 is unique_violation. Two people can pick the same free handle
+    // between the availability check and the write, so this is the message that
+    // has to be right -- not the check above.
+    if (error) {
+      if (error.code === '23505') throw new UserFacingError('That username is already taken');
+      throw error;
+    }
+
+    assertWrote(data, 'Your username could not be updated');
+  }
+
   export async function getStats(userId: string): Promise<UserStats> {
     const [feeds, posts] = await Promise.all([
       supabase

@@ -33,6 +33,11 @@ export default function ProfileLayout() {
           <Stack.Header transparent />
           <Stack.Screen.BackButton displayMode="minimal" />
         </Stack.Screen>
+        <Stack.Screen name="settings/username">
+          <Stack.Title style={HeaderTitleStyle}>Username</Stack.Title>
+          <Stack.Header transparent />
+          <Stack.Screen.BackButton displayMode="minimal" />
+        </Stack.Screen>
         <Stack.Screen name="settings/notifications">
           <Stack.Title style={HeaderTitleStyle}>Notifications</Stack.Title>
           <Stack.Header transparent />
