@@ -324,3 +324,18 @@ looks correct -- the only symptom is that tapping a future day does nothing at a
 will not take the date you are giving it, read the picker's bounds before you read the schema.
 
 The prop is now `bound`, which is `'past'` by default so no existing call site changed.
+
+## A hook that reads the active household is wrong on a screen you chose
+
+`useHouseholdMembers()` took no argument and resolved the active household through `useHousehold()`.
+That is right for Home and the pet screens, which follow the switcher. It is wrong for any screen
+reached by _choosing_ a household: tapping the second row in Profile → Settings opened a Members
+list for the first one, and nothing about the screen said so. The name in the header was correct,
+because that came from the route param; only the data was from somewhere else.
+
+It now takes an optional `householdId` and falls back to the active household. `useHouseholdById`
+exists for the same reason — a settings screen must never call `useHousehold()`.
+
+The general shape: a hook whose result depends on ambient state is safe only while the screen that
+reads it is also chosen by that state. The moment a route carries an id, every hook beneath it has
+to take that id, and the compiler cannot see the difference.

@@ -1,4 +1,4 @@
-import { Children, type ReactNode } from 'react';
+import { Children, isValidElement, type ReactNode } from 'react';
 import { StyleSheet, View } from 'react-native';
 
 import AppText from '@/components/core/app-text';
@@ -14,6 +14,9 @@ type Props = {
 
 const DEFAULT_DIVIDER_INSET = Spacing.three + 18 + Spacing.three;
 
+const isElement = (row: ReactNode): row is React.ReactElement =>
+  isValidElement(row) && row.key !== null;
+
 const SettingsSection = ({ title, dividerInset = DEFAULT_DIVIDER_INSET, children }: Props) => {
   const styles = useStyles(makeStyles);
   const rows = Children.toArray(children);
@@ -28,8 +31,11 @@ const SettingsSection = ({ title, dividerInset = DEFAULT_DIVIDER_INSET, children
 
       <View style={styles.card}>
         {rows.map((row, index) => (
-          // Index as key: section rows are a fixed literal list, never reordered.
-          <View key={index}>
+          // `Children.toArray` keys a child that carries its own key by it, and
+          // falls back to the position for a literal row. A section holding a
+          // list -- households, say -- has to give its rows keys, or a join or a
+          // leave reuses the wrong one.
+          <View key={isElement(row) ? row.key : index}>
             {index > 0 && <View style={[styles.divider, { marginLeft: dividerInset }]} />}
             {row}
           </View>

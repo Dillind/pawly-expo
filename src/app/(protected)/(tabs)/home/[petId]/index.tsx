@@ -31,7 +31,7 @@ const PetDetail = () => {
 
   const { data: pet, isLoading, isError, refetch } = usePetDetail(petId);
   const { data: household } = useHousehold();
-  const { data: members = [] } = useHouseholdMembers();
+  const { data: members = [] } = useHouseholdMembers(household?.id);
 
   const isOwner = household?.isOwner ?? false;
   const timezone = household?.timezone;

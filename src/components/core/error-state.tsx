@@ -9,7 +9,8 @@ import { useStyles } from '@/hooks/use-styles';
 type Props = {
   title?: string;
   description?: string;
-  onRetry: () => void;
+  /** Omit when retrying cannot help -- a household the user has left is gone. */
+  onRetry?: () => void;
 };
 
 /**
@@ -32,9 +33,11 @@ const ErrorState = ({
       <AppText size={14} color="textSecondary" align="center">
         {description}
       </AppText>
-      <View style={styles.action}>
-        <MainButton text="Retry" variant="text" onPress={onRetry} />
-      </View>
+      {onRetry && (
+        <View style={styles.action}>
+          <MainButton text="Retry" variant="text" onPress={onRetry} />
+        </View>
+      )}
     </View>
   );
 };

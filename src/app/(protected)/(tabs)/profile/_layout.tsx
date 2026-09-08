@@ -38,17 +38,25 @@ export default function ProfileLayout() {
           <Stack.Header transparent />
           <Stack.Screen.BackButton displayMode="minimal" />
         </Stack.Screen>
-        <Stack.Screen name="settings/notifications">
+        {/* Static, not the household's name: the screen shows the name in its
+            own identity block, and a data-driven title needs Stack.Title from
+            inside the screen, outside every early return. */}
+        <Stack.Screen name="household/[householdId]/index">
+          <Stack.Title style={HeaderTitleStyle}>Household</Stack.Title>
+          <Stack.Header transparent />
+          <Stack.Screen.BackButton displayMode="minimal" />
+        </Stack.Screen>
+        <Stack.Screen name="household/[householdId]/notifications">
           <Stack.Title style={HeaderTitleStyle}>Notifications</Stack.Title>
           <Stack.Header transparent />
           <Stack.Screen.BackButton displayMode="minimal" />
         </Stack.Screen>
-        <Stack.Screen name="settings/members">
+        <Stack.Screen name="household/[householdId]/members">
           <Stack.Title style={HeaderTitleStyle}>Members</Stack.Title>
           <Stack.Header transparent />
           <Stack.Screen.BackButton displayMode="minimal" />
         </Stack.Screen>
-        <Stack.Screen name="settings/invite">
+        <Stack.Screen name="household/[householdId]/invite">
           <Stack.Title style={HeaderTitleStyle}>Invite someone</Stack.Title>
           <Stack.Header transparent />
           <Stack.Screen.BackButton displayMode="minimal" />

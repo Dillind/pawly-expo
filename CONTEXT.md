@@ -85,6 +85,7 @@ _Avoid_: **Feed** (reserved for the act of feeding — a Feed Log, a Missed Feed
 How long an Occurrence may go unlogged before the household is nudged. A 60-minute window on a 18:00 dinner nudges at 19:00. Configured per household (default 60 minutes).
 
 It decides **how long the app waits after a feed time** before it nudges, and nothing else. The nudge that goes out _before_ a feed is governed by the Lead Time, a separate setting with a different owner — the Grace Window belongs to the Household, a Lead Time belongs to a Member. It used to also decide which Feed Time a log belonged to, and that second job is what made late logging confusing — see ADR 0029. The window is no longer symmetric, because it no longer identifies anything: an early log names its Feed Time like any other.
+The label a Member reads is **Feed timing**, in the household's own settings. "Grace Window" names the concept in code, migrations and ADRs; a person setting it is choosing how long the app waits, not configuring a window. Both roles see the value, because it decides when a Contributor is nudged.
 _Avoid_: Buffer, tolerance, timeout.
 
 **Satisfying Feed**:

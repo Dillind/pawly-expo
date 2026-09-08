@@ -18,7 +18,7 @@ import { ROLE_OPTIONS } from '@/constants/options';
 import { ROLE_INFO } from '@/constants/role-info';
 import { inviteSchema, type InviteInput } from '@/constants/schemas/invite';
 import { BottomTabInset, Radius, type AppTheme } from '@/constants/theme';
-import { useHousehold } from '@/hooks/queries/household/use-household';
+import { useHouseholdById } from '@/hooks/queries/household/use-household-by-id';
 import { useCreateInvite } from '@/hooks/queries/household/use-invites';
 import { useStyles } from '@/hooks/use-styles';
 
@@ -28,13 +28,17 @@ import { useStyles } from '@/hooks/use-styles';
  * help is an InfoSheet — presenting that from inside another sheet stacks a
  * sheet on a sheet, the iOS rough edge AGENTS.md warns about.
  */
-const InviteMember = () => {
+type Props = {
+  householdId: string;
+};
+
+const InviteMember = ({ householdId }: Props) => {
   const styles = useStyles(makeStyles);
   const infoSheetRef = useRef<TrueSheet | null>(null);
   const [code, setCode] = useState<string | undefined>(undefined);
 
-  const { data: household } = useHousehold();
-  const { mutate: createInvite, isPending: isSending } = useCreateInvite(household?.id);
+  const { data: household } = useHouseholdById(householdId);
+  const { mutate: createInvite, isPending: isSending } = useCreateInvite(householdId);
 
   const navigation = useNavigation();
 

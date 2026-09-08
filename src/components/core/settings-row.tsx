@@ -38,6 +38,8 @@ const SettingsRow = ({
   const isPressable = Boolean(onPress) && !isSoon && !isDisabled;
   const tone = isDestructive ? 'error' : isSoon ? 'textSecondary' : 'text';
 
+  const readingLabel = [label, isSoon ? 'coming soon' : value].filter(Boolean).join(', ');
+
   const body = (
     <View style={[styles.row, isDisabled && styles.disabled]}>
       <Icon name={icon} size={18} color={isDestructive ? 'error' : 'textSecondary'} />
@@ -67,10 +69,22 @@ const SettingsRow = ({
     </View>
   );
 
-  if (!isPressable) return body;
+  // Not a button, so it needs its own grouping: without this VoiceOver reads
+  // the label and the value as two unrelated stops, and a Contributor is never
+  // told the row is a value rather than a control.
+  if (!isPressable) {
+    return (
+      <View accessible accessibilityRole="text" accessibilityLabel={readingLabel}>
+        {body}
+      </View>
+    );
+  }
 
   return (
-    <PressableOpacity accessibilityRole="button" accessibilityLabel={label} onPress={onPress}>
+    <PressableOpacity
+      accessibilityRole="button"
+      accessibilityLabel={readingLabel}
+      onPress={onPress}>
       {body}
     </PressableOpacity>
   );

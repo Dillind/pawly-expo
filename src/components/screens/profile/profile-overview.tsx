@@ -42,7 +42,7 @@ const ProfileOverview = () => {
   const { data: profile } = useUserProfile();
   const { data: email } = useSessionEmail();
   const { data: household } = useHousehold();
-  const { data: members = [] } = useHouseholdMembers();
+  const { data: members = [] } = useHouseholdMembers(household?.id);
   const { data: households = [] } = useHouseholds();
 
   const { mutate: changePhoto, isPending: isChangingPhoto } = useChangeProfilePhoto();

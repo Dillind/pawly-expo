@@ -14,7 +14,7 @@ import ScreenScrollView from '@/components/layout/screen-scroll-view';
 import ScreenView from '@/components/layout/screen-view';
 import { DEFAULT_LEAD_MINUTES, FEED_DUE_LEAD_OPTIONS } from '@/constants/options';
 import { BottomTabInset, type AppTheme } from '@/constants/theme';
-import { useHousehold } from '@/hooks/queries/household/use-household';
+import { useHouseholdById } from '@/hooks/queries/household/use-household-by-id';
 import { useNotificationPreferences } from '@/hooks/queries/household/use-notification-preferences';
 import {
   NOTIFICATION_PERMISSION_QUERY_KEY,
@@ -32,15 +32,19 @@ import { optionLabel } from '@/utils/options';
  * When permission is denied the toggle is rendered disabled rather than hidden
  * -- hiding it would leave no explanation for why nothing arrives.
  */
-const NotificationSettings = () => {
+type Props = {
+  householdId: string;
+};
+
+const NotificationSettings = ({ householdId }: Props) => {
   const styles = useStyles(makeStyles);
-  const { data: household } = useHousehold();
+  const { data: household } = useHouseholdById(householdId);
   const {
     data: preferences,
     isLoading,
     setPreference,
     setLeadMinutes
-  } = useNotificationPreferences(household?.id);
+  } = useNotificationPreferences(householdId);
 
   const leadSheetRef = useRef<TrueSheet | null>(null);
 

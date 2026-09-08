@@ -697,3 +697,28 @@ block of every file was ordered by whoever last touched it.
 owns the order: built-ins, third party, `@/`, relative. The plugin's `<TYPES>` group was tried and
 dropped — it splits `import Tray, { useTray, type TrayStepDescriptor }` into two statements, which
 is the opposite of how this codebase already writes an inline type specifier.
+
+**Household settings are their own screen, one row per household.** Notifications, members and the
+household's own fields lived in a `Household` section on Profile → Settings, labelled with the
+active household. With one household nobody noticed. With several, a Member could silence one and
+believe she had silenced all of them.
+
+Profile now lists every household you are in, each row opening `household/[householdId]/`, which
+owns Members, Notifications, Name, Timezone and Feed timing. The scope axis decides where a setting
+lives: household-scoped settings sit inside the household, and personal settings that span
+households stay on Profile.
+
+**Nothing moved off the Members screen.** Roles, `Invite a member` and `Leave household` were
+already built there, with a last-owner guard that offers to hand the role over. The Household screen
+links to Members and repeats none of it — one home per control — and a caption says so, because a
+Members row with no invite beside it otherwise reads as a gap.
+
+**A Contributor reads the household's own fields rather than losing them.** `Name`, `Timezone` and
+`Feed timing` used to render for an owner only. Absence explains nothing, and Feed timing decides
+when a Contributor is nudged. The three rows now render for everyone; without an Owner's role they
+carry the value, no chevron and no tap, under "Only an Owner can change these". This is the first
+place in the app where the two roles look different.
+
+**The household row leads with the role, not the pets.** `Contributor · Crumpet, Brownie, Toby`,
+not the reverse. Three pet names push the role past the right edge on a 6.3-inch screen, and the
+role is the half that decides what the next screen lets you do.

@@ -15,7 +15,7 @@ import UserAvatar from '@/components/core/user-avatar';
 import ScreenScrollView from '@/components/layout/screen-scroll-view';
 import ScreenView from '@/components/layout/screen-view';
 import { BottomTabInset, Spacing, type AppTheme } from '@/constants/theme';
-import { useHousehold } from '@/hooks/queries/household/use-household';
+import { useHouseholdById } from '@/hooks/queries/household/use-household-by-id';
 import { useHouseholdMembers } from '@/hooks/queries/household/use-household-members';
 import { usePendingInvites, useRevokeInvite } from '@/hooks/queries/household/use-invites';
 import {
@@ -31,7 +31,11 @@ import { fullName, roleLabel } from '@/utils/members';
 
 const AVATAR_SIZE = 36;
 
-const MembersList = () => {
+type Props = {
+  householdId: string;
+};
+
+const MembersList = ({ householdId }: Props) => {
   const styles = useStyles(makeStyles);
   const router = useRouter();
   const actionsSheetRef = useRef<TrueSheet | null>(null);
@@ -40,10 +44,9 @@ const MembersList = () => {
   const [activeInvite, setActiveInvite] = useState<PendingInvite | undefined>(undefined);
 
   const { userId } = useAuthStore();
-  const { data: household } = useHousehold();
-  const { data: members = [], isLoading, isError, refetch } = useHouseholdMembers();
+  const { data: household } = useHouseholdById(householdId);
+  const { data: members = [], isLoading, isError, refetch } = useHouseholdMembers(householdId);
 
-  const householdId = household?.id;
   const isOwnerOfHousehold = household?.isOwner ?? false;
   const { mutate: setMemberRole } = useSetMemberRole(householdId);
   const { mutate: removeMember } = useRemoveMember(householdId);
@@ -119,7 +122,18 @@ const MembersList = () => {
 
     Alert.alert(`Leave ${household?.name ?? 'this household'}?`, 'You lose access to its pets.', [
       { text: 'Cancel', style: 'cancel', isPreferred: true },
-      { text: 'Leave', style: 'destructive', onPress: () => leaveHousehold() }
+      {
+        text: 'Leave',
+        style: 'destructive',
+        // The hook cannot navigate, and this screen sits under the household
+        // the user has just left -- popping back would land on it.
+        onPress: () =>
+          leaveHousehold(undefined, {
+            onSuccess: (status) => {
+              if (status === 'left') router.dismissTo('/profile/settings');
+            }
+          })
+      }
     ]);
   };
 
@@ -228,7 +242,7 @@ const MembersList = () => {
             <SettingsRow
               icon="userPlus"
               label="Invite a member"
-              onPress={() => router.push('/profile/settings/invite')}
+              onPress={() => router.push(`/profile/household/${householdId}/invite`)}
             />
           </SettingsSection>
         )}
