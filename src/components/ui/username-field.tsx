@@ -53,13 +53,15 @@ const UsernameField = ({
   // Only ask about a handle the schema already accepts. Asking about "ab" would
   // come back unavailable and read as taken, which is a different problem.
   const candidate = isWellFormed && !isUnchanged ? settled : undefined;
-  const { data: isAvailable, isLoading: isChecking } = useUsernameAvailable(candidate);
+  const { data: isAvailable, isLoading } = useUsernameAvailable(candidate);
 
-  const isChecked = Boolean(candidate) && !isTyping && !isChecking;
-  const isFree = isChecked && isAvailable === true;
-  const isTaken = isChecked && isAvailable === false;
+  const isChecking = isTyping || (Boolean(candidate) && isLoading);
+  const isFree = !isChecking && isAvailable === true;
+  const isTaken = !isChecking && Boolean(candidate) && isAvailable === false;
 
-  const wantsSuggestions = Boolean(settled) && !isTyping && (isTaken || isReserved);
+  // A reserved word never reaches the availability check -- the schema rejects
+  // it first -- so it has to ask for alternatives on its own.
+  const wantsSuggestions = !isTyping && (isTaken || isReserved);
   const { data: suggestions = [] } = useUsernameSuggestions(wantsSuggestions ? settled : undefined);
 
   useEffect(() => {
@@ -82,7 +84,7 @@ const UsernameField = ({
 
   const status = (() => {
     if (!settled || isUnchanged) return null;
-    if (isTyping || (Boolean(candidate) && isChecking)) return 'checking' as const;
+    if (isChecking) return 'checking' as const;
     if (isFree) return 'free' as const;
     if (isTaken || isReserved) return 'rejected' as const;
 
@@ -149,6 +151,8 @@ const makeStyles = ({ spacing }: AppTheme) =>
       gap: spacing.two
     },
     statusIcon: {
+      // 12 rather than a spacing token, to sit the icon on the same inset as
+      // the field's own text.
       paddingRight: 12
     },
     suggestions: {
