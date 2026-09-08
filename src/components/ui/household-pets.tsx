@@ -1,7 +1,8 @@
+import { useCallback } from 'react';
 import { StyleSheet, View } from 'react-native';
 
 import PetAvatar from '@/components/core/pet-avatar';
-import { Radius, type AppTheme } from '@/constants/theme';
+import { Radius, type AppTheme, type ThemeColor } from '@/constants/theme';
 import { useStyles } from '@/hooks/use-styles';
 import type { Pet } from '@/types/core';
 
@@ -11,6 +12,8 @@ const SHOWN = 3;
 type Props = {
   pets: Pet[];
   hasUnseenPosts?: boolean;
+  /** The surface behind the stack. The overlap ring has to match it. */
+  ringColor?: ThemeColor;
 };
 
 /**
@@ -18,8 +21,14 @@ type Props = {
  * `<Name>'s Household`, so the name alone may not tell two apart -- a member
  * always recognises her own dog.
  */
-const HouseholdPets = ({ pets, hasUnseenPosts = false }: Props) => {
-  const styles = useStyles(makeStyles);
+const HouseholdPets = ({
+  pets,
+  hasUnseenPosts = false,
+  ringColor = 'backgroundSheetRow'
+}: Props) => {
+  const styles = useStyles(
+    useCallback((theme: AppTheme) => makeStyles(theme, ringColor), [ringColor])
+  );
 
   return (
     <View style={styles.stack}>
@@ -36,7 +45,7 @@ const HouseholdPets = ({ pets, hasUnseenPosts = false }: Props) => {
   );
 };
 
-const makeStyles = ({ colors }: AppTheme) =>
+const makeStyles = ({ colors }: AppTheme, ringColor: ThemeColor) =>
   StyleSheet.create({
     stack: {
       flexDirection: 'row',
@@ -48,7 +57,7 @@ const makeStyles = ({ colors }: AppTheme) =>
       marginLeft: -AVATAR_SIZE / 3,
       borderRadius: Radius.full,
       borderWidth: 2,
-      borderColor: colors.backgroundSheetRow
+      borderColor: colors[ringColor]
     },
     dot: {
       width: 10,

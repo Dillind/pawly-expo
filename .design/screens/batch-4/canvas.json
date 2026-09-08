@@ -1,0 +1,70 @@
+{
+  "artboards": [
+    {
+      "file": "Main.dc.html",
+      "x": 0,
+      "y": 0,
+      "w": 390,
+      "h": 1040,
+      "title": "1 \u00b7 Settings, personal only"
+    },
+    {
+      "file": "Household.dc.html",
+      "x": 490,
+      "y": 0,
+      "w": 390,
+      "h": 720,
+      "title": "2 \u00b7 Household settings, Owner"
+    },
+    {
+      "file": "Contributor.dc.html",
+      "x": 980,
+      "y": 0,
+      "w": 390,
+      "h": 780,
+      "title": "3 \u00b7 Household settings, Contributor"
+    },
+    {
+      "file": "Notifications.dc.html",
+      "x": 1470,
+      "y": 0,
+      "w": 390,
+      "h": 840,
+      "title": "4 \u00b7 Notifications, per household"
+    },
+    {
+      "file": "Leave.dc.html",
+      "x": 1960,
+      "y": 0,
+      "w": 390,
+      "h": 1000,
+      "title": "5 \u00b7 Leave household, on Members"
+    }
+  ],
+  "annotations": [
+    {
+      "id": "scope-rule",
+      "x": 0,
+      "y": -150,
+      "w": 880,
+      "text": "CRU-038 \u2014 the scope axis.\nHousehold-scoped: pets, feeds, members, alert preferences.\nPersonal, spans households: account, appearance, the notification inbox.\nThe alert toggles are on the wrong side of that line today."
+    },
+    {
+      "id": "role-split",
+      "x": 980,
+      "y": -150,
+      "w": 390,
+      "text": "Artboard 3 is the first place in the app where owner and contributor look different. Values still show; only the chevron and the tap go.\n\nPeople is one row. Roles, invites and Leave household are already built on the Members screen and stay there."
+    },
+    {
+      "id": "notif-note",
+      "x": 1470,
+      "y": -150,
+      "w": 880,
+      "text": "Artboard 4 is the screen as it is built today, moved and re-titled. Five toggles across three sections, and it already names the household. Only the Everywhere row is new."
+    }
+  ],
+  "launch": {
+    "view": "canvas"
+  }
+}

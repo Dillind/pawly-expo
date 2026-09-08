@@ -5,14 +5,19 @@ import HouseholdService from '@/services/household.service';
 
 const FIVE_MINUTES_MS = 5 * 60_000;
 
-export function useHouseholdMembers() {
+/**
+ * Pass a `householdId` on any screen the user reached by choosing a household,
+ * rather than by being in it. The active household is only the right answer for
+ * Home and the pet screens, which follow the switcher.
+ */
+export function useHouseholdMembers(householdId?: string) {
   const { data: household } = useHousehold();
-  const householdId = household?.id;
+  const id = householdId ?? household?.id;
 
   return useQuery({
-    queryKey: ['household-members', householdId],
-    queryFn: () => HouseholdService.listMembers(householdId as string),
-    enabled: Boolean(householdId),
+    queryKey: ['household-members', id],
+    queryFn: () => HouseholdService.listMembers(id as string),
+    enabled: Boolean(id),
     // Membership changes go through mutations that invalidate this key.
     staleTime: FIVE_MINUTES_MS
   });

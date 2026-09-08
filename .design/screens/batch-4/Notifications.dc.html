@@ -1,0 +1,134 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gabarito:wght@600;700&family=Inter:wght@400;500;600;700&display=swap">
+<style>
+body { margin: 0; background: #FBFAF8; font-family: 'Inter', -apple-system, system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
+a { color: #8F5A03; } a:hover { color: #1C1815; }
+</style>
+</helmet>
+<div style="width:390px;height:840px;background:#FBFAF8;box-sizing:border-box;display:flex;flex-direction:column;overflow:hidden;position:relative">
+
+<div style="display:flex;align-items:center;height:44px;padding:0 8px;flex:none">
+<div style="display:flex;align-items:center;gap:2px;width:120px">
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#8F5A03" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" style="display:block;flex:none"><path d="m15 18-6-6 6-6"/></svg>
+<span style="font:400 17px/1 'Inter', -apple-system, system-ui, sans-serif;color:#8F5A03">Household</span>
+</div>
+<span style="flex:1;text-align:center;font:700 18px/1 -apple-system, 'SF Pro Text', system-ui, sans-serif;color:#1C1815">Notifications</span>
+<div style="width:120px"></div>
+</div>
+
+<div style="flex:1;display:flex;flex-direction:column;gap:24px;padding:24px;box-sizing:border-box">
+
+<span style="font:400 14px/1.4 'Inter', -apple-system, system-ui, sans-serif;color:#746A60">What The Nguyen Household will and won't send you. Each household you belong to has its own settings.</span>
+
+<div style="display:flex;flex-direction:column;gap:8px">
+<span style="font:400 13px/1.3 'Inter', -apple-system, system-ui, sans-serif;color:#746A60;padding-left:4px">Feeds</span>
+<div style="background:#FFFFFF;border-radius:12px;padding:4px 0;display:flex;flex-direction:column;overflow:hidden">
+
+<div style="display:flex;align-items:center;gap:8px;padding:8px 16px">
+<div style="flex:1;display:flex;flex-direction:column;gap:2px;min-width:0">
+<span style="font:700 14px/1.3 'Inter', -apple-system, system-ui, sans-serif;color:#1C1815">Feed Due Alerts</span>
+<span style="font:400 13px/1.3 'Inter', -apple-system, system-ui, sans-serif;color:#746A60">Know before a feed is due</span>
+</div>
+<div style="width:51px;height:31px;border-radius:100px;background:#F0A81C;display:flex;align-items:center;justify-content:flex-end;padding:0 2px;box-sizing:border-box;flex:none"><div style="width:27px;height:27px;border-radius:100px;background:#FFFFFF;box-shadow:0 3px 8px rgba(74,58,38,0.15), 0 1px 1px rgba(74,58,38,0.16)"></div></div>
+</div>
+
+<div style="height:0.5px;background:#FBFAF8;margin-left:50px"></div>
+<div style="display:flex;align-items:center;gap:16px;height:44px;padding:0 16px">
+<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#746A60" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:block;flex:none"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+<span style="flex:1;font:400 16px/1.3 'Inter', -apple-system, system-ui, sans-serif;color:#1C1815">Nudge me before</span>
+<span style="font:400 14px/1.3 'Inter', -apple-system, system-ui, sans-serif;color:#746A60">30 minutes</span>
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#746A60" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:block;flex:none"><path d="m9 18 6-6-6-6"/></svg>
+</div>
+<div style="height:0.5px;background:#FBFAF8;margin-left:50px"></div>
+
+<div style="display:flex;align-items:center;gap:8px;padding:8px 16px">
+<div style="flex:1;display:flex;flex-direction:column;gap:2px;min-width:0">
+<span style="font:700 14px/1.3 'Inter', -apple-system, system-ui, sans-serif;color:#1C1815">Missed Feed Alerts</span>
+<span style="font:400 13px/1.3 'Inter', -apple-system, system-ui, sans-serif;color:#746A60">Know when a feed goes unlogged</span>
+</div>
+<div style="width:51px;height:31px;border-radius:100px;background:#F0A81C;display:flex;align-items:center;justify-content:flex-end;padding:0 2px;box-sizing:border-box;flex:none"><div style="width:27px;height:27px;border-radius:100px;background:#FFFFFF;box-shadow:0 3px 8px rgba(74,58,38,0.15), 0 1px 1px rgba(74,58,38,0.16)"></div></div>
+</div>
+
+<div style="height:0.5px;background:#FBFAF8;margin-left:50px"></div>
+
+<div style="display:flex;align-items:center;gap:8px;padding:8px 16px">
+<div style="flex:1;display:flex;flex-direction:column;gap:2px;min-width:0">
+<span style="font:700 14px/1.3 'Inter', -apple-system, system-ui, sans-serif;color:#1C1815">Feed Logged Alerts</span>
+<span style="font:400 13px/1.3 'Inter', -apple-system, system-ui, sans-serif;color:#746A60">Know when someone feeds a pet</span>
+</div>
+<div style="width:51px;height:31px;border-radius:100px;background:#E3DED6;display:flex;align-items:center;justify-content:flex-start;padding:0 2px;box-sizing:border-box;flex:none"><div style="width:27px;height:27px;border-radius:100px;background:#FFFFFF;box-shadow:0 3px 8px rgba(74,58,38,0.15), 0 1px 1px rgba(74,58,38,0.16)"></div></div>
+</div>
+
+</div>
+</div>
+
+<div style="display:flex;flex-direction:column;gap:8px">
+<span style="font:400 13px/1.3 'Inter', -apple-system, system-ui, sans-serif;color:#746A60;padding-left:4px">Reminders</span>
+<div style="background:#FFFFFF;border-radius:12px;padding:4px 0;display:flex;flex-direction:column;overflow:hidden">
+<div style="display:flex;align-items:center;gap:8px;padding:8px 16px">
+<div style="flex:1;display:flex;flex-direction:column;gap:2px;min-width:0">
+<span style="font:700 14px/1.3 'Inter', -apple-system, system-ui, sans-serif;color:#1C1815">Reminder Alerts</span>
+<span style="font:400 13px/1.3 'Inter', -apple-system, system-ui, sans-serif;color:#746A60">Know before a worming tablet or a vet visit is due</span>
+</div>
+<div style="width:51px;height:31px;border-radius:100px;background:#F0A81C;display:flex;align-items:center;justify-content:flex-end;padding:0 2px;box-sizing:border-box;flex:none"><div style="width:27px;height:27px;border-radius:100px;background:#FFFFFF;box-shadow:0 3px 8px rgba(74,58,38,0.15), 0 1px 1px rgba(74,58,38,0.16)"></div></div>
+</div>
+</div>
+</div>
+
+<div style="display:flex;flex-direction:column;gap:8px">
+<span style="font:400 13px/1.3 'Inter', -apple-system, system-ui, sans-serif;color:#746A60;padding-left:4px">Posts</span>
+<div style="background:#FFFFFF;border-radius:12px;padding:4px 0;display:flex;flex-direction:column;overflow:hidden">
+<div style="display:flex;align-items:center;gap:8px;padding:8px 16px">
+<div style="flex:1;display:flex;flex-direction:column;gap:2px;min-width:0">
+<span style="font:700 14px/1.3 'Inter', -apple-system, system-ui, sans-serif;color:#1C1815">Post Alerts</span>
+<span style="font:400 13px/1.3 'Inter', -apple-system, system-ui, sans-serif;color:#746A60">Know when someone shares a photo</span>
+</div>
+<div style="width:51px;height:31px;border-radius:100px;background:#E3DED6;display:flex;align-items:center;justify-content:flex-start;padding:0 2px;box-sizing:border-box;flex:none"><div style="width:27px;height:27px;border-radius:100px;background:#FFFFFF;box-shadow:0 3px 8px rgba(74,58,38,0.15), 0 1px 1px rgba(74,58,38,0.16)"></div></div>
+</div>
+</div>
+</div>
+
+<div style="display:flex;flex-direction:column;gap:8px">
+<span style="font:400 13px/1.3 'Inter', -apple-system, system-ui, sans-serif;color:#746A60;padding-left:4px">Everywhere</span>
+<div style="background:#FFFFFF;border-radius:12px;padding:4px 0;display:flex;flex-direction:column;overflow:hidden">
+<div style="display:flex;align-items:center;gap:16px;height:56px;padding:0 16px">
+<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#746A60" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:block;flex:none"><path d="M22 12h-6l-2 3h-4l-2-3H2"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11"/></svg>
+<div style="flex:1;display:flex;flex-direction:column;gap:2px;min-width:0">
+<span style="font:400 16px/1.2 'Inter', -apple-system, system-ui, sans-serif;color:#1C1815">Your inbox</span>
+<span style="font:400 13px/1.2 'Inter', -apple-system, system-ui, sans-serif;color:#746A60">Every household you are in</span>
+</div>
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#746A60" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:block;flex:none"><path d="m9 18 6-6-6-6"/></svg>
+</div>
+</div>
+<span style="font:400 13px/1.35 'Inter', -apple-system, system-ui, sans-serif;color:#746A60;padding:0 4px">The inbox is personal and spans households. It is linked from here, not moved here.</span>
+</div>
+
+</div>
+
+<div style="position:absolute;left:0;right:0;bottom:0;height:84px;background:rgba(255,255,255,0.78);backdrop-filter:blur(24px) saturate(180%);-webkit-backdrop-filter:blur(24px) saturate(180%);border-top:0.5px solid rgba(58,48,38,0.10);display:flex;align-items:flex-start;padding-top:10px">
+<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px">
+<svg width="25" height="25" viewBox="0 0 24 24" fill="#746A60" style="display:block"><path d="M3 10.2 12 3l9 7.2V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg>
+<span style="font:500 10px/1 -apple-system, 'SF Pro Text', system-ui, sans-serif;color:#746A60">Home</span>
+</div>
+<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px">
+<svg width="25" height="25" viewBox="0 0 24 24" fill="#746A60" style="display:block"><path d="M7 4h13a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z"/><path d="M2 8v10a2 2 0 0 0 2 2h14v1H4a3 3 0 0 1-3-3V8z"/></svg>
+<span style="font:500 10px/1 -apple-system, 'SF Pro Text', system-ui, sans-serif;color:#746A60">Posts</span>
+</div>
+<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px">
+<svg width="25" height="25" viewBox="0 0 24 24" fill="#F0A81C" style="display:block"><circle cx="12" cy="7.5" r="4.5"/><path d="M3.5 21a8.5 8.5 0 0 1 17 0z"/></svg>
+<span style="font:600 10px/1 -apple-system, 'SF Pro Text', system-ui, sans-serif;color:#F0A81C">Profile</span>
+</div>
+</div>
+
+</div>
+</x-dc>
+</body>
+</html>
