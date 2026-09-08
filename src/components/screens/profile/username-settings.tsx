@@ -33,6 +33,7 @@ const UsernameSettings = () => {
     <ScreenView edges={[]}>
       <ScreenScrollView
         contentContainerStyle={styles.content}
+        keyboardShouldPersistTaps="handled"
         contentInsetAdjustmentBehavior="automatic">
         <FormProvider {...form}>
           <UsernameField
