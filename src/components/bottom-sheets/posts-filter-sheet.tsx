@@ -33,8 +33,10 @@ const PostsFilterSheet = ({ sheetRef, scope, households, hasFollowed, onSelect }
     void sheetRef.current?.dismiss();
   };
 
+  // 'auto' alone: `scrollable` makes the content fill its detent, and this
+  // sheet is three rows plus however many households a person is in.
   return (
-    <BaseSheet sheetRef={sheetRef} title="Show" detents={['auto', 0.6]} scrollable>
+    <BaseSheet sheetRef={sheetRef} title="Show" detents={['auto']}>
       <View style={styles.rows}>
         <SheetRow
           label="Everything"

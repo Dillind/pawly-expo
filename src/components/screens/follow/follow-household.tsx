@@ -62,26 +62,6 @@ const FollowHousehold = ({ householdId }: Props) => {
     ]);
   };
 
-  if (isLoading) {
-    return (
-      <ScreenView edges={[]}>
-        <ActivityIndicator style={styles.loading} />
-      </ScreenView>
-    );
-  }
-
-  if (isError || !preview || preview.status === 'not_found') {
-    return (
-      <ScreenView edges={[]}>
-        <ErrorState
-          title="Couldn't find that household"
-          description="The link may be wrong, or the household may have gone."
-          onRetry={() => void refetch()}
-        />
-      </ScreenView>
-    );
-  }
-
   const openPet = (pet: FollowPreviewPet) =>
     router.push({
       pathname: '/follow/[householdId]/pet/[petId]',
@@ -122,6 +102,8 @@ const FollowHousehold = ({ householdId }: Props) => {
   const photos = posts.flatMap((post) => post.photos).slice(0, 6);
 
   const renderAction = () => {
+    if (!preview) return null;
+
     if (preview.status === 'member') {
       return (
         <AppText size={13} color="textSecondary" align="center">
@@ -179,11 +161,23 @@ const FollowHousehold = ({ householdId }: Props) => {
     );
   };
 
-  return (
-    <ScreenView edges={[]}>
-      <ScreenScrollView
-        contentContainerStyle={styles.content}
-        contentInsetAdjustmentBehavior="automatic">
+  // Every state renders inside the same scroll view. A bare ScreenView under a
+  // transparent header draws its content beneath the navigation bar.
+  const renderBody = () => {
+    if (isLoading) return <ActivityIndicator style={styles.loading} />;
+
+    if (isError || !preview || preview.status === 'not_found') {
+      return (
+        <ErrorState
+          title="Couldn't find that household"
+          description="The link may be wrong, or the household may have gone."
+          onRetry={() => void refetch()}
+        />
+      );
+    }
+
+    return (
+      <>
         <View style={styles.crest}>
           <View style={styles.crestCircle}>
             <Icon name="pawPrint" size={36} color="textSecondary" />
@@ -245,6 +239,16 @@ const FollowHousehold = ({ householdId }: Props) => {
             </View>
           )}
         </View>
+      </>
+    );
+  };
+
+  return (
+    <ScreenView edges={[]}>
+      <ScreenScrollView
+        contentContainerStyle={styles.content}
+        contentInsetAdjustmentBehavior="automatic">
+        {renderBody()}
       </ScreenScrollView>
     </ScreenView>
   );

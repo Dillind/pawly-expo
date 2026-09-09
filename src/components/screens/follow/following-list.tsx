@@ -27,70 +27,66 @@ const FollowingList = () => {
 
   const { data: following = [], isLoading, isError, refetch } = useFollowing();
 
-  if (isLoading) {
-    return (
-      <ScreenView edges={[]}>
-        <ActivityIndicator style={styles.loading} />
-      </ScreenView>
-    );
-  }
+  // Every state renders inside the same scroll view. A bare ScreenView under a
+  // transparent header draws its content beneath the navigation bar.
+  const renderBody = () => {
+    if (isLoading) return <ActivityIndicator style={styles.loading} />;
 
-  if (isError) {
-    return (
-      <ScreenView edges={[]}>
-        <ErrorState title="Couldn't load who you follow" onRetry={() => void refetch()} />
-      </ScreenView>
+    if (isError) {
+      return <ErrorState title="Couldn't load who you follow" onRetry={() => void refetch()} />;
+    }
+
+    return following.length === 0 ? (
+      <EmptyState
+        icon="users"
+        title="You follow nobody yet"
+        description="Someone has to send you their follow link. There is no search — every household here is private."
+      />
+    ) : (
+      <SettingsSection
+        title="Households you follow"
+        dividerInset={Spacing.three + CREST + Spacing.three}>
+        {following.map((household) => (
+          <PressableOpacity
+            key={household.householdId}
+            accessibilityRole="button"
+            accessibilityLabel={`Open ${household.name}`}
+            onPress={() =>
+              router.push({
+                pathname: '/follow/[householdId]',
+                params: { householdId: household.householdId }
+              })
+            }>
+            <View style={styles.row}>
+              <View style={styles.crest}>
+                <Icon name="pawPrint" size={18} color="textSecondary" />
+              </View>
+              <View style={styles.rowText}>
+                <AppText size={16} numberOfLines={1}>
+                  {household.name}
+                </AppText>
+                <AppText size={13} color="textSecondary">
+                  {household.status === 'pending'
+                    ? 'Waiting to be accepted'
+                    : petCountText(household.petCount)}
+                </AppText>
+              </View>
+              {household.status === 'accepted' && (
+                <Icon name="caretRight" size={16} color="textSecondary" />
+              )}
+            </View>
+          </PressableOpacity>
+        ))}
+      </SettingsSection>
     );
-  }
+  };
 
   return (
     <ScreenView edges={[]}>
       <ScreenScrollView
         contentContainerStyle={styles.content}
         contentInsetAdjustmentBehavior="automatic">
-        {following.length === 0 ? (
-          <EmptyState
-            icon="users"
-            title="You follow nobody yet"
-            description="Someone has to send you their follow link. There is no search — every household here is private."
-          />
-        ) : (
-          <SettingsSection
-            title="Households you follow"
-            dividerInset={Spacing.three + CREST + Spacing.three}>
-            {following.map((household) => (
-              <PressableOpacity
-                key={household.householdId}
-                accessibilityRole="button"
-                accessibilityLabel={`Open ${household.name}`}
-                onPress={() =>
-                  router.push({
-                    pathname: '/follow/[householdId]',
-                    params: { householdId: household.householdId }
-                  })
-                }>
-                <View style={styles.row}>
-                  <View style={styles.crest}>
-                    <Icon name="pawPrint" size={18} color="textSecondary" />
-                  </View>
-                  <View style={styles.rowText}>
-                    <AppText size={16} numberOfLines={1}>
-                      {household.name}
-                    </AppText>
-                    <AppText size={13} color="textSecondary">
-                      {household.status === 'pending'
-                        ? 'Waiting to be accepted'
-                        : petCountText(household.petCount)}
-                    </AppText>
-                  </View>
-                  {household.status === 'accepted' && (
-                    <Icon name="caretRight" size={16} color="textSecondary" />
-                  )}
-                </View>
-              </PressableOpacity>
-            ))}
-          </SettingsSection>
-        )}
+        {renderBody()}
       </ScreenScrollView>
     </ScreenView>
   );

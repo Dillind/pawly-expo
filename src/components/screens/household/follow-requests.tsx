@@ -35,27 +35,17 @@ const FollowRequests = ({ householdId }: Props) => {
 
   const timezone = household?.timezone ?? 'UTC';
 
-  if (isLoading) {
-    return (
-      <ScreenView edges={[]}>
-        <ActivityIndicator style={styles.loading} />
-      </ScreenView>
-    );
-  }
+  // Every state renders inside the same scroll view. A bare ScreenView under a
+  // transparent header draws its content beneath the navigation bar.
+  const renderBody = () => {
+    if (isLoading) return <ActivityIndicator style={styles.loading} />;
 
-  if (isError) {
-    return (
-      <ScreenView edges={[]}>
-        <ErrorState title="Couldn't load your requests" onRetry={() => void refetch()} />
-      </ScreenView>
-    );
-  }
+    if (isError) {
+      return <ErrorState title="Couldn't load your requests" onRetry={() => void refetch()} />;
+    }
 
-  return (
-    <ScreenView edges={[]}>
-      <ScreenScrollView
-        contentContainerStyle={styles.content}
-        contentInsetAdjustmentBehavior="automatic">
+    return (
+      <>
         <AppText size={14} color="textSecondary">
           A follower reads your posts and pet profiles, and can like and comment. They never see
           feeds, reminders or the Care Card.
@@ -114,6 +104,16 @@ const FollowRequests = ({ householdId }: Props) => {
             );
           })
         )}
+      </>
+    );
+  };
+
+  return (
+    <ScreenView edges={[]}>
+      <ScreenScrollView
+        contentContainerStyle={styles.content}
+        contentInsetAdjustmentBehavior="automatic">
+        {renderBody()}
       </ScreenScrollView>
     </ScreenView>
   );

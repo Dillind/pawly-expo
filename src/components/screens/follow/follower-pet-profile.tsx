@@ -39,30 +39,20 @@ const FollowerPetProfile = ({ petId }: Props) => {
   const { data: pet, isLoading, isError, refetch } = usePetDetail(petId);
   const { data: photos = [] } = usePetPhotos(petId);
 
-  if (isLoading) {
+  // Every state renders inside the same scroll view. A bare ScreenView under a
+  // transparent header draws its content beneath the navigation bar.
+  const renderBody = () => {
+    if (isLoading) return <ActivityIndicator style={styles.loading} />;
+
+    if (isError || !pet) {
+      return <ErrorState title="Couldn't load this pet" onRetry={() => void refetch()} />;
+    }
+
+    const breed = petBreedLabel(pet);
+    const age = formatAge(pet.birthdate, pet.birthdateIsApproximate);
+
     return (
-      <ScreenView edges={[]}>
-        <ActivityIndicator style={styles.loading} />
-      </ScreenView>
-    );
-  }
-
-  if (isError || !pet) {
-    return (
-      <ScreenView edges={[]}>
-        <ErrorState title="Couldn't load this pet" onRetry={() => void refetch()} />
-      </ScreenView>
-    );
-  }
-
-  const breed = petBreedLabel(pet);
-  const age = formatAge(pet.birthdate, pet.birthdateIsApproximate);
-
-  return (
-    <ScreenView edges={[]}>
-      <ScreenScrollView
-        contentContainerStyle={styles.content}
-        contentInsetAdjustmentBehavior="automatic">
+      <>
         <ListCard style={styles.identity}>
           <PetAvatar photoUrl={pet.photoUrl} size={AVATAR} />
           <View style={styles.identityText}>
@@ -108,6 +98,16 @@ const FollowerPetProfile = ({ petId }: Props) => {
             </ListCard>
           </View>
         )}
+      </>
+    );
+  };
+
+  return (
+    <ScreenView edges={[]}>
+      <ScreenScrollView
+        contentContainerStyle={styles.content}
+        contentInsetAdjustmentBehavior="automatic">
+        {renderBody()}
       </ScreenScrollView>
     </ScreenView>
   );

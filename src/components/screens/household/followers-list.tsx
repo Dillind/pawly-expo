@@ -71,27 +71,17 @@ const FollowersList = ({ householdId }: Props) => {
     );
   };
 
-  if (isLoading) {
-    return (
-      <ScreenView edges={[]}>
-        <ActivityIndicator style={styles.loading} />
-      </ScreenView>
-    );
-  }
+  // Every state renders inside the same scroll view. A bare ScreenView under a
+  // transparent header draws its content beneath the navigation bar.
+  const renderBody = () => {
+    if (isLoading) return <ActivityIndicator style={styles.loading} />;
 
-  if (isError) {
-    return (
-      <ScreenView edges={[]}>
-        <ErrorState title="Couldn't load your followers" onRetry={() => void refetch()} />
-      </ScreenView>
-    );
-  }
+    if (isError) {
+      return <ErrorState title="Couldn't load your followers" onRetry={() => void refetch()} />;
+    }
 
-  return (
-    <ScreenView edges={[]}>
-      <ScreenScrollView
-        contentContainerStyle={styles.content}
-        contentInsetAdjustmentBehavior="automatic">
+    return (
+      <>
         {isOwner && requests.length > 0 && (
           <SettingsSection>
             <SettingsRow
@@ -164,6 +154,16 @@ const FollowersList = ({ householdId }: Props) => {
             />
           </SettingsSection>
         )}
+      </>
+    );
+  };
+
+  return (
+    <ScreenView edges={[]}>
+      <ScreenScrollView
+        contentContainerStyle={styles.content}
+        contentInsetAdjustmentBehavior="automatic">
+        {renderBody()}
       </ScreenScrollView>
     </ScreenView>
   );
