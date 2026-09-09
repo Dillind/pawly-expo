@@ -339,3 +339,43 @@ exists for the same reason — a settings screen must never call `useHousehold()
 The general shape: a hook whose result depends on ambient state is safe only while the screen that
 reads it is also chosen by that state. The moment a route carries an id, every hook beneath it has
 to take that id, and the compiler cannot see the difference.
+
+## An RLS policy's own subqueries are filtered by RLS
+
+The `users` policy that lets a Follower see who wrote a Post was written inline:
+
+```sql
+using (
+  exists (
+    select 1
+    from public.household_follows f
+    join public.household_members m on m.household_id = f.household_id
+    where f.follower_id = auth.uid() and f.status = 'accepted' and m.user_id = users.id
+  )
+)
+```
+
+It returns nothing, always. A policy expression runs as the querying user, so the join to
+`household_members` is itself filtered by that table's own select policy — and a Follower is not a
+member of the household, which is the entire point of a Follower. Every Post rendered authorless.
+
+Nothing about this looks wrong. The SQL is correct, the migration applies, typecheck passes, and
+the feed loads with a name missing from each card rather than an error anywhere.
+
+This is what every other predicate in `private.` is for: `security definer` plus `set search_path
+= ''`. The rule is that a policy body may only test the row in front of it and call a definer
+function. A join written directly in `using (...)` is a bug waiting for the first user who is not
+already a member.
+
+Found by `supabase/tests/follow.test.sql`, which is the only thing in the repo that runs a policy.
+
+## The bare `commit;` in a migration is not a workaround for the CLI
+
+`alter type ... add value` cannot be followed by a use of that value in the same transaction, and
+the Supabase CLI wraps each migration file in one. `20260909090200_follow_request_alerts.sql`
+answers that with a bare `commit;` after the `alter type`, which ends the wrapper's transaction
+early and leaves the rest of the file in autocommit.
+
+That is verified rather than assumed: `supabase/tests/README.md` runs every migration a second time
+wrapped in `begin; ... commit;` and the file applies unchanged. The trailing `commit` the wrapper
+adds is a no-op warning, not an error.

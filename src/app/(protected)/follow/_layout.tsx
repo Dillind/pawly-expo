@@ -1,0 +1,34 @@
+import { Stack, useRouter } from 'expo-router';
+
+import { HeaderTitleStyle } from '@/constants/theme';
+
+/**
+ * The follower's side of the app, outside the tabs. A follow link is a
+ * question to answer rather than a place to browse, and none of this is care
+ * work -- Home stays member-only.
+ */
+export default function FollowLayout() {
+  const router = useRouter();
+
+  return (
+    <Stack>
+      <Stack.Screen name="[householdId]/index">
+        <Stack.Title style={HeaderTitleStyle}>Household</Stack.Title>
+        <Stack.Header transparent />
+        <Stack.Screen.BackButton hidden />
+        <Stack.Toolbar placement="left">
+          <Stack.Toolbar.Button
+            icon="xmark"
+            accessibilityLabel="Close"
+            onPress={() => (router.canGoBack() ? router.back() : router.replace('/posts'))}
+          />
+        </Stack.Toolbar>
+      </Stack.Screen>
+      <Stack.Screen name="[householdId]/pet/[petId]/index">
+        <Stack.Title style={HeaderTitleStyle}>Pet</Stack.Title>
+        <Stack.Header transparent />
+        <Stack.Screen.BackButton displayMode="minimal" />
+      </Stack.Screen>
+    </Stack>
+  );
+}

@@ -56,6 +56,26 @@ export default function ProfileLayout() {
           <Stack.Header transparent />
           <Stack.Screen.BackButton displayMode="minimal" />
         </Stack.Screen>
+        <Stack.Screen name="following">
+          <Stack.Title style={HeaderTitleStyle}>Following</Stack.Title>
+          <Stack.Header transparent />
+          <Stack.Screen.BackButton displayMode="minimal" />
+        </Stack.Screen>
+        <Stack.Screen name="household/[householdId]/followers/index">
+          <Stack.Title style={HeaderTitleStyle}>Followers</Stack.Title>
+          <Stack.Header transparent />
+          <Stack.Screen.BackButton displayMode="minimal" />
+        </Stack.Screen>
+        <Stack.Screen name="household/[householdId]/followers/requests">
+          <Stack.Title style={HeaderTitleStyle}>Requests</Stack.Title>
+          <Stack.Header transparent />
+          <Stack.Screen.BackButton displayMode="minimal" />
+        </Stack.Screen>
+        <Stack.Screen name="household/[householdId]/followers/link">
+          <Stack.Title style={HeaderTitleStyle}>Follow link</Stack.Title>
+          <Stack.Header transparent />
+          <Stack.Screen.BackButton displayMode="minimal" />
+        </Stack.Screen>
         <Stack.Screen name="household/[householdId]/invite">
           <Stack.Title style={HeaderTitleStyle}>Invite someone</Stack.Title>
           <Stack.Header transparent />

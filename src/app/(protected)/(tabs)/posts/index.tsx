@@ -1,16 +1,19 @@
 import type { LegendListRenderItemProps } from '@legendapp/list/react-native';
 import type { TrueSheet } from '@lodev09/react-native-true-sheet';
 import { useFocusEffect, useRouter } from 'expo-router';
-import { useCallback, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 
 import PostActionsSheet from '@/components/bottom-sheets/post-actions-sheet';
+import PostsFilterSheet from '@/components/bottom-sheets/posts-filter-sheet';
+import AppText from '@/components/core/app-text';
 import EmptyState from '@/components/core/empty-state';
 import MainButton from '@/components/core/main-button';
 import MainLegendList from '@/components/core/main-legend-list';
 import ScreenView from '@/components/layout/screen-view';
 import PostCard from '@/components/ui/post-card';
 import { ScreenGutter, type AppTheme } from '@/constants/theme';
+import { useFollowing } from '@/hooks/queries/follow/use-follows';
 import { useHouseholds } from '@/hooks/queries/household/use-households';
 import {
   useDeletePost,
@@ -23,6 +26,7 @@ import { useRefreshOnFocus } from '@/hooks/use-refresh-on-focus';
 import { useStyles } from '@/hooks/use-styles';
 import type { Post } from '@/services/post.service';
 import { useAuthStore } from '@/stores/auth-store';
+import usePostsScopeStore from '@/stores/posts-scope-store';
 
 const PostGap = 12;
 
@@ -32,18 +36,62 @@ const Posts = () => {
 
   const { userId } = useAuthStore();
   const { data: households = [] } = useHouseholds();
+  const { data: following = [] } = useFollowing();
 
-  const isMultiHousehold = households.length > 1;
+  const { scope, setScope, isFilterRequested, clearFilterRequest } = usePostsScopeStore();
 
-  const householdIds = useMemo(() => households.map((household) => household.id), [households]);
+  const memberIds = useMemo(() => households.map((household) => household.id), [households]);
 
-  const householdById = useMemo(
-    () => new Map(households.map((household) => [household.id, household])),
-    [households]
+  const followedIds = useMemo(
+    () =>
+      following.filter((entry) => entry.status === 'accepted').map((entry) => entry.householdId),
+    [following]
   );
+
+  // Both sets, in one lookup. A followed household has no membership row, so
+  // it carries no `isOwner` -- which is correct: a follower moderates nothing.
+  const householdById = useMemo(() => {
+    const byId = new Map<string, { id: string; name: string; isOwner: boolean }>();
+
+    for (const entry of following) {
+      byId.set(entry.householdId, { id: entry.householdId, name: entry.name, isOwner: false });
+    }
+
+    for (const household of households) {
+      byId.set(household.id, {
+        id: household.id,
+        name: household.name,
+        isOwner: household.isOwner
+      });
+    }
+
+    return byId;
+  }, [households, following]);
+
+  const householdIds = useMemo(() => {
+    if (scope.kind === 'mine') return memberIds;
+    if (scope.kind === 'following') return followedIds;
+    if (scope.kind === 'household') return [scope.householdId];
+
+    return [...memberIds, ...followedIds];
+  }, [scope, memberIds, followedIds]);
+
+  // The household name on a card answers "whose pet is this?", which only
+  // needs asking once more than one household is in the stream.
+  const isMultiHousehold = memberIds.length + followedIds.length > 1;
 
   const [activePost, setActivePost] = useState<Post | null>(null);
   const actionsSheetRef = useRef<TrueSheet | null>(null);
+  const filterSheetRef = useRef<TrueSheet | null>(null);
+
+  // The bar button lives in the layout, so the request crosses through the
+  // store rather than through a prop that has nowhere to travel.
+  useEffect(() => {
+    if (!isFilterRequested) return;
+
+    void filterSheetRef.current?.present();
+    clearFilterRequest();
+  }, [isFilterRequested, clearFilterRequest]);
 
   const {
     data: posts = [],
@@ -106,6 +154,26 @@ const Posts = () => {
     );
   };
 
+  const scopeText = () => {
+    if (scope.kind === 'mine') return 'My households';
+    if (scope.kind === 'following') {
+      return `Following · ${followedIds.length} ${followedIds.length === 1 ? 'household' : 'households'}`;
+    }
+    if (scope.kind === 'household') {
+      return householdById.get(scope.householdId)?.name ?? 'One household';
+    }
+
+    return null;
+  };
+
+  const scopeLine = scopeText();
+
+  const filterHouseholds = [...householdById.values()].map((household) => ({
+    id: household.id,
+    name: household.name,
+    isFollowed: followedIds.includes(household.id)
+  }));
+
   return (
     <ScreenView edges={[]}>
       <MainLegendList<Post>
@@ -126,6 +194,15 @@ const Posts = () => {
         estimatedItemSize={640}
         contentContainerStyle={styles.listContent}
         ItemSeparatorComponent={() => <View style={styles.separator} />}
+        ListHeaderComponent={
+          scopeLine ? (
+            <View style={styles.scope}>
+              <AppText size={13} color="textSecondary">
+                {scopeLine}
+              </AppText>
+            </View>
+          ) : null
+        }
         ListEmptyComponent={
           <View style={styles.emptyGutter}>
             <EmptyState
@@ -137,6 +214,14 @@ const Posts = () => {
           </View>
         }
         renderItem={renderItem}
+      />
+
+      <PostsFilterSheet
+        sheetRef={filterSheetRef}
+        scope={scope}
+        households={filterHouseholds}
+        hasFollowed={followedIds.length > 0}
+        onSelect={setScope}
       />
 
       <PostActionsSheet
@@ -171,6 +256,10 @@ const makeStyles = ({ colors, spacing }: AppTheme) =>
     },
     emptyGutter: {
       paddingHorizontal: ScreenGutter
+    },
+    scope: {
+      paddingHorizontal: ScreenGutter,
+      paddingBottom: spacing.two
     }
   });
 

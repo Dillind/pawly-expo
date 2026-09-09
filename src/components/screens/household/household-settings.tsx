@@ -15,6 +15,7 @@ import HouseholdPets from '@/components/ui/household-pets';
 import { SuccessMessage } from '@/constants/enums';
 import { GRACE_WINDOW_OPTIONS, TIMEZONE_OPTIONS } from '@/constants/options';
 import { BottomTabInset, type AppTheme } from '@/constants/theme';
+import { useFollowers, useFollowRequests } from '@/hooks/queries/follow/use-follows';
 import { useHouseholdById } from '@/hooks/queries/household/use-household-by-id';
 import { useHouseholdMembers } from '@/hooks/queries/household/use-household-members';
 import { useUpdateHousehold } from '@/hooks/queries/household/use-update-household';
@@ -41,6 +42,8 @@ const HouseholdSettings = ({ householdId }: Props) => {
     refetch
   } = useHouseholdById(householdId);
   const { data: members = [] } = useHouseholdMembers(householdId);
+  const { data: followers = [] } = useFollowers(householdId);
+  const { data: followRequests = [] } = useFollowRequests(householdId);
 
   const { mutate: updateTimezone } = useUpdateHousehold(
     householdId,
@@ -95,19 +98,36 @@ const HouseholdSettings = ({ householdId }: Props) => {
               value={String(members.length)}
               onPress={() => router.push(`/profile/household/${householdId}/members`)}
             />
+            {/* A waiting request is the only number worth the row, so it wins
+                the value slot when there is one. */}
+            <SettingsRow
+              icon="userPlus"
+              label="Followers"
+              value={
+                followRequests.length > 0
+                  ? `${followRequests.length} waiting`
+                  : String(followers.length)
+              }
+              onPress={() => router.push(`/profile/household/${householdId}/followers`)}
+            />
           </SettingsSection>
           <AppText size={13} color="textSecondary" style={styles.caption}>
             Roles, invites and Leave household live on the Members screen.
           </AppText>
         </View>
 
-        <SettingsSection title="Alerts">
-          <SettingsRow
-            icon="bell"
-            label="Notifications"
-            onPress={() => router.push(`/profile/household/${householdId}/notifications`)}
-          />
-        </SettingsSection>
+        <View style={styles.group}>
+          <SettingsSection title="Alerts">
+            <SettingsRow
+              icon="bell"
+              label="Notifications"
+              onPress={() => router.push(`/profile/household/${householdId}/notifications`)}
+            />
+          </SettingsSection>
+          <AppText size={13} color="textSecondary" style={styles.caption}>
+            A follow request tells you here. Followers never get a notification of their own.
+          </AppText>
+        </View>
 
         <View style={styles.group}>
           <SettingsSection title="Household">

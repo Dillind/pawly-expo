@@ -10,6 +10,7 @@ import AppText from '@/components/core/app-text';
 import Icon from '@/components/core/icon';
 import IconButton from '@/components/core/icon-button';
 import MainLegendList from '@/components/core/main-legend-list';
+import PressableOpacity from '@/components/core/pressable-opacity';
 import UserAvatar from '@/components/core/user-avatar';
 import ScreenView from '@/components/layout/screen-view';
 import ProfileStats from '@/components/screens/profile/profile-stats';
@@ -19,6 +20,7 @@ import { BottomTabInset, Radius, ScreenGutter, type AppTheme } from '@/constants
 import { useChangeProfilePhoto } from '@/hooks/queries/account/use-change-profile-photo';
 import { useSessionEmail } from '@/hooks/queries/account/use-session-email';
 import { useUserProfile } from '@/hooks/queries/account/use-user-profile';
+import { useFollowing } from '@/hooks/queries/follow/use-follows';
 import { useHousehold } from '@/hooks/queries/household/use-household';
 import { useHouseholdMembers } from '@/hooks/queries/household/use-household-members';
 import { useHouseholds } from '@/hooks/queries/household/use-households';
@@ -44,6 +46,7 @@ const ProfileOverview = () => {
   const { data: household } = useHousehold();
   const { data: members = [] } = useHouseholdMembers(household?.id);
   const { data: households = [] } = useHouseholds();
+  const { data: following = [] } = useFollowing();
 
   const { mutate: changePhoto, isPending: isChangingPhoto } = useChangeProfilePhoto();
   const { mutate: toggleLike } = useToggleLike();
@@ -133,6 +136,26 @@ const ProfileOverview = () => {
             {members.length} {members.length === 1 ? 'member' : 'members'}
           </AppText>
         </View>
+      )}
+
+      {/* Only when there is something to list. A follow is not part of every
+          account, and an empty row here is a door to an empty room. */}
+      {following.length > 0 && (
+        <PressableOpacity
+          accessibilityRole="button"
+          accessibilityLabel="Households you follow"
+          onPress={() => router.push('/profile/following')}>
+          <View style={styles.householdCard}>
+            <Icon name="users" size={18} color="textSecondary" />
+            <AppText size={16} numberOfLines={1} style={styles.householdName}>
+              Following
+            </AppText>
+            <AppText size={14} color="textSecondary">
+              {following.length}
+            </AppText>
+            <Icon name="caretRight" size={16} color="textSecondary" />
+          </View>
+        </PressableOpacity>
       )}
 
       {/* Quiet and grey, matching Hevy's "Workouts" label: the cards below are

@@ -27,6 +27,11 @@ export enum MessageType {
  */
 export enum SuccessMessage {
   BioUpdated = 'Bio updated',
+  FollowRequestAccepted = 'Follower accepted',
+  FollowRequestDeclined = 'Request declined',
+  FollowRequested = 'Request sent',
+  FollowerRemoved = 'Follower removed',
+  Unfollowed = 'Unfollowed',
   CareCardUpdated = 'Care Card updated',
   FeedDeleted = 'Feed deleted',
   FeedLoggedAlertsOff = 'Feed Logged Alerts off',
@@ -89,6 +94,13 @@ export enum SuccessMessage {
 export enum ErrorMessage {
   AlertsMarkReadFailed = 'Could not mark notifications as read',
   BioUpdateFailed = 'Could not update bio',
+  FollowAlreadyMember = 'You are already in this household',
+  FollowNotFound = 'That household no longer exists',
+  FollowRequestFailed = 'Could not send your request',
+  FollowRespondFailed = 'Could not answer that request',
+  FollowRespondNotOwner = 'Only an Owner can answer a follow request',
+  FollowerRemoveFailed = 'Could not remove the follower',
+  UnfollowFailed = 'Could not unfollow',
   CameraAccessDenied = 'Allow camera access in Settings to take a photo',
   CareCardShareFailed = 'Could not make the Care Card PDF',
   CareCardShareUnavailable = 'This device has nowhere to share the PDF to',

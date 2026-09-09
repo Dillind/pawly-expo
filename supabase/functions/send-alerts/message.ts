@@ -251,3 +251,28 @@ export const buildReminderDueMessage = (input: ReminderDueInput): Omit<ExpoMessa
   sound: 'default',
   data: { screen: '/home', params: {} }
 });
+
+export type FollowRequestedInput = {
+  requesterFirstName: string | null;
+  requesterUsername: string | null;
+  householdId: string;
+};
+
+/**
+ * The only alert the follow feature adds, and it runs towards the household. A
+ * follower is never told anything -- not even that they were accepted. See ADR
+ * 0036.
+ *
+ * It names the household rather than "your household": an Owner can own more
+ * than one, and the tap has to land on the right Requests screen anyway.
+ */
+export const buildFollowRequestedMessage = (
+  input: FollowRequestedInput
+): Omit<ExpoMessage, 'to'> => ({
+  body: `${authorName(input.requesterUsername, input.requesterFirstName)} asked to follow your household`,
+  sound: 'default',
+  data: {
+    screen: '/profile/household/[householdId]/followers/requests',
+    params: { householdId: input.householdId }
+  }
+});

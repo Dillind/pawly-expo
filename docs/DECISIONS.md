@@ -722,3 +722,32 @@ place in the app where the two roles look different.
 **The household row leads with the role, not the pets.** `Contributor · Crumpet, Brownie, Toby`,
 not the reverse. Three pet names push the role past the right edge on a 6.3-inch screen, and the
 role is the half that decides what the next screen lets you do.
+
+## A follow link is the household id, not a code
+
+`inviteLink` carries a generated code because an invite is a single-use grant that expires.
+A follow link grants nothing — it opens a screen that asks — so it carries the household id and
+`followLink` needs no table behind it. `crumpetapp://follow/<householdId>`.
+
+The batch-5 artboard drew `crumpet.app/h/kathys-household`. A readable slug means a new unique
+column on `households`, kept in step with a name the Owner can change, for a string almost nobody
+reads. Deferred, and the constant is the one place it would change.
+
+## The follow landing screen reads through a definer function, not through RLS
+
+A stranger who opens a follow link is neither member nor follower, so `can_read_household` is false
+and they can see neither the name nor the pets the screen is built to show. A pending follower is in
+exactly the same position, which is why the Following list would otherwise name nothing.
+
+Widening `can_read_household` to cover `pending` fixes both and is wrong: that predicate also guards
+posts. `follow_preview` and `list_following` are definer functions returning precisely what those
+two screens draw.
+
+## The Posts filter crosses from the layout to the screen through a store
+
+`AGENTS.md` puts header options in the layout, and the filter is a `Stack.Toolbar.Button` — a real
+`UIBarButtonItem`, not a React view it could be handed a ref to. The sheet it opens belongs to the
+screen. `usePostsScopeStore` carries a single `isFilterRequested` flag between them, and the screen
+clears it on presenting.
+
+The scope itself lives there too, so it survives a tab change without becoming a URL.
