@@ -379,3 +379,17 @@ early and leaves the rest of the file in autocommit.
 That is verified rather than assumed: `supabase/tests/README.md` runs every migration a second time
 wrapped in `begin; ... commit;` and the file applies unchanged. The trailing `commit` the wrapper
 adds is a no-op warning, not an error.
+
+## A Supabase update that matches no row is not an error
+
+`PostService.markSeen` writes `posts_last_seen_at` on `household_members`. The Posts tab called it
+with the merged scope — member households and followed households together — and a followed
+household has no membership row. The update matched nothing, returned no error, and ran once per
+focus for every followed household.
+
+Nothing surfaces this. There is no exception, no toast, no console line, and the dot it was meant
+to clear belongs to a household that never had one. PostgREST answers a zero-row `update` with
+success, which is correct and is exactly what hides the bug.
+
+The rule: an id from the merged Posts scope is not interchangeable with a membership id. Anything
+writing to `household_members`, `alerts` or any other member-scoped table takes `memberIds`.

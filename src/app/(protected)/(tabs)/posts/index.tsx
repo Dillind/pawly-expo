@@ -27,6 +27,7 @@ import { useStyles } from '@/hooks/use-styles';
 import type { Post } from '@/services/post.service';
 import { useAuthStore } from '@/stores/auth-store';
 import usePostsScopeStore from '@/stores/posts-scope-store';
+import { countDigits } from '@/utils/counts';
 
 const PostGap = 12;
 
@@ -108,7 +109,9 @@ const Posts = () => {
 
   const { mutate: toggleLike } = useToggleLike();
   const { mutate: deletePost } = useDeletePost();
-  const { mutate: markSeen } = useMarkPostsSeen(householdIds, userId ?? undefined);
+  // Member households only: markSeen writes to household_members, and a
+  // followed household has no membership row for it to match.
+  const { mutate: markSeen } = useMarkPostsSeen(memberIds, userId ?? undefined);
 
   // A string, not the array: the array is a fresh identity on every refetch.
   const scopeKey = householdIds.join(',');
@@ -157,7 +160,7 @@ const Posts = () => {
   const scopeText = () => {
     if (scope.kind === 'mine') return 'My households';
     if (scope.kind === 'following') {
-      return `Following · ${followedIds.length} ${followedIds.length === 1 ? 'household' : 'households'}`;
+      return `Following · ${countDigits(followedIds.length, 'household')}`;
     }
     if (scope.kind === 'household') {
       return householdById.get(scope.householdId)?.name ?? 'One household';
