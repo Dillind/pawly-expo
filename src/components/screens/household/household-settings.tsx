@@ -98,18 +98,25 @@ const HouseholdSettings = ({ householdId }: Props) => {
               value={String(members.length)}
               onPress={() => router.push(`/profile/household/${householdId}/members`)}
             />
-            {/* A waiting request is the only number worth the row, so it wins
+            {/* Owner only. The select policy on household_follows is
+                owner-or-self, so a Contributor reads no rows: they would see a
+                count of nothing and open a screen with nothing on it. Who
+                watches is the Owner's decision, and so is the list of them.
+
+                A waiting request is the only number worth the row, so it wins
                 the value slot when there is one. */}
-            <SettingsRow
-              icon="userPlus"
-              label="Followers"
-              value={
-                followRequests.length > 0
-                  ? `${followRequests.length} waiting`
-                  : String(followers.length)
-              }
-              onPress={() => router.push(`/profile/household/${householdId}/followers`)}
-            />
+            {isOwner && (
+              <SettingsRow
+                icon="userPlus"
+                label="Followers"
+                value={
+                  followRequests.length > 0
+                    ? `${followRequests.length} waiting`
+                    : String(followers.length)
+                }
+                onPress={() => router.push(`/profile/household/${householdId}/followers`)}
+              />
+            )}
           </SettingsSection>
           <AppText size={13} color="textSecondary" style={styles.caption}>
             Roles, invites and Leave household live on the Members screen.

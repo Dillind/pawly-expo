@@ -20,6 +20,7 @@ end $$;
 -- Owner, follower, stranger.
 \set owner '11111111-1111-1111-1111-111111111111'
 \set follower '22222222-2222-2222-2222-222222222222'
+\set contributor '33333333-3333-3333-3333-333333333333'
 \set household 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa'
 
 -- ---------------------------------------------------------------- preview
@@ -113,6 +114,24 @@ select pg_temp.check('a follower can comment',
 select pg_temp.check('list_following now reads accepted',
   (select status::text from public.list_following()), 'accepted');
 reset role;
+
+-- ------------------------------------ the household reads the follower back
+-- A Follower's Comment is addressed to the whole household, not to the Owner.
+-- Before this, a Contributor matched no branch of can_see_user and the comment
+-- they were meant to reply to rendered with no name and no avatar.
+insert into public.household_members (household_id, user_id, role)
+  values (:'household'::uuid, :'contributor'::uuid, 'contributor');
+
+call pg_temp.act_as(:'contributor');
+set local role authenticated;
+select pg_temp.check('a Contributor reads the follower who commented',
+  (select first_name from public.users where id = :'follower'::uuid), 'Dylan');
+select pg_temp.check('a Contributor reads the comment itself',
+  (select count(*)::int from public.post_comments), 1);
+reset role;
+
+delete from public.household_members
+  where user_id = :'contributor'::uuid and household_id = :'household'::uuid;
 
 -- ---------------------------------------------------------------- removal
 call pg_temp.act_as(:'owner');
