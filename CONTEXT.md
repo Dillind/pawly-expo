@@ -266,3 +266,43 @@ _Avoid_: Nested comment, sub-comment, child, response.
 **Thread**:
 Every Comment on one Post, together, oldest first. Shown on Post Detail beneath the Post itself.
 _Avoid_: Conversation, discussion, comment section.
+
+## Following
+
+**Follow**:
+The relationship that lets a person read a Household's Posts and Pet Profiles without joining it.
+Always on the Household, never on a Pet. An Owner accepts it, and it grants no part of the
+household's working life — no schedule, no Feed Logs, no Care Card. See
+[ADR 0036](./docs/adr/0036-a-follow-is-a-household-scoped-read-plus-a-voice.md).
+_Avoid_: Subscribe, friend, connection, viewer role (a Follow is not a role — a Follower is not a
+Member at all).
+
+**Follower**:
+A User whose Follow of a Household has been accepted. They read that Household's Posts and Pet
+Profiles, and they may Like and Comment. They are never a Member, are never counted as a carer, and
+have no screen of their own anywhere in the app — their name appears only beside something they
+wrote.
+_Avoid_: Fan, subscriber, guest, spectator, and above all Member.
+
+**Follow Request**:
+A Follow that is waiting on an Owner. The person who asked sees it on their Following list and
+sees nothing of the Household beyond its name and its Pets' names. Only an Owner can accept or
+decline. A decline is not a block — the person may ask again.
+_Avoid_: Application, pending invite (an Invite travels the other way, from the Household outwards).
+
+**Following**:
+The list of Households a User follows, a Request still waiting included. The Follower's own view of
+their side of the relationship, and where they unfollow.
+_Avoid_: Subscriptions, feeds, my households (that phrase means the ones they are a Member of).
+
+**Follow Link**:
+What an Owner sends so somebody can ask to follow their Household. It carries the Household id, it
+does not expire, and it grants nothing on its own — it opens a screen that asks. Distinct from an
+Invite, which hands over a seat, is keyed to an email and does expire.
+_Avoid_: Invite, invitation, share code, referral.
+
+**Removal**:
+An Owner ending a Follow. It blocks: the person stops reading and cannot ask again. Their Likes and
+Comments stay, because the Household replied to them. Distinct from an unfollow, which the Follower
+does themselves and which can be undone by following again.
+_Avoid_: Ban, block (the app never uses that word to a user), kick, revoke.
