@@ -22,7 +22,7 @@
       "y": 0,
       "w": 390,
       "h": 844,
-      "title": "3 · Posts, the second door"
+      "title": "3 · Posts, filtered from the bar"
     },
     {
       "file": "PetProfile.dc.html",
@@ -79,6 +79,22 @@
       "w": 390,
       "h": 540,
       "title": "10 · Home, when you only follow"
+    },
+    {
+      "file": "Filter.dc.html",
+      "x": 2450,
+      "y": 0,
+      "w": 390,
+      "h": 600,
+      "title": "11 · The filter sheet"
+    },
+    {
+      "file": "ShareLink.dc.html",
+      "x": 2450,
+      "y": 1010,
+      "w": 390,
+      "h": 680,
+      "title": "12 · The follow link"
     }
   ],
   "annotations": [
@@ -109,6 +125,20 @@
       "y": 820,
       "w": 880,
       "text": "The two ways a follow ends are different events.\nAn unfollow is the follower's own, and repeatable. A removal by the Owner blocks the next request — one status column carries pending, accepted and removed.\n\nArtboard 10 is a copy fix, not a new screen: Home tells a person with no household to create or join one, which is now only half of what they can do."
+    },
+    {
+      "id": "filter-in-the-bar",
+      "x": 2450,
+      "y": -190,
+      "w": 390,
+      "text": "The segmented control is gone.\nTwo bar buttons sit together on the right: filter, then compose. Every filter lives in the sheet, so the scope can grow past two without the header growing.\n\nA subtitle under the title says what is showing. It is the only thing on screen that a filter costs."
+    },
+    {
+      "id": "link-vs-invite",
+      "x": 2450,
+      "y": 1730,
+      "w": 390,
+      "text": "A follow link is not an invite code.\nAn invite hands over a seat, so it expires in 72 hours. A follow link only opens a request the Owner still has to accept, so it does not expire.\n\nSame QR plate and Share button as invite-code-card.tsx, deliberately."
     }
   ],
   "launch": {
