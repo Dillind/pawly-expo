@@ -1,0 +1,117 @@
+{
+  "artboards": [
+    {
+      "file": "Main.dc.html",
+      "x": 0,
+      "y": 0,
+      "w": 390,
+      "h": 760,
+      "title": "1 · The link lands here"
+    },
+    {
+      "file": "Accepted.dc.html",
+      "x": 490,
+      "y": 0,
+      "w": 390,
+      "h": 800,
+      "title": "2 · The same screen, once accepted"
+    },
+    {
+      "file": "Posts.dc.html",
+      "x": 980,
+      "y": 0,
+      "w": 390,
+      "h": 844,
+      "title": "3 · Posts, the second door"
+    },
+    {
+      "file": "PetProfile.dc.html",
+      "x": 1470,
+      "y": 0,
+      "w": 390,
+      "h": 600,
+      "title": "4 · A pet, as a follower sees it"
+    },
+    {
+      "file": "Following.dc.html",
+      "x": 1960,
+      "y": 0,
+      "w": 390,
+      "h": 380,
+      "title": "5 · Following, on Profile"
+    },
+    {
+      "file": "Settings.dc.html",
+      "x": 0,
+      "y": 1010,
+      "w": 390,
+      "h": 400,
+      "title": "6 · Household settings, the way in"
+    },
+    {
+      "file": "Followers.dc.html",
+      "x": 490,
+      "y": 1010,
+      "w": 390,
+      "h": 620,
+      "title": "7 · Followers, the Owner's list"
+    },
+    {
+      "file": "Requests.dc.html",
+      "x": 980,
+      "y": 1010,
+      "w": 390,
+      "h": 620,
+      "title": "8 · Requests, Owner only"
+    },
+    {
+      "file": "Removal.dc.html",
+      "x": 1470,
+      "y": 1010,
+      "w": 390,
+      "h": 760,
+      "title": "9 · Removal blocks"
+    },
+    {
+      "file": "NoHousehold.dc.html",
+      "x": 1960,
+      "y": 1010,
+      "w": 390,
+      "h": 540,
+      "title": "10 · Home, when you only follow"
+    }
+  ],
+  "annotations": [
+    {
+      "id": "follower-path",
+      "x": 0,
+      "y": -190,
+      "w": 880,
+      "text": "CRU-094 — the follower's path.\nA follow is on a HOUSEHOLD, never on a pet.\nEvery household is private, so the link lands on a request, not on content.\nArtboard 2 is the same route after the accept: the button reports state, it does not repeat the offer."
+    },
+    {
+      "id": "boundary",
+      "x": 980,
+      "y": -190,
+      "w": 880,
+      "text": "The boundary is posts and pet profiles.\nNever feeds, never schedules, never reminders, never the Care Card. That is the RLS line and it is expensive to move.\n\nArtboard 4 is its own route. The Member's pet screen is built on the ACTIVE household, whose timezone never arrives for a household you are not in — it would sit on its skeleton forever.\n\nIt carries no note about what is missing. A follower never expected feeds, so naming their absence only draws a line they could not see. The screen is simply short."
+    },
+    {
+      "id": "owner-path",
+      "x": 0,
+      "y": 820,
+      "w": 880,
+      "text": "The Owner's path.\nOnly an Owner accepts or removes — the same gate as an Invite, and enforced by an RPC rather than by a write policy.\nA Contributor helps with care. A Contributor does not decide who watches."
+    },
+    {
+      "id": "two-endings",
+      "x": 1470,
+      "y": 820,
+      "w": 880,
+      "text": "The two ways a follow ends are different events.\nAn unfollow is the follower's own, and repeatable. A removal by the Owner blocks the next request — one status column carries pending, accepted and removed.\n\nArtboard 10 is a copy fix, not a new screen: Home tells a person with no household to create or join one, which is now only half of what they can do."
+    }
+  ],
+  "launch": {
+    "view": "canvas"
+  }
+}
