@@ -205,13 +205,17 @@ const FollowHousehold = ({ householdId }: Props) => {
             photos.length > 0 ? (
               <View style={styles.grid}>
                 {photos.map((photo) => (
-                  <Image
-                    key={photo.id}
-                    source={photo.url}
-                    style={styles.tile}
-                    contentFit="cover"
-                    transition={200}
-                  />
+                  // The percentage width belongs on a plain View. Given it
+                  // directly, expo-image resolves no box and the grid collapses
+                  // to nothing -- the section renders its label and no tiles.
+                  <View key={photo.id} style={styles.tileWrap}>
+                    <Image
+                      source={photo.url}
+                      style={styles.tile}
+                      contentFit="cover"
+                      transition={200}
+                    />
+                  </View>
                 ))}
               </View>
             ) : (
@@ -325,9 +329,13 @@ const makeStyles = ({ colors, spacing }: AppTheme) =>
       borderCurve: 'continuous',
       overflow: 'hidden'
     },
-    tile: {
+    tileWrap: {
       width: `${(100 - 1) / 3}%`,
-      aspectRatio: 1,
+      aspectRatio: 1
+    },
+    tile: {
+      width: '100%',
+      height: '100%',
       backgroundColor: colors.backgroundSelected
     }
   });
