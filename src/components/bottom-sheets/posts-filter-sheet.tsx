@@ -6,9 +6,12 @@ import BaseSheet from '@/components/bottom-sheets/base-sheet';
 import SheetRow from '@/components/bottom-sheets/sheet-row';
 import AppText from '@/components/core/app-text';
 import Divider from '@/components/core/divider';
-import type { AppTheme } from '@/constants/theme';
+import Icon from '@/components/core/icon';
+import { Radius, type AppTheme } from '@/constants/theme';
 import { useStyles } from '@/hooks/use-styles';
 import type { PostsScope } from '@/stores/posts-scope-store';
+
+const CREST = 26;
 
 export type FilterHousehold = { id: string; name: string; isFollowed: boolean };
 
@@ -39,17 +42,20 @@ const PostsFilterSheet = ({ sheetRef, scope, households, hasFollowed, onSelect }
     <BaseSheet sheetRef={sheetRef} title="Show" detents={['auto']}>
       <View style={styles.rows}>
         <SheetRow
+          icon="grid"
           label="Everything"
           isSelected={scope.kind === 'all'}
           onPress={() => choose({ kind: 'all' })}
         />
         <SheetRow
+          icon="users"
           label="My households"
           isSelected={scope.kind === 'mine'}
           onPress={() => choose({ kind: 'mine' })}
         />
         {hasFollowed && (
           <SheetRow
+            icon="eye"
             label="Following"
             isSelected={scope.kind === 'following'}
             onPress={() => choose({ kind: 'following' })}
@@ -67,6 +73,11 @@ const PostsFilterSheet = ({ sheetRef, scope, households, hasFollowed, onSelect }
             {households.map((household) => (
               <SheetRow
                 key={household.id}
+                leading={
+                  <View style={styles.crest}>
+                    <Icon name="pawPrint" size={14} color="textSecondary" />
+                  </View>
+                }
                 label={household.name}
                 detail={household.isFollowed ? 'Following' : undefined}
                 isSelected={scope.kind === 'household' && scope.householdId === household.id}
@@ -80,10 +91,20 @@ const PostsFilterSheet = ({ sheetRef, scope, households, hasFollowed, onSelect }
   );
 };
 
-const makeStyles = ({ spacing }: AppTheme) =>
+const makeStyles = ({ colors, spacing }: AppTheme) =>
   StyleSheet.create({
     rows: {
       gap: spacing.two
+    },
+    // A household row is named, so it takes a crest rather than a glyph -- the
+    // three scope rows above it are the ones an icon has to distinguish.
+    crest: {
+      width: CREST,
+      height: CREST,
+      borderRadius: Radius.full,
+      alignItems: 'center',
+      justifyContent: 'center',
+      backgroundColor: colors.backgroundElement
     },
     groupLabel: {
       paddingHorizontal: spacing.one,

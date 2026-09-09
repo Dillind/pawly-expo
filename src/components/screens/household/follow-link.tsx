@@ -1,3 +1,4 @@
+import * as Clipboard from 'expo-clipboard';
 import { Share, StyleSheet, View } from 'react-native';
 import QRCode from 'react-native-qrcode-svg';
 
@@ -5,12 +6,16 @@ import AppText from '@/components/core/app-text';
 import Icon from '@/components/core/icon';
 import ListCard from '@/components/core/list-card';
 import MainButton from '@/components/core/main-button';
+import PressableOpacity from '@/components/core/pressable-opacity';
 import ScreenScrollView from '@/components/layout/screen-scroll-view';
 import ScreenView from '@/components/layout/screen-view';
+import { SuccessMessage } from '@/constants/enums';
 import { followLink } from '@/constants/follow-link';
 import { BottomTabInset, Radius, ScreenGutter, type AppTheme } from '@/constants/theme';
 import { useHouseholdById } from '@/hooks/queries/household/use-household-by-id';
 import { useStyles } from '@/hooks/use-styles';
+import { hapticLight } from '@/lib/haptics';
+import { showSuccessToast } from '@/lib/toast';
 
 const QR_SIZE = 168;
 
@@ -35,6 +40,14 @@ const FollowLink = ({ householdId }: Props) => {
     });
   };
 
+  // The link is read as well as scanned -- someone sending it in a message
+  // needs the string itself, and the share sheet is a longer way round.
+  const copy = () => {
+    hapticLight();
+    void Clipboard.setStringAsync(link);
+    showSuccessToast(SuccessMessage.FollowLinkCopied);
+  };
+
   return (
     <ScreenView edges={[]}>
       <ScreenScrollView
@@ -50,6 +63,18 @@ const FollowLink = ({ householdId }: Props) => {
           <View style={styles.qr}>
             <QRCode value={link} size={QR_SIZE} backgroundColor="#FFFFFF" color="#000000" />
           </View>
+
+          <PressableOpacity
+            accessibilityRole="button"
+            accessibilityLabel="Copy the follow link"
+            onPress={copy}>
+            <View style={styles.linkRow}>
+              <AppText size={14} numberOfLines={1} ellipsizeMode="middle" style={styles.linkText}>
+                {link}
+              </AppText>
+              <Icon name="copy" size={18} color="primary" />
+            </View>
+          </PressableOpacity>
 
           <MainButton
             text="Share link"
@@ -79,7 +104,7 @@ const FollowLink = ({ householdId }: Props) => {
   );
 };
 
-const makeStyles = ({ spacing }: AppTheme) =>
+const makeStyles = ({ colors, spacing }: AppTheme) =>
   StyleSheet.create({
     content: {
       paddingHorizontal: ScreenGutter,
@@ -97,6 +122,18 @@ const makeStyles = ({ spacing }: AppTheme) =>
       padding: spacing.three,
       borderRadius: Radius.card,
       borderCurve: 'continuous'
+    },
+    linkRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: spacing.two,
+      minHeight: 44,
+      paddingHorizontal: spacing.three,
+      borderRadius: Radius.full,
+      backgroundColor: colors.backgroundSelected
+    },
+    linkText: {
+      flex: 1
     },
     notes: {
       gap: spacing.three

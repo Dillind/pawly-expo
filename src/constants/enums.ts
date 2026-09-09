@@ -27,6 +27,7 @@ export enum MessageType {
  */
 export enum SuccessMessage {
   BioUpdated = 'Bio updated',
+  FollowLinkCopied = 'Follow link copied',
   FollowRequestAccepted = 'Follower accepted',
   FollowRequestDeclined = 'Request declined',
   FollowRequested = 'Request sent',
