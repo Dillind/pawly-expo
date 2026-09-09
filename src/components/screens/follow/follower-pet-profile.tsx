@@ -6,8 +6,7 @@ import ErrorState from '@/components/core/error-state';
 import ListCard from '@/components/core/list-card';
 import PetAvatar from '@/components/core/pet-avatar';
 import SectionLabel from '@/components/core/section-label';
-import ScreenScrollView from '@/components/layout/screen-scroll-view';
-import ScreenView from '@/components/layout/screen-view';
+import ScrollScreen from '@/components/layout/scroll-screen';
 import { petBreedLabel } from '@/constants/breeds';
 import { Radius, ScreenGutter, type AppTheme } from '@/constants/theme';
 import { usePetDetail } from '@/hooks/queries/pet/use-pet-detail';
@@ -39,8 +38,6 @@ const FollowerPetProfile = ({ petId }: Props) => {
   const { data: pet, isLoading, isError, refetch } = usePetDetail(petId);
   const { data: photos = [] } = usePetPhotos(petId);
 
-  // Every state renders inside the same scroll view. A bare ScreenView under a
-  // transparent header draws its content beneath the navigation bar.
   const renderBody = () => {
     if (isLoading) return <ActivityIndicator style={styles.loading} />;
 
@@ -102,15 +99,7 @@ const FollowerPetProfile = ({ petId }: Props) => {
     );
   };
 
-  return (
-    <ScreenView edges={[]}>
-      <ScreenScrollView
-        contentContainerStyle={styles.content}
-        contentInsetAdjustmentBehavior="automatic">
-        {renderBody()}
-      </ScreenScrollView>
-    </ScreenView>
-  );
+  return <ScrollScreen contentContainerStyle={styles.content}>{renderBody()}</ScrollScreen>;
 };
 
 const makeStyles = ({ colors, spacing }: AppTheme) =>

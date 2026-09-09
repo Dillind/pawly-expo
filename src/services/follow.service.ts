@@ -11,9 +11,9 @@ export type FollowPreviewPet = {
 };
 
 export type FollowPreview = {
-  status: FollowRelationship | 'not_found';
-  householdId?: string;
-  name?: string;
+  status: FollowRelationship;
+  householdId: string;
+  name: string;
   pets: FollowPreviewPet[];
 };
 
@@ -78,7 +78,7 @@ namespace FollowService {
    * function, because the viewer can read neither the household nor its pets
    * until the Owner accepts.
    */
-  export async function preview(householdId: string): Promise<FollowPreview> {
+  export async function preview(householdId: string): Promise<FollowPreview | null> {
     const { data, error } = await supabase.rpc('follow_preview', {
       target_household_id: householdId
     });
@@ -86,16 +86,21 @@ namespace FollowService {
     if (error) throw error;
 
     const result = data as {
-      status: FollowPreview['status'];
+      status: FollowRelationship | 'not_found';
       household_id?: string;
       name?: string;
       pets?: { id: string; name: string; breed: string | null; photo_url: string | null }[];
     };
 
+    // A household that is not there is an absence, not a relationship. Keeping
+    // it inside `status` made every reader test the one value that means the
+    // other four cannot apply.
+    if (result.status === 'not_found') return null;
+
     return {
       status: result.status,
-      householdId: result.household_id,
-      name: result.name,
+      householdId: result.household_id as string,
+      name: result.name as string,
       pets: (result.pets ?? []).map((pet) => ({
         id: pet.id,
         name: pet.name,
@@ -167,32 +172,31 @@ namespace FollowService {
     }));
   }
 
-  /** A household's accepted followers. Owner-only by RLS. */
-  export async function listFollowers(householdId: string): Promise<Follower[]> {
+  async function listByStatus(
+    householdId: string,
+    status: 'accepted' | 'pending',
+    orderBy: 'responded_at' | 'requested_at'
+  ): Promise<Follower[]> {
     const { data, error } = await supabase
       .from('household_follows')
       .select(FOLLOWER_SELECT)
       .eq('household_id', householdId)
-      .eq('status', 'accepted')
-      .order('responded_at', { ascending: true });
+      .eq('status', status)
+      .order(orderBy, { ascending: true });
 
     if (error) throw error;
 
     return (data as unknown as FollowerRow[]).map(toFollower);
   }
 
+  /** A household's accepted followers, in the order the Owner accepted them. */
+  export function listFollowers(householdId: string): Promise<Follower[]> {
+    return listByStatus(householdId, 'accepted', 'responded_at');
+  }
+
   /** Everyone still waiting on the Owner. Oldest first: they have waited longest. */
-  export async function listRequests(householdId: string): Promise<Follower[]> {
-    const { data, error } = await supabase
-      .from('household_follows')
-      .select(FOLLOWER_SELECT)
-      .eq('household_id', householdId)
-      .eq('status', 'pending')
-      .order('requested_at', { ascending: true });
-
-    if (error) throw error;
-
-    return (data as unknown as FollowerRow[]).map(toFollower);
+  export function listRequests(householdId: string): Promise<Follower[]> {
+    return listByStatus(householdId, 'pending', 'requested_at');
   }
 }
 

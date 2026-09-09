@@ -9,8 +9,7 @@ import PressableOpacity from '@/components/core/pressable-opacity';
 import SettingsRow from '@/components/core/settings-row';
 import SettingsSection from '@/components/core/settings-section';
 import UserAvatar from '@/components/core/user-avatar';
-import ScreenScrollView from '@/components/layout/screen-scroll-view';
-import ScreenView from '@/components/layout/screen-view';
+import ScrollScreen from '@/components/layout/scroll-screen';
 import { BottomTabInset, Spacing, type AppTheme } from '@/constants/theme';
 import {
   useFollowers,
@@ -71,8 +70,6 @@ const FollowersList = ({ householdId }: Props) => {
     );
   };
 
-  // Every state renders inside the same scroll view. A bare ScreenView under a
-  // transparent header draws its content beneath the navigation bar.
   const renderBody = () => {
     if (isLoading) return <ActivityIndicator style={styles.loading} />;
 
@@ -158,15 +155,7 @@ const FollowersList = ({ householdId }: Props) => {
     );
   };
 
-  return (
-    <ScreenView edges={[]}>
-      <ScreenScrollView
-        contentContainerStyle={styles.content}
-        contentInsetAdjustmentBehavior="automatic">
-        {renderBody()}
-      </ScreenScrollView>
-    </ScreenView>
-  );
+  return <ScrollScreen contentContainerStyle={styles.content}>{renderBody()}</ScrollScreen>;
 };
 
 const makeStyles = ({ spacing }: AppTheme) =>

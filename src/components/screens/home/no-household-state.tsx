@@ -8,9 +8,10 @@ import MainButton from '@/components/core/main-button';
 import PressableOpacity from '@/components/core/pressable-opacity';
 import type { IconName } from '@/constants/icon-map';
 import { Radius, type AppTheme } from '@/constants/theme';
-import { useFollowing } from '@/hooks/queries/follow/use-follows';
+import { useFollowedHouseholdIds } from '@/hooks/queries/follow/use-follows';
 import { useStyles } from '@/hooks/use-styles';
 import { createShadowMedium } from '@/lib/styles/shadows';
+import { countDigits } from '@/utils/counts';
 
 type DoorProps = {
   icon: IconName;
@@ -59,9 +60,7 @@ const Door = ({ icon, isPrimaryDoor, title, description, action }: DoorProps) =>
 const NoHouseholdState = () => {
   const styles = useStyles(makeStyles);
   const router = useRouter();
-  const { data: following = [] } = useFollowing();
-
-  const followedCount = following.filter((entry) => entry.status === 'accepted').length;
+  const followedCount = useFollowedHouseholdIds().length;
 
   return (
     <View style={styles.container}>
@@ -109,7 +108,7 @@ const NoHouseholdState = () => {
             <Icon name="users" size={18} color="textSecondary" />
             <View style={styles.followText}>
               <AppText size={16} numberOfLines={1}>
-                You follow {followedCount === 1 ? 'one household' : `${followedCount} households`}
+                You follow {countDigits(followedCount, 'household')}
               </AppText>
               <AppText size={13} color="textSecondary">
                 Their posts are on the Posts tab.

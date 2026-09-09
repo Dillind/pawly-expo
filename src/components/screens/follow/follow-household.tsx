@@ -1,17 +1,17 @@
 import { Image } from 'expo-image';
 import { useRouter } from 'expo-router';
-import { ActivityIndicator, Alert, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, StyleSheet, View } from 'react-native';
 
 import AppText from '@/components/core/app-text';
 import ErrorState from '@/components/core/error-state';
+import HouseholdCrest from '@/components/core/household-crest';
 import Icon from '@/components/core/icon';
 import ListCard from '@/components/core/list-card';
 import MainButton from '@/components/core/main-button';
 import PetAvatar from '@/components/core/pet-avatar';
 import PressableOpacity from '@/components/core/pressable-opacity';
 import SectionLabel from '@/components/core/section-label';
-import ScreenScrollView from '@/components/layout/screen-scroll-view';
-import ScreenView from '@/components/layout/screen-view';
+import ScrollScreen from '@/components/layout/scroll-screen';
 import { Radius, ScreenGutter, type AppTheme } from '@/constants/theme';
 import {
   useFollowPreview,
@@ -22,7 +22,7 @@ import { usePosts } from '@/hooks/queries/posts/use-posts';
 import { useStyles } from '@/hooks/use-styles';
 import type { FollowPreviewPet } from '@/services/follow.service';
 import { useAuthStore } from '@/stores/auth-store';
-import { petCountText } from '@/utils/counts';
+import { countText } from '@/utils/counts';
 
 const PET_AVATAR = 36;
 const CREST = 80;
@@ -54,13 +54,6 @@ const FollowHousehold = ({ householdId }: Props) => {
   const isAccepted = preview?.status === 'accepted' || preview?.status === 'member';
 
   const { data: posts = [] } = usePosts(isAccepted ? [householdId] : [], userId ?? undefined);
-
-  const confirmUnfollow = () => {
-    Alert.alert(`Unfollow ${preview?.name ?? 'this household'}?`, 'Their posts leave your feed.', [
-      { text: 'Cancel', style: 'cancel', isPreferred: true },
-      { text: 'Unfollow', style: 'destructive', onPress: () => unfollow(householdId) }
-    ]);
-  };
 
   const openPet = (pet: FollowPreviewPet) =>
     router.push({
@@ -120,7 +113,7 @@ const FollowHousehold = ({ householdId }: Props) => {
             variant="secondary"
             isDisabled={isUnfollowing}
             leftIcon={<Icon name="check" size={19} color="text" />}
-            onPress={confirmUnfollow}
+            onPress={() => unfollow(householdId)}
           />
           <AppText size={13} color="textSecondary" align="center" style={styles.caption}>
             Their posts are on your Posts tab. Tap to unfollow.
@@ -136,7 +129,7 @@ const FollowHousehold = ({ householdId }: Props) => {
             text="Requested"
             variant="secondary"
             isDisabled={isUnfollowing}
-            onPress={confirmUnfollow}
+            onPress={() => unfollow(householdId)}
           />
           <AppText size={13} color="textSecondary" align="center" style={styles.caption}>
             Waiting on an Owner to accept. Tap to withdraw.
@@ -161,12 +154,10 @@ const FollowHousehold = ({ householdId }: Props) => {
     );
   };
 
-  // Every state renders inside the same scroll view. A bare ScreenView under a
-  // transparent header draws its content beneath the navigation bar.
   const renderBody = () => {
     if (isLoading) return <ActivityIndicator style={styles.loading} />;
 
-    if (isError || !preview || preview.status === 'not_found') {
+    if (isError || !preview) {
       return (
         <ErrorState
           title="Couldn't find that household"
@@ -179,14 +170,12 @@ const FollowHousehold = ({ householdId }: Props) => {
     return (
       <>
         <View style={styles.crest}>
-          <View style={styles.crestCircle}>
-            <Icon name="pawPrint" size={36} color="textSecondary" />
-          </View>
+          <HouseholdCrest size={CREST} iconSize={36} />
           <AppText variant="header" size={24} fontWeight="bold" align="center">
             {preview.name}
           </AppText>
           <AppText size={15} color="textSecondary">
-            {petCountText(preview.pets.length)}
+            {countText(preview.pets.length, 'pet')}
           </AppText>
         </View>
 
@@ -247,15 +236,7 @@ const FollowHousehold = ({ householdId }: Props) => {
     );
   };
 
-  return (
-    <ScreenView edges={[]}>
-      <ScreenScrollView
-        contentContainerStyle={styles.content}
-        contentInsetAdjustmentBehavior="automatic">
-        {renderBody()}
-      </ScreenScrollView>
-    </ScreenView>
-  );
+  return <ScrollScreen contentContainerStyle={styles.content}>{renderBody()}</ScrollScreen>;
 };
 
 const makeStyles = ({ colors, spacing }: AppTheme) =>
@@ -272,14 +253,6 @@ const makeStyles = ({ colors, spacing }: AppTheme) =>
     crest: {
       alignItems: 'center',
       gap: spacing.two
-    },
-    crestCircle: {
-      width: CREST,
-      height: CREST,
-      borderRadius: Radius.full,
-      alignItems: 'center',
-      justifyContent: 'center',
-      backgroundColor: colors.backgroundSelected
     },
     action: {
       gap: spacing.two

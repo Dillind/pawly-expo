@@ -45,13 +45,22 @@ describe('preview', () => {
     });
   });
 
-  it('returns an empty pet list rather than undefined', async () => {
+  it('returns null for a household that is not there', async () => {
     mockRpc.mockResolvedValue({ data: { status: 'not_found' }, error: null });
 
-    await expect(FollowService.preview('gone')).resolves.toEqual({
-      status: 'not_found',
-      householdId: undefined,
-      name: undefined,
+    await expect(FollowService.preview('gone')).resolves.toBeNull();
+  });
+
+  it('returns an empty pet list rather than undefined', async () => {
+    mockRpc.mockResolvedValue({
+      data: { status: 'none', household_id: 'household-1', name: "Kathy's Household" },
+      error: null
+    });
+
+    await expect(FollowService.preview('household-1')).resolves.toEqual({
+      status: 'none',
+      householdId: 'household-1',
+      name: "Kathy's Household",
       pets: []
     });
   });

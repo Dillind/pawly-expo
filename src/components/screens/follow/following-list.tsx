@@ -4,15 +4,15 @@ import { ActivityIndicator, StyleSheet, View } from 'react-native';
 import AppText from '@/components/core/app-text';
 import EmptyState from '@/components/core/empty-state';
 import ErrorState from '@/components/core/error-state';
+import HouseholdCrest from '@/components/core/household-crest';
 import Icon from '@/components/core/icon';
 import PressableOpacity from '@/components/core/pressable-opacity';
 import SettingsSection from '@/components/core/settings-section';
-import ScreenScrollView from '@/components/layout/screen-scroll-view';
-import ScreenView from '@/components/layout/screen-view';
-import { BottomTabInset, Radius, Spacing, type AppTheme } from '@/constants/theme';
+import ScrollScreen from '@/components/layout/scroll-screen';
+import { BottomTabInset, Spacing, type AppTheme } from '@/constants/theme';
 import { useFollowing } from '@/hooks/queries/follow/use-follows';
 import { useStyles } from '@/hooks/use-styles';
-import { petCountText } from '@/utils/counts';
+import { countText } from '@/utils/counts';
 
 const CREST = 36;
 
@@ -27,8 +27,6 @@ const FollowingList = () => {
 
   const { data: following = [], isLoading, isError, refetch } = useFollowing();
 
-  // Every state renders inside the same scroll view. A bare ScreenView under a
-  // transparent header draws its content beneath the navigation bar.
   const renderBody = () => {
     if (isLoading) return <ActivityIndicator style={styles.loading} />;
 
@@ -58,9 +56,7 @@ const FollowingList = () => {
               })
             }>
             <View style={styles.row}>
-              <View style={styles.crest}>
-                <Icon name="pawPrint" size={18} color="textSecondary" />
-              </View>
+              <HouseholdCrest size={CREST} iconSize={18} />
               <View style={styles.rowText}>
                 <AppText size={16} numberOfLines={1}>
                   {household.name}
@@ -68,7 +64,7 @@ const FollowingList = () => {
                 <AppText size={13} color="textSecondary">
                   {household.status === 'pending'
                     ? 'Waiting to be accepted'
-                    : petCountText(household.petCount)}
+                    : countText(household.petCount, 'pet')}
                 </AppText>
               </View>
               {household.status === 'accepted' && (
@@ -81,18 +77,10 @@ const FollowingList = () => {
     );
   };
 
-  return (
-    <ScreenView edges={[]}>
-      <ScreenScrollView
-        contentContainerStyle={styles.content}
-        contentInsetAdjustmentBehavior="automatic">
-        {renderBody()}
-      </ScreenScrollView>
-    </ScreenView>
-  );
+  return <ScrollScreen contentContainerStyle={styles.content}>{renderBody()}</ScrollScreen>;
 };
 
-const makeStyles = ({ colors, spacing }: AppTheme) =>
+const makeStyles = ({ spacing }: AppTheme) =>
   StyleSheet.create({
     loading: {
       marginTop: spacing.five
@@ -108,14 +96,6 @@ const makeStyles = ({ colors, spacing }: AppTheme) =>
       gap: spacing.three,
       minHeight: 56,
       paddingHorizontal: spacing.three
-    },
-    crest: {
-      width: CREST,
-      height: CREST,
-      borderRadius: Radius.full,
-      alignItems: 'center',
-      justifyContent: 'center',
-      backgroundColor: colors.backgroundSelected
     },
     rowText: {
       flex: 1,

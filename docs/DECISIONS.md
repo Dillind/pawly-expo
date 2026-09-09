@@ -751,3 +751,20 @@ screen. `usePostsScopeStore` carries a single `isFilterRequested` flag between t
 clears it on presenting.
 
 The scope itself lives there too, so it survives a tab change without becoming a URL.
+
+## Unfollowing does not ask
+
+The unfollow control raised an `Alert` before acting. It fails the four conditions in `AGENTS.md`:
+unfollowing is routine, it is reversible by following again, the user has already tapped a button
+labelled "Following · Tap to unfollow", and `useUnfollow` already confirms with a toast. The alert
+is gone and the button acts.
+
+Removing a follower keeps its alert, and the difference is the reason: a removal blocks, so the
+person cannot ask again. That one reports a consequence the Owner did not know about.
+
+## Every follow screen scrolls through one component
+
+Six screens had the same `ScreenView` + `ScreenScrollView` pair copied in, each carrying the same
+comment about a transparent header. `ScrollScreen` (`src/components/layout/scroll-screen.tsx`) is
+that pair, and the reason lives in it once. `household-settings.tsx` keeps the pair written out,
+because it presents sheets as siblings of the scroll view rather than inside it.

@@ -19,6 +19,11 @@ import { showSuccessToast } from '@/lib/toast';
 
 const QR_SIZE = 168;
 
+// A QR must stay dark on light to scan, so the plate is a fixed white in both
+// themes rather than a theme token that inverts with the surface behind it.
+const QR_PLATE = '#FFFFFF';
+const QR_INK = '#000000';
+
 type Props = {
   householdId: string;
 };
@@ -58,10 +63,8 @@ const FollowLink = ({ householdId }: Props) => {
             Have them scan this, or send the link
           </AppText>
 
-          {/* A QR must stay dark on light to scan, so it keeps a white plate in
-              both themes rather than inverting with the surface behind it. */}
           <View style={styles.qr}>
-            <QRCode value={link} size={QR_SIZE} backgroundColor="#FFFFFF" color="#000000" />
+            <QRCode value={link} size={QR_SIZE} backgroundColor={QR_PLATE} color={QR_INK} />
           </View>
 
           <PressableOpacity
@@ -118,7 +121,7 @@ const makeStyles = ({ colors, spacing }: AppTheme) =>
     },
     qr: {
       alignSelf: 'center',
-      backgroundColor: '#FFFFFF',
+      backgroundColor: QR_PLATE,
       padding: spacing.three,
       borderRadius: Radius.card,
       borderCurve: 'continuous'

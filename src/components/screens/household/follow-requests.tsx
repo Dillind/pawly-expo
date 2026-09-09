@@ -6,8 +6,7 @@ import ErrorState from '@/components/core/error-state';
 import ListCard from '@/components/core/list-card';
 import MainButton from '@/components/core/main-button';
 import UserAvatar from '@/components/core/user-avatar';
-import ScreenScrollView from '@/components/layout/screen-scroll-view';
-import ScreenView from '@/components/layout/screen-view';
+import ScrollScreen from '@/components/layout/scroll-screen';
 import { BottomTabInset, ScreenGutter, type AppTheme } from '@/constants/theme';
 import { useFollowRequests, useRespondToFollowRequest } from '@/hooks/queries/follow/use-follows';
 import { useHouseholdById } from '@/hooks/queries/household/use-household-by-id';
@@ -35,8 +34,6 @@ const FollowRequests = ({ householdId }: Props) => {
 
   const timezone = household?.timezone ?? 'UTC';
 
-  // Every state renders inside the same scroll view. A bare ScreenView under a
-  // transparent header draws its content beneath the navigation bar.
   const renderBody = () => {
     if (isLoading) return <ActivityIndicator style={styles.loading} />;
 
@@ -108,15 +105,7 @@ const FollowRequests = ({ householdId }: Props) => {
     );
   };
 
-  return (
-    <ScreenView edges={[]}>
-      <ScreenScrollView
-        contentContainerStyle={styles.content}
-        contentInsetAdjustmentBehavior="automatic">
-        {renderBody()}
-      </ScreenScrollView>
-    </ScreenView>
-  );
+  return <ScrollScreen contentContainerStyle={styles.content}>{renderBody()}</ScrollScreen>;
 };
 
 const makeStyles = ({ spacing }: AppTheme) =>
