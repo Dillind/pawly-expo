@@ -37,6 +37,12 @@ export default function ProtectedLayout() {
           name="invite/[code]/index"
           options={{ presentation: 'modal', animation: 'slide_from_bottom' }}
         />
+        {/* The follower's side, presented the same way and for the same
+            reason. It is outside the tabs because none of it is care work. */}
+        <Stack.Screen
+          name="follow"
+          options={{ presentation: 'modal', animation: 'slide_from_bottom' }}
+        />
       </Stack.Protected>
     </Stack>
   );

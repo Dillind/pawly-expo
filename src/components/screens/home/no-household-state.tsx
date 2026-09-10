@@ -5,10 +5,13 @@ import { StyleSheet, View } from 'react-native';
 import AppText from '@/components/core/app-text';
 import Icon from '@/components/core/icon';
 import MainButton from '@/components/core/main-button';
+import PressableOpacity from '@/components/core/pressable-opacity';
 import type { IconName } from '@/constants/icon-map';
 import { Radius, type AppTheme } from '@/constants/theme';
+import { useFollowedHouseholdIds } from '@/hooks/queries/follow/use-follows';
 import { useStyles } from '@/hooks/use-styles';
 import { createShadowMedium } from '@/lib/styles/shadows';
+import { countDigits } from '@/utils/counts';
 
 type DoorProps = {
   icon: IconName;
@@ -57,6 +60,7 @@ const Door = ({ icon, isPrimaryDoor, title, description, action }: DoorProps) =>
 const NoHouseholdState = () => {
   const styles = useStyles(makeStyles);
   const router = useRouter();
+  const followedCount = useFollowedHouseholdIds().length;
 
   return (
     <View style={styles.container}>
@@ -91,6 +95,29 @@ const NoHouseholdState = () => {
           }
         />
       </View>
+
+      {/* Home is the care surface and a followed household is not care, so it
+          never enters the switcher. Without this line the two doors above tell
+          a follower to create or join, which is not what they came for. */}
+      {followedCount > 0 && (
+        <PressableOpacity
+          accessibilityRole="button"
+          accessibilityLabel="Households you follow"
+          onPress={() => router.push('/profile/following')}>
+          <View style={styles.followCard}>
+            <Icon name="users" size={18} color="textSecondary" />
+            <View style={styles.followText}>
+              <AppText size={16} numberOfLines={1}>
+                You follow {countDigits(followedCount, 'household')}
+              </AppText>
+              <AppText size={13} color="textSecondary">
+                Their posts are on the Posts tab.
+              </AppText>
+            </View>
+            <Icon name="caretRight" size={16} color="textSecondary" />
+          </View>
+        </PressableOpacity>
+      )}
 
       <AppText size={13} align="center" color="textSecondary">
         You can do the other one later. Neither choice is final.
@@ -135,6 +162,19 @@ const makeStyles = ({ colors, spacing }: AppTheme) =>
     },
     tilePrimary: {
       backgroundColor: colors.primaryMuted
+    },
+    followCard: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: spacing.three,
+      padding: spacing.three,
+      borderRadius: Radius.card,
+      borderCurve: 'continuous',
+      backgroundColor: colors.backgroundElement
+    },
+    followText: {
+      flex: 1,
+      gap: spacing.half
     }
   });
 

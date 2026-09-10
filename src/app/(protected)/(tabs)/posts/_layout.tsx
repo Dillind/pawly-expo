@@ -3,10 +3,12 @@ import { StatusBar } from 'expo-status-bar';
 
 import { HeaderTitleStyle } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
+import usePostsScopeStore from '@/stores/posts-scope-store';
 
 export default function PostsLayout() {
   const { isDark } = useTheme();
   const router = useRouter();
+  const { requestFilter } = usePostsScopeStore();
 
   return (
     <>
@@ -15,7 +17,15 @@ export default function PostsLayout() {
         <Stack.Screen name="index" options={{ headerShown: true }}>
           <Stack.Title style={HeaderTitleStyle}>Posts</Stack.Title>
           <Stack.Header transparent />
+          {/* Two bar buttons and a sheet, never a segmented control: iOS draws
+              its own glass behind a bar item, and the second half of the filter
+              is a household picker no three-cell control can hold. */}
           <Stack.Toolbar placement="right">
+            <Stack.Toolbar.Button
+              icon="line.3.horizontal.decrease"
+              accessibilityLabel="Filter posts"
+              onPress={requestFilter}
+            />
             <Stack.Toolbar.Button
               icon="plus"
               accessibilityLabel="Share a photo"

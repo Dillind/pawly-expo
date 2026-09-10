@@ -34,14 +34,18 @@ import type { AlertKind } from './subjects.ts';
  * alert was queued -- so a preference changed between queue and delivery is
  * respected.
  */
-const PREFERENCE_COLUMN: Record<AlertKind, string> = {
+const PREFERENCE_COLUMN: Record<AlertKind, string | null> = {
   feed_logged: 'feed_logged_alerts',
   missed_feed: 'missed_feed_alerts',
   feed_due: 'feed_due_alerts',
   reminder_due: 'reminder_alerts',
   post: 'post_alerts',
   // Comments ride the Post Alerts toggle rather than adding a fourth one.
-  post_commented: 'post_alerts'
+  post_commented: 'post_alerts',
+  // No toggle, on purpose. A follow request is addressed to an Owner and asks
+  // them to decide something only they can decide, so there is nothing to opt
+  // out of without the request going unanswered.
+  follow_requested: null
 };
 
 export const resolveRecipientTokens = async (
@@ -59,8 +63,9 @@ export const resolveRecipientTokens = async (
   let query = client
     .from('household_members')
     .select('user_id')
-    .eq('household_id', alert.household_id)
-    .eq(preferenceColumn, true);
+    .eq('household_id', alert.household_id);
+
+  if (preferenceColumn) query = query.eq(preferenceColumn, true);
 
   // The cohort. A member who changed their lead time since the sweep has left
   // this one and hears nothing for this feed -- the same trade ADR 0012 makes

@@ -1,116 +1,162 @@
-# 36. A follow is a household-scoped read, plus a voice
+# 36. A Follow is a household-scoped read plus a voice
 
-Date: 2026-09-08
+Date: 2026-09-10
 
 ## Status
 
-Accepted. Replaces the Viewer role proposed in
-[issue #84](https://github.com/Dillind/pawly-expo/issues/84), which is closed by this.
-The public-household variant is [issue #169](https://github.com/Dillind/pawly-expo/issues/169) and
-comes after.
+Accepted. Builds on [ADR 0017](./0017-household-scoped-posts-are-their-own-object.md),
+[ADR 0020](./0020-an-invite-is-delivered-in-app-and-keyed-to-an-email.md) and
+[ADR 0012](./0012-recipient-controlled-alert-delivery-and-the-outbox.md).
+Implements [issue #125](https://github.com/Dillind/pawly-expo/issues/125).
+
+The discovery half is under review. See "What is still open" at the end.
 
 ## Context
 
-You can only see the households you are a member of. Sometimes you want to watch someone else's
-pets — a friend's puppy, a family dog — with no share of the responsibility for them. The first
-answer to that want was a third role, Viewer, sitting inside the household next to Owner and
-Contributor. That answer was wrong in a way worth writing down: a seat in a household is a
-statement about care, and a person who watches is not caring for anything. Every gate in the app
-would have had to learn a role that means "in, but not really in".
+Until now a person saw a household's Posts only as a Member. Membership is the wrong price for an
+audience. A grandparent who wants to see the dog does not need to log feeds, does not need the Care
+Card, and must never be counted as a carer. The household would also have to hand them a seat, and
+a seat is revocable but heavy.
 
-The second answer is a follow, which sits outside the household entirely.
+The app already had one way to let somebody in, the Invite. An Invite grants membership, is keyed
+to an email, expires and is single use. Reusing it for an audience would mean a third role, and a
+role is a permission set on the household's working life. That is the thing we are trying not to
+widen.
 
-Two things then have to be decided at once, and they pull against each other.
-
-**How much a follower sees** is an RLS question, and RLS is the expensive thing to change later. A
-boundary drawn too wide leaks a Care Card. A boundary drawn too narrow makes the feature pointless.
-
-**What a follower can do** is a product question. `PRODUCT_BRIEF.md` puts a social feed out of
-scope. A read-only follow honours that line most safely, and produces a feed nobody responds to —
-which is the failure mode that kills the feature quietly rather than loudly.
+So the question is not "what role is this person?" but "what can a person read who is not in the
+household at all?".
 
 ## Decision
 
-**A follow is on a household, never on a pet.** A pet-level follow multiplies the RLS surface,
-needs its own accept flow, and breaks the day a pet moves household
-([#46](https://github.com/Dillind/pawly-expo/issues/46)).
+**A Follow is a row in `household_follows`, on a Household and never on a Pet.** A Pet moves
+household. A pet-level follow would need its own accept flow and would multiply the policy surface
+of every table a Pet touches.
 
-**The boundary is posts and pet profiles.** A pet profile means name, photo, breed, bio and the
-gallery. Never feeds, never schedules, never reminders, never the Care Card. Those four are the
-household's working life, and a follower is not part of it.
+**The Owner accepts.** A request is `pending` until an Owner responds. A Contributor cannot respond,
+so a Contributor is not told about the request either — an alert that carries no action is noise.
+Every write goes through a `security definer` RPC and `household_follows` carries no INSERT, UPDATE
+or DELETE policy at all. "Only an Owner accepts or removes" is therefore a database guarantee, not
+a habit of the UI.
 
-**A follower reads, likes and comments. Nothing else.** The interaction is the point. It stops
-exactly there: no follower-to-follower surface, no profiles of followers, no mentions.
+### The read boundary
 
-**The relationship is exclusive.** One row per person per household, so a member cannot also be a
-follower of the same household. Leave a household and then follow it — that is the path that
-matters, and it is a real case.
+**A Follower reads what the household chose to publish, and nothing about care.**
 
-**Every household is private and every follow needs an accept.** Discovery is a share link only.
-Search over household names would leak the existence of private households.
+Widened to `private.can_read_household`, or one of its per-row wrappers:
 
-**Only an Owner accepts or removes**, through an RPC, with no write policy on the table at all.
-This copies `household_invites` exactly.
+| Table           | Why                                                 |
+| --------------- | --------------------------------------------------- |
+| `posts`         | The thing they came for                             |
+| `post_photos`   | The images on it                                    |
+| `post_pets`     | The Pet Tag chips on the card                       |
+| `post_likes`    | The count, and their own Like                       |
+| `post_comments` | The Thread, and their own Comment                   |
+| `comment_likes` | The count on a Comment                              |
+| `pets`          | Name, breed and bio — the Pet Profile               |
+| `pet_photos`    | The gallery on that profile                         |
+| `households`    | The name on a Post header and on the landing screen |
+| `users`         | Who wrote the Post, and who commented               |
 
-**The two ends of a follow are different events.** An unfollow is clean and repeatable. A removal
-by the Owner blocks the next request. One `status` column carries all three states — `pending`,
-`accepted`, `removed` — so a `removed` row silently fails the next request and the Owner never sees
-it again.
+Untouched, and keeping their membership test: `feed_times`, `feed_logs`, `reminders`,
+`pet_pauses`, `care_cards`, `household_members`, `household_invites`, `occasions`, `alerts`.
 
-**Removal does not erase.** The removed person's likes and comments stay. An Owner who wants one
-comment gone deletes that comment.
+That is the line. A Post is published. A feeding schedule is the household's working life.
 
-**A follower gets no push in v1.** Members get two new ones: a follow request to the Owner, and a
-comment to the post author.
+**The design first named four tables. It undercounted.** Ten policies were needed, because a Post
+card is more than a row in `posts`. The count is recorded here so the next reader trusts the table
+above and not the sentence that preceded it.
 
-**The follower's pet screen is a separate route.**
+**One predicate holds the boundary.** Every widened policy calls `private.can_read_household`
+rather than restating the union, so the line can only move deliberately and in one edit.
+
+**A policy body may only test the row in front of it and call a definer function.** A join written
+inline in `using (...)` runs as the querying user and is filtered by the joined table's own policy.
+A Follower is not in `household_members`, which is the whole point of a Follower, so an inline join
+returns nothing and every Post renders authorless. This is written up in `docs/KNOWLEDGE.md`
+because the SQL looks correct, applies cleanly and passes typecheck.
+
+### A voice, not a seat
+
+**A Follower can Like and Comment.** A read-only audience makes the household talk to a wall, and
+the grandparent's reply is the reason the photo was posted. Moderation already exists and needed no
+change: a Comment is deletable by its author, by the Post's author and by an Owner.
+
+**A Follower has no screen of their own.** No route in the app takes a user id. `can_see_user` lets
+a name and an avatar render beside words that person wrote in the open, and nothing more. Two
+Followers of one household can see each other for exactly that reason, and for no other.
+
+**A name outlives the Follow that carried it.** `can_see_user` also matches whoever wrote a Comment
+or left a Like on a Post the viewer can read. Without that, an unfollow left their words attributed
+to nobody — see `docs/KNOWLEDGE.md`. It reads no wider than the Post already did.
+
+### Ending it
+
+**An unfollow deletes the row.** It is routine and repeatable, and the person may follow again.
+
+**A removal by the Owner sets `removed` and the row survives.** That is the block: the unique index
+over `(household_id, follower_id)` leaves nowhere for a second row to go, so the next request from
+that person cannot be written and the Owner never sees the request. `request_follow` answers
+`blocked` in the same shape it answers an ordinary failure, so a removed person learns their request
+went nowhere, never that they were removed.
+
+**A decline deletes the row.** Declining is not removing. It refuses this request, and the person
+may ask again.
+
+**A removed Follower's Likes and Comments stay.** A Comment is half of a thread the Members replied
+to, and removal governs future access rather than erasing the past. This is also why a removed
+Follower stays visible to `can_see_user`: hiding the user row would leave those Comments authorless.
+The block works through `household_follows`, and both of the Owner's lists filter on status, so a
+removed person appears in neither Followers nor Requests.
+
+**Membership wins over a follow.** A trigger on `household_members` deletes the follow when a
+Follower is invited in. Nobody holds both.
+
+### Notifications
+
+**One alert, and it runs towards the household.** A follow request tells the Owners. Nothing tells
+the Follower — not the accept, not a new Post. They find the posts the next time they open the app.
+Telling a Follower "you were accepted" is the first step into the notification volume this feature
+is built to avoid.
 
 ## Consequences
 
-**The policy change is small, and that is the evidence the boundary is in the right place.** Only
-the select and insert predicates on `posts`, `post_photos`, `post_likes` and `post_comments` widen,
-from `private.is_post_household_member(post_id)` to "a member, or an accepted follower". The delete
-policy on `post_comments` needs no change at all — it already tests `author_id = auth.uid() or
-private.can_manage_post(post_id)`, and neither branch mentions membership. So a post author and an
-Owner can moderate a follower's comment from the first day, without a line being written for it.
+**The Posts tab now holds two scopes.** Posts from Households the viewer is a Member of, and Posts
+from Households they follow. The filter names which. A Member acts in the Active Household and
+reads across all of them, and a followed Household is read-only inside that same stream.
 
-Nothing on the care side is touched. `feed_logs`, `feed_times`, `reminders`, `care_cards` and
-`pet_pauses` keep membership-only policies, and a follow cannot reach them by any path.
+**A Follower is not a Member and no count may treat them as one.** Anything reading
+`household_members` keeps working unchanged, which is the point, but it also means a per-household
+audience number has to come from `household_follows`.
 
-**A follower learns which member wrote each post.** `POST_SELECT` embeds `users`, so the author's
-username and avatar travel with the post. That is a real disclosure and it is accepted: a post is
-written to be read.
+**Every new table has to answer the boundary question.** Adding a table means deciding which side of
+`can_read_household` it sits on. Choosing wrong is silent: the Follower simply sees more than they
+should.
 
-**The pet screen is duplicated, on purpose.** `home/[petId]/index.tsx` is built on the active
-household rather than on the pet's household — `useHousehold`, `useHouseholdMembers`, `usePetPause`
-and a `!timezone` guard that never resolves for a household the viewer is not in. Making that
-optional would mean four conditional hooks on the one screen that carries feeds, reminders and the
-Owner controls, and a mistake there shows a follower a feed schedule. The follower's screen asks
-one query and renders four things, so it cannot leak what it never requests. The duplication is the
-cheaper mistake.
+**pgTAP is the only thing in the repository that runs a policy.** The boundary is not testable from
+Jest. `supabase/tests/follow.test.sql` found the inline-join failure above.
 
-**Home stays member-only.** A followed household must not enter the household switcher, because
-Home is the care surface. A person who follows one household and joins none still lands on
-`no-household-state.tsx`, whose copy tells them to create or join. That copy is now wrong for them
-and needs a second variant.
+## What is still open
 
-**The block has no unblock screen yet.** The `removed` row is a deliberate dead end in v1. The data
-is there the day someone wants a list.
+**Discovery is a link and nothing else, for now.** `crumpetapp://follow/<householdId>`, shown as a
+QR code and a copyable string. The link grants nothing, so it needs no table behind it and does not
+expire.
 
-## Alternatives considered
+A link is a poor way to find a household you were told about in conversation. The answer was
+settled on 2026-09-10 and is three tickets, none of which moves anything above:
 
-**A Viewer role inside the household.** Rejected above, and closed as #84. It puts a person who
-takes no responsibility into the structure that exists to divide responsibility, and every
-role check in the app pays for it forever.
+- **[CRU-126](https://github.com/Dillind/pawly-expo/issues/169)** puts a **Handle** on the
+  Household and a **Listed** switch beside it. Listed governs whether strangers can find a
+  Household. **It never governs who gets in** — an Owner accepts every Follow, always. That is the
+  opposite of what CRU-126 originally proposed, and the reason is above: a stranger who arrived
+  through a search is exactly the person an Owner should look at first.
+- **[CRU-129](https://github.com/Dillind/pawly-expo/issues/178)** removes `users.username`. A
+  Handle belongs to the thing being followed, and that is a Household. A person is named by their
+  first name.
+- **[CRU-130](https://github.com/Dillind/pawly-expo/issues/179)** is the search screen. The follow
+  link survives beside it, because a link is how you follow somebody standing next to you and it
+  works for an Unlisted Household.
 
-**A read-only follow.** Safer against the `PRODUCT_BRIEF.md` line, and the earlier position. It was
-overturned deliberately: the household gains nothing from an audience it cannot hear, and a silent
-feed is abandoned rather than argued about. The line is held by scope instead — likes and comments
-on posts, and nothing that makes followers visible to each other.
-
-**A follow on a pet.** The more natural mental model, and the one users would describe. It loses on
-mechanics: two accept flows, a much larger policy surface, and no answer for a pet that changes
-household.
-
-**Deletion of a removed follower's content.** Rejected. It edits threads that members took part in,
-to punish a person who can no longer read them.
+**Removal blocks, and that is one action doing two jobs.**
+[CRU-132](https://github.com/Dillind/pawly-expo/issues/181) would split Remove from Block. It is
+not a rename: this ADR, the alert copy and `CONTEXT.md` all record the block, and changing the model
+means changing all three and adding a Blocked list.

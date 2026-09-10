@@ -339,3 +339,82 @@ exists for the same reason — a settings screen must never call `useHousehold()
 The general shape: a hook whose result depends on ambient state is safe only while the screen that
 reads it is also chosen by that state. The moment a route carries an id, every hook beneath it has
 to take that id, and the compiler cannot see the difference.
+
+## An RLS policy's own subqueries are filtered by RLS
+
+The `users` policy that lets a Follower see who wrote a Post was written inline:
+
+```sql
+using (
+  exists (
+    select 1
+    from public.household_follows f
+    join public.household_members m on m.household_id = f.household_id
+    where f.follower_id = auth.uid() and f.status = 'accepted' and m.user_id = users.id
+  )
+)
+```
+
+It returns nothing, always. A policy expression runs as the querying user, so the join to
+`household_members` is itself filtered by that table's own select policy — and a Follower is not a
+member of the household, which is the entire point of a Follower. Every Post rendered authorless.
+
+Nothing about this looks wrong. The SQL is correct, the migration applies, typecheck passes, and
+the feed loads with a name missing from each card rather than an error anywhere.
+
+This is what every other predicate in `private.` is for: `security definer` plus `set search_path
+= ''`. The rule is that a policy body may only test the row in front of it and call a definer
+function. A join written directly in `using (...)` is a bug waiting for the first user who is not
+already a member.
+
+Found by `supabase/tests/follow.test.sql`, which is the only thing in the repo that runs a policy.
+
+## The bare `commit;` in a migration is not a workaround for the CLI
+
+`alter type ... add value` cannot be followed by a use of that value in the same transaction, and
+the Supabase CLI wraps each migration file in one. `20260909090200_follow_request_alerts.sql`
+answers that with a bare `commit;` after the `alter type`, which ends the wrapper's transaction
+early and leaves the rest of the file in autocommit.
+
+That is verified rather than assumed: `supabase/tests/README.md` runs every migration a second time
+wrapped in `begin; ... commit;` and the file applies unchanged. The trailing `commit` the wrapper
+adds is a no-op warning, not an error.
+
+## A Supabase update that matches no row is not an error
+
+`PostService.markSeen` writes `posts_last_seen_at` on `household_members`. The Posts tab called it
+with the merged scope — member households and followed households together — and a followed
+household has no membership row. The update matched nothing, returned no error, and ran once per
+focus for every followed household.
+
+Nothing surfaces this. There is no exception, no toast, no console line, and the dot it was meant
+to clear belongs to a household that never had one. PostgREST answers a zero-row `update` with
+success, which is correct and is exactly what hides the bug.
+
+The rule: an id from the merged Posts scope is not interchangeable with a membership id. Anything
+writing to `household_members`, `alerts` or any other member-scoped table takes `memberIds`.
+
+## An unfollow made a Comment authorless, and a Removal did not
+
+`20260910090000` widened `can_see_user` so a Follower's name renders beside words they wrote. Its
+header explains the case it fixed: a **removed** Follower stays visible, because their Comments
+survive removal and hiding the user row would leave those Comments with no author.
+
+That reasoning is right and the fix was incomplete. A Removal keeps the row, as `removed`, so a
+branch still matched. **An unfollow deletes the row**, so nothing matched — and the exact failure
+the migration exists to prevent happened on the commonest path. The household saw
+**"Removed member"** against a comment they had replied to, and a grey placeholder in the likers
+row. That person was never a Member and was never removed.
+
+Nothing in the code looks wrong. The four branches read as a complete set, and each one is correct.
+The gap is only visible if you notice that three of them key on a row that one of the two exit paths
+deletes.
+
+The rule, which is ADR 0036's: **a Follow governs future access; it never erases the past.** So the
+two branches added by `20260910110000` key on the words rather than on the relationship — if I can
+read the Post, I can read the name of whoever wrote or liked it. Any future predicate about who can
+be seen has to answer the same question: what happens to this when the follow row is gone?
+
+Both new branches filter by author, and neither column was indexed. `post_comments` carried only
+`(post_id, created_at)` and `(parent_id)`, and `post_likes` only `(post_id)`. Without the two
+indexes in that migration, naming one person on one Post card is a sequential scan.

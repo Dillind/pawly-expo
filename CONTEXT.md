@@ -270,38 +270,49 @@ _Avoid_: Conversation, discussion, comment section.
 ## Following
 
 **Follow**:
-A one-way link from a User to a **Household** they are not in, which lets them read that
-Household's Posts and Pet Profiles. Never on a Pet — a Pet moves Household, and a Follow does not
-move with it. Exclusive with membership: one relationship per person per Household, so a Member
-cannot also Follow the Household they are in. See
+The relationship that lets a person read a Household's Posts and Pet Profiles without joining it.
+Always on the Household, never on a Pet — a Pet moves Household, and a Follow does not move with it.
+An Owner accepts it, and it grants no part of the household's working life — no schedule, no Feed
+Logs, no Care Card. It is exclusive with membership: one relationship per person per Household, so a
+Member cannot also Follow the Household they are in. See
 [ADR 0036](./docs/adr/0036-a-follow-is-a-household-scoped-read-plus-a-voice.md).
-_Avoid_: Subscribe, watch, friend, connection — and never "Viewer", which was a Member role and is
-the thing a Follow replaced.
+_Avoid_: Subscribe, watch, friend, connection, viewer role (a Follow is not a role — a Follower is
+not a Member at all), and never "Viewer", which was a Member role and is the thing a Follow replaced.
 
 **Follower**:
-A User whose Follow of a Household has been accepted. Reads Posts and Pet Profiles, and may Like
-and Comment. Never sees Feed Times, Feed Logs, Reminders or the Care Card, and never appears in the
-Members list, because a Follower is not a Member and holds no role.
-_Avoid_: Viewer, guest, fan, subscriber, spectator.
-
-**Following** (the list):
-The Households one User Follows. Belongs to the person, not to a Household — the mirror of the
-Followers list, which belongs to a Household.
-_Avoid_: Subscriptions, feeds, watchlist.
+A User whose Follow of a Household has been accepted. They read that Household's Posts and Pet
+Profiles, and they may Like and Comment. They never see Feed Times, Feed Logs, Reminders or the Care
+Card. They are never a Member, are never counted as a carer, never appear in the Members list, and
+have no screen of their own anywhere in the app — their name appears only beside something they
+wrote.
+_Avoid_: Fan, subscriber, guest, spectator, viewer, and above all Member.
 
 **Follow Request**:
-A Follow that has been asked for and not yet answered. Every Household is private, so every Follow
-starts here. Only an Owner accepts or denies one, exactly as with an Invite, and the Owner is
-notified. A Follower is not.
-_Avoid_: Application, invitation (an Invite runs the other way — an Owner offers it, and it makes a
-Member).
+A Follow that is waiting on an Owner. Every Household is private, so every Follow starts here. The
+person who asked sees it on their Following list and sees nothing of the Household beyond its name
+and its Pets' names. Only an Owner can accept or decline, exactly as with an Invite, and the Owner
+is notified. A decline is not a block — the person may ask again.
+_Avoid_: Application, invitation, pending invite (an Invite travels the other way, from the
+Household outwards, and it makes a Member).
 
-**Removed** (a Follower):
-The end state after an **Owner** ends a Follow. It also blocks: the same User cannot request that
-Household again. Distinct from an unfollow, which the Follower does themselves and which they may
-undo by requesting again. Removal ends access and nothing else — the Likes and Comments they
-already wrote stay, because Members replied to them.
-_Avoid_: Blocked (that names only half of it), banned, kicked, revoked.
+**Following**:
+The list of Households a User follows, a Request still waiting included. It belongs to the person,
+not to a Household — the mirror of the Followers list, which belongs to a Household. It is the
+Follower's own view of their side of the relationship, and where they unfollow.
+_Avoid_: Subscriptions, feeds, watchlist, my households (that phrase means the ones they are a
+Member of).
+
+**Follow Link**:
+What an Owner sends so somebody can ask to follow their Household. It carries the Household id, it
+does not expire, and it grants nothing on its own — it opens a screen that asks. Distinct from an
+Invite, which hands over a seat, is keyed to an email and does expire.
+_Avoid_: Invite, invitation, share code, referral.
+
+**Removal**:
+An Owner ending a Follow. It blocks: the person stops reading and cannot ask that Household again.
+Their Likes and Comments stay, because the Household replied to them. Distinct from an unfollow,
+which the Follower does themselves and which can be undone by following again.
+_Avoid_: Ban, block (the app never uses that word to a user), kick, revoke.
 
 **Pet Profile**:
 The part of a Pet a Follower sees: name, photo, breed, bio and gallery. Not a screen a Member has —
