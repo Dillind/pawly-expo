@@ -33,11 +33,6 @@ export default function ProfileLayout() {
           <Stack.Header transparent />
           <Stack.Screen.BackButton displayMode="minimal" />
         </Stack.Screen>
-        <Stack.Screen name="settings/username">
-          <Stack.Title style={HeaderTitleStyle}>Username</Stack.Title>
-          <Stack.Header transparent />
-          <Stack.Screen.BackButton displayMode="minimal" />
-        </Stack.Screen>
         {/* Static, not the household's name: the screen shows the name in its
             own identity block, and a data-driven title needs Stack.Title from
             inside the screen, outside every early return. */}

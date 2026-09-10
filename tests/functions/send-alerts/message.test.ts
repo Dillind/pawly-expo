@@ -19,7 +19,6 @@ describe('the shape every kind shares', () => {
     const messages = [
       buildFeedLoggedMessage({
         authorFirstName: 'Ben',
-        authorUsername: 'ben_dog',
         petName: 'Crumpet',
         loggedAt: '2026-09-08T21:12:00.000Z',
         householdTimezone: 'Australia/Melbourne',
@@ -28,13 +27,11 @@ describe('the shape every kind shares', () => {
       buildMissedFeedMessage({ petName: 'Crumpet', label: 'morning', scheduledTime: '07:00:00' }),
       buildPostMessage({
         authorFirstName: 'Sarah',
-        authorUsername: 'sarah_c',
         petNames: ['Crumpet'],
         postId: 'post-1'
       }),
       buildPostCommentedMessage({
         authorFirstName: 'Lisa',
-        authorUsername: 'lisa_h',
         isReplyToRecipient: false,
         isPostAuthor: true,
         postId: 'post-1'
@@ -56,7 +53,6 @@ describe('buildFeedLoggedMessage', () => {
   it('names the author, the pet and the time, and never the notes', () => {
     const message = buildFeedLoggedMessage({
       authorFirstName: 'Ben',
-      authorUsername: 'ben_dog',
       petName: 'Crumpet',
       // 7:12 am in Melbourne.
       loggedAt: '2026-09-07T21:12:00.000Z',
@@ -64,7 +60,7 @@ describe('buildFeedLoggedMessage', () => {
       logId: 'log-1'
     });
 
-    expect(message.body).toBe('ben_dog fed Crumpet at 7:12 am');
+    expect(message.body).toBe('Ben fed Crumpet at 7:12 am');
     expect(message.data).toEqual({ screen: '/home', params: { logId: 'log-1' } });
   });
 
@@ -72,7 +68,6 @@ describe('buildFeedLoggedMessage', () => {
     expect(
       buildFeedLoggedMessage({
         authorFirstName: 'Ben',
-        authorUsername: null,
         petName: 'Crumpet',
         loggedAt: '2026-09-07T21:12:00.000Z',
         householdTimezone: 'Australia/Melbourne',
@@ -81,30 +76,28 @@ describe('buildFeedLoggedMessage', () => {
     ).toBe('Ben fed Crumpet at 7:12 am');
   });
 
-  it('says A member when the author account has gone', () => {
+  it('says Someone when the author account has gone', () => {
     expect(
       buildFeedLoggedMessage({
         authorFirstName: null,
-        authorUsername: null,
         petName: 'Crumpet',
         loggedAt: '2026-09-07T21:12:00.000Z',
         householdTimezone: 'Australia/Melbourne',
         logId: 'log-1'
       }).body
-    ).toBe('A member fed Crumpet at 7:12 am');
+    ).toBe('Someone fed Crumpet at 7:12 am');
   });
 
   it('reads the household timezone, not the machine running this', () => {
     expect(
       buildFeedLoggedMessage({
-        authorFirstName: null,
-        authorUsername: 'ben',
+        authorFirstName: 'Ben',
         petName: 'Crumpet',
         loggedAt: '2026-09-07T21:12:00.000Z',
         householdTimezone: 'America/New_York',
         logId: 'log-1'
       }).body
-    ).toBe('ben fed Crumpet at 5:12 pm');
+    ).toBe('Ben fed Crumpet at 5:12 pm');
   });
 });
 
@@ -134,66 +127,62 @@ describe('buildPostMessage', () => {
     expect(
       buildPostMessage({
         authorFirstName: 'Sarah',
-        authorUsername: 'sarah_c',
         petNames: ['Crumpet'],
         postId: 'post-1'
       }).body
-    ).toBe('sarah_c posted a photo of Crumpet');
+    ).toBe('Sarah posted a photo of Crumpet');
   });
 
   it('says nothing about pets when two are tagged', () => {
     expect(
       buildPostMessage({
         authorFirstName: 'Sarah',
-        authorUsername: 'sarah_c',
         petNames: ['Crumpet', 'Bailey'],
         postId: 'post-1'
       }).body
-    ).toBe('sarah_c posted a photo');
+    ).toBe('Sarah posted a photo');
   });
 
   it('says nothing about pets when none are tagged', () => {
     expect(
       buildPostMessage({
         authorFirstName: 'Sarah',
-        authorUsername: 'sarah_c',
         petNames: [],
         postId: 'post-1'
       }).body
-    ).toBe('sarah_c posted a photo');
+    ).toBe('Sarah posted a photo');
   });
 });
 
 describe('buildPostCommentedMessage', () => {
   const base = {
     authorFirstName: 'Lisa',
-    authorUsername: 'lisa_h',
     postId: 'post-1'
   };
 
   it('tells the parent comment author it was a reply', () => {
     expect(
       buildPostCommentedMessage({ ...base, isReplyToRecipient: true, isPostAuthor: false }).body
-    ).toBe('lisa_h replied to your comment');
+    ).toBe('Lisa replied to your comment');
   });
 
   it('tells the post author it was their post', () => {
     expect(
       buildPostCommentedMessage({ ...base, isReplyToRecipient: false, isPostAuthor: true }).body
-    ).toBe('lisa_h commented on your post');
+    ).toBe('Lisa commented on your post');
   });
 
   // The third case: in the thread, but owns neither the post nor the parent.
   it('does not claim the post belongs to a bystander', () => {
     expect(
       buildPostCommentedMessage({ ...base, isReplyToRecipient: false, isPostAuthor: false }).body
-    ).toBe('lisa_h also commented');
+    ).toBe('Lisa also commented');
   });
 
   it('prefers the reply wording when the recipient is both', () => {
     expect(
       buildPostCommentedMessage({ ...base, isReplyToRecipient: true, isPostAuthor: true }).body
-    ).toBe('lisa_h replied to your comment');
+    ).toBe('Lisa replied to your comment');
   });
 });
 

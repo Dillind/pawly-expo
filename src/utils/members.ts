@@ -7,24 +7,18 @@ import { optionLabel } from '@/utils/options';
  * author. That is deliberate -- a cascade would erase a household's whole
  * feeding history the day a Contributor deletes their account.
  *
- * Both entry points below resolve to the handle. A handle is unique, which a
- * first name is not, and it is what the @name reply prefix and the push copy
- * both read -- so every surface that names a person must agree, or the same
- * feed log gets one name on the lock screen and another when you tap it.
+ * Every surface that names a person must agree, or the same feed log gets one
+ * name on the lock screen and another when you tap it. The push copy keeps its
+ * own copy of this rule in supabase/functions/send-alerts/message.ts.
  *
- * The first name is the fallback, not the preference. A handle is seeded at
- * signup, but a collision writes none rather than failing the signup, so
- * `username` can be null on a real account.
+ * Not 'Member': a Follower writes comments and is never a Member.
  */
 export function formatAuthorName(
-  author:
-    | { firstName: string | null; lastName: string | null; username?: string | null }
-    | null
-    | undefined
+  author: { firstName: string | null; lastName: string | null } | null | undefined
 ): string {
   if (!author) return 'Removed member';
 
-  return author.username ?? author.firstName ?? 'Member';
+  return author.firstName ?? 'Someone';
 }
 
 /** Both names where there is room for both, e.g. the Profile header and Members list. */

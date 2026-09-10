@@ -4,40 +4,27 @@ import { buildFollowRequestedMessage } from '../../../supabase/functions/send-al
 // follower is never told anything, not even that they were accepted.
 
 describe('buildFollowRequestedMessage', () => {
-  it('names the requester by handle, which every other surface also shows', () => {
+  it('names the requester by their first name', () => {
     const message = buildFollowRequestedMessage({
       requesterFirstName: 'Jess',
-      requesterUsername: 'jesst',
-      householdId: 'household-1'
-    });
-
-    expect(message.body).toBe('jesst asked to follow your household');
-  });
-
-  it('falls back to the first name, because a signup collision writes no handle', () => {
-    const message = buildFollowRequestedMessage({
-      requesterFirstName: 'Jess',
-      requesterUsername: null,
       householdId: 'household-1'
     });
 
     expect(message.body).toBe('Jess asked to follow your household');
   });
 
-  it('falls back again when the account has neither', () => {
+  it('says Someone when the account has no first name', () => {
     const message = buildFollowRequestedMessage({
       requesterFirstName: null,
-      requesterUsername: null,
       householdId: 'household-1'
     });
 
-    expect(message.body).toBe('A member asked to follow your household');
+    expect(message.body).toBe('Someone asked to follow your household');
   });
 
   it('sets no title, so iOS draws the app name alone on the top line', () => {
     const message = buildFollowRequestedMessage({
       requesterFirstName: 'Jess',
-      requesterUsername: 'jesst',
       householdId: 'household-1'
     });
 
@@ -47,7 +34,6 @@ describe('buildFollowRequestedMessage', () => {
   it('deep links to the Requests screen of the household that was asked', () => {
     const message = buildFollowRequestedMessage({
       requesterFirstName: 'Jess',
-      requesterUsername: 'jesst',
       householdId: 'household-1'
     });
 

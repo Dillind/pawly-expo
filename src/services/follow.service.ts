@@ -37,7 +37,6 @@ export type Follower = {
   userId: string;
   firstName: string | null;
   lastName: string | null;
-  username: string | null;
   avatarUrl: string | null;
   requestedAt: string;
   respondedAt: string | null;
@@ -51,14 +50,13 @@ type FollowerRow = {
   users: {
     first_name: string | null;
     last_name: string | null;
-    username: string | null;
     avatar_url: string | null;
   } | null;
 };
 
 const FOLLOWER_SELECT = `
   id, follower_id, requested_at, responded_at,
-  users!household_follows_follower_id_fkey(first_name, last_name, username, avatar_url)
+  users!household_follows_follower_id_fkey(first_name, last_name, avatar_url)
 `;
 
 const toFollower = (row: FollowerRow): Follower => ({
@@ -66,7 +64,6 @@ const toFollower = (row: FollowerRow): Follower => ({
   userId: row.follower_id,
   firstName: row.users?.first_name ?? null,
   lastName: row.users?.last_name ?? null,
-  username: row.users?.username ?? null,
   avatarUrl: row.users?.avatar_url ?? null,
   requestedAt: row.requested_at,
   respondedAt: row.responded_at

@@ -199,7 +199,6 @@ export function useToggleLike() {
         userId,
         firstName: profile?.firstName ?? null,
         lastName: profile?.lastName ?? null,
-        username: profile?.username ?? null,
         avatarUrl: profile?.avatarUrl ?? null
       };
 

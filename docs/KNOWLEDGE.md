@@ -459,3 +459,30 @@ server, and leaves `tsconfig.json` untouched. It is in `.github/workflows/check.
 **The general trap: a gate that only ever runs on a developer machine is testing the machine.** This
 one had been broken for as long as the file had been gitignored, and nothing could surface it until
 something ran the gate somewhere clean.
+
+## Removing a screen can leave a `Stack.Protected` branch with no screen in it
+
+`(onboarding)/_layout.tsx` held two guarded branches — `guard={needsName}` for the `name` step and
+`guard={!needsName}` for the `username` step. CRU-129 deleted the username step, and deleting only
+the `<Stack.Screen>` would have left:
+
+```tsx
+<Stack.Protected guard={!needsName}></Stack.Protected>
+```
+
+Typecheck passes. Lint passes. The navigator has a guard that can be true and nothing to render
+behind it.
+
+**Whenever you delete a screen, look at what encloses it, not just the file.** A route group is the
+usual case: the last screen leaving a guard, or leaving the group itself, is invisible to every
+static check the repo runs.
+
+## A write to a `households` column with no UPDATE grant fails silently
+
+`grant update (name, timezone, grace_window_minutes) on public.households to authenticated` is
+column-level. A write to any other column reports success, and the value is gone on the next
+refetch. There is no error to catch.
+
+This bites the moment a column is added — `handle` and `is_listed` on CRU-126 are next. Add the
+column to the grant in the same migration that adds the column, or route the write through a
+SECURITY DEFINER RPC.

@@ -58,14 +58,14 @@ const CommentRow = ({ comment, isReply = false, onToggleLike, onReply, onLongPre
           </AppText>
         </View>
 
-        <AppText size={15}>
-          {comment.replyToName && (
-            <AppText size={15} color="primaryText" fontWeight="bold">
-              {`@${comment.replyToName} `}
-            </AppText>
-          )}
-          {comment.body}
-        </AppText>
+        {/* Its own line, not an inline prefix. Without the "@" the name read as
+            the first word of the sentence. */}
+        {comment.replyToName && (
+          <AppText size={13} color="textSecondary">
+            {`Replying to ${comment.replyToName}`}
+          </AppText>
+        )}
+        <AppText size={15}>{comment.body}</AppText>
 
         <PressableOpacity
           style={styles.replyTarget}

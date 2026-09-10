@@ -13,7 +13,6 @@
 
 export type FeedLoggedInput = {
   authorFirstName: string | null;
-  authorUsername: string | null;
   petName: string;
   loggedAt: string;
   householdTimezone: string;
@@ -33,11 +32,7 @@ export type ExpoMessage = {
 // the Home occurrence row, the detail sheet and this notification all render the
 // same feed log, and two different names for one person reads as a bug.
 //
-// The handle first: it is unique, and it is what the post and comment surfaces
-// show. The first name is the fallback, because a signup collision writes no
-// handle rather than failing the signup.
-const authorName = (username: string | null, firstName: string | null): string =>
-  username ?? firstName ?? 'A member';
+const authorName = (firstName: string | null): string => firstName ?? 'Someone';
 
 // The household's timezone, never the recipient's device timezone -- the same
 // rule every other surface follows.
@@ -74,7 +69,7 @@ const wallClockTime = (time: string): string => {
 };
 
 export const buildFeedLoggedMessage = (input: FeedLoggedInput): Omit<ExpoMessage, 'to'> => ({
-  body: `${authorName(input.authorUsername, input.authorFirstName)} fed ${input.petName} at ${timeOfDay(input.loggedAt, input.householdTimezone)}`,
+  body: `${authorName(input.authorFirstName)} fed ${input.petName} at ${timeOfDay(input.loggedAt, input.householdTimezone)}`,
   sound: 'default',
   // data.screen and data.params are the exact shape usePushNotifications reads,
   // and /home?logId=... is a deep link home/index.tsx already handles -- so a
@@ -101,7 +96,6 @@ export const buildMissedFeedMessage = (input: MissedFeedInput): Omit<ExpoMessage
 
 export type PostInput = {
   authorFirstName: string | null;
-  authorUsername: string | null;
   petNames: string[];
   postId: string;
 };
@@ -116,7 +110,7 @@ export type PostInput = {
  * Crumpet and Bailey" is worse than saying nothing, and tags are optional.
  */
 export const buildPostMessage = (input: PostInput): Omit<ExpoMessage, 'to'> => {
-  const author = authorName(input.authorUsername, input.authorFirstName);
+  const author = authorName(input.authorFirstName);
 
   return {
     body:
@@ -130,7 +124,6 @@ export const buildPostMessage = (input: PostInput): Omit<ExpoMessage, 'to'> => {
 
 export type PostCommentedInput = {
   authorFirstName: string | null;
-  authorUsername: string | null;
   /** True when the recipient wrote the comment being replied to. */
   isReplyToRecipient: boolean;
   /** True when the recipient wrote the post being commented on. */
@@ -143,7 +136,7 @@ export type PostCommentedInput = {
  * neither the post nor the parent, and "your post" would be a lie to them.
  */
 export const buildPostCommentedMessage = (input: PostCommentedInput): Omit<ExpoMessage, 'to'> => {
-  const author = authorName(input.authorUsername, input.authorFirstName);
+  const author = authorName(input.authorFirstName);
 
   return {
     body: input.isReplyToRecipient
@@ -254,7 +247,6 @@ export const buildReminderDueMessage = (input: ReminderDueInput): Omit<ExpoMessa
 
 export type FollowRequestedInput = {
   requesterFirstName: string | null;
-  requesterUsername: string | null;
   householdId: string;
 };
 
@@ -269,7 +261,7 @@ export type FollowRequestedInput = {
 export const buildFollowRequestedMessage = (
   input: FollowRequestedInput
 ): Omit<ExpoMessage, 'to'> => ({
-  body: `${authorName(input.requesterUsername, input.requesterFirstName)} asked to follow your household`,
+  body: `${authorName(input.requesterFirstName)} asked to follow your household`,
   sound: 'default',
   data: {
     screen: '/profile/household/[householdId]/followers/requests',
