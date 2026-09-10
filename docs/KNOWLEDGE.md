@@ -418,3 +418,24 @@ be seen has to answer the same question: what happens to this when the follow ro
 Both new branches filter by author, and neither column was indexed. `post_comments` carried only
 `(post_id, created_at)` and `(parent_id)`, and `post_likes` only `(post_id)`. Without the two
 indexes in that migration, naming one person on one Post card is a sequential scan.
+
+## A grep over source lines misses half of what it is looking for
+
+`scripts/check-boundaries.sh` first matched imports line by line. Three shapes walked straight
+through it, and each one leaves a real violation in the tree while the hook reports success:
+
+- **A multiline import.** Prettier wraps a long one across several lines, so `import { TrueSheet,`
+  and `} from '...'` are never on the same line as each other.
+- **A double-quoted specifier.** `from "lucide-react-native"` does not match a pattern written with
+  single quotes. `bun run format` rewrites the quotes afterwards, so the violation survives and the
+  evidence of how it got in does not.
+- **A parent directory.** A basename-only naming check accepts `src/components/Bad/thing.tsx`.
+
+The fix is to match against a normalised copy — comments dropped, quotes folded, whitespace removed
+— rather than against the file as written.
+
+**The second half of the lesson is the sweep.** The corrected path check flagged 54 of 360 real
+files on its first run, because Expo Router route groups are `(parentheses)` and the pattern did not
+allow them. A hook that exits 2 blocks the work, so a false positive is worse than the hole it
+closes. Never change that script without running it over all of `src/` — the command is in
+[docs/conventions/agent-hooks.md](./conventions/agent-hooks.md).

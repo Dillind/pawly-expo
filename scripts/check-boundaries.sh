@@ -22,50 +22,75 @@ case "$rel" in
   *) exit 0 ;;
 esac
 
-base=$(basename "$rel")
 violations=()
-
 add() { violations+=("$1"); }
 
-# --- File naming -------------------------------------------------------------
-# Expo Router allows a leading _ (_layout) and a leading + (+not-found).
-# Dynamic segments live in [brackets]. Nothing else may carry an uppercase
-# letter or an underscore.
-name_probe=${base#_}
-name_probe=${name_probe#+}
-name_probe=${name_probe//[/}
-name_probe=${name_probe//]/}
-if printf '%s' "$name_probe" | grep -q '[A-Z_]'; then
-  add "Filename '$base' is not kebab-case. AGENTS.md > Naming & imports: files and folders are kebab-case."
-fi
+# --- Path naming -------------------------------------------------------------
+# Every segment under src/, folders included — AGENTS.md says "files and folders
+# are kebab-case", and a basename-only check misses src/components/Bad/thing.tsx.
+#
+# Allowed, all Expo Router shapes: a leading _ (_layout) or + (+not-found), a
+# (route-group) in parentheses, a [dynamicSegment] whose inside is camelCase by
+# Expo Router convention, and dotted suffixes (…-validated.ios.tsx). Anything
+# else — an uppercase letter, an underscore inside the name, a space,
+# punctuation — fails.
+#
+# The route-group form is here because a sweep over src/ without it flagged 54
+# of 360 real files. Re-run that sweep after any change to this pattern.
+segment_ok='^[_+]?(\([a-z0-9]+(-[a-z0-9]+)*\)|\[[A-Za-z0-9]+\]|[a-z0-9]+(-[a-z0-9]+)*)(\.[a-z0-9]+)*$'
+IFS='/' read -ra parts <<<"${rel#src/}"
+for part in "${parts[@]}"; do
+  [ -n "$part" ] || continue
+  if ! printf '%s' "$part" | grep -qE "$segment_ok"; then
+    add "Path segment '$part' in '$rel' is not kebab-case. AGENTS.md > Naming & imports: files and folders are kebab-case."
+  fi
+done
+
+# --- Normalised copy for import matching -------------------------------------
+# An import is not reliably one line. Prettier wraps a long one across several,
+# and a module specifier may be double-quoted before `bun run format` rewrites
+# it. Matching the raw text line by line misses both, so build one normalised
+# blob first: line comments dropped, double quotes folded to single, all
+# whitespace removed. Every import then reads as import{a,b}from'mod'.
+norm=$(python3 -c '
+import re, sys
+src = open(sys.argv[1], encoding="utf-8", errors="ignore").read()
+src = re.sub(r"^\s*//.*$", "", src, flags=re.M)   # line comments
+src = re.sub(r"/\*.*?\*/", "", src, flags=re.S)   # block comments
+src = src.replace(chr(34), chr(39))               # " -> '"'"'
+sys.stdout.write(re.sub(r"\s+", "", src))
+' "$rel" 2>/dev/null) || norm=$(tr -d '[:space:]' <"$rel")
 
 # --- Import boundaries -------------------------------------------------------
-if grep -q "from 'lucide-react-native'" "$rel" && [ "$rel" != 'src/constants/icon-map.ts' ]; then
+if printf '%s' "$norm" | grep -qF "from'lucide-react-native'" \
+  && [ "$rel" != 'src/constants/icon-map.ts' ]; then
   add "Imports lucide-react-native directly. Only src/constants/icon-map.ts may. Use <Icon name=\"...\" /> instead. See ADR 0008."
 fi
 
-if grep -q "from '@/lib/supabase/client'" "$rel" \
+if printf '%s' "$norm" | grep -qF "from'@/lib/supabase/client'" \
   && [[ "$rel" != src/services/* ]] \
   && [ "$rel" != 'src/lib/supabase/client.ts' ]; then
   add "Imports the Supabase client outside src/services/. A remote call belongs in a service, and a query hook wraps it."
 fi
 
-if grep -qE "^import \{[^}]*\bTrueSheet\b" "$rel" \
+# A type-only import is fine — the rule is about the value. `import type {...}`
+# and an inline `type TrueSheet` specifier are both allowed through.
+if printf '%s' "$norm" | grep -qE "import\{([^}]*,)?TrueSheet[,}]" \
   && [ "$rel" != 'src/components/bottom-sheets/base-sheet.tsx' ]; then
   add "Value-imports TrueSheet. Only base-sheet.tsx may. Build on BaseSheet and import TrueSheet as a type for the ref."
 fi
 
-if grep -qE "^import \{[^}]*\btoast\b[^}]*\} from 'sonner-native'" "$rel" \
+if printf '%s' "$norm" | grep -qE "import\{([^}]*,)?toast(,[^}]*)?\}from'sonner-native'" \
   && [ "$rel" != 'src/lib/toast.ts' ]; then
   add "Imports toast from sonner-native. Use showSuccessToast / showErrorToast / showInfoToast from @/lib/toast."
 fi
 
 # --- Domain rules ------------------------------------------------------------
-if tr -d '[:space:]' <"$rel" | grep -qE "from\('feed_logs'\)\.insert\("; then
+if printf '%s' "$norm" | grep -qF "from('feed_logs').insert("; then
   add "Inserts into feed_logs directly. A feed log is only created through the log_feed RPC — the Double Feed guard and the alert trigger both hang off it."
 fi
 
-if grep -qE "=[[:space:]]*watch\(" "$rel"; then
+if printf '%s' "$norm" | grep -qE "=watch\(" ; then
   add "Uses watch() from react-hook-form. Use useWatch({ control, name }) — React Compiler cannot memoise watch()."
 fi
 
