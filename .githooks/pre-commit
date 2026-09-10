@@ -1,0 +1,39 @@
+#!/usr/bin/env bash
+# Blocks a commit that fails the gate. Runs for every commit, not only an
+# agent's — that is the point of it, and the reason it is not a Claude hook.
+#
+# Installed by `git config core.hooksPath .githooks`, which `bun install` does
+# through the `prepare` script. Run `bun run hooks:install` to do it by hand.
+#
+# Skip it deliberately with `git commit --no-verify` when you know why.
+
+set -uo pipefail
+
+# Nothing staged means nothing to check. `git commit` will refuse anyway.
+git diff --cached --quiet && exit 0
+
+# Docs-only commits do not need typecheck, lint or tests.
+if ! git diff --cached --name-only | grep -qE '\.(ts|tsx|js|jsx|json|sql)$'; then
+  echo "pre-commit: no code staged, running format and spelling only"
+  bun run format:check && bun run spellcheck
+  exit $?
+fi
+
+echo "pre-commit: running bun run check (about 15s)"
+
+# NOTE: this checks the working tree, not the staged content. A partial stage
+# can pass here and still be broken as committed. CI is the backstop for that.
+if ! bun run check; then
+  cat >&2 <<'MSG'
+
+pre-commit: the gate failed, so the commit was not made.
+
+Fix the failure above and commit again. `bun run format` fixes a formatting
+failure on its own. To commit anyway, and only when you know why:
+
+  git commit --no-verify
+
+CI runs the same command on the pull request, so a skipped hook surfaces there.
+MSG
+  exit 1
+fi

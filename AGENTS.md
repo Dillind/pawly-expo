@@ -90,7 +90,17 @@ to unpack it, you have gone too far — expand it back out into more, simpler se
 ## Commands
 
 Every script is in `package.json`. `bun run check` is the gate: typecheck, lint,
-`format:check`, spellcheck and test, in that order, stopping at the first failure.
+`format:check`, spellcheck and test, in that order, stopping at the first failure. It takes about
+13 seconds.
+
+Four things run it, and you are the least reliable of them: a `Stop` hook at the end of every Claude
+turn, the `pre-commit` git hook on every commit, GitHub Actions on every pull request, and you by
+hand. Only CI sees every change — a Claude hook binds an agent, and a git hook is skipped by
+`--no-verify`. Details, and the one case a pre-commit hook cannot catch, are in
+[docs/conventions/gates.md](./docs/conventions/gates.md).
+
+`bun install` wires the git hook through the `prepare` script. `bun run hooks:install` does it by
+hand.
 
 The build scripts always name a profile, deliberately. A bare `eas build` defaults to
 **production**, whose EAS environment holds no variables, so the build dies at
@@ -598,6 +608,9 @@ rule table.
   why prose alone never held them.
 - **`scripts/guard-branch.sh`** — `PreToolUse` on `Bash`. Blocks a `git commit` while `HEAD` is
   `main`. Reads are untouched.
+- **`scripts/check-on-stop.sh`** — `Stop`. Runs `bun run check` when a turn that touched code ends,
+  so failing work is never handed over as done. See
+  [docs/conventions/gates.md](./docs/conventions/gates.md).
 
 Both exit 2 with the reason, so the failure lands as a correction rather than as silence. The prose
 rules stay in this file: a hook catches a violation after the fact and cannot explain the why.
