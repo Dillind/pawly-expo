@@ -157,9 +157,21 @@ select pg_temp.check('their comment survives the removal',
 select pg_temp.check('the removal queues no second alert',
   (select count(*)::int from public.alerts where kind = 'follow_requested'), 1);
 
--- ------------------------------------------------- unfollow is repeatable
+-- ----------------------------- a comment outlives the follow that carried it
+-- With every follow row gone, the first four branches of can_see_user match
+-- nothing. The household still has the Comment and the Like, and rendered both
+-- as "Removed member" until the fifth and sixth branches existed. The person
+-- was never a member, and an unfollow is not a removal.
 delete from public.household_follows;
 delete from public.alerts where kind = 'follow_requested';
+
+call pg_temp.act_as(:'owner');
+set local role authenticated;
+select pg_temp.check('an unfollow leaves their comment with an author',
+  (select first_name from public.users where id = :'follower'::uuid), 'Dylan');
+reset role;
+
+-- ------------------------------------------------- unfollow is repeatable
 call pg_temp.act_as(:'follower');
 set local role authenticated;
 select pg_temp.check('asks again after the row is gone',

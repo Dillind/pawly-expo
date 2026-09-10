@@ -85,6 +85,10 @@ change: a Comment is deletable by its author, by the Post's author and by an Own
 a name and an avatar render beside words that person wrote in the open, and nothing more. Two
 Followers of one household can see each other for exactly that reason, and for no other.
 
+**A name outlives the Follow that carried it.** `can_see_user` also matches whoever wrote a Comment
+or left a Like on a Post the viewer can read. Without that, an unfollow left their words attributed
+to nobody — see `docs/KNOWLEDGE.md`. It reads no wider than the Post already did.
+
 ### Ending it
 
 **An unfollow deletes the row.** It is routine and repeatable, and the person may follow again.

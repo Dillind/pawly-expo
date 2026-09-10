@@ -393,3 +393,28 @@ success, which is correct and is exactly what hides the bug.
 
 The rule: an id from the merged Posts scope is not interchangeable with a membership id. Anything
 writing to `household_members`, `alerts` or any other member-scoped table takes `memberIds`.
+
+## An unfollow made a Comment authorless, and a Removal did not
+
+`20260910090000` widened `can_see_user` so a Follower's name renders beside words they wrote. Its
+header explains the case it fixed: a **removed** Follower stays visible, because their Comments
+survive removal and hiding the user row would leave those Comments with no author.
+
+That reasoning is right and the fix was incomplete. A Removal keeps the row, as `removed`, so a
+branch still matched. **An unfollow deletes the row**, so nothing matched — and the exact failure
+the migration exists to prevent happened on the commonest path. The household saw
+**"Removed member"** against a comment they had replied to, and a grey placeholder in the likers
+row. That person was never a Member and was never removed.
+
+Nothing in the code looks wrong. The four branches read as a complete set, and each one is correct.
+The gap is only visible if you notice that three of them key on a row that one of the two exit paths
+deletes.
+
+The rule, which is ADR 0036's: **a Follow governs future access; it never erases the past.** So the
+two branches added by `20260910110000` key on the words rather than on the relationship — if I can
+read the Post, I can read the name of whoever wrote or liked it. Any future predicate about who can
+be seen has to answer the same question: what happens to this when the follow row is gone?
+
+Both new branches filter by author, and neither column was indexed. `post_comments` carried only
+`(post_id, created_at)` and `(parent_id)`, and `post_likes` only `(post_id)`. Without the two
+indexes in that migration, naming one person on one Post card is a sequential scan.
