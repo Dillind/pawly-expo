@@ -62,7 +62,7 @@ const PostBody = ({
           <PostCaption caption={post.caption} numberOfLines={captionLines} onPress={onOpen} />
         </View>
 
-        <PostChips occasion={post.occasion} pets={post.pets} />
+        <PostChips occasion={post.occasion} pets={post.pets} householdId={post.householdId} />
       </View>
 
       <PostPhotoCarousel photos={post.photos} onPress={onOpen} onPressPhoto={onOpenPhoto} />

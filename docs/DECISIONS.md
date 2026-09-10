@@ -722,3 +722,70 @@ place in the app where the two roles look different.
 **The household row leads with the role, not the pets.** `Contributor · Crumpet, Brownie, Toby`,
 not the reverse. Three pet names push the role past the right edge on a 6.3-inch screen, and the
 role is the half that decides what the next screen lets you do.
+
+## A follow link is the household id, not a code
+
+`inviteLink` carries a generated code because an invite is a single-use grant that expires.
+A follow link grants nothing — it opens a screen that asks — so it carries the household id and
+`followLink` needs no table behind it. `crumpetapp://follow/<householdId>`.
+
+The batch-5 artboard drew `crumpet.app/h/kathys-household`. A readable slug means a new unique
+column on `households`, kept in step with a name the Owner can change, for a string almost nobody
+reads. Deferred, and the constant is the one place it would change.
+
+## The follow landing screen reads through a definer function, not through RLS
+
+A stranger who opens a follow link is neither member nor follower, so `can_read_household` is false
+and they can see neither the name nor the pets the screen is built to show. A pending follower is in
+exactly the same position, which is why the Following list would otherwise name nothing.
+
+Widening `can_read_household` to cover `pending` fixes both and is wrong: that predicate also guards
+posts. `follow_preview` and `list_following` are definer functions returning precisely what those
+two screens draw.
+
+## The Posts filter crosses from the layout to the screen through a store
+
+`AGENTS.md` puts header options in the layout, and the filter is a `Stack.Toolbar.Button` — a real
+`UIBarButtonItem`, not a React view it could be handed a ref to. The sheet it opens belongs to the
+screen. `usePostsScopeStore` carries a single `isFilterRequested` flag between them, and the screen
+clears it on presenting.
+
+The scope itself lives there too, so it survives a tab change without becoming a URL.
+
+## Unfollowing does not ask
+
+The unfollow control raised an `Alert` before acting. It fails the four conditions in `AGENTS.md`:
+unfollowing is routine, it is reversible by following again, the user has already tapped a button
+labelled "Following · Tap to unfollow", and `useUnfollow` already confirms with a toast. The alert
+is gone and the button acts.
+
+Removing a follower keeps its alert, and the difference is the reason: a removal blocks, so the
+person cannot ask again. That one reports a consequence the Owner did not know about.
+
+## Every follow screen scrolls through one component
+
+Six screens had the same `ScreenView` + `ScreenScrollView` pair copied in, each carrying the same
+comment about a transparent header. `ScrollScreen` (`src/components/layout/scroll-screen.tsx`) is
+that pair, and the reason lives in it once. `household-settings.tsx` keeps the pair written out,
+because it presents sheets as siblings of the scroll view rather than inside it.
+
+## A Pet Tag knows which Pet screen the viewer can open
+
+`PostChips` sent every Pet Tag to `/home/<petId>`. That screen loads feed times and the Care Card,
+which a Follower cannot read, so it sat on its skeleton for ever — no error, no empty state, and the
+tab switched to Home on the way.
+
+The chip now asks `useFollowedHouseholdIds()` and routes a followed household's Pet to
+`/follow/[householdId]/pet/[petId]`. `PostChips` takes the `householdId` and decides for itself,
+rather than the answer being threaded through `PostCard` and `PostBody` from three call sites.
+
+## Both follow screens carry their own close button
+
+The follower Pet screen used `Stack.Screen.BackButton`, which iOS draws only when there is something
+to pop to. It was reachable only from the household screen, so that held — until a Pet Tag started
+opening it as the first screen of the stack, where it drew no control at all and a swipe down was
+the only way out.
+
+Both screens in `follow/_layout.tsx` now use one `close` handler: pop if you can, otherwise
+`router.replace('/posts')`. An X where a chevron would do is the price of a control that is always
+there, and it matches the sibling screen.

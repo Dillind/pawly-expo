@@ -3,6 +3,7 @@ import type { SupabaseClient } from 'npm:@supabase/supabase-js@2';
 import {
   buildFeedDueMessage,
   buildFeedLoggedMessage,
+  buildFollowRequestedMessage,
   buildMissedFeedMessage,
   buildPostCommentedMessage,
   buildPostMessage,
@@ -14,7 +15,13 @@ import {
 } from './message.ts';
 
 export type AlertKind =
-  'feed_logged' | 'missed_feed' | 'feed_due' | 'reminder_due' | 'post' | 'post_commented';
+  | 'feed_logged'
+  | 'missed_feed'
+  | 'feed_due'
+  | 'reminder_due'
+  | 'post'
+  | 'post_commented'
+  | 'follow_requested';
 
 /**
  * A deliberate third outcome, alongside a message and null.
@@ -93,7 +100,7 @@ const collectDuePets = async (
  * Null means the row is gone -- deleted between queue and dispatch.
  *
  * The switch is exhaustive: the default branch assigns the kind to `never`, so
- * adding a sixth alert_kind fails to compile.
+ * adding a further alert_kind fails to compile.
  *
  * feed_due is the exception: its subject_id is the HOUSEHOLD, and the set of
  * pets is rebuilt here rather than stored. See ADR 0033.
@@ -105,6 +112,30 @@ export const buildMessageForAlert = async (
   alert: AlertSubject
 ): Promise<BuiltMessage> => {
   switch (alert.kind) {
+    case 'follow_requested': {
+      const { data: follow } = await client
+        .from('household_follows')
+        .select('id, household_id, follower_id, status')
+        .eq('id', alert.subject_id)
+        .maybeSingle();
+
+      // Withdrawn, declined or already accepted between queue and send. A
+      // request that is no longer pending has nothing left to ask for.
+      if (!follow || follow.status !== 'pending') return null;
+
+      const { data: requester } = await client
+        .from('users')
+        .select('first_name, username')
+        .eq('id', follow.follower_id)
+        .maybeSingle();
+
+      return buildFollowRequestedMessage({
+        requesterFirstName: requester?.first_name ?? null,
+        requesterUsername: requester?.username ?? null,
+        householdId: follow.household_id
+      });
+    }
+
     case 'post_commented': {
       const { data: comment } = await client
         .from('post_comments')
