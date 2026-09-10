@@ -814,3 +814,17 @@ never enough.
 The prose in `AGENTS.md` was not deleted in exchange. A hook fires after the mistake and can only
 say what is wrong; the file is where the why lives, and the why is what stops the mistake being made
 a second time in a shape the grep does not match.
+
+## The gate runs in four places, and CI is the only one that counts
+
+`bun run check` existed and nothing ran it. No CI, no git hook. It was enforced by memory.
+
+It now runs as a Claude `Stop` hook, as a `pre-commit` git hook, and in GitHub Actions. The three
+bind different people on purpose: a Claude hook binds an agent inside Claude Code, a git hook binds
+this clone and yields to `--no-verify`, and only the workflow sees every change. Most of the code
+here is written by an LLM, so the `Stop` hook is the one that fires most; branch protection on the
+workflow is the one that makes any of it binding.
+
+The pre-commit hook checks the working tree rather than the staged content, so a partial stage can
+pass it and still be broken as committed. The fix is to stash the unstaged half around the run, which
+loses work often enough that CI is the better place to catch it.

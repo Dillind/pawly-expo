@@ -22,7 +22,9 @@
     "spellcheck": "cspell --no-progress \"**/*.{ts,tsx,md,sql}\"",
     "test": "jest",
     "test:watch": "jest --watchAll",
-    "check": "bun run typecheck && bun run lint && bun run format:check && bun run spellcheck && bun run test"
+    "check": "bun run typecheck && bun run lint && bun run format:check && bun run spellcheck && bun run test",
+    "hooks:install": "git config core.hooksPath .githooks",
+    "prepare": "git config core.hooksPath .githooks || true"
   },
   "jest": {
     "preset": "jest-expo",

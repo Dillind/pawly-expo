@@ -1,0 +1,38 @@
+name: check
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+# A second push to the same branch cancels the first. A stale run tells you
+# nothing and holds a runner.
+concurrency:
+  group: check-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - uses: actions/checkout@v4
+
+      # Node is needed as well as bun. cspell runs on Node, and its engines
+      # floor is 22.18.0 — on an older Node the spelling gate cannot run at all.
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24.18.0
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.3.5
+
+      - name: Install
+        run: bun install --frozen-lockfile
+
+      # typecheck, lint, format:check, spellcheck, test — in that order,
+      # stopping at the first failure. Same command a developer runs.
+      - name: Check
+        run: bun run check
