@@ -89,25 +89,8 @@ to unpack it, you have gone too far — expand it back out into more, simpler se
 
 ## Commands
 
-```bash
-bun start           # Expo dev server (or: expo start)
-bun run ios         # Run on iOS simulator
-bun run android     # Run on Android emulator
-bun run web         # Run on web
-bun run lint         # ESLint (eslint-config-expo)
-bun run typecheck    # tsc --noEmit
-bun run format       # Prettier, writes
-bun run format:check # Prettier, reports only -- this is the one `check` runs
-bun run spellcheck   # cspell across ts/tsx/md/sql
-bun run test         # Jest, single run
-bun run test:watch   # Jest, watch mode
-bun run check        # all five above, in order, stopping at the first failure
-
-bun run build:dev         # EAS development build, iOS (simulator-capable)
-bun run build:preview     # EAS preview build, iOS
-bun run build:production  # EAS production build, iOS (build only, no submit)
-bun run testflight        # EAS production build, iOS, auto-submitted to TestFlight
-```
+Every script is in `package.json`. `bun run check` is the gate: typecheck, lint,
+`format:check`, spellcheck and test, in that order, stopping at the first failure.
 
 The build scripts always name a profile, deliberately. A bare `eas build` defaults to
 **production**, whose EAS environment holds no variables, so the build dies at
@@ -116,57 +99,10 @@ EXPO_PUBLIC_SUPABASE_KEY". Only the `development` environment is populated — `
 gitignored and never reaches the builder, so anything the app reads from
 `process.env` has to exist as an EAS environment variable too (`eas env:list`).
 
-### TestFlight
+### Releasing
 
-**`preview` cannot reach TestFlight.** It is `distribution: "internal"` — an ad hoc build for
-registered device UDIDs, installed from a link. TestFlight takes **store** builds only, which is
-what `production` is. Use `preview` to put a build on a device without waiting for App Store
-processing; use `testflight` for anything a real tester should see.
-
-**TestFlight is not a build type, it is the doorway.** Every store build lands there first, and an
-App Store release promotes a build already in TestFlight. Same binary, so never rebuild "for
-release" — submit the build that was tested.
-
-`--auto-submit` runs the submit profile **whose name matches the build profile**, so
-`--profile production` uses `submit.production`.
-
-**`submit.production` is empty on purpose.** EAS owns the Apple credentials: on the first submit it
-signs in to Apple and keeps an App Store Connect API Key on its servers (`eas credentials -p ios` to
-inspect or reset). Every submit after that is non-interactive with no config at all. The
-`appleId` / `ascAppId` / `appleTeamId` and `ascApiKey*` fields exist for CI runners and for juggling
-several Apple accounts — putting them here otherwise duplicates what EAS already knows, and hardcodes
-an id that only fails once the build has finished.
-
-To skip the sign-in prompt without committing anything, export `EXPO_APPLE_ID` and
-`EXPO_APPLE_TEAM_ID`. The CLI prints the team id on the first run.
-
-**The App Store Connect app record must exist before the first submit.** EAS does not create it.
-Without one the submit fails with _"No suitable application records found"_, and the bundle
-identifier has to match `au.com.crumpet.ios` exactly.
-
-**Internal testers are the fast path.** Up to 100, no review, the build is available as soon as
-Apple finishes processing it. External testers (up to 10,000) need one Beta App Review, roughly a
-day, and only for the first build. So a build for one or two people to try is an internal-tester
-build and involves no review at all.
-
-`autoIncrement` on the production profile with `appVersionSource: "remote"` is what stops a build
-being rejected for reusing a build number. Don't hand-set `buildNumber` in `app.json`.
-
-A **`qa` profile is still absent, but the reason it was absent has gone.** The qa/production split
-is two _store_ builds pointing at two _backends_, both going through TestFlight, and the note here
-used to say it earns its keep once a non-production Supabase project exists. **One does now** —
-the `crumpet-qa` project, created 2026-08-20, carrying the same schema as
-production and its own users. So a `qa` build would no longer be a second binary on the same
-database, which was the whole objection.
-
-Adding one is not just an `eas.json` entry. It needs a **`qa` EAS environment** holding that
-project's `EXPO_PUBLIC_SUPABASE_URL` and `EXPO_PUBLIC_SUPABASE_KEY` — `.env` never reaches the
-builder, so anything read from `process.env` has to exist there too (`eas env:list`). It also needs
-a `submit.qa`, because `--auto-submit` runs the submit profile whose name matches the build profile.
-Until someone does that, `preview` and `production` are the only two profiles, and **both point at
-production data**.
-
-No Android build scripts until FCM credentials exist.
+Build profiles, TestFlight, submit credentials and the absent `qa` profile live in the
+**`eas-release`** skill. Invoke it before any `eas build` or `eas submit`.
 
 ## Tests
 
@@ -240,34 +176,6 @@ the `create-pr` skill.
 ## Adding dependencies
 
 Always use **`bunx expo install <package>`** so the version matches SDK 57. Do not hand-pick versions with a raw `bun add` for Expo-ecosystem packages.
-
-## Project layout
-
-```
-docs/                         # All non-code documentation
-├── PRODUCT_BRIEF.md
-├── TECH_STACK.md
-├── THEMING.md
-└── adr/                      # Architectural decision records
-    ├── 0001-household-owns-pets-role-based-ownership.md
-    ├── 0002-missed-feed-alert-engine.md
-    ├── 0003-invite-via-shareable-link.md
-    └── 0004-custom-theme-no-component-library.md
-
-src/
-├── app/                      # Expo Router routes (file-based)
-│   ├── _layout.tsx           # Root: providers + Stack.Protected auth guard
-│   ├── (public)/(auth)/      # Unauthenticated screens (login, forgot-password)
-│   └── (protected)/(tabs)/   # Authenticated screens; native tabs (home, profile)
-├── components/
-│   ├── core/                 # Shared primitives (AppText, MainButton, inputs, ...)
-│   └── ui/                   # Larger composed UI pieces
-├── constants/                # theme.ts (tokens), enums, primitives
-├── hooks/                    # use-theme, use-styles, use-push-notifications, ...
-├── lib/                      # haptics, styles/shadows, form/ helpers
-├── utils/                    # platform, linking, external-link
-└── types/                    # shared TS types (core.ts); database.types.ts (generated, planned)
-```
 
 ## Conventions
 
