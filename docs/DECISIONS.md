@@ -768,3 +768,24 @@ Six screens had the same `ScreenView` + `ScreenScrollView` pair copied in, each 
 comment about a transparent header. `ScrollScreen` (`src/components/layout/scroll-screen.tsx`) is
 that pair, and the reason lives in it once. `household-settings.tsx` keeps the pair written out,
 because it presents sheets as siblings of the scroll view rather than inside it.
+
+## A Pet Tag knows which Pet screen the viewer can open
+
+`PostChips` sent every Pet Tag to `/home/<petId>`. That screen loads feed times and the Care Card,
+which a Follower cannot read, so it sat on its skeleton for ever — no error, no empty state, and the
+tab switched to Home on the way.
+
+The chip now asks `useFollowedHouseholdIds()` and routes a followed household's Pet to
+`/follow/[householdId]/pet/[petId]`. `PostChips` takes the `householdId` and decides for itself,
+rather than the answer being threaded through `PostCard` and `PostBody` from three call sites.
+
+## Both follow screens carry their own close button
+
+The follower Pet screen used `Stack.Screen.BackButton`, which iOS draws only when there is something
+to pop to. It was reachable only from the household screen, so that held — until a Pet Tag started
+opening it as the first screen of the stack, where it drew no control at all and a swipe down was
+the only way out.
+
+Both screens in `follow/_layout.tsx` now use one `close` handler: pop if you can, otherwise
+`router.replace('/posts')`. An X where a chevron would do is the price of a control that is always
+there, and it matches the sibling screen.

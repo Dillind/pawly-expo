@@ -10,6 +10,12 @@ import { HeaderTitleStyle } from '@/constants/theme';
 export default function FollowLayout() {
   const router = useRouter();
 
+  // Both screens are reachable as the first of this stack -- the household
+  // through a follow link, the Pet through a Pet Tag on a followed post. iOS
+  // draws no back button with nothing to pop to, so each carries its own close
+  // and each falls back to the tab the viewer came from.
+  const close = () => (router.canGoBack() ? router.back() : router.replace('/posts'));
+
   return (
     <Stack>
       <Stack.Screen name="[householdId]/index">
@@ -17,17 +23,16 @@ export default function FollowLayout() {
         <Stack.Header transparent />
         <Stack.Screen.BackButton hidden />
         <Stack.Toolbar placement="left">
-          <Stack.Toolbar.Button
-            icon="xmark"
-            accessibilityLabel="Close"
-            onPress={() => (router.canGoBack() ? router.back() : router.replace('/posts'))}
-          />
+          <Stack.Toolbar.Button icon="xmark" accessibilityLabel="Close" onPress={close} />
         </Stack.Toolbar>
       </Stack.Screen>
       <Stack.Screen name="[householdId]/pet/[petId]/index">
         <Stack.Title style={HeaderTitleStyle}>Pet</Stack.Title>
         <Stack.Header transparent />
-        <Stack.Screen.BackButton displayMode="minimal" />
+        <Stack.Screen.BackButton hidden />
+        <Stack.Toolbar placement="left">
+          <Stack.Toolbar.Button icon="xmark" accessibilityLabel="Close" onPress={close} />
+        </Stack.Toolbar>
       </Stack.Screen>
     </Stack>
   );
