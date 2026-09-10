@@ -80,10 +80,14 @@ grant execute on function public.handle_available(text) to authenticated;
 
 -- Suggestions from the Household name.
 --
--- Each run of characters outside a-z0-9 becomes ONE hyphen, then hyphens are
--- trimmed from both ends, so "Kathy's House" gives `kathys-house`. The username
--- version deleted those characters instead, which would run the two words
--- together and waste the hyphen this whole change exists to allow.
+-- Apostrophes are DELETED, and only then does each remaining run of characters
+-- outside a-z0-9 become one hyphen. The order is the whole point: collapsing
+-- first turns "Kathy's House" into `kathy-s-house`, which is a word broken in
+-- half. Deleting first gives `kathys-house`, which is the name.
+--
+-- Hyphens are then trimmed from both ends, and anything before the first letter
+-- is dropped, because a handle has to start with one -- so "123 House" offers
+-- `house` rather than nothing at all.
 --
 -- 18, so the longest suffix (`30`) still fits 20 characters. A stem with fewer
 -- than two usable characters gets nothing rather than a `member1` shaped
@@ -98,14 +102,19 @@ as $$
   with root as (
     select left(cleaned, 18) as value
     from (
-      select trim(both '-' from
-        regexp_replace(lower(coalesce(stem, '')), '[^a-z0-9]+', '-', 'g')
+      select regexp_replace(
+        trim(both '-' from
+          regexp_replace(
+            -- The apostrophe goes first, so the word it sits inside survives
+            -- whole. Both the typographic one and the typed one.
+            regexp_replace(lower(coalesce(stem, '')), '[''’]', '', 'g'),
+            '[^a-z0-9]+', '-', 'g'
+          )
+        ),
+        '^[^a-z]+', ''
       ) as cleaned
     ) collapsed
     where length(cleaned) >= 2
-      -- A handle starts with a letter, and trimming hyphens cannot fix a stem
-      -- that begins with a digit.
-      and cleaned ~ '^[a-z]'
   ),
   candidates as (
     select n, root.value || n::text as candidate
