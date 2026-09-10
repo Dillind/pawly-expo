@@ -15,14 +15,10 @@ import { useAuthStore } from '@/stores/auth-store';
  * so unlike a pet it is always answerable. `profile` is undefined until the row
  * loads, and the tabs win that tie -- flashing the name step at someone who
  * already has one is worse than a beat of delay.
- *
- * A handle is answerable by everyone too, so it joins the gate. Signup no longer
- * seeds one, and an existing member's handle is already set -- so nobody who has
- * been through this is held here again.
  */
 export default function ProtectedLayout() {
   const { profile } = useAuthStore();
-  const needsOnboarding = profile !== undefined && (!profile.firstName || !profile.username);
+  const needsOnboarding = profile !== undefined && !profile.firstName;
 
   return (
     <Stack screenOptions={{ headerShown: false }}>

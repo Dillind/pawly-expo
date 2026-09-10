@@ -57,9 +57,7 @@ const FollowRequests = ({ householdId }: Props) => {
         ) : (
           requests.map((request) => {
             const name = fullName(request) || 'Someone';
-            const detail = [request.username, formatAlertTime(request.requestedAt, timezone)]
-              .filter(Boolean)
-              .join(' · ');
+            const detail = formatAlertTime(request.requestedAt, timezone);
 
             return (
               <ListCard key={request.id} style={styles.card}>

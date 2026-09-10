@@ -131,7 +131,6 @@ describe('listFollowers', () => {
           users: {
             first_name: 'Dylan',
             last_name: 'Lindsay',
-            username: 'dylanl',
             avatar_url: null
           }
         },
@@ -153,7 +152,6 @@ describe('listFollowers', () => {
       userId: 'user-1',
       firstName: 'Dylan',
       lastName: 'Lindsay',
-      username: 'dylanl',
       avatarUrl: null,
       requestedAt: '2026-08-01T00:00:00Z',
       respondedAt: '2026-08-02T00:00:00Z'

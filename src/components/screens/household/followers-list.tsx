@@ -54,7 +54,7 @@ const FollowersList = ({ householdId }: Props) => {
   // Removal blocks, so the alert says both halves: access ends, and the door
   // closes. Cancel is preferred because Remove has a consequence.
   const confirmRemove = (follower: Follower) => {
-    const name = fullName(follower) || follower.username || 'this follower';
+    const name = fullName(follower) || 'this follower';
 
     Alert.alert(
       `Remove ${name}?`,
@@ -102,8 +102,7 @@ const FollowersList = ({ householdId }: Props) => {
             dividerInset={Spacing.three + AVATAR_SIZE + Spacing.three}>
             {followers.map((follower) => {
               const name = fullName(follower) || 'Follower';
-              const since = sinceText(follower);
-              const detail = [follower.username, since].filter(Boolean).join(' · ');
+              const detail = sinceText(follower);
 
               const row = (
                 <View style={styles.row}>
@@ -117,7 +116,7 @@ const FollowersList = ({ householdId }: Props) => {
                     <AppText size={16} numberOfLines={1}>
                       {name}
                     </AppText>
-                    {detail.length > 0 && (
+                    {detail != null && detail.length > 0 && (
                       <AppText size={13} color="textSecondary" numberOfLines={1}>
                         {detail}
                       </AppText>

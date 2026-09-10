@@ -359,14 +359,12 @@ describe('PostService.get', () => {
         userId: 'user-2',
         firstName: 'Sarah',
         lastName: 'Chen',
-        username: 'sarah_c',
         avatarUrl: null
       },
       {
         userId: 'user-1',
         firstName: 'Dylan',
         lastName: 'Lindsay',
-        username: 'dylan_l',
         avatarUrl: null
       }
     ]);
@@ -381,7 +379,7 @@ describe('PostService.get', () => {
     const post = await PostService.get({ postId: 'post-1', viewerId: null });
 
     expect(post.likers).toEqual([
-      { userId: 'user-9', firstName: null, lastName: null, username: null, avatarUrl: null }
+      { userId: 'user-9', firstName: null, lastName: null, avatarUrl: null }
     ]);
   });
 });

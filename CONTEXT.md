@@ -12,14 +12,6 @@ _Avoid_: Family, group, team, account.
 Any person belonging to a household. Umbrella term — every member has a role (Owner or Contributor).
 _Avoid_: User (a User is the account; a Member is that account's place in a household).
 
-**Username**:
-The unique handle a User is known by wherever the app names a person — a Post header, a comment,
-the `@name` reply prefix, the Home occurrence row, a push notification. Lowercase, 3 to 20
-characters, chosen by the User and changeable in Profile. Every User has one: onboarding asks for
-it, and a User with no Username is held there.
-_Avoid_: Handle, display name, nickname. The first name is not a Username — it is what the Profile
-header and the Members list show, where a real name is what the reader wants.
-
 **Active Household**:
 The one Household a User is currently working in, when they belong to more than one. It decides
 what the app acts on: which Pets Home shows, which timezone the day is measured in, which
@@ -259,7 +251,8 @@ one of them), caption (that belongs to the Post).
 
 **Reply**:
 A Comment that answers another Comment. It sits under the top-level Comment it belongs to, and
-names the Member it answers with an "@" prefix. Replying to a Reply produces another Reply under
+names the Member it answers on a line of its own — "Replying to Sarah", with no "@", which belongs
+to a Household Handle and never to a person. Replying to a Reply produces another Reply under
 the same parent — the thread is two levels deep and never three.
 _Avoid_: Nested comment, sub-comment, child, response.
 

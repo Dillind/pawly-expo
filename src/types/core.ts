@@ -36,7 +36,6 @@ export type UserProfile = {
   firstName: string | null;
   lastName: string | null;
   /** Null only while a seeded handle has not been written -- see CRU-125. */
-  username: string | null;
   avatarUrl: string | null;
 };
 
@@ -84,7 +83,6 @@ export type HouseholdMember = {
   role: HouseholdRole;
   firstName: string | null;
   lastName: string | null;
-  username: string | null;
   avatarUrl: string | null;
   /** Whether this member has opted in to being told when a feed is logged. */
   feedLoggedAlerts: boolean;
@@ -127,7 +125,6 @@ export type Occurrence = {
 export type FeedLogAuthor = {
   firstName: string | null;
   lastName: string | null;
-  username: string | null;
 };
 
 export type FeedLog = {
