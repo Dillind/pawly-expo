@@ -133,13 +133,26 @@ Jest. `supabase/tests/follow.test.sql` found the inline-join failure above.
 
 ## What is still open
 
-**Discovery is a link and nothing else.** `crumpetapp://follow/<householdId>`, shown as a QR code
-and a copyable string. The link grants nothing, so it needs no table behind it and does not expire.
-There is deliberately no search, because a search over household names would leak the existence of
-private households.
+**Discovery is a link and nothing else, for now.** `crumpetapp://follow/<householdId>`, shown as a
+QR code and a copyable string. The link grants nothing, so it needs no table behind it and does not
+expire.
 
-A link is a poor way to find a household you were told about in conversation. The alternative under
-discussion is a **handle on the Household** — a unique, searchable, human-typed name — which would
-make discovery a search rather than a hand-off. That would also move Username down from the User to
-the Household, or add a second handle beside it. Nothing above changes if it lands: the read
-boundary, the accept and the block are about the relationship, not about how it starts.
+A link is a poor way to find a household you were told about in conversation. The answer was
+settled on 2026-09-10 and is three tickets, none of which moves anything above:
+
+- **[CRU-126](https://github.com/Dillind/pawly-expo/issues/169)** puts a **Handle** on the
+  Household and a **Listed** switch beside it. Listed governs whether strangers can find a
+  Household. **It never governs who gets in** — an Owner accepts every Follow, always. That is the
+  opposite of what CRU-126 originally proposed, and the reason is above: a stranger who arrived
+  through a search is exactly the person an Owner should look at first.
+- **[CRU-129](https://github.com/Dillind/pawly-expo/issues/178)** removes `users.username`. A
+  Handle belongs to the thing being followed, and that is a Household. A person is named by their
+  first name.
+- **[CRU-130](https://github.com/Dillind/pawly-expo/issues/179)** is the search screen. The follow
+  link survives beside it, because a link is how you follow somebody standing next to you and it
+  works for an Unlisted Household.
+
+**Removal blocks, and that is one action doing two jobs.**
+[CRU-132](https://github.com/Dillind/pawly-expo/issues/181) would split Remove from Block. It is
+not a rename: this ADR, the alert copy and `CONTEXT.md` all record the block, and changing the model
+means changing all three and adding a Blocked list.
