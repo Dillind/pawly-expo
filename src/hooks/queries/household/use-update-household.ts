@@ -2,6 +2,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 import { ErrorMessage } from '@/constants/enums';
 import { householdsKey } from '@/hooks/queries/household/use-households';
+import { userFacingMessage } from '@/lib/errors';
 import { showErrorToast, showSuccessToast } from '@/lib/toast';
 import HouseholdService from '@/services/household.service';
 import { useAuthStore } from '@/stores/auth-store';
@@ -26,7 +27,10 @@ export function useUpdateHousehold(householdId: string | undefined, success: str
     onSuccess: () => showSuccessToast(success),
     onError: (error) => {
       console.error(error);
-      showErrorToast(ErrorMessage.HouseholdUpdateFailed);
+      // The service turns a unique violation on the handle into copy a person
+      // can act on. Without this it is swallowed by the generic fallback and
+      // the Owner is told nothing about why their handle was refused.
+      showErrorToast(userFacingMessage(error, ErrorMessage.HouseholdUpdateFailed));
     }
   });
 }

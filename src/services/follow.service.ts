@@ -14,6 +14,8 @@ export type FollowPreview = {
   status: FollowRelationship;
   householdId: string;
   name: string;
+  /** Null for a Household whose Owner has not set one. */
+  handle: string | null;
   pets: FollowPreviewPet[];
 };
 
@@ -86,6 +88,7 @@ namespace FollowService {
       status: FollowRelationship | 'not_found';
       household_id?: string;
       name?: string;
+      handle?: string | null;
       pets?: { id: string; name: string; breed: string | null; photo_url: string | null }[];
     };
 
@@ -98,6 +101,7 @@ namespace FollowService {
       status: result.status,
       householdId: result.household_id as string,
       name: result.name as string,
+      handle: result.handle ?? null,
       pets: (result.pets ?? []).map((pet) => ({
         id: pet.id,
         name: pet.name,

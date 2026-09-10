@@ -49,6 +49,10 @@ export type HouseholdRole = 'owner' | 'contributor';
 export type Household = {
   id: string;
   name: string;
+  /** Null until an Owner sets one. Read as `@kathys-house`; stored without the @. */
+  handle: string | null;
+  /** Whether the Household appears in search. Never who may follow it. */
+  isListed: boolean;
   timezone: string;
   graceWindowMinutes: number;
   role: HouseholdRole;

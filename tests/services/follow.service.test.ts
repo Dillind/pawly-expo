@@ -27,6 +27,7 @@ describe('preview', () => {
         status: 'none',
         household_id: 'household-1',
         name: "Kathy's Household",
+        handle: 'kathys-house',
         pets: [{ id: 'pet-1', name: 'Rufus', breed: 'Kelpie', photo_url: 'https://x/1.jpg' }]
       },
       error: null
@@ -41,6 +42,7 @@ describe('preview', () => {
       status: 'none',
       householdId: 'household-1',
       name: "Kathy's Household",
+      handle: 'kathys-house',
       pets: [{ id: 'pet-1', name: 'Rufus', breed: 'Kelpie', photoUrl: 'https://x/1.jpg' }]
     });
   });
@@ -51,7 +53,7 @@ describe('preview', () => {
     await expect(FollowService.preview('gone')).resolves.toBeNull();
   });
 
-  it('returns an empty pet list rather than undefined', async () => {
+  it('reports a household with no handle as null rather than undefined', async () => {
     mockRpc.mockResolvedValue({
       data: { status: 'none', household_id: 'household-1', name: "Kathy's Household" },
       error: null
@@ -61,6 +63,7 @@ describe('preview', () => {
       status: 'none',
       householdId: 'household-1',
       name: "Kathy's Household",
+      handle: null,
       pets: []
     });
   });

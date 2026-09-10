@@ -11,6 +11,15 @@ type Props = {
   description: string;
   value: boolean;
   isDisabled?: boolean;
+  /**
+   * Refuses a tap without dimming the row.
+   *
+   * Distinct from `isDisabled`, which says the switch cannot be used at all. A
+   * busy switch can be used, is showing the value the user just chose, and is
+   * only waiting for the write to land -- greying it there would flash on every
+   * tap and say the wrong thing.
+   */
+  isBusy?: boolean;
   onChange: (value: boolean) => void;
 };
 
@@ -21,6 +30,7 @@ const ToggleSwitch = ({
   description,
   value,
   isDisabled,
+  isBusy,
   onChange
 }: Props) => {
   const theme = useTheme();
@@ -39,7 +49,7 @@ const ToggleSwitch = ({
       </View>
       <Switch
         value={value}
-        disabled={isDisabled}
+        disabled={isDisabled || isBusy}
         onValueChange={onChange}
         trackColor={{ true: theme.colors.primary }}
       />

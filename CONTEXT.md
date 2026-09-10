@@ -301,6 +301,23 @@ does not expire, and it grants nothing on its own — it opens a screen that ask
 Invite, which hands over a seat, is keyed to an email and does expire.
 _Avoid_: Invite, invitation, share code, referral.
 
+**Handle**:
+A Household's short typed name, unique across the app and read as `@kathys-house`. Lowercase
+letters, numbers and hyphens, 3 to 20 characters, starting with a letter and with every hyphen
+between two of them. An Owner sets it, changes it freely, and cannot clear it once set. It is what
+tells two Households named "The Smiths" apart in search. It is not an address: a Follow Link carries
+the Household id, so changing a Handle never breaks a link somebody already holds.
+_Avoid_: Username (that word was retired with the user Username — see
+[ADR 0037](./docs/adr/0037-a-person-is-named-by-their-first-name.md)), slug, tag, @name, vanity URL.
+
+**Listed**:
+Whether a Household appears in search. Off by default, and a Household cannot be Listed without a
+Handle. Listing changes only whether strangers can **find** the Household. It never changes who gets
+in — an Owner accepts every Follow, always, and unlisting never removes a Follower. The word is
+deliberately not Public: public names a door, and this is a directory entry.
+_Avoid_: Public, private, visibility, discoverable, open (all of them promise something about
+access, which is exactly what this setting does not govern).
+
 **Removal**:
 An Owner ending a Follow. It blocks: the person stops reading and cannot ask that Household again.
 Their Likes and Comments stay, because the Household replied to them. Distinct from an unfollow,
