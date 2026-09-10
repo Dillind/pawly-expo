@@ -54,12 +54,23 @@ A pet owner who shares responsibility with at least one other person — partner
 
 ### Out of Scope
 
-- **Public social — profiles, a follower graph, discovery, strangers, anything visible outside a household** — the 11pm-build-session temptation. It goes here so you don't. Different product. This ban is permanent and is not softened by the private version below.
+- **Public social — user profiles, a two-way follower graph, follower-to-follower surfaces, strangers arriving unasked** — the 11pm-build-session temptation. It goes here so you don't. Different product. The ban is on the shape, not on the word: see the 2026-09-10 amendment below for the one-way, Owner-accepted Follow that is now in scope.
 - **Pet sounds library** — different core loop, v3 at earliest.
 - **Events / community features** — same as above.
 - **Comments, threads, @mentions on Posts** — deferred, not banned. See ADR 0017.
 
 **Amended 2026-08-09.** This list used to read "social media feed / life updates / walk posts", which banned the private version along with the public one. Private, household-only Posts are now in scope — see ADR 0017 and the Household surface in CONTEXT.md. The reasoning is not that sharing is a nice extra. It is that everyone with a relation to the pet is already in the app, so a sitter can post a photo without being added to a family thread and the owner never has to awkwardly ask for one. What stays banned is any audience wider than the household.
+
+**Amended 2026-09-10.** A **Follow** is now in scope, and the ban above is narrowed to say what it always meant. See [ADR 0036](./adr/0036-a-follow-is-a-household-scoped-read-plus-a-voice.md). A Follow is one way, it is on a Household and never on a Pet, and an Owner accepts every one of them. A Follower reads Posts and Pet Profiles, may Like and Comment, and gets no part of the household's working life — no schedule, no Feed Logs, no Care Card. The reasoning is the same as the 2026-08-09 amendment: the photo is posted to be read, and a grandparent should not need a seat in the household to read it.
+
+What stays banned, and is the actual shape of the thing named above:
+
+- **A Follower has no screen of their own.** No route takes a user id. A name and an avatar render beside words that person wrote, and nothing more.
+- **No follower-to-follower surface.** No follower lists a stranger can read, no mentions, no messages.
+- **No audience without an accept.** An Owner accepts every Follow, always.
+- **Nothing is public.** A Household is private, and reading it needs an accepted Follow.
+
+Discovery is the one part still open. Today it is a share link, which grants nothing on its own. CRU-126 would add a Handle and a **Listed** switch so a Household can be found by search. Listed governs only whether a stranger can _ask_. It never governs who gets in.
 
 - **Custom backend / NestJS / OpenAPI** — Supabase generated types + Zod schemas on Edge Functions cover typing needs without the overhead.
 
@@ -90,7 +101,7 @@ The Posts line follows the rule the rest of the list follows: never cap the core
 
 - **Technical spike needed (Priority 1):** Supabase Edge Function cron for missed-feed alerts. Build this before anything else — least-certain part of the stack, underpins a core v1 feature. See ADR 0002.
 - **Free-tier household cap:** with multiple Owners allowed, the "up to 2 contributors" limit should be re-expressed as a total-member cap. Finalise the number.
-- **Scope creep watch:** public social — profiles, followers, discovery. Explicitly out of scope and permanently so. Named here so it's easier to resist. Private household Posts are in scope (ADR 0017); the line between them is the audience, and it does not move.
+- **Scope creep watch:** public social — user profiles, a two-way follower graph, follower-to-follower surfaces. Explicitly out of scope and permanently so. Named here so it's easier to resist. Private household Posts are in scope (ADR 0017) and so is the one-way, Owner-accepted Follow (ADR 0036). The line is the accept and the absence of any surface between Followers, and it does not move.
 - **Invite flow friction:** invitees must download the app and create an account before joining. Onboarding must be dead simple or the multi-member model falls apart. See ADR 0003.
 - **Notification behaviour on iOS:** missed-feed alerts depend on reliable background processing and APNs delivery. Test on a real device early, not just the simulator.
 
