@@ -789,3 +789,28 @@ the only way out.
 Both screens in `follow/_layout.tsx` now use one `close` handler: pop if you can, otherwise
 `router.replace('/posts')`. An X where a chevron would do is the price of a control that is always
 there, and it matches the sibling screen.
+
+## The long convention sections moved to `docs/conventions/`, not to a skill
+
+`AGENTS.md` had grown past 47,000 characters, which is over the size at which Claude Code warns that
+a single memory file is too large. Every session paid for all of it. The Alerts and Icons sections
+were 11,000 of those characters and matter only while you write an alert or touch an icon.
+
+A skill was the obvious home. `docs/conventions/` won because a skill still costs its name and
+description in the always-loaded skill listing, and because `.gitignore` lists `.claude`, so every
+skill file in this repo is tracked only by a deliberate `git add -f`. A plain tracked doc costs
+nothing resident and cannot fall out of the index by accident. `AGENTS.md` keeps the one-line
+prohibition from each section and links to the rest, so the hard rule stays always-loaded and the
+reasoning loads on demand.
+
+## Seven conventions are enforced by a hook, and the prose stays anyway
+
+`scripts/check-boundaries.sh` and `scripts/guard-branch.sh` fail an edit that imports Lucide outside
+`icon-map.ts`, reaches for the Supabase client outside a service, inserts into `feed_logs` directly,
+or commits onto `main` — see [docs/conventions/agent-hooks.md](./conventions/agent-hooks.md) for the
+full list. Every one of them passes typecheck and lint today, which is why writing them down was
+never enough.
+
+The prose in `AGENTS.md` was not deleted in exchange. A hook fires after the mistake and can only
+say what is wrong; the file is where the why lives, and the why is what stops the mistake being made
+a second time in a shape the grep does not match.
