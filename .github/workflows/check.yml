@@ -12,15 +12,35 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  # One job per check, so a red build names every failure at once. `bun run
+  # check` chains them with && and stops at the first, which is right on a
+  # laptop and wrong here — you would fix a type error, push, and only then
+  # learn about the spelling one.
   check:
+    name: ${{ matrix.name }}
     runs-on: ubuntu-latest
     timeout-minutes: 15
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: typecheck
+            run: bun run typecheck
+          - name: lint
+            run: bun run lint
+          - name: format
+            run: bun run format:check
+          - name: spellcheck
+            run: bun run spellcheck
+          - name: test
+            run: bun run test
 
     steps:
       - uses: actions/checkout@v4
 
-      # Node is needed as well as bun. cspell runs on Node, and its engines
-      # floor is 22.18.0 — on an older Node the spelling gate cannot run at all.
+      # Node is needed as well as bun. cspell runs on Node and its engines floor
+      # is 22.18.0 — below that the spelling gate does not fail, it cannot run.
       - uses: actions/setup-node@v4
         with:
           node-version: 24.18.0
@@ -32,7 +52,13 @@ jobs:
       - name: Install
         run: bun install --frozen-lockfile
 
-      # typecheck, lint, format:check, spellcheck, test — in that order,
-      # stopping at the first failure. Same command a developer runs.
-      - name: Check
-        run: bun run check
+      # expo-env.d.ts and .expo/types are generated, deliberately gitignored,
+      # and required to typecheck — without them tsc cannot resolve the
+      # side-effect import of '@/global.css'. The dev server writes them
+      # normally; this is the documented way to get them on CI without starting
+      # it. See https://docs.expo.dev/router/reference/typed-routes/
+      - name: Generate Expo types
+        run: bunx expo customize tsconfig.json
+
+      - name: ${{ matrix.name }}
+        run: ${{ matrix.run }}

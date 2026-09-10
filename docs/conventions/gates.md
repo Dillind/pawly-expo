@@ -59,14 +59,27 @@ Three guards keep it cheap:
 
 `.github/workflows/check.yml`. It runs on every pull request and on a push to `main`.
 
+**It runs one job per check** — `typecheck`, `lint`, `format`, `spellcheck`, `test` — rather than the
+chained `bun run check`. The chain stops at the first failure, which is right on a laptop and wrong
+here: you would fix a type error, push, and only then learn about the spelling one. `fail-fast` is
+off so every job reports.
+
 It installs Node 24.18.0 as well as bun. That is deliberate: `cspell` runs on Node and its `engines`
 floor is 22.18.0, and on an older Node the spelling gate does not fail — it cannot run at all.
+
+**It generates the Expo types before checking.** `expo-env.d.ts` and `.expo/types/` are generated,
+deliberately gitignored, and required to typecheck — without them `tsc` cannot resolve the
+side-effect import of `@/global.css` in `src/constants/theme.ts`. The dev server writes them, so a
+laptop never notices they are missing. `bunx expo customize tsconfig.json` is the documented way to
+get them on CI without starting the server, and it leaves `tsconfig.json` unchanged. See the
+[typed routes reference](https://docs.expo.dev/router/reference/typed-routes/).
 
 `bun install --frozen-lockfile` fails if `bun.lock` does not match `package.json`, so a dependency
 added without a lockfile update is caught here rather than on someone else's machine.
 
-**Turn on branch protection for this check.** Without it the workflow reports a failure and the merge
-button still works, which makes the whole layer advisory.
+**Turn on branch protection for these checks.** Without it the workflow reports a failure and the
+merge button still works, which makes the whole layer advisory. Require all five by name:
+`typecheck`, `lint`, `format`, `spellcheck`, `test`.
 
 ## What is deliberately not here
 
