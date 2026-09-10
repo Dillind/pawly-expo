@@ -56,7 +56,7 @@ const HouseholdSettings = ({ householdId }: Props) => {
     SuccessMessage.GraceWindowUpdated
   );
 
-  const { mutate: setListed } = useSetHouseholdListed(householdId);
+  const { mutate: setListed, isPending: isSettingListed } = useSetHouseholdListed(householdId);
 
   const isOwner = household?.isOwner ?? false;
 
@@ -152,11 +152,17 @@ const HouseholdSettings = ({ householdId }: Props) => {
                 caller supplies it from outside -- so the row gutter is set
                 here rather than by the component. */}
             <View style={styles.toggleRow}>
+              {/* isBusy, not isDisabled: two taps in quick succession are two
+                  writes with no ordering between them, so the one that commits
+                  last decides -- and that can be the earlier tap. Refusing the
+                  second tap is what stops it. Dimming the row instead would
+                  flash grey on every toggle. */}
               <ToggleSwitch
                 label="Listed"
                 description={listedDescription}
                 value={household.isListed}
                 isDisabled={!isOwner || !household.handle}
+                isBusy={isSettingListed}
                 onChange={setListed}
               />
             </View>

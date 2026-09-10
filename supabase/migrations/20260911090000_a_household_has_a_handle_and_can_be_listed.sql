@@ -55,6 +55,18 @@ grant update (name, timezone, grace_window_minutes, handle, is_listed)
 -- the Owner taps Save. It answers "free to take", so a reserved word is not
 -- available; format is the client's Zod schema to enforce, and an invalid
 -- string is reported unavailable rather than accepted.
+--
+-- It deliberately does NOT filter on is_listed, and must not be changed to.
+-- The handle namespace is global, so "is this free" has one true answer and an
+-- unlisted Household occupies its handle exactly as a Listed one does. Filter
+-- here and the function tells an Owner a taken handle is free, they save, and
+-- the unique index refuses the write with an error the screen cannot explain.
+--
+-- The information this reveals is the minimum a unique namespace must reveal:
+-- that some Household holds a given string. It names no Household, and there is
+-- no path from a handle to a Household except search, which is the thing
+-- is_listed governs. Removing the check would not close that either -- the
+-- unique violation on save answers the same question, one guess at a time.
 create function public.handle_available(candidate text)
 returns boolean
 language sql

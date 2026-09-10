@@ -486,3 +486,20 @@ on the next refetch. There is no error to catch.
 This bites the moment a column is added. Add the column to the grant in the same migration that adds
 the column, or route the write through a SECURITY DEFINER RPC. CRU-126 added `handle` and
 `is_listed` that way.
+
+## `handle_available` cannot filter on `is_listed`, and a reviewer will ask it to
+
+The handle namespace is global. `handle_available` therefore answers about every Household,
+Listed or not, and a reviewer reading it as a discovery leak will suggest adding
+`and is_listed` to the predicate.
+
+Do not. An unlisted Household occupies its handle exactly as a Listed one does. Filter there and
+the function reports a taken handle as free, the Owner saves, and `households_handle_unique`
+refuses the write with a Postgres error the screen has no copy for. The feature breaks and the
+leak does not close — the unique violation on save answers the same question, one guess at a time.
+
+What the function reveals is the minimum a unique namespace must reveal: that some Household holds
+a given string. It names no Household. There is no route from a handle to a Household except
+search, and search is the thing `is_listed` governs. The mitigation that was taken is the grant:
+`authenticated` only, never `anon` as `username_available` was — see
+[DECISIONS.md](./DECISIONS.md).
