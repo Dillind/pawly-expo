@@ -1,6 +1,7 @@
 {
   "version": "0.2",
   "language": "en,en-GB",
+  "useGitignore": true,
   "words": [
     "ABCDEFGHJKMNPQRSTUVWXYZ",
     "Apoquel",
@@ -165,18 +166,23 @@
     "/\\bdofjrttcyjtzvqyttqdo\\b/"
   ],
   "ignorePaths": [
-    "**/dist/**",
-    "ios/**",
-    "docs/research/**",
-    "android/**",
-    "**/node_modules/**",
-    "**/.git/**",
+    "**/*.lock",
     "**/.DS_Store",
+    "**/.git/**",
+    "**/dist/**",
+    "**/node_modules/**",
+    ".claude/**",
+    ".github/**",
     ".vscode",
-    "package.json",
+    "android/**",
     "bun.lock",
-    "types.d.ts",
+    "data/breeds.json",
+    "docs/agents/**",
+    "docs/research/**",
+    "ios/**",
+    "package.json",
     "supabase/migrations/*_breeds.sql",
-    "data/breeds.json"
+    "tests/**",
+    "types.d.ts"
   ]
 }
