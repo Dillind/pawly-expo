@@ -74,6 +74,12 @@ laptop never notices they are missing. `bunx expo customize tsconfig.json` is th
 get them on CI without starting the server, and it leaves `tsconfig.json` unchanged. See the
 [typed routes reference](https://docs.expo.dev/router/reference/typed-routes/).
 
+That step passes three `EXPO_PUBLIC_GOOGLE_*` placeholders. They are not secrets and nothing reads
+them: `expo customize` evaluates `app.config.ts`, and the Google Sign-In config plugin refuses to
+load without an `iosUrlScheme`. The step writes two declaration files and exits. `.env` is gitignored
+and never reaches CI, which is why the real values are absent — a real build takes them from the EAS
+environment.
+
 `bun install --frozen-lockfile` fails if `bun.lock` does not match `package.json`, so a dependency
 added without a lockfile update is caught here rather than on someone else's machine.
 

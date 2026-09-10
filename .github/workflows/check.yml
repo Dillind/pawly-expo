@@ -57,7 +57,18 @@ jobs:
       # side-effect import of '@/global.css'. The dev server writes them
       # normally; this is the documented way to get them on CI without starting
       # it. See https://docs.expo.dev/router/reference/typed-routes/
+      #
+      # The env vars are placeholders, not secrets. `bunx expo customize`
+      # evaluates app.config.ts, and the Google Sign-In config plugin refuses to
+      # load without an iosUrlScheme. Nothing here reaches a build or a bundle —
+      # this step writes two type declaration files and exits, and the values are
+      # never read. .env is gitignored and never reaches CI, which is why the
+      # real ones are absent. A real build gets them from the EAS environment.
       - name: Generate Expo types
+        env:
+          EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID: ci-placeholder.apps.googleusercontent.com
+          EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID: ci-placeholder.apps.googleusercontent.com
+          EXPO_PUBLIC_GOOGLE_IOS_URL_SCHEME: com.googleusercontent.apps.ci-placeholder
         run: bunx expo customize tsconfig.json
 
       - name: ${{ matrix.name }}
