@@ -17,6 +17,28 @@ Newest first. Append, don't rewrite.
 
 ---
 
+## 2026-09-10
+
+**Every Username entry below is superseded.** The 2026-09-08 block and the "A Username is how the
+app names a person" entry of 2026-09-01 describe a field that no longer exists. They stay because
+this file is a record, not a changelog — but nothing in them is current. [ADR
+0037](./adr/0037-a-person-is-named-by-their-first-name.md) is what replaces them.
+
+**The fallback word is 'Someone', not 'Member'.** A Follower writes Comments and is never a Member,
+and `CONTEXT.md` says so under the Follower entry. The fallback appears on exactly the surface where
+a non-Member is named, so 'Member' would be wrong precisely where it is used.
+
+**The reply prefix lost its bold weight as well as its `@`.** It was a bold gold `@sarah` inline
+inside the comment body. Without the symbol a bold name read as the first word of the sentence, so
+it became a muted line above the body: "Replying to Sarah".
+
+**`supabase db push` is not safe on this project.** `supabase migration list` shows dozens of local
+migrations with no remote row — the four username ones included — while their objects existed in
+production. They were applied outside the ledger. A push would try to replay them. CRU-129's
+migration was applied on its own, and its filename renamed to the version the ledger recorded.
+
+---
+
 ## 2026-09-08
 
 **Onboarding gates on the handle as well as the name.** ADR 0027 allows a name gate because

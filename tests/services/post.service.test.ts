@@ -316,11 +316,11 @@ describe('PostService.get', () => {
         post_likes: [
           {
             user_id: 'user-2',
-            users: { first_name: 'Sarah', last_name: 'Chen', username: 'sarah_c' }
+            users: { first_name: 'Sarah', last_name: 'Chen' }
           },
           {
             user_id: 'user-1',
-            users: { first_name: 'Dylan', last_name: 'Lindsay', username: 'dylan_l' }
+            users: { first_name: 'Dylan', last_name: 'Lindsay' }
           }
         ]
       }),
@@ -341,11 +341,11 @@ describe('PostService.get', () => {
         post_likes: [
           {
             user_id: 'user-2',
-            users: { first_name: 'Sarah', last_name: 'Chen', username: 'sarah_c' }
+            users: { first_name: 'Sarah', last_name: 'Chen' }
           },
           {
             user_id: 'user-1',
-            users: { first_name: 'Dylan', last_name: 'Lindsay', username: 'dylan_l' }
+            users: { first_name: 'Dylan', last_name: 'Lindsay' }
           }
         ]
       }),
