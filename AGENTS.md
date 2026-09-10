@@ -349,125 +349,22 @@ Four different things, four different surfaces. Do not mix them up.
 
 ### Alerts
 
-`Alert.alert` from `react-native`, which is `UIAlertController` on iOS. There is no wrapper — the
-platform component is the component.
+`Alert.alert` from `react-native`, which is `UIAlertController` on iOS. There is no wrapper.
 
-Apple's [Alerts guidance](https://developer.apple.com/design/human-interface-guidelines/alerts) is
-the rule here, and the parts that decide the call are:
+**Never use an alert for anything but a decision the user must make now** — a collision, a
+destructive consequence, an irreversible step, discovered while the app carried out what they
+asked for. Two buttons, one of them exactly "Cancel". A routine undoable action, anything merely
+informative, and any validation error are a toast or an inline error, not an alert.
 
-> "An alert gives people critical information they need right away."
->
-> "Alerts give people important information, but they interrupt the current task to do so."
->
-> "Use an action sheet — not an alert — to offer choices related to an intentional action."
-
-So, in this codebase:
-
-**Use an alert when all of these hold.** Miss any one and it is the wrong surface.
-
-1. **It reports something the user did not know**, discovered while carrying out what they asked
-   for — a collision, a destructive consequence, an irreversible step.
-2. **It is a response to an action, not a stage of one.** The user has already tapped the thing;
-   the app is interrupting. A question you always ask on the way through a flow is a step, not an
-   alert.
-3. **Two buttons is enough**, one of which is Cancel. Three is the hard ceiling and already a sign
-   the answer is a different surface.
-4. **The whole message fits in one short sentence.** If the explanation needs a paragraph, or the
-   options need explaining individually, the alert cannot carry it.
-
-**Never use an alert** for a routine undoable action, for anything merely informative (that is a
-toast), for a validation error (that is inline), or to offer a choice between options that each
-need explaining — Apple sends that to an action sheet, and if the options need text _underneath_
-them, neither works and it becomes a step in a `Tray`.
-
-**Writing them:**
-
-- **Title**: specific and complete, no verb needed — "Already logged", "Delete this photo?". Not
-  "Warning", not "Are you sure?".
-- **Message**: optional, and only if it adds something the title cannot. One sentence naming the
-  facts the decision turns on — who, what, when.
-- **Buttons**: name the action, never "OK" — "Log anyway", "Delete", "Remove". The cancelling
-  button is always titled exactly **"Cancel"** and always carries `style: 'cancel'`, which is what
-  makes iOS render it as the emphasised, safe default.
-- **`style: 'destructive'`** is for losing data, not merely for the consequential choice. Writing a
-  duplicate Feed Log is not destructive; deleting a Pet is.
-- **Emphasis is `isPreferred`, not colour.** A native alert takes no theme tokens — iOS draws it,
-  and `AlertButton` offers only the three `style` values plus `isPreferred`, which maps to
-  `UIAlertController.preferredAction` and renders that button **bold**. That is the whole of
-  primary-versus-secondary here. Put it on **Cancel** whenever the other button has a consequence,
-  so the consequential one has to be chosen rather than fallen into. If a decision genuinely needs
-  branded buttons, that is the signal it was never an alert — build it as a `Tray` step.
-
-Live examples: the Double Feed collision in `use-log-flow.ts`, removing a Pet in
-`edit-pet-details.tsx`, deleting a photo in `gallery-strip.tsx`. The counter-example worth reading
-is `late-feed-step.tsx` — it asks a question and is deliberately **not** an alert, because each of
-its two options needs a sentence of consequence underneath it (ADR 0016).
+Full rules — when it qualifies, how to word the title, message and buttons, `isPreferred`
+emphasis, and the live examples — are in **[docs/conventions/alerts.md](./docs/conventions/alerts.md)**.
+Read it before you write or change one.
 
 Toasts go through `@/lib/toast` (`showSuccessToast`, `showErrorToast`, `showInfoToast`) — never
 import `toast` from `sonner-native` outside that file. The optional second argument is a
 description; use it only for text a user can act on. Do **not** pass a raw `error.message` from
 Supabase or Postgres into it: `new row violates row-level security policy` is a developer string,
 and showing it is worse than showing nothing.
-
-That does not mean discarding the error. A service that has already _translated_ a failure into
-copy — "There is already a dinner feed. Edit that one instead." — throws
-**`UserFacingError`** (`@/lib/errors`), and `userFacingMessage(error, fallback)` unwraps it: the
-service's own words when it wrote them for a person, the fallback for anything else. Ignoring the
-error entirely is the mistake in the other direction: it throws away the one message that told the
-user what to do about it.
-
-**Every `onError` also does `console.error(error)`.** The toast is sanitised copy by design, so the
-driver's real message — the SQLSTATE, the constraint name, the network failure — survives nowhere
-else.
-
-**The message itself comes from `SuccessMessage` / `ErrorMessage` in `@/constants/enums`**, never a
-string literal at the call site. One file holds every sentence the app can say, so wording stays
-consistent and changing it is one edit. Entries are named by subject and outcome
-(`PetDetailsUpdated`, `FeedTimeRemoveFailed`) and read "&lt;Subject&gt; &lt;past-tense verb&gt;" — five
-near-identical trays on the pet screen must not all confirm with the same sentence, because the
-toast is the only thing telling a member which sheet they just saved. A message that genuinely
-needs a runtime value (`Logged a feed for ${pet.name}`) is the exception, not the excuse.
-
-**The toast belongs to the hook, not the call site.** Put a plain `onSuccess`/`onError` in
-`useMutation`. The call site then passes only the mutation's own arguments, and keeps an
-`onSuccess` only for something the hook cannot do — dismissing a sheet, calling `onDone()`,
-navigating:
-
-```tsx
-// In the hook
-return useMutation({
-  mutationFn: (patch: PetPatch) => PetService.update(petId, patch),
-  onSettled: () => invalidate(queryClient, petId),
-  onSuccess: () => showSuccessToast(SuccessMessage.PetDetailsUpdated),
-  onError: (error) => {
-    console.error(error);
-    showErrorToast(ErrorMessage.PetDetailsUpdateFailed);
-  }
-});
-
-// At the call site
-updatePet(patch, { onSuccess: onDone });
-```
-
-This is not only about repetition. **Callbacks passed to `mutate()` are dropped when the component
-unmounts before the mutation settles** — see `hasListeners()` in
-`@tanstack/query-core/.../mutationObserver.js`. A long upload on a screen the user navigates away
-from would otherwise fail silently. The hook's own callbacks always run.
-
-Both callbacks receive the variables as their second argument, which is how the add-vs-update split
-is made: `onSuccess: (_data, input) => showSuccessToast(input.id ? FeedTimeUpdated : FeedTimeAdded)`.
-
-**A hook with two call sites that need different wording takes the messages as an argument.**
-`useUpdatePet(petId, { success, failure })` is the only one — "Pet details updated" is not
-"Bio updated".
-
-Exceptions worth knowing:
-
-- **`useLogFeed` keeps its toasts at the call site.** A `double_feed` result is a _success_ that
-  must not confirm anything, because nothing was written.
-- A success toast is redundant where navigation already confirms the result (sign-up moves to the
-  verify screen), and `PushTokenService.register` deliberately stays silent — see the comment in
-  `use-push-notifications.ts`.
 
 ### Writing a feed log
 
@@ -538,63 +435,24 @@ One live consequence:
 
 ### Icons
 
-Icons come from `lucide-react-native` (backed by `react-native-svg`), but **never import a Lucide icon directly in a screen or component.** Always go through the shared `Icon` primitive at `src/components/core/icon.tsx`, which reads from the explicit allow-list in `src/constants/icon-map.ts`:
+Icons come from `lucide-react-native`, but **never import a Lucide icon directly in a screen or
+component**, and never import from `lucide-react-native` anywhere except
+`src/constants/icon-map.ts` — that allow-list is what keeps the bundle from silently growing.
+See [ADR 0008](./docs/adr/0008-lucide-icon-library-typed-icon-map.md).
 
 ```tsx
 import Icon from '@/components/core/icon';
 
-<Icon name="calendar" size={16} />
-<Icon name="camera" size={24} color="textSecondary" />
+<Icon name="calendar" size={16} />;
 ```
 
-- **`name`** — required, typed as `IconName` (`keyof typeof iconMap`). Only icons registered in the map are selectable — this is deliberate, not a limitation: it keeps every icon the bundler ever sees an explicit, reviewable choice instead of the whole Lucide set being reachable.
-- **`size`** — defaults to `16`.
-- **`color`** — a `ThemeColor` key (`'text'`, `'textSecondary'`, etc., same set `AppText` uses), defaults to `'text'`.
-- **`strokeWidth`** — optional passthrough; omit to use Lucide's own default (`2`).
-- `Icon` is decorative by default (hidden from the accessibility tree) — it does not accept an `accessibilityLabel`. Icon-only tappable controls must use `IconButton` (`src/components/core/icon-button.tsx`), which owns the 44pt tap target and takes a **required** `accessibilityLabel`; don't bolt accessibility props onto `Icon` itself.
+An icon-only tappable control is `IconButton`, which owns the 44pt target and a **required**
+`accessibilityLabel`. A bar button is `Stack.Toolbar.Button`, never a React view, and never
+`variant="glass"` inside a native header.
 
-```tsx
-<IconButton name="plus" accessibilityLabel="Log a feed" size={28} onPress={onLogPress} />
-```
-
-Unlike `MainButton`, it never stretches to fill its parent — it is a fixed circular target (`alignSelf: 'center'`). Variants are `primary` / `secondary` / `ghost` / `glass`; the first two draw the glyph in `onPrimary`, `ghost` in `text`, and `glass` in `primary` (white on clear glass is invisible over a light background).
-
-`glass` is the one variant that does not use `PressableOpacity`: it renders a `GlassView` with `isInteractive`, so the material itself provides the press response. Layering the usual opacity fade on top would fight it — see [ADR 0011](./docs/adr/0011-liquid-glass-progressive-enhancement.md), which also requires the `hasGlass` fallback the variant already carries — below iOS 26 it drops back to the opaque `PressableOpacity` path, because there is no material to deform.
-
-**A bar button is `Stack.Toolbar.Button`, not a React view.** SDK 57 renders a real
-`UIBarButtonItem` from an SF Symbol, so it matches the back button by construction:
-
-```tsx
-<Stack.Toolbar placement="right">
-  <Stack.Toolbar.Button icon="plus" accessibilityLabel="Share a photo" onPress={openComposer} />
-</Stack.Toolbar>
-```
-
-`HeaderIconButton` below is the older path, kept for a header that is not a `Stack.Screen` child:
-
-```tsx
-headerRight: () => (
-  <HeaderIconButton name="ellipsis" accessibilityLabel="Manage this post" onPress={openMenu} />
-);
-```
-
-**Pass nothing but `name`, `accessibilityLabel` and `onPress`.** Its size, stroke and 36×40 box were
-measured against the native back button on a simulator, so overriding `size` is what makes a header
-button look almost-but-not-quite right next to the back chevron.
-
-**Never `variant="glass"` in a native header.** On iOS 26 the bar draws its own glass circle behind
-a bar button item; a `GlassView` inside that stacks two materials and reads visibly heavier than the
-back button beside it. `HeaderIconButton` uses `ghost` precisely so the system provides the only
-material. `glass` is for a control floating over content — the popover trigger, the Home bell — where
-nothing else is drawing the circle.
-
-**Adding a new icon:**
-
-1. Check the icon exists at [lucide.dev/icons](https://lucide.dev/icons).
-2. Add one line to `src/constants/icon-map.ts`: a semantic key (not necessarily Lucide's own export name — e.g. `caretDown` maps to Lucide's `ChevronDown`, matching this codebase's existing vocabulary) mapped to the Lucide component.
-3. Use `<Icon name="yourNewKey" />` at the call site.
-
-Never import from `lucide-react-native` anywhere except `icon-map.ts` — that's what keeps the bundle from silently growing as icons get added. See [ADR 0008](./docs/adr/0008-lucide-icon-library-typed-icon-map.md) for why Phosphor was replaced.
+Full rules — every prop, the four `IconButton` variants and why `glass` behaves differently,
+`HeaderIconButton`, and how to add a new icon — are in
+**[docs/conventions/icons.md](./docs/conventions/icons.md)**.
 
 ### Styling & theming
 
@@ -684,7 +542,7 @@ All user-facing text uses **Australian/British English** (colour, organise, canc
 
 ### Code style
 
-- Prettier: 100-char width, single quotes, **no trailing commas**, `bracketSameLine: true`, no tabs (`.prettierrc.json`). `bun run format:check` is in `bun run check`, so formatting is a gate, not a suggestion — run `bun run format` before you commit.
+- Prettier owns formatting; the settings are in `.prettierrc.json`. `bun run format:check` is in `bun run check`, so formatting is a gate, not a suggestion — run `bun run format` before you commit.
 - **Imports are sorted by Prettier, not by hand.** `@ianvs/prettier-plugin-sort-imports` orders them: built-ins, third party, `@/` aliases, then relative, with a blank line between each group. An inline `type` specifier stays with its value import — the plugin merges them rather than splitting type imports into their own group. Never reorder an import block yourself; run `bun run format`.
 - ESLint via `eslint-config-expo` (flat config). Run `bun run lint` before finishing.
 - Spelling is checked with cspell (`bun run spellcheck`); add project words to `cspell.json` rather than disabling. The locale is `en,en-GB` deliberately — prose is British (`colour`), but code identifiers are American (`backgroundColor`, `colors`), so both dictionaries have to be active.
@@ -723,6 +581,26 @@ if (!token) return null;
 // delivered, so useLastNotificationResponse is what replays it.
 const lastResponse = Notifications.useLastNotificationResponse();
 ```
+
+## Agent hooks
+
+Two rules in this file are enforced mechanically, not by good intentions. The scripts live in
+`scripts/` and the wiring is `hooks` in `.claude/settings.json`. `.gitignore` lists `.claude`, but
+that file was force-added and stays tracked, so both travel with a clone — see
+[docs/conventions/agent-hooks.md](./docs/conventions/agent-hooks.md) for the wiring and the full
+rule table.
+
+- **`scripts/check-boundaries.sh`** — `PostToolUse` on `Edit`/`Write`. Checks the one file just
+  written, and only under `src/`. It catches a direct `lucide-react-native` import, the Supabase
+  client outside `src/services/`, a `TrueSheet` value import outside `base-sheet.tsx`, `toast` from
+  `sonner-native` outside `@/lib/toast`, a direct `feed_logs` insert, `watch()` where `useWatch`
+  belongs, and a filename that is not kebab-case. Each of these passes typecheck and lint, which is
+  why prose alone never held them.
+- **`scripts/guard-branch.sh`** — `PreToolUse` on `Bash`. Blocks a `git commit` while `HEAD` is
+  `main`. Reads are untouched.
+
+Both exit 2 with the reason, so the failure lands as a correction rather than as silence. The prose
+rules stay in this file: a hook catches a violation after the fact and cannot explain the why.
 
 ## Agent skills
 
