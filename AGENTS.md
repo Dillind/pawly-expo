@@ -354,7 +354,13 @@ Four different things, four different surfaces. Do not mix them up.
   input without `name` silently cannot show its own error.
 - **API failure → toast.** Network dropped, RLS denied the write, Postgres threw. Not attributable
   to a field, and the user cannot fix it by retyping.
-- **Success → toast.** Every mutation confirms it landed.
+- **Success → toast.** Every mutation confirms it landed — with one exception, and only this one:
+  **a switch that shows its own state.** `ToggleSwitch` moves to the new position and stays there,
+  which is the confirmation; a toast on top of it says the same thing twice, and says it on every
+  tap. The alert preferences in `use-notification-preferences.ts` have worked this way since they
+  landed, and `useSetHouseholdListed` follows them. A control that does **not** display the value it
+  wrote still needs its toast — the lead-time picker in that same file is the contrast, and it has
+  one. Failure is never exempt: both of those show an error toast.
 - **A decision that has to be made now → alert.** See below.
 
 ### Alerts
