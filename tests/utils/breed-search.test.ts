@@ -1,3 +1,6 @@
+// cspell:ignore chihuaha labradore -- deliberate misspellings. The point of these tests
+// is that a typed breed name survives a typo, so the typo has to be in the source.
+
 import { breedsFor } from '@/constants/breeds';
 import type { Option } from '@/types/core';
 import { MIN_SEARCH_LENGTH, searchBreeds } from '@/utils/breed-search';

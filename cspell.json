@@ -177,7 +177,6 @@
     "ios/**",
     "package.json",
     "supabase/migrations/*_breeds.sql",
-    "tests/**",
     "types.d.ts"
   ]
 }
