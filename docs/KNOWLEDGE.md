@@ -479,10 +479,10 @@ static check the repo runs.
 
 ## A write to a `households` column with no UPDATE grant fails silently
 
-`grant update (name, timezone, grace_window_minutes) on public.households to authenticated` is
-column-level. A write to any other column reports success, and the value is gone on the next
-refetch. There is no error to catch.
+`grant update (name, timezone, grace_window_minutes, handle, is_listed) on public.households to
+authenticated` is column-level. A write to any other column reports success, and the value is gone
+on the next refetch. There is no error to catch.
 
-This bites the moment a column is added — `handle` and `is_listed` on CRU-126 are next. Add the
-column to the grant in the same migration that adds the column, or route the write through a
-SECURITY DEFINER RPC.
+This bites the moment a column is added. Add the column to the grant in the same migration that adds
+the column, or route the write through a SECURITY DEFINER RPC. CRU-126 added `handle` and
+`is_listed` that way.

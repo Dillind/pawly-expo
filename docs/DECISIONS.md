@@ -850,3 +850,40 @@ workflow is the one that makes any of it binding.
 The pre-commit hook checks the working tree rather than the staged content, so a partial stage can
 pass it and still be broken as committed. The fix is to stash the unstaged half around the run, which
 loses work often enough that CI is the better place to catch it.
+
+## A Household Handle uses a hyphen, and never an underscore
+
+The `users.username` rule was `^[a-z][a-z0-9_]{2,19}$` — underscore, no hyphen. Issue #169 said the
+Handle copies its shape and then gave `@kathys-house` as the example, which that rule rejects.
+
+The Handle takes the hyphen and drops the underscore. Not both: two ways to write one name is how
+`@kathys-house` and `@kathys_house` end up held by different Households, and how a person typing one
+reaches the other. The regex is `^[a-z][a-z0-9]*(-[a-z0-9]+)*$`, so every hyphen sits between two
+alphanumerics — no leading digit, no trailing hyphen, no doubled one.
+
+## A Listed Household cannot have a null handle, and Postgres is what says so
+
+`check (not is_listed or handle is not null)`, alongside the client keeping the switch disabled.
+
+The switch could have enforced this on its own. It should not: the search row's whole job is to tell
+two Households named "The Smiths" apart, and the Handle is the only field that does it. A Listed row
+with nothing to distinguish it is not a client bug, it is a row that must not exist — so the rule
+belongs where every caller meets it, not only the one that has a switch.
+
+## The Listed switch is optimistic, and the notification toggles are not
+
+`notification-settings.tsx` invalidates on settle, so its switches snap back until the refetch lands.
+`useSetHouseholdListed` moves at the tap and rolls back only on failure.
+
+The two are deliberately different. A switch that jumps back reads as latency on a notifications
+screen and as a refusal on a privacy question. This one gets its own hook rather than making
+`useUpdateHousehold` optimistic for its other three call sites, which never asked for it.
+
+## A Handle can be changed but never cleared, and no history is kept
+
+An Owner may take a new Handle at any time. The field cannot be saved empty, and the old Handle is
+free the instant it is released — no cooldown, no tombstone table.
+
+Two rules would need explaining; one does not, and an empty field then always means "not set yet".
+The stale-link worry is small here because an Owner accepts every Follow: somebody who reaches the
+wrong Household by an old Handle costs one wasted request, and never a leak.

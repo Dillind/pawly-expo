@@ -174,6 +174,14 @@ const FollowHousehold = ({ householdId }: Props) => {
           <AppText variant="header" size={24} fontWeight="bold" align="center">
             {preview.name}
           </AppText>
+          {/* A search result opens this screen, and the handle is what told the
+              person which household they picked. Without it two households
+              named the same thing are indistinguishable here. */}
+          {preview.handle && (
+            <AppText size={15} color="textSecondary">
+              @{preview.handle}
+            </AppText>
+          )}
           <AppText size={15} color="textSecondary">
             {countText(preview.pets.length, 'pet')}
           </AppText>

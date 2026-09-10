@@ -9,6 +9,7 @@ import AppText from '@/components/core/app-text';
 import ErrorState from '@/components/core/error-state';
 import SettingsRow from '@/components/core/settings-row';
 import SettingsSection from '@/components/core/settings-section';
+import ToggleSwitch from '@/components/core/toggle-switch';
 import ScreenScrollView from '@/components/layout/screen-scroll-view';
 import ScreenView from '@/components/layout/screen-view';
 import HouseholdPets from '@/components/ui/household-pets';
@@ -18,6 +19,7 @@ import { BottomTabInset, type AppTheme } from '@/constants/theme';
 import { useFollowers, useFollowRequests } from '@/hooks/queries/follow/use-follows';
 import { useHouseholdById } from '@/hooks/queries/household/use-household-by-id';
 import { useHouseholdMembers } from '@/hooks/queries/household/use-household-members';
+import { useSetHouseholdListed } from '@/hooks/queries/household/use-set-household-listed';
 import { useUpdateHousehold } from '@/hooks/queries/household/use-update-household';
 import { useStyles } from '@/hooks/use-styles';
 import { optionLabel } from '@/utils/options';
@@ -54,7 +56,17 @@ const HouseholdSettings = ({ householdId }: Props) => {
     SuccessMessage.GraceWindowUpdated
   );
 
+  const { mutate: setListed } = useSetHouseholdListed(householdId);
+
   const isOwner = household?.isOwner ?? false;
+
+  // Three states, three sentences. A bare switch cannot say that Listing
+  // governs discovery and never who gets in.
+  const listedDescription = !household?.handle
+    ? 'Set a handle first'
+    : household.isListed
+      ? 'Anyone can find your household by name or handle.'
+      : 'Only people with your follow link can find you.';
 
   // Every state renders inside the same scroll view. A bare ScreenView under a
   // transparent header draws its content beneath the navigation bar.
@@ -120,6 +132,37 @@ const HouseholdSettings = ({ householdId }: Props) => {
           </SettingsSection>
           <AppText size={13} color="textSecondary" style={styles.caption}>
             Roles, invites and Leave household live on the Members screen.
+          </AppText>
+        </View>
+
+        {/* Between People and Household: the sections run from the people
+            already inside, to the people outside, to the settings that are
+            nobody else's business. */}
+        <View style={styles.group}>
+          <SettingsSection title="Discovery">
+            <SettingsRow
+              icon="atSign"
+              label="Handle"
+              value={household.handle ? `@${household.handle}` : 'Not set'}
+              onPress={
+                isOwner ? () => router.push(`/profile/household/${householdId}/handle`) : undefined
+              }
+            />
+            {/* ToggleSwitch brings no padding of its own -- its only other
+                caller supplies it from outside -- so the row gutter is set
+                here rather than by the component. */}
+            <View style={styles.toggleRow}>
+              <ToggleSwitch
+                label="Listed"
+                description={listedDescription}
+                value={household.isListed}
+                isDisabled={!isOwner || !household.handle}
+                onChange={setListed}
+              />
+            </View>
+          </SettingsSection>
+          <AppText size={13} color="textSecondary" style={styles.caption}>
+            You accept every follower, listed or not.
           </AppText>
         </View>
 
@@ -235,6 +278,10 @@ const makeStyles = ({ spacing }: AppTheme) =>
     },
     caption: {
       paddingHorizontal: spacing.one
+    },
+    toggleRow: {
+      paddingHorizontal: spacing.three,
+      paddingVertical: spacing.two + spacing.one
     },
     loading: {
       marginTop: spacing.five

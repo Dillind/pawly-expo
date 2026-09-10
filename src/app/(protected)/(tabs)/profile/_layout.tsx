@@ -41,6 +41,11 @@ export default function ProfileLayout() {
           <Stack.Header transparent />
           <Stack.Screen.BackButton displayMode="minimal" />
         </Stack.Screen>
+        <Stack.Screen name="household/[householdId]/handle">
+          <Stack.Title style={HeaderTitleStyle}>Handle</Stack.Title>
+          <Stack.Header transparent />
+          <Stack.Screen.BackButton displayMode="minimal" />
+        </Stack.Screen>
         <Stack.Screen name="household/[householdId]/notifications">
           <Stack.Title style={HeaderTitleStyle}>Notifications</Stack.Title>
           <Stack.Header transparent />

@@ -1,3 +1,5 @@
+import { ErrorMessage } from '@/constants/enums';
+import { UserFacingError } from '@/lib/errors';
 import { assertWrote } from '@/lib/supabase/assert-wrote';
 import { supabase } from '@/lib/supabase/client';
 import type { HouseholdMember, HouseholdSummary, LeadMinutes } from '@/types/core';
@@ -35,6 +37,9 @@ type MembershipRow = {
   feed_logged_alerts: boolean;
 };
 
+/** Postgres unique_violation. The handle's unique index is what raises it. */
+const UNIQUE_VIOLATION = '23505';
+
 namespace HouseholdService {
   /**
    * Every household the user belongs to, oldest membership first, each with its
@@ -59,7 +64,7 @@ namespace HouseholdService {
       await Promise.all([
         supabase
           .from('households')
-          .select('id, name, timezone, grace_window_minutes')
+          .select('id, name, handle, is_listed, timezone, grace_window_minutes')
           .in('id', householdIds),
         supabase
           .from('pets')
@@ -82,6 +87,8 @@ namespace HouseholdService {
         {
           id: household.id,
           name: household.name,
+          handle: household.handle,
+          isListed: household.is_listed,
           timezone: household.timezone,
           graceWindowMinutes: household.grace_window_minutes,
           role: membership.role,
@@ -96,16 +103,23 @@ namespace HouseholdService {
 
   export type HouseholdPatch = {
     name?: string;
+    handle?: string;
+    isListed?: boolean;
     timezone?: string;
     graceWindowMinutes?: number;
   };
 
   // The service owns snake_case: a column name must never reach a component.
+  //
+  // Every column written here is named in the UPDATE grant. A column absent
+  // from that grant reports success and is gone on the next refetch.
   export async function update(householdId: string, patch: HouseholdPatch): Promise<void> {
     const { data, error } = await supabase
       .from('households')
       .update({
         ...(patch.name !== undefined && { name: patch.name.trim() }),
+        ...(patch.handle !== undefined && { handle: patch.handle }),
+        ...(patch.isListed !== undefined && { is_listed: patch.isListed }),
         ...(patch.timezone !== undefined && { timezone: patch.timezone }),
         ...(patch.graceWindowMinutes !== undefined && {
           grace_window_minutes: patch.graceWindowMinutes
@@ -114,9 +128,38 @@ namespace HouseholdService {
       .eq('id', householdId)
       .select('id');
 
+    // handle_available is a convenience, never the guard: two Owners can settle
+    // on the same handle inside one second and only the unique index sees it.
+    if (error?.code === UNIQUE_VIOLATION) {
+      throw new UserFacingError(ErrorMessage.HouseholdHandleTaken, error);
+    }
+
     if (error) throw error;
 
     assertWrote(data, 'Only an owner can change household settings');
+  }
+
+  /**
+   * Answers "free to take" for one candidate. The caller debounces, so this is
+   * only asked once the Owner stops typing.
+   */
+  export async function isHandleAvailable(candidate: string): Promise<boolean> {
+    const { data, error } = await supabase.rpc('handle_available', { candidate });
+
+    if (error) throw error;
+
+    return data === true;
+  }
+
+  /**
+   * Free handles built from the Household name, each one checked.
+   */
+  export async function getHandleSuggestions(stem: string, wanted = 3): Promise<string[]> {
+    const { data, error } = await supabase.rpc('handle_suggestions', { stem, wanted });
+
+    if (error) throw error;
+
+    return (data ?? []) as string[];
   }
 
   export async function listMembers(householdId: string): Promise<HouseholdMember[]> {
