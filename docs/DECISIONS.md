@@ -887,3 +887,43 @@ free the instant it is released — no cooldown, no tombstone table.
 Two rules would need explaining; one does not, and an empty field then always means "not set yet".
 The stale-link worry is small here because an Owner accepts every Follow: somebody who reaches the
 wrong Household by an old Handle costs one wasted request, and never a leak.
+
+## A search row both follows and navigates
+
+The CRU-130 issue first said a row navigates and nothing else: an inline Follow button asks somebody
+to follow a Household they have not looked at, and it puts a mutation on a search screen.
+
+Overturned, because that argument is about Hevy's Follow rather than ours. Hevy's is instant and
+public. A Crumpet follow is a **request**, and the Owner still decides — so a wrong tap costs one request the
+Owner can refuse, and it undoes itself. The button reports where the viewer stands (`Follow`,
+`Requested`, `Following`, or no button for a member) instead of repeating the offer, and only `none`
+is pressable. The identity half of the row still opens the landing screen, and the two are separate
+press targets so they never compete for one touch.
+
+## The search result row keeps the success toast
+
+The button changes shape on a success, which is the same self-reporting a `ToggleSwitch` does, and
+the toast could have been dropped on that reasoning.
+
+It stays, because `useRequestFollow` is one hook shared with the follow landing screen, which has
+toasted since it shipped. Silencing it for one caller means a `silent` flag that exists to serve a
+single call site, or two behaviours for one action. The AGENTS.md exception is written for a switch,
+and it stays that narrow.
+
+## `search_households` gets no index, and that is deliberate
+
+The match is `lower(name) like '%term%'`, which no btree index can serve. There are three Households
+in the database and the sequential scan is free.
+
+`pg_trgm` with a GIN index is the fix when this matters. Enabling an extension for a table this size
+buys nothing and has to be maintained, so it waits until a real query plan asks for it.
+
+## The Posts filter is removed
+
+`posts-filter-sheet.tsx` and `posts-scope-store.ts` are deleted, and the Posts toolbar keeps two
+buttons: search and add.
+
+Asked for during the CRU-130 design, and not in any ticket. `all` was already the default scope, so
+nobody who never opened the filter sees a change — the stream is still every Household you are in
+plus the ones you follow. What goes is the ability to narrow it, which can come back as its own
+ticket if it is missed.

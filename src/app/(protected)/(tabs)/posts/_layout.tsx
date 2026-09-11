@@ -3,12 +3,10 @@ import { StatusBar } from 'expo-status-bar';
 
 import { HeaderTitleStyle } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
-import usePostsScopeStore from '@/stores/posts-scope-store';
 
 export default function PostsLayout() {
   const { isDark } = useTheme();
   const router = useRouter();
-  const { requestFilter } = usePostsScopeStore();
 
   return (
     <>
@@ -17,14 +15,11 @@ export default function PostsLayout() {
         <Stack.Screen name="index" options={{ headerShown: true }}>
           <Stack.Title style={HeaderTitleStyle}>Posts</Stack.Title>
           <Stack.Header transparent />
-          {/* Two bar buttons and a sheet, never a segmented control: iOS draws
-              its own glass behind a bar item, and the second half of the filter
-              is a household picker no three-cell control can hold. */}
           <Stack.Toolbar placement="right">
             <Stack.Toolbar.Button
-              icon="line.3.horizontal.decrease"
-              accessibilityLabel="Filter posts"
-              onPress={requestFilter}
+              icon="magnifyingglass"
+              accessibilityLabel="Find a household"
+              onPress={() => router.push('/posts/find-household')}
             />
             <Stack.Toolbar.Button
               icon="plus"
@@ -32,6 +27,11 @@ export default function PostsLayout() {
               onPress={() => router.push('/posts/new-post')}
             />
           </Stack.Toolbar>
+        </Stack.Screen>
+        <Stack.Screen name="find-household" options={{ headerShown: true }}>
+          <Stack.Title style={HeaderTitleStyle}>Find a household</Stack.Title>
+          <Stack.Header transparent />
+          <Stack.Screen.BackButton displayMode="minimal" />
         </Stack.Screen>
         <Stack.Screen name="[postId]/index" options={{ headerShown: true }}>
           <Stack.Title style={HeaderTitleStyle}>Post</Stack.Title>

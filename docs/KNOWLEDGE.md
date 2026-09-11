@@ -503,3 +503,43 @@ a given string. It names no Household. There is no route from a handle to a Hous
 search, and search is the thing `is_listed` governs. The mitigation that was taken is the grant:
 `authenticated` only, never `anon` as `username_available` was — see
 [DECISIONS.md](./DECISIONS.md).
+
+## `Stack.SearchBar`'s `onChangeText` gives an event, not a string
+
+The Expo Router skill and the component's own JSDoc both show
+`onChangeText={(text) => console.log(text)}`. That is wrong. `StackSearchBar` hands every prop
+straight to `headerSearchBarOptions`, and `react-native-screens` types the callback as
+`(e: NativeSyntheticEvent<TextInputFocusEventData>) => void`.
+
+Read `event.nativeEvent.text`. TypeScript catches it, but only because the props are typed through
+`react-native-screens` rather than by the doc comment — anyone who copies the documented example and
+then reaches for `.toLowerCase()` gets a runtime failure instead.
+
+## A user's search term must be escaped before it reaches `like`
+
+`search_households` builds a pattern from what the person typed. A typed `%` matches every Household
+and a typed `_` matches any single character, so a one-character query of `%` would return the whole
+directory and defeat the two-character minimum.
+
+The function escapes backslash, `%` and `_`, in that order, and sets an explicit `escape '\'` on
+every `like`. The backslash goes first or it escapes the escapes. This is not a SQL injection —
+parameters are bound — it is a pattern-injection, and it is invisible until somebody types a `%`.
+
+## `Stack.SearchBar` will not take focus if `placement` is set
+
+A search screen should open with the keyboard up. On `Stack.SearchBar` that needs two things, and
+the second is not discoverable:
+
+1. **`autoFocus` does not work on its own.** Hold a ref and call `focus()` once the push has
+   settled — `useFocusEffect` with a short timer. The prop is worth keeping beside it to state the
+   intent, but it is not what does the work.
+2. **`placement` must be absent.** Any value makes iOS refuse focus, `"stacked"` included — the
+   value at which the bar already renders exactly where it would anyway. The field simply stays
+   unfocused, with no warning and nothing in the logs.
+
+Four things were tried before the cause was found: `autoFocus` alone, `useEffect` plus `focus()`,
+`useFocusEffect` plus `focus()`, and a full app restart to rule out a stale bundle. All four failed
+while `placement="stacked"` was set, and the last two work the moment it is removed.
+
+Keep `allowToolbarIntegration={false}`. That is a different prop and it is what keeps the bar out of
+the iOS 26 bottom toolbar — it does not need `placement` to do it.
