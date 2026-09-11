@@ -18,6 +18,13 @@ export default function FollowLayout() {
 
   return (
     <Stack>
+      {/* Always pushed, never the first of this stack, so it keeps a real back
+          button where the other two carry their own close. */}
+      <Stack.Screen name="search">
+        <Stack.Title style={HeaderTitleStyle}>Find a household</Stack.Title>
+        <Stack.Header transparent />
+        <Stack.Screen.BackButton displayMode="minimal" />
+      </Stack.Screen>
       <Stack.Screen name="[householdId]/index">
         <Stack.Title style={HeaderTitleStyle}>Household</Stack.Title>
         <Stack.Header transparent />

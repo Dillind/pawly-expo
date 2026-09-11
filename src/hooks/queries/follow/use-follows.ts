@@ -1,4 +1,4 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { ErrorMessage, SuccessMessage } from '@/constants/enums';
 import { showErrorToast, showSuccessToast } from '@/lib/toast';
@@ -7,6 +7,8 @@ import FollowService, { type RequestFollowStatus } from '@/services/follow.servi
 export const followingKey = ['following'];
 
 const previewKey = (householdId: string | undefined) => ['follow-preview', householdId];
+const searchKeyRoot = ['household-search'];
+const searchKey = (term: string) => [...searchKeyRoot, term];
 const followersKey = (householdId: string | undefined) => ['followers', householdId];
 const requestsKey = (householdId: string | undefined) => ['follow-requests', householdId];
 
@@ -17,6 +19,23 @@ export function useFollowPreview(householdId: string | undefined) {
     queryFn: () => FollowService.preview(householdId as string),
     enabled: Boolean(householdId),
     retry: false
+  });
+}
+
+/** The shortest term the RPC will answer. Below it the screen shows its prompt. */
+export const SEARCH_MIN_LENGTH = 2;
+
+export function useHouseholdSearch(term: string) {
+  const query = term.trim();
+
+  return useQuery({
+    queryKey: searchKey(query),
+    queryFn: () => FollowService.search(query),
+    enabled: query.length >= SEARCH_MIN_LENGTH,
+    // The previous rows stay on screen while the next term resolves, so the
+    // list narrows rather than blanking between keystrokes.
+    placeholderData: keepPreviousData,
+    staleTime: 30_000
   });
 }
 
@@ -72,6 +91,7 @@ export function useRequestFollow(householdId: string | undefined) {
     onSettled: () => {
       void queryClient.invalidateQueries({ queryKey: previewKey(householdId) });
       void queryClient.invalidateQueries({ queryKey: followingKey });
+      void queryClient.invalidateQueries({ queryKey: searchKeyRoot });
     },
     onSuccess: (status) => {
       const refusal = REQUEST_REFUSALS[status];
@@ -95,6 +115,7 @@ export function useUnfollow() {
     onSettled: (_data, _error, householdId) => {
       void queryClient.invalidateQueries({ queryKey: previewKey(householdId) });
       void queryClient.invalidateQueries({ queryKey: followingKey });
+      void queryClient.invalidateQueries({ queryKey: searchKeyRoot });
       // Their posts leave the stream with the follow.
       void queryClient.invalidateQueries({ queryKey: ['posts'] });
     },

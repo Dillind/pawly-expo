@@ -174,3 +174,45 @@ describe('listRequests', () => {
     expect(mockOrder).toHaveBeenCalledWith('requested_at', { ascending: true });
   });
 });
+
+describe('search', () => {
+  it('maps the row spelling to the domain, relationship included', async () => {
+    mockRpc.mockResolvedValue({
+      data: [
+        {
+          household_id: 'household-1',
+          name: "Kathy's Household",
+          handle: 'kathys-house',
+          pet_count: 2,
+          relationship: 'pending'
+        }
+      ],
+      error: null
+    });
+
+    const results = await FollowService.search('kathy');
+
+    expect(mockRpc).toHaveBeenCalledWith('search_households', { query: 'kathy' });
+    expect(results).toEqual([
+      {
+        householdId: 'household-1',
+        name: "Kathy's Household",
+        handle: 'kathys-house',
+        petCount: 2,
+        relationship: 'pending'
+      }
+    ]);
+  });
+
+  it('returns an empty list when the function answers with nothing', async () => {
+    mockRpc.mockResolvedValue({ data: null, error: null });
+
+    await expect(FollowService.search('zzzz')).resolves.toEqual([]);
+  });
+
+  it('rethrows a failure rather than reporting no matches', async () => {
+    mockRpc.mockResolvedValue({ data: null, error: new Error('network') });
+
+    await expect(FollowService.search('kathy')).rejects.toThrow('network');
+  });
+});

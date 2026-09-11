@@ -26,6 +26,16 @@ export type RespondStatus = 'accepted' | 'declined' | 'not_owner' | 'not_pending
 
 export type RemoveFollowerStatus = 'removed' | 'not_owner' | 'not_found';
 
+/** A Listed Household as it appears in search, with where the caller stands. */
+export type HouseholdSearchResult = {
+  householdId: string;
+  name: string;
+  /** Never null: a Household cannot be Listed without one. */
+  handle: string;
+  petCount: number;
+  relationship: FollowRelationship;
+};
+
 export type FollowedHousehold = {
   householdId: string;
   name: string;
@@ -170,6 +180,32 @@ namespace FollowService {
       name: row.name,
       petCount: row.pet_count,
       status: row.status
+    }));
+  }
+
+  /**
+   * Listed Households matched by name or handle. A definer function: is_listed
+   * is the gate, and RLS would otherwise return only the caller's own rows.
+   */
+  export async function search(query: string): Promise<HouseholdSearchResult[]> {
+    const { data, error } = await supabase.rpc('search_households', { query });
+
+    if (error) throw error;
+
+    const rows = (data ?? []) as {
+      household_id: string;
+      name: string;
+      handle: string;
+      pet_count: number;
+      relationship: FollowRelationship;
+    }[];
+
+    return rows.map((row) => ({
+      householdId: row.household_id,
+      name: row.name,
+      handle: row.handle,
+      petCount: row.pet_count,
+      relationship: row.relationship
     }));
   }
 
