@@ -19,6 +19,7 @@ import { usePetPause } from '@/hooks/queries/feeding/use-pet-pause';
 import { useHousehold } from '@/hooks/queries/household/use-household';
 import { useHouseholdMembers } from '@/hooks/queries/household/use-household-members';
 import { usePetDetail } from '@/hooks/queries/pet/use-pet-detail';
+import { useConfirmRemovePet } from '@/hooks/use-confirm-remove-pet';
 import { useStyles } from '@/hooks/use-styles';
 import { todayInTimezone } from '@/lib/dates';
 
@@ -36,6 +37,8 @@ const PetDetail = () => {
   const isOwner = household?.isOwner ?? false;
   const timezone = household?.timezone;
   const today = timezone ? todayInTimezone(timezone) : undefined;
+
+  const { confirmRemove, isRemoving } = useConfirmRemovePet(petId, pet?.name ?? '');
 
   const { data: pause } = usePetPause(petId, today);
   const isPaused = Boolean(pause);
@@ -74,6 +77,21 @@ const PetDetail = () => {
   return (
     <ScreenView edges={[]}>
       {title}
+
+      <Stack.Toolbar placement="right">
+        <Stack.Toolbar.Menu
+          accessibilityLabel={`Manage ${pet.name}`}
+          icon="ellipsis"
+          hidden={!isOwner}>
+          <Stack.Toolbar.MenuAction
+            icon="trash"
+            destructive
+            disabled={isRemoving}
+            onPress={confirmRemove}>
+            {`Remove ${pet.name}`}
+          </Stack.Toolbar.MenuAction>
+        </Stack.Toolbar.Menu>
+      </Stack.Toolbar>
 
       <ScreenScrollView
         contentContainerStyle={styles.content}
