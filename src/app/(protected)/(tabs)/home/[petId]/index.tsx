@@ -38,7 +38,7 @@ const PetDetail = () => {
   const timezone = household?.timezone;
   const today = timezone ? todayInTimezone(timezone) : undefined;
 
-  const { confirmRemove } = useConfirmRemovePet(petId, pet?.name ?? '');
+  const { confirmRemove, isRemoving } = useConfirmRemovePet(petId, pet?.name ?? '');
 
   const { data: pause } = usePetPause(petId, today);
   const isPaused = Boolean(pause);
@@ -83,7 +83,11 @@ const PetDetail = () => {
           accessibilityLabel={`Manage ${pet.name}`}
           icon="ellipsis"
           hidden={!isOwner}>
-          <Stack.Toolbar.MenuAction icon="trash" destructive onPress={confirmRemove}>
+          <Stack.Toolbar.MenuAction
+            icon="trash"
+            destructive
+            disabled={isRemoving}
+            onPress={confirmRemove}>
             {`Remove ${pet.name}`}
           </Stack.Toolbar.MenuAction>
         </Stack.Toolbar.Menu>
