@@ -20,6 +20,10 @@ export default function HouseholdSearchScreen() {
         autoCapitalize="none"
         autoFocus
         hideWhenScrolling={false}
+        // iOS 26 moves a search bar into the bottom toolbar unless told not to.
+        // This screen has no toolbar, so it belongs under the title.
+        allowToolbarIntegration={false}
+        placement="stacked"
         onChangeText={(event) => setTerm(event.nativeEvent.text)}
         onCancelButtonPress={() => setTerm('')}
       />
