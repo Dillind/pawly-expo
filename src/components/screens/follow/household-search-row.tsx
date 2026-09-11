@@ -42,7 +42,9 @@ const HouseholdSearchRow = ({ household, isStale }: Props) => {
 
   // The row owns its own mutation. A single one hoisted to the list would need
   // the pressed household threaded back down, and would spin every button.
-  const { mutate: requestFollow, isPending } = useRequestFollow(household.householdId);
+  const { mutate: requestFollow, isPending: isRequesting } = useRequestFollow(
+    household.householdId
+  );
 
   const state = BUTTON_STATES[household.relationship];
 
@@ -77,8 +79,8 @@ const HouseholdSearchRow = ({ household, isStale }: Props) => {
           text={state.text}
           size="sm"
           variant={state.variant}
-          isLoading={isPending}
-          isDisabled={household.relationship !== 'none' || isPending || isStale}
+          isLoading={isRequesting}
+          isDisabled={household.relationship !== 'none' || isRequesting || isStale}
           leftIcon={state.hasTick ? <Icon name="check" size={15} color="text" /> : undefined}
           containerStyle={styles.action}
           onPress={() => requestFollow()}
