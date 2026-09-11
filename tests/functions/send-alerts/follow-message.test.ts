@@ -10,7 +10,7 @@ describe('buildFollowRequestedMessage', () => {
       householdId: 'household-1'
     });
 
-    expect(message.body).toBe('Jess asked to follow your household');
+    expect(message.body).toBe('Jess requested to follow your household');
   });
 
   it('says Someone when the account has no first name', () => {
@@ -19,7 +19,7 @@ describe('buildFollowRequestedMessage', () => {
       householdId: 'household-1'
     });
 
-    expect(message.body).toBe('Someone asked to follow your household');
+    expect(message.body).toBe('Someone requested to follow your household');
   });
 
   it('sets no title, so iOS draws the app name alone on the top line', () => {

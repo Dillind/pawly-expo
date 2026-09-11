@@ -138,25 +138,25 @@ const ProfileOverview = () => {
         </View>
       )}
 
-      {/* Only when there is something to list. A follow is not part of every
-          account, and an empty row here is a door to an empty room. */}
-      {following.length > 0 && (
-        <PressableOpacity
-          accessibilityRole="button"
-          accessibilityLabel="Households you follow"
-          onPress={() => router.push('/profile/following')}>
-          <View style={styles.householdCard}>
-            <Icon name="users" size={18} color="textSecondary" />
-            <AppText size={16} numberOfLines={1} style={styles.householdName}>
-              Following
-            </AppText>
-            <AppText size={14} color="textSecondary">
-              {following.length}
-            </AppText>
-            <Icon name="caretRight" size={16} color="textSecondary" />
-          </View>
-        </PressableOpacity>
-      )}
+      {/* Always, even at zero. This was hidden when empty because the room
+          behind it was empty too -- CRU-130 put a search bar in its header, so
+          the person with nothing to list is now the one who most needs the
+          door. Hiding it also made that screen's empty state unreachable. */}
+      <PressableOpacity
+        accessibilityRole="button"
+        accessibilityLabel="Households you follow"
+        onPress={() => router.push('/profile/following')}>
+        <View style={styles.householdCard}>
+          <Icon name="users" size={18} color="textSecondary" />
+          <AppText size={16} numberOfLines={1} style={styles.householdName}>
+            Following
+          </AppText>
+          <AppText size={14} color="textSecondary">
+            {following.length}
+          </AppText>
+          <Icon name="caretRight" size={16} color="textSecondary" />
+        </View>
+      </PressableOpacity>
 
       {/* Quiet and grey, matching Hevy's "Workouts" label: the cards below are
           the content, and a bold heading competes with them. */}

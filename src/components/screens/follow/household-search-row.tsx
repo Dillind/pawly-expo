@@ -80,6 +80,7 @@ const HouseholdSearchRow = ({ household, isStale }: Props) => {
           isLoading={isPending}
           isDisabled={household.relationship !== 'none' || isPending || isStale}
           leftIcon={state.hasTick ? <Icon name="check" size={15} color="text" /> : undefined}
+          containerStyle={styles.action}
           onPress={() => requestFollow()}
         />
       ) : (
@@ -109,6 +110,12 @@ const makeStyles = ({ spacing }: AppTheme) =>
     text: {
       flex: 1,
       gap: spacing.half
+    },
+    // MainButton is built full-width and carries alignSelf: 'stretch'. A child's
+    // alignSelf beats the row's alignItems, so with its fixed height the button
+    // pins to the top of the row instead of centring on the text.
+    action: {
+      alignSelf: 'center'
     }
   });
 

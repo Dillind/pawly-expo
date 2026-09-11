@@ -261,7 +261,7 @@ export type FollowRequestedInput = {
 export const buildFollowRequestedMessage = (
   input: FollowRequestedInput
 ): Omit<ExpoMessage, 'to'> => ({
-  body: `${authorName(input.requesterFirstName)} asked to follow your household`,
+  body: `${authorName(input.requesterFirstName)} requested to follow your household`,
   sound: 'default',
   data: {
     screen: '/profile/household/[householdId]/followers/requests',
