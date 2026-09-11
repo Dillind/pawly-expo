@@ -34,7 +34,22 @@ const HouseholdSearch = ({ term }: Props) => {
   const [settled] = useDebounce(term.trim(), DEBOUNCE_MS);
   const isSearchable = settled.length >= SEARCH_MIN_LENGTH;
 
-  const { data: results = [], isLoading, isError, refetch } = useHouseholdSearch(settled);
+  const {
+    data: results = [],
+    isLoading,
+    isError,
+    isPlaceholderData,
+    refetch
+  } = useHouseholdSearch(settled);
+
+  // Rows from the previous term stay on screen so the list narrows rather than
+  // blanking. They must not stay pressable: a tap during this window would send
+  // a request to whichever household the last term found.
+  //
+  // `isPlaceholderData` alone is not enough. It only covers the fetch. Through
+  // the debounce the key has not changed yet, so the data is current for a term
+  // the person has already typed past -- which is the longer of the two windows.
+  const isStale = term.trim() !== settled || isPlaceholderData;
 
   const renderBody = () => {
     if (!isSearchable) {
@@ -64,10 +79,14 @@ const HouseholdSearch = ({ term }: Props) => {
     }
 
     return (
-      <Animated.View layout={ROW_LAYOUT}>
+      <Animated.View layout={ROW_LAYOUT} style={isStale && styles.stale}>
         <SettingsSection dividerInset={ROW_INSET}>
           {results.map((household) => (
-            <HouseholdSearchRow key={household.householdId} household={household} />
+            <HouseholdSearchRow
+              key={household.householdId}
+              household={household}
+              isStale={isStale}
+            />
           ))}
         </SettingsSection>
       </Animated.View>
@@ -81,6 +100,9 @@ const makeStyles = ({ spacing }: AppTheme) =>
   StyleSheet.create({
     loading: {
       marginTop: spacing.five
+    },
+    stale: {
+      opacity: 0.5
     },
     content: {
       paddingHorizontal: spacing.three,

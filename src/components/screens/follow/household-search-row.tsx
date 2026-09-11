@@ -17,6 +17,8 @@ export const SEARCH_ROW_CREST = 40;
 
 type Props = {
   household: HouseholdSearchResult;
+  /** The row answers a term the person has already typed past. See the list. */
+  isStale: boolean;
 };
 
 type ButtonState = {
@@ -35,7 +37,7 @@ const BUTTON_STATES: Partial<Record<FollowRelationship, ButtonState>> = {
   accepted: { text: 'Following', variant: 'secondary', hasTick: true }
 };
 
-const HouseholdSearchRow = ({ household }: Props) => {
+const HouseholdSearchRow = ({ household, isStale }: Props) => {
   const styles = useStyles(makeStyles);
 
   // The row owns its own mutation. A single one hoisted to the list would need
@@ -76,7 +78,7 @@ const HouseholdSearchRow = ({ household }: Props) => {
           size="sm"
           variant={state.variant}
           isLoading={isPending}
-          isDisabled={household.relationship !== 'none' || isPending}
+          isDisabled={household.relationship !== 'none' || isPending || isStale}
           leftIcon={state.hasTick ? <Icon name="check" size={15} color="text" /> : undefined}
           onPress={() => requestFollow()}
         />
