@@ -1,6 +1,5 @@
-import { useRouter } from 'expo-router';
 import { Controller, useFormContext, useWatch } from 'react-hook-form';
-import { Alert, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 
 import BreedField from '@/components/core/breed-field';
 import DateTimePickerValidated from '@/components/core/date-time-picker-validated';
@@ -15,7 +14,6 @@ import { ErrorMessage, SuccessMessage } from '@/constants/enums';
 import { PET_TYPE_OPTIONS, SEX_OPTIONS } from '@/constants/options';
 import type { PetDetailsEditValues } from '@/constants/schemas/pet-details';
 import type { AppTheme } from '@/constants/theme';
-import { useRemovePet } from '@/hooks/queries/pet/use-pet-mutations';
 import { useUpdatePet } from '@/hooks/queries/pet/use-update-pet';
 import { useStyles } from '@/hooks/use-styles';
 import type { PetSex, PetType } from '@/types/core';
@@ -39,9 +37,7 @@ type Props = {
 
 const EditPetDetails = ({ petId, details, onDone }: Props) => {
   const styles = useStyles(makeStyles);
-  const router = useRouter();
   const { goTo } = useTray();
-  const { mutate: removePet, isPending: isRemoving } = useRemovePet();
   const { mutate: updatePet, isPending: isSaving } = useUpdatePet(petId, {
     success: SuccessMessage.PetDetailsUpdated,
     failure: ErrorMessage.PetDetailsUpdateFailed
@@ -69,26 +65,6 @@ const EditPetDetails = ({ petId, details, onDone }: Props) => {
       { onSuccess: onDone }
     );
   });
-
-  const confirmRemove = () =>
-    Alert.alert(
-      `Remove ${details.name}?`,
-      `This deletes every feed logged for ${details.name}, their Care Card, their photos and their feeding schedule. It cannot be undone.`,
-      [
-        { text: 'Cancel', style: 'cancel', isPreferred: true },
-        {
-          text: 'Remove',
-          style: 'destructive',
-          onPress: () =>
-            removePet(petId, {
-              onSuccess: () => {
-                onDone();
-                router.replace('/home');
-              }
-            })
-        }
-      ]
-    );
 
   return (
     <View style={styles.form}>
@@ -186,17 +162,8 @@ const EditPetDetails = ({ petId, details, onDone }: Props) => {
       <MainButton
         text={isSaving ? 'Saving…' : 'Save'}
         isLoading={isSaving}
-        isDisabled={isSaving || isRemoving}
+        isDisabled={isSaving}
         onPress={() => void onSubmit()}
-      />
-
-      <MainButton
-        text={`Remove ${details.name}`}
-        variant="destructiveText"
-        size="sm"
-        isLoading={isRemoving}
-        isDisabled={isSaving || isRemoving}
-        onPress={confirmRemove}
       />
     </View>
   );
