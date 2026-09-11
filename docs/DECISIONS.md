@@ -927,3 +927,26 @@ Asked for during the CRU-130 design, and not in any ticket. `all` was already th
 nobody who never opened the filter sees a change — the stream is still every Household you are in
 plus the ones you follow. What goes is the ability to narrow it, which can come back as its own
 ticket if it is missed.
+
+## A Follow Request Alert keeps no toggle, because Listed is the control
+
+CRU-130 made a Household discoverable, so every stranger who types a few letters can now send a
+request the Owner cannot mute. Two answers were considered: a sixth switch in Notification settings,
+or a daily batched push driven by `pg_cron` instead of one push per request.
+
+Neither is worth its cost yet. A switch lets a Household advertise itself and then ignore the door,
+and a daily batch makes the requester wait up to a day for an Owner who does not yet know. The
+control already exists and sits at the cause: search is what created the traffic, so an Owner who
+does not want strangers' requests turns **Listed** off.
+
+**Listed governs search, not every request.** Neither `follow_preview` nor `request_follow` reads
+`is_listed`, so somebody already holding a follow link still reaches an Unlisted Household and can
+still ask. That is the original path and it stays open by design. What Listed closes is the door
+CRU-130 opened.
+
+Revisit this when a real Household actually takes more requests a day than it wants — the batch, not
+the switch, is the answer at that point.
+
+The push says "your household" rather than naming it, and the payload carries the `householdId` so
+the tap still lands on the right Requests screen. An earlier comment recorded the opposite intent;
+the body has said "your household" since it shipped, and that is what stands.
