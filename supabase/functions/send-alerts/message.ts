@@ -255,8 +255,9 @@ export type FollowRequestedInput = {
  * follower is never told anything -- not even that they were accepted. See ADR
  * 0036.
  *
- * It names the household rather than "your household": an Owner can own more
- * than one, and the tap has to land on the right Requests screen anyway.
+ * The body says "your household" rather than naming it. An Owner can own more
+ * than one, but the payload carries the householdId, so the tap still lands on
+ * the right Requests screen.
  */
 export const buildFollowRequestedMessage = (
   input: FollowRequestedInput
