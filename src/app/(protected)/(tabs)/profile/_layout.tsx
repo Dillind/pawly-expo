@@ -60,13 +60,6 @@ export default function ProfileLayout() {
           <Stack.Title style={HeaderTitleStyle}>Following</Stack.Title>
           <Stack.Header transparent />
           <Stack.Screen.BackButton displayMode="minimal" />
-          <Stack.Toolbar placement="right">
-            <Stack.Toolbar.Button
-              icon="magnifyingglass"
-              accessibilityLabel="Find a household"
-              onPress={() => router.push('/follow/search')}
-            />
-          </Stack.Toolbar>
         </Stack.Screen>
         <Stack.Screen name="household/[householdId]/followers/index">
           <Stack.Title style={HeaderTitleStyle}>Followers</Stack.Title>

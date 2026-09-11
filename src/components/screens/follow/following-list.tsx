@@ -38,7 +38,7 @@ const FollowingList = () => {
       <EmptyState
         icon="users"
         title="You follow nobody yet"
-        description="Search for a household by name or handle, or open a follow link somebody sent you."
+        description="Search for a household from the Posts tab, or open a follow link somebody sent you."
       />
     ) : (
       <SettingsSection
