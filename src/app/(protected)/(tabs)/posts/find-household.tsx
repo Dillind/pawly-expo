@@ -22,8 +22,6 @@ export default function FindHouseholdScreen() {
   const [term, setTerm] = useState('');
   const searchRef = useRef<SearchBarCommands>(null);
 
-  // `autoFocus` is ignored on its own, so the field is focused by hand once the
-  // screen settles. Both are kept: the prop costs nothing and states the intent.
   useFocusEffect(
     useCallback(() => {
       const timer = setTimeout(() => searchRef.current?.focus(), FOCUS_DELAY_MS);
@@ -40,12 +38,6 @@ export default function FindHouseholdScreen() {
         autoCapitalize="none"
         autoFocus
         hideWhenScrolling={false}
-        // iOS 26 moves a search bar into the bottom toolbar unless told not to.
-        // This screen has no toolbar, so it belongs under the title.
-        //
-        // `placement` is deliberately absent. Setting it to any value -- even
-        // "stacked", where the bar already renders -- makes iOS refuse focus,
-        // so the screen opens with the keyboard down and nothing in the logs.
         allowToolbarIntegration={false}
         onChangeText={(event) => setTerm(event.nativeEvent.text)}
         onCancelButtonPress={() => setTerm('')}
