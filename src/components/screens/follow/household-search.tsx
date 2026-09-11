@@ -8,7 +8,7 @@ import ScrollScreen from '@/components/layout/scroll-screen';
 import HouseholdSearchRow, {
   SEARCH_ROW_CREST
 } from '@/components/screens/follow/household-search-row';
-import { Spacing, type AppTheme } from '@/constants/theme';
+import { BottomTabInset, Spacing, type AppTheme } from '@/constants/theme';
 import { SEARCH_MIN_LENGTH, useHouseholdSearch } from '@/hooks/queries/follow/use-follows';
 import { useDebounce } from '@/hooks/use-debounce';
 import { useStyles } from '@/hooks/use-styles';
@@ -107,7 +107,7 @@ const makeStyles = ({ spacing }: AppTheme) =>
     content: {
       paddingHorizontal: spacing.three,
       paddingVertical: spacing.four,
-      paddingBottom: spacing.six
+      paddingBottom: BottomTabInset + spacing.four
     }
   });
 

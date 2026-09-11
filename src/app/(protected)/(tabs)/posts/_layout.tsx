@@ -19,7 +19,7 @@ export default function PostsLayout() {
             <Stack.Toolbar.Button
               icon="magnifyingglass"
               accessibilityLabel="Find a household"
-              onPress={() => router.push('/follow/search')}
+              onPress={() => router.push('/posts/find-household')}
             />
             <Stack.Toolbar.Button
               icon="plus"
@@ -27,6 +27,11 @@ export default function PostsLayout() {
               onPress={() => router.push('/posts/new-post')}
             />
           </Stack.Toolbar>
+        </Stack.Screen>
+        <Stack.Screen name="find-household" options={{ headerShown: true }}>
+          <Stack.Title style={HeaderTitleStyle}>Find a household</Stack.Title>
+          <Stack.Header transparent />
+          <Stack.Screen.BackButton displayMode="minimal" />
         </Stack.Screen>
         <Stack.Screen name="[postId]/index" options={{ headerShown: true }}>
           <Stack.Title style={HeaderTitleStyle}>Post</Stack.Title>

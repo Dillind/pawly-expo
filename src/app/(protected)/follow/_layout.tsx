@@ -18,14 +18,6 @@ export default function FollowLayout() {
 
   return (
     <Stack>
-      <Stack.Screen name="search">
-        <Stack.Title style={HeaderTitleStyle}>Find a household</Stack.Title>
-        <Stack.Header transparent />
-        <Stack.Screen.BackButton hidden />
-        <Stack.Toolbar placement="left">
-          <Stack.Toolbar.Button icon="chevron.left" accessibilityLabel="Back" onPress={close} />
-        </Stack.Toolbar>
-      </Stack.Screen>
       <Stack.Screen name="[householdId]/index">
         <Stack.Title style={HeaderTitleStyle}>Household</Stack.Title>
         <Stack.Header transparent />
