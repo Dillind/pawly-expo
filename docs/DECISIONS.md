@@ -950,3 +950,13 @@ the switch, is the answer at that point.
 The push says "your household" rather than naming it, and the payload carries the `householdId` so
 the tap still lands on the right Requests screen. An earlier comment recorded the opposite intent;
 the body has said "your household" since it shipped, and that is what stands.
+
+## A resolved alert is stamped `sent_at`, even when it was never sent
+
+`sent_at` means "this row is finished", not "a push went out". `error` is what says which.
+The Edge Function already worked this way for `no recipients` and `subject not found`, and the
+retry sweep follows it for `dispatch failed after N attempts`.
+
+The alternative was a third timestamp column. One column with a reason beside it keeps the pending
+query a single predicate — `sent_at is null and suppressed_reason is null` — which is the query the
+sweep, the index and every hand check all use.
