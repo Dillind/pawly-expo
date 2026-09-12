@@ -13,8 +13,8 @@
 -- Requires one more Vault secret, created by hand alongside the other two:
 --   select vault.create_secret('https://hc-ping.com/<uuid>', 'healthcheck_url');
 -- Absent, every ping is skipped and the sweep behaves exactly as before. The
--- check itself wants a 5-minute period and a 15-minute grace, so one missed
--- run is a blip and two are a page.
+-- check itself wants a 5-minute period and a 5-minute grace, so one missed run
+-- is a blip and two are a page.
 
 create function private.ping_healthcheck(path text, payload jsonb)
 returns void
@@ -37,12 +37,27 @@ begin
   -- to deliver alerts, and it must finish that whether or not the ping lands.
   -- A ping that never arrives is the signal, and the outside service is what
   -- reads it.
-  perform net.http_post(
-    url := healthcheck_url || path,
-    headers := pg_catalog.jsonb_build_object('Content-Type', 'application/json'),
-    body := payload,
-    timeout_milliseconds := 5000
-  );
+  --
+  -- The exception block is what makes that true rather than merely intended.
+  -- net.http_post validates its arguments and raises on a malformed URL, and
+  -- the caller runs it in the same transaction as the reposts. Unguarded, a
+  -- typo in the Vault secret would abort the sweep, roll back every repost and
+  -- every terminal stamp it had just made, and fail the cron run -- on every
+  -- run, forever. The monitor would have become the outage.
+  --
+  -- `when others` is deliberately wide, as in sweep_feed_due: whatever breaks
+  -- in here, alert dispatch must still happen.
+  begin
+    perform net.http_post(
+      url := healthcheck_url || path,
+      headers := pg_catalog.jsonb_build_object('Content-Type', 'application/json'),
+      body := payload,
+      timeout_milliseconds := 5000
+    );
+  exception
+    when others then
+      raise warning 'healthcheck ping failed: %', sqlerrm;
+  end;
 end $$;
 
 revoke execute on function private.ping_healthcheck(text, jsonb) from public;

@@ -27,8 +27,9 @@ rides along on the healthy ping, so a rising rate is visible without being loud.
 The service is [Healthchecks.io](https://healthchecks.io). The free tier covers twenty checks.
 
 1. Create a check. Name it `crumpet alert dispatch`.
-2. Set **Period** to 5 minutes and **Grace** to 15 minutes. One missed run is then a blip and two
-   are a page.
+2. Set **Period** to 5 minutes and **Grace** to 5 minutes. That pages ten minutes after the last
+   ping, so one missed run is a blip and two are a page. A longer grace is not caution, it is delay
+   — 15 minutes would wait for four misses before saying anything.
 3. Add the notification channels you want — email, Slack, or a phone push through their app.
 4. Copy the ping URL. It looks like `https://hc-ping.com/<uuid>`.
 5. Store it in Vault, beside the two dispatch secrets:
@@ -68,7 +69,12 @@ Vault is wrong.
 
 ## Why the ping is never checked
 
-`private.ping_healthcheck()` fires and forgets. A monitoring call that can fail the thing it
-monitors is worse than no monitoring — the sweep's job is to deliver alerts, and it must finish
-that whether or not the ping lands. A ping that never arrives is itself the signal, and the outside
-service is what reads it.
+`private.ping_healthcheck()` fires and forgets, inside its own exception block. A monitoring call
+that can fail the thing it monitors is worse than no monitoring — the sweep's job is to deliver
+alerts, and it must finish that whether or not the ping lands. A ping that never arrives is itself
+the signal, and the outside service is what reads it.
+
+The exception block is load-bearing, not decorative. `net.http_post` raises on a malformed URL, and
+it runs in the same transaction as the reposts. Unguarded, a typo in the Vault secret would abort
+the sweep, roll back every repost and terminal stamp it had just made, and fail the cron run — on
+every run, forever. The monitor would have become the outage.
