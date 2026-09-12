@@ -20,8 +20,10 @@ On 2026-09-12 a Feed Due Alert for a 12:00 pm feed was queued correctly at
 `pg_net` cut the connection at 5004 ms, the function answered nobody, and the
 row was left with `sent_at`, `error` and `suppressed_reason` all null.
 
-Nothing retried it. Twelve alerts were lost that way in fourteen days, and the
-only way to find them was to query the table by hand. The index
+Nothing retried it. Thirteen alerts were stranded that way in fourteen days, and
+the only way to find them was to query the table by hand. Twelve never arrived
+at all. The thirteenth was the one that started this, and the sweep built here
+delivered it ten minutes late — which is why the lateness guard below exists. The index
 `alerts_pending_idx` was described in the original migration as "the Edge
 Function's work queue", but no job had ever read it.
 

@@ -1,7 +1,7 @@
 -- A dispatch that fails is retried, and a dispatch that can never succeed is
 -- stamped. Before this, neither happened: pg_net posted once, and a call that
 -- timed out left the row pending forever with sent_at, error and
--- suppressed_reason all null. Thirteen alerts were lost that way in two weeks.
+-- suppressed_reason all null. Thirteen alerts were stranded that way in two weeks.
 --
 -- The trigger post stays. It is what makes the common case immediate; the
 -- sweep is the net under it, not a replacement for it.
@@ -149,9 +149,18 @@ begin
       or public.alerts.created_at < pg_catalog.now() - give_up_after
     );
 
+  -- `for update skip locked` is what makes two overlapping runs safe. pg_cron
+  -- starts a run on the schedule whether or not the last one has finished, and
+  -- without the lock both would claim the same row and push it twice.
+  --
+  -- It also closes the staler race. The loop body posts over the network, so a
+  -- plain snapshot can name a row that the Edge Function stamped sent_at on
+  -- while the loop was still walking. Under READ COMMITTED, `for update`
+  -- re-checks the predicate against the row it just locked, so a row resolved
+  -- mid-run drops out instead of being reposted and relabelled.
   for pending in
     select alerts.id
-    from public.alerts
+    from public.alerts as alerts
     where alerts.sent_at is null
       and alerts.suppressed_reason is null
       and (
@@ -160,14 +169,18 @@ begin
       )
       and alerts.created_at < pg_catalog.now() - retry_after
     order by alerts.created_at
+    for update skip locked
   loop
     -- A broken Vault leaves the row pending with its reason already written by
     -- the trigger. Reposting it every five minutes would only burn attempts.
     continue when not private.post_alert(pending.id);
 
+    -- `sent_at is null` again, because post_alert sends over the network and
+    -- the Edge Function can resolve the row before this statement runs.
+    -- Without it a delivered alert is relabelled as a retry.
     update public.alerts
     set error = 'dispatch retried'
-    where id = pending.id;
+    where id = pending.id and sent_at is null;
 
     reposted := reposted + 1;
   end loop;

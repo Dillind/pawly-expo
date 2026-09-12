@@ -564,7 +564,8 @@ Three things made it invisible:
   `pg_net` had already gone. The 404 is a symptom of the abort, not a missing row — the row was
   there the whole time.
 - **Nothing retried.** `alerts_pending_idx` was described in its migration as "the Edge Function's
-  work queue", and no job had ever read it. Twelve alerts were lost this way in fourteen days.
+  work queue", and no job had ever read it. Thirteen alerts were stranded this way in fourteen
+  days.
 
 The fix is ADR 0038. The trap that survives it: **a fire-and-forget `pg_net` call needs a sweep
 over the rows it was meant to act on, because the response is not durable and the pending row is.**
