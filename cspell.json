@@ -177,11 +177,10 @@
     "android/**",
     "bun.lock",
     "data/breeds.json",
-    "docs/agents/**",
-    "docs/research/**",
+    "docs/**",
     "ios/**",
     "package.json",
-    "supabase/migrations/*_breeds.sql",
+    "supabase/migrations/**",
     "types.d.ts"
   ]
 }

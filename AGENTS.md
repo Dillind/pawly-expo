@@ -563,6 +563,7 @@ All user-facing text uses **Australian/British English** (colour, organise, canc
 - **Imports are sorted by Prettier, not by hand.** `@ianvs/prettier-plugin-sort-imports` orders them: built-ins, third party, `@/` aliases, then relative, with a blank line between each group. An inline `type` specifier stays with its value import — the plugin merges them rather than splitting type imports into their own group. Never reorder an import block yourself; run `bun run format`.
 - ESLint via `eslint-config-expo` (flat config). Run `bun run lint` before finishing.
 - Spelling is checked with cspell (`bun run spellcheck`); add project words to `cspell.json` rather than disabling. The locale is `en,en-GB` deliberately — prose is British (`colour`), but code identifiers are American (`backgroundColor`, `colors`), so both dictionaries have to be active.
+- **`docs/**` and `supabase/migrations/**` are not spellchecked.** Both are prose-heavy and neither ships to a user, so the gate was catching domain nouns and Postgres identifiers rather than mistakes — every catch needed a new word in `cspell.json`, which is a dictionary growing to describe the documentation rather than the product. `CONTEXT.md`, `AGENTS.md` and everything under `src/` are still checked, and user-facing copy lives there.
 
 ### Comments
 
