@@ -960,3 +960,12 @@ retry sweep follows it for `dispatch failed after N attempts`.
 The alternative was a third timestamp column. One column with a reason beside it keeps the pending
 query a single predicate — `sent_at is null and suppressed_reason is null` — which is the query the
 sweep, the index and every hand check all use.
+
+## Only an abandoned alert pages; a repost does not
+
+`sweep_pending_alerts` pings Healthchecks.io on every run, and only takes the `/fail` path when it
+gave up on an alert. A repost is the retry working as designed. Paging on one would page on every
+Edge Function cold start, which is how a monitor teaches its reader to ignore it.
+
+The repost count rides along in the body of the healthy ping, so a rising rate is still visible.
+See [docs/conventions/alert-monitoring.md](./conventions/alert-monitoring.md).
