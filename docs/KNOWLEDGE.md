@@ -543,3 +543,40 @@ while `placement="stacked"` was set, and the last two work the moment it is remo
 
 Keep `allowToolbarIntegration={false}`. That is a different prop and it is what keeps the bar out of
 the iOS 26 bottom toolbar — it does not need `placement` to do it.
+
+## A `pg_net` call that times out is silent, and nothing retried it
+
+`net.http_post` is asynchronous. The trigger fires and returns, and the response lands in
+`net._http_response` long after the transaction has ended. Nothing in the calling transaction can
+ever see whether the call worked.
+
+On 2026-09-12 a Feed Due Alert for a 12:00 pm feed was queued correctly at 11:45 am and never
+arrived. The Edge Function cold start imports `npm:@supabase/supabase-js@2` before the handler
+runs, which took 5539 ms. The trigger's timeout was 5000 ms. `pg_net` cut the connection, the
+function answered nobody, and the row was left with `sent_at`, `error` and `suppressed_reason` all
+null.
+
+Three things made it invisible:
+
+- **The database looked healthy.** The cron job ran, the sweep ran, the `alerts` row existed with
+  the right `subject_at`. Every SQL-side check passed.
+- **The function log said `404`, not a timeout.** It returned `Alert not found` at 5539 ms, after
+  `pg_net` had already gone. The 404 is a symptom of the abort, not a missing row — the row was
+  there the whole time.
+- **Nothing retried.** `alerts_pending_idx` was described in its migration as "the Edge Function's
+  work queue", and no job had ever read it. Thirteen alerts were stranded this way in fourteen
+  days.
+
+The fix is ADR 0038. The trap that survives it: **a fire-and-forget `pg_net` call needs a sweep
+over the rows it was meant to act on, because the response is not durable and the pending row is.**
+`net._http_response` is not a substitute — `pg_net` purges it on its own schedule, so the evidence
+can be gone before anything reads it.
+
+To check the queue by hand:
+
+```sql
+select kind, dispatch_attempts, created_at, error
+from public.alerts
+where sent_at is null and suppressed_reason is null
+order by created_at;
+```
