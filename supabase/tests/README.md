@@ -8,6 +8,12 @@ arithmetic and every RLS policy live in Postgres, and a unit test that mocks
 the read boundary of [ADR 0036](../../docs/adr/0036-a-follow-is-a-household-scoped-read-plus-a-voice.md)
 from both sides: what a follower gains, and what stays shut.
 
+`heartbeat.test.sql` covers the alert dispatch heartbeat of
+[CRU-140](../../docs/conventions/alert-monitoring.md) — which path each run takes, and that a ping
+which raises cannot abort the sweep or roll back its work. It replaces the shim's `net.http_post`
+with versions that record and that raise, because the shim's own always succeeds and would prove
+nothing.
+
 ## Running it
 
 `supabase db reset` is the right way and needs Docker. Without Docker, a bare
@@ -29,6 +35,9 @@ $P -f supabase/tests/local-grants.sql
 $P -f supabase/tests/follow.seed.sql
 psql -h /tmp -p 55432 -U postgres -d crumpet_test -f supabase/tests/follow.test.sql
 ```
+
+Run `heartbeat.test.sql` the same way; it needs no seed and is re-runnable, so a second run
+against the same database passes too.
 
 Every check prints `PASS`; the first failure raises and stops the file.
 
