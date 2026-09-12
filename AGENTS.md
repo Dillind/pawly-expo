@@ -15,6 +15,7 @@ Expo changes fast and the model's training data is often stale. This project is 
 - **Decisions (the small ones):** [docs/DECISIONS.md](./docs/DECISIONS.md)
 - **Knowledge (the traps):** [docs/KNOWLEDGE.md](./docs/KNOWLEDGE.md)
 - **Architecture decisions (the big ones):** [docs/adr/](./docs/adr/)
+- **Alert monitoring (the dead man's switch):** [docs/conventions/alert-monitoring.md](./docs/conventions/alert-monitoring.md)
 - **Tech stack (with install status):** [docs/TECH_STACK.md](./docs/TECH_STACK.md)
 - **Theming:** [docs/THEMING.md](./docs/THEMING.md)
 - **Domain language (glossary):** [CONTEXT.md](./CONTEXT.md) — use these exact terms
