@@ -40,6 +40,17 @@ The service is [Healthchecks.io](https://healthchecks.io). The free tier covers 
 
 6. Wait five minutes, then confirm the check has gone green in the Healthchecks dashboard.
 
+### Rotating the URL
+
+`vault.create_secret` is for the first write only. `vault.secrets` has a unique index on `name`, so
+a second `create_secret` with the same name raises rather than adding a duplicate — which is the
+safe failure, but it is not a rotation. To change the URL, update the row that is already there:
+
+```sql
+select vault.update_secret(id, 'https://hc-ping.com/<new-uuid>')
+from vault.secrets where name = 'healthcheck_url';
+```
+
 **Without the secret every ping is skipped** and the sweep behaves exactly as before. That is the
 deliberate default, so a fresh `supabase db reset` needs no account and QA is not obliged to have
 one.
@@ -56,6 +67,9 @@ select private.sweep_pending_alerts();
 ```
 
 The check should flip to **Down** and the notification should arrive. Undo it afterwards.
+
+`heartbeat.test.sql` covers the same ground without a network, including the case that matters
+most — that a ping which raises cannot roll back the sweep. See `supabase/tests/README.md`.
 
 To confirm the ping left the database at all:
 
