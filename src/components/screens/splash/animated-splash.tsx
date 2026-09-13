@@ -15,9 +15,6 @@ import CrumpetMark from '@/components/core/crumpet-mark';
 import PetHead, { type PetKind } from '@/components/screens/splash/pet-head';
 import { SplashPalette } from '@/constants/theme';
 
-// TODO(CRU-142): the heads are placeholder silhouettes. Breed art is a Lottie
-// or a sprite sheet and is not drawable in flat SVG at this size.
-
 const STAGE_SIZE = 260;
 
 /**
@@ -49,16 +46,15 @@ type Companion = {
   left: number;
   top: number;
   size: number;
-  fur: string;
   delayMs: number;
 };
 
 // Placed by hand around the hero, which owns the middle 112pt of the stage.
 const COMPANIONS: Companion[] = [
-  { kind: 'dog', left: 4, top: 24, size: 56, fur: SplashPalette.furs[0], delayMs: 280 },
-  { kind: 'cat', left: 192, top: 4, size: 48, fur: SplashPalette.furs[1], delayMs: 360 },
-  { kind: 'cat', left: 0, top: 178, size: 50, fur: SplashPalette.furs[2], delayMs: 440 },
-  { kind: 'dog', left: 196, top: 170, size: 52, fur: SplashPalette.furs[3], delayMs: 520 }
+  { kind: 'retriever', left: 4, top: 24, size: 56, delayMs: 280 },
+  { kind: 'tabby', left: 192, top: 4, size: 48, delayMs: 360 },
+  { kind: 'shorthair', left: 0, top: 178, size: 50, delayMs: 440 },
+  { kind: 'westie', left: 196, top: 170, size: 52, delayMs: 520 }
 ];
 
 const PoppingCompanion = ({
@@ -66,15 +62,21 @@ const PoppingCompanion = ({
   left,
   top,
   size,
-  fur,
   delayMs,
   isStill
 }: Companion & { isStill: boolean }) => {
   const pop = useSharedValue(isStill ? 1 : 0);
   const peek = useSharedValue(isStill ? 1 : 0);
 
-  const headBox = size * 0.7;
-  const headHidden = size * 0.75;
+  const headBox = size * 0.82;
+
+  // Parked deep enough inside the disc that the ears do not clear its top edge.
+  // Past ~0.70 the chin drops below the disc and shows for a frame.
+  const headHidden = size * 0.7;
+
+  // The Recraft heads fill their box, so a rest of 0 would lift almost the whole
+  // head clear of the crumpet and stop reading as a peek.
+  const headRest = size * 0.12;
 
   useEffect(() => {
     if (isStill) return;
@@ -92,14 +94,14 @@ const PoppingCompanion = ({
   }));
 
   const headStyle = useAnimatedStyle(() => ({
-    transform: [{ translateY: headHidden * (1 - peek.value) }]
+    transform: [{ translateY: headRest + (headHidden - headRest) * (1 - peek.value) }]
   }));
 
   return (
     <View style={[styles.companion, { left, top, width: size, height: size * 1.55 }]}>
       <Animated.View style={[styles.group, groupStyle]}>
         <Animated.View style={[styles.head, { width: headBox, height: headBox }, headStyle]}>
-          <PetHead kind={kind} size={headBox} fur={fur} />
+          <PetHead kind={kind} size={headBox} />
         </Animated.View>
 
         <View style={styles.disc}>

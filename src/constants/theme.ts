@@ -111,9 +111,18 @@ export const SplashPalette = {
   crumpet: '#FBEED2',
   crumpetHole: '#E2A02A',
   ink: '#2A1D06',
-  // Placeholder fur tones. Four heads, four tones, no breed is implied yet.
-  furs: ['#7A5230', '#C98A45', '#6F6A66', '#E8D9C3'],
-  furInk: '#2A1D06'
+  /**
+   * One tone per head, taken from the Recraft art. The tabby is the exception:
+   * it arrived at #F4AC2F, which differs from `field` by 4/4/19 out of 255 and
+   * disappeared into the gold. Darkened until the silhouette reads.
+   */
+  pets: {
+    retriever: '#9F6716',
+    tabby: '#BC6A16',
+    shorthair: '#6F6A66',
+    westie: '#E8D9C3'
+  },
+  petInk: '#2A1D06'
 } as const;
 
 /** Alias kept for existing imports */
