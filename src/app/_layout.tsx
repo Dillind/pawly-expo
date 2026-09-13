@@ -90,7 +90,9 @@ export default function RootLayout() {
             </PersistQueryClientProvider>
           </KeyboardProvider>
           <Toaster richColors position="bottom-center" closeButton swipeToDismissDirection="left" />
-          {isSplashDone && <AnimatedSplash isAppReady={isAppReady} onFinish={handleSplashFinish} />}
+          {!isSplashDone && (
+            <AnimatedSplash isAppReady={isAppReady} onFinish={handleSplashFinish} />
+          )}
         </SafeAreaProvider>
       </ThemeProvider>
     </GestureHandlerRootView>

@@ -12,7 +12,7 @@ their trade-offs in comments. These five are the highest-leverage fixes found.
 | -------------------------------------------------------- | ----------------------------------------------------------- | -------- | ------ |
 | [001](./001-delete-dead-template-motion.md)              | Delete the dead Expo template motion files                  | HIGH     | DONE   |
 | [002](./002-care-card-progress-off-the-layout-thread.md) | Animate the Care Card progress bar with scaleX, not width   | HIGH     | DONE   |
-| [003](./003-splash-stops-holding-a-ready-app.md)         | Stop the splash holding a ready app, and fix its exit       | HIGH     | DONE   |
+| 003 (removed)                                            | Stop the splash holding a ready app, and fix its exit       | HIGH     | DONE   |
 | [004](./004-own-the-animation-not-the-style.md)          | Drive two animations from shared values                     | MEDIUM   | DONE   |
 | [005](./005-motion-tokens-and-one-tick.md)               | Give motion shared tokens, and make the two tick rows match | MEDIUM   | DONE   |
 
@@ -27,7 +27,7 @@ There are none. No two plans touch the same file:
 
 - 001 — `animated-icon.tsx`, `parallax-scroll-view.tsx`
 - 002 — `care-card-editor.tsx`
-- 003 — `animated-splash.tsx`
+- 003 — `animated-splash.tsx` (plan file deleted, see below)
 - 004 — `week-strip.tsx`, `pet-section.tsx`
 - 005 — `motion.ts` (new), `occurrence-row.tsx`, `reminder-row.tsx`
 
@@ -42,9 +42,11 @@ All five were exercised on an iPhone 17 Pro Max simulator (iOS 26.5,
 - **001** — nothing rendered the deleted files, and nothing broke.
 - **002** — the fill grows and shrinks from the left edge at every step, 1/9
   through 4/9, with its right end rounded and inside the track.
-- **003** — the four heads pop and settle correctly, the darkened tabby reads
-  against the gold, and under Reduce Motion the overlay leaves in 445ms without
-  trapping.
+- **003** — under Reduce Motion the overlay leaves in 445ms without trapping.
+  The plan file was deleted with the pet art. Every code block in it targeted
+  the popping heads, which no longer exist, so it could not be read or replayed.
+  What survives is the hold logic it introduced: `MIN_HOLD_MS`, `MAX_HOLD_MS`
+  and the ease-out exit, all still in `animated-splash.tsx`.
 - **004** — four taps in 400ms, each interrupting a 260ms slide, still land the
   underline exactly on the right day. A collapsed card shows its caret already
   turned at mount rather than rotating into place.
