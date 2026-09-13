@@ -2,6 +2,7 @@ import { setStatusBarStyle, StatusBar } from 'expo-status-bar';
 import { useEffect, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import Animated, {
+  Easing,
   runOnJS,
   useAnimatedStyle,
   useReducedMotion,
@@ -24,11 +25,16 @@ const STAGE_SIZE = 260;
  */
 const HERO_SIZE = 112;
 
-/** The whole sequence, from the first pop to the last head settling. */
-const SEQUENCE_MS = 900;
-
-/** The floor the screen stays up for, even when the app is ready sooner. */
-const MIN_HOLD_MS = SEQUENCE_MS + 120;
+/**
+ * A floor that stops the overlay flashing past, not a wait for the sequence,
+ * which ends near 930ms -- the last head starts its rise at 470ms and RISE
+ * settles about 460ms after that.
+ *
+ * A ready app therefore leaves early, and the remaining pops play out under the
+ * fade. An animation cut short by real progress reads as fast. One that holds
+ * real progress reads as slow.
+ */
+const MIN_HOLD_MS = 400;
 
 const EXIT_MS = 240;
 
@@ -51,10 +57,10 @@ type Companion = {
 
 // Placed by hand around the hero, which owns the middle 112pt of the stage.
 const COMPANIONS: Companion[] = [
-  { kind: 'retriever', left: 4, top: 24, size: 56, delayMs: 280 },
-  { kind: 'tabby', left: 192, top: 4, size: 48, delayMs: 360 },
-  { kind: 'shorthair', left: 0, top: 178, size: 50, delayMs: 440 },
-  { kind: 'westie', left: 196, top: 170, size: 52, delayMs: 520 }
+  { kind: 'retriever', left: 4, top: 24, size: 56, delayMs: 120 },
+  { kind: 'tabby', left: 192, top: 4, size: 48, delayMs: 200 },
+  { kind: 'shorthair', left: 0, top: 178, size: 50, delayMs: 280 },
+  { kind: 'westie', left: 196, top: 170, size: 52, delayMs: 360 }
 ];
 
 const PoppingCompanion = ({
@@ -67,6 +73,10 @@ const PoppingCompanion = ({
 }: Companion & { isStill: boolean }) => {
   const pop = useSharedValue(isStill ? 1 : 0);
   const peek = useSharedValue(isStill ? 1 : 0);
+
+  // Its own value, not pop's: POP is underdamped and overshoots past 1, and a
+  // fade does not want the bounce the scale is there for.
+  const fade = useSharedValue(isStill ? 1 : 0);
 
   const headBox = size * 0.82;
 
@@ -82,14 +92,15 @@ const PoppingCompanion = ({
     if (isStill) return;
 
     pop.value = withDelay(delayMs, withSpring(1, POP));
+    fade.value = withDelay(delayMs, withTiming(1, { duration: 160 }));
     peek.value = withDelay(delayMs + 110, withSpring(1, RISE));
-  }, [pop, peek, delayMs, isStill]);
+  }, [pop, fade, peek, delayMs, isStill]);
 
   // The pop scales the head with the disc, never the disc alone. A disc at 0.4
   // no longer covers the head parked behind it, so the head would float on the
   // gold with no crumpet under it.
   const groupStyle = useAnimatedStyle(() => ({
-    opacity: pop.value,
+    opacity: fade.value,
     transform: [{ scale: 0.4 + pop.value * 0.6 }]
   }));
 
@@ -155,12 +166,23 @@ const AnimatedSplash = ({ isAppReady, onFinish }: Props) => {
     if (!hasPlayed) return;
     if (!isAppReady && !isOverdue) return;
 
-    field.value = withTiming(0, { duration: EXIT_MS }, (isDone) => {
-      if (isDone) runOnJS(onFinish)();
-    });
+    // Out, not the inOut default: an exit that eases in delays the frame the
+    // user is waiting for.
+    field.value = withTiming(
+      0,
+      { duration: EXIT_MS, easing: Easing.out(Easing.quad) },
+      (isDone) => {
+        if (isDone) runOnJS(onFinish)();
+      }
+    );
   }, [isAppReady, isOverdue, hasPlayed, field, onFinish]);
 
-  const fieldStyle = useAnimatedStyle(() => ({ opacity: field.value }));
+  // A gold field and the first screen share nothing, so a bare crossfade reads
+  // as a cut. A small push-through joins them.
+  const fieldStyle = useAnimatedStyle(() => ({
+    opacity: field.value,
+    transform: [{ scale: 1 + (1 - field.value) * 0.04 }]
+  }));
 
   return (
     <Animated.View style={[StyleSheet.absoluteFill, styles.field, fieldStyle]}>
@@ -214,7 +236,9 @@ const styles = StyleSheet.create({
     position: 'absolute'
   },
   group: {
-    flex: 1
+    flex: 1,
+    // The crumpet rises from the surface. A centre origin grows it out of the air.
+    transformOrigin: 'bottom'
   },
   head: {
     position: 'absolute',

@@ -1,12 +1,13 @@
 import type { TrueSheet } from '@lodev09/react-native-true-sheet';
 import { useRouter } from 'expo-router';
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, StyleSheet, View } from 'react-native';
 import Animated, {
   FadeIn,
   FadeOut,
   LinearTransition,
   useAnimatedStyle,
+  useSharedValue,
   withTiming
 } from 'react-native-reanimated';
 
@@ -95,14 +96,16 @@ const PetSection = ({
   const [isExpanded, setIsExpanded] = useState<boolean | null>(null);
   const isOpen = isExpanded ?? (isOnlyPet || !isAllLogged);
 
+  // Seeded, not animated, on mount: a section that starts open must already
+  // have its caret turned rather than rotate it into place.
+  const rotation = useSharedValue(isOpen ? 180 : 0);
+
+  useEffect(() => {
+    rotation.set(withTiming(isOpen ? 180 : 0, { duration: isOpen ? EXPAND_MS : COLLAPSE_MS }));
+  }, [isOpen, rotation]);
+
   const caretStyle = useAnimatedStyle(() => ({
-    transform: [
-      {
-        rotate: withTiming(isOpen ? '180deg' : '0deg', {
-          duration: isOpen ? EXPAND_MS : COLLAPSE_MS
-        })
-      }
-    ]
+    transform: [{ rotate: `${rotation.get()}deg` }]
   }));
 
   return (

@@ -1,6 +1,5 @@
 import { StyleSheet, View } from 'react-native';
 import Animated, {
-  Easing,
   FadeIn,
   Keyframe,
   LinearTransition,
@@ -11,6 +10,7 @@ import AppText from '@/components/core/app-text';
 import Icon from '@/components/core/icon';
 import MainButton from '@/components/core/main-button';
 import PressableOpacity from '@/components/core/pressable-opacity';
+import { Curve, Duration } from '@/constants/motion';
 import type { AppTheme } from '@/constants/theme';
 import { useStyles } from '@/hooks/use-styles';
 import { formatScheduledTime, formatTimeOfDay } from '@/lib/dates';
@@ -35,11 +35,7 @@ const labelText: Record<FeedingScheduleLabel, string> = {
   custom: 'Feed'
 };
 
-const SLOT_MS = 220;
-const EXIT_MS = 140;
-const TICK_MS = 160;
-
-const SlotReflow = LinearTransition.duration(SLOT_MS).reduceMotion(ReduceMotion.System);
+const SlotReflow = LinearTransition.duration(Duration.reflow).reduceMotion(ReduceMotion.System);
 
 // Not ZoomIn: it starts at scale 0, and nothing appears from nothing. The
 // overshoot is the spring's, not a keyframe's -- see issue #122.
@@ -48,15 +44,15 @@ const TickIn = new Keyframe({
   45: {
     opacity: 1,
     transform: [{ scale: 1.08 }],
-    easing: Easing.bezier(0.34, 1.56, 0.64, 1)
+    easing: Curve.overshoot
   },
   75: { opacity: 1, transform: [{ scale: 0.98 }] },
   100: { opacity: 1, transform: [{ scale: 1 }] }
 })
-  .duration(TICK_MS)
+  .duration(Duration.quick)
   // Waits for the Log button to leave. Overlapping the two crossfades them in
   // the same spot, and the tick reads as a smear across the pill.
-  .delay(EXIT_MS)
+  .delay(Duration.exit)
   .reduceMotion(ReduceMotion.System);
 
 // Scales down as it fades, so the chip reads as leaving rather than dimming.
@@ -64,9 +60,9 @@ const SlotOut = new Keyframe({
   0: { opacity: 1, transform: [{ scale: 1 }] },
   100: { opacity: 0, transform: [{ scale: 0.9 }] }
 })
-  .duration(EXIT_MS)
+  .duration(Duration.exit)
   .reduceMotion(ReduceMotion.System);
-const DetailIn = FadeIn.duration(160).reduceMotion(ReduceMotion.System);
+const DetailIn = FadeIn.duration(Duration.quick).reduceMotion(ReduceMotion.System);
 
 const OccurrenceRow = ({
   occurrence,

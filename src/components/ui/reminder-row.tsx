@@ -1,6 +1,5 @@
 import { StyleSheet, View } from 'react-native';
 import Animated, {
-  Easing,
   FadeIn,
   FadeOut,
   Keyframe,
@@ -12,6 +11,7 @@ import AppText from '@/components/core/app-text';
 import Icon from '@/components/core/icon';
 import MainButton from '@/components/core/main-button';
 import PressableOpacity from '@/components/core/pressable-opacity';
+import { Curve, Duration } from '@/constants/motion';
 import { REMINDER_KIND_ICON } from '@/constants/options';
 import type { AppTheme } from '@/constants/theme';
 import { useStyles } from '@/hooks/use-styles';
@@ -33,28 +33,26 @@ const KIND_COLOUR = {
   vet: 'vet'
 } as const;
 
-const ROW_MS = 220;
-const EXIT_MS = 120;
-const TICK_MS = 160;
-
-// The same motion as a logged feed, because it is the same row.
-const RowReflow = LinearTransition.duration(ROW_MS).reduceMotion(ReduceMotion.System);
+// The same motion as a logged feed, because it is the same row. Change both or
+// neither -- the reference is src/components/ui/occurrence-row.tsx.
+const RowReflow = LinearTransition.duration(Duration.reflow).reduceMotion(ReduceMotion.System);
 
 const TickIn = new Keyframe({
   0: { opacity: 0, transform: [{ scale: 0.9 }] },
-  55: {
+  45: {
     opacity: 1,
-    transform: [{ scale: 1.06 }],
-    easing: Easing.bezier(0.23, 1, 0.32, 1)
+    transform: [{ scale: 1.08 }],
+    easing: Curve.overshoot
   },
+  75: { opacity: 1, transform: [{ scale: 0.98 }] },
   100: { opacity: 1, transform: [{ scale: 1 }] }
 })
-  .duration(TICK_MS)
-  .delay(EXIT_MS)
+  .duration(Duration.quick)
+  .delay(Duration.exit)
   .reduceMotion(ReduceMotion.System);
 
-const ChipOut = FadeOut.duration(EXIT_MS).reduceMotion(ReduceMotion.System);
-const LabelIn = FadeIn.duration(160).reduceMotion(ReduceMotion.System);
+const ChipOut = FadeOut.duration(Duration.exit).reduceMotion(ReduceMotion.System);
+const LabelIn = FadeIn.duration(Duration.quick).reduceMotion(ReduceMotion.System);
 
 const ReminderRow = ({ reminder, dateLabel, isTicking = false, onTick }: Props) => {
   const styles = useStyles(makeStyles);
