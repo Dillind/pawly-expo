@@ -15,10 +15,8 @@ type Props = {
   onDelete: () => void;
 };
 
-/**
- * The sheet is only rendered for someone who can act, and never contains a
- * disabled row -- so an Owner looking at a member's post sees delete alone.
- */
+// The sheet is only rendered for someone who can act, and never contains a disabled row -- so
+// an Owner looking at a member's post sees delete alone.
 const PostActionsSheet = ({ sheetRef, canEdit, canDelete, onEdit, onDelete }: Props) => {
   const styles = useStyles(makeStyles);
 

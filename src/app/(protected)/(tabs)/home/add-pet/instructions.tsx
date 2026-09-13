@@ -22,11 +22,8 @@ import PetPhotoService from '@/services/pet-photo.service';
 import { useAuthStore } from '@/stores/auth-store';
 import { optionLabel } from '@/utils/options';
 
-/**
- * Step 3, and skippable. Instructions are what makes the app useful to a
- * sitter, but a pet with none is still a pet — so this offers the work and an
- * exit past it, and both buttons create the pet.
- */
+// Skippable: a pet with no instructions is still a pet. Both buttons create
+// the pet.
 const AddPetInstructions = () => {
   const styles = useStyles(makeStyles);
   const router = useRouter();
@@ -41,8 +38,8 @@ const AddPetInstructions = () => {
 
   const isBusy = isAdding || isUploading;
 
-  // Every field handleSubmit can reject lives on step 1, two screens back, so
-  // a failure has to send the member there. Otherwise the button does nothing.
+  // Every field handleSubmit can reject lives on step 1, so a failure has to
+  // send the member there or the button does nothing.
   const create = handleSubmit(
     async (values) => {
       setIsUploading(true);
@@ -61,7 +58,6 @@ const AddPetInstructions = () => {
         {
           name: values.name.trim(),
           breedId: values.breedId,
-          // A pet created from the list never carries free text.
           breedFreetext: null,
           sex: values.sex,
           birthdate: values.birthdate,
@@ -78,8 +74,7 @@ const AddPetInstructions = () => {
         {
           onSuccess: (pet) => {
             reset();
-            // The pet's own screen is the summary, and it teaches where to edit
-            // all of this later.
+            // The pet's own screen is the summary.
             router.replace(`/home/${pet.id}`);
           }
         }

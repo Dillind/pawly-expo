@@ -7,10 +7,8 @@ const quoted = (caption: string) => `“${caption.trim()}”`;
 const slotWord = (label: string | null) =>
   !label || label === 'custom' ? 'feed' : label.toLowerCase();
 
-/**
- * One line of plain English. Every branch has a version that says less, because
- * a row outlives the subject it names.
- */
+// Every branch has a version that says less, because a row outlives its
+// subject.
 export function alertSentence(alert: InboxRow): string {
   const actor = someone(alert.actorName);
   const likers =
@@ -29,14 +27,14 @@ export function alertSentence(alert: InboxRow): string {
         ? `${actor} posted ${quoted(alert.postCaption)}`
         : `${actor} shared a photo`;
 
-    // Only ever shown to the post's author, so "your" is always true here.
+    // Only shown to the post's author, so "your" is always true.
     case 'post_liked':
       return alert.postCaption
         ? `${likers} liked your post ${quoted(alert.postCaption)}`
         : `${likers} liked your photo`;
 
-    // Three sentences, not two: a recipient can be in the thread while owning
-    // neither the post nor the parent.
+    // A recipient can be in the thread while owning neither the post nor the
+    // parent.
     case 'post_commented': {
       const said = alert.commentBody ? ` ${quoted(alert.commentBody)}` : '';
 
@@ -56,8 +54,7 @@ export function alertSentence(alert: InboxRow): string {
         ? `${actor} removed you from the household`
         : `${actor} removed ${someone(alert.subjectName)}`;
 
-    // Addressed to the person whose role changed, so the reader is always the
-    // subject. The new role is not recorded on the alert, so this cannot name it.
+    // The new role is not recorded on the alert, so this cannot name it.
     case 'member_role_changed':
       return `${actor} changed your role`;
 

@@ -11,13 +11,10 @@ import { formatAuthorName } from '@/utils/members';
 
 type Props = {
   post: Post;
-  /**
-   * Whether there is anything in the ⋯ menu for this viewer. Editing and
-   * deleting are separate permissions -- the header only needs to know that at
-   * least one of them applies, and gets no menu rather than an empty one.
-   */
+  // Whether there is anything in the ⋯ menu for this viewer. Editing and deleting are separate
+  // permissions -- the header only needs to know that at least one of them applies, and gets no
+  // menu rather than an empty one.
   showActions?: boolean;
-  /** Omitted when the viewer has one household. */
   householdName?: string;
   onOpenActions?: () => void;
 };

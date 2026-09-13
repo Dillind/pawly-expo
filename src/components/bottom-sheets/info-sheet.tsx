@@ -11,7 +11,6 @@ import type { IconName } from '@/constants/icon-map';
 import { Radius, type AppTheme } from '@/constants/theme';
 import { useStyles } from '@/hooks/use-styles';
 
-/** A paragraph, or a subheading introducing the paragraphs after it. */
 export type InfoBlock = { kind: 'paragraph' | 'heading'; text: string };
 
 type Props = {

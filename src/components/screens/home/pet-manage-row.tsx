@@ -19,18 +19,11 @@ const PAUSED_OPACITY = 0.55;
 
 type Props = {
   pet: Pet;
-  /** The household's today, as YYYY-MM-DD. Absent until the household loads. */
   today?: string;
 };
 
-/**
- * One pet, with the one line that says what to do about it.
- *
- * The three queries are per row rather than per screen because a hook cannot be
- * called once per item from a loop -- the same reason PetSection holds its own.
- *
- * A pause is a date range, never a flag, so "paused" is a question about today.
- */
+// The three queries are per row because a hook cannot be called once per item
+// from a loop.
 const PetManageRow = ({ pet, today }: Props) => {
   const styles = useStyles(makeStyles);
 
@@ -55,7 +48,7 @@ const PetManageRow = ({ pet, today }: Props) => {
             {pet.name}
           </AppText>
 
-          {/* A pause is the state that expects nothing, so it recesses into a
+          {/* A pause expects nothing, so it recesses into a
               pill rather than reading as another line of status. */}
           {isPaused ? (
             <StatusPill label="Paused — no feeds expected" />

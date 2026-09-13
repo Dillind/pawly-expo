@@ -16,11 +16,9 @@ import { countText } from '@/utils/counts';
 
 const CREST = 36;
 
-/**
- * The households the viewer follows, a request still waiting included. A
- * pending row names the household but offers nothing: the read has not opened
- * yet, and the row is there so the person knows they asked.
- */
+// The households the viewer follows, a request still waiting included. A pending row names the
+// household but offers nothing: the read has not opened yet, and the row is there so the person
+// knows they asked.
 const FollowingList = () => {
   const styles = useStyles(makeStyles);
   const router = useRouter();

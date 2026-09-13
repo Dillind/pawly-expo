@@ -6,11 +6,8 @@ import { feedLogErrorMessage } from '@/lib/feed-log-errors';
 import { showErrorToast, showSuccessToast } from '@/lib/toast';
 import FeedLogService from '@/services/feed-log.service';
 
-/**
- * Every mutation invalidates the same two prefixes on settle. Prefix
- * invalidation catches every cached date without enumerating them, which
- * matters because Home holds one occurrences entry per visible day.
- */
+// Prefix invalidation catches every cached date without enumerating them: Home
+// holds one occurrences entry per visible day.
 function useInvalidateFeedData(petId: string | undefined) {
   const queryClient = useQueryClient();
 
@@ -20,16 +17,9 @@ function useInvalidateFeedData(petId: string | undefined) {
   }, [queryClient, petId]);
 }
 
-/**
- * Writes are deliberately NOT optimistic. RLS can genuinely reject the insert,
- * and an optimistic row that silently rolls back is exactly the "the app said
- * the pet was fed when it wasn't" failure the product brief calls
- * trust-collapsing.
- *
- * Toasts stay at the call site here, unlike every other mutation: a
- * `double_feed` result is a success that must NOT confirm anything, because
- * nothing was written.
- */
+// Not optimistic: RLS can reject the insert, and a row that silently rolls back
+// is the "the app said the pet was fed when it wasn't" failure. Toasts stay at
+// the call site, because a `double_feed` success must confirm nothing.
 export function useLogFeed() {
   const queryClient = useQueryClient();
 
@@ -45,8 +35,7 @@ export function useLogFeed() {
       seriesId?: string | null;
       occurrenceDate?: string | null;
     }) => FeedLogService.log(petId, input),
-    // The pet comes from the payload rather than the hook, so one instance
-    // serves a Home screen holding several pets.
+    // The pet comes from the payload, so one instance serves several pets.
     onSettled: (_data, _error, variables) => {
       void queryClient.invalidateQueries({ queryKey: ['occurrences', variables.petId] });
       void queryClient.invalidateQueries({ queryKey: ['user-stats'] });
@@ -73,12 +62,8 @@ export function useUpdateFeedLog(petId: string | undefined) {
   });
 }
 
-/**
- * Hard delete — Undo and "delete this log" are the same operation. Soft
- * deletion would add `deleted_at is null` to every read path including the
- * matcher and the missed-feed cron; one forgotten filter and a deleted feed
- * silently satisfies an occurrence.
- */
+// Hard delete: soft deletion would add `deleted_at is null` to every read path,
+// and one forgotten filter lets a deleted feed satisfy an occurrence.
 export function useDeleteFeedLog(petId: string | undefined) {
   const invalidate = useInvalidateFeedData(petId);
   const queryClient = useQueryClient();

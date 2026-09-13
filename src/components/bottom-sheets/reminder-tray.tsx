@@ -30,14 +30,12 @@ import type { Option, Pet } from '@/types/core';
 type Props = {
   sheetRef: RefObject<TrueSheet | null>;
   pet: Pet;
-  /** Today in the household's timezone. The reminder cannot start before it. */
+  // Today in the household's timezone. A reminder cannot start before it.
   today: string;
 };
 
-/**
- * A row of pills. The selected one fills with its own colour, never gold --
- * gold is the primary action, and this is a choice.
- */
+// The selected pill fills with its own colour, never gold: gold is the primary
+// action and this is a choice.
 const PillRow = <T extends string | number>({
   options,
   value,
@@ -191,8 +189,7 @@ const WhenStep = ({
         />
       </View>
 
-      {/* "Tell us" rather than "Lead time": the Member's own nudge setting is
-          already called Lead Time and is measured in minutes. */}
+      {/* Not "Lead time": the Member's nudge setting already owns that name. */}
       <View style={styles.field}>
         <AppText size={14} fontWeight="bold">
           Tell us
@@ -225,8 +222,7 @@ const WhoStep = ({
   onSubmit: (onDone: () => void) => void;
 }) => {
   const styles = useStyles(makeStyles);
-  // Dismissing is the one thing the mutation hook cannot do for itself, so it
-  // stays at the call site -- and the call site has to be inside the Tray.
+  // A hook never takes a sheet ref, so dismissal stays at the call site.
   const { close } = useTray();
 
   return (
@@ -276,8 +272,8 @@ const ReminderTray = ({ sheetRef, pet, today }: Props) => {
 
   const { control, setValue, handleSubmit, reset } = form;
 
-  // useWatch, never watch(): watch subscribes by mutating during render, which
-  // React Compiler cannot memoise.
+  // useWatch, never watch(): watch mutates during render and React Compiler
+  // cannot memoise it.
   const title = useWatch({ control, name: 'title' });
   const kind = useWatch({ control, name: 'kind' });
   const startsOn = useWatch({ control, name: 'startsOn' });
@@ -292,8 +288,7 @@ const ReminderTray = ({ sheetRef, pet, today }: Props) => {
     [setValue]
   );
 
-  // reset() runs AFTER the sheet is told to go. Clearing the form while the
-  // summary is still on screen blanks the title in front of the user.
+  // reset() runs after the sheet is told to go, or the title blanks on screen.
   const submit = (onDone: () => void) =>
     handleSubmit((values) => {
       createReminder(
@@ -307,10 +302,8 @@ const ReminderTray = ({ sheetRef, pet, today }: Props) => {
       );
     })();
 
-  // Rebuilt each render on purpose: the descriptors carry the current values.
-  // The step COMPONENTS are module-level, so this recreates elements, never
-  // types -- an inline component type would remount the name field on every
-  // keystroke and drop the keyboard.
+  // The step components are module-level, so this recreates elements, never
+  // types: an inline type remounts the name field and drops the keyboard.
   const steps: TrayStepDescriptor[] = [
     {
       id: 'what',
@@ -380,8 +373,7 @@ const makeStyles = ({ colors, spacing }: AppTheme) =>
       backgroundColor: colors.backgroundSelected,
       borderColor: 'transparent'
     },
-    // Read through StyleSheet rather than inline so the two trial tokens have
-    // exactly one call site each. See DECISIONS.md.
+    // Through StyleSheet so the two trial tokens have one call site each.
     medicationFill: {
       backgroundColor: colors.medicationMuted
     },

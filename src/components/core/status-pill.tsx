@@ -6,10 +6,8 @@ import { useStyles } from '@/hooks/use-styles';
 
 type Props = {
   label: string;
-  /**
-   * `sunk` recesses: a state that expects nothing of the member. `primary` is
-   * the gold one, and a screen may hold at most one of those.
-   */
+  // `sunk` recesses: a state that expects nothing of the member. `primary` is the gold one, and
+  // a screen may hold at most one of those.
   tone?: 'sunk' | 'primary';
 };
 

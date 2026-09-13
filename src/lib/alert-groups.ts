@@ -1,29 +1,21 @@
 import type { Alert } from '@/services/alert.service';
 
-/**
- * One inbox row. Usually one Alert, but every like on the same Post collapses
- * into a single row whose `alertIds` are all of them — reading or clearing the
- * row must reach each one. See ADR 0024.
- */
+// Likes on one Post collapse into a single row, so reading or clearing it must
+// reach every id in `alertIds`. See ADR 0024.
 export type InboxRow = Alert & {
   alertIds: string[];
-  /** Likes on the same Post behind the newest one. */
   otherLikeCount: number;
 };
 
-/**
- * Grouped across every page loaded so far, not within a page: likes on one Post
- * routinely straddle the 30-row boundary, and collapsing per page would show
- * the same Post twice.
- */
+// Grouped across every page loaded, not within a page: likes on one Post
+// straddle the 30-row boundary and would otherwise show the Post twice.
 export function collapseLikes(alerts: Alert[]): InboxRow[] {
   const rows: InboxRow[] = [];
   const rowByGroup = new Map<string, InboxRow>();
 
   for (const alert of alerts) {
-    // Per COMMENT, not per post: keying by post would fold likes on two
-    // different comments into one row quoting only one. Comments themselves are
-    // never grouped -- a count would hide what each one says.
+    // Per comment, not per post: keying by post would fold likes on two
+    // comments into one row quoting only one.
     const groupKey =
       alert.kind === 'post_liked'
         ? alert.postId
@@ -48,8 +40,8 @@ export function collapseLikes(alerts: Alert[]): InboxRow[] {
 
     existing.alertIds.push(alert.id);
     existing.otherLikeCount += 1;
-    // The row is unread while any like under it is, or scrolling past would
-    // clear a badge the reader never saw the reason for.
+    // Unread while any like under it is, or scrolling past clears a badge whose
+    // reason the reader never saw.
     existing.isRead = existing.isRead && alert.isRead;
   }
 

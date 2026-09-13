@@ -11,12 +11,9 @@ import { useHousehold } from '@/hooks/queries/household/use-household';
 import { useHouseholds } from '@/hooks/queries/household/use-households';
 import { useStyles } from '@/hooks/use-styles';
 
-/**
- * The active household's name, and a chevron that opens the switcher.
- *
- * With one household there is no chevron and no tap target -- a dropdown over a
- * list of one is worse than none. It appears when the second household does.
- */
+// The active household's name, and a chevron that opens the switcher. With one household there
+// is no chevron and no tap target -- a dropdown over a list of one is worse than none. It
+// appears when the second household does.
 const HouseholdSwitcher = () => {
   const styles = useStyles(makeStyles);
   const sheetRef = useRef<TrueSheet | null>(null);

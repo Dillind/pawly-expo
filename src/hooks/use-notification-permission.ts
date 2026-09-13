@@ -7,9 +7,6 @@ import { useAuthStore } from '@/stores/auth-store';
 
 export const NOTIFICATION_PERMISSION_QUERY_KEY = ['notification-permission'];
 
-/**
- * Raises the OS prompt and settles everything that depends on the answer.
- */
 export const useRequestNotificationPermission = () => {
   const { userId } = useAuthStore();
   const queryClient = useQueryClient();

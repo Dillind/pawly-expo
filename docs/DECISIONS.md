@@ -983,3 +983,13 @@ start still looks deliberate.
 
 This is a floor, not the final look. Premium motion is work for a designer, and a scene is easier
 to add back than a bad one is to defend.
+
+## Comments are gated on four tests, not on judgement
+
+`AGENTS.md` used to say "default to fewer" and the codebase grew to 2,650 comment lines anyway. The
+rule now has four tests a comment must pass, a hard three-line ceiling, and a delete-on-sight list
+that starts with every JSDoc block. The sweep that applied it cut the source comments by 42% of
+their bytes and removed every `/** */` block in `src/`.
+
+A ceiling is enforceable where "fewer" is not. The reasoning that used to sit in a long block
+comment belongs in `KNOWLEDGE.md` or an ADR, which is where the dayjs/Hermes note went.

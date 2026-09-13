@@ -1,8 +1,3 @@
-/**
- * Learn more about light and dark modes:
- * https://docs.expo.dev/guides/color-schemes/
- */
-
 import { useMemo } from 'react';
 
 import { Colors, Spacing, type AppTheme, type ThemeMode } from '@/constants/theme';

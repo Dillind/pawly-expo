@@ -14,7 +14,6 @@ type Props = {
   accessibilityLabel?: string;
   onPress?: () => void;
   onLongPress?: () => void;
-  /** Draws the remove badge. Omit and the tile has none. */
   onRemove?: () => void;
   removeLabel?: string;
 };

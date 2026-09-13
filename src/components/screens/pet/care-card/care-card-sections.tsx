@@ -10,13 +10,9 @@ import type { CareCardBlock } from '@/lib/care-card-view';
 
 type Props = { blocks: CareCardBlock[] };
 
-/**
- * The card's contents as a page reads them: one labelled section per row, the
- * label quiet above the words that matter.
- *
- * Separate from `CareCardBlocks`, which draws the same data as loose blocks for
- * the editor's review step. This one is the handover document.
- */
+// The card's contents as a page reads them: one labelled section per row, the label quiet above
+// the words that matter. Separate from `CareCardBlocks`, which draws the same data as loose
+// blocks for the editor's review step. This one is the handover document.
 const CareCardSections = ({ blocks }: Props) => {
   const styles = useStyles(makeStyles);
 

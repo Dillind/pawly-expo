@@ -17,10 +17,8 @@ const HOLES = [
 
 type Props = {
   size?: number;
-  /**
-   * Overrides for the launch sequence, which draws the mark on gold rather
-   * than on the page. Everywhere else the theme is correct — leave both unset.
-   */
+  // Overrides for the launch sequence, which draws the mark on gold rather than on the page.
+  // Everywhere else the theme is correct — leave both unset.
   fill?: string;
   holeFill?: string;
 };

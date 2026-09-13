@@ -7,17 +7,9 @@ import HouseholdService from '@/services/household.service';
 import { useAuthStore } from '@/stores/auth-store';
 import type { HouseholdSummary } from '@/types/core';
 
-/**
- * The Listed switch, and the one optimistic mutation in the app.
- *
- * `useUpdateHousehold` is deliberately not used here. It invalidates on settle,
- * so the control it drives snaps back to the old value until the refetch lands.
- * That reads as latency on a notifications toggle and as a refusal on a switch
- * about who can find your household, which is why this one moves first and
- * rolls back only if the write fails.
- *
- * There is no success toast either: the switch itself is the confirmation.
- */
+// The one optimistic mutation in the app. `useUpdateHousehold` invalidates on
+// settle, so its control snaps back until the refetch lands, which on this
+// switch reads as a refusal. No success toast: the switch is the confirmation.
 export function useSetHouseholdListed(householdId: string | undefined) {
   const queryClient = useQueryClient();
   const { userId } = useAuthStore();

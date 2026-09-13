@@ -13,14 +13,11 @@ export type NotificationPreferences = {
   feedDueLeadMinutes: LeadMinutes;
 };
 
-/** The switches. feedDueLeadMinutes is a value, not a switch, so it is excluded. */
+// feedDueLeadMinutes is a value, not a switch, so it is excluded.
 export type AlertPreference = Exclude<keyof NotificationPreferences, 'feedDueLeadMinutes'>;
 
-/**
- * Every membership RPC answers with a jsonb status rather than throwing, the
- * way `log_feed` does — `last_owner` and `not_owner` are outcomes the UI has to
- * word differently, not failures.
- */
+// Every membership RPC answers with a jsonb status rather than throwing:
+// `last_owner` and `not_owner` are outcomes to word, not failures.
 export type MembershipStatus =
   | 'changed'
   | 'unchanged'
@@ -37,17 +34,12 @@ type MembershipRow = {
   feed_logged_alerts: boolean;
 };
 
-/** Postgres unique_violation. The handle's unique index is what raises it. */
+// Postgres unique_violation, raised by the handle's unique index.
 const UNIQUE_VIOLATION = '23505';
 
 namespace HouseholdService {
-  /**
-   * Every household the user belongs to, oldest membership first, each with its
-   * pets for the switcher.
-   *
-   * Separate selects rather than a PostgREST embed: household_members.user_id
-   * points at auth.users, so the embed graph here is not the obvious one.
-   */
+  // Separate selects rather than a PostgREST embed: household_members.user_id
+  // points at auth.users, so the embed graph is not the obvious one.
   export async function listForUser(userId: string): Promise<HouseholdSummary[]> {
     const { data: memberships, error: membershipsError } = await supabase
       .from('household_members')
@@ -109,10 +101,8 @@ namespace HouseholdService {
     graceWindowMinutes?: number;
   };
 
-  // The service owns snake_case: a column name must never reach a component.
-  //
-  // Every column written here is named in the UPDATE grant. A column absent
-  // from that grant reports success and is gone on the next refetch.
+  // Every column written here is named in the UPDATE grant. One absent from it
+  // reports success and is gone on the next refetch.
   export async function update(householdId: string, patch: HouseholdPatch): Promise<void> {
     const { data, error } = await supabase
       .from('households')
@@ -129,7 +119,7 @@ namespace HouseholdService {
       .select('id');
 
     // handle_available is a convenience, never the guard: two Owners can settle
-    // on the same handle inside one second and only the unique index sees it.
+    // on one handle inside a second and only the unique index sees it.
     if (error?.code === UNIQUE_VIOLATION) {
       throw new UserFacingError(ErrorMessage.HouseholdHandleTaken, error);
     }
@@ -139,10 +129,6 @@ namespace HouseholdService {
     assertWrote(data, 'Only an owner can change household settings');
   }
 
-  /**
-   * Answers "free to take" for one candidate. The caller debounces, so this is
-   * only asked once the Owner stops typing.
-   */
   export async function isHandleAvailable(candidate: string): Promise<boolean> {
     const { data, error } = await supabase.rpc('handle_available', { candidate });
 
@@ -151,9 +137,6 @@ namespace HouseholdService {
     return data === true;
   }
 
-  /**
-   * Free handles built from the Household name, each one checked.
-   */
   export async function getHandleSuggestions(stem: string, wanted = 3): Promise<string[]> {
     const { data, error } = await supabase.rpc('handle_suggestions', { stem, wanted });
 
@@ -271,9 +254,7 @@ namespace HouseholdService {
   }
 
   // household_members takes COLUMN-level update grants, so a new preference
-  // column is invisible to writes until it is named in a `grant update (col)`.
-  // The failure is silent: the write reports success and the value reverts on
-  // the next refetch.
+  // column is silently unwritable until named in a `grant update (col)`.
   const PREFERENCE_COLUMN: Record<AlertPreference, string> = {
     feedDueAlerts: 'feed_due_alerts',
     missedFeedAlerts: 'missed_feed_alerts',

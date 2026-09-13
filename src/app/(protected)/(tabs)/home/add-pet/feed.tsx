@@ -9,15 +9,8 @@ import type { AddPetFormValues } from '@/constants/schemas/add-pet';
 import type { AppTheme } from '@/constants/theme';
 import { useStyles } from '@/hooks/use-styles';
 
-/**
- * One feed, pushed. The same FeedTimeForm the pet screen raises in a sheet —
- * inside this flow it cannot be a sheet, because a sheet on a modal is two
- * modals.
- *
- * Which feed is a route param rather than shared state: the screen's identity
- * is in its URL, so a back-and-forward through the stack cannot land it on a
- * different row than the one that was tapped.
- */
+// Pushed, not raised in a sheet: a sheet on a modal is two modals. Which feed
+// is a route param, so back-and-forward cannot land on a different row.
 const AddPetFeed = () => {
   const styles = useStyles(makeStyles);
   const router = useRouter();

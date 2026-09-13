@@ -14,8 +14,7 @@ import { buildCareCardHtml, careCardFileName, type CareCardPdfPet } from '@/lib/
 import { formatAge, formatDateWithYear } from '@/lib/dates';
 import { showErrorToast } from '@/lib/toast';
 
-// A4 at 72ppi. expo-print defaults to US Letter (612x792), which crops or
-// letterboxes on every printer this document is likely to meet.
+// A4 at 72ppi. expo-print defaults to US Letter, which crops or letterboxes.
 const A4_WIDTH = 595;
 const A4_HEIGHT = 842;
 
@@ -42,8 +41,8 @@ export function useShareCareCard() {
   };
 
   const shareCareCard = async (petIds: string[]) => {
-    // A ref, not `isSharing` -- a second tap arriving in the same tick reads the
-    // state before React has re-rendered with it, and generates the PDF twice.
+    // A ref, not `isSharing`: a second tap in the same tick reads the state
+    // before React re-renders and generates the PDF twice.
     if (isGenerating.current || petIds.length === 0) return;
 
     isGenerating.current = true;
@@ -62,9 +61,7 @@ export function useShareCareCard() {
 
       const { uri } = await Print.printToFileAsync({ html, width: A4_WIDTH, height: A4_HEIGHT });
 
-      // printToFileAsync names the file from a UUID. Renaming it is the whole
-      // difference between a sitter receiving "Care Card - Crumpet.pdf" and
-      // receiving "6f2a1c....pdf".
+      // printToFileAsync names the file from a UUID.
       const printed = new File(uri);
       const named = new File(Paths.cache, careCardFileName(pets));
       if (named.exists) named.delete();
@@ -84,7 +81,7 @@ export function useShareCareCard() {
     }
   };
 
-  // No success toast: the share sheet opening is the confirmation, and one
-  // raised behind it would be confirming something the user can still cancel.
+  // No success toast: the share sheet is the confirmation, and the user can
+  // still cancel it.
   return { shareCareCard, isSharing };
 }

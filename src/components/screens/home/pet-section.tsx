@@ -40,23 +40,17 @@ const COLLAPSE_MS = 160;
 type Props = {
   pet: Pet;
   timezone: string;
-  /** The day in view. Today until the week strip moves. */
   day: string;
   members: HouseholdMember[];
   isOnlyPet: boolean;
-  /** Only an Owner may write feed times, so only an Owner is offered them. */
   isOwner: boolean;
   onOpenLog: (logId: string) => void;
   onPickOccurrence: (pet: Pet, occurrence: Occurrence) => void;
   onLogPress: () => void;
 };
 
-/**
- * One pet's feed times for today, collapsed until asked for.
- *
- * The occurrence query lives here rather than in Home because a hook cannot be
- * called once per item from a loop.
- */
+// The occurrence query lives here rather than in Home because a hook cannot be
+// called once per item from a loop.
 const PetSection = ({
   pet,
   timezone,
@@ -72,9 +66,8 @@ const PetSection = ({
   const theme = useTheme();
   const router = useRouter();
 
-  // Live polling is for today only. `state` ages on the server, but a past or
-  // future day's states do not move, so polling one is a request per minute for
-  // an answer that cannot change.
+  // Only today ages on the server, so polling another day asks once a minute
+  // for an answer that cannot change.
   const isToday = day === todayInTimezone(timezone);
   const { data: occurrences, isLoading } = useOccurrences(pet.id, day, { live: isToday });
   const { data: pause } = usePetPause(pet.id, day);
@@ -90,14 +83,13 @@ const PetSection = ({
     Boolean(occurrences?.length) &&
     occurrences?.every((occurrence) => occurrence.state === 'fed');
 
-  // A done card collapses: the screen gets quieter as the day goes right.
-  // Not persisted on purpose -- an expansion surviving a relaunch rebuilds the
-  // cluttered screen this replaced.
+  // Not persisted: an expansion surviving a relaunch rebuilds the cluttered
+  // screen this replaced.
   const [isExpanded, setIsExpanded] = useState<boolean | null>(null);
   const isOpen = isExpanded ?? (isOnlyPet || !isAllLogged);
 
-  // Seeded, not animated, on mount: a section that starts open must already
-  // have its caret turned rather than rotate it into place.
+  // Seeded, not animated: a section that starts open must already have its
+  // caret turned rather than rotate it into place.
   const rotation = useSharedValue(isOpen ? 180 : 0);
 
   useEffect(() => {
@@ -113,8 +105,6 @@ const PetSection = ({
       <Animated.View
         style={[styles.card, createShadowMedium(theme.colors)]}
         layout={LinearTransition.duration(EXPAND_MS)}>
-        {/* Siblings rather than nested: a tap target inside a tap target is
-          ambiguous. */}
         <View style={styles.headerRow}>
           <PressableOpacity
             style={styles.identity}
@@ -135,8 +125,6 @@ const PetSection = ({
             </View>
           </PressableOpacity>
 
-          {/* Nothing outstanding, so the fast path has nothing to be fast about.
-            Every row already carries its own Log button. */}
           {isAllLogged && <Icon name="check" size={20} color="success" />}
 
           <Animated.View style={caretStyle}>
@@ -161,8 +149,7 @@ const PetSection = ({
               exiting={FadeOut.duration(COLLAPSE_MS)}>
               <Divider />
               {isPaused ? (
-                // Still on Home, because hiding it would read as deleted. It just
-                // expects nothing.
+                // Still on Home: hiding it would read as deleted.
                 <View style={styles.empty}>
                   <AppText size={14} color="textSecondary">
                     {pet.name} is paused. No feeds are expected and nobody is nudged.
@@ -193,8 +180,6 @@ const PetSection = ({
                         ? `Add ${pet.name}'s feed times and everyone will know when they are due.`
                         : `No feed times yet. An owner sets ${pet.name}'s feed times.`}
                   </AppText>
-                  {/* Skipping the schedule stays viable -- the log is the habit
-                    and the schedule is the upgrade, so this offers both. */}
                   {!hasFeedTimes && isOwner && (
                     <MainButton
                       text="Set up feeds"
@@ -205,9 +190,6 @@ const PetSection = ({
                 </View>
               )}
 
-              {/* A Reminder is a row in the same list as the feeds, not a section
-                of its own -- artboard 5 draws the two as one stack. A past day
-                is read-only, so the Done chip goes with everything else. */}
               {!isPaused &&
                 reminders.map((reminder) => (
                   <ReminderRow
@@ -232,8 +214,7 @@ const PetSection = ({
                   />
                 ))}
 
-              {/* The log tray writes against now, so it is not offered on another
-                day. Paused means nothing is expected, including this. */}
+              {/* The tray writes against now, so it is not offered on another day. */}
               {isToday && !isPaused && (
                 <PressableOpacity
                   style={styles.other}
@@ -247,8 +228,6 @@ const PetSection = ({
                 </PressableOpacity>
               )}
 
-              {/* A text button, not a second dashed row: two ghost rows stacked
-                read as one broken control. Matches the Pet screen's trigger. */}
               {isToday && !isPaused && (
                 <MainButton
                   text="Add a reminder"
@@ -261,7 +240,6 @@ const PetSection = ({
           ))}
       </Animated.View>
 
-      {/* A sibling, never a child. */}
       <ReminderTray sheetRef={reminderTrayRef} pet={pet} today={day} />
     </>
   );
@@ -275,8 +253,7 @@ const makeStyles = ({ colors, spacing }: AppTheme) =>
       borderRadius: Radius.card,
       backgroundColor: colors.backgroundElement
     },
-    // The rule and the times only show when expanded, so a collapsed row is a
-    // plain card and owes this gap nothing.
+    // Only shown when expanded, so a collapsed row owes this gap nothing.
     occurrences: {
       marginTop: spacing.two
     },
@@ -284,8 +261,7 @@ const makeStyles = ({ colors, spacing }: AppTheme) =>
       gap: spacing.two,
       paddingTop: spacing.three
     },
-    // Dashed rather than filled: it is always available and never the thing to
-    // do, so it must not read as loud as a Log chip.
+    // Dashed, never filled: it must not read as loud as a Log chip.
     other: {
       flexDirection: 'row',
       alignItems: 'center',
@@ -314,8 +290,8 @@ const makeStyles = ({ colors, spacing }: AppTheme) =>
       flex: 1,
       gap: 2
     },
-    // On the second line rather than beside the name: on a narrow phone the
-    // header row could not hold both, and it was the name that broke.
+    // On its own line: a narrow phone's header row could not hold both, and it
+    // was the name that broke.
     summaryRow: {
       flexDirection: 'row',
       alignItems: 'center',

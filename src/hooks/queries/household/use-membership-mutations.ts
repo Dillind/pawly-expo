@@ -8,11 +8,9 @@ import { useActiveHouseholdStore } from '@/stores/active-household-store';
 import { useAuthStore } from '@/stores/auth-store';
 import type { HouseholdRole } from '@/types/core';
 
-/**
- * The RPCs answer with a status rather than throwing, so a refused change
- * arrives as a successful call. Everything that is not the happy path is
- * turned into a toast here, once, rather than at each call site.
- */
+// The RPCs answer with a status rather than throwing, so a refused change arrives as a
+// successful call. Everything that is not the happy path is turned into a toast here, once,
+// rather than at each call site.
 const failureFor = (status: MembershipStatus, fallback: string): string | undefined => {
   if (status === 'last_owner') return ErrorMessage.OwnerRequired;
   if (status === 'not_owner' || status === 'not_a_member' || status === 'use_leave')

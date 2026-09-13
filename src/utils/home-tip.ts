@@ -7,22 +7,9 @@ export type HomeTip = {
   action: string;
 };
 
-/**
- * The one hub slot below the tiles, and it stays empty unless the household's
- * real state gives it something to say.
- *
- * Every tip it can give is a feed-time tip, and RLS grants feed-time writes to
- * Owners only -- see "Owners can create feed times". So a Contributor gets
- * silence rather than a softened version: they cannot act on it, and they
- * cannot ask for it in the app either.
- *
- * Filler in this slot is worse than an empty slot: a generic pet tip trains the
- * household to ignore the only place the app volunteers anything. So there is
- * no fallback string, and `null` is a normal answer.
- *
- * One tip at a time, and the first pet in order wins. A list of tips is a
- * to-do list, which is a different screen.
- */
+// Every tip is a feed-time tip, and RLS grants those writes to Owners only, so
+// a Contributor gets silence rather than advice they cannot act on. There is no
+// fallback string: `null` is a normal answer.
 export function findHomeTip(
   pets: Pet[],
   feedTimes: Record<string, FeedTime[]>,
@@ -33,8 +20,8 @@ export function findHomeTip(
   for (const pet of pets) {
     const times = feedTimes[pet.id];
 
-    // Undefined means the query has not answered yet. Claiming a pet has no
-    // feeds while its query is in flight makes the tip flash and retract.
+    // Undefined means the query has not answered: claiming no feeds mid-flight
+    // makes the tip flash and retract.
     if (!times) continue;
 
     if (times.length === 0) {

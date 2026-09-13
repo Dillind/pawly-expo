@@ -12,16 +12,10 @@ type CommonProps = {
   onPress: () => void;
 };
 
-/**
- * The two shapes are mutually exclusive, so the union enforces it rather than a
- * comment: a square tile is sized by its caller, a dropzone fills its parent.
- */
+// The two shapes are mutually exclusive, so the union enforces it rather than a comment: a
+// square tile is sized by its caller, a dropzone fills its parent.
 type Props = CommonProps &
-  (
-    | { isDropzone?: false; size: number }
-    /** Full-width dashed target, standing in for the strip when there are no photos. */
-    | { isDropzone: true; size?: never }
-  );
+  ({ isDropzone?: false; size: number } | { isDropzone: true; size?: never });
 
 const AddPhotoTile = ({
   size,

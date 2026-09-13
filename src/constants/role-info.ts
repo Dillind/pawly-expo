@@ -1,11 +1,8 @@
 import type { InfoBlock } from '@/components/bottom-sheets/info-sheet';
 
-/**
- * What each role can do, in one place. This is the copy the invite screen's
- * help sheet shows, and it must stay in step with what the database actually
- * enforces in `set_member_role`, `remove_household_member` and the RLS on pets,
- * feeding schedules and households.
- */
+// What each role can do, in one place. This is the copy the invite screen's help sheet shows,
+// and it must stay in step with what the database actually enforces in `set_member_role`,
+// `remove_household_member` and the RLS on pets, feeding schedules and households.
 export const ROLE_INFO: InfoBlock[] = [
   {
     kind: 'paragraph',

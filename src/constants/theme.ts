@@ -1,7 +1,3 @@
-/**
- * Theme tokens for light and dark mode.
- */
-
 import '@/global.css';
 
 import { Platform } from 'react-native';
@@ -14,8 +10,7 @@ export const COLORS = {
     backgroundSelected: '#F1EFEC',
     backgroundSheet: '#FFFFFF',
     backgroundSheetRow: '#F1EFEC',
-    // A Post fills the screen width, so it has no edge of its own -- the band
-    // between two of them is the only thing that separates them.
+    // A Post is full-bleed, so the band between two is all that separates them.
     postSurface: '#FFFFFF',
     postDivider: '#FBFAF8',
     textSecondary: '#746A60',
@@ -29,16 +24,14 @@ export const COLORS = {
     primaryText: '#8F5A03',
     onPrimary: '#2A1D06',
     success: '#10696B',
-    // A Reminder's Kind. On trial: the batch-2 artboard drew these and rejected
-    // them, and gold is the fallback if they read as noise on device.
+    // A Reminder's Kind. On trial: gold is the fallback if they read as noise.
     medication: '#7A5C86',
     medicationMuted: 'rgba(122, 92, 134, 0.14)',
     vet: '#4B6A8C',
     vetMuted: 'rgba(75, 106, 140, 0.14)',
     // The dashed "Other" row and the "Add a pet" ghost row.
     ghostBorder: 'rgba(58, 48, 38, 0.20)',
-    // The ink for a control floating over a photo. It cannot be `text`: the
-    // photo is arbitrary, so a near-black glyph vanishes on half of them.
+    // Cannot be `text`: over an arbitrary photo a near-black glyph vanishes.
     onGlass: '#FFFFFF',
     shadow: '#4A3A26'
   },
@@ -49,8 +42,7 @@ export const COLORS = {
     backgroundSelected: '#282728',
     backgroundSheet: '#191819',
     backgroundSheetRow: '#282728',
-    // Dark reverses the light pairing: a Post on anything but black loses the
-    // photo's own black.
+    // A Post on anything but black loses the photo's own black.
     postSurface: '#000000',
     postDivider: '#1C1B1C',
     textSecondary: '#A99C90',
@@ -59,8 +51,8 @@ export const COLORS = {
     like: '#FF4D6D',
     primary: '#F5B435',
     primaryMuted: 'rgba(245, 180, 53, 0.20)',
-    // On a dark ground gold IS readable as text, so the two collapse. Keep the
-    // token: the call sites must not know which mode they are in.
+    // Gold reads as text on a dark ground, so the two collapse. Keep both keys:
+    // call sites must not know which mode they are in.
     primaryText: '#F5B435',
     onPrimary: '#2A1D06',
     success: '#2FA8A2',
@@ -74,17 +66,9 @@ export const COLORS = {
   }
 } as const;
 
-/**
- * The Home banner, by time of day. One surface, four states -- the page never
- * changes, only this card does. Night is the only dark surface in light mode.
- *
- * These sit outside `COLORS` on purpose. `ThemeColor` is the set of keys a
- * component may pass to `AppText` or `Icon`, and a list of stops is not a
- * colour. `ink` travels with the stops because the pair is what stays readable.
- *
- * `start`/`end` approximate the 118deg of `.design/tokens.css` in the unit box
- * `expo-linear-gradient` uses.
- */
+// Outside `COLORS` on purpose: `ThemeColor` is the set of keys a component may
+// pass to `AppText` or `Icon`, and a list of stops is not a colour. `ink`
+// travels with the stops because the pair is what stays readable.
 export const BannerGradients = {
   dawn: { colors: ['#FFF7E6', '#FFECC6', '#FFDDA2'], ink: '#2B1F0C' },
   day: { colors: ['#FFFCF3', '#FFF3D6', '#FFE6B6'], ink: '#2B1F0C' },
@@ -98,41 +82,29 @@ export const BannerGradientEnd = { x: 1, y: 0.85 } as const;
 
 export type DayPart = keyof typeof BannerGradients;
 
-/**
- * The launch sequence, which is one surface in both modes. The native splash
- * behind it is a fixed colour baked at build time and cannot follow the theme,
- * so a themed overlay would show a seam at the handoff.
- *
- * `field` must stay equal to `backgroundColor` in the expo-splash-screen
- * plugin options in app.config.ts. Change one and you change both.
- */
+// One surface in both modes: the native splash colour is baked at build time
+// and cannot follow the theme. `field` must equal `backgroundColor` in the
+// expo-splash-screen plugin options in app.config.ts.
 export const SplashPalette = {
   field: '#F0A81C',
   crumpet: '#FBEED2',
   crumpetHole: '#E2A02A'
 } as const;
 
-/** Alias kept for existing imports */
 export const Colors = COLORS;
 
 export type ThemeMode = keyof typeof COLORS;
 export type ThemeColor = keyof typeof COLORS.light & keyof typeof COLORS.dark;
 export type ThemeColors = (typeof COLORS)[ThemeMode];
 
-/** Resolved theme passed to components and `makeStyles` factories. */
 export type AppTheme = {
   colors: ThemeColors;
   isDark: boolean;
   spacing: typeof Spacing;
 };
 
-/**
- * The families the `expo-font` config plugin embeds -- see app.config.ts.
- *
- * iOS resolves a family by its PostScript name (`Inter-Regular`), every other
- * platform by the file name (`Inter_400Regular`). They differ, so both are
- * listed rather than one being assumed to work everywhere.
- */
+// iOS resolves a family by its PostScript name (`Inter-Regular`), every other
+// platform by the file name (`Inter_400Regular`), so both are listed.
 export const InterFontFamily = Platform.select({
   ios: {
     regular: 'Inter-Regular',
@@ -152,7 +124,6 @@ export const InterFontFamily = Platform.select({
   }
 })!;
 
-/** Gabarito carries headings. A warm geometric, not an editorial serif. */
 export const GabaritoFontFamily = Platform.select({
   ios: {
     semiBold: 'Gabarito-SemiBold',
@@ -214,32 +185,16 @@ export const Radius = {
   full: 100
 } as const;
 
-/**
- * Height the bottom tab bar occupies, safe area included.
- *
- * Measured off the running iOS 26 tab bar (its reported frame is 0.095 of an
- * 868pt screen), not guessed -- expo-router's native tabs expose no hook for
- * this, so anything floating above the bar depends on this number being right.
- */
+// Measured off the running iOS 26 tab bar, not guessed: expo-router's native
+// tabs expose no hook for the height, and anything floating above the bar
+// depends on this number.
 export const BottomTabInset = Platform.select({ ios: 84, android: 80 }) ?? 0;
 
-/**
- * The style every `Stack.Title` takes.
- *
- * It cannot be a shared header component: `Stack.Screen` reads its direct
- * children only, so a `Stack.Title` returned by a wrapper component never
- * reaches the bar, which falls back to the route name. A constant can be
- * shared; the components cannot.
- */
+// Cannot be a shared component: `Stack.Screen` reads direct children only, so a
+// `Stack.Title` returned by a wrapper never reaches the bar.
 export const HeaderTitleStyle = { fontSize: 18, fontWeight: 'bold' } as const;
 
-/**
- * The gutter between screen content and the screen edge.
- *
- * Applied by ScreenScrollView on the *content container*, never on the frame --
- * padding on the frame insets the scroll view itself, which pulls the scroll
- * indicator off the edge and makes full-bleed content impossible. Exported so a
- * deliberately full-bleed child can re-indent its own text back to this line.
- */
+// Applied on the content container, never the frame: padding on the frame
+// insets the scroll view, which pulls the indicator off the edge.
 export const ScreenGutter = Spacing.four;
 export const MaxContentWidth = 800;

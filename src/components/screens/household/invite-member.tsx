@@ -22,12 +22,8 @@ import { useHouseholdById } from '@/hooks/queries/household/use-household-by-id'
 import { useCreateInvite } from '@/hooks/queries/household/use-invites';
 import { useStyles } from '@/hooks/use-styles';
 
-/**
- * A screen rather than a sheet, for two reasons. It carries a form, a role
- * picker and a help affordance, which is a screen's worth of content. And the
- * help is an InfoSheet — presenting that from inside another sheet stacks a
- * sheet on a sheet, the iOS rough edge AGENTS.md warns about.
- */
+// A screen, not a sheet: the help is an InfoSheet, and presenting that from
+// inside another sheet stacks a sheet on a sheet.
 type Props = {
   householdId: string;
 };

@@ -11,9 +11,8 @@ export type ReminderInput = {
   petId: string;
   title: string;
   kind: ReminderKind;
-  /** ISO YYYY-MM-DD in the household's timezone. */
+  // ISO YYYY-MM-DD in the household's timezone.
   startsOn: string;
-  /** HH:mm. */
   localTime: string;
   repeat: ReminderRepeat;
   leadDays: ReminderLeadDays;
@@ -34,7 +33,7 @@ type ReminderRangeRow = ReminderRow & { occurrence_date: string };
 type ReminderDayRow = { day: string; kinds: ReminderKind[] };
 
 namespace ReminderService {
-  /** `date` is an ISO YYYY-MM-DD string in the household's timezone. */
+  // `date` is an ISO YYYY-MM-DD string in the household's timezone.
   export async function listForDay(petId: string, date: string): Promise<ReminderOccurrence[]> {
     const { data, error } = await supabase.rpc('pet_reminders', {
       target_pet_id: petId,
@@ -55,11 +54,7 @@ namespace ReminderService {
     }));
   }
 
-  /**
-   * Every occurrence between two dates, oldest first. One round trip rather
-   * than one per day: a horizon of two months is two calls a year in practice,
-   * and almost every day in it carries nothing.
-   */
+  // One round trip rather than one per day: almost every day carries nothing.
   export async function listRange(
     petId: string,
     fromDate: string,
@@ -85,10 +80,7 @@ namespace ReminderService {
     }));
   }
 
-  /**
-   * The dots under each day of the week strip, keyed by date. One round trip
-   * for the strip: a query per day is seven, and the strip pages.
-   */
+  // One round trip for the strip: a query per day is seven, and it pages.
   export async function daysWithReminders(
     householdId: string,
     fromDate: string,
@@ -131,10 +123,8 @@ namespace ReminderService {
     return (data as { id: string }).id;
   }
 
-  /**
-   * Soft, so the completions survive. A hard delete would cascade them away and
-   * rewrite what the household did.
-   */
+  // Soft: a hard delete cascades the completions away and rewrites what the
+  // household did.
   export async function remove(reminderId: string): Promise<void> {
     const { error } = await supabase
       .from('reminders')
@@ -159,7 +149,7 @@ namespace ReminderService {
     if (error) throw error;
   }
 
-  /** Unticking is a delete: a completion is either there or it is not. */
+  // Unticking is a delete: a completion is either there or it is not.
   export async function removeCompletion(
     reminderId: string,
     occurrenceDate: string

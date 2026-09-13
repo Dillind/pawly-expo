@@ -22,11 +22,9 @@ import { useStyles } from '@/hooks/use-styles';
 import { useTheme } from '@/hooks/use-theme';
 
 type Props = {
-  /** The handle this Household already holds, so its own is never called taken. */
+  // The handle already held, so its own is never called taken.
   currentHandle?: string | null;
-  /** The Household name, which seeds a suggestion while the field is empty. */
   stem: string;
-  /** True only while the settled handle is free to take. */
   onAvailabilityChange: (isAvailable: boolean) => void;
   autoFocus?: boolean;
 };
@@ -39,17 +37,16 @@ const HandleField = ({ currentHandle, stem, onAvailabilityChange, autoFocus }: P
   const handle = useWatch({ control, name: 'handle' });
   const [settled, isTyping] = useDebounce(handle ?? '');
 
-  // TextInputValidated feeds the native field through `defaultValue`, so a
-  // suggestion written into form state alone would leave the visible text
-  // untouched. Remounting is what makes the tap land.
+  // TextInputValidated feeds the native field through `defaultValue`, so form
+  // state alone leaves the visible text untouched. Remounting lands the tap.
   const [fieldKey, setFieldKey] = useState(0);
 
   const isUnchanged = settled === (currentHandle ?? '');
   const isReserved = RESERVED_HANDLES.includes(settled);
   const isWellFormed = householdHandleSchema.safeParse({ handle: settled }).success;
 
-  // Only ask about a handle the schema already accepts. Asking about "ab" would
-  // come back unavailable and read as taken, which is a different problem.
+  // Only ask about a handle the schema accepts: "ab" comes back unavailable and
+  // reads as taken, which is a different problem.
   const candidate = isWellFormed && !isUnchanged ? settled : undefined;
   const { data: isAvailable, isLoading, isError, refetch } = useHandleAvailable(candidate);
 
@@ -58,11 +55,8 @@ const HandleField = ({ currentHandle, stem, onAvailabilityChange, autoFocus }: P
   const isTaken = !isChecking && Boolean(candidate) && isAvailable === false;
   const hasFailed = !isChecking && Boolean(candidate) && isError;
 
-  // Three reasons to offer alternatives. Taken and reserved are the Owner's
-  // choice failing -- a reserved word never reaches the availability check,
-  // because the schema rejects it first, so it has to ask on its own. The third
-  // is a Household that has no handle yet: the issue asks for one suggested
-  // from the name, and an empty field is where it belongs.
+  // A reserved word never reaches the availability check, because the schema
+  // rejects it first, so it has to ask on its own.
   const isEmptyAndUnset = !isTyping && settled.length === 0 && !currentHandle;
   const wantsSuggestions = !isTyping && (isTaken || isReserved || isEmptyAndUnset);
   const suggestionStem = isEmptyAndUnset ? stem : settled;
@@ -77,7 +71,7 @@ const HandleField = ({ currentHandle, stem, onAvailabilityChange, autoFocus }: P
   useEffect(() => {
     if (isTaken) setError('handle', { type: 'taken', message: 'Handle already taken' });
     // Save is gated on a positive answer, so a check that never lands would
-    // otherwise disable it with nothing on screen to explain why.
+    // disable it with nothing on screen to explain why.
     else if (hasFailed)
       setError('handle', {
         type: 'unchecked',
@@ -113,8 +107,7 @@ const HandleField = ({ currentHandle, stem, onAvailabilityChange, autoFocus }: P
         label="Handle"
         isLabelIndicated
         value={handle ?? ''}
-        // Lowercased here as well as in the schema: the field shows what will be
-        // stored, rather than correcting it on submit.
+        // Lowercased here too, so the field shows what will be stored.
         onChangeText={(next) => setValue('handle', next.toLowerCase(), { shouldValidate: true })}
         placeholder="kathys-house"
         autoCapitalize="none"
@@ -168,8 +161,7 @@ const makeStyles = ({ spacing }: AppTheme) =>
       gap: spacing.two
     },
     statusIcon: {
-      // 12 rather than a spacing token, to sit the icon on the same inset as
-      // the field's own text.
+      // 12, not a token, to sit the icon on the field's own text inset.
       paddingRight: 12
     },
     suggestions: {

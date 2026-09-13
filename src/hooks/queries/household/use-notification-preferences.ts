@@ -6,7 +6,6 @@ import HouseholdService, { type AlertPreference } from '@/services/household.ser
 import { useAuthStore } from '@/stores/auth-store';
 import type { LeadMinutes } from '@/types/core';
 
-/** The signed-in member's own delivery preferences, for this household alone. */
 export function useNotificationPreferences(householdId: string | undefined) {
   const queryClient = useQueryClient();
   const { userId } = useAuthStore();

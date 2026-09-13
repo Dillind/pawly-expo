@@ -6,15 +6,13 @@ import { useStyles } from '@/hooks/use-styles';
 
 type Props = {
   size: number;
-  /** Overrides the default half-of-size glyph where a site was drawn to a different ratio. */
+  // Overrides the default half-of-size glyph where a site was drawn to a different ratio.
   iconSize?: number;
 };
 
-/**
- * A Household has no photo, so it is drawn as a paw on a filled circle. The
- * same mark at three sizes -- the filter sheet, the Following list and the
- * follow landing screen -- so it stays one mark when a Household gains a photo.
- */
+// A Household has no photo, so it is drawn as a paw on a filled circle. The same mark at three
+// sizes -- the filter sheet, the Following list and the follow landing screen -- so it stays
+// one mark when a Household gains a photo.
 const HouseholdCrest = ({ size, iconSize }: Props) => {
   const styles = useStyles(makeStyles);
 

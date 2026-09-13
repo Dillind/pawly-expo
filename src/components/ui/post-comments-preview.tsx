@@ -14,25 +14,18 @@ type Props = {
   onOpenThread: () => void;
 };
 
-/** Two is enough to show that a conversation exists without becoming one. */
+// Two is enough to show a conversation exists without becoming one.
 const PREVIEW = 2;
 
-/**
- * The first comments, on Post Detail. Together with the whole caption and the
- * full-screen photo, this is what makes the screen worth the tap -- without it
- * detail shows exactly what the card already showed.
- *
- * Replies are deliberately absent. The preview answers "is anyone talking about
- * this", and the Thread answers everything after that.
- */
+// Replies are deliberately absent: the preview answers "is anyone talking about
+// this", and the Thread answers everything after that.
 const PostCommentsPreview = ({ comments, count, onToggleLike, onOpenThread }: Props) => {
   const styles = useStyles(makeStyles);
 
   if (count === 0) return <CommentsLinkRow count={0} onPress={onOpenThread} />;
 
   const shown = comments.slice(0, PREVIEW);
-  // `count` counts replies too, and the preview lists none, so a post with one
-  // comment and one reply must still offer the way in.
+  // `count` includes replies, which the preview never lists.
   const hasMore = count > shown.length;
 
   return (

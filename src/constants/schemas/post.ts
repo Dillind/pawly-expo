@@ -4,14 +4,12 @@ export const TITLE_MAX = 80;
 
 export const CAPTION_MAX = 280;
 
-/** Also enforced in `assert_post_photo_paths`, which is the one that binds. */
+// Also enforced in `assert_post_photo_paths`, which is the one that binds.
 export const PHOTO_CAP = 10;
 
-/**
- * A photo in the composer is either already in the bucket or was just picked.
- * Both carry a `uri` so the strip renders them the same way; only the branch
- * decides whether saving has to upload anything.
- */
+// A photo in the composer is either already in the bucket or was just picked. Both carry a
+// `uri` so the strip renders them the same way; only the branch decides whether saving has to
+// upload anything.
 const postPhotoSchema = z.discriminatedUnion('kind', [
   z.object({
     kind: z.literal('existing'),

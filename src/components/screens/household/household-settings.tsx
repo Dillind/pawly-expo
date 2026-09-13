@@ -60,21 +60,18 @@ const HouseholdSettings = ({ householdId }: Props) => {
 
   const isOwner = household?.isOwner ?? false;
 
-  // Three states, three sentences. A bare switch cannot say that Listing
-  // governs discovery and never who gets in.
+  // A bare switch cannot say that Listing governs discovery, never access.
   const listedDescription = !household?.handle
     ? 'Set a handle first'
     : household.isListed
       ? 'Anyone can find your household by name or handle.'
       : 'Only people with your follow link can find you.';
 
-  // Every state renders inside the same scroll view. A bare ScreenView under a
-  // transparent header draws its content beneath the navigation bar.
+  // A bare ScreenView under a transparent header draws beneath the bar.
   const renderBody = () => {
     if (isLoading) return <ActivityIndicator style={styles.loading} />;
 
-    // A household the user has left is not a failed request, and the retry an
-    // ErrorState offers would never succeed.
+    // Not a failed request, so an ErrorState's retry would never succeed.
     if (isNotFound) {
       return (
         <ErrorState
@@ -110,7 +107,7 @@ const HouseholdSettings = ({ householdId }: Props) => {
               value={String(members.length)}
               onPress={() => router.push(`/profile/household/${householdId}/members`)}
             />
-            {/* Owner only. The select policy on household_follows is
+            {/* Owner only: the select policy on household_follows is
                 owner-or-self, so a Contributor reads no rows: they would see a
                 count of nothing and open a screen with nothing on it. Who
                 watches is the Owner's decision, and so is the list of them.
@@ -135,7 +132,7 @@ const HouseholdSettings = ({ householdId }: Props) => {
           </AppText>
         </View>
 
-        {/* Between People and Household: the sections run from the people
+        {/* Between People and Household, so the sections run from the people
             already inside, to the people outside, to the settings that are
             nobody else's business. */}
         <View style={styles.group}>
@@ -148,11 +145,11 @@ const HouseholdSettings = ({ householdId }: Props) => {
                 isOwner ? () => router.push(`/profile/household/${householdId}/handle`) : undefined
               }
             />
-            {/* ToggleSwitch brings no padding of its own -- its only other
+            {/* ToggleSwitch brings no padding of its own; its only other
                 caller supplies it from outside -- so the row gutter is set
                 here rather than by the component. */}
             <View style={styles.toggleRow}>
-              {/* isBusy, not isDisabled: two taps in quick succession are two
+              {/* isBusy, not isDisabled: two quick taps are two
                   writes with no ordering between them, so the one that commits
                   last decides -- and that can be the earlier tap. Refusing the
                   second tap is what stops it. Dimming the row instead would
@@ -224,7 +221,6 @@ const HouseholdSettings = ({ householdId }: Props) => {
         {renderBody()}
       </ScreenScrollView>
 
-      {/* Owner-only surfaces, so they are never presented without a household. */}
       {household && isOwner && (
         <>
           <RenameHouseholdSheet

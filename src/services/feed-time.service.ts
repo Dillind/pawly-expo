@@ -5,7 +5,7 @@ import type { FeedingScheduleLabel, Occurrence, OccurrenceStateValue } from '@/t
 
 export type PetPause = {
   id: string;
-  /** The raw Postgres daterange, e.g. "[2026-08-20,)". */
+  // The raw Postgres daterange, e.g. "[2026-08-20,)".
   during: string;
   reason: string | null;
 };
@@ -41,10 +41,7 @@ type OccurrenceRow = {
 };
 
 namespace FeedTimeService {
-  /**
-   * The versions that apply from tomorrow onwards — what the editor shows and
-   * edits. A version closed in the past is history and never appears here.
-   */
+  // A version closed in the past is history and never appears here.
   export async function list(petId: string): Promise<FeedTime[]> {
     const { data, error } = await supabase.rpc('pet_feed_times', { target_pet_id: petId });
 
@@ -53,10 +50,8 @@ namespace FeedTimeService {
     return (data as FeedTimeRow[]).map(mapFeedTimeRow);
   }
 
-  /**
-   * Never an update in place. The RPC closes the current version and opens a
-   * successor from tomorrow, so today keeps the times it was read with.
-   */
+  // Never an update in place: the RPC closes the current version and opens a
+  // successor from tomorrow, so today keeps the times it was read with.
   export async function saveFeedTime(
     petId: string,
     input: FeedTimeInput & { seriesId?: string }
@@ -79,7 +74,7 @@ namespace FeedTimeService {
     return data as string;
   }
 
-  /** Closes the range. Past days keep the feed, so their history stays true. */
+  // Closes the range. Past days keep the feed, so their history stays true.
   export async function endFeedTime(petId: string, seriesId: string): Promise<void> {
     const { error } = await supabase.rpc('end_feed_time', {
       target_pet_id: petId,
@@ -89,10 +84,8 @@ namespace FeedTimeService {
     if (error) throw error;
   }
 
-  /**
-   * The pause covering today, if there is one. A pause is a date range, so
-   * "paused" is a question about a day rather than a flag on the pet.
-   */
+  // A pause is a date range, so "paused" is a question about a day rather than
+  // a flag on the pet.
   export async function currentPause(petId: string, date: string): Promise<PetPause | null> {
     const { data, error } = await supabase
       .from('pet_pauses')
@@ -109,7 +102,6 @@ namespace FeedTimeService {
     return { id: row.id, during: row.during, reason: row.reason };
   }
 
-  /** Open-ended: paused from today until someone resumes. */
   export async function pause(petId: string, reason?: string | null): Promise<void> {
     const { error } = await supabase.rpc('pause_pet', {
       target_pet_id: petId,
@@ -119,17 +111,14 @@ namespace FeedTimeService {
     if (error) throw error;
   }
 
-  /**
-   * Closes the pause rather than deleting it. A deleted pause would make the
-   * days it covered start expecting feeds again — the same history rewrite
-   * versioning exists to prevent.
-   */
+  // Closes the pause rather than deleting it: a deleted pause makes the days it
+  // covered expect feeds again.
   export async function resume(petId: string): Promise<void> {
     const { error } = await supabase.rpc('resume_pet', { target_pet_id: petId });
     if (error) throw error;
   }
 
-  /** `date` is an ISO YYYY-MM-DD string in the household's timezone. */
+  // `date` is an ISO YYYY-MM-DD string in the household's timezone.
   export async function getOccurrences(petId: string, date: string): Promise<Occurrence[]> {
     const { data, error } = await supabase.rpc('pet_occurrence_states', {
       target_pet_id: petId,

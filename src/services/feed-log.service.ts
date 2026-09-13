@@ -2,8 +2,7 @@ import { assertWrote } from '@/lib/supabase/assert-wrote';
 import { supabase } from '@/lib/supabase/client';
 import type { FeedingScheduleLabel, FeedLog } from '@/types/core';
 
-// feed_logs.logged_by references public.users, so PostgREST can embed the
-// author directly. It is null when the author deleted their account.
+// Null when the author deleted their account.
 const FEED_LOG_SELECT =
   'id, pet_id, logged_by, logged_at, notes, created_at, users(first_name, last_name)';
 
@@ -42,11 +41,8 @@ function mapFeedLogRow(row: FeedLogRow): FeedLog {
   };
 }
 
-/**
- * The RPC returns jsonb, which supabase-js hands back as `any`. Mapped here so
- * exactly one place knows the wire shape, and an unrecognised status fails
- * loudly instead of rendering an empty warning.
- */
+// The RPC returns jsonb, which supabase-js hands back as `any`. Mapped here so
+// one place knows the wire shape and an unknown status fails loudly.
 function mapLogFeedResult(data: unknown): LogFeedResult {
   const payload = data as {
     status?: string;
@@ -92,17 +88,9 @@ namespace FeedLogService {
     return mapFeedLogRow(data as unknown as FeedLogRow);
   }
 
-  /**
-   * The only write path for a feed log. `log_feed` decides and inserts in one
-   * transaction, so two members logging the same occurrence at the same moment
-   * cannot both be told there is no double feed.
-   *
-   * Omit `seriesId`/`occurrenceDate` for an Extra Feed, which satisfies nothing.
-   *
-   * A `double_feed` result means nothing was written. Calling again with
-   * `confirmed: true` writes it as an Extra Feed — the occurrence is already
-   * satisfied, so the second feed cannot satisfy it again.
-   */
+  // The only write path for a feed log: the check and the insert share one
+  // transaction. A `double_feed` result means nothing was written; call again
+  // with `confirmed: true` to write it as an Extra Feed.
   export async function log(
     petId: string,
     input: {
@@ -127,11 +115,8 @@ namespace FeedLogService {
     return mapLogFeedResult(data);
   }
 
-  /**
-   * Only the keys actually passed are written. The correction sheet relies on
-   * this: a notes-only edit must never touch logged_at, even by re-writing its
-   * current value.
-   */
+  // Only the keys passed are written: a notes-only edit must not touch
+  // logged_at, even by re-writing its current value.
   export async function update(input: {
     logId: string;
     loggedAt?: string;

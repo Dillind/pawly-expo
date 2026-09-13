@@ -8,7 +8,7 @@ import { useStyles } from '@/hooks/use-styles';
 import FieldError from '@/lib/form/components/field-error';
 import { hapticSelection } from '@/lib/haptics';
 
-/** Sunday first, matching Postgres `extract(dow ...)`, but shown Monday first. */
+// Sunday first, matching Postgres `extract(dow ...)`, but shown Monday first.
 const DAYS = [
   { value: 1, initial: 'M', name: 'Monday' },
   { value: 2, initial: 'T', name: 'Tuesday' },

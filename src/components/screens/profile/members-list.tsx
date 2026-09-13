@@ -56,9 +56,8 @@ const MembersList = ({ householdId }: Props) => {
   );
   const { mutate: revokeInvite } = useRevokeInvite(householdId);
 
-  // Grouped by role, and within a group the signed-in member comes first --
-  // "who am I here, and who else is" is the question this screen answers, and
-  // hunting for your own row is the slow way to answer it.
+  // The signed-in member leads their group: this screen answers "who am I
+  // here, and who else is".
   const byRole = (role: HouseholdRole) =>
     members
       .filter((member) => member.role === role)
@@ -74,8 +73,7 @@ const MembersList = ({ householdId }: Props) => {
 
   const isOwner = household?.isOwner ?? false;
   const ownerCount = owners.length;
-  // The last owner cannot leave: nobody would be left who could rename the
-  // household, add a pet or invite anyone.
+  // The last owner cannot leave: nobody would be left who could invite.
   const isLastOwner = isOwner && ownerCount <= 1;
 
   const openInvite = (invite: PendingInvite) => {
@@ -106,9 +104,8 @@ const MembersList = ({ householdId }: Props) => {
                 text: 'Choose someone',
                 onPress: () => {
                   setActiveMember(promotable);
-                  // A sheet raised while the alert is still dismissing gets
-                  // swallowed by UIKit -- the same conflict the Popovers rule
-                  // warns about.
+                  // A sheet raised while the alert dismisses is swallowed by
+                  // UIKit.
                   InteractionManager.runAfterInteractions(() => {
                     void actionsSheetRef.current?.present();
                   });
@@ -125,8 +122,8 @@ const MembersList = ({ householdId }: Props) => {
       {
         text: 'Leave',
         style: 'destructive',
-        // The hook cannot navigate, and this screen sits under the household
-        // the user has just left -- popping back would land on it.
+        // This screen sits under the household just left, so popping back
+        // would land on it.
         onPress: () =>
           leaveHousehold(undefined, {
             onSuccess: (status) => {
@@ -164,7 +161,7 @@ const MembersList = ({ householdId }: Props) => {
           avatarUrl={member.avatarUrl}
           size={AVATAR_SIZE}
         />
-        {/* No role on the row: the section heading above already says it, and
+        {/* No role on the row: the section heading says it, and
             repeating it on every line is noise. */}
         <AppText size={16} style={styles.name} numberOfLines={1}>
           {fullName(member) || 'Member'}
@@ -175,8 +172,7 @@ const MembersList = ({ householdId }: Props) => {
       </View>
     );
 
-    // Only an owner acts on someone else. Acting on yourself is leaving, which
-    // is its own row below.
+    // Acting on yourself is leaving, which is its own row below.
     if (!isOwner || isSelf) return <View key={member.userId}>{row}</View>;
 
     return (

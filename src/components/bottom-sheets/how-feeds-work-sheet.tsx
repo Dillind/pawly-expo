@@ -33,10 +33,8 @@ const POINTS: { icon: IconName; title: string; detail: string }[] = [
   }
 ];
 
-/**
- * Reachable, never a gate. Nothing in the app waits on someone reading this,
- * which is why it is a sheet raised from the pet screen rather than a tour.
- */
+// Reachable, never a gate. Nothing in the app waits on someone reading this, which is why it is
+// a sheet raised from the pet screen rather than a tour.
 const HowFeedsWorkSheet = ({ sheetRef }: { sheetRef: RefObject<TrueSheet | null> }) => {
   const styles = useStyles(makeStyles);
 

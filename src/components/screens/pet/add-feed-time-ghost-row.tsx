@@ -8,10 +8,8 @@ import { useStyles } from '@/hooks/use-styles';
 
 const WELL_SIZE = 32;
 
-/**
- * Dashed and unfilled, the same offer the "Add a pet" row makes. It sits under
- * the real feed times and must read as quieter than any of them.
- */
+// Dashed and unfilled, the same offer the "Add a pet" row makes. It sits under the real feed
+// times and must read as quieter than any of them.
 const AddFeedTimeGhostRow = ({ onPress }: { onPress: () => void }) => {
   const styles = useStyles(makeStyles);
 

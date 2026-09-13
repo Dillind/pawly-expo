@@ -15,7 +15,8 @@ const invalidateCover = (queryClient: ReturnType<typeof useQueryClient>, petId: 
   void queryClient.invalidateQueries({ queryKey: ['households'] });
 };
 
-/** Sequential: `add_pet_photo` derives `sort_order` from existing rows, so concurrent calls race. */
+// Sequential: `add_pet_photo` derives `sort_order` from existing rows, so concurrent calls
+// race.
 export function useAddPetPhotos(petId: string) {
   const queryClient = useQueryClient();
   const { userId } = useAuthStore();
@@ -65,11 +66,8 @@ export function useDeletePetPhoto(petId: string) {
   });
 }
 
-/**
- * Replaces the pet's profile photo. This writes `pets.photo_url` only — the
- * cover is a single image, deliberately not a gallery row, which is the same
- * shape onboarding sets it in.
- */
+// Replaces the pet's profile photo. This writes `pets.photo_url` only — the cover is a single
+// image, deliberately not a gallery row, which is the same shape onboarding sets it in.
 export function useChangePetPhoto(petId: string) {
   const queryClient = useQueryClient();
   const { userId } = useAuthStore();

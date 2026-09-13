@@ -12,7 +12,6 @@ import { showErrorToast } from '@/lib/toast';
 type Props = {
   sheetRef: RefObject<TrueSheet | null>;
   title?: string;
-  /** Set to open the library in multi-select. Omit for the single picker, which crops to a square. */
   selectionLimit?: number;
   onPicked: (uris: string[]) => void;
 };

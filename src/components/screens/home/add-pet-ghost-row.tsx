@@ -9,10 +9,8 @@ import { useStyles } from '@/hooks/use-styles';
 
 const AVATAR_SIZE = 48;
 
-/**
- * Dashed and unfilled, deliberately quieter than a real pet. It reads as an
- * offer rather than as a pet nobody has finished setting up.
- */
+// Dashed and unfilled, deliberately quieter than a real pet. It reads as an offer rather than
+// as a pet nobody has finished setting up.
 const AddPetGhostRow = () => {
   const styles = useStyles(makeStyles);
 

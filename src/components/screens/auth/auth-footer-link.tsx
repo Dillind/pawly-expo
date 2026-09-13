@@ -11,8 +11,8 @@ type Props = {
   linkText: string;
   href: Href;
   isReplace?: boolean;
-  /** Pops back to `href` when it is already in the stack, so the animation
-   *  reverses rather than pushing a second copy of a screen already below. */
+  // Pops back to `href` when it is already in the stack, so the animation reverses rather than
+  // pushing a second copy of a screen already below.
   isDismissTo?: boolean;
 };
 

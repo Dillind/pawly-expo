@@ -19,22 +19,20 @@ import type { ReminderKind, ReminderOccurrence } from '@/types/core';
 
 type Props = {
   reminder: ReminderOccurrence;
-  /** The occurrence's date, for a row that is not today's. Omit and the row carries none. */
+  // The occurrence's date, for a row that is not today's.
   dateLabel?: string;
   isTicking?: boolean;
   onTick?: () => void;
 };
 
-// The Kind's colour, on trial. See DECISIONS.md -- reverting means deleting
-// this map and the four tokens it names.
+// The Kind's colour, on trial. See DECISIONS.md.
 const KIND_COLOUR = {
   feed: 'text',
   medication: 'medication',
   vet: 'vet'
 } as const;
 
-// The same motion as a logged feed, because it is the same row. Change both or
-// neither -- the reference is src/components/ui/occurrence-row.tsx.
+// The same motion as occurrence-row.tsx. Change both or neither.
 const RowReflow = LinearTransition.duration(Duration.reflow).reduceMotion(ReduceMotion.System);
 
 const TickIn = new Keyframe({
@@ -107,10 +105,8 @@ const ReminderRow = ({ reminder, dateLabel, isTicking = false, onTick }: Props) 
     </>
   );
 
-  // A done row is tappable as a whole, which is the only way back: unticking is
-  // a delete, and there is no chip left to press. An undone row's action is the
-  // Done chip, and a row that is both tappable and holds a button is the
-  // ambiguous target OccurrenceRow already warns about.
+  // A done row is tappable as a whole, which is the only way back: there is no
+  // chip left to press.
   if (isDone && onTick) {
     return (
       <PressableOpacity

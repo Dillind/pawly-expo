@@ -18,17 +18,9 @@ type Props = {
   size?: number;
 };
 
-/**
- * Four small skies, not four icons.
- *
- * One horizon runs through the three lit states and the light sits at a
- * different height against it, so the mark tells the hour by position rather
- * than by colour alone. Night drops the horizon: at night the ground is gone
- * and the moon carries the frame on its own.
- *
- * The values are tuned per state rather than themed. The mark belongs to the
- * gradient behind it, so it does not follow light or dark mode.
- */
+// The light sits at a different height against one horizon, so the mark tells
+// the hour by position, not colour alone. Tuned per state, never themed: it
+// belongs to the gradient behind it.
 const MARKS = {
   dawn: { bloom: '#F0A81C', rim: '#FFE3B0', core: '#F7B646', land: '#E5A86A' },
   day: { bloom: '#F0A81C', rim: '#FFF0BE', core: '#EFA219', land: '#E9BC8A' },
@@ -36,7 +28,7 @@ const MARKS = {
   night: { bloom: '#B9AEE8', rim: '#FFFFFF', core: '#E8E4F6', land: '#000000' }
 } as const;
 
-/** A four-point star. Round dots read as dust; points read as a night sky. */
+// Round dots read as dust; points read as a night sky.
 const SPARKLE = 'M0,-1 Q0.16,-0.16 1,0 Q0.16,0.16 0,1 Q-0.16,0.16 -1,0 Q-0.16,-0.16 0,-1 Z';
 
 type StarProps = { x: number; y: number; r: number; fill: string; opacity: number };
@@ -49,8 +41,7 @@ const BannerSun = ({ part, size = 76 }: Props) => {
   const mark = MARKS[part];
   const isNight = part === 'night';
 
-  // Where the light sits against the horizon, which is the whole point of the
-  // mark. Dawn climbs out of it, day clears it, dusk sinks back into it.
+  // Where the light sits against the horizon, which is the point of the mark.
   const sun = {
     dawn: { cy: 64, r: 21 },
     day: { cy: 43, r: 20 },
@@ -71,7 +62,7 @@ const BannerSun = ({ part, size = 76 }: Props) => {
           <Stop offset="0.5" stopColor={mark.core} />
           <Stop offset="1" stopColor={mark.core} />
         </RadialGradient>
-        {/* The horizon has no ends. It fades out before it reaches the edge of
+        {/* No ends: it fades out before it reaches the edge of
             the box, so the line reads as distance rather than as a rule. */}
         <LinearGradient id="land" x1="0" y1="0" x2="1" y2="0">
           <Stop offset="0" stopColor={mark.land} stopOpacity="0" />

@@ -5,11 +5,7 @@ export type CareCardField = keyof CareCardInput;
 
 export type CareCardSection = {
   id: string;
-  /**
-   * Named after the situation the sitter is in, not the columns underneath.
-   * An owner filling in "If something goes wrong" is being told what a sitter
-   * will need; one filling in "Vet details" is being told to do data entry.
-   */
+  // Named after the situation the sitter is in, not the columns underneath.
   title: string;
   blurb: string;
   fields: CareCardField[];
@@ -31,8 +27,7 @@ export const CARE_CARD_FIELD_LABELS: Record<CareCardField, string> = {
   notes: 'Notes'
 };
 
-// An example beats an instruction: the placeholder shows the shape of a good
-// answer, which is what a Contributor reading this in a hurry needs.
+// An example beats an instruction: the placeholder shows a good answer.
 export const CARE_CARD_FIELD_PLACEHOLDERS: Record<CareCardField, string> = {
   allergies: 'Chicken, and grass seeds in summer',
   behaviourNotes: 'Bolts at the front door. Hides in the bath during thunder.',
@@ -102,7 +97,6 @@ export const CARE_CARD_SECTIONS: CareCardSection[] = [
   }
 ];
 
-/** Every field, in the order the sections present them. */
 export const CARE_CARD_FIELDS: CareCardField[] = CARE_CARD_SECTIONS.flatMap(
   (section) => section.fields
 );
@@ -119,9 +113,8 @@ const sectionStep = (id: string): CareCardStep => {
   return { kind: 'section', id: section.id, title: section.title, section };
 };
 
-/** The editor's order, not the printed one: an owner fills in the easy things first. */
+// The editor's order, not the printed one: the easy things come first.
 export const CARE_CARD_STEPS: CareCardStep[] = [
-  // Its own kind: a contacts list rather than card fields.
   { kind: 'reaching-you', id: 'reaching-you', title: 'Reaching you' },
   sectionStep('emergency'),
   sectionStep('watch-for'),
@@ -133,10 +126,8 @@ export const CARE_CARD_STEPS: CareCardStep[] = [
   { kind: 'review', id: 'review', title: 'Ready to hand over' }
 ];
 
-/**
- * A pet with no Care Card row yet reads the same as one whose fields are all
- * blank, so nothing downstream has to branch on null.
- */
+// A pet with no Care Card row reads the same as one with blank fields, so
+// nothing downstream branches on null.
 export const emptyCareCard = (petId: string): CareCard => ({
   petId,
   updatedAt: null,

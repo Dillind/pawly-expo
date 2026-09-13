@@ -7,10 +7,8 @@ export type PetPhoto = { id: string; url: string; sortOrder: number };
 
 const BUCKET = 'pet-photos';
 
-/**
- * A public URL is `.../object/public/pet-photos/<path>`. Returns null for
- * anything that is not one of ours, so a hand-set or external URL is left alone.
- */
+// Returns null for anything that is not ours, so an external URL is left
+// alone.
 const storagePathFromPublicUrl = (url: string | null): string | null => {
   if (!url) return null;
 
@@ -70,8 +68,8 @@ namespace PetPhotoService {
   }
 
   export async function remove(params: { photoId: string; photoUrl: string }): Promise<void> {
-    // The RPC returns the row's storage_path. Trust that over anything the
-    // client is holding: it is read inside the same transaction as the delete.
+    // Trust the RPC's path over the client's: it is read inside the same
+    // transaction as the delete.
     const { data: storagePath, error: deleteRowError } = await supabase.rpc('delete_pet_photo', {
       p_photo_id: params.photoId,
       p_photo_url: params.photoUrl
@@ -98,11 +96,8 @@ namespace PetPhotoService {
     return supabase.storage.from(BUCKET).getPublicUrl(path).data.publicUrl;
   }
 
-  /**
-   * Best effort by design: a member who did not upload the old file cannot
-   * delete it under the storage policy, and failing the whole photo change over
-   * a leftover object would be worse than the leftover.
-   */
+  // Best effort: a member who did not upload the old file cannot delete it
+  // under the storage policy.
   export async function removeByPublicUrl(url: string | null): Promise<void> {
     const path = storagePathFromPublicUrl(url);
     if (!path) return;

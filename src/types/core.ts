@@ -35,7 +35,7 @@ export type UserProfile = {
   id: string;
   firstName: string | null;
   lastName: string | null;
-  /** Null only while a seeded handle has not been written -- see CRU-125. */
+  // Null only while a seeded handle has not been written. See CRU-125.
   avatarUrl: string | null;
 };
 
@@ -49,9 +49,9 @@ export type HouseholdRole = 'owner' | 'contributor';
 export type Household = {
   id: string;
   name: string;
-  /** Null until an Owner sets one. Read as `@kathys-house`; stored without the @. */
+  // Read as `@kathys-house`; stored without the @.
   handle: string | null;
-  /** Whether the Household appears in search. Never who may follow it. */
+  // Whether it appears in search. Never who may follow it.
   isListed: boolean;
   timezone: string;
   graceWindowMinutes: number;
@@ -59,11 +59,8 @@ export type Household = {
   isOwner: boolean;
 };
 
-/**
- * A household plus the pets that identify it. Every household defaults to
- * `<Name>'s Household`, so two rows in the switcher can read almost the same --
- * the pets are what make one recognisable.
- */
+// Every household defaults to `<Name>'s Household`, so two switcher rows read
+// almost the same. The pets are what make one recognisable.
 export type HouseholdSummary = Household & { pets: Pet[] };
 
 export type Option<T = string> = {
@@ -71,7 +68,7 @@ export type Option<T = string> = {
   label: string;
 };
 
-/** Lead Time: how long before a feed a Member is nudged. Mirrors the check constraint. */
+// Mirrors the check constraint on the column.
 export type LeadMinutes = 10 | 15 | 30 | 60;
 
 export type PetSex = 'male' | 'female';
@@ -88,7 +85,6 @@ export type HouseholdMember = {
   firstName: string | null;
   lastName: string | null;
   avatarUrl: string | null;
-  /** Whether this member has opted in to being told when a feed is logged. */
   feedLoggedAlerts: boolean;
 };
 
@@ -96,26 +92,19 @@ export type OccurrenceStateValue = 'fed' | 'due' | 'missed' | 'upcoming';
 
 export type FeedingScheduleLabel = 'morning' | 'lunch' | 'dinner' | 'custom';
 
-/**
- * Deliberately three. More species are expected — adding one is
- * `alter type ... add value`, which cannot share a transaction with other DDL,
- * so it needs a migration of its own.
- */
+// Adding a species is `alter type ... add value`, which cannot share a
+// transaction with other DDL, so it needs a migration of its own.
 export type PetType = 'dog' | 'cat' | 'other';
 
-/** Whether a birthdate is exact or a rough guess. Stored as birthdate_is_approximate. */
 export type AgeMode = 'birthdate' | 'approximate';
 
-/**
- * One expected feed on one local day. `seriesId` and `occurrenceDate` together
- * name it, and a feed log carries the same pair — which is what makes a Double
- * Feed a fact rather than a guess.
- */
+// A feed log carries the same `seriesId` and `occurrenceDate` pair, which is
+// what makes a Double Feed a fact rather than a guess.
 export type Occurrence = {
   seriesId: string;
-  /** ISO YYYY-MM-DD in the household's timezone. */
+  // ISO YYYY-MM-DD in the household's timezone.
   occurrenceDate: string;
-  /** Postgres `time`, e.g. "07:00:00". */
+  // Postgres `time`, e.g. "07:00:00".
   localTime: string;
   label: FeedingScheduleLabel;
   instructions: string | null;
@@ -141,7 +130,7 @@ export type FeedLog = {
   author: FeedLogAuthor | null;
 };
 
-/** What the Member chose on Profile, as opposed to the scheme it resolves to. */
+// What the Member chose, as opposed to the scheme it resolves to.
 export type ThemePreference = ThemeMode | 'system';
 
 export type ReminderKind = 'feed' | 'medication' | 'vet';
@@ -149,7 +138,7 @@ export type ReminderRepeat = 'once' | 'weekly' | 'monthly';
 export type ReminderLeadDays = 1 | 2 | 3;
 export type ReminderStateValue = 'due' | 'done' | 'future' | 'missed';
 
-/** One Reminder on one date. The rule itself is never rendered. */
+// One Reminder on one date. The rule itself is never rendered.
 export type ReminderOccurrence = {
   reminderId: string;
   occurrenceDate: string;

@@ -15,13 +15,11 @@ type Props<T extends string | number> = {
   options: Option<T>[];
   selected: T | undefined;
   onSelect: (value: T) => void;
-  /** Optional per-option glyph. Omit for a plain list. */
   iconFor?: (value: T) => IconName;
-  /** Long lists need to scroll; a handful of options should size to content. */
+  // Long lists need to scroll; a handful of options should size to content.
   isScrollable?: boolean;
 };
 
-/** Pick one of a fixed set. Dismisses itself on selection. */
 const OptionSheet = <T extends string | number>({
   sheetRef,
   title,

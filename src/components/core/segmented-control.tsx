@@ -23,10 +23,7 @@ type Option<T> = {
 
 type Props<T extends string> = {
   label?: string;
-  /**
-   * The field this control stands for. Without it the control cannot render its
-   * own error — the same rule the other validated inputs follow.
-   */
+  // Without it the control cannot render its own error.
   name?: string;
   options: Option<T>[];
   value: T;
@@ -36,8 +33,7 @@ type Props<T extends string> = {
 const TrackPadding = Spacing.one;
 const SegmentGap = Spacing.one;
 
-// Apple's two designer parameters, which is the form Reanimated takes
-// directly. Critically damped: a segment thumb must not overshoot its track.
+// Critically damped: a segment thumb must not overshoot its track.
 const ThumbSpring = {
   duration: 400,
   dampingRatio: 1,
@@ -56,12 +52,11 @@ const SegmentedControl = <T extends string>({
   const [trackWidth, setTrackWidth] = useState(0);
 
   const translateX = useSharedValue(0);
-  // The thumb must appear under the initial selection, not slide to it on mount.
+  // The thumb appears under the initial selection, never slides to it.
   const hasSettled = useSharedValue(false);
 
-  // -1 is a real answer, not a number to clamp away: a required field whose
-  // value is still unset must not paint a thumb under the first option and
-  // read as already chosen.
+  // -1 is a real answer: an unset required field must not paint a thumb under
+  // the first option and read as already chosen.
   const selectedIndex = options.findIndex((option) => option.value === value);
   const hasSelection = selectedIndex >= 0;
 
@@ -74,8 +69,7 @@ const SegmentedControl = <T extends string>({
 
     const target = selectedIndex * (segmentWidth + SegmentGap);
 
-    // An unset control has no thumb, so the first selection places it rather
-    // than sliding it in from the left.
+    // The first selection places the thumb rather than sliding it in.
     if (hasSettled.get()) {
       translateX.set(withSpring(target, ThumbSpring));
     } else {

@@ -12,12 +12,12 @@ import { useStyles } from '@/hooks/use-styles';
 import type { FollowRelationship, HouseholdSearchResult } from '@/services/follow.service';
 import { countDigits } from '@/utils/counts';
 
-/** The row's crest, exported so the list can inset its dividers to match. */
+// Exported so the list can inset its dividers to match.
 export const SEARCH_ROW_CREST = 40;
 
 type Props = {
   household: HouseholdSearchResult;
-  /** The row answers a term the person has already typed past. See the list. */
+  // The row answers a term already typed past. See the list.
   isStale: boolean;
 };
 
@@ -27,10 +27,7 @@ type ButtonState = {
   hasTick: boolean;
 };
 
-/**
- * The button reports where the viewer stands rather than repeating the offer,
- * so only 'none' is pressable. A member gets no button at all.
- */
+// The button reports where the viewer stands, so only 'none' is pressable.
 const BUTTON_STATES: Partial<Record<FollowRelationship, ButtonState>> = {
   none: { text: 'Follow', variant: 'primary', hasTick: false },
   pending: { text: 'Requested', variant: 'secondary', hasTick: false },
@@ -40,8 +37,7 @@ const BUTTON_STATES: Partial<Record<FollowRelationship, ButtonState>> = {
 const HouseholdSearchRow = ({ household, isStale }: Props) => {
   const styles = useStyles(makeStyles);
 
-  // The row owns its own mutation. A single one hoisted to the list would need
-  // the pressed household threaded back down, and would spin every button.
+  // One mutation hoisted to the list would spin every button.
   const { mutate: requestFollow, isPending: isRequesting } = useRequestFollow(
     household.householdId
   );
@@ -50,7 +46,7 @@ const HouseholdSearchRow = ({ household, isStale }: Props) => {
 
   return (
     <View style={styles.row}>
-      {/* The Link wraps the identity only. The button sits outside it, so the
+      {/* The Link wraps the identity only, so the button outside it
           two press targets never compete for the same touch. */}
       <Link
         href={{ pathname: '/follow/[householdId]', params: { householdId: household.householdId } }}
@@ -113,9 +109,8 @@ const makeStyles = ({ spacing }: AppTheme) =>
       flex: 1,
       gap: spacing.half
     },
-    // MainButton is built full-width and carries alignSelf: 'stretch'. A child's
-    // alignSelf beats the row's alignItems, so with its fixed height the button
-    // pins to the top of the row instead of centring on the text.
+    // MainButton carries alignSelf: 'stretch', which beats the row's alignItems
+    // and pins the button to the top instead of centring it.
     action: {
       alignSelf: 'center'
     }

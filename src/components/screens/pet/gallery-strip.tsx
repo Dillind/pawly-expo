@@ -118,7 +118,7 @@ const GalleryStrip = ({ petId }: Props) => {
     deletePhoto({ photoId: photo.id, photoUrl: photo.url });
   };
 
-  /** Native alert, not a sheet: delete is one tap from the badge, and a sheet fights the jiggle. */
+  // Native alert, not a sheet: delete is one tap from the badge, and a sheet fights the jiggle.
   const confirmRemove = (photo: PetPhoto) => {
     Alert.alert('Delete this photo?', 'This cannot be undone.', [
       { text: 'Cancel', style: 'cancel' },

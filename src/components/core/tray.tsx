@@ -16,7 +16,6 @@ import TrayStep from '@/components/core/tray-step';
 export type TrayStepDescriptor = {
   id: string;
   title: string;
-  /** Replaces the title text in the header. `title` is still what assistive tech reads. */
   header?: () => ReactNode;
   render: () => ReactNode;
 };
@@ -38,11 +37,10 @@ export const useTray = (): TrayControls => {
 type Props = {
   sheetRef: RefObject<TrueSheet | null>;
   steps: TrayStepDescriptor[];
-  /** Opens on this step instead of the first one. It is then the tray's first
-   * step, so it shows a close button rather than a back arrow. */
+  // Opens on this step instead of the first one. It is then the tray's first step, so it shows
+  // a close button rather than a back arrow.
   initialStepId?: string;
   onDismiss?: () => void;
-  /** Renders inside the context but outside the sheet — navigation effects only. */
   children?: ReactNode;
 };
 

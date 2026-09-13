@@ -29,12 +29,9 @@ type Props = {
   onRemove?: () => void;
 };
 
-/**
- * One feed's whole definition — which feed, what time, which days, what the pet
- * gets. Shared by the pet screen, where it is raised as a sheet, and the
- * add-pet flow, where it is a pushed screen. Same content either way, which is
- * why the form owns no presentation.
- */
+// One feed's whole definition — which feed, what time, which days, what the pet gets. Shared by
+// the pet screen, where it is raised as a sheet, and the add-pet flow, where it is a pushed
+// screen. Same content either way, which is why the form owns no presentation.
 const FeedTimeForm = ({ feedTime, isSaving, isRemoving = false, onSubmit, onRemove }: Props) => {
   const styles = useStyles(makeStyles);
   const labelSheetRef = useRef<TrueSheet | null>(null);

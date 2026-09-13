@@ -17,8 +17,7 @@ export type CareCard = {
   walkRoutine: string | null;
   whereThingsAre: string | null;
   notes: string | null;
-  /** Kept fresh by the `care_cards_set_updated_at` trigger. Null on a Pet
-   * whose card has never been saved. */
+  // Kept fresh by the `care_cards_set_updated_at` trigger.
   updatedAt: string | null;
 };
 
@@ -31,7 +30,7 @@ export type CareCardContact = {
   createdAt: string;
 };
 
-/** A Care Card holds at most three, enforced in the UI and by a trigger. */
+// At most three, enforced in the UI and by a trigger.
 export const MAX_CARE_CARD_CONTACTS = 3;
 
 export type Medication = {
@@ -98,8 +97,7 @@ namespace CareCardService {
       .from('care_card_contacts')
       .select('id, pet_id, name, phone, sort_order, created_at')
       .eq('pet_id', petId)
-      // sort_order alone is not unique, so created_at breaks the tie
-      // deterministically -- same reasoning as medications.
+      // sort_order is not unique, so created_at breaks the tie.
       .order('sort_order', { ascending: true })
       .order('created_at', { ascending: true });
 
@@ -133,8 +131,8 @@ namespace CareCardService {
       return;
     }
 
-    // New contacts need a deterministic, increasing sort_order -- the column
-    // defaults to 0, and with two rows at 0 Postgres guarantees no ordering.
+    // The column defaults to 0, and Postgres guarantees no ordering between
+    // two rows at 0.
     const { data: maxRow, error: maxError } = await supabase
       .from('care_card_contacts')
       .select('sort_order')
@@ -160,9 +158,7 @@ namespace CareCardService {
       .from('care_card_medications')
       .select('id, pet_id, name, dose, schedule_text, instructions, sort_order, created_at')
       .eq('pet_id', petId)
-      // sort_order alone is not unique (every row defaults to 0), so Postgres
-      // makes no ordering guarantee between ties -- created_at breaks the tie
-      // deterministically.
+      // sort_order is not unique, so created_at breaks the tie.
       .order('sort_order', { ascending: true })
       .order('created_at', { ascending: true });
 
@@ -180,11 +176,8 @@ namespace CareCardService {
     }));
   }
 
-  /**
-   * Only the edited fields are written -- an upsert built from a full in-memory
-   * snapshot would clobber a concurrent edit to a different field made by
-   * another household member while this sheet was open.
-   */
+  // Only edited fields are written: an upsert from a full snapshot clobbers
+  // another member's concurrent edit to a different field.
   export async function upsertCard(petId: string, patch: Partial<CareCardInput>): Promise<void> {
     const row: Record<string, string | null> = { pet_id: petId };
     for (const key of Object.keys(patch) as (keyof CareCardInput)[]) {
@@ -201,9 +194,8 @@ namespace CareCardService {
   ): Promise<void> {
     let sortOrder = input.sortOrder;
 
-    // New medications need a deterministic, increasing sort_order -- the column
-    // defaults to 0, and with two or more rows at 0 Postgres makes no ordering
-    // guarantee at all.
+    // The column defaults to 0, and Postgres guarantees no ordering between
+    // two rows at 0.
     if (!input.id && sortOrder === undefined) {
       const { data: maxRow, error: maxError } = await supabase
         .from('care_card_medications')

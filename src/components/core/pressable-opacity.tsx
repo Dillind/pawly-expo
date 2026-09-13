@@ -5,10 +5,8 @@ import { APP_ACTIVE_OPACITY } from '@/constants/primitives';
 
 type Props = {
   style?: StyleProp<ViewStyle>;
-  /**
-   * The default 10% fade is invisible on anything as small as a single icon.
-   * `ICON_ACTIVE_OPACITY` is the value for those.
-   */
+  // The default 10% fade is invisible on anything as small as a single icon.
+  // `ICON_ACTIVE_OPACITY` is the value for those.
   activeOpacity?: number;
   children: React.ReactNode;
 } & PressableProps;

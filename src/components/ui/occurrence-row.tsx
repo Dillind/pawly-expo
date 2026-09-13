@@ -21,9 +21,7 @@ type Props = {
   timezone: string;
   fedBy: string;
   isLogging?: boolean;
-  /** Inside a card already. Drops its own fill so the two do not stack. */
   isNested?: boolean;
-  /** Tapping a logged row opens it for correction. */
   onOpenLog?: () => void;
   onLog?: () => void;
 };
@@ -37,8 +35,7 @@ const labelText: Record<FeedingScheduleLabel, string> = {
 
 const SlotReflow = LinearTransition.duration(Duration.reflow).reduceMotion(ReduceMotion.System);
 
-// Not ZoomIn: it starts at scale 0, and nothing appears from nothing. The
-// overshoot is the spring's, not a keyframe's -- see issue #122.
+// Not ZoomIn: it starts at scale 0, and nothing appears from nothing.
 const TickIn = new Keyframe({
   0: { opacity: 0, transform: [{ scale: 0.9 }] },
   45: {
@@ -50,12 +47,11 @@ const TickIn = new Keyframe({
   100: { opacity: 1, transform: [{ scale: 1 }] }
 })
   .duration(Duration.quick)
-  // Waits for the Log button to leave. Overlapping the two crossfades them in
-  // the same spot, and the tick reads as a smear across the pill.
+  // Overlapping the two crossfades them in one spot and reads as a smear.
   .delay(Duration.exit)
   .reduceMotion(ReduceMotion.System);
 
-// Scales down as it fades, so the chip reads as leaving rather than dimming.
+// Scales down as it fades, so the chip leaves rather than dims.
 const SlotOut = new Keyframe({
   0: { opacity: 1, transform: [{ scale: 1 }] },
   100: { opacity: 0, transform: [{ scale: 0.9 }] }
@@ -76,9 +72,8 @@ const OccurrenceRow = ({
   const styles = useStyles(makeStyles);
   const isFed = occurrence.state === 'fed';
 
-  // "Not logged", never "Missed" -- CONTEXT.md, Not Logged. And the row does not
-  // shout: nothing here is red, because the app does not know whether the pet
-  // ate, only whether anyone tapped Log.
+  // "Not logged", never "Missed", and never red: the app knows only whether
+  // anyone tapped Log. See CONTEXT.md.
   const detail = isFed
     ? occurrence.satisfiedAt
       ? `${fedBy}, ${formatTimeOfDay(occurrence.satisfiedAt, timezone)}`
@@ -116,8 +111,7 @@ const OccurrenceRow = ({
             <MainButton
               text="Log"
               size="xs"
-              // MainButton stretches by default, which in a row means it fills the
-              // row's height. The Log button is a chip, not a bar.
+              // MainButton stretches by default. This is a chip, not a bar.
               containerStyle={styles.logButton}
               isLoading={isLogging}
               isDisabled={isLogging}
@@ -135,9 +129,8 @@ const OccurrenceRow = ({
 
   const rowStyle = [styles.row, isNested && styles.nested];
 
-  // Only a logged row is tappable as a whole: it opens the log for correction.
-  // An unlogged row's action is the Log button, and a row that is both tappable
-  // and holds a button is an ambiguous target.
+  // Only a logged row is tappable as a whole: a row that is both tappable and
+  // holds a button is an ambiguous target.
   if (isFed && onOpenLog) {
     return (
       <PressableOpacity

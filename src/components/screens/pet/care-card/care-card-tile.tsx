@@ -13,7 +13,6 @@ export const TileHeight = 96;
 const TILE_PADDING = 8;
 const WELL_SIZE = 26;
 
-/** The three ruled lines standing in for the card's written contents. */
 const LINE_WIDTHS = ['100%', '78%', '56%'] as const;
 
 type Props = {
@@ -21,7 +20,7 @@ type Props = {
   onPress: () => void;
 };
 
-/** Drawn as a card whether the card has content or not: the screen opens either way. */
+// Drawn as a card whether the card has content or not: the screen opens either way.
 const CareCardTile = ({ petName, onPress }: Props) => {
   const theme = useTheme();
   const styles = useStyles(makeStyles);

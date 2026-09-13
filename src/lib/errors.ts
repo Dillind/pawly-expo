@@ -1,12 +1,5 @@
-/**
- * An error whose message was written for the person using the app, not for a
- * developer. Services throw this when they have translated a driver failure
- * into something actionable -- "There is already a dinner feed", not
- * "duplicate key value violates unique constraint".
- *
- * Anything else reaching a toast is a raw Supabase or Postgres string and must
- * be replaced with the call site's own copy.
- */
+// A message written for the person using the app. Anything else reaching a
+// toast is a raw Supabase or Postgres string and must be replaced.
 export class UserFacingError extends Error {
   readonly cause: unknown;
 

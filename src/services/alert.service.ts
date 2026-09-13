@@ -2,11 +2,8 @@ import { supabase } from '@/lib/supabase/client';
 
 export const ALERTS_PAGE_SIZE = 30;
 
-/**
- * The kinds the inbox lists. `feed_logged` and `feed_due` are both deliberately
- * absent: each stays in the database as a delivery record and is never read
- * back here (ADR 0023, ADR 0033). `list_alerts` filters the same two out.
- */
+// `feed_logged` and `feed_due` are deliberately absent: each stays in the
+// database as a delivery record. See ADR 0023 and ADR 0033.
 export type AlertKind =
   | 'missed_feed'
   | 'post'
@@ -17,13 +14,12 @@ export type AlertKind =
   | 'member_role_changed'
   | 'member_left';
 
-/** A row survives its subject, so every resolved field here can be null. */
+// A row survives its subject, so every resolved field here can be null.
 export type Alert = {
   id: string;
   kind: AlertKind;
   createdAt: string;
   isRead: boolean;
-  /** Recorded but never pushed. */
   wasSuppressed: boolean;
   actorName: string | null;
   petId: string | null;
@@ -33,15 +29,13 @@ export type Alert = {
   postCaption: string | null;
   commentId: string | null;
   commentBody: string | null;
-  /** True when the reader wrote the comment being replied to. */
   commentIsReplyToMe: boolean;
-  /** True when the reader wrote the post the comment sits under. */
   commentPostIsMine: boolean;
   subjectName: string | null;
   subjectIsMe: boolean;
 };
 
-/** Keyset: an alert queued mid-scroll must not shift a page. */
+// Keyset: an alert queued mid-scroll must not shift a page.
 export type AlertsCursor = { createdAt: string; id: string };
 
 type AlertRow = {
@@ -66,8 +60,7 @@ type AlertRow = {
   subject_is_me: boolean;
 };
 
-// Must agree with authorName in send-alerts/message.ts -- the push and the
-// inbox render the same event.
+// Must agree with authorName in send-alerts/message.ts.
 const displayName = (firstName: string | null, lastName: string | null): string | null => {
   const name = [firstName, lastName].filter(Boolean).join(' ');
 

@@ -43,12 +43,8 @@ type Props = {
   petId: string | undefined;
 };
 
-/**
- * Only the fields the sub-forms below actually decided to change. Never
- * built by re-stating the field's current value -- see use-feed-log-
- * mutations.ts, whose update payload writes exactly (and only) the keys
- * present here.
- */
+// Only fields the sub-forms decided to change. Never built by re-stating a
+// current value: the update payload writes exactly the keys present here.
 type SavePatch = { loggedAt?: string; notes?: string | null };
 
 const FeedLogDetailSheet = ({ sheetRef, logId, petId }: Props) => {
@@ -61,23 +57,17 @@ const FeedLogDetailSheet = ({ sheetRef, logId, petId }: Props) => {
 
   const timezone = household?.timezone;
 
-  // Presentation only -- RLS is the actual gate; this exists so a control is
-  // never offered only to be rejected by the database. The window is
-  // measured from created_at, not logged_at, so a backdated log is not born
-  // uneditable (design doc, "Contributor edit window").
+  // Presentation only; RLS is the gate. Measured from created_at, not
+  // logged_at, so a backdated log is not born uneditable.
   const canEdit = Boolean(
     log &&
     (household?.isOwner ||
       (log.loggedBy === userId && dayjs().diff(dayjs(log.createdAt), 'hour') < 24))
   );
 
-  // The Today/Yesterday control can only ever express these two calendar
-  // days, but Owners may backdate a log arbitrarily far (RLS lifted their
-  // floor). A log outside today/yesterday gets its date shown read-only
-  // instead of being force-fit into a control that cannot represent it --
-  // the simpler of the two options in the task-8 resolution, chosen because
-  // it needs no partial-lock UI state and cannot ever let the day toggle
-  // silently default to the wrong day for an old log.
+  // Owners may backdate arbitrarily far, which the Today/Yesterday control
+  // cannot express. An older log shows its date read-only rather than risk the
+  // toggle defaulting to the wrong day.
   const isRecent = Boolean(
     log &&
     timezone &&
@@ -161,14 +151,11 @@ type EditableLogFormProps = {
   onSave: (patch: SavePatch) => void;
 };
 
-/** The day/time/notes correction form, for a log made today or yesterday. */
 function EditableLogForm({ log, timezone, isOwner, isSaving, onSave }: EditableLogFormProps) {
   const styles = useStyles(makeStyles);
 
-  // Role-dependent, so it cannot be the static export the brief originally
-  // sketched -- see feed-log.ts. Memoised on [isOwner, timezone] only; the
-  // superRefine inside reads "now" itself at validation time, so this does
-  // not go stale between renders.
+  // Role-dependent, so it cannot be a static export. The superRefine reads
+  // "now" at validation time, so these two deps are enough.
   const schema = useMemo(() => feedLogSchema({ isOwner, timezone }), [isOwner, timezone]);
 
   const form = useForm<FeedLogFormValues>({
@@ -184,20 +171,14 @@ function EditableLogForm({ log, timezone, isOwner, isSaving, onSave }: EditableL
 
   const { control, handleSubmit, formState } = form;
 
-  // Destructured during render on purpose. formState is a Proxy that only
-  // subscribes to the keys read while rendering, so reading dirtyFields
-  // solely inside the submit callback leaves it permanently empty. With
-  // mode: 'onBlur' a text field masked this by forcing a formState update on
-  // blur; the time spinner never blurs, so every save silently did nothing.
+  // formState is a Proxy that subscribes only to keys read during render, so
+  // reading dirtyFields solely in the submit callback leaves it empty and every
+  // save silently does nothing.
   const { dirtyFields } = formState;
 
   const onSubmit = handleSubmit((values) => {
-    // The single most important rule in this sheet: never send a field the
-    // user did not actually touch. dirtyFields is react-hook-form's own
-    // record of what changed relative to defaultValues -- not a
-    // re-derivation of it -- so a notes-only edit produces a patch with no
-    // loggedAt key at all, and use-feed-log-mutations.ts writes only what's
-    // present.
+    // Never send a field the user did not touch: a notes-only edit must
+    // produce a patch with no loggedAt key at all.
     const patch: SavePatch = {};
 
     if (dirtyFields.day || dirtyFields.time) {
@@ -288,12 +269,8 @@ type NotesOnlyFormProps = {
   onSave: (patch: SavePatch) => void;
 };
 
-/**
- * A log older than yesterday: the Today/Yesterday control cannot represent
- * its date without risking a silent day-shift, so it is not rendered at all
- * -- the sheet's header line above already shows that date, read-only, via
- * formatDayHeading. Only notes are editable here.
- */
+// A log older than yesterday: the day control cannot represent its date, so the
+// header shows it read-only and only notes are editable.
 function NotesOnlyForm({ log, isSaving, onSave }: NotesOnlyFormProps) {
   const styles = useStyles(makeStyles);
 
@@ -305,8 +282,7 @@ function NotesOnlyForm({ log, isSaving, onSave }: NotesOnlyFormProps) {
 
   const { control, handleSubmit, formState } = form;
 
-  // Read during render so the formState Proxy actually subscribes -- see the
-  // same destructure in EditableLogForm above.
+  // Read during render so the formState Proxy subscribes. See above.
   const { dirtyFields } = formState;
 
   const onSubmit = handleSubmit((values) => {

@@ -7,10 +7,8 @@ import type { UserProfile, UserStats } from '@/types/core';
 
 const BUCKET = 'user-avatars';
 
-/**
- * A public URL is `.../object/public/user-avatars/<path>`. Returns null for
- * anything that is not one of ours, so a hand-set or external URL is left alone.
- */
+// Returns null for anything that is not ours, so an external URL is left
+// alone.
 const storagePathFromPublicUrl = (url: string | null): string | null => {
   const marker = `/object/public/${BUCKET}/`;
   const index = url?.indexOf(marker) ?? -1;
@@ -53,14 +51,8 @@ namespace UserService {
     assertWrote(data, 'Your name could not be updated');
   }
 
-  /**
-   * All-time, across every household the Member is in. RLS is what scopes it:
-   * both select policies are household-membership based, so a household they
-   * have left is already excluded and no filter here has to say so.
-   *
-   * Counts surviving rows. `feed_logs.logged_by` is `on delete set null`, so
-   * this is not a lifetime tally -- it is what is still there.
-   */
+  // RLS scopes this: both select policies are membership-based, so a household
+  // they left is already excluded. Counts surviving rows only.
   export async function getStats(userId: string): Promise<UserStats> {
     const [feeds, posts] = await Promise.all([
       supabase
@@ -109,10 +101,7 @@ namespace UserService {
     assertWrote(data, 'Your photo could not be saved');
   }
 
-  /**
-   * Best effort by design: failing the whole photo change over a leftover
-   * object would be worse than the leftover.
-   */
+  // Best effort: failing the photo change over a leftover object is worse.
   export async function removeAvatarByPublicUrl(url: string | null): Promise<void> {
     const path = storagePathFromPublicUrl(url);
     if (!path) return;

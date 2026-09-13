@@ -56,7 +56,6 @@ type Props = Pick<
   backgroundColor?: ThemeColor;
   showFieldError?: boolean;
   isMultiline?: boolean;
-  /** Renders "12/500" beneath the field. Needs `maxLength` to mean anything. */
   showCharacterCount?: boolean;
 };
 

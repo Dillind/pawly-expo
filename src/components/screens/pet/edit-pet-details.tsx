@@ -22,7 +22,6 @@ export type EditablePetDetails = {
   name: string;
   petType: PetType;
   breedId: string | null;
-  /** The free text the row still holds, shown while nothing in the list matches. */
   breedFreetext: string | null;
   sex: PetSex | null;
   birthdate: string | null;

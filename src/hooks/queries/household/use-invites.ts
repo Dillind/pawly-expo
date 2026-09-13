@@ -10,7 +10,6 @@ import type { HouseholdRole } from '@/types/core';
 
 const pendingKey = (householdId: string | undefined) => ['invites-pending', householdId];
 
-/** Outstanding invites for a household. Owner-only by RLS. */
 export function usePendingInvites(householdId: string | undefined) {
   return useQuery({
     queryKey: pendingKey(householdId),
@@ -19,7 +18,6 @@ export function usePendingInvites(householdId: string | undefined) {
   });
 }
 
-/** What a scanned or typed code is offering, before anyone commits to it. */
 export function useInvitePreview(code: string | undefined) {
   return useQuery({
     queryKey: ['invite-preview', code],
@@ -76,11 +74,8 @@ const REDEEM_FAILURES: Partial<Record<RedeemStatus, string>> = {
   not_signed_in: ErrorMessage.InviteNotFound
 };
 
-/**
- * Accepting makes the new household active — that is why they accepted — and
- * says so, because a household changing under someone unannounced reads as a
- * bug.
- */
+// Accepting makes the new household active and says so: a household changing
+// unannounced reads as a bug.
 export function useRedeemInvite() {
   const queryClient = useQueryClient();
   const { userId } = useAuthStore();
@@ -94,8 +89,8 @@ export function useRedeemInvite() {
       if (failure) return showErrorToast(failure);
       if (result.status !== 'joined' || !result.householdId) return;
 
-      // Refetch before storing the id: useHousehold heals an id it cannot find
-      // by falling back to the first household, so a stale list overwrites this.
+      // Refetch first: useHousehold heals an id it cannot find by falling back
+      // to the first household, so a stale list overwrites this.
       await queryClient.refetchQueries({ queryKey: householdsKey(userId) });
       await setActiveHousehold(result.householdId);
 

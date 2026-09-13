@@ -37,7 +37,6 @@ const EMPTY_DRAFT: Draft = {
   label: ''
 };
 
-/** What the preview borrows from the post being written. */
 export type OccasionPreview = {
   title: string;
   pet: { name: string; photoUrl: string | null } | null;
@@ -47,7 +46,7 @@ type Props = {
   sheetRef: RefObject<TrueSheet | null>;
   householdId: string | undefined;
   selectedId: string | null;
-  /** What the Post carries, which may be an Occasion the household removed. */
+  // May be an Occasion the household has since removed.
   selectedOccasion: PostOccasion | null;
   preview: OccasionPreview;
   onSelect: (occasionId: string | null) => void;
@@ -55,7 +54,6 @@ type Props = {
 
 const EMOJI_SLOT = 22;
 
-/** An Occasion needs an emoji or words. A draft with neither cannot be saved. */
 const isDraftUsable = (draft: Draft) => Boolean(draft.emoji) || draft.label.trim().length > 0;
 
 const ChooseStep = ({
@@ -68,7 +66,6 @@ const ChooseStep = ({
 }: {
   occasions: Occasion[];
   selectedId: string | null;
-  /** The chosen Occasion when it has left the picker, otherwise null. */
   removed: PostOccasion | null;
   onChoose: (occasionId: string | null) => void;
   onCreate: () => void;
@@ -79,8 +76,7 @@ const ChooseStep = ({
   const [isEditing, setIsEditing] = useState(false);
   const { mutate: removeOccasion } = useRemoveOccasion(occasions[0]?.householdId);
 
-  // The count is the fact the decision turns on, so it is read before the
-  // alert rather than guessed at inside it.
+  // Read before the alert, because the count is what the decision turns on.
   const confirmRemove = async (occasion: Occasion) => {
     let count = 0;
 
@@ -141,8 +137,7 @@ const ChooseStep = ({
                 isSelected={!isEditing && occasion.id === selectedId}
                 onPress={() => {
                   if (!isEditing) {
-                    // Tapping the chosen one again clears it. There is no
-                    // "No occasion" row, so this is the way back to none.
+                    // There is no "No occasion" row, so this is the way back.
                     onChoose(occasion.id === selectedId ? null : occasion.id);
                     return;
                   }
@@ -153,7 +148,7 @@ const ChooseStep = ({
               />
             </View>
 
-            {/* Only the trailing control changes between the two modes, so
+            {/* Only the trailing control changes between modes, so
                 nothing in the list moves under the finger. */}
             {isEditing && (
               <IconButton
@@ -167,7 +162,7 @@ const ChooseStep = ({
           </View>
         ))}
 
-        {/* The household removed it, so it is not in the list above. It stays
+        {/* Removed by the household, so it is not in the list above. It stays
             here while the Post carries it, or there is nothing to tap to
             clear the choice. */}
         {removed && (
@@ -262,7 +257,7 @@ const EditStep = ({
           HOW IT WILL READ
         </AppText>
 
-        {/* On `postSurface`, because that is the only ground the chip is ever
+        {/* On `postSurface`: the only ground the chip is ever
             seen against -- it disappears on the sheet's own fill. */}
         <View style={styles.previewSurface}>
           <AppText size={17} fontWeight="bold">
@@ -357,11 +352,8 @@ const EmojiStep = ({ onPick }: { onPick: (emoji: string) => void }) => {
   );
 };
 
-/**
- * Choosing an Occasion, and keeping the household's set. One sheet whose
- * content swaps -- a second sheet raised from the first is the thing the Tray
- * exists to avoid. See ADR 0035.
- */
+// One sheet whose content swaps: a second sheet raised from the first is what
+// the Tray exists to avoid. See ADR 0035.
 const OccasionTray = ({
   sheetRef,
   householdId,
@@ -399,8 +391,8 @@ const OccasionTray = ({
       return;
     }
 
-    // The new Occasion is chosen straight away. A member who has just described
-    // it is not then asked to find it in the list they came from.
+    // Chosen straight away: a member who just described it is not asked to find
+    // it in the list they came from.
     createOccasion(
       {
         emoji,
@@ -510,8 +502,7 @@ const makeStyles = ({ colors, spacing }: AppTheme) =>
       justifyContent: 'center',
       borderRadius: Radius.tile,
       borderCurve: 'continuous',
-      // Dashed, because the well is a slot waiting to be filled rather than a
-      // field holding a value.
+      // Dashed: a slot waiting to be filled, not a field holding a value.
       borderWidth: 1,
       borderStyle: 'dashed',
       borderColor: colors.border,

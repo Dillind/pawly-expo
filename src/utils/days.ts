@@ -1,4 +1,4 @@
-/** 0 is Sunday, matching Postgres `extract(dow ...)`. */
+// 0 is Sunday, matching Postgres `extract(dow ...)`.
 const NAMES = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
 const WEEKDAYS = [1, 2, 3, 4, 5];
@@ -7,11 +7,8 @@ const WEEKEND = [0, 6];
 const sameSet = (a: number[], b: number[]) =>
   a.length === b.length && [...a].sort().every((value, index) => value === [...b].sort()[index]);
 
-/**
- * "Every day", "Weekdays", or the days themselves. A run of three or more
- * consecutive days collapses to a range, so Mon–Sat reads as one phrase rather
- * than six.
- */
+// "Every day", "Weekdays", or the days themselves. A run of three or more consecutive days
+// collapses to a range, so Mon–Sat reads as one phrase rather than six.
 export function describeDays(days: number[]): string {
   if (days.length === 0) return 'Never';
   if (days.length === 7) return 'Every day';

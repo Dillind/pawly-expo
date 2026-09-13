@@ -12,22 +12,14 @@ import { useTheme } from '@/hooks/use-theme';
 const GRID_WIDTH = 344;
 const GRID_INSET = 12;
 
-/**
- * The month label, and the calendar popover it opens.
- *
- * A real SwiftUI popover rather than an imitation of one -- see ADR 0011. Below
- * iOS 16.4 it adapts into a sheet and loses its caret.
- *
- * `Popover` does not present itself: the trigger is content, not a button, so
- * the tap comes from the React Native label inside `RNHostView`.
- */
+// A real SwiftUI popover. See ADR 0011. `Popover` does not present itself: the
+// trigger is content, so the tap comes from the label inside `RNHostView`.
 const MonthPopover = ({ selectedDay, onSelectDay }: MonthPickerProps) => {
   const styles = useStyles(makeStyles);
   const theme = useTheme();
   const [isOpen, setIsOpen] = useState(false);
 
-  // UTC throughout, like the rest of `lib/dates`. Local parts would move the
-  // day by one west of Greenwich.
+  // UTC throughout: local parts move the day west of Greenwich.
   const [year, month, date] = selectedDay.split('-').map(Number);
   const selection = new Date(Date.UTC(year, month - 1, date, 12));
 

@@ -20,10 +20,6 @@ import { useStyles } from '@/hooks/use-styles';
 import { careCardBlocks } from '@/lib/care-card-view';
 import { deviceTimezone, formatDateWithYear } from '@/lib/dates';
 
-/**
- * The care card as a screen of its own, which is what a handover document is:
- * a sitter opens it, reads every section, and hands the phone back.
- */
 const CareCardScreen = () => {
   const { petId, petName, petSubtitle } = useLocalSearchParams<{
     petId: string;

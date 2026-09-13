@@ -24,11 +24,8 @@ type Props = {
   description?: string;
   isLabelIndicated?: boolean;
   mode?: 'date' | 'time';
-  /**
-   * Which side of today a date may fall on. `past` by default, because most
-   * dates in this app are birthdates and a pet cannot be born tomorrow. A
-   * Reminder is the other way round -- see reminder-tray. Ignored by `time`.
-   */
+  // `past` by default, because most dates here are birthdates. Ignored by
+  // `time`.
   bound?: 'past' | 'future';
   selectedDate: string;
   setSelectedDate: (date: string) => void;
@@ -80,17 +77,15 @@ const DateTimePickerValidated = ({
           setSelectedDate(dayjs(picked).format(storeFormat[mode]));
           setIsVisible(false);
 
-          // A picker fires no blur, so under `onTouched` the field is never
-          // marked touched and an error it already shows has nothing to clear
-          // it -- the member fixes the field and the message stays put.
+          // A picker fires no blur, so under `onTouched` an error it already
+          // shows has nothing to clear it.
           if (form && name) void form.trigger(name);
         }}
         onCancel={() => {
           setIsVisible(false);
         }}
         maximumDate={mode === 'date' && bound === 'past' ? new Date() : undefined}
-        // Midnight, not now: a bound at the current instant can grey out today
-        // itself, and today is a legitimate date for a Reminder.
+        // Midnight, not now: a bound at the current instant greys out today.
         minimumDate={
           mode === 'date' && bound === 'future' ? dayjs().startOf('day').toDate() : undefined
         }
@@ -121,12 +116,8 @@ const DateTimePickerValidated = ({
   );
 };
 
-/**
- * The subscription lives in a child so it is only mounted when there is a form
- * to subscribe to. useFormState throws on a null control, so calling it
- * unconditionally crashed the picker anywhere it was used outside a
- * FormProvider -- which is every "pick a time" that is not a validated field.
- */
+// useFormState throws on a null control, so the subscription lives in a child
+// that only mounts when there is a form.
 const SubscribedFieldError = ({
   control,
   name

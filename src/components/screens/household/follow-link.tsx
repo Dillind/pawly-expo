@@ -28,10 +28,8 @@ type Props = {
   householdId: string;
 };
 
-/**
- * The only way anyone finds a household. There is no search: a search over
- * household names would leak the existence of private households.
- */
+// The only way anyone finds a household. There is no search: a search over household names
+// would leak the existence of private households.
 const FollowLink = ({ householdId }: Props) => {
   const styles = useStyles(makeStyles);
 

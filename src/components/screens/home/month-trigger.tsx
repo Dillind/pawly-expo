@@ -8,17 +8,12 @@ import { useStyles } from '@/hooks/use-styles';
 import { formatMonthAndYear } from '@/lib/dates';
 
 export type MonthPickerProps = {
-  /** The day in view. Its month is the label, and the grid opens on it. */
   selectedDay: string;
   onSelectDay: (day: string) => void;
 };
 
-/**
- * The month label beside the day heading.
- *
- * Its own file: a `.ios.tsx` importing the shared half from the plain name
- * resolves back to itself. See KNOWLEDGE.md.
- */
+// The month label beside the day heading. Its own file: a `.ios.tsx` importing the shared half
+// from the plain name resolves back to itself. See KNOWLEDGE.md.
 const MonthTrigger = ({ selectedDay, onPress }: { selectedDay: string; onPress?: () => void }) => {
   const styles = useStyles(makeStyles);
 

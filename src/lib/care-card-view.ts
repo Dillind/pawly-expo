@@ -5,12 +5,7 @@ import {
 } from '@/constants/care-card-fields';
 import type { CareCard, CareCardContact, Medication } from '@/services/care-card.service';
 
-/**
- * The fields lifted out of their sections and into the panel at the top. A
- * sitter reaching for this at 2am is looking for one of these, and making them
- * hunt through "Paperwork" to find the vet's number is the whole failure this
- * document exists to prevent.
- */
+// Lifted into the top panel: a sitter at 2am is looking for one of these.
 export const EMERGENCY_FIELDS: CareCardField[] = [
   'vetName',
   'vetPhone',
@@ -18,13 +13,12 @@ export const EMERGENCY_FIELDS: CareCardField[] = [
   'emergencyVetPhone'
 ];
 
-/** `id` keys the row: two contacts can share a name, so the label cannot. */
+// `id` keys the row: two contacts can share a name, so the label cannot.
 export type CareCardRow = { id: string; label: string; value: string };
 
 export type CareCardMedicationEntry = {
   id: string;
   name: string;
-  /** Dose and schedule joined, or null when neither was given. */
   detail: string | null;
   instructions: string | null;
 };
@@ -45,10 +39,8 @@ const fieldRows = (card: CareCard, fields: CareCardField[]): CareCardRow[] =>
       value: card[field] as string
     }));
 
-/**
- * The one ordering both the printed page and the on-screen card follow, so what
- * you look at is what you hand over. Empty blocks are dropped, not blanked.
- */
+// One ordering for the printed page and the card, so what you look at is what
+// you hand over.
 export const careCardBlocks = (
   card: CareCard,
   medications: Medication[],
@@ -56,7 +48,6 @@ export const careCardBlocks = (
 ): CareCardBlock[] => {
   const blocks: CareCardBlock[] = [];
 
-  // Contacts lead: a person to ring beats a clinic's opening hours.
   const emergencyRows = [
     ...contacts.map((contact) => ({
       id: contact.id,

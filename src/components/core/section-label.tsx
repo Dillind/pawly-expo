@@ -7,20 +7,13 @@ import { useStyles } from '@/hooks/use-styles';
 
 type Props = {
   children: string;
-  /** A control belonging to the section, sitting at the end of the label row. */
   action?: ReactNode;
-  /**
-   * A heading rather than a label -- full ink, heading face, section-title
-   * size. For a section that is the reader's destination rather than a name
-   * over the card they are already reading.
-   */
+  // For a section that is the reader's destination, not a name over the card
+  // they are already reading.
   isHeading?: boolean;
 };
 
-/**
- * The quiet label above a card. It is secondary ink on purpose: it names what
- * follows, and the card below it is the thing being read.
- */
+// Secondary ink on purpose: the card below it is the thing being read.
 const SectionLabel = ({ children, action, isHeading = false }: Props) => {
   const styles = useStyles(makeStyles);
 

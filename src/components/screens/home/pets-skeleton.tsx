@@ -13,11 +13,9 @@ const ROW_WIDTHS = [
   { name: '36%', summary: '58%' }
 ] as const;
 
-/**
- * The shape of the Pets list while it loads. The ghost row keeps its outline
- * rather than becoming a block: it is already an empty shape, so drawing it as
- * a placeholder would say the app is fetching something that is never fetched.
- */
+// The shape of the Pets list while it loads. The ghost row keeps its outline rather than
+// becoming a block: it is already an empty shape, so drawing it as a placeholder would say the
+// app is fetching something that is never fetched.
 const PetsSkeleton = () => {
   const styles = useStyles(makeStyles);
 

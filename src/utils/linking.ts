@@ -1,10 +1,7 @@
 import { Linking } from 'react-native';
 
-/**
- * Opens a URL in the system browser. Returns whether it opened, so a caller can
- * tell the user when nothing happened -- a device with no mail client would
- * otherwise get silence.
- */
+// Opens a URL in the system browser. Returns whether it opened, so a caller can tell the user
+// when nothing happened -- a device with no mail client would otherwise get silence.
 export const openExternalURL = async (url: string): Promise<boolean> => {
   try {
     const supported = await Linking.canOpenURL(url);

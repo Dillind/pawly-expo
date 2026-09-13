@@ -15,21 +15,17 @@ type Props = {
   onClose: () => void;
   children: ReactNode;
   title?: string;
-  /** `card` is a themed panel; `bare` leaves the whole surface to the caller. */
+  // `card` is a themed panel; `bare` leaves the surface to the caller.
   variant?: 'card' | 'bare';
-  /** Off for anything with unsaved input. */
   isBackdropDismissible?: boolean;
-  /** Leave off when the content scrolls -- the gestures fight. */
+  // Leave off when the content scrolls: the gestures fight.
   isSwipeDismissible?: boolean;
   hasAnimation?: boolean;
   onDismissed?: () => void;
 };
 
-/**
- * The counterpart to BaseSheet, and the only place `react-native-modal` is
- * imported. Reach for BaseSheet first -- this is for what a sheet cannot do:
- * a centred panel, or a surface that animates its own frame.
- */
+// The only place `react-native-modal` is imported. Reach for BaseSheet first:
+// this is for a centred panel, or a surface that animates its own frame.
 const BaseModal = ({
   isVisible,
   onClose,
@@ -57,8 +53,8 @@ const BaseModal = ({
       animationOut={hasAnimation ? 'fadeOutDown' : 'fadeOut'}
       animationInTiming={timing}
       animationOutTiming={timing}
-      // Fades even when the content does not, so it never snaps in behind a
-      // caller's own animation. It must also exist for onBackdropPress to fire.
+      // Must exist for onBackdropPress to fire, and fades even when the content
+      // does not, so it never snaps in behind a caller's own animation.
       backdropTransitionInTiming={backdropTiming}
       backdropTransitionOutTiming={backdropTiming}
       useNativeDriver

@@ -19,36 +19,27 @@ const WEEKS_EACH_SIDE = 52;
 const VIEWABILITY = { itemVisiblePercentThreshold: 60 };
 
 type Props = {
-  /** The day in view. Not necessarily today. */
   selectedDay: string;
-  /** Today in the household's timezone, so a past day can be told apart. */
   today: string;
   reminderKinds?: Record<string, ReminderKind[]>;
   onSelectDay: (day: string) => void;
 };
 
-// Warm ink for a feed, not gold: issue #122 gives gold exactly three jobs --
-// the banner wash, the Log chip, the active tab. A fourth drains the other
-// three. The Kind colours are on trial; see DECISIONS.md.
+// Warm ink, not gold: gold has exactly three jobs and a fourth drains them.
 const DOT_COLOUR = {
   feed: 'text',
   medication: 'medication',
   vet: 'vet'
 } as const;
 
-/**
- * The week the selected day sits in, one full-width page per week.
- *
- * The window is anchored on today, not on the selection -- rebuilding it around
- * the selected day would renumber every index mid-scroll.
- */
+// Anchored on today, not the selection: rebuilding around the selected day
+// renumbers every index mid-scroll.
 const WeekStrip = ({ selectedDay, today, reminderKinds, onSelectDay }: Props) => {
   const styles = useStyles(makeStyles);
   const { width: pageWidth } = useWindowDimensions();
 
   const listRef = useRef<LegendListRef>(null);
-  // The viewability callback must stay stable, so it reads these rather than
-  // closing over them.
+  // The viewability callback must stay stable, so it reads these refs.
   const selectedRef = useRef(selectedDay);
   const onSelectRef = useRef(onSelectDay);
 
@@ -83,8 +74,8 @@ const WeekStrip = ({ selectedDay, today, reminderKinds, onSelectDay }: Props) =>
     listRef.current?.scrollToIndex({ index: selectedIndex, animated: true });
   }, [selectedWeek, selectedIndex]);
 
-  // LegendList adjusts its own scroll offset, so the offset cannot name the
-  // page -- only viewability can.
+  // LegendList adjusts its own scroll offset, so only viewability names the
+  // page.
   const onViewableItemsChanged = useCallback(
     ({ viewableItems }: { viewableItems: { item: string }[] }) => {
       const week = viewableItems.at(0)?.item;
@@ -199,8 +190,7 @@ const WeekPage = ({
               <AppText size={11} fontWeight="bold" color="textSecondary" style={styles.initial}>
                 {weekdayInitial(day)}
               </AppText>
-              {/* Today keeps a mark once the strip pages away from it. Gold ink,
-                  not a gold fill -- the fill means "selected". */}
+              {/* Gold ink, not a gold fill: the fill means "selected". */}
               <AppText
                 variant="header"
                 size={16}
@@ -208,7 +198,7 @@ const WeekPage = ({
                 color={todayColour(isSelected, isToday, isPast)}>
                 {dayOfMonth(day)}
               </AppText>
-              {/* Always rendered -- a slot that appears would resize the cell. */}
+              {/* Always rendered: a slot that appears would resize the cell. */}
               <View style={styles.dotSlot}>
                 {reminderKinds?.[day]?.map((kind) => (
                   <View

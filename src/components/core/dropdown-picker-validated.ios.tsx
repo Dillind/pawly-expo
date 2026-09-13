@@ -24,18 +24,14 @@ type Props<T extends string> = {
   isLabelIndicated?: boolean;
   description?: string;
   name?: string;
-  /** Accepted for parity with the fallback; SwiftUI places the menu itself. */
+  // Accepted for parity with the fallback; SwiftUI places the menu itself.
   dropdownPosition?: 'auto' | 'top' | 'bottom';
   wrapperStyle?: StyleProp<ViewStyle>;
   showFieldError?: boolean;
 };
 
-/**
- * iOS uses a real SwiftUI menu picker. The JS dropdown it replaces drew an
- * absolutely positioned list inside the React tree, so inside a sheet it was
- * clipped by the sheet instead of floating over it. A native menu is presented
- * by UIKit in its own window and has no such problem.
- */
+// A real SwiftUI menu. The JS dropdown it replaces drew an absolutely
+// positioned list inside the React tree, which a sheet clipped.
 const DropdownPickerValidated = <T extends string>({
   placeholder,
   isDisabled,
@@ -79,8 +75,7 @@ const DropdownPickerValidated = <T extends string>({
       <View style={[styles.field, isDisabled && styles.fieldDisabled]}>
         <Host matchContents>
           <Picker
-            // A menu picker draws its label and chevron in the accent colour --
-            // blue text in a row of black-text inputs. This puts it back.
+            // A menu picker draws its label and chevron in the accent colour.
             modifiers={[
               pickerStyle('menu'),
               foregroundStyle(hasValue ? colors.text : colors.textSecondary)

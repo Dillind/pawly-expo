@@ -15,7 +15,7 @@ export function useComments(postId: string | undefined, viewerId: string | undef
   });
 }
 
-/** No success toast: the comment appearing in the thread is the confirmation. */
+// No success toast: the comment appearing in the thread is the confirmation.
 export function useCreateComment(postId: string | undefined) {
   const queryClient = useQueryClient();
 
@@ -57,7 +57,7 @@ export function useDeleteComment(postId: string | undefined) {
   });
 }
 
-/** Optimistic and silent on both sides, matching useToggleLike on a Post. */
+// Optimistic and silent on both sides, matching useToggleLike on a Post.
 export function useToggleCommentLike(postId: string | undefined) {
   const queryClient = useQueryClient();
   const { userId } = useAuthStore();

@@ -7,8 +7,8 @@ export type PetDetail = {
   id: string;
   name: string;
   breedId: string | null;
-  /** The free text a pet carried before the list existed, and the live value
-   *  for a pet whose type is `other`. A pet carries one of the two, never both. */
+  // Free text from before the list existed, and the live value for type
+  // `other`. A pet carries one of the two, never both.
   breedFreetext: string | null;
   sex: PetSex | null;
   birthdate: string | null;
@@ -104,11 +104,8 @@ namespace PetService {
     assertWrote(data, 'Only an owner can change this pet');
   }
 
-  /**
-   * `householdId` is explicit because only the caller knows which household is
-   * active. `null` means the user has none, and the RPC creates one with them as
-   * its owner — which is how a first pet and a fifth take the same path.
-   */
+  // `null` means the user has no household, and the RPC creates one with them
+  // as owner, so a first pet and a fifth take the same path.
   export async function add(
     input: AddPetInput,
     householdId: string | null,
@@ -132,20 +129,15 @@ namespace PetService {
 
     if (error) throw error;
 
-    // The RPC returns a pets row, which supabase-js types as unknown without
-    // generated database types. Same treatment as mapLogFeedResult.
+    // supabase-js types the row as unknown without generated database types.
     const row = data as { id: string; name: string; photo_url: string | null };
 
     return { id: row.id, name: row.name, photoUrl: row.photo_url };
   }
 
-  /**
-   * Schedules, feed logs, the Care Card and photo rows all cascade with the pet.
-   * The files those photo rows point at do not, and once the rows are gone
-   * nothing knows the paths -- so storage is cleared first, while they are still
-   * readable. Every step of that is best effort: an orphaned file is a cost, a
-   * pet that cannot be removed is a bug.
-   */
+  // The photo rows cascade but their files do not, and once the rows are gone
+  // nothing knows the paths. Storage is cleared first, best effort: an orphan
+  // is a cost, a pet that cannot be removed is a bug.
   export async function remove(petId: string): Promise<void> {
     try {
       const [cover, photos] = await Promise.all([

@@ -18,13 +18,8 @@ export enum MessageType {
   SignOutError = 'Failed to sign out'
 }
 
-/**
- * Every toast the app can show, named by subject and outcome.
- *
- * Shape is "<Subject> <past-tense verb>" so five near-identical trays on the
- * pet screen do not all confirm with the same sentence -- the toast is the only
- * thing that tells a member which sheet they just saved.
- */
+// "<Subject> <past-tense verb>", because the toast is the only thing that tells
+// a member which of five near-identical trays they just saved.
 export enum SuccessMessage {
   BioUpdated = 'Bio updated',
   FollowLinkCopied = 'Follow link copied',
@@ -88,10 +83,7 @@ export enum SuccessMessage {
   TimezoneUpdated = 'Timezone updated'
 }
 
-/**
- * Failures the user can do something about. Never carries a raw Postgres or
- * Supabase string -- those are written for developers.
- */
+// Never a raw Postgres or Supabase string: those are written for developers.
 export enum ErrorMessage {
   AlertsMarkReadFailed = 'Could not mark notifications as read',
   BioUpdateFailed = 'Could not update bio',

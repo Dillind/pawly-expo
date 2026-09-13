@@ -15,7 +15,7 @@ const DOUBLE_TAP_SCALE = 2.5;
 
 const SETTLE = { duration: 300, dampingRatio: 0.85, reduceMotion: ReduceMotion.System };
 
-/** How far the image may travel before its own edge would leave the frame. */
+// How far the image may travel before its own edge would leave the frame.
 const travelLimit = (scale: number, size: number) => {
   'worklet';
   return Math.max(0, ((scale - 1) * size) / 2);
@@ -29,7 +29,7 @@ const clamp = (value: number, limit: number) => {
 type Props = {
   url: string;
   accessibilityLabel: string;
-  /** Paging must stop while a photo is zoomed, or a pan would change photos. */
+  // Paging must stop while a photo is zoomed, or a pan would change photos.
   onZoomChange: (isZoomed: boolean) => void;
 };
 

@@ -6,7 +6,6 @@ import { useStyles } from '@/hooks/use-styles';
 import { useTheme } from '@/hooks/use-theme';
 import { createShadowSmall } from '@/lib/styles/shadows';
 
-/** The white surface each pet-screen section sits on, over the tinted page. */
 const SectionCard = ({ children }: { children: ReactNode }) => {
   const theme = useTheme();
   const styles = useStyles(makeStyles);

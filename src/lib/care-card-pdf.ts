@@ -4,7 +4,6 @@ import type { CareCard, CareCardContact, Medication } from '@/services/care-card
 export type CareCardPdfPet = {
   name: string;
   breed: string | null;
-  /** Already read from the birthdate by the caller -- see formatAge. */
   ageLabel: string | null;
   card: CareCard;
   medications: Medication[];
@@ -12,7 +11,7 @@ export type CareCardPdfPet = {
 };
 
 export type CareCardPdfOptions = {
-  /** Pre-formatted by the caller so this stays pure and timezone-free. */
+  // Pre-formatted by the caller so this stays pure and timezone-free.
   generatedOn: string;
 };
 
@@ -24,7 +23,7 @@ const escapeHtml = (value: string): string =>
     .replace(/"/g, '&quot;')
     .replace(/'/g, '&#39;');
 
-/** Escaped first, so the <br> this introduces is the only markup that survives. */
+// Escaped first, so the <br> this introduces is the only markup to survive.
 const escapeMultiline = (value: string): string => escapeHtml(value).replace(/\r?\n/g, '<br />');
 
 const fieldRow = (label: string, value: string): string =>
@@ -72,16 +71,15 @@ const petPage = (pet: CareCardPdfPet, generatedOn: string, isLast: boolean): str
     `</div><div class="stamp"><p>Care Card</p><p>${escapeHtml(generatedOn)}</p></div></header>` +
     body +
     empty +
-    // Names the pet, not the app. On a multi-pet PDF this is the only thing on
-    // a continuation page saying whose card you are holding.
+    // On a multi-pet PDF this is the only thing on a continuation page saying
+    // whose card you are holding.
     `<footer>${escapeHtml(pet.name)} &middot; ${escapeHtml(generatedOn)} &middot; ` +
     `Check with the owner before relying on anything here.</footer>` +
     `</article>`
   );
 };
 
-// Black on white with one accent, because this document's job ends on a fridge
-// door or in a mono office printer, not on a screen.
+// Black on white: this document's job ends on a fridge door or a mono printer.
 const STYLES = `
   @page { size: A4; margin: 16mm; }
   * { box-sizing: border-box; }
@@ -150,11 +148,8 @@ const STYLES = `
   }
 `;
 
-/**
- * The whole document, as a string. Pure by design: no file system, no network,
- * no clock -- the caller formats `generatedOn` and hands it in, which is what
- * makes this testable and what stops a PDF's date depending on the device's.
- */
+// No file system, network or clock: the caller formats `generatedOn`, which is
+// what stops a PDF's date depending on the device's.
 export function buildCareCardHtml(
   pets: CareCardPdfPet[],
   { generatedOn }: CareCardPdfOptions
@@ -170,11 +165,9 @@ export function buildCareCardHtml(
   );
 }
 
-/** What the sitter sees the file called in Messages, Mail or Files. */
 export function careCardFileName(pets: { name: string }[]): string {
   if (pets.length === 1) {
-    // Slashes and colons break a file name on some destinations; nothing else
-    // in a pet's name needs stripping.
+    // Slashes and colons break a file name on some destinations.
     const safeName = pets[0].name.replace(/[/\\:]/g, ' ').trim();
     return safeName ? `Care Card - ${safeName}.pdf` : 'Care Card.pdf';
   }

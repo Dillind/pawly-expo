@@ -1,16 +1,13 @@
 import { supabase } from '@/lib/supabase/client';
 
-/**
- * A household's Occasions. An emoji, a label, or both -- never neither, which
- * the `occasions_carry_something` constraint is the one that binds.
- */
+// An emoji, a label, or both, never neither: `occasions_carry_something` binds.
 export type Occasion = {
   id: string;
   householdId: string;
   emoji: string | null;
   label: string | null;
   sortOrder: number;
-  /** Set means it has left the picker. The Posts carrying it keep it. */
+  // Set means it has left the picker. The Posts carrying it keep it.
   deletedAt: string | null;
 };
 
@@ -35,7 +32,6 @@ const mapRow = (row: OccasionRow): Occasion => ({
 const SELECT = 'id, household_id, emoji, label, sort_order, deleted_at';
 
 namespace OccasionService {
-  /** The picker: live rows only, in the household's own order. */
   export async function list(householdId: string): Promise<Occasion[]> {
     const { data, error } = await supabase
       .from('occasions')
@@ -54,8 +50,7 @@ namespace OccasionService {
     emoji: string | null;
     label: string | null;
   }): Promise<Occasion> {
-    // The next slot, so a new Occasion lands at the end rather than jumping
-    // into the middle of a set the household has already learnt.
+    // The next slot, so a new Occasion lands at the end of a learnt set.
     const { data: last } = await supabase
       .from('occasions')
       .select('sort_order')
@@ -93,11 +88,8 @@ namespace OccasionService {
     if (error) throw error;
   }
 
-  /**
-   * Soft, and there is no hard alternative -- `authenticated` holds no delete
-   * grant on the table. A Post is a record of a day, so editing the picker must
-   * never rewrite what an old Post said.
-   */
+  // Soft, with no hard alternative: `authenticated` holds no delete grant.
+  // Editing the picker must never rewrite what an old Post said.
   export async function remove(id: string): Promise<void> {
     const { error } = await supabase
       .from('occasions')
@@ -107,7 +99,6 @@ namespace OccasionService {
     if (error) throw error;
   }
 
-  /** What the remove alert names, because that is the fact the decision turns on. */
   export async function countPosts(id: string): Promise<number> {
     const { count, error } = await supabase
       .from('posts')

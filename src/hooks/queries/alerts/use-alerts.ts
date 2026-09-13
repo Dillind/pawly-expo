@@ -8,7 +8,7 @@ import AlertService, { ALERTS_PAGE_SIZE, type AlertsCursor } from '@/services/al
 export const alertsKey = (householdId: string | undefined) => ['alerts', householdId];
 export const unreadAlertsKey = (householdId: string | undefined) => ['alerts-unread', householdId];
 
-/** The inbox. Cursor on `(created_at, id) desc`. */
+// The inbox. Cursor on `(created_at, id) desc`.
 export function useAlerts(householdId: string | undefined) {
   return useInfiniteQuery({
     queryKey: alertsKey(householdId),
@@ -33,10 +33,8 @@ export function useUnreadAlertCount(householdId: string | undefined) {
   });
 }
 
-/**
- * The badge is a separate query from the list, so a pull that refreshed only
- * the rows would clear them under a count that still says three unread.
- */
+// A separate query from the list, so refreshing only the rows would clear them
+// under a count that still says three unread.
 export function useRefreshUnreadAlertCount(householdId: string | undefined) {
   const queryClient = useQueryClient();
 
@@ -46,10 +44,8 @@ export function useRefreshUnreadAlertCount(householdId: string | undefined) {
   );
 }
 
-/**
- * Only the badge refreshes. Invalidating the list would re-sort it under
- * someone still reading it, which is the whole reason rows keep their fill.
- */
+// Only the badge refreshes: invalidating the list re-sorts it under someone
+// still reading it.
 export function useMarkAlertsRead(householdId: string | undefined) {
   const queryClient = useQueryClient();
 

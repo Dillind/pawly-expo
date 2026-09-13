@@ -44,11 +44,8 @@ export function useUpdateOccasion(householdId: string | undefined) {
   });
 }
 
-/**
- * Soft. Every Post that carries the Occasion keeps it, so the posts list is
- * invalidated too -- nothing on a card changes, but a refetch is cheaper than
- * reasoning about whether one might.
- */
+// Soft. Every Post that carries the Occasion keeps it, so the posts list is invalidated too --
+// nothing on a card changes, but a refetch is cheaper than reasoning about whether one might.
 export function useRemoveOccasion(householdId: string | undefined) {
   const queryClient = useQueryClient();
 

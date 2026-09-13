@@ -6,7 +6,6 @@ type Props = {
   name: IconName;
   size?: number;
   color?: ThemeColor;
-  /** Fills the glyph's interior. Omit for the outline Lucide draws by default. */
   fill?: ThemeColor;
   strokeWidth?: number;
 };

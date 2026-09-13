@@ -32,16 +32,9 @@ type Props = {
   householdId: string;
 };
 
-/**
- * Where a follow link lands, and where a follower comes back to.
- *
- * One route for all three states, because the artboards decided the accepted
- * screen re-uses this one: the button reports the relationship rather than
- * repeating the offer, and the pets become tappable.
- *
- * Before the accept it shows the pets and nothing else -- enough to know it is
- * the right household, not enough to be worth a stranger's request.
- */
+// One route for all three states: the button reports the relationship rather
+// than repeating the offer. Before the accept it shows the pets and nothing
+// else.
 const FollowHousehold = ({ householdId }: Props) => {
   const styles = useStyles(makeStyles);
   const router = useRouter();
@@ -174,7 +167,7 @@ const FollowHousehold = ({ householdId }: Props) => {
           <AppText variant="header" size={24} fontWeight="bold" align="center">
             {preview.name}
           </AppText>
-          {/* A search result opens this screen, and the handle is what told the
+          {/* A search result opens this screen, and the handle told the
               person which household they picked. Without it two households
               named the same thing are indistinguishable here. */}
           {preview.handle && (
@@ -202,9 +195,8 @@ const FollowHousehold = ({ householdId }: Props) => {
             photos.length > 0 ? (
               <View style={styles.grid}>
                 {photos.map((photo) => (
-                  // The percentage width belongs on a plain View. Given it
-                  // directly, expo-image resolves no box and the grid collapses
-                  // to nothing -- the section renders its label and no tiles.
+                  // Given a percentage width directly, expo-image resolves no
+                  // box and the grid collapses to nothing.
                   <View key={photo.id} style={styles.tileWrap}>
                     <Image
                       source={photo.url}

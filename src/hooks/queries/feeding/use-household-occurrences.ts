@@ -3,17 +3,11 @@ import { useQueries } from '@tanstack/react-query';
 import FeedTimeService from '@/services/feed-time.service';
 import type { Occurrence, Pet } from '@/types/core';
 
-// Matches `useOccurrences`, so the two never disagree about how fresh the same
-// cache key is.
+// Matches `useOccurrences`, so the two never disagree about the same key.
 const OCCURRENCES_STALE_MS = 15_000;
 
-/**
- * Every pet's occurrences for one day, flattened.
- *
- * The banner counts what is left across the whole household, and `PetSection`
- * already caches this key per pet -- so this reads the same cache rather than
- * issuing a second, separately-stale request.
- */
+// `PetSection` already caches this key per pet, so this reads the same cache
+// rather than issuing a second, separately-stale request.
 export function useHouseholdOccurrences(pets: Pet[], day: string | undefined): Occurrence[] {
   return useQueries({
     queries: pets.map((pet) => ({

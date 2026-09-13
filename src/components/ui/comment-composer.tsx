@@ -13,7 +13,6 @@ import { COMMENT_MAX_LENGTH } from '@/services/comment.service';
 type Props = {
   replyingToName: string | null;
   isSending: boolean;
-  /** Bumped by the caller once a comment lands; that is what clears the draft. */
   sentCount: number;
   onCancelReply: () => void;
   onSend: (body: string) => void;

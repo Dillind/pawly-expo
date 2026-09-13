@@ -614,3 +614,25 @@ Three numbers must agree or the handoff to `AnimatedSplash` jumps:
 Checking this needs a native rebuild — `ios/` is gitignored and generated, so
 `bunx expo prebuild -p ios` then `bun run ios`. A Metro reload shows the JS
 overlay and tells you nothing about the storyboard.
+
+## dayjs `.tz()` silently returns UTC under Hermes
+
+`src/lib/dates.ts` never calls `.tz()` in either form, and nothing added to it
+may. The reason is not style.
+
+The timezone plugin derives a zone's offset by formatting the date with
+`toLocaleString('en-US', { timeZone })` and re-parsing the result with
+`new Date(...)`. Hermes produces the string correctly — `7/25/2026, 11:38:00 PM`
+— but its `Date` constructor only parses ISO 8601, so the re-parse yields
+`Invalid Date`. The offset becomes `NaN`, and the plugin's `if (!Number(s))`
+guard is true for `NaN` as well as for `0`, so it falls through to
+`.utcOffset(0)`. Every `.tz()` call returns UTC, and nothing throws.
+
+The static `dayjs.tz(string, format, zone)` path is not a safe exception.
+Measured on device it returns instants about fourteen minutes off.
+
+`Intl.DateTimeFormat.formatToParts` is sound on Hermes and is the only zone
+machinery the file trusts. `utc` and `timezone` still ship with dayjs and need
+no install; they rely on `Intl`, and onboarding already reads
+`Intl.DateTimeFormat().resolvedOptions().timeZone`, which is the evidence the
+ICU data is present.
