@@ -23,9 +23,6 @@ import { isWeb } from '@/utils/platform';
 
 if (__DEV__) require('../../ReactotronConfig');
 
-// The native splash is a still image and cannot animate. It is held until the
-// first JS frame, then AnimatedSplash carries the same gold field onward. Both
-// use SplashPalette.field, so the handoff has no seam.
 void SplashScreen.preventAutoHideAsync();
 
 const AuthGate = () => {
@@ -60,10 +57,6 @@ export default function RootLayout() {
   const [isSplashDone, setIsSplashDone] = useState(false);
   const handleSplashFinish = useCallback(() => setIsSplashDone(true), []);
 
-  // The splash is the window the boot work runs in: both stores rehydrate, the
-  // Supabase session is restored, and a signed-in user's profile lands. Waiting
-  // on the profile is what stops the first screen rendering without a name on
-  // it. AnimatedSplash caps the wait, so a failed profile query cannot trap it.
   const isAppReady =
     hasHydrated &&
     hasHydratedHousehold &&
@@ -75,16 +68,10 @@ export default function RootLayout() {
     void hydrateActiveHousehold();
   }, [hydrate, hydrateActiveHousehold]);
 
-  // Handing over on the first frame, not on isAppReady -- the overlay must be
-  // painted before the native splash goes, or the gap shows as a white flash.
   useEffect(() => {
     void SplashScreen.hideAsync();
   }, []);
 
-  // TanStack's documented React Native pattern. useFocusEffect does not fire
-  // when the app returns from the background, which is the case that matters
-  // most here: the phone is in a pocket, a housemate feeds the dog, the app
-  // reopens and must not still show the occurrence as unfed.
   useEffect(() => {
     const subscription = AppState.addEventListener('change', (status: AppStateStatus) => {
       if (!isWeb) focusManager.setFocused(status === 'active');
@@ -103,9 +90,7 @@ export default function RootLayout() {
             </PersistQueryClientProvider>
           </KeyboardProvider>
           <Toaster richColors position="bottom-center" closeButton swipeToDismissDirection="left" />
-          {!isSplashDone && (
-            <AnimatedSplash isAppReady={isAppReady} onFinish={handleSplashFinish} />
-          )}
+          {isSplashDone && <AnimatedSplash isAppReady={isAppReady} onFinish={handleSplashFinish} />}
         </SafeAreaProvider>
       </ThemeProvider>
     </GestureHandlerRootView>

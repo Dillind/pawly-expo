@@ -44,13 +44,6 @@ const getConfig = ({ config }: ConfigContext): ExpoConfig => {
       [
         'expo-splash-screen',
         {
-          // The image is not optional. Without it the plugin writes a
-          // storyboard that still paints systemBackgroundColor, so the splash
-          // comes out white and `backgroundColor` is silently ignored.
-          //
-          // Keep `backgroundColor` equal to SplashPalette.field and
-          // `imageWidth` equal to HERO_SIZE, both in the splash component.
-          // The still mark and the animated one must land on the same pixels.
           backgroundColor: '#F0A81C',
           image: './assets/images/splash-crumpet.png',
           imageWidth: 112,
