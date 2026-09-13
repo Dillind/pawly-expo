@@ -34,6 +34,29 @@ There are none. No two plans touch the same file:
 Plan 005 creates `src/constants/motion.ts`. Later work should migrate the other
 thirteen files to it, but that is out of scope here and is not a dependency.
 
+## Verified on device
+
+All five were exercised on an iPhone 17 Pro Max simulator (iOS 26.5,
+`2C7C0E11-5A2F-4F61-9691-063BAC07C922`) on 2026-09-13.
+
+- **001** — nothing rendered the deleted files, and nothing broke.
+- **002** — the fill grows and shrinks from the left edge at every step, 1/9
+  through 4/9, with its right end rounded and inside the track.
+- **003** — the four heads pop and settle correctly, the darkened tabby reads
+  against the gold, and under Reduce Motion the overlay leaves in 445ms without
+  trapping.
+- **004** — four taps in 400ms, each interrupting a 260ms slide, still land the
+  underline exactly on the right day. A collapsed card shows its caret already
+  turned at mount rather than rotating into place.
+- **005** — both rows render unchanged. The tick animation itself was NOT seen:
+  playing it needs a real feed log, which writes to the database and pushes a
+  notification to the household.
+
+Still unmeasured: the splash gold seam. Sampled from a simulator capture the
+native layer reads `(245, 166, 16)` and the overlay `(240, 168, 28)`. That is
+a real 5/2/12 gap, but a simulator capture cannot tell you whether the seam is
+in the asset or in the screenshot. It needs a real phone.
+
 ## Not planned
 
 Findings the audit raised and this set leaves alone, in rough order of value:
@@ -46,8 +69,10 @@ Findings the audit raised and this set leaves alone, in rough order of value:
   frame loop never idles there.
 - `zoomable-photo.tsx:66` — zoom and pan stop dead at their limits with no
   rubber-band.
-- `gallery-strip.tsx:68` — under reduced motion the jiggle likely parks every
-  tile at its end rotation instead of at zero. Unconfirmed; needs a device.
+- ~~`gallery-strip.tsx:68` — under reduced motion the jiggle likely parks every
+  tile at its end rotation instead of at zero.~~ **Wrong.** Checked on an
+  iPhone 17 Pro Max with Reduce Motion on: the tiles hold square and still. The
+  rotation stays at zero.
 - `base-modal.tsx:47` — reduced motion sets the timing to 0, which removes the
   animation rather than gentling it.
 - `crumpet-field.tsx:54` — the entrance uses the default ease-in-out.
