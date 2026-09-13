@@ -22,6 +22,7 @@ const getConfig = ({ config }: ConfigContext): ExpoConfig => {
       supportsTablet: false,
       bundleIdentifier: 'au.com.crumpet.ios',
       infoPlist: {
+        UIStatusBarStyle: 'UIStatusBarStyleDarkContent',
         ITSAppUsesNonExemptEncryption: false,
         NSUserNotificationUsageDescription:
           '$(PRODUCT_NAME) sends reminders when you need to check in.'
@@ -40,7 +41,26 @@ const getConfig = ({ config }: ConfigContext): ExpoConfig => {
       'expo-router',
       'expo-video',
       'expo-screen-orientation',
-      'expo-splash-screen',
+      [
+        'expo-splash-screen',
+        {
+          // The image is not optional. Without it the plugin writes a
+          // storyboard that still paints systemBackgroundColor, so the splash
+          // comes out white and `backgroundColor` is silently ignored.
+          //
+          // Keep `backgroundColor` equal to SplashPalette.field and
+          // `imageWidth` equal to HERO_SIZE, both in the splash component.
+          // The still mark and the animated one must land on the same pixels.
+          backgroundColor: '#F0A81C',
+          image: './assets/images/splash-crumpet.png',
+          imageWidth: 112,
+          dark: {
+            backgroundColor: '#F0A81C',
+            image: './assets/images/splash-crumpet.png',
+            imageWidth: 112
+          }
+        }
+      ],
       'expo-status-bar',
       'expo-web-browser',
       [

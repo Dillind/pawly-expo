@@ -98,6 +98,33 @@ export const BannerGradientEnd = { x: 1, y: 0.85 } as const;
 
 export type DayPart = keyof typeof BannerGradients;
 
+/**
+ * The launch sequence, which is one surface in both modes. The native splash
+ * behind it is a fixed colour baked at build time and cannot follow the theme,
+ * so a themed overlay would show a seam at the handoff.
+ *
+ * `field` must stay equal to `backgroundColor` in the expo-splash-screen
+ * plugin options in app.config.ts. Change one and you change both.
+ */
+export const SplashPalette = {
+  field: '#F0A81C',
+  crumpet: '#FBEED2',
+  crumpetHole: '#E2A02A',
+  ink: '#2A1D06',
+  /**
+   * One tone per head, taken from the Recraft art. The tabby is the exception:
+   * it arrived at #F4AC2F, which differs from `field` by 4/4/19 out of 255 and
+   * disappeared into the gold. Darkened until the silhouette reads.
+   */
+  pets: {
+    retriever: '#9F6716',
+    tabby: '#BC6A16',
+    shorthair: '#6F6A66',
+    westie: '#E8D9C3'
+  },
+  petInk: '#2A1D06'
+} as const;
+
 /** Alias kept for existing imports */
 export const Colors = COLORS;
 

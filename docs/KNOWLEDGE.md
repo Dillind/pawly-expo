@@ -580,3 +580,59 @@ from public.alerts
 where sent_at is null and suppressed_reason is null
 order by created_at;
 ```
+
+## `expo-splash-screen` ignores `backgroundColor` when you give it no `image`
+
+The plugin options look independent, so a splash that is only a colour reads as
+`{ backgroundColor: '#F0A81C' }` with no `image`. Prebuild accepts it, writes
+`SplashScreenBackground.colorset` with the right colour, and then writes a
+`SplashScreen.storyboard` that does not use it:
+
+```xml
+<subviews/>
+<constraints>
+  <constraint firstItem="EXPO-SplashScreen" .../>   <!-- no such view -->
+</constraints>
+<color key="backgroundColor" systemColor="systemBackgroundColor"/>
+```
+
+The container keeps `systemBackgroundColor`, the constraints point at an image
+view that was never emitted, and the launch screen is white. Nothing warns. The
+colour set exists, which is what makes this hard to see — you go looking for a
+wrong hex and the hex is right.
+
+Give it an `image`. `assets/images/splash-crumpet.png` is a transparent-ground
+crumpet generated to match `CrumpetMark`, and with it the storyboard emits the
+image view and `<color key="backgroundColor" name="SplashScreenBackground"/>`.
+
+Three numbers must agree or the handoff to `AnimatedSplash` jumps:
+
+- `backgroundColor` in `app.config.ts` = `SplashPalette.field` in `theme.ts`.
+- `imageWidth` in `app.config.ts` = `HERO_SIZE` in `animated-splash.tsx`.
+- The hero sits at true screen centre, where the native image is. That is why
+  the wordmark hangs off the stage rather than sharing a column with it.
+
+Checking this needs a native rebuild — `ios/` is gitignored and generated, so
+`bunx expo prebuild -p ios` then `bun run ios`. A Metro reload shows the JS
+overlay and tells you nothing about the storyboard.
+
+## Pet art generated on the brand gold vanishes against the brand gold
+
+The four splash heads came back from Recraft in the palette they were briefed
+with, which is Crumpet's own. The tabby arrived at `#F4AC2F`. The field behind
+it is `#F0A81C`. That is 4/4/19 apart out of 255, so on device the head simply
+was not there — no silhouette, no edge, and nothing in the code to blame.
+
+Two things follow for any head added later:
+
+- **Colour is not baked into the paths.** Every path in `pet-head.tsx` is tagged
+  `fur` or `ink`, and the fill is read from `SplashPalette.pets` /
+  `SplashPalette.petInk`. Retune in `theme.ts`, never in the path data.
+- **Check the tone against `SplashPalette.field`, not against white.** A head
+  reviewed on a white page looks correct and disappears on the gold. The tabby
+  is at `#BC6A16` for exactly this reason and is deliberately not its source
+  colour.
+
+Recraft's SVGs also carry about 38 kB of metadata around 2.5 kB of drawing, and
+the terrier shipped two near-white slivers on its bottom edge that would have
+read as specks on the gold. Strip both before the file lands.

@@ -1,7 +1,7 @@
 import type { LegendListRef } from '@legendapp/list/react-native';
 import { useCallback, useEffect, useMemo, useRef } from 'react';
 import { StyleSheet, useWindowDimensions, View } from 'react-native';
-import Animated, { useAnimatedStyle, withTiming } from 'react-native-reanimated';
+import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 
 import AppText from '@/components/core/app-text';
 import MainLegendList from '@/components/core/main-legend-list';
@@ -157,15 +157,24 @@ const WeekPage = ({
   const selectedIndex = days.indexOf(selectedDay);
   const cellWidth = (width - ScreenGutter * 2 - theme.spacing.one * 6) / 7;
 
-  const underlineStyle = useAnimatedStyle(() => {
-    const left =
-      selectedIndex * (cellWidth + theme.spacing.one) + (cellWidth - UNDERLINE_WIDTH) / 2;
+  const translateX = useSharedValue(0);
 
-    return {
-      opacity: selectedIndex < 0 ? 0 : 1,
-      transform: [{ translateX: withTiming(Math.max(0, left), { duration: SLIDE_MS }) }]
-    };
-  });
+  const left =
+    selectedIndex < 0
+      ? 0
+      : Math.max(
+          0,
+          selectedIndex * (cellWidth + theme.spacing.one) + (cellWidth - UNDERLINE_WIDTH) / 2
+        );
+
+  useEffect(() => {
+    translateX.set(withTiming(left, { duration: SLIDE_MS }));
+  }, [left, translateX]);
+
+  const underlineStyle = useAnimatedStyle(() => ({
+    opacity: selectedIndex < 0 ? 0 : 1,
+    transform: [{ translateX: translateX.get() }]
+  }));
 
   return (
     <View style={[styles.page, { width }]}>
