@@ -17,16 +17,22 @@ const HOLES = [
 
 type Props = {
   size?: number;
+  /**
+   * Overrides for the launch sequence, which draws the mark on gold rather
+   * than on the page. Everywhere else the theme is correct — leave both unset.
+   */
+  fill?: string;
+  holeFill?: string;
 };
 
-const CrumpetMark = ({ size = 24 }: Props) => {
+const CrumpetMark = ({ size = 24, fill, holeFill }: Props) => {
   const { colors } = useTheme();
 
   return (
     <Svg width={size} height={size} viewBox="0 0 100 100">
-      <Circle cx={50} cy={50} r={46} fill={colors.primary} />
+      <Circle cx={50} cy={50} r={46} fill={fill ?? colors.primary} />
       {HOLES.map((hole) => (
-        <Circle key={`${hole.cx}-${hole.cy}`} {...hole} fill={colors.background} />
+        <Circle key={`${hole.cx}-${hole.cy}`} {...hole} fill={holeFill ?? colors.background} />
       ))}
     </Svg>
   );

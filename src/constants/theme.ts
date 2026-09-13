@@ -98,6 +98,24 @@ export const BannerGradientEnd = { x: 1, y: 0.85 } as const;
 
 export type DayPart = keyof typeof BannerGradients;
 
+/**
+ * The launch sequence, which is one surface in both modes. The native splash
+ * behind it is a fixed colour baked at build time and cannot follow the theme,
+ * so a themed overlay would show a seam at the handoff.
+ *
+ * `field` must stay equal to `backgroundColor` in the expo-splash-screen
+ * plugin options in app.config.ts. Change one and you change both.
+ */
+export const SplashPalette = {
+  field: '#F0A81C',
+  crumpet: '#FBEED2',
+  crumpetHole: '#E2A02A',
+  ink: '#2A1D06',
+  // Placeholder fur tones. Four heads, four tones, no breed is implied yet.
+  furs: ['#7A5230', '#C98A45', '#6F6A66', '#E8D9C3'],
+  furInk: '#2A1D06'
+} as const;
+
 /** Alias kept for existing imports */
 export const Colors = COLORS;
 

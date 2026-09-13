@@ -26,9 +26,9 @@
       [
         "expo-splash-screen",
         {
-          "backgroundColor": "#208AEF",
-          "image": "./assets/images/splash-icon.png",
-          "imageWidth": 76
+          "backgroundColor": "#F0A81C",
+          "image": "./assets/images/splash-crumpet.png",
+          "imageWidth": 112
         }
       ],
       "expo-apple-authentication"
