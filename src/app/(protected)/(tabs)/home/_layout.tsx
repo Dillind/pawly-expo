@@ -74,6 +74,56 @@ export default function HomeLayout() {
 
         <Stack.Screen name="add-pet" />
 
+        {/* No native header: the screen draws its own bar, which condenses the
+            household's name and role as the identity block scrolls away. */}
+        <Stack.Screen name="household/[householdId]/index" />
+
+        <Stack.Screen name="household/[householdId]/handle" options={{ headerShown: true }}>
+          <Stack.Title style={HeaderTitleStyle}>Handle</Stack.Title>
+          <Stack.Header transparent />
+          <Stack.Screen.BackButton displayMode="minimal" />
+        </Stack.Screen>
+
+        <Stack.Screen name="household/[householdId]/notifications" options={{ headerShown: true }}>
+          <Stack.Title style={HeaderTitleStyle}>Notifications</Stack.Title>
+          <Stack.Header transparent />
+          <Stack.Screen.BackButton displayMode="minimal" />
+        </Stack.Screen>
+
+        <Stack.Screen name="household/[householdId]/members" options={{ headerShown: true }}>
+          <Stack.Title style={HeaderTitleStyle}>Members</Stack.Title>
+          <Stack.Header transparent />
+          <Stack.Screen.BackButton displayMode="minimal" />
+        </Stack.Screen>
+
+        <Stack.Screen
+          name="household/[householdId]/followers/index"
+          options={{ headerShown: true }}>
+          <Stack.Title style={HeaderTitleStyle}>Followers</Stack.Title>
+          <Stack.Header transparent />
+          <Stack.Screen.BackButton displayMode="minimal" />
+        </Stack.Screen>
+
+        <Stack.Screen
+          name="household/[householdId]/followers/requests"
+          options={{ headerShown: true }}>
+          <Stack.Title style={HeaderTitleStyle}>Requests</Stack.Title>
+          <Stack.Header transparent />
+          <Stack.Screen.BackButton displayMode="minimal" />
+        </Stack.Screen>
+
+        <Stack.Screen name="household/[householdId]/followers/link" options={{ headerShown: true }}>
+          <Stack.Title style={HeaderTitleStyle}>Follow link</Stack.Title>
+          <Stack.Header transparent />
+          <Stack.Screen.BackButton displayMode="minimal" />
+        </Stack.Screen>
+
+        <Stack.Screen name="household/[householdId]/invite" options={{ headerShown: true }}>
+          <Stack.Title style={HeaderTitleStyle}>Invite someone</Stack.Title>
+          <Stack.Header transparent />
+          <Stack.Screen.BackButton displayMode="minimal" />
+        </Stack.Screen>
+
         {/* The title is the pet's name, which only the screen has, so it sets
             its own `Stack.Title`. */}
         <Stack.Screen name="[petId]/index" options={{ headerShown: true }}>

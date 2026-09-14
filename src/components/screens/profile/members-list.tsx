@@ -238,7 +238,7 @@ const MembersList = ({ householdId }: Props) => {
             <SettingsRow
               icon="userPlus"
               label="Invite a member"
-              onPress={() => router.push(`/profile/household/${householdId}/invite`)}
+              onPress={() => router.push(`/home/household/${householdId}/invite`)}
             />
           </SettingsSection>
         )}

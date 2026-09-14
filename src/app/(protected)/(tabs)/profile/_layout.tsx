@@ -33,46 +33,8 @@ export default function ProfileLayout() {
           <Stack.Header transparent />
           <Stack.Screen.BackButton displayMode="minimal" />
         </Stack.Screen>
-        {/* No native header: the screen draws its own bar, which condenses the
-            household's name and role as the identity block scrolls away. */}
-        <Stack.Screen name="household/[householdId]/index" options={{ headerShown: false }} />
-        <Stack.Screen name="household/[householdId]/handle">
-          <Stack.Title style={HeaderTitleStyle}>Handle</Stack.Title>
-          <Stack.Header transparent />
-          <Stack.Screen.BackButton displayMode="minimal" />
-        </Stack.Screen>
-        <Stack.Screen name="household/[householdId]/notifications">
-          <Stack.Title style={HeaderTitleStyle}>Notifications</Stack.Title>
-          <Stack.Header transparent />
-          <Stack.Screen.BackButton displayMode="minimal" />
-        </Stack.Screen>
-        <Stack.Screen name="household/[householdId]/members">
-          <Stack.Title style={HeaderTitleStyle}>Members</Stack.Title>
-          <Stack.Header transparent />
-          <Stack.Screen.BackButton displayMode="minimal" />
-        </Stack.Screen>
         <Stack.Screen name="following">
           <Stack.Title style={HeaderTitleStyle}>Following</Stack.Title>
-          <Stack.Header transparent />
-          <Stack.Screen.BackButton displayMode="minimal" />
-        </Stack.Screen>
-        <Stack.Screen name="household/[householdId]/followers/index">
-          <Stack.Title style={HeaderTitleStyle}>Followers</Stack.Title>
-          <Stack.Header transparent />
-          <Stack.Screen.BackButton displayMode="minimal" />
-        </Stack.Screen>
-        <Stack.Screen name="household/[householdId]/followers/requests">
-          <Stack.Title style={HeaderTitleStyle}>Requests</Stack.Title>
-          <Stack.Header transparent />
-          <Stack.Screen.BackButton displayMode="minimal" />
-        </Stack.Screen>
-        <Stack.Screen name="household/[householdId]/followers/link">
-          <Stack.Title style={HeaderTitleStyle}>Follow link</Stack.Title>
-          <Stack.Header transparent />
-          <Stack.Screen.BackButton displayMode="minimal" />
-        </Stack.Screen>
-        <Stack.Screen name="household/[householdId]/invite">
-          <Stack.Title style={HeaderTitleStyle}>Invite someone</Stack.Title>
           <Stack.Header transparent />
           <Stack.Screen.BackButton displayMode="minimal" />
         </Stack.Screen>

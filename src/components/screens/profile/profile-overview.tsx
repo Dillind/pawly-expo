@@ -22,7 +22,6 @@ import { useSessionEmail } from '@/hooks/queries/account/use-session-email';
 import { useUserProfile } from '@/hooks/queries/account/use-user-profile';
 import { useFollowing } from '@/hooks/queries/follow/use-follows';
 import { useHousehold } from '@/hooks/queries/household/use-household';
-import { useHouseholdMembers } from '@/hooks/queries/household/use-household-members';
 import { useHouseholds } from '@/hooks/queries/household/use-households';
 import { useAuthorPosts, useDeletePost, useToggleLike } from '@/hooks/queries/posts/use-posts';
 import { usePullToRefresh } from '@/hooks/use-pull-to-refresh';
@@ -44,7 +43,6 @@ const ProfileOverview = () => {
   const { data: profile } = useUserProfile();
   const { data: email } = useSessionEmail();
   const { data: household } = useHousehold();
-  const { data: members = [] } = useHouseholdMembers(household?.id);
   const { data: households = [] } = useHouseholds();
   const { data: following = [] } = useFollowing();
 
@@ -125,18 +123,6 @@ const ProfileOverview = () => {
       </View>
 
       <ProfileStats />
-
-      {household && (
-        <View style={styles.householdCard}>
-          <Icon name="house" size={18} color="textSecondary" />
-          <AppText size={16} numberOfLines={1} style={styles.householdName}>
-            {household.name}
-          </AppText>
-          <AppText size={14} color="textSecondary">
-            {members.length} {members.length === 1 ? 'member' : 'members'}
-          </AppText>
-        </View>
-      )}
 
       {/* Only when there is something to list: a follow is not part of every
           account, and an empty row here is a door to an empty room. */}

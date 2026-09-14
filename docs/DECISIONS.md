@@ -993,3 +993,25 @@ their bytes and removed every `/** */` block in `src/`.
 
 A ceiling is enforceable where "fewer" is not. The reasoning that used to sit in a long block
 comment belongs in `KNOWLEDGE.md` or an ADR, which is where the dayjs/Hermes note went.
+
+## The handle is checked at step 1 and committed at step 4, with no reservation
+
+The build-your-household flow asks for a handle on its first step and writes nothing until its
+last. So a handle that was free when the user typed it can be taken by the time they finish.
+
+We could hold it. A reservation table, a TTL, a sweeper for the ones nobody came back for — and a
+new way to fail, where a handle looks taken because somebody abandoned a flow four minutes ago.
+
+Instead `create_household_with_pet` checks it again inside the transaction and returns
+`{ status: 'handle_taken' }`. Nothing is written, the flow returns to step 1, and the field shows an
+error. The race is real and the window is a few minutes wide; the cost of losing it is retyping one
+word.
+
+## The dashboard grid on Home holds destinations, never settings
+
+Hevy's dashboard grid is Statistics, Exercises, Measures and Calendar — four places with data in
+them. Its settings sit behind a gear as plain rows, which is where ours stay.
+
+A tile is a promise of content. "Sign out" in a tile is a broken promise. So the grid takes only
+real destinations, and it stays at two — Pets and Household — until History and Statistics exist as
+screens. A tile that opens nothing is worse than no tile.

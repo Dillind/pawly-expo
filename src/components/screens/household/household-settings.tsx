@@ -1,4 +1,5 @@
 import type { TrueSheet } from '@lodev09/react-native-true-sheet';
+import * as Clipboard from 'expo-clipboard';
 import { useRouter } from 'expo-router';
 import { useRef } from 'react';
 import { ActivityIndicator, StyleSheet, View } from 'react-native';
@@ -15,6 +16,7 @@ import ToggleSwitch from '@/components/core/toggle-switch';
 import CollapsingHeaderScreen from '@/components/layout/collapsing-header-screen';
 import HouseholdPets from '@/components/ui/household-pets';
 import { SuccessMessage } from '@/constants/enums';
+import { followLink } from '@/constants/follow-link';
 import { GRACE_WINDOW_OPTIONS, TIMEZONE_OPTIONS } from '@/constants/options';
 import { BottomTabInset, Spacing, type AppTheme } from '@/constants/theme';
 import { useFollowers, useFollowRequests } from '@/hooks/queries/follow/use-follows';
@@ -23,6 +25,8 @@ import { useHouseholdMembers } from '@/hooks/queries/household/use-household-mem
 import { useSetHouseholdListed } from '@/hooks/queries/household/use-set-household-listed';
 import { useUpdateHousehold } from '@/hooks/queries/household/use-update-household';
 import { useStyles } from '@/hooks/use-styles';
+import { hapticLight } from '@/lib/haptics';
+import { showSuccessToast } from '@/lib/toast';
 import { optionLabel } from '@/utils/options';
 
 type Props = {
@@ -61,6 +65,13 @@ const HouseholdSettings = ({ householdId }: Props) => {
 
   const isOwner = household?.isOwner ?? false;
   const role = isOwner ? 'Owner' : 'Contributor';
+
+  // Owner only, because a Contributor cannot accept the follower it brings.
+  const copyFollowLink = () => {
+    hapticLight();
+    void Clipboard.setStringAsync(followLink(householdId));
+    showSuccessToast(SuccessMessage.FollowLinkCopied);
+  };
 
   // A bare switch cannot say that Listing governs discovery, never access.
   const listedDescription = !household?.handle
@@ -107,7 +118,7 @@ const HouseholdSettings = ({ householdId }: Props) => {
               icon="users"
               label="Members"
               value={String(members.length)}
-              onPress={() => router.push(`/profile/household/${householdId}/members`)}
+              onPress={() => router.push(`/home/household/${householdId}/members`)}
             />
             {/* Owner only: the select policy on household_follows is
                 owner-or-self, so a Contributor reads no rows: they would see a
@@ -125,7 +136,7 @@ const HouseholdSettings = ({ householdId }: Props) => {
                     ? `${followRequests.length} waiting`
                     : String(followers.length)
                 }
-                onPress={() => router.push(`/profile/household/${householdId}/followers`)}
+                onPress={() => router.push(`/home/household/${householdId}/followers`)}
               />
             )}
           </SettingsSection>
@@ -144,7 +155,7 @@ const HouseholdSettings = ({ householdId }: Props) => {
               label="Handle"
               value={household.handle ? `@${household.handle}` : 'Not set'}
               onPress={
-                isOwner ? () => router.push(`/profile/household/${householdId}/handle`) : undefined
+                isOwner ? () => router.push(`/home/household/${householdId}/handle`) : undefined
               }
             />
             {/* ToggleSwitch brings no padding of its own; its only other
@@ -176,7 +187,7 @@ const HouseholdSettings = ({ householdId }: Props) => {
             <SettingsRow
               icon="bell"
               label="Notifications"
-              onPress={() => router.push(`/profile/household/${householdId}/notifications`)}
+              onPress={() => router.push(`/home/household/${householdId}/notifications`)}
             />
           </SettingsSection>
           <AppText size={13} color="textSecondary" style={styles.caption}>
@@ -234,6 +245,15 @@ const HouseholdSettings = ({ householdId }: Props) => {
           {role} · {household?.isListed ? 'Listed' : 'Unlisted'}
         </AppText>
       </View>
+      {isOwner && (
+        <IconButton
+          name="share"
+          accessibilityLabel="Copy the follow link"
+          variant="ghost"
+          size={20}
+          onPress={copyFollowLink}
+        />
+      )}
     </>
   );
 
@@ -248,6 +268,16 @@ const HouseholdSettings = ({ householdId }: Props) => {
           strokeWidth={2}
           onPress={() => router.back()}
         />
+
+        {isOwner && (
+          <IconButton
+            name="share"
+            accessibilityLabel="Copy the follow link"
+            variant="ghost"
+            size={20}
+            onPress={copyFollowLink}
+          />
+        )}
       </View>
 
       {renderBody()}
@@ -299,8 +329,10 @@ const makeStyles = ({ spacing }: AppTheme) =>
     // The gutter is the scroll view's, so the button is pulled back to sit
     // where a bar button would.
     nav: {
-      alignItems: 'flex-start',
-      marginLeft: -Spacing.two,
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      marginHorizontal: -Spacing.two,
       paddingTop: Spacing.two
     },
     barText: {

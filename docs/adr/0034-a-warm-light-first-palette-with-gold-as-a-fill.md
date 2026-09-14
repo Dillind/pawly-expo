@@ -31,16 +31,22 @@ that overloading. Gold cannot: `#F0A81C` on white is 2.0:1.
 
 ## Decision
 
-**Light-first, and warm.** The page is `#FAF6EF`. Dark mode is a port of this palette, not a second
+**Light-first, and warm.** The page is `#FBFAF8`. Dark mode is a port of this palette, not a second
 design.
 
 **`primary` is a fill and nothing else**, `#F0A81C`, labelled with `onPrimary` `#2A1D06` — near
-black, never white. A gold _label_ is a separate token, `primaryText` `#9E6404`, which clears
+black, never white. A gold _label_ is a separate token, `primaryText` `#8F5A03`, which clears
 4.5:1 where `primary` cannot. In dark mode the two collapse to one value; the call sites still use
 both names, because a call site must not know which mode it is in.
 
-**Gold has exactly three surfaces**: the Home banner wash, the Log chip, and the active tab. Gold
-marks what needs doing.
+**Gold has exactly four surfaces**: the Home banner wash, the Log chip, the active tab, and the
+primary button. Gold marks what needs doing.
+
+The fourth was not counted when this ADR was written, and the code has had it all along:
+`main-button.tsx` defaults to `variant = 'primary'`, which is gold. The budget is corrected rather
+than the button, because a primary button is exactly "what needs doing" and every alternative
+demotes the one control a screen is built around. Four is the ceiling. Anything new that wants gold
+takes it from one of these, or does without.
 
 **`success` `#10696B` is new**, and marks what is done. The tick used to be `primary`. It could not
 stay, because a gold tick on every logged row would have put gold in fourteen more places and

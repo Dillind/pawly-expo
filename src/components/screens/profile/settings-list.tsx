@@ -10,11 +10,9 @@ import SettingsRow from '@/components/core/settings-row';
 import SettingsSection from '@/components/core/settings-section';
 import ScreenScrollView from '@/components/layout/screen-scroll-view';
 import ScreenView from '@/components/layout/screen-view';
-import HouseholdRow, { HOUSEHOLD_ROW_DIVIDER_INSET } from '@/components/ui/household-row';
 import { ErrorMessage } from '@/constants/enums';
 import { APPEARANCE_OPTIONS } from '@/constants/options';
 import { BottomTabInset, type AppTheme } from '@/constants/theme';
-import { useHouseholds } from '@/hooks/queries/household/use-households';
 import { useLogout } from '@/hooks/use-logout';
 import { useStyles } from '@/hooks/use-styles';
 import { APP_VERSION, supportMailtoForUser } from '@/lib/support';
@@ -34,7 +32,6 @@ const SettingsList = () => {
   const { preference } = useThemeStore();
   const { logout, isLoading: isSigningOut } = useLogout();
   const { userId } = useAuthStore();
-  const { data: households = [] } = useHouseholds();
 
   const handleContactSupport = async () => {
     const opened = await openExternalURL(supportMailtoForUser(userId));
@@ -64,22 +61,6 @@ const SettingsList = () => {
           />
           <SettingsRow icon="sparkles" label="App Icon" isSoon />
         </SettingsSection>
-
-        {/* One row per household, because these settings belong to one alone.
-            A single row for the active household is what made a member of
-            several believe she had silenced all of them. */}
-        {households.length > 0 && (
-          <View style={styles.group}>
-            <SettingsSection title="Your households" dividerInset={HOUSEHOLD_ROW_DIVIDER_INSET}>
-              {households.map((household) => (
-                <HouseholdRow key={household.id} household={household} />
-              ))}
-            </SettingsSection>
-            <AppText size={13} color="textSecondary" style={styles.caption}>
-              Notifications, members and feed timing live inside the household they belong to.
-            </AppText>
-          </View>
-        )}
 
         <SettingsSection title="Help & Support">
           <SettingsRow
@@ -128,12 +109,6 @@ const makeStyles = ({ spacing }: AppTheme) =>
     },
     signOut: {
       paddingTop: spacing.two
-    },
-    group: {
-      gap: spacing.two
-    },
-    caption: {
-      paddingHorizontal: spacing.one
     }
   });
 
