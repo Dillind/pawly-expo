@@ -12,17 +12,16 @@ export const useNewHouseholdExit = () => {
   const { control, reset } = useFormContext<NewHouseholdFormValues>();
   const petName = useWatch({ control, name: 'petName' });
 
+  // Two dispatches, in this order and no other. `dismissTo` takes the flow's
+  // own stack back to step 1, so the `back` that follows has exactly one thing
+  // left to pop: the modal. `dismissAll` popped the presenting screen as well,
+  // and reading `canGoBack` between the two read the state before the first
+  // had applied, which fired GO_BACK at an empty stack.
   const leave = () => {
     reset();
 
-    if (router.canDismiss()) router.dismissAll();
-
-    if (router.canGoBack()) {
-      router.back();
-      return;
-    }
-
-    router.replace('/home');
+    router.dismissTo('/home/new-household');
+    router.back();
   };
 
   const exit = () => {

@@ -1,6 +1,6 @@
 import type { TrueSheet } from '@lodev09/react-native-true-sheet';
 import * as Clipboard from 'expo-clipboard';
-import { useRouter } from 'expo-router';
+import { Stack, useRouter } from 'expo-router';
 import { useRef } from 'react';
 import { ActivityIndicator, StyleSheet, View } from 'react-native';
 
@@ -8,17 +8,16 @@ import OptionSheet from '@/components/bottom-sheets/option-sheet';
 import RenameHouseholdSheet from '@/components/bottom-sheets/rename-household-sheet';
 import AppText from '@/components/core/app-text';
 import ErrorState from '@/components/core/error-state';
-import IconButton from '@/components/core/icon-button';
-import PetAvatar from '@/components/core/pet-avatar';
 import SettingsRow from '@/components/core/settings-row';
 import SettingsSection from '@/components/core/settings-section';
 import ToggleSwitch from '@/components/core/toggle-switch';
-import CollapsingHeaderScreen from '@/components/layout/collapsing-header-screen';
+import ScreenScrollView from '@/components/layout/screen-scroll-view';
+import ScreenView from '@/components/layout/screen-view';
 import HouseholdPets from '@/components/ui/household-pets';
 import { SuccessMessage } from '@/constants/enums';
 import { followLink } from '@/constants/follow-link';
 import { GRACE_WINDOW_OPTIONS, TIMEZONE_OPTIONS } from '@/constants/options';
-import { BottomTabInset, Spacing, type AppTheme } from '@/constants/theme';
+import { BottomTabInset, HeaderTitleStyle, type AppTheme } from '@/constants/theme';
 import { useFollowers, useFollowRequests } from '@/hooks/queries/follow/use-follows';
 import { useHouseholdById } from '@/hooks/queries/household/use-household-by-id';
 import { useHouseholdMembers } from '@/hooks/queries/household/use-household-members';
@@ -226,61 +225,26 @@ const HouseholdSettings = ({ householdId }: Props) => {
     );
   };
 
-  const bar = (
-    <>
-      <IconButton
-        name="caretLeft"
-        accessibilityLabel="Go back"
-        variant="ghost"
-        size={22}
-        strokeWidth={2}
-        onPress={() => router.back()}
-      />
-      <PetAvatar photoUrl={household?.pets[0]?.photoUrl} size={30} />
-      <View style={styles.barText}>
-        <AppText size={15} fontWeight="semibold" numberOfLines={1}>
-          {household?.name}
-        </AppText>
-        <AppText size={12} color="textSecondary" numberOfLines={1}>
-          {role} · {household?.isListed ? 'Listed' : 'Unlisted'}
-        </AppText>
-      </View>
-      {isOwner && (
-        <IconButton
-          name="share"
+  return (
+    <ScreenView edges={[]}>
+      {/* Outside every early return: behind one the bar has no title and falls
+          back to the route name. */}
+      <Stack.Title style={HeaderTitleStyle}>Household</Stack.Title>
+
+      <Stack.Toolbar placement="right">
+        <Stack.Toolbar.Button
+          icon="square.and.arrow.up"
           accessibilityLabel="Copy the follow link"
-          variant="ghost"
-          size={20}
+          hidden={!isOwner}
           onPress={copyFollowLink}
         />
-      )}
-    </>
-  );
+      </Stack.Toolbar>
 
-  return (
-    <CollapsingHeaderScreen bar={household ? bar : null} contentContainerStyle={styles.content}>
-      <View style={styles.nav}>
-        <IconButton
-          name="caretLeft"
-          accessibilityLabel="Go back"
-          variant="ghost"
-          size={22}
-          strokeWidth={2}
-          onPress={() => router.back()}
-        />
-
-        {isOwner && (
-          <IconButton
-            name="share"
-            accessibilityLabel="Copy the follow link"
-            variant="ghost"
-            size={20}
-            onPress={copyFollowLink}
-          />
-        )}
-      </View>
-
-      {renderBody()}
+      <ScreenScrollView
+        contentInsetAdjustmentBehavior="automatic"
+        contentContainerStyle={styles.content}>
+        {renderBody()}
+      </ScreenScrollView>
 
       {household && isOwner && (
         <>
@@ -316,7 +280,7 @@ const HouseholdSettings = ({ householdId }: Props) => {
           />
         </>
       )}
-    </CollapsingHeaderScreen>
+    </ScreenView>
   );
 };
 
@@ -325,18 +289,6 @@ const makeStyles = ({ spacing }: AppTheme) =>
     content: {
       paddingBottom: BottomTabInset + spacing.four,
       gap: spacing.four
-    },
-    // The gutter is the scroll view's, so the button is pulled back to sit
-    // where a bar button would.
-    nav: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      justifyContent: 'space-between',
-      marginHorizontal: -Spacing.two,
-      paddingTop: Spacing.two
-    },
-    barText: {
-      flex: 1
     },
     identity: {
       flexDirection: 'row',

@@ -72,13 +72,25 @@ export default function HomeLayout() {
           <Stack.Screen.BackButton displayMode="minimal" />
         </Stack.Screen>
 
-        <Stack.Screen name="add-pet" />
+        {/* A full-screen modal, not a push: a pushed screen keeps the tab bar,
+            so a half-filled setup could be abandoned by tapping Posts with no
+            prompt, and the footer had to pad itself under the bar. */}
+        <Stack.Screen
+          name="add-pet"
+          options={{ presentation: 'fullScreenModal', animation: 'slide_from_bottom' }}
+        />
 
-        <Stack.Screen name="new-household" />
+        <Stack.Screen
+          name="new-household"
+          options={{ presentation: 'fullScreenModal', animation: 'slide_from_bottom' }}
+        />
 
-        {/* No native header: the screen draws its own bar, which condenses the
-            household's name and role as the identity block scrolls away. */}
-        <Stack.Screen name="household/[householdId]/index" />
+        {/* The title is the household's name, which only the screen has, so it
+            sets its own `Stack.Title`. */}
+        <Stack.Screen name="household/[householdId]/index" options={{ headerShown: true }}>
+          <Stack.Header transparent />
+          <Stack.Screen.BackButton displayMode="minimal" />
+        </Stack.Screen>
 
         <Stack.Screen name="household/[householdId]/handle" options={{ headerShown: true }}>
           <Stack.Title style={HeaderTitleStyle}>Handle</Stack.Title>

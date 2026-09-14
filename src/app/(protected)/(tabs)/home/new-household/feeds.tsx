@@ -102,14 +102,14 @@ const FeedTimes = () => {
         />
       }>
       <View style={styles.list}>
-        {fields.map((field, index) => {
-          const feedTime = feedTimes[index];
-
-          if (!feedTime) return null;
-
+        {/* Mapped over the watched values, not over `fields`. On the render
+            after an append the two lengths differ, and mapping `fields` drew a
+            row whose value was undefined -- so a feed the user had just added
+            was silently dropped from the list and added again. */}
+        {feedTimes.map((feedTime, index) => {
           return (
             <PressableOpacity
-              key={field.id}
+              key={fields[index]?.id ?? index}
               style={styles.card}
               accessibilityRole="button"
               accessibilityLabel={`Edit the ${feedTime.label} feed`}

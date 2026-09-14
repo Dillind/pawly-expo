@@ -105,6 +105,9 @@ const FlowScreen = ({
 
       <ScreenScrollView
         keyboardShouldPersistTaps="handled"
+        // A step can be shorter than the keyboard, so there is nothing to
+        // scroll and no tap outside dismisses it. A drag is the way out.
+        keyboardDismissMode="on-drag"
         isKeyboardAware={isKeyboardAware}
         contentContainerStyle={styles.content}>
         {children}
