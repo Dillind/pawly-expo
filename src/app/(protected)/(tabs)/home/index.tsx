@@ -21,7 +21,7 @@ import PetSection from '@/components/screens/home/pet-section';
 import PetSectionSkeleton from '@/components/screens/home/pet-section-skeleton';
 import WeekStrip from '@/components/screens/home/week-strip';
 import TileGrid from '@/components/ui/tile-grid';
-import { HOME_TILES } from '@/constants/home-tiles';
+import { homeTiles } from '@/constants/home-tiles';
 import { BottomTabInset, type AppTheme } from '@/constants/theme';
 import { useUserProfile } from '@/hooks/queries/account/use-user-profile';
 import { useRefreshUnreadAlertCount } from '@/hooks/queries/alerts/use-alerts';
@@ -249,7 +249,7 @@ const Home = () => {
 
         {renderBody()}
 
-        {hasHousehold && <TileGrid tiles={HOME_TILES} />}
+        {hasHousehold && <TileGrid tiles={homeTiles(household?.id)} />}
 
         {tip && <HomeTip tip={tip} />}
       </ScreenScrollView>
