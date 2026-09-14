@@ -1,6 +1,6 @@
 ---
 name: crumpet-ui-conventions
-description: Crumpet's own UI building rules — Option<T> and CONSTANT_CASE for selectable data, react-hook-form + Zod forms with isLabelIndicated and the DateTimePickerValidated time spinner, the Icon allow-list and IconButton, theme tokens and makeStyles, TrueSheet bottom sheets built on BaseSheet and SheetRow, Trays for sequenced edits, and ActionPopover. Invoke before writing or changing any UI in this repo, alongside /frontend-design and /expo-native-ui. Not for navigation, state, services or data work — those stay in AGENTS.md.
+description: Crumpet's own UI building rules — Option<T> and CONSTANT_CASE for selectable data, react-hook-form + Zod forms with isLabelIndicated and the DateTimePickerValidated time spinner, the Icon allow-list and IconButton, theme tokens and makeStyles, TrueSheet bottom sheets built on BaseSheet and SheetRow, Trays for sequenced edits, and ActionPopover. Invoke before writing or changing any UI in this repo — layout, styling, copy, navigation, screen composition, or a new component — alongside /frontend-design and /expo-native-ui. Route structure, state, services and data rules stay in AGENTS.md.
 ---
 
 # Crumpet UI conventions
@@ -94,7 +94,7 @@ One live consequence:
 Icons come from `lucide-react-native`, but **never import a Lucide icon directly in a screen or
 component**, and never import from `lucide-react-native` anywhere except
 `src/constants/icon-map.ts` — that allow-list is what keeps the bundle from silently growing.
-See [ADR 0008](./docs/adr/0008-lucide-icon-library-typed-icon-map.md).
+See [ADR 0008](../../../docs/adr/0008-lucide-icon-library-typed-icon-map.md).
 
 ```tsx
 import Icon from '@/components/core/icon';
@@ -108,11 +108,11 @@ An icon-only tappable control is `IconButton`, which owns the 44pt target and a 
 
 Full rules — every prop, the four `IconButton` variants and why `glass` behaves differently,
 `HeaderIconButton`, and how to add a new icon — are in
-**[docs/conventions/icons.md](./docs/conventions/icons.md)**.
+**[docs/conventions/icons.md](../../../docs/conventions/icons.md)**.
 
 ### Styling & theming
 
-Custom theme tokens — **no component library, no NativeWind/Tailwind** (see [ADR 0004](./docs/adr/0004-custom-theme-no-component-library.md)). Full guide in [docs/THEMING.md](./docs/THEMING.md). In short:
+Custom theme tokens — **no component library, no NativeWind/Tailwind** (see [ADR 0004](../../../docs/adr/0004-custom-theme-no-component-library.md)). Full guide in [docs/THEMING.md](../../../docs/THEMING.md). In short:
 
 - Colours via `useTheme()` (from `@/hooks/use-theme`) — returns the active light/dark palette. Never hard-code colour strings.
 - Styles via a module-level `makeStyles` factory + `useStyles(makeStyles)` — see Theming above. `useStyles` takes no `deps`: the factory itself is the cache key, so wrap it in `useCallback` when it closes over props.
@@ -122,7 +122,7 @@ Custom theme tokens — **no component library, no NativeWind/Tailwind** (see [A
 
 ### Sheets
 
-Bottom sheets are the default way to present secondary content — confirmations, quick forms, detail views. They use **`@lodev09/react-native-true-sheet`**, which wraps the real native sheet on each platform (`UISheetPresentationController` on iOS, `BottomSheetDialog` on Android). See [ADR 0010](./docs/adr/0010-truesheet-over-expo-router-form-sheets.md) for why this over Expo Router's built-in `formSheet`.
+Bottom sheets are the default way to present secondary content — confirmations, quick forms, detail views. They use **`@lodev09/react-native-true-sheet`**, which wraps the real native sheet on each platform (`UISheetPresentationController` on iOS, `BottomSheetDialog` on Android). See [ADR 0010](../../../docs/adr/0010-truesheet-over-expo-router-form-sheets.md) for why this over Expo Router's built-in `formSheet`.
 
 **Sheets are components, not routes.** A sheet lives next to the thing that opens it and is presented imperatively through a ref.
 
@@ -161,7 +161,7 @@ Rules:
 A **Tray** is the standard presentation for a sequenced edit — several small steps in one flow, like
 editing the feeding schedule. It's built on `Tray` (`src/components/core/tray.tsx`), which is one
 `BaseSheet` whose content swaps per step and whose height animates to match. See
-[ADR 0014](./docs/adr/0014-tray-is-one-sheet-with-swapping-content.md) for why it's one sheet and not
+[ADR 0014](../../../docs/adr/0014-tray-is-one-sheet-with-swapping-content.md) for why it's one sheet and not
 one sheet per step.
 
 - **Never nest sheets for a multi-step flow.** A tray is the answer whenever a flow would otherwise
