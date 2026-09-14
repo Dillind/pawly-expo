@@ -7,15 +7,13 @@ import { StyleSheet, View } from 'react-native';
 import AppText from '@/components/core/app-text';
 import MainButton from '@/components/core/main-button';
 import TextInputValidated from '@/components/core/text-input-validated';
-import ScreenFooter from '@/components/layout/screen-footer';
-import ScreenScrollView from '@/components/layout/screen-scroll-view';
-import ScreenView from '@/components/layout/screen-view';
-import FlowStepper from '@/components/ui/flow-stepper';
+import FlowScreen from '@/components/layout/flow-screen';
 import { ErrorMessage } from '@/constants/enums';
 import { FEEDING_SCHEDULE_LABEL_OPTIONS } from '@/constants/options';
-import { ADD_PET_STEPS, type AddPetFormValues } from '@/constants/schemas/add-pet';
+import { ADD_PET_STEP_COUNT, type AddPetFormValues } from '@/constants/schemas/add-pet';
 import { Radius, type AppTheme } from '@/constants/theme';
 import { useAddPet } from '@/hooks/queries/pet/use-pet-mutations';
+import { useAddPetExit } from '@/hooks/use-add-pet-exit';
 import { useStyles } from '@/hooks/use-styles';
 import { showErrorToast } from '@/lib/toast';
 import PetPhotoService from '@/services/pet-photo.service';
@@ -32,6 +30,7 @@ const AddPetInstructions = () => {
   const [isUploading, setIsUploading] = useState(false);
 
   const { control, handleSubmit, reset } = useFormContext<AddPetFormValues>();
+  const { exit } = useAddPetExit();
   const { fields } = useFieldArray({ control, name: 'feedTimes' });
   const name = useWatch({ control, name: 'name' });
   const feedTimes = useWatch({ control, name: 'feedTimes' });
@@ -87,84 +86,69 @@ const AddPetInstructions = () => {
   );
 
   return (
-    <ScreenView edges={[]}>
-      <ScreenScrollView
-        contentInsetAdjustmentBehavior="automatic"
-        keyboardShouldPersistTaps="handled"
-        isKeyboardAware
-        contentContainerStyle={styles.content}>
-        <FlowStepper current={3} steps={ADD_PET_STEPS} />
+    <FlowScreen
+      step={3}
+      stepCount={ADD_PET_STEP_COUNT}
+      title={`What does ${name || 'your pet'} get?`}
+      subtitle="Whoever feeds them sees this when they log it. A sitter will thank you."
+      closeLabel="Close, and do not add this pet"
+      onClose={exit}
+      onBack={() => router.back()}
+      isKeyboardAware
+      footer={
+        <>
+          <MainButton
+            text={`Add ${name || 'pet'}`}
+            isLoading={isBusy}
+            isDisabled={isBusy}
+            onPress={() => void create()}
+          />
 
-        <View style={styles.intro}>
-          <AppText variant="header" size={28}>
-            What does {name || 'your pet'} get?
-          </AppText>
-          <AppText size={15} color="textSecondary">
-            Whoever feeds them sees this when they log it. A sitter will thank you.
-          </AppText>
-        </View>
+          <MainButton
+            text="Add without instructions"
+            variant="text"
+            isDisabled={isBusy}
+            onPress={() => void create()}
+          />
+        </>
+      }>
+      {fields.map((field, index) => {
+        const feedTime = feedTimes[index];
 
-        {fields.map((field, index) => {
-          const feedTime = feedTimes[index];
+        if (!feedTime) return null;
 
-          if (!feedTime) return null;
+        return (
+          <View key={field.id} style={styles.card}>
+            <AppText size={15} fontWeight="bold">
+              {optionLabel(FEEDING_SCHEDULE_LABEL_OPTIONS, feedTime.label)}
+              {'  ·  '}
+              {dayjs(feedTime.localTime, 'HH:mm').format('h:mm A')}
+            </AppText>
 
-          return (
-            <View key={field.id} style={styles.card}>
-              <AppText size={15} fontWeight="bold">
-                {optionLabel(FEEDING_SCHEDULE_LABEL_OPTIONS, feedTime.label)}
-                {'  ·  '}
-                {dayjs(feedTime.localTime, 'HH:mm').format('h:mm A')}
-              </AppText>
-
-              <Controller
-                control={control}
-                name={`feedTimes.${index}.instructions`}
-                render={({ field: { onChange, onBlur, value } }) => (
-                  <TextInputValidated
-                    name={`feedTimes.${index}.instructions`}
-                    label="Instructions"
-                    placeholder="Half a tin of wet food + 1 cup dry"
-                    value={value ?? ''}
-                    onBlur={onBlur}
-                    onChangeText={(next: string) => onChange(next === '' ? null : next)}
-                    isMultiline
-                  />
-                )}
-              />
-            </View>
-          );
-        })}
-      </ScreenScrollView>
-
-      <ScreenFooter>
-        <MainButton
-          text={`Add ${name || 'pet'}`}
-          isLoading={isBusy}
-          isDisabled={isBusy}
-          onPress={() => void create()}
-        />
-
-        <MainButton
-          text="Add without instructions"
-          variant="text"
-          isDisabled={isBusy}
-          onPress={() => void create()}
-        />
-      </ScreenFooter>
-    </ScreenView>
+            <Controller
+              control={control}
+              name={`feedTimes.${index}.instructions`}
+              render={({ field: { onChange, onBlur, value } }) => (
+                <TextInputValidated
+                  name={`feedTimes.${index}.instructions`}
+                  label="Instructions"
+                  placeholder="Half a tin of wet food + 1 cup dry"
+                  value={value ?? ''}
+                  onBlur={onBlur}
+                  onChangeText={(next: string) => onChange(next === '' ? null : next)}
+                  isMultiline
+                />
+              )}
+            />
+          </View>
+        );
+      })}
+    </FlowScreen>
   );
 };
 
 const makeStyles = ({ colors, spacing }: AppTheme) =>
   StyleSheet.create({
-    content: {
-      gap: spacing.three,
-      paddingBottom: spacing.four
-    },
-    intro: {
-      gap: spacing.one
-    },
     card: {
       gap: spacing.two,
       padding: spacing.three,

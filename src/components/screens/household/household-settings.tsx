@@ -7,15 +7,16 @@ import OptionSheet from '@/components/bottom-sheets/option-sheet';
 import RenameHouseholdSheet from '@/components/bottom-sheets/rename-household-sheet';
 import AppText from '@/components/core/app-text';
 import ErrorState from '@/components/core/error-state';
+import IconButton from '@/components/core/icon-button';
+import PetAvatar from '@/components/core/pet-avatar';
 import SettingsRow from '@/components/core/settings-row';
 import SettingsSection from '@/components/core/settings-section';
 import ToggleSwitch from '@/components/core/toggle-switch';
-import ScreenScrollView from '@/components/layout/screen-scroll-view';
-import ScreenView from '@/components/layout/screen-view';
+import CollapsingHeaderScreen from '@/components/layout/collapsing-header-screen';
 import HouseholdPets from '@/components/ui/household-pets';
 import { SuccessMessage } from '@/constants/enums';
 import { GRACE_WINDOW_OPTIONS, TIMEZONE_OPTIONS } from '@/constants/options';
-import { BottomTabInset, type AppTheme } from '@/constants/theme';
+import { BottomTabInset, Spacing, type AppTheme } from '@/constants/theme';
 import { useFollowers, useFollowRequests } from '@/hooks/queries/follow/use-follows';
 import { useHouseholdById } from '@/hooks/queries/household/use-household-by-id';
 import { useHouseholdMembers } from '@/hooks/queries/household/use-household-members';
@@ -59,6 +60,7 @@ const HouseholdSettings = ({ householdId }: Props) => {
   const { mutate: setListed, isPending: isSettingListed } = useSetHouseholdListed(householdId);
 
   const isOwner = household?.isOwner ?? false;
+  const role = isOwner ? 'Owner' : 'Contributor';
 
   // A bare switch cannot say that Listing governs discovery, never access.
   const listedDescription = !household?.handle
@@ -67,7 +69,6 @@ const HouseholdSettings = ({ householdId }: Props) => {
       ? 'Anyone can find your household by name or handle.'
       : 'Only people with your follow link can find you.';
 
-  // A bare ScreenView under a transparent header draws beneath the bar.
   const renderBody = () => {
     if (isLoading) return <ActivityIndicator style={styles.loading} />;
 
@@ -90,11 +91,12 @@ const HouseholdSettings = ({ householdId }: Props) => {
         <View style={styles.identity}>
           <HouseholdPets pets={household.pets} ringColor="background" />
           <View style={styles.identityText}>
-            <AppText variant="header" size={19} fontWeight="bold" numberOfLines={1}>
+            <AppText variant="header" size={24} fontWeight="bold" numberOfLines={1}>
               {household.name}
             </AppText>
-            <AppText size={13} color="textSecondary">
-              {isOwner ? 'You are the Owner' : 'You are a Contributor'}
+            <AppText size={13} color="textSecondary" numberOfLines={1}>
+              You are the {role}
+              {household.handle ? `  ·  @${household.handle}` : ''}
             </AppText>
           </View>
         </View>
@@ -213,13 +215,42 @@ const HouseholdSettings = ({ householdId }: Props) => {
     );
   };
 
+  const bar = (
+    <>
+      <IconButton
+        name="caretLeft"
+        accessibilityLabel="Go back"
+        variant="ghost"
+        size={22}
+        strokeWidth={2}
+        onPress={() => router.back()}
+      />
+      <PetAvatar photoUrl={household?.pets[0]?.photoUrl} size={30} />
+      <View style={styles.barText}>
+        <AppText size={15} fontWeight="semibold" numberOfLines={1}>
+          {household?.name}
+        </AppText>
+        <AppText size={12} color="textSecondary" numberOfLines={1}>
+          {role} · {household?.isListed ? 'Listed' : 'Unlisted'}
+        </AppText>
+      </View>
+    </>
+  );
+
   return (
-    <ScreenView edges={[]}>
-      <ScreenScrollView
-        contentContainerStyle={styles.content}
-        contentInsetAdjustmentBehavior="automatic">
-        {renderBody()}
-      </ScreenScrollView>
+    <CollapsingHeaderScreen bar={household ? bar : null} contentContainerStyle={styles.content}>
+      <View style={styles.nav}>
+        <IconButton
+          name="caretLeft"
+          accessibilityLabel="Go back"
+          variant="ghost"
+          size={22}
+          strokeWidth={2}
+          onPress={() => router.back()}
+        />
+      </View>
+
+      {renderBody()}
 
       {household && isOwner && (
         <>
@@ -255,16 +286,25 @@ const HouseholdSettings = ({ householdId }: Props) => {
           />
         </>
       )}
-    </ScreenView>
+    </CollapsingHeaderScreen>
   );
 };
 
 const makeStyles = ({ spacing }: AppTheme) =>
   StyleSheet.create({
     content: {
-      paddingVertical: spacing.four,
       paddingBottom: BottomTabInset + spacing.four,
       gap: spacing.four
+    },
+    // The gutter is the scroll view's, so the button is pulled back to sit
+    // where a bar button would.
+    nav: {
+      alignItems: 'flex-start',
+      marginLeft: -Spacing.two,
+      paddingTop: Spacing.two
+    },
+    barText: {
+      flex: 1
     },
     identity: {
       flexDirection: 'row',

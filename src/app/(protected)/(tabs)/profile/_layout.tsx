@@ -33,14 +33,9 @@ export default function ProfileLayout() {
           <Stack.Header transparent />
           <Stack.Screen.BackButton displayMode="minimal" />
         </Stack.Screen>
-        {/* Static, not the household's name: the screen shows the name in its
-            own identity block, and a data-driven title needs Stack.Title from
-            inside the screen, outside every early return. */}
-        <Stack.Screen name="household/[householdId]/index">
-          <Stack.Title style={HeaderTitleStyle}>Household</Stack.Title>
-          <Stack.Header transparent />
-          <Stack.Screen.BackButton displayMode="minimal" />
-        </Stack.Screen>
+        {/* No native header: the screen draws its own bar, which condenses the
+            household's name and role as the identity block scrolls away. */}
+        <Stack.Screen name="household/[householdId]/index" options={{ headerShown: false }} />
         <Stack.Screen name="household/[householdId]/handle">
           <Stack.Title style={HeaderTitleStyle}>Handle</Stack.Title>
           <Stack.Header transparent />

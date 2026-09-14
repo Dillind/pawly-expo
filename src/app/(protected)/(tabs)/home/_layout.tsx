@@ -72,12 +72,7 @@ export default function HomeLayout() {
           <Stack.Screen.BackButton displayMode="minimal" />
         </Stack.Screen>
 
-        <Stack.Screen
-          name="add-pet"
-          options={{
-            presentation: 'modal'
-          }}
-        />
+        <Stack.Screen name="add-pet" />
 
         {/* The title is the pet's name, which only the screen has, so it sets
             its own `Stack.Title`. */}

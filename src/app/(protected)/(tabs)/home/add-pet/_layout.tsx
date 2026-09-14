@@ -32,33 +32,23 @@ export default function AddPetLayout() {
 
   return (
     <FormProvider {...form}>
-      <Stack>
-        <Stack.Screen name="index">
-          <Stack.Title style={HeaderTitleStyle}>Add a pet</Stack.Title>
-          <Stack.Header transparent />
-          <Stack.Screen.BackButton displayMode="minimal" />
-        </Stack.Screen>
+      {/* The three flow steps draw their own bar, so the native header is off
+          for them. The two screens a step pushes keep theirs. */}
+      <Stack screenOptions={{ headerShown: false }}>
+        <Stack.Screen name="index" />
         {/* The only step whose body is a full-height list, not a
             scroll view, so an overlaying bar would sit on top of the heading. */}
-        <Stack.Screen name="breed">
+        <Stack.Screen name="breed" options={{ headerShown: true }}>
           <Stack.Title style={HeaderTitleStyle}>Breed</Stack.Title>
           <Stack.Screen.BackButton displayMode="minimal" />
         </Stack.Screen>
-        <Stack.Screen name="feeds">
-          <Stack.Title style={HeaderTitleStyle}>Add a pet</Stack.Title>
-          <Stack.Header transparent />
-          <Stack.Screen.BackButton displayMode="minimal" />
-        </Stack.Screen>
-        <Stack.Screen name="feed">
+        <Stack.Screen name="feeds" />
+        <Stack.Screen name="feed" options={{ headerShown: true }}>
           <Stack.Title style={HeaderTitleStyle}>Feed</Stack.Title>
           <Stack.Header transparent />
           <Stack.Screen.BackButton displayMode="minimal" />
         </Stack.Screen>
-        <Stack.Screen name="instructions">
-          <Stack.Title style={HeaderTitleStyle}>Add a pet</Stack.Title>
-          <Stack.Header transparent />
-          <Stack.Screen.BackButton displayMode="minimal" />
-        </Stack.Screen>
+        <Stack.Screen name="instructions" />
       </Stack>
     </FormProvider>
   );
