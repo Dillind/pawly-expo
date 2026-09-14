@@ -8,10 +8,8 @@ import { useStyles } from '@/hooks/use-styles';
 
 import type { ActionMenuProps } from './action-menu.types';
 
-/**
- * The non-iOS fallback. iOS gets `action-menu.ios.tsx`, a real UIMenu; there is
- * no equivalent on the other platforms, so this draws the same list in JS.
- */
+// The non-iOS fallback. iOS gets `action-menu.ios.tsx`, a real UIMenu; there is no equivalent
+// on the other platforms, so this draws the same list in JS.
 const ActionMenu = ({ label, actions, onPrimaryAction }: ActionMenuProps) => {
   const styles = useStyles(makeStyles);
   const [isOpen, setIsOpen] = useState(false);

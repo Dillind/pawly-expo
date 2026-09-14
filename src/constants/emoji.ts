@@ -1,18 +1,7 @@
-/**
- * The emoji an Occasion can wear.
- *
- * A curated list, not a library. `ios/Podfile` pins the deployment target to
- * 16.4, and iOS 16.4 ships Emoji 15.0, so every glyph below draws on every
- * device that can run Crumpet -- the newest here is Emoji 14.0. A keyboard
- * package would carry a font table, a search index and a 2022 data set to
- * solve a rendering problem this app does not have.
- *
- * Grouped rather than flat: a member looking for "vet" is looking in a
- * category, and 200 undifferentiated glyphs is a wall.
- */
+// Curated, not a library: the deployment target is iOS 16.4, which ships Emoji
+// 15.0, and the newest glyph here is Emoji 14.0, so every one draws.
 
 export type EmojiGroup = {
-  /** The section heading, and what the search matches on besides the keywords. */
   title: string;
   emoji: { char: string; keywords: string }[];
 };
@@ -133,5 +122,4 @@ export const EMOJI_GROUPS: EmojiGroup[] = [
   ])
 ];
 
-/** Flat, for a lookup by character. */
 export const EMOJI_OPTIONS = EMOJI_GROUPS.flatMap((section) => section.emoji);

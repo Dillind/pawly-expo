@@ -6,7 +6,7 @@ import type { AppTheme } from '@/constants/theme';
 import { useStyles } from '@/hooks/use-styles';
 
 type Props = {
-  /** The first step has nowhere back, so Next takes the full width. */
+  // The first step has nowhere back, so Next takes the full width.
   isFirst?: boolean;
   isBusy?: boolean;
   backLabel?: string;

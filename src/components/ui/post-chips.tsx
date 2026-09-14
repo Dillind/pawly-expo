@@ -12,25 +12,19 @@ import type { PostOccasion, PostPetTag } from '@/services/post.service';
 type Props = {
   occasion: PostOccasion | null;
   pets: PostPetTag[];
-  /** Decides which Pet screen a tag opens. A Follower cannot read the member one. */
+  // Decides which Pet screen a tag opens.
   householdId: string;
 };
 
 const AVATAR = 20;
 
-/**
- * One row under the caption answering one question -- what this was, and who
- * was in it. The Occasion leads because it names the day; the Pets follow.
- *
- * Renders nothing when a Post has neither, which is the common case. Both are
- * optional and neither is ever pre-selected.
- */
+// The Occasion leads because it names the day; the Pets follow.
 const PostChips = ({ occasion, pets, householdId }: Props) => {
   const styles = useStyles(makeStyles);
   const router = useRouter();
 
-  // /home/[petId] loads feed times and the Care Card, and a Follower can read
-  // neither -- the screen sat on its skeleton for ever rather than failing.
+  // /home/[petId] loads feed times and the Care Card, which a Follower cannot
+  // read, so the screen sits on its skeleton for ever rather than failing.
   const isFollowed = useFollowedHouseholdIds().includes(householdId);
 
   const openPet = (petId: string) =>

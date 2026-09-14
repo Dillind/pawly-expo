@@ -9,14 +9,12 @@ import { useStyles } from '@/hooks/use-styles';
 type Props = {
   title?: string;
   description?: string;
-  /** Omit when retrying cannot help -- a household the user has left is gone. */
+  // Omit when retrying cannot help -- a household the user has left is gone.
   onRetry?: () => void;
 };
 
-/**
- * Never let a failed query render as an empty list: an empty list and a broken
- * one must not look identical.
- */
+// Never let a failed query render as an empty list: an empty list and a broken one must not
+// look identical.
 const ErrorState = ({
   title = "Couldn't load this",
   description = 'Check your connection and try again.',

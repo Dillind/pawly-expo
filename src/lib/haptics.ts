@@ -6,47 +6,24 @@ const safe = async (fn: () => Promise<void>) => {
   if (!isIOS) return;
   try {
     await fn();
-  } catch {
-    // Ignore haptic errors (unsupported devices, etc.)
-  }
+  } catch {}
 };
 
-/**
- * Light haptic for button presses and selections
- */
 export const hapticLight = () => safe(() => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light));
 
-/**
- * Selection tick for a value moving past a step -- a segmented control, a
- * picker detent. Not an impact: nothing collided, the selection changed.
- */
+// Not an impact: nothing collided, the selection changed.
 export const hapticSelection = () => safe(() => Haptics.selectionAsync());
 
-/**
- * Medium haptic for significant actions like swiping
- */
 export const hapticMedium = () =>
   safe(() => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium));
 
-/**
- * Heavy haptic for important confirmations
- */
 export const hapticHeavy = () => safe(() => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy));
 
-/**
- * Success notification for positive feedback
- */
 export const hapticSuccess = () =>
   safe(() => Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success));
 
-/**
- * Warning notification
- */
 export const hapticWarning = () =>
   safe(() => Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning));
 
-/**
- * Error notification
- */
 export const hapticError = () =>
   safe(() => Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error));

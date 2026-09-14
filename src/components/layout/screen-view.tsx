@@ -7,25 +7,13 @@ import { useStyles } from '@/hooks/use-styles';
 
 type Props = {
   children: ReactNode;
-  /**
-   * Defaults to the top edge only. The native tab bar owns the bottom inset, so
-   * claiming 'bottom' would double it, and left/right are irrelevant until the
-   * app supports landscape.
-   *
-   * A screen presented with a native header passes `[]`: the header already sits
-   * below the status bar, and claiming the top again indents the whole screen a
-   * second time.
-   */
+  // The native tab bar owns the bottom inset, so claiming it doubles it. A
+  // screen with a native header passes `[]`, or the top is claimed twice.
   edges?: readonly Edge[];
 };
 
-/**
- * The frame a screen sits in: safe area and background. Nothing else.
- *
- * Gutters deliberately do not live here. Every screen in this app puts a
- * scroller directly inside, so padding on the frame would inset the scroll view
- * rather than its content -- see ScreenGutter in constants/theme.
- */
+// Gutters do not live here: every screen puts a scroller directly inside, so
+// padding on the frame insets the scroll view rather than its content.
 const ScreenView = ({ children, edges = ['top'] }: Props) => {
   const styles = useStyles(makeStyles);
 

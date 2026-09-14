@@ -20,21 +20,13 @@ import type { Pet } from '@/types/core';
 
 type Props = {
   pet: Pet;
-  /** Today in the household's timezone. */
   today: string;
 };
 
-// A Reminder exists so a job three weeks out is not forgotten, so the card has
-// to read forward. Both numbers are bounds, not a view: a weekly rule read over
-// an open range is unbounded, and a card that lists twenty of them is a screen.
+// Bounds, not a view: a weekly rule read over an open range is unbounded.
 const HORIZON_DAYS = 60;
 const VISIBLE_LIMIT = 6;
 
-/**
- * The dated jobs that are not feeds. Today first, then what is coming over the
- * next 60 days. Home's week strip is still where a particular day is
- * reached; this is the list of what is outstanding.
- */
 const RemindersSection = ({ pet, today }: Props) => {
   const styles = useStyles(makeStyles);
   const trayRef = useRef<TrueSheet | null>(null);
@@ -84,8 +76,7 @@ const RemindersSection = ({ pet, today }: Props) => {
                   reminder.reminderId,
                   reminder.occurrenceDate
                 )}
-                // A job that is not due yet has nothing to tick off. The row
-                // says "Future" instead, and the chip would contradict it.
+                // Nothing to tick off yet: the row says "Future" instead.
                 onTick={
                   reminder.state === 'future'
                     ? undefined
@@ -119,7 +110,7 @@ const RemindersSection = ({ pet, today }: Props) => {
         </View>
       </SectionCard>
 
-      {/* A sibling, never a child: a sheet presented from inside the card it
+      {/* A sibling, never a child: presented from inside the card it
           belongs to is still a sibling of it in the tree. */}
       <ReminderTray sheetRef={trayRef} pet={pet} today={today} />
 

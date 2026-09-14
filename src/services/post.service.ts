@@ -15,22 +15,15 @@ export type PostAuthor = {
 
 export type PostPetTag = { id: string; name: string; photoUrl: string | null };
 
-/**
- * The Occasion a Post carries, denormalised onto the Post. Soft-deleted rows
- * are embedded like any other -- a Post keeps the Occasion it was given even
- * after the household drops it from the picker.
- */
+// Soft-deleted rows embed like any other: a Post keeps the Occasion it was
+// given after the household drops it from the picker.
 export type PostOccasion = { id: string; emoji: string | null; label: string | null };
 
 export type PostLiker = PostAuthor & { userId: string };
 
-/** `storagePath` is the identity an edit works in -- see `update`. */
+// `storagePath` is the identity an edit works in -- see `update`.
 export type PostPhoto = { id: string; url: string; storagePath: string };
 
-/**
- * A photo on its way into a Post: either one already in the bucket, or one the
- * author just picked and which has not been uploaded yet.
- */
 export type PostPhotoInput =
   { kind: 'existing'; storagePath: string } | { kind: 'new'; localUri: string };
 
@@ -39,29 +32,25 @@ export type Post = {
   householdId: string;
   authorId: string | null;
   author: PostAuthor | null;
-  /** Null on every Post made before titles existed. */
   title: string | null;
   caption: string | null;
   occurredAt: string;
   editedAt: string | null;
   photos: PostPhoto[];
   pets: PostPetTag[];
-  /** Optional, and at most one. */
   occasion: PostOccasion | null;
   likeCount: number;
   likedByMe: boolean;
-  /** The whole thread, replies included. */
   commentCount: number;
-  /** Ordered oldest like first, so the row's lead name is stable between renders. */
+  // Oldest like first, so the row's lead name is stable between renders.
   likers: PostLiker[];
 };
 
-/** Keyset rather than offset: a post inserted mid-scroll must not shift a page. */
+// Keyset rather than offset: a post inserted mid-scroll must not shift a page.
 export type PostsCursor = { occurredAt: string; id: string };
 
-// posts.author_id references public.users, so PostgREST embeds the author
-// directly. Null once the account itself is deleted -- not merely when the
-// member leaves the household, which only costs them access.
+// Null once the account is deleted, not merely when the member leaves the
+// household, which only costs them access.
 const POST_SELECT = `
   id, household_id, author_id, title, caption, occurred_at, edited_at,
   users!posts_author_id_fkey(first_name, last_name, avatar_url),
@@ -146,16 +135,9 @@ function mapPostRow(row: PostRow, viewerId: string | null): Post {
 }
 
 namespace PostService {
-  /**
-   * The keyset below still holds across several households: the order is over
-   * the whole result rather than per household.
-   *
-   * Scoped by household for the stream, or by author for a Member's own posts.
-   * One of the two is required -- with neither, this would list every post RLS
-   * allows, which is every household the viewer is in and not what any caller
-   * means. An author scope deliberately names no household: the posts a Member
-   * wrote span all of theirs, and RLS still hides any they have left.
-   */
+  // One of household or author is required: with neither this lists every post
+  // RLS allows, which is every household the viewer is in. An author scope names
+  // no household because a Member's posts span all of theirs.
   export async function list(params: {
     householdIds?: string[];
     authorId?: string;
@@ -177,10 +159,8 @@ namespace PostService {
     if (params.householdIds) query = query.in('household_id', params.householdIds);
     if (params.authorId) query = query.eq('author_id', params.authorId);
 
-    // Ties on occurred_at are real -- two posts a second apart round to the
-    // same instant far less often than two backdated to the same day do. id
-    // breaks the tie in both the order and the cursor so a page boundary
-    // landing mid-tie neither skips nor repeats a row.
+    // Ties on occurred_at are real, so id breaks them in both the order and the
+    // cursor: a page boundary mid-tie must neither skip nor repeat a row.
     if (params.cursor) {
       query = query.or(
         `occurred_at.lt.${params.cursor.occurredAt},` +
@@ -191,9 +171,8 @@ namespace PostService {
     const { data, error } = await query;
     if (error) throw error;
 
-    // The client has no generated Database types, so PostgREST's select parser
-    // cannot tell a to-one embed from a to-many and infers `users` and `pets`
-    // as arrays. They arrive as objects. Only `unknown` bridges that.
+    // With no generated Database types, PostgREST's select parser infers these
+    // to-one embeds as arrays. They arrive as objects, so `unknown` bridges it.
     const posts = (data as unknown as PostRow[]).map((row) => mapPostRow(row, params.viewerId));
     const last = posts.at(-1);
 
@@ -218,11 +197,8 @@ namespace PostService {
     return mapPostRow(data as unknown as PostRow, params.viewerId);
   }
 
-  /**
-   * Sequential, not `Promise.all`. Each resize renders the image through native
-   * memory before releasing it, and ten of those at once on an older device is
-   * how you get killed for the memory rather than merely made to wait.
-   */
+  // Sequential, not `Promise.all`: each resize holds native memory, and ten at
+  // once gets an older device killed rather than merely made to wait.
   async function uploadPhotos(params: {
     userId: string;
     householdId: string;
@@ -243,7 +219,6 @@ namespace PostService {
         .upload(path, arrayBuffer, { contentType: 'image/jpeg' });
 
       if (error) {
-        // Everything uploaded so far belongs to a post that will never exist.
         await removeObjects(paths);
         throw error;
       }
@@ -254,11 +229,8 @@ namespace PostService {
     return paths;
   }
 
-  /**
-   * Best effort by design. A failed cleanup leaves an object nothing references
-   * -- wasteful, but invisible. Failing the caller over it would undo work that
-   * actually landed.
-   */
+  // Best effort: failing the caller over an orphaned object would undo work
+  // that actually landed.
   async function removeObjects(paths: string[]): Promise<void> {
     if (paths.length === 0) return;
 
@@ -281,8 +253,8 @@ namespace PostService {
       localUris: params.localUris
     });
 
-    // One RPC, one transaction: a post without a photo must never exist, and
-    // two client-side inserts cannot promise that across a dropped connection.
+    // One transaction: two client-side inserts cannot promise a post never
+    // exists without its photo across a dropped connection.
     const { error: rpcError } = await supabase.rpc('create_post', {
       target_household_id: params.householdId,
       photo_storage_paths: paths,
@@ -293,27 +265,20 @@ namespace PostService {
     });
 
     if (rpcError) {
-      // The row never landed, so the objects are unreachable. Leaving them
-      // would be paid-for orphans nothing can ever find.
+      // The row never landed, so the objects are unreachable.
       await removeObjects(paths);
       throw rpcError;
     }
   }
 
-  /**
-   * `photos` is the whole desired set, in order -- not a list of changes. The
-   * caller says what the Post should look like and this works out the rest, so
-   * a caller that miscounts what it added cannot leave the two halves disagreeing.
-   *
-   * Upload first, RPC second, delete last. A failure between the upload and the
-   * RPC costs an unreferenced object; the reverse order would cost a Post
-   * pointing at a file that no longer exists.
-   */
+  // `photos` is the whole desired set, not a list of changes. Upload, then RPC,
+  // then delete: a failure mid-way costs an unreferenced object, where the
+  // reverse order costs a Post pointing at a file that is gone.
   export async function update(params: {
     postId: string;
     userId: string;
-    // All required. The RPC overwrites what it is given, so an omitted caption
-    // would silently clear one rather than leave it alone.
+    // All required: the RPC overwrites what it is given, so an omitted caption
+    // clears one rather than leaving it alone.
     title: string;
     caption: string | null;
     petIds: string[];
@@ -334,8 +299,8 @@ namespace PostService {
       localUris: params.photos.flatMap((photo) => (photo.kind === 'new' ? [photo.localUri] : []))
     });
 
-    // Rebuilt in the caller's order: the uploads come back in the order they
-    // were handed over, so they slot back into the gaps they came from.
+    // The uploads come back in the order they were handed over, so they slot
+    // back into the gaps they came from.
     const queue = [...uploadedPaths];
     const finalPaths = params.photos.map((photo) =>
       photo.kind === 'existing' ? photo.storagePath : queue.shift()!
@@ -372,8 +337,8 @@ namespace PostService {
     const { error } = await supabase.from('posts').delete().eq('id', postId);
     if (error) throw error;
 
-    // An Owner deleting someone else's post cannot delete their objects under
-    // the storage policy, which is the main reason this stays best effort.
+    // An Owner cannot delete another member's objects under the storage policy,
+    // which is why this stays best effort.
     await removeObjects((photos ?? []).map((photo) => photo.storage_path));
   }
 
@@ -382,8 +347,7 @@ namespace PostService {
       .from('post_likes')
       .insert({ post_id: params.postId, user_id: params.userId });
 
-    // 23505 is the composite primary key doing its job -- already liked, which
-    // is the state the caller wanted. Not an error worth surfacing.
+    // 23505 means already liked, which is the state the caller wanted.
     if (error && error.code !== '23505') throw error;
   }
 
@@ -397,9 +361,8 @@ namespace PostService {
     if (error) throw error;
   }
 
-  // Deliberately does not confirm the write with `.select()` as the role-gated
-  // updates do: this is the member's own row, it runs on a timer, and a throw
-  // here would surface as a toast nobody asked for.
+  // No `.select()` confirmation: this is the member's own row, runs on a timer,
+  // and a throw would surface as a toast nobody asked for.
   export async function markSeen(params: { householdId: string; userId: string }): Promise<void> {
     const { error } = await supabase
       .from('household_members')
@@ -410,10 +373,8 @@ namespace PostService {
     if (error) throw error;
   }
 
-  /**
-   * Drives the tab dot. One RPC, not two selects and a comparison in JS -- the
-   * comparison is a `where` clause, and this runs on a minute's interval.
-   */
+  // One RPC, not two selects and a JS comparison: it runs on a minute's
+  // interval and the comparison is a `where` clause.
   export async function hasUnseen(householdId: string): Promise<boolean> {
     const { data, error } = await supabase.rpc('has_unseen_posts', {
       target_household_id: householdId

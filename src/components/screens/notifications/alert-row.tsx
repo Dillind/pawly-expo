@@ -19,7 +19,7 @@ type Props = {
   onPress: () => void;
 };
 
-/** A missed feed has no actor, so it shows the pet rather than an empty circle. */
+// A missed feed has no actor, so it shows the pet rather than an empty circle.
 const Leading = ({ alert }: { alert: InboxRow }) => {
   const [firstName, ...rest] = (alert.actorName ?? '').split(' ');
 

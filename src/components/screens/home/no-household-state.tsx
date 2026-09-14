@@ -44,19 +44,8 @@ const Door = ({ icon, isPrimaryDoor, title, description, action }: DoorProps) =>
   );
 };
 
-/**
- * Home for someone who belongs to no household. This is the whole of
- * onboarding now — two doors on a screen you can leave, rather than a wizard
- * that holds you until you create a pet.
- *
- * Zero households is a valid, permanent state. A sitter or dog walker has no
- * pets of their own and never will, so this must not nag.
- *
- * A waiting invite is deliberately not surfaced here. Joining a household is
- * something the invitee starts — by scanning the QR or entering the code —
- * never something the app puts in front of them. The record of an invite
- * belongs in the notification inbox (#19).
- */
+// Zero households is a valid permanent state, so this must not nag. A waiting
+// invite is deliberately absent: joining is something the invitee starts.
 const NoHouseholdState = () => {
   const styles = useStyles(makeStyles);
   const router = useRouter();
@@ -96,7 +85,7 @@ const NoHouseholdState = () => {
         />
       </View>
 
-      {/* Home is the care surface and a followed household is not care, so it
+      {/* A followed household is not care, so it
           never enters the switcher. Without this line the two doors above tell
           a follower to create or join, which is not what they came for. */}
       {followedCount > 0 && (

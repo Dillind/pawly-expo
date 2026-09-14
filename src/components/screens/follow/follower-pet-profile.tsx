@@ -21,17 +21,9 @@ type Props = {
   petId: string;
 };
 
-/**
- * A Pet as a Follower sees it: identity, gallery, bio. Nothing else.
- *
- * A separate route from `home/[petId]`, on purpose -- that screen is built on
- * the ACTIVE household, whose timezone never resolves for a household the
- * viewer is not in, and it carries feeds, reminders and the Owner controls.
- * This one asks two queries and cannot leak what it never requests. ADR 0036.
- *
- * It carries no note about what it does not show. A Follower never expected
- * feeds, so naming their absence draws a line they could not otherwise see.
- */
+// A separate route from `home/[petId]`, which is built on the active household
+// and carries feeds, reminders and Owner controls. This one asks two queries
+// and cannot leak what it never requests. See ADR 0036.
 const FollowerPetProfile = ({ petId }: Props) => {
   const styles = useStyles(makeStyles);
 

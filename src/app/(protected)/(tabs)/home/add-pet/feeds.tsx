@@ -18,7 +18,6 @@ import { useStyles } from '@/hooks/use-styles';
 import { describeDays } from '@/utils/days';
 import { optionLabel } from '@/utils/options';
 
-/** Step 2. Back goes to step 1, and from there Cancel leaves. One exit. */
 const AddPetFeeds = () => {
   const styles = useStyles(makeStyles);
   const router = useRouter();

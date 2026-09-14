@@ -31,13 +31,9 @@ const TILE_SIZE = 88;
 type Props = {
   pets: Pet[];
   householdName?: string | null;
-  /** Whose Occasions the picker offers. The set belongs to the Household. */
   householdId?: string;
-  /**
-   * What the Post already carries. A removed Occasion is gone from the picker
-   * but not from the Post, so without this the row reads as unset and the
-   * member has nothing to tap to clear it.
-   */
+  // What the Post already carries. A removed Occasion is gone from the picker but not from the
+  // Post, so without this the row reads as unset and the member has nothing to tap to clear it.
   currentOccasion?: PostOccasion | null;
 };
 

@@ -25,10 +25,6 @@ import { formatAge } from '@/lib/dates';
 import type { PetDetail } from '@/services/pet.service';
 import { optionLabel } from '@/utils/options';
 
-/**
- * A Tray step, so the picker swaps the sheet's content instead of stacking a
- * second sheet on the first.
- */
 const BreedTrayStep = () => {
   const { back } = useTray();
   const { control, setValue } = useFormContext<PetDetailsEditValues>();
@@ -54,10 +50,8 @@ const BreedTrayStep = () => {
   );
 };
 
-/**
- * A Tray sizes itself to its content, and a list has no natural height. This
- * is what stops the sheet collapsing to one row.
- */
+// A Tray sizes to its content and a list has no natural height, so without this
+// the sheet collapses to one row.
 const BreedStepHeight = 460;
 
 export const AvatarSize = 140;
@@ -68,13 +62,6 @@ type Props = {
   isOwner: boolean;
 };
 
-/**
- * The photo, the care card, the name, and the way into editing any of them.
- *
- * The avatar is a circle rather than a full-width photo so the care card can
- * stand beside it: the two things a sitter opens this screen for are then one
- * glance apart, and the bar above can carry a readable title.
- */
 const PetIdentity = ({ pet, isOwner }: Props) => {
   const styles = useStyles(makeStyles);
   const router = useRouter();
@@ -90,16 +77,14 @@ const PetIdentity = ({ pet, isOwner }: Props) => {
     .filter(Boolean)
     .join(' · ');
 
-  // The form lives here, not in EditPetDetails, because the breed step is a
-  // sibling step and has to read and write the same instance.
+  // The breed step is a sibling and must read and write the same instance.
   const form = useForm<PetDetailsEditValues>({
     resolver: zodResolver(petDetailsEditSchema),
     defaultValues: {
       name: pet.name,
       petType: pet.petType,
-      // The row still holds free text. Match it to a row in the bundled list
-      // so the picker opens with the right one ticked -- CRU-104 makes this a
-      // real column and a one-time backfill.
+      // Still free text, so match the bundled list to open with the right row
+      // ticked. CRU-104 makes it a real column.
       breedId: pet.breedId,
       sex: pet.sex ?? undefined,
       birthdate: pet.birthdate ?? '',
@@ -138,7 +123,7 @@ const PetIdentity = ({ pet, isOwner }: Props) => {
   return (
     <View style={styles.hero}>
       <View style={styles.row}>
-        {/* The avatar is the centre of the screen, so the care card beside it
+        {/* The care card stands beside the avatar so a sitter's two reasons for
             is balanced by an empty column of its own width. */}
         <View style={styles.spacer} />
 
@@ -225,8 +210,7 @@ const makeStyles = ({ colors, spacing }: AppTheme) =>
     spacer: {
       width: TileWidth
     },
-    // The ring is the page colour, not a border, so the badge reads as cut out
-    // of the avatar rather than stuck on top of it.
+    // The page colour, not a border, so the badge reads as cut out.
     badge: {
       position: 'absolute',
       right: -2,

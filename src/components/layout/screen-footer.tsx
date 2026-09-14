@@ -9,14 +9,9 @@ type Props = {
   children: ReactNode;
 };
 
-/**
- * The pinned action bar at the foot of a screen. A step's primary action must
- * not scroll away, because a member cannot see whether the form continues below
- * the button. The hairline is what stops it reading as the end of the content.
- *
- * KeyboardStickyView, so the bar rides above the keyboard rather than hiding
- * under it -- KeyboardProvider is already at the root.
- */
+// A step's primary action must not scroll away, and the hairline stops the bar
+// reading as the end of the content. KeyboardStickyView so it rides above the
+// keyboard.
 const ScreenFooter = ({ children }: Props) => {
   const styles = useStyles(makeStyles);
 

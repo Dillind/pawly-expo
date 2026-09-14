@@ -7,14 +7,9 @@ type Props = {
   onRefresh: () => void;
 };
 
-/**
- * The pull control, tinted. It exists because the default spinner has no tint
- * and is near-invisible in dark mode, and a native control cannot read the
- * theme from a StyleSheet.
- *
- * Lists built on MainLegendList never need this -- LegendList takes
- * `onRefresh`/`refreshing` as plain props and draws its own.
- */
+// The default spinner has no tint and is near-invisible in dark mode, and a
+// native control cannot read the theme from a StyleSheet. Lists built on
+// MainLegendList never need this: LegendList draws its own.
 const ThemedRefreshControl = ({ isRefreshing, onRefresh }: Props) => {
   const { colors } = useTheme();
 

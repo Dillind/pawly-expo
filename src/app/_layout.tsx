@@ -1,13 +1,15 @@
 import { focusManager } from '@tanstack/react-query';
 import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client';
 import { DarkTheme, DefaultTheme, Stack, ThemeProvider } from 'expo-router';
-import { useEffect } from 'react';
+import * as SplashScreen from 'expo-splash-screen';
+import { useCallback, useEffect, useState } from 'react';
 import { AppState, type AppStateStatus } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { KeyboardProvider } from 'react-native-keyboard-controller';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { Toaster } from 'sonner-native';
 
+import AnimatedSplash from '@/components/screens/splash/animated-splash';
 import { useUserProfile } from '@/hooks/queries/account/use-user-profile';
 import { useAuthSession } from '@/hooks/use-auth-session';
 import { useCacheReset } from '@/hooks/use-cache-reset';
@@ -20,6 +22,8 @@ import { useThemeStore } from '@/stores/theme-store';
 import { isWeb } from '@/utils/platform';
 
 if (__DEV__) require('../../ReactotronConfig');
+
+void SplashScreen.preventAutoHideAsync();
 
 const AuthGate = () => {
   useAuthSession();
@@ -45,18 +49,29 @@ const AuthGate = () => {
 
 export default function RootLayout() {
   const colorScheme = useColorScheme();
-  const { hydrate } = useThemeStore();
-  const { hydrate: hydrateActiveHousehold } = useActiveHouseholdStore();
+  const { hydrate, hasHydrated } = useThemeStore();
+  const { hydrate: hydrateActiveHousehold, hasHydrated: hasHydratedHousehold } =
+    useActiveHouseholdStore();
+  const { status, profile } = useAuthStore();
+
+  const [isSplashDone, setIsSplashDone] = useState(false);
+  const handleSplashFinish = useCallback(() => setIsSplashDone(true), []);
+
+  const isAppReady =
+    hasHydrated &&
+    hasHydratedHousehold &&
+    status !== 'loading' &&
+    (status === 'signedOut' || profile !== undefined);
 
   useEffect(() => {
     void hydrate();
     void hydrateActiveHousehold();
   }, [hydrate, hydrateActiveHousehold]);
 
-  // TanStack's documented React Native pattern. useFocusEffect does not fire
-  // when the app returns from the background, which is the case that matters
-  // most here: the phone is in a pocket, a housemate feeds the dog, the app
-  // reopens and must not still show the occurrence as unfed.
+  useEffect(() => {
+    void SplashScreen.hideAsync();
+  }, []);
+
   useEffect(() => {
     const subscription = AppState.addEventListener('change', (status: AppStateStatus) => {
       if (!isWeb) focusManager.setFocused(status === 'active');
@@ -75,6 +90,9 @@ export default function RootLayout() {
             </PersistQueryClientProvider>
           </KeyboardProvider>
           <Toaster richColors position="bottom-center" closeButton swipeToDismissDirection="left" />
+          {!isSplashDone && (
+            <AnimatedSplash isAppReady={isAppReady} onFinish={handleSplashFinish} />
+          )}
         </SafeAreaProvider>
       </ThemeProvider>
     </GestureHandlerRootView>

@@ -6,10 +6,8 @@ import ZoomablePhoto from '@/components/ui/zoomable-photo';
 import { usePost } from '@/hooks/queries/posts/use-posts';
 import { useAuthStore } from '@/stores/auth-store';
 
-/**
- * A Post's photos, full screen. Always black, whatever the theme -- a photo
- * viewer is a dark room, and a pale ground changes how the photo itself reads.
- */
+// A Post's photos, full screen. Always black, whatever the theme -- a photo viewer is a dark
+// room, and a pale ground changes how the photo itself reads.
 export default function PostPhotoScreen() {
   const { width } = useWindowDimensions();
 

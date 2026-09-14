@@ -39,10 +39,8 @@ export function useRemoveReminder() {
 
 export type TickInput = { reminderId: string; occurrenceDate: string; isDone: boolean };
 
-/**
- * One mutation drives a whole card of rows, so `isPending` alone would put
- * every visible Done chip into its loading state while one row ticks.
- */
+// One mutation drives a whole card of rows, so `isPending` alone would put every visible Done
+// chip into its loading state while one row ticks.
 export const isTickPending = (
   isPending: boolean,
   variables: TickInput | undefined,
@@ -51,10 +49,8 @@ export const isTickPending = (
 ) =>
   isPending && variables?.reminderId === reminderId && variables?.occurrenceDate === occurrenceDate;
 
-/**
- * One mutation for both directions. The row is a toggle, so splitting it would
- * give the call site two pending flags for one control.
- */
+// One mutation for both directions. The row is a toggle, so splitting it would give the call
+// site two pending flags for one control.
 export function useTickReminder() {
   const queryClient = useQueryClient();
 

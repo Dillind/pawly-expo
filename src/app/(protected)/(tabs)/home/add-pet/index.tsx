@@ -37,10 +37,6 @@ const AGE_OPTIONS: { value: AgeMode; label: string }[] = [
   { value: 'approximate', label: 'Approximate age' }
 ];
 
-/**
- * Step 1, and the only step with Cancel. From here on there is a Back button,
- * and two controls that both look like leaving is the thing this avoids.
- */
 const AddPetDetails = () => {
   const styles = useStyles(makeStyles);
   const router = useRouter();
@@ -59,9 +55,8 @@ const AddPetDetails = () => {
 
   const breedSpecies = breedSpeciesFor(petType);
 
-  // back(), because add-pet opens from five places and Cancel returns to the
-  // one the member came from. The guard is for a cold start onto this route,
-  // where there is no history and GO_BACK goes unhandled.
+  // back(), because add-pet opens from five places. The guard is for a cold
+  // start onto this route, where GO_BACK goes unhandled.
   const leave = () => {
     reset();
 
@@ -104,8 +99,7 @@ const AddPetDetails = () => {
     ]);
   };
 
-  // The gate is the schema, not a hand-written condition: validate exactly the
-  // fields this step owns, and let each input render its own error.
+  // The schema is the gate, so each input renders its own error.
   const onContinue = async () => {
     const isValid = await trigger([...ADD_PET_DETAIL_FIELDS]);
 
@@ -184,8 +178,7 @@ const AddPetDetails = () => {
               value={value}
               onChange={(next) => {
                 onChange(next);
-                // A dog breed is not a cat breed, and `other` has no list at
-                // all. Changing the type clears a value that no longer applies.
+                // Changing the type clears a breed that no longer applies.
                 if (breedSpeciesFor(next) !== breedSpecies) {
                   setValue('breedId', null, { shouldDirty: true });
                 }
@@ -194,7 +187,6 @@ const AddPetDetails = () => {
           )}
         />
 
-        {/* No breed field for `other` */}
         {breedSpecies && (
           <BreedField
             value={breedName(breedId) ?? null}

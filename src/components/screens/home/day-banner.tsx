@@ -31,17 +31,13 @@ const BREATHE_MS = 4000;
 
 type Props = {
   name: string;
-  /** One line saying what is left. The banner does not work it out itself. */
   status: string;
   timezone: string;
 };
 
-/**
- * The Home banner: one gradient card that follows the household's clock.
- *
- * The state comes from the household timezone, not the device. A member in
- * another country otherwise gets a night banner over a household's morning.
- */
+// The Home banner: one gradient card that follows the household's clock. The state comes from
+// the household timezone, not the device. A member in another country otherwise gets a night
+// banner over a household's morning.
 const DayBanner = ({ name, status, timezone }: Props) => {
   const styles = useStyles(makeStyles);
   const theme = useTheme();

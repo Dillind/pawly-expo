@@ -12,7 +12,7 @@ const searchKey = (term: string) => [...searchKeyRoot, term];
 const followersKey = (householdId: string | undefined) => ['followers', householdId];
 const requestsKey = (householdId: string | undefined) => ['follow-requests', householdId];
 
-/** What a follow link is offering. Its own query, so the route survives a cold start. */
+// Its own query, so the route survives a cold start.
 export function useFollowPreview(householdId: string | undefined) {
   return useQuery({
     queryKey: previewKey(householdId),
@@ -22,7 +22,7 @@ export function useFollowPreview(householdId: string | undefined) {
   });
 }
 
-/** The shortest term the RPC will answer. Below it the screen shows its prompt. */
+// The shortest term the RPC will answer.
 export const SEARCH_MIN_LENGTH = 2;
 
 export function useHouseholdSearch(term: string) {
@@ -32,8 +32,7 @@ export function useHouseholdSearch(term: string) {
     queryKey: searchKey(query),
     queryFn: () => FollowService.search(query),
     enabled: query.length >= SEARCH_MIN_LENGTH,
-    // The previous rows stay on screen while the next term resolves, so the
-    // list narrows rather than blanking between keystrokes.
+    // Previous rows stay while the next term resolves, so the list narrows.
     placeholderData: keepPreviousData,
     staleTime: 30_000
   });
@@ -46,10 +45,8 @@ export function useFollowing() {
   });
 }
 
-/**
- * The household ids the Posts stream may add to the member scope. Accepted
- * only -- a pending request shows on the Following list and nowhere else.
- */
+// Accepted only: a pending request shows on the Following list and nowhere
+// else.
 export function useFollowedHouseholdIds(): string[] {
   const { data: following = [] } = useFollowing();
 
@@ -74,9 +71,7 @@ export function useFollowRequests(householdId: string | undefined) {
   });
 }
 
-// A refusal is not an error, so each one names itself. 'blocked' deliberately
-// reads as an ordinary failure: a removed person is never told they were
-// removed.
+// 'blocked' reads as an ordinary failure: a removed person is never told.
 const REQUEST_REFUSALS: Partial<Record<RequestFollowStatus, string>> = {
   already_member: ErrorMessage.FollowAlreadyMember,
   blocked: ErrorMessage.FollowRequestFailed,
@@ -116,7 +111,6 @@ export function useUnfollow() {
       void queryClient.invalidateQueries({ queryKey: previewKey(householdId) });
       void queryClient.invalidateQueries({ queryKey: followingKey });
       void queryClient.invalidateQueries({ queryKey: searchKeyRoot });
-      // Their posts leave the stream with the follow.
       void queryClient.invalidateQueries({ queryKey: ['posts'] });
     },
     onSuccess: () => showSuccessToast(SuccessMessage.Unfollowed),

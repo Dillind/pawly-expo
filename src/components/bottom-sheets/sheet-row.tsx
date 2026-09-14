@@ -10,17 +10,14 @@ import { useStyles } from '@/hooks/use-styles';
 
 type Props = {
   label: string;
-  /** Secondary text on the right, before any tick. */
   detail?: string;
   icon?: IconName;
   leading?: ReactNode;
   isSelected?: boolean;
   isDestructive?: boolean;
   isCheckbox?: boolean;
-  /**
-   * Where the row is drawn. `backgroundSheetRow` is the screen background in
-   * light mode, so it only contrasts inside a sheet.
-   */
+  // Where the row is drawn. `backgroundSheetRow` is the screen background in light mode, so it
+  // only contrasts inside a sheet.
   surface?: 'sheet' | 'screen';
   onPress: () => void;
 };

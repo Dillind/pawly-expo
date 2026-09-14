@@ -2,15 +2,8 @@ import type { Occurrence } from '@/types/core';
 
 const plural = (count: number, word: string) => `${count} ${word}${count === 1 ? '' : 's'}`;
 
-/**
- * The banner's second line: what is left, in one sentence.
- *
- * It counts records, not meals -- "to log", never "to feed". CONTEXT.md.
- *
- * A day that is not today gets a different sentence. "All done for today" over
- * next Thursday is a lie, and a future day where nothing is due yet is not an
- * achievement.
- */
+// Counts records, not meals: "to log", never "to feed". A day that is not today
+// gets a different sentence. See CONTEXT.md.
 export function describeDay(occurrences: Occurrence[], isToday: boolean): string {
   if (occurrences.length === 0) return isToday ? 'Nothing scheduled today' : 'Nothing scheduled';
 

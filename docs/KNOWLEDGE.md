@@ -580,3 +580,59 @@ from public.alerts
 where sent_at is null and suppressed_reason is null
 order by created_at;
 ```
+
+## `expo-splash-screen` ignores `backgroundColor` when you give it no `image`
+
+The plugin options look independent, so a splash that is only a colour reads as
+`{ backgroundColor: '#F0A81C' }` with no `image`. Prebuild accepts it, writes
+`SplashScreenBackground.colorset` with the right colour, and then writes a
+`SplashScreen.storyboard` that does not use it:
+
+```xml
+<subviews/>
+<constraints>
+  <constraint firstItem="EXPO-SplashScreen" .../>   <!-- no such view -->
+</constraints>
+<color key="backgroundColor" systemColor="systemBackgroundColor"/>
+```
+
+The container keeps `systemBackgroundColor`, the constraints point at an image
+view that was never emitted, and the launch screen is white. Nothing warns. The
+colour set exists, which is what makes this hard to see — you go looking for a
+wrong hex and the hex is right.
+
+Give it an `image`. `assets/images/splash-crumpet.png` is a transparent-ground
+crumpet generated to match `CrumpetMark`, and with it the storyboard emits the
+image view and `<color key="backgroundColor" name="SplashScreenBackground"/>`.
+
+Three numbers must agree or the handoff to `AnimatedSplash` jumps:
+
+- `backgroundColor` in `app.config.ts` = `SplashPalette.field` in `theme.ts`.
+- `imageWidth` in `app.config.ts` = `MARK_SIZE` in `animated-splash.tsx`.
+- The mark sits at true screen centre, where the native image is.
+
+Checking this needs a native rebuild — `ios/` is gitignored and generated, so
+`bunx expo prebuild -p ios` then `bun run ios`. A Metro reload shows the JS
+overlay and tells you nothing about the storyboard.
+
+## dayjs `.tz()` silently returns UTC under Hermes
+
+`src/lib/dates.ts` never calls `.tz()` in either form, and nothing added to it
+may. The reason is not style.
+
+The timezone plugin derives a zone's offset by formatting the date with
+`toLocaleString('en-US', { timeZone })` and re-parsing the result with
+`new Date(...)`. Hermes produces the string correctly — `7/25/2026, 11:38:00 PM`
+— but its `Date` constructor only parses ISO 8601, so the re-parse yields
+`Invalid Date`. The offset becomes `NaN`, and the plugin's `if (!Number(s))`
+guard is true for `NaN` as well as for `0`, so it falls through to
+`.utcOffset(0)`. Every `.tz()` call returns UTC, and nothing throws.
+
+The static `dayjs.tz(string, format, zone)` path is not a safe exception.
+Measured on device it returns instants about fourteen minutes off.
+
+`Intl.DateTimeFormat.formatToParts` is sound on Hermes and is the only zone
+machinery the file trusts. `utc` and `timezone` still ship with dayjs and need
+no install; they rely on `Intl`, and onboarding already reads
+`Intl.DateTimeFormat().resolvedOptions().timeZone`, which is the evidence the
+ICU data is present.

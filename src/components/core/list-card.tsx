@@ -11,11 +11,9 @@ type Props = {
   style?: StyleProp<ViewStyle>;
 };
 
-/**
- * The white card a run of rows sits in. It carries no padding, because a row
- * inside it runs edge to edge and owns its own -- `SectionCard` is the padded
- * one, for a card holding prose rather than rows.
- */
+// The white card a run of rows sits in. It carries no padding, because a row inside it runs
+// edge to edge and owns its own -- `SectionCard` is the padded one, for a card holding prose
+// rather than rows.
 const ListCard = ({ children, style }: Props) => {
   const theme = useTheme();
   const styles = useStyles(makeStyles);

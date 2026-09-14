@@ -7,7 +7,7 @@ import type { CareCardBlock } from '@/lib/care-card-view';
 
 import { CARD_WASH_STRONG } from './wash';
 
-/** `onCard` must draw from the card's own foreground; `onPage` uses the theme. */
+// `onCard` must draw from the card's own foreground; `onPage` uses the theme.
 export type BlockTone = 'onCard' | 'onPage';
 
 const TONE: Record<BlockTone, { text: ThemeColor; label: ThemeColor }> = {

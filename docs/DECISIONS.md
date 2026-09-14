@@ -969,3 +969,27 @@ Edge Function cold start, which is how a monitor teaches its reader to ignore it
 
 The repost count rides along in the body of the healthy ping, so a rising rate is still visible.
 See [docs/conventions/alert-monitoring.md](./conventions/alert-monitoring.md).
+
+## The launch screen is one colour and the mark, not a scene
+
+The animated splash used to pop four pet heads out of crumpets around the mark. It read as cheap,
+so it was dropped: `pet-head.tsx`, the Recraft art and the `SplashPalette.pets` tones are gone.
+What is left is Wise's shape — the gold field, the mark at true screen centre, and a slow breath
+that scales it between 1 and 1.04 and never ends.
+
+The breath is what makes an early exit safe. The old sequence had a finish line, so leaving before
+it read as cut short; a loop has no end state to miss, so `MIN_HOLD_MS` can stay at 400 and a warm
+start still looks deliberate.
+
+This is a floor, not the final look. Premium motion is work for a designer, and a scene is easier
+to add back than a bad one is to defend.
+
+## Comments are gated on four tests, not on judgement
+
+`AGENTS.md` used to say "default to fewer" and the codebase grew to 2,650 comment lines anyway. The
+rule now has four tests a comment must pass, a hard three-line ceiling, and a delete-on-sight list
+that starts with every JSDoc block. The sweep that applied it cut the source comments by 42% of
+their bytes and removed every `/** */` block in `src/`.
+
+A ceiling is enforceable where "fewer" is not. The reasoning that used to sit in a long block
+comment belongs in `KNOWLEDGE.md` or an ADR, which is where the dayjs/Hermes note went.

@@ -1,6 +1,5 @@
 import { supabase } from '@/lib/supabase/client';
 
-/** Where the viewer stands with a household they did not create. */
 export type FollowRelationship = 'member' | 'pending' | 'accepted' | 'none';
 
 export type FollowPreviewPet = {
@@ -14,7 +13,6 @@ export type FollowPreview = {
   status: FollowRelationship;
   householdId: string;
   name: string;
-  /** Null for a Household whose Owner has not set one. */
   handle: string | null;
   pets: FollowPreviewPet[];
 };
@@ -26,11 +24,10 @@ export type RespondStatus = 'accepted' | 'declined' | 'not_owner' | 'not_pending
 
 export type RemoveFollowerStatus = 'removed' | 'not_owner' | 'not_found';
 
-/** A Listed Household as it appears in search, with where the caller stands. */
 export type HouseholdSearchResult = {
   householdId: string;
   name: string;
-  /** Never null: a Household cannot be Listed without one. */
+  // Never null: a Household cannot be Listed without one.
   handle: string;
   petCount: number;
   relationship: FollowRelationship;
@@ -43,7 +40,6 @@ export type FollowedHousehold = {
   status: 'pending' | 'accepted';
 };
 
-/** A person on the Owner's Followers or Requests list. */
 export type Follower = {
   id: string;
   userId: string;
@@ -82,11 +78,8 @@ const toFollower = (row: FollowerRow): Follower => ({
 });
 
 namespace FollowService {
-  /**
-   * What a follow link is offering, without asking for anything. A definer
-   * function, because the viewer can read neither the household nor its pets
-   * until the Owner accepts.
-   */
+  // A definer function: the viewer can read neither the household nor its pets
+  // until the Owner accepts.
   export async function preview(householdId: string): Promise<FollowPreview | null> {
     const { data, error } = await supabase.rpc('follow_preview', {
       target_household_id: householdId
@@ -102,9 +95,8 @@ namespace FollowService {
       pets?: { id: string; name: string; breed: string | null; photo_url: string | null }[];
     };
 
-    // A household that is not there is an absence, not a relationship. Keeping
-    // it inside `status` made every reader test the one value that means the
-    // other four cannot apply.
+    // An absence, not a relationship: inside `status` every reader had to test
+    // the one value that means the other four cannot apply.
     if (result.status === 'not_found') return null;
 
     return {
@@ -139,7 +131,7 @@ namespace FollowService {
     if (error) throw error;
   }
 
-  /** Owner only, enforced in the function rather than by a write policy. */
+  // Owner only, enforced in the function rather than by a write policy.
   export async function respond(params: {
     followId: string;
     accept: boolean;
@@ -162,7 +154,6 @@ namespace FollowService {
     return (data as { status: RemoveFollowerStatus }).status;
   }
 
-  /** The households the viewer follows, a request still waiting included. */
   export async function listFollowing(): Promise<FollowedHousehold[]> {
     const { data, error } = await supabase.rpc('list_following');
 
@@ -183,10 +174,8 @@ namespace FollowService {
     }));
   }
 
-  /**
-   * Listed Households matched by name or handle. A definer function: is_listed
-   * is the gate, and RLS would otherwise return only the caller's own rows.
-   */
+  // A definer function: is_listed is the gate, and RLS would otherwise return
+  // only the caller's own rows.
   export async function search(query: string): Promise<HouseholdSearchResult[]> {
     const { data, error } = await supabase.rpc('search_households', { query });
 
@@ -226,12 +215,10 @@ namespace FollowService {
     return (data as unknown as FollowerRow[]).map(toFollower);
   }
 
-  /** A household's accepted followers, in the order the Owner accepted them. */
   export function listFollowers(householdId: string): Promise<Follower[]> {
     return listByStatus(householdId, 'accepted', 'responded_at');
   }
 
-  /** Everyone still waiting on the Owner. Oldest first: they have waited longest. */
   export function listRequests(householdId: string): Promise<Follower[]> {
     return listByStatus(householdId, 'pending', 'requested_at');
   }

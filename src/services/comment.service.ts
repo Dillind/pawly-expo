@@ -1,6 +1,6 @@
 import { supabase } from '@/lib/supabase/client';
 
-/** Matches the database check in 20260822100000. */
+// Matches the database check in 20260822100000.
 export const COMMENT_MAX_LENGTH = 500;
 
 export type CommentAuthor = {
@@ -15,14 +15,14 @@ export type PostComment = {
   authorId: string | null;
   author: CommentAuthor | null;
   parentCommentId: string | null;
-  /** Who the reply answers -- NOT always the parent's author. */
+  // Who the reply answers, which is not always the parent's author.
   replyToUserId: string | null;
   replyToName: string | null;
   body: string;
   createdAt: string;
   likeCount: number;
   likedByMe: boolean;
-  /** Always empty on a reply: the thread is two levels deep. */
+  // Always empty on a reply: the thread is two levels deep.
   replies: PostComment[];
 };
 
@@ -75,10 +75,8 @@ function mapCommentRow(row: CommentRow, viewerId: string | null): PostComment {
   };
 }
 
-/**
- * Flat rows in, two levels out. A reply whose parent is absent is dropped, not
- * promoted -- rendering it top-level turns an answer into a statement to nobody.
- */
+// A reply whose parent is absent is dropped, not promoted: top-level turns an
+// answer into a statement to nobody.
 function buildThread(rows: PostComment[]): PostComment[] {
   const topLevel = rows.filter((row) => row.parentCommentId === null);
   const byId = new Map(topLevel.map((row) => [row.id, row]));
@@ -93,7 +91,6 @@ function buildThread(rows: PostComment[]): PostComment[] {
 }
 
 namespace CommentService {
-  /** The whole thread in one request, oldest first. Unpaginated on purpose. */
   export async function list(params: {
     postId: string;
     viewerId: string | null;
@@ -106,8 +103,7 @@ namespace CommentService {
 
     if (error) throw error;
 
-    // No generated Database types, so PostgREST infers the to-one embeds as
-    // arrays. They arrive as objects.
+    // Without generated types PostgREST infers these to-one embeds as arrays.
     const comments = (data as unknown as CommentRow[]).map((row) =>
       mapCommentRow(row, params.viewerId)
     );
@@ -144,7 +140,7 @@ namespace CommentService {
       .from('comment_likes')
       .insert({ comment_id: params.commentId, user_id: params.userId });
 
-    // 23505 is the composite primary key: already liked, which is what was wanted.
+    // 23505 means already liked, which is what was wanted.
     if (error && error.code !== '23505') throw error;
   }
 

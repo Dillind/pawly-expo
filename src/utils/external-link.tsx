@@ -4,7 +4,6 @@ import { type ComponentProps } from 'react';
 
 type Props = Omit<ComponentProps<typeof Link>, 'href'> & { href: Href & string };
 
-/** For a link inside a sentence, where a `Link` component cannot go. */
 export async function openExternalUrl(url: string) {
   if (process.env.EXPO_OS === 'web') {
     globalThis.open?.(url, '_blank');

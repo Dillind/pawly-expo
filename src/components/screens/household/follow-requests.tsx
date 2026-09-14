@@ -20,11 +20,9 @@ type Props = {
   householdId: string;
 };
 
-/**
- * The Owner's decision, and the one place the boundary is spelled out. It is
- * said here rather than on the follower's landing screen: the person granting
- * the access is the one who needs to know its shape.
- */
+// The Owner's decision, and the one place the boundary is spelled out. It is said here rather
+// than on the follower's landing screen: the person granting the access is the one who needs to
+// know its shape.
 const FollowRequests = ({ householdId }: Props) => {
   const styles = useStyles(makeStyles);
 

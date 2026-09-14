@@ -55,7 +55,6 @@ const ContactFieldInput = ({
 
 type Props = {
   petId: string;
-  /** Null when adding rather than editing. */
   contact: CareCardContact | null;
   onDone: () => void;
 };

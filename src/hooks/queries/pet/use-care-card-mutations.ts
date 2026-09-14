@@ -9,7 +9,7 @@ const invalidate = (queryClient: ReturnType<typeof useQueryClient>, petId: strin
   void queryClient.invalidateQueries({ queryKey: ['care-card', petId] });
 };
 
-/** `isSilent` drops the success toast so the nine-step editor does not fire nine. */
+// `isSilent` drops the success toast so the nine-step editor does not fire nine.
 export function useUpsertCareCard(petId: string, { isSilent = false } = {}) {
   const queryClient = useQueryClient();
 

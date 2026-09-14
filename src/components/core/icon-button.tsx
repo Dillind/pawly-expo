@@ -29,11 +29,9 @@ type Props = {
   isLoading?: boolean;
   isDisabled?: boolean;
   hapticFeedback?: boolean;
-  /**
-   * The control floats over a photo rather than over the page. Glass then draws
-   * its dark material and a white glyph, because the ground behind it is
-   * arbitrary and a near-black glyph disappears on half of all photos.
-   */
+  // The control floats over a photo rather than over the page. Glass then draws its dark
+  // material and a white glyph, because the ground behind it is arbitrary and a near-black
+  // glyph disappears on half of all photos.
   isOverContent?: boolean;
   containerStyle?: StyleProp<ViewStyle>;
 };

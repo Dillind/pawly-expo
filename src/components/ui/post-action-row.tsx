@@ -18,7 +18,7 @@ type Props = {
 
 const ICON_SIZE = 22;
 
-/** Share is placed but deliberately not wired yet. */
+// Share is placed but deliberately not wired yet.
 const PostActionRow = ({ liked, count, commentCount, onToggleLike, onOpenComments }: Props) => {
   const styles = useStyles(makeStyles);
 

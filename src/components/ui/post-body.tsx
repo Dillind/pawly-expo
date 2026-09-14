@@ -13,19 +13,15 @@ import type { Post } from '@/services/post.service';
 
 type Props = {
   post: Post;
-  /** Set on the Posts tab only: Post Detail keeps its ⋯ in the header. */
   showActions?: boolean;
   householdName?: string;
   titleLines?: number;
   captionLines?: number;
   onToggleLike: () => void;
   onOpenActions?: () => void;
-  /**
-   * Opens Post Detail. Only the photo and the caption carry it -- a whole-card
-   * target would fire while paging photos or reaching for the like.
-   */
+  // Opens Post Detail. Only the photo and the caption carry it -- a whole-card target would
+  // fire while paging photos or reaching for the like.
   onOpen?: () => void;
-  /** Post Detail only: opens one photo full screen. */
   onOpenPhoto?: (photoId: string) => void;
   commentCount?: number;
   onOpenComments?: () => void;

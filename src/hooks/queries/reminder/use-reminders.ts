@@ -4,7 +4,7 @@ import ReminderService from '@/services/reminder.service';
 
 const REMINDERS_STALE_MS = 15_000;
 
-/** `date` is an ISO YYYY-MM-DD string in the household's timezone. */
+// `date` is an ISO YYYY-MM-DD string in the household's timezone.
 export function useReminders(petId: string | undefined, date: string | undefined) {
   return useQuery({
     queryKey: ['reminders', petId, date],
@@ -14,10 +14,6 @@ export function useReminders(petId: string | undefined, date: string | undefined
   });
 }
 
-/**
- * Today and what is coming, for the Pet screen. `fromDate` and `toDate` are ISO
- * YYYY-MM-DD strings in the household's timezone.
- */
 export function useUpcomingReminders(
   petId: string | undefined,
   fromDate: string | undefined,
@@ -31,7 +27,6 @@ export function useUpcomingReminders(
   });
 }
 
-/** The dots under the week strip. One query for the whole week. */
 export function useReminderDays(
   householdId: string | undefined,
   fromDate: string | undefined,

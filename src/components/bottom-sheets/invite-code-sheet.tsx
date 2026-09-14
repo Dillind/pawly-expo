@@ -16,11 +16,8 @@ type Props = {
   onRevoke: () => void;
 };
 
-/**
- * An invite's code after the moment it was created. It used to live only in
- * the state of the screen that made it, so leaving that screen lost the one
- * thing the invitee needs.
- */
+// An invite's code after the moment it was created. It used to live only in the state of the
+// screen that made it, so leaving that screen lost the one thing the invitee needs.
 const InviteCodeSheet = ({ sheetRef, invite, householdName, onRevoke }: Props) => {
   const styles = useStyles(makeStyles);
 

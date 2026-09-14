@@ -38,7 +38,7 @@ type MainButtonProps = {
   leftIcon?: React.ReactElement;
   rightIcon?: React.ReactElement;
   hapticFeedback?: boolean;
-  /** See IconButton — a glass control floating over a photo, not over the page. */
+  // See IconButton — a glass control floating over a photo, not over the page.
   isOverContent?: boolean;
 };
 

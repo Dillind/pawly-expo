@@ -2,7 +2,7 @@ import { queryOptions, useQuery } from '@tanstack/react-query';
 
 import PetService from '@/services/pet.service';
 
-/** Exported for the same reason as `careCardQueryOptions` -- see use-care-card. */
+// Exported for the same reason as `careCardQueryOptions` -- see use-care-card.
 export const petDetailQueryOptions = (petId: string) =>
   queryOptions({
     queryKey: ['pet-detail', petId],

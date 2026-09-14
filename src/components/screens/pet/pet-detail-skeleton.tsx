@@ -10,11 +10,8 @@ import { useStyles } from '@/hooks/use-styles';
 const PHOTO_TILE = 80;
 const ROW_WIDTHS = [150, 170, 130] as const;
 
-/**
- * The shape of the pet screen while it loads. Every measurement is taken from
- * the real screen, so nothing moves when the pet arrives — change one and
- * change both.
- */
+// The shape of the pet screen while it loads. Every measurement is taken from the real screen,
+// so nothing moves when the pet arrives — change one and change both.
 const PetDetailSkeleton = () => {
   const styles = useStyles(makeStyles);
 

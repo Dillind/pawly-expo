@@ -18,15 +18,12 @@ const DIM_OPACITY = 0.45;
 type PulseProps = {
   children: ReactNode;
   style?: StyleProp<ViewStyle>;
-  /** The whole screen it stands in for, so VoiceOver has something to say. */
   accessibilityLabel?: string;
 };
 
-/**
- * Wraps a set of placeholder blocks and breathes them together. One pulse for
- * the whole group, never one per block -- separate loops drift apart within a
- * second or two and the screen starts to shimmer.
- */
+// Wraps a set of placeholder blocks and breathes them together. One pulse for the whole group,
+// never one per block -- separate loops drift apart within a second or two and the screen
+// starts to shimmer.
 export const SkeletonPulse = ({ children, style, accessibilityLabel }: PulseProps) => {
   const isReducedMotion = useReducedMotion();
   const pulse = useSharedValue(1);
@@ -62,7 +59,6 @@ type BlockProps = {
   style?: StyleProp<ViewStyle>;
 };
 
-/** One placeholder block, in the page colour rather than a grey of its own. */
 export const SkeletonBlock = ({
   width = '100%',
   height = 12,

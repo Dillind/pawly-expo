@@ -16,18 +16,13 @@ import { useStyles } from '@/hooks/use-styles';
 const DEBOUNCE_MS = 250;
 const ROW_INSET = Spacing.three + SEARCH_ROW_CREST + Spacing.three;
 
-// Rows reflow on nearly every keystroke, so the move has to be felt rather than
-// watched. 150ms is the ceiling for something this frequent.
+// Rows reflow on nearly every keystroke, so 150ms is the ceiling.
 const ROW_LAYOUT = LinearTransition.duration(150).reduceMotion(ReduceMotion.System);
 
 type Props = {
   term: string;
 };
 
-/**
- * Listed Households matched by name or handle. A row opens the follow landing
- * screen; its button sends the request without leaving.
- */
 const HouseholdSearch = ({ term }: Props) => {
   const styles = useStyles(makeStyles);
 
@@ -42,13 +37,9 @@ const HouseholdSearch = ({ term }: Props) => {
     refetch
   } = useHouseholdSearch(settled);
 
-  // Rows from the previous term stay on screen so the list narrows rather than
-  // blanking. They must not stay pressable: a tap during this window would send
-  // a request to whichever household the last term found.
-  //
-  // `isPlaceholderData` alone is not enough. It only covers the fetch. Through
-  // the debounce the key has not changed yet, so the data is current for a term
-  // the person has already typed past -- which is the longer of the two windows.
+  // Stale rows stay visible but must not stay pressable. `isPlaceholderData`
+  // alone is not enough: through the debounce the key has not changed, so the
+  // data is current for a term already typed past.
   const isStale = term.trim() !== settled || isPlaceholderData;
 
   const renderBody = () => {

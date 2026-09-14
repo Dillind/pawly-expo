@@ -20,13 +20,9 @@ const REFUSALS: Partial<Record<PreviewStatus, string>> = {
   not_found: ErrorMessage.InviteNotFound
 };
 
-/**
- * Where a scanned QR lands: crumpetapp://invite/<code>.
- *
- * It asks before it acts. The code alone is enough to join, so joining on
- * arrival would mean a scan silently changed which household someone is in —
- * the exact failure this whole body of work started from.
- */
+// Where a scanned QR lands: crumpetapp://invite/<code>. It asks before it acts. The code alone
+// is enough to join, so joining on arrival would mean a scan silently changed which household
+// someone is in — the exact failure this whole body of work started from.
 export default function InviteScreen() {
   const styles = useStyles(makeStyles);
   const router = useRouter();

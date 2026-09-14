@@ -12,10 +12,8 @@ type Props = {
   tip: Tip;
 };
 
-/**
- * The quiet card below the tiles. It is only ever rendered when `findHomeTip`
- * found something real, so it has no empty state of its own.
- */
+// The quiet card below the tiles. It is only ever rendered when `findHomeTip` found something
+// real, so it has no empty state of its own.
 const HomeTip = ({ tip }: Props) => {
   const styles = useStyles(makeStyles);
   const router = useRouter();

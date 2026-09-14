@@ -38,7 +38,6 @@ type ListStepProps = {
   onPick: (feedTime: FeedTime | null) => void;
 };
 
-/** Step 1: the schedule itself. Every row leads to the same second step. */
 const ListStep = ({ feedTimes, onPick }: ListStepProps) => {
   const styles = useStyles(makeStyles);
   const { goTo } = useTray();
@@ -93,7 +92,6 @@ const EditStep = ({ petId, feedTime, onDone }: EditStepProps) => {
 
 type Props = {
   pet: Pet;
-  /** The household's today, as YYYY-MM-DD. */
   today: string;
   timezone: string;
   members: HouseholdMember[];
@@ -102,17 +100,9 @@ type Props = {
   onOpenLog: (logId: string) => void;
 };
 
-/**
- * Today's feeds for one pet, and the way into changing the schedule.
- *
- * The card shows occurrences, not Feed Times: the question on this screen is
- * what has been logged today. The schedule behind them is edited in the tray,
- * which is where a keyboard and a destructive remove belong.
- *
- * Pause is the last row of the same card rather than a card of its own. It
- * answers the question the rows above raise -- why nothing is due -- and a
- * separate card put that answer somewhere the reader had already left.
- */
+// The card shows occurrences, not Feed Times: the question here is what has
+// been logged today. Pause is the last row of the same card because it answers
+// the question the rows above raise.
 const FeedTimesSection = ({
   pet,
   today,
@@ -166,8 +156,7 @@ const FeedTimesSection = ({
   ];
 
   const renderBody = () => {
-    // A pause is not an empty schedule. Saying "no feeds set up" to a member
-    // who paused this morning reads as if the app lost their work.
+    // A pause is not an empty schedule: "no feeds set up" reads as lost work.
     if (isPaused) {
       return (
         <View style={styles.pausedBlock}>
@@ -200,8 +189,7 @@ const FeedTimesSection = ({
       );
     }
 
-    // One quiet line, not an EmptyState: the card's header already carries the
-    // plus.
+    // One quiet line, not an EmptyState: the header already carries the plus.
     if (occurrences.length === 0) {
       return (
         <View style={styles.block}>

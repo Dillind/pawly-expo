@@ -7,10 +7,7 @@ import { showErrorToast, showSuccessToast } from '@/lib/toast';
 import HouseholdService from '@/services/household.service';
 import { useAuthStore } from '@/stores/auth-store';
 
-/**
- * Messages are an argument, as with `useUpdatePet`: three call sites, and
- * "Household renamed" is not "Timezone updated".
- */
+// Messages are an argument: "Household renamed" is not "Timezone updated".
 export function useUpdateHousehold(householdId: string | undefined, success: string) {
   const queryClient = useQueryClient();
   const { userId } = useAuthStore();
@@ -20,16 +17,14 @@ export function useUpdateHousehold(householdId: string | undefined, success: str
       HouseholdService.update(householdId as string, patch),
     onSettled: () => {
       void queryClient.invalidateQueries({ queryKey: householdsKey(userId) });
-      // The timezone and grace window decide every occurrence calculation, so a
-      // change to either makes the whole day's derived state wrong.
+      // Timezone and grace window decide every occurrence calculation.
       void queryClient.invalidateQueries({ queryKey: ['occurrences'] });
     },
     onSuccess: () => showSuccessToast(success),
     onError: (error) => {
       console.error(error);
-      // The service turns a unique violation on the handle into copy a person
-      // can act on. Without this it is swallowed by the generic fallback and
-      // the Owner is told nothing about why their handle was refused.
+      // Without this the service's handle copy is swallowed by the generic
+      // fallback and the Owner is told nothing.
       showErrorToast(userFacingMessage(error, ErrorMessage.HouseholdUpdateFailed));
     }
   });

@@ -11,14 +11,8 @@ type Props = {
   description: string;
   value: boolean;
   isDisabled?: boolean;
-  /**
-   * Refuses a tap without dimming the row.
-   *
-   * Distinct from `isDisabled`, which says the switch cannot be used at all. A
-   * busy switch can be used, is showing the value the user just chose, and is
-   * only waiting for the write to land -- greying it there would flash on every
-   * tap and say the wrong thing.
-   */
+  // Refuses a tap without dimming the row. Unlike `isDisabled`, a busy switch
+  // already shows the chosen value and is only waiting for the write.
   isBusy?: boolean;
   onChange: (value: boolean) => void;
 };
@@ -38,7 +32,7 @@ const ToggleSwitch = ({
   return (
     <View style={[styles.container, { marginBottom, marginTop }]}>
       <View style={styles.textColumn}>
-        {/* Both lines drop to textSecondary when disabled so the row reads as
+        {/* Both lines drop to textSecondary when disabled, so the row reads as
             inert rather than merely unresponsive. */}
         <AppText size={14} color={isDisabled ? 'textSecondary' : 'text'} fontWeight="bold">
           {label}

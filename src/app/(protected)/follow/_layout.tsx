@@ -2,18 +2,13 @@ import { Stack, useRouter } from 'expo-router';
 
 import { HeaderTitleStyle } from '@/constants/theme';
 
-/**
- * The follower's side of the app, outside the tabs. A follow link is a
- * question to answer rather than a place to browse, and none of this is care
- * work -- Home stays member-only.
- */
+// Outside the tabs: a follow link is a question to answer, not a place to
+// browse.
 export default function FollowLayout() {
   const router = useRouter();
 
-  // Both screens are reachable as the first of this stack -- the household
-  // through a follow link, the Pet through a Pet Tag on a followed post. iOS
-  // draws no back button with nothing to pop to, so each carries its own close
-  // and each falls back to the tab the viewer came from.
+  // Either screen can be first in this stack, and iOS draws no back button with
+  // nothing to pop to, so each carries its own close.
   const close = () => (router.canGoBack() ? router.back() : router.replace('/posts'));
 
   return (

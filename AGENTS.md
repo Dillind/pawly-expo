@@ -567,36 +567,41 @@ All user-facing text uses **Australian/British English** (colour, organise, canc
 
 ### Comments
 
-Comments matter, but this codebase has been over-commented — long block comments justifying
-ordinary code, and prose that re-states what the line already says. Default to fewer.
+**The default is no comment.** This codebase was over-commented and has been swept once. Do not
+let it grow back.
 
-**Do not comment self-explanatory code.** If the function name, the variable name, or the logic
-itself makes the intent clear, a comment is noise. Avoid:
+A comment must earn its place against four tests. It survives only if it passes **all four**:
 
-- Describing what a function does when the name already says it (`// Returns the user's name` above `getUserName()`)
-- Restating a line (`// Set loading to true` above `setLoading(true)`)
-- JSDoc blocks on simple components or hooks whose props and signature are obvious
-- Narrating a change (`// Now uses the RPC instead of an insert`) — that belongs in the commit message
+1. **It says why, never what.** If a reader can get it from the code, delete it.
+2. **A reader could not work it out.** It records an outside constraint — a platform bug, a library
+   quirk, a Postgres semantic, a deliberate special case that looks wrong.
+3. **It is three lines or fewer.** One line is the target. If the reason needs a paragraph, it is a
+   `DECISIONS.md` entry, a `KNOWLEDGE.md` entry, or an ADR — not a comment.
+4. **It goes stale slowly.** A comment that names a number, a file, or a step someone will change
+   next month is a future lie.
 
-**Do comment the _why_** when a future reader could not reasonably infer it from the code:
+**Delete on sight**, with no exceptions:
 
-- A workaround for a platform bug or third-party library quirk
-- A special case that looks wrong but is intentional
-- Why an approach was chosen over the obvious alternative
-- A constraint imposed by an external system (API behaviour, OS limitation, Postgres semantics)
+- A JSDoc block on a component, a hook, a prop, or a type. The signature is the documentation.
+- A banner or a section divider (`// ---- helpers ----`, `// MARK: state`).
+- A restatement (`// Set loading to true`, `// Returns the user's name`).
+- A narration of a change (`// Now uses the RPC`). That is the commit message.
+- A comment on a `useEffect`, a query key, or a style rule that only names what it is.
+- A `TODO` with no ticket. File an issue or drop it.
+- Commented-out code. Git has it.
 
-Keep it to the shortest form that carries the reason — usually one or two lines. Reserve a long
-block comment for a genuinely load-bearing decision, and prefer an ADR when the explanation is
-really about architecture.
+**Length is the hard gate.** No comment block is longer than three lines. A file carries at most
+about one comment per fifty lines. If a file needs more than that to be understood, the file is the
+problem, not the missing prose.
 
 ```ts
-// Bad — noise, the code is obvious
+// Delete — the code says this
 // Check if the user is logged in
 if (!token) return null;
 
-// Good — a platform constraint the code cannot show on its own
-// A response listener attaches after a cold-start tap has already been
-// delivered, so useLastNotificationResponse is what replays it.
+// Keep — an OS behaviour the code cannot show
+// A response listener attaches after a cold-start tap is already delivered,
+// so useLastNotificationResponse is what replays it.
 const lastResponse = Notifications.useLastNotificationResponse();
 ```
 

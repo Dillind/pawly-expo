@@ -2,7 +2,6 @@ import AppText from '@/components/core/app-text';
 import PressableOpacity from '@/components/core/pressable-opacity';
 
 type Props = {
-  /** Null on Posts made before titles existed, which render without one. */
   title: string | null;
   numberOfLines?: number;
   onPress?: () => void;

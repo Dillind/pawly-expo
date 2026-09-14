@@ -138,7 +138,7 @@ const ProfileOverview = () => {
         </View>
       )}
 
-      {/* Only when there is something to list. A follow is not part of every
+      {/* Only when there is something to list: a follow is not part of every
           account, and an empty row here is a door to an empty room. */}
       {following.length > 0 && (
         <PressableOpacity
@@ -158,7 +158,7 @@ const ProfileOverview = () => {
         </PressableOpacity>
       )}
 
-      {/* Quiet and grey, matching Hevy's "Workouts" label: the cards below are
+      {/* Quiet and grey: the cards below are
           the content, and a bold heading competes with them. */}
       <AppText size={17} color="textSecondary">
         Posts
@@ -210,13 +210,8 @@ const ProfileOverview = () => {
         contentContainerStyle={styles.listContent}
         ItemSeparatorComponent={() => <View style={styles.separator} />}
         ListHeaderComponent={header}
-        // No empty state: a Member with no posts gets the heading and nothing
-        // under it. An illustration and a call to action here only pad a screen
-        // whose job is the identity block above.
-        //
-        // Not MainLegendList's `isLoading` either, which replaces the whole
-        // list -- the identity block is already known and must not blink out
-        // while the posts are on their way.
+        // Not MainLegendList's `isLoading`, which replaces the whole list: the
+        // identity block is known and must not blink out.
         ListEmptyComponent={
           isLoadingPosts ? <ActivityIndicator style={styles.postsLoader} /> : null
         }
@@ -229,7 +224,6 @@ const ProfileOverview = () => {
         onPicked={([localUri]) => changePhoto({ localUri, previousUrl: avatarUrl })}
       />
 
-      {/* Every post here is yours, so both actions always apply. */}
       <PostActionsSheet
         sheetRef={actionsSheetRef}
         canEdit
@@ -249,8 +243,7 @@ const ProfileOverview = () => {
 
 const makeStyles = ({ colors, spacing }: AppTheme) =>
   StyleSheet.create({
-    // No gutter on the list: a PostCard is full-bleed, so the header carries
-    // its own padding instead.
+    // A PostCard is full-bleed, so the header carries its own padding.
     listContent: {
       paddingBottom: BottomTabInset + spacing.four
     },
@@ -263,8 +256,8 @@ const makeStyles = ({ colors, spacing }: AppTheme) =>
       alignItems: 'center',
       gap: spacing.two
     },
-    // Over the avatar rather than in the badge's place: the new photo is what
-    // is loading, and a badge that vanishes reads as a button that broke.
+    // Over the avatar, not in the badge's place: a badge that vanishes reads as
+    // a button that broke.
     uploading: {
       position: 'absolute',
       width: AVATAR,
@@ -272,11 +265,10 @@ const makeStyles = ({ colors, spacing }: AppTheme) =>
       alignItems: 'center',
       justifyContent: 'center',
       borderRadius: Radius.full,
-      // A scrim over an image, not a themed surface -- same as the carousel's.
+      // A scrim over an image, not a themed surface.
       backgroundColor: 'rgba(0, 0, 0, 0.4)'
     },
-    // The avatar circle is `primary` too, so the button needs a ring of page
-    // background around it or the two greens merge into one blob.
+    // The avatar circle is `primary` too, so without this ring the two merge.
     editWell: {
       position: 'absolute',
       right: -spacing.two,

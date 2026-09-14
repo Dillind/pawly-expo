@@ -14,15 +14,12 @@ const DEBOUNCE_MS = 250;
 type Props = {
   onSearch: (term: string) => void;
   placeholder?: string;
-  /** Milliseconds held before `onSearch` fires. Pass 0 to report every keystroke. */
   debounceMs?: number;
   containerStyle?: StyleProp<ViewStyle>;
 };
 
-/**
- * A search field that reports a settled term, not every keystroke. The typed
- * text stays local so the field never lags behind the finger.
- */
+// A search field that reports a settled term, not every keystroke. The typed text stays local
+// so the field never lags behind the finger.
 const SearchBar = ({
   onSearch,
   placeholder = 'Search',

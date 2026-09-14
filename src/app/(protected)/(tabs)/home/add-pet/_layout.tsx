@@ -11,16 +11,9 @@ const DEFAULT_FEED_TIMES: AddPetFormValues['feedTimes'] = [
   { label: 'dinner', localTime: '17:00', daysOfWeek: [...EVERY_DAY], instructions: null }
 ];
 
-/**
- * A nested stack inside the modal, so each step pushes rather than presenting.
- * A sheet raised from a modal is two modals, which Apple's modality guidance
- * and AGENTS.md both reject — so the feed editor is a screen here.
- *
- * The form lives here rather than on any one step. Every screen the Stack
- * renders is a child of this provider, so the four of them share one form
- * instance and one schema — which is what makes a wizard spanning four routes
- * still a single validated form.
- */
+// A nested stack, so each step pushes rather than presenting: a sheet raised
+// from a modal is two modals. The form lives here so all four routes share one
+// instance and one schema.
 export default function AddPetLayout() {
   const form = useForm<AddPetFormValues>({
     resolver: zodResolver(addPetSchema),
@@ -45,7 +38,7 @@ export default function AddPetLayout() {
           <Stack.Header transparent />
           <Stack.Screen.BackButton displayMode="minimal" />
         </Stack.Screen>
-        {/* The only step whose body is a full-height list rather than a
+        {/* The only step whose body is a full-height list, not a
             scroll view, so an overlaying bar would sit on top of the heading. */}
         <Stack.Screen name="breed">
           <Stack.Title style={HeaderTitleStyle}>Breed</Stack.Title>

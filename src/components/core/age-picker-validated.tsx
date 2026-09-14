@@ -14,7 +14,6 @@ type Props = {
   name?: string;
   label?: string;
   isLabelIndicated?: boolean;
-  /** A birthdate in `YYYY-MM-DD`, the same shape `DateTimePickerValidated` stores. */
   selectedDate: string;
   setSelectedDate: (date: string) => void;
 };
@@ -26,11 +25,9 @@ const MONTHS = Array.from({ length: 12 }, (_, index) => index);
 
 const plural = (value: number, unit: string) => `${value} ${unit}${value === 1 ? '' : 's'}`;
 
-/**
- * Years and months, for a member who knows "about three" and not the day. The
- * birthdate is derived and stored — the column already holds one date and one
- * boolean, so nothing about the model changes.
- */
+// Years and months, for a member who knows "about three" and not the day. The birthdate is
+// derived and stored — the column already holds one date and one boolean, so nothing about the
+// model changes.
 const AgePickerValidated = ({
   name,
   label,

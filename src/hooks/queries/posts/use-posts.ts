@@ -16,7 +16,7 @@ import PostService, {
 } from '@/services/post.service';
 import { useAuthStore } from '@/stores/auth-store';
 
-/** Sorted: the same households in a different order must not fetch a second time. */
+// Sorted: the same households in another order must not fetch twice.
 const postsKey = (householdIds: string[]) => ['posts', [...householdIds].sort()];
 
 const ALL_POSTS = ['posts'];
@@ -37,11 +37,8 @@ export function usePosts(householdIds: string[], viewerId: string | undefined) {
   });
 }
 
-/**
- * A Member's own posts, across every household they are in. `['posts', ...]`
- * so a like or a delete reaches this list through the same prefix as the
- * stream -- writeToEveryList walks both.
- */
+// `['posts', ...]` so a like or delete reaches this list through the same
+// prefix as the stream -- writeToEveryList walks both.
 export function useAuthorPosts(authorId: string | undefined) {
   return useInfiniteQuery({
     queryKey: ['posts', 'author', authorId],
@@ -58,7 +55,7 @@ export function useAuthorPosts(authorId: string | undefined) {
   });
 }
 
-/** One post, for the edit screen. Its own query so the route survives a cold start. */
+// Its own query so the edit route survives a cold start.
 export function usePost(postId: string | undefined, viewerId: string | undefined) {
   return useQuery({
     queryKey: ['post', postId],
@@ -163,15 +160,8 @@ function findCachedPost(client: Client, postId: string): Post | undefined {
   return undefined;
 }
 
-/**
- * Optimistic, and deliberately silent on both success and failure.
- *
- * A Like is not an event worth confirming with a toast -- the filled heart is
- * the confirmation, and a toast per tap in a household of four would be
- * unbearable. A failure rolls the heart back, which reads as "it didn't
- * happen" without interrupting anyone; the real error still reaches the
- * console.
- */
+// Silent on success and failure: the filled heart is the confirmation, and a
+// rollback reads as "it didn't happen" without interrupting anyone.
 export function useToggleLike() {
   const queryClient = useQueryClient();
   const { userId, profile } = useAuthStore();
@@ -191,8 +181,7 @@ export function useToggleLike() {
       const previousDetail = queryClient.getQueryData<Post>(detailKey);
       const previousPost = findCachedPost(queryClient, postId) ?? previousDetail;
 
-      // The mutation itself cannot run without an id, and an optimistic liker
-      // carrying a placeholder one could never be filtered back out.
+      // An optimistic liker with a placeholder id could never be filtered out.
       if (!userId) return { previousDetail, previousPost };
 
       const me: PostLiker = {
@@ -206,9 +195,8 @@ export function useToggleLike() {
         ...post,
         likedByMe: !liked,
         likeCount: post.likeCount + (liked ? -1 : 1),
-        // The count and the "Liked by" line read from different fields; moving
-        // one without the other leaves the card contradicting itself until the
-        // next refetch.
+        // The count and the "Liked by" line read different fields; moving one
+        // alone leaves the card contradicting itself until the next refetch.
         likers: liked
           ? post.likers.filter((liker) => liker.userId !== userId)
           : [...post.likers, me]
@@ -216,14 +204,14 @@ export function useToggleLike() {
 
       writeToEveryList(queryClient, postId, applyLike);
 
-      // Post Detail reads its own query, so the heart there is dead without this.
+      // Post Detail reads its own query, so its heart is dead without this.
       queryClient.setQueryData<Post>(detailKey, (old) => (old ? applyLike(old) : old));
 
       return { previousDetail, previousPost };
     },
 
-    // One post, never a whole snapshot: a snapshot predates any like still in
-    // flight beside this one, and would empty a heart that had succeeded.
+    // One post, never a snapshot: a snapshot predates any like still in flight
+    // beside this one and would empty a heart that had succeeded.
     onError: (error, input, context) => {
       console.error(error);
 
@@ -237,20 +225,9 @@ export function useToggleLike() {
   });
 }
 
-/**
- * Drives the dot on the Posts tab.
- *
- * Polls rather than subscribes, and that is the cheaper option on the client,
- * not the lazier one. Supabase Realtime is a WebSocket held open for the life
- * of the session with periodic heartbeats, and it counts against the project's
- * concurrent-connection limit. One `exists` query a minute costs a request that
- * returns a boolean, holds nothing open, and stops dead when the app is
- * backgrounded. A socket kept alive to deliver a red circle is the more
- * expensive of the two.
- *
- * The push notification is what actually tells someone a post arrived. This
- * only decides whether a dot is showing when they happen to be looking.
- */
+// Polls rather than subscribes: Realtime holds a socket against the project's
+// connection limit for the life of the session, where one `exists` query a
+// minute holds nothing open and stops when the app is backgrounded.
 export function useHasUnseenPosts(householdId: string | undefined) {
   return useQuery({
     queryKey: ['posts-unseen', householdId],
@@ -260,15 +237,9 @@ export function useHasUnseenPosts(householdId: string | undefined) {
   });
 }
 
-/**
- * The same yes/no for several households at once, keyed by household id.
- *
- * Feeds two surfaces from one set of queries: the dot on each switcher row, and
- * the tab badge, which means "any household" rather than the active one --
- * otherwise posts in the other households are invisible until you happen to
- * switch. `useQueries` rather than one call so each household keeps its own
- * cache entry and shares it with `useHasUnseenPosts`.
- */
+// The tab badge means "any household", not the active one, or posts elsewhere
+// stay invisible until you switch. `useQueries` so each household keeps its own
+// cache entry and shares it with `useHasUnseenPosts`.
 export function useUnseenByHousehold(householdIds: string[]) {
   return useQueries({
     queries: householdIds.map((householdId) => ({
@@ -289,7 +260,7 @@ export function useMarkPostsSeen(householdIds: string[], userId: string | undefi
   const queryClient = useQueryClient();
 
   return useMutation({
-    // allSettled: one rejected household must not discard the dots that cleared.
+    // One rejected household must not discard the dots that cleared.
     mutationFn: () =>
       Promise.allSettled(
         householdIds.map((householdId) => PostService.markSeen({ householdId, userId: userId! }))

@@ -11,7 +11,7 @@ import { memberDisplayName } from '@/utils/members';
 
 type DoubleFeed = Extract<LogFeedResult, { status: 'double_feed' }>;
 
-/** `custom` has no word a sentence can use, so those feeds stay unnamed. */
+// `custom` has no word a sentence can use, so those feeds stay unnamed.
 const LABEL_WORD: Record<FeedingScheduleLabel, string | null> = {
   morning: 'morning',
   lunch: 'lunch',
@@ -41,20 +41,12 @@ function alreadyLoggedText(
 type Options = {
   members: HouseholdMember[];
   timezone: string | undefined;
-  /** A feed was actually written. */
   onWritten: () => void;
 };
 
-/**
- * Owns everything between tapping a Feed Time and a row appearing.
- *
- * Lives above both hosts — the Home card renders the list inline, the tray
- * renders the same list as a step — so a pick made in either place behaves the
- * same way.
- *
- * There is no late-feed question. A log names the feed it satisfies, so a feed
- * logged at 19:52 is dinner logged late, and nothing has to be asked (ADR 0029).
- */
+// Above both hosts, so a pick made in the Home card or in the tray behaves the
+// same. There is no late-feed question: a log names the feed it satisfies. See
+// ADR 0029.
 export function useLogFlow({ members, timezone, onWritten }: Options) {
   const { mutate: logFeed, isPending: isLogging } = useLogFeed();
 
@@ -117,14 +109,9 @@ export function useLogFlow({ members, timezone, onWritten }: Options) {
     [write]
   );
 
-  /**
-   * The tray's write: one or more pets, one feed, one time. A null occurrence
-   * is an Extra Feed — "Not on the schedule" — which satisfies nothing.
-   *
-   * `matches` names each pet's OWN occurrence for the chosen feed. Writing the
-   * others as Extra Feeds instead would leave their occurrences unsatisfied,
-   * and the sweep would then nudge the household about a pet fed a minute ago.
-   */
+  // `matches` names each pet's own occurrence: writing the others as Extra
+  // Feeds leaves their occurrences unsatisfied and the sweep nudges about a pet
+  // fed a minute ago.
   const log = useCallback(
     (
       pets: Pet[],

@@ -10,35 +10,18 @@ type Props = {
   occurrences: Occurrence[];
   timezone: string;
   members: HouseholdMember[];
-  /** Inside a Home card rather than a tray step. */
   isNested?: boolean;
-  /** A rule between rows, for a list drawn as a card of its own. */
   hasDividers?: boolean;
-  /**
-   * Whether the day being shown is today. A past day is read-only: the log
-   * tray writes against today, so a Log chip on Wednesday last week would
-   * quietly record the feed against this morning.
-   */
+  // A past day is read-only: the tray writes against today, so a Log chip on
+  // last Wednesday would record the feed against this morning.
   isToday?: boolean;
   onOpenLog: (logId: string) => void;
-  /** Omitted where the screen does not log. Without it no row draws a Log chip. */
+  // Omitted where the screen does not log. Without it no row draws a chip.
   onPickOccurrence?: (occurrence: Occurrence) => void;
 };
 
-/**
- * Today's occurrences, as something to act on. Rendered inline by the Home card
- * and as a tray step, which is why it holds no presentation of its own.
- *
- * Logging is Home's job. Pet detail passes no `onPickOccurrence`, so its rows
- * show state and nothing to tap.
- *
- * An `upcoming` row has no Log button: its Feed Time is in the future, and RLS
- * rejects a `logged_at` later than now(). There is nothing a tap could write.
- *
- * Neither has any row on a day that is not today. A past feed is backfilled
- * through the late-feed flow, which asks who fed and when -- not by a chip that
- * would write the record against the wrong day.
- */
+// An `upcoming` row has no Log button: RLS rejects a `logged_at` later than
+// now(), so there is nothing a tap could write.
 const OccurrenceList = ({
   occurrences,
   timezone,

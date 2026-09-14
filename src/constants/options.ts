@@ -47,10 +47,8 @@ export const FEED_LOG_DAY_OPTIONS: Option<'today' | 'yesterday'>[] = [
   { value: 'yesterday', label: 'Yesterday' }
 ];
 
-/**
- * The Grace Window, as minutes either side of a Scheduled Time (ADR 0009).
- * Values are strings because a picker option is a string; the caller parses.
- */
+// The Grace Window, as minutes either side of a Scheduled Time (ADR 0009). Values are strings
+// because a picker option is a string; the caller parses.
 export const GRACE_WINDOW_OPTIONS: Option[] = [
   { value: '30', label: '30 minutes' },
   { value: '60', label: '1 hour' },
@@ -69,7 +67,7 @@ export const TIMEZONE_OPTIONS: Option[] = (
 
 // The stored value is a number of minutes; the label a member reads for the
 // last one is "1 hour", never "60 minutes".
-/** Mirrors the column default in 20260828090100. */
+// Mirrors the column default in 20260828090100.
 export const DEFAULT_LEAD_MINUTES: LeadMinutes = 15;
 
 export const FEED_DUE_LEAD_OPTIONS: Option<LeadMinutes>[] = [

@@ -43,8 +43,7 @@ const Posts = () => {
     [following]
   );
 
-  // Both sets, in one lookup. A followed household has no membership row, so
-  // it carries no `isOwner` -- which is correct: a follower moderates nothing.
+  // A followed household has no membership row, so it carries no `isOwner`.
   const householdById = useMemo(() => {
     const byId = new Map<string, { id: string; name: string; isOwner: boolean }>();
 
@@ -65,8 +64,7 @@ const Posts = () => {
 
   const householdIds = useMemo(() => [...memberIds, ...followedIds], [memberIds, followedIds]);
 
-  // The household name on a card answers "whose pet is this?", which only
-  // needs asking once more than one household is in the stream.
+  // The name only needs asking once more than one household is in the stream.
   const isMultiHousehold = memberIds.length + followedIds.length > 1;
 
   const [activePost, setActivePost] = useState<Post | null>(null);
@@ -87,15 +85,13 @@ const Posts = () => {
 
   const { mutate: toggleLike } = useToggleLike();
   const { mutate: deletePost } = useDeletePost();
-  // Member households only: markSeen writes to household_members, and a
-  // followed household has no membership row for it to match.
+  // markSeen writes to household_members, which a followed household lacks.
   const { mutate: markSeen } = useMarkPostsSeen(memberIds, userId ?? undefined);
 
-  // A string, not the array: the array is a fresh identity on every refetch.
+  // A string, not the array: the array is a fresh identity every refetch.
   const householdKey = householdIds.join(',');
 
-  // Clearing the dot is a side effect of arriving, not of the data loading, so
-  // it fires on focus rather than in an effect keyed on the query.
+  // A side effect of arriving, not of the data loading, so it fires on focus.
   useFocusEffect(
     useCallback(() => {
       if (householdKey && userId) markSeen();
@@ -190,7 +186,7 @@ const Posts = () => {
 
 const makeStyles = ({ colors, spacing }: AppTheme) =>
   StyleSheet.create({
-    // No gutter: PostBody re-indents its words and padding here would inset the photo.
+    // No gutter: PostBody re-indents its words, and padding insets the photo.
     listContent: {
       paddingBottom: spacing.six
     },

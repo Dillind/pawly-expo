@@ -20,11 +20,9 @@ const AVATAR_SIZE = 40;
 const NAME_HEIGHT = 22;
 const SUMMARY_HEIGHT = 16;
 
-/**
- * The shape of a collapsed PetSection, drawn while the day is still loading.
- * Every measurement here is taken from that card so the screen does not move
- * when the real one replaces it — change one and change both.
- */
+// The shape of a collapsed PetSection, drawn while the day is still loading. Every measurement
+// here is taken from that card so the screen does not move when the real one replaces it —
+// change one and change both.
 const PetSectionSkeleton = () => {
   const styles = useStyles(makeStyles);
   const theme = useTheme();

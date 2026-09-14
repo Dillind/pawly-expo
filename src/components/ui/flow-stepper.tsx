@@ -10,10 +10,8 @@ type Props = { current: number; steps: string[] };
 const CIRCLE = 26;
 const HALO = 4;
 
-/**
- * Numbered phases with their names. A member on step 1 who can read "Feed
- * times" next knows the flow is short and knows what it wants.
- */
+// Numbered phases with their names. A member on step 1 who can read "Feed times" next knows the
+// flow is short and knows what it wants.
 const FlowStepper = ({ current, steps }: Props) => {
   const styles = useStyles(makeStyles);
   const count = steps.length;

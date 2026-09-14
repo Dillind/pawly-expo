@@ -9,7 +9,6 @@ import { Spacing, type AppTheme } from '@/constants/theme';
 import { useStyles } from '@/hooks/use-styles';
 import type { HouseholdSummary } from '@/types/core';
 
-/** The divider inset a section needs to clear the pet stack rather than a glyph. */
 export const HOUSEHOLD_ROW_DIVIDER_INSET = Spacing.three + HOUSEHOLD_PETS_WIDTH + Spacing.three;
 
 type Props = {

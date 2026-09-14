@@ -14,15 +14,8 @@ type Props = {
   householdName: string;
 };
 
-/**
- * How an invite actually reaches someone: there is no email out, so the owner
- * has to hand this over. The QR only helps if the scanner already has the app,
- * so the typed code and the share sheet sit beside it rather than behind it.
- *
- * Draws no background of its own -- it sits on a card on the invite screen and
- * flush on a sheet from the members list, and a sheet may only use the two
- * sheet tokens.
- */
+// Draws no background of its own: it sits on a card on one screen and flush on
+// a sheet on another, and a sheet may only use the two sheet tokens.
 const InviteCodeCard = ({ code, householdName }: Props) => {
   const styles = useStyles(makeStyles);
 
@@ -39,7 +32,7 @@ const InviteCodeCard = ({ code, householdName }: Props) => {
       </AppText>
 
       <View style={styles.qr}>
-        {/* The deep link, not the bare code: scanning with the Camera app
+        {/* The deep link, not the bare code: the Camera app
             has to offer to open Crumpet, not hand back a meaningless string. */}
         <QRCode value={inviteLink(code)} size={QR_SIZE} backgroundColor="#FFFFFF" color="#000000" />
       </View>
@@ -62,8 +55,7 @@ const makeStyles = ({ spacing }: AppTheme) =>
     card: {
       gap: spacing.three
     },
-    // A QR must stay dark-on-light to scan, so it keeps a white plate in both
-    // themes rather than inverting with the surface behind it.
+    // A QR must stay dark-on-light to scan, so the plate never inverts.
     qr: {
       alignSelf: 'center',
       backgroundColor: '#FFFFFF',

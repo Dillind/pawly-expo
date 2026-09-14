@@ -1,10 +1,7 @@
 import { z } from 'zod';
 
-/**
- * 30 characters, matching the `households_name_length` check constraint. Both
- * halves are needed: the schema gives the user an inline error, the constraint
- * is what holds for any caller that is not this app.
- */
+// Matches the `households_name_length` check constraint: the schema gives an
+// inline error, the constraint holds for any caller that is not this app.
 export const HOUSEHOLD_NAME_MAX = 30;
 
 export const householdNameSchema = z.object({
@@ -17,22 +14,15 @@ export const householdNameSchema = z.object({
 
 export type HouseholdNameInput = z.infer<typeof householdNameSchema>;
 
-/**
- * Names the app itself might want to speak with. This list must match the
- * `households_handle_not_reserved` check constraint -- without it a reserved
- * word passes validation, comes back unavailable, and the screen reports it as
- * taken, which is not true.
- */
+// Must match the `households_handle_not_reserved` check constraint, or a
+// reserved word passes validation and then reports as taken.
 export const RESERVED_HANDLES = ['admin', 'crumpet', 'support', 'owner', 'help'];
 
 export const HANDLE_MIN = 3;
 export const HANDLE_MAX = 20;
 
-/**
- * The same rule `households_handle_format` enforces. The alternation is what
- * forbids a trailing hyphen and a doubled one: every hyphen sits between two
- * alphanumerics.
- */
+// The rule `households_handle_format` enforces. The alternation is what forbids
+// a trailing or doubled hyphen.
 const HANDLE_SHAPE = /^[a-z][a-z0-9]*(-[a-z0-9]+)*$/;
 
 export const householdHandleSchema = z.object({

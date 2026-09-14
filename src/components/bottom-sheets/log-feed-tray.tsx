@@ -30,7 +30,6 @@ type Props = {
   pets: Pet[];
   today: string;
   timezone: string;
-  /** Preselected by a per-pet Log button, which already knows its pet. */
   pet?: Pet;
   flow: Flow;
 };
@@ -42,11 +41,7 @@ const LABEL_TEXT: Record<Occurrence['label'], string> = {
   custom: 'Feed'
 };
 
-/**
- * Several pets at once, because one person feeding two animals is one trip to
- * the kitchen, not two. A tick rather than a radio: this is a set, and the
- * button counts it back.
- */
+// Several pets at once, because feeding two animals is one trip to the kitchen.
 const PetPickerStep = ({
   pets,
   selected,
@@ -98,7 +93,6 @@ const PetPickerStep = ({
   );
 };
 
-/** Which feed this was. "Not on the schedule" is the Extra Feed, chosen. */
 const FeedPickerStep = ({
   pet,
   today,
@@ -183,19 +177,15 @@ const ConfirmStep = ({
     resolver: zodResolver(schema),
     mode: 'onTouched',
     defaultValues: {
-      // The truth is that the feed happened now. Anything else is a correction,
-      // so it starts here and the member changes it deliberately. Read in the
-      // household's timezone, never the device's (ADR 0009).
+      // Read in the household's timezone, never the device's. See ADR 0009.
       time: timeInTimezone(new Date().toISOString(), timezone),
       notes: ''
     }
   });
   const { control, handleSubmit } = form;
 
-  // Each pet's own occurrence for the chosen feed. One query per pet, because a
-  // hook cannot be called from a loop -- useQueries is the sanctioned shape.
-  // Without this the other pets would be logged as Extra Feeds and the sweep
-  // would nudge about animals that were just fed.
+  // Without this the other pets log as Extra Feeds and the sweep nudges about
+  // animals that were just fed.
   const occurrenceQueries = useQueries({
     queries: pets.map((pet) => ({
       queryKey: ['occurrences', pet.id, today],
@@ -207,13 +197,9 @@ const ConfirmStep = ({
 
   if (occurrence) {
     pets.forEach((pet, index) => {
-      // Match on the feed, never on its state. Excluding an already-fed
-      // occurrence here would quietly turn a deliberate re-log into an Extra
-      // Feed and skip the Double Feed warning entirely -- log_feed is what
-      // decides that, and it needs to be given the occurrence to decide about.
-      // The label is the only key that carries across pets, and several feeds
-      // can share `custom` -- so the time settles it, and an ambiguous label
-      // resolves to nothing rather than to a guess.
+      // Match on the feed, never its state: excluding an already-fed occurrence
+      // turns a deliberate re-log into an Extra Feed and skips the Double Feed
+      // warning. Label plus time, because several feeds can share `custom`.
       const sameLabel = (occurrenceQueries[index]?.data ?? []).filter(
         (each) => each.label === occurrence.label
       );
@@ -223,9 +209,8 @@ const ConfirmStep = ({
         (sameLabel.length === 1 ? sameLabel[0] : undefined);
     });
   }
-  // The household's local day plus the chosen wall-clock time. composeLoggedAt
-  // is the one place that arithmetic lives; do not rebuild it from the device
-  // clock. The schema has already refused a future time by this point.
+  // composeLoggedAt is the one place this arithmetic lives. Never rebuild it
+  // from the device clock.
   const submit = handleSubmit((values) =>
     onLog(
       {
@@ -311,10 +296,8 @@ const PetHeading = ({ pet }: { pet: Pet }) => {
   );
 };
 
-/**
- * Raised when there is something to ask: which pets, which feed, and at what
- * time. Tapping Log on a Home row asks none of those and writes without this.
- */
+// Raised only when there is something to ask. Tapping Log on a Home row asks
+// none of it and writes without this.
 const LogFeedTray = ({ sheetRef, pets, today, timezone, pet, flow }: Props) => {
   const [selected, setSelected] = useState<Pet[]>([]);
   const [occurrence, setOccurrence] = useState<Occurrence | null>(null);
@@ -339,8 +322,8 @@ const LogFeedTray = ({ sheetRef, pets, today, timezone, pet, flow }: Props) => {
     id: 'feed',
     title: 'Which feed?',
     header: active.length === 1 ? () => <PetHeading pet={active[0]} /> : undefined,
-    // The feeds offered are the first pet's. Two pets rarely share a schedule,
-    // and asking per pet would turn one trip to the kitchen into two flows.
+    // The first pet's feeds: asking per pet turns one trip to the kitchen into
+    // two flows.
     render: () => (
       <FeedPickerStep key={active[0]?.id} pet={active[0]} today={today} onPick={setOccurrence} />
     )

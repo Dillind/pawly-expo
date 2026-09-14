@@ -9,13 +9,9 @@ type Props = {
   children: ReactNode;
 };
 
-/**
- * A screen under a transparent native header, scrolled.
- *
- * Every state goes inside the scroll view, the loading spinner and the error
- * included. A bare ScreenView under a transparent header draws its content
- * beneath the navigation bar.
- */
+// A screen under a transparent native header, scrolled. Every state goes inside the scroll
+// view, the loading spinner and the error included. A bare ScreenView under a transparent
+// header draws its content beneath the navigation bar.
 const ScrollScreen = ({ contentContainerStyle, children }: Props) => (
   <ScreenView edges={[]}>
     <ScreenScrollView

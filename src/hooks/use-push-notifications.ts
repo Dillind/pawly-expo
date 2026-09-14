@@ -9,12 +9,8 @@ import PushTokenService from '@/services/push-token.service';
 import { useActiveHouseholdStore } from '@/stores/active-household-store';
 import { useAuthStore } from '@/stores/auth-store';
 
-// shouldShowAlert is deprecated in SDK 57, and setting it alongside
-// shouldShowBanner: false / shouldShowList: false is why a foregrounded
-// notification previously displayed NOTHING.
-//
-// Badges stay off in this pass: a badge count implies an inbox to clear, and
-// there isn't one yet.
+// shouldShowAlert is deprecated in SDK 57. Set alongside shouldShowBanner and
+// shouldShowList as false, a foregrounded notification displays nothing.
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
     shouldShowBanner: true,
@@ -24,10 +20,8 @@ Notifications.setNotificationHandler({
   })
 });
 
-/**
- * Mounted once, inside AuthGate in src/app/_layout.tsx -- the one place where
- * a userId exists and the router is already mounted.
- */
+// Mounted once, inside AuthGate: the one place where a userId exists and the
+// router is already mounted.
 export const usePushNotifications = () => {
   const router = useRouter();
   const { status, userId } = useAuthStore();
@@ -37,11 +31,9 @@ export const usePushNotifications = () => {
 
   const handledResponseId = useRef<string | null>(null);
 
-  // addNotificationResponseReceivedListener alone is NOT reliable for a tap
-  // that launches the app from terminated -- the listener attaches after the
-  // response has already been delivered. useLastNotificationResponse replays
-  // it. Deduplicating on the request identifier is what makes replay safe, and
-  // it removes the old isNavigatingRef setTimeout(..., 1000) hack.
+  // A response listener attaches after a cold-start tap is already delivered,
+  // so useLastNotificationResponse replays it. Deduplicating on the request
+  // identifier is what makes the replay safe.
   const lastResponse = Notifications.useLastNotificationResponse();
 
   useEffect(() => {
@@ -49,10 +41,8 @@ export const usePushNotifications = () => {
 
     const attempt = () => {
       void PushTokenService.register().catch((error: unknown) => {
-        // Non-fatal. A user without a token simply receives nothing; the app
-        // is fully usable, and the next foreground tries again. Logged rather
-        // than dropped -- a silent catch here once hid a 403 that made the
-        // whole feature dead, with an empty table and no error to work from.
+        // Logged, never dropped: a silent catch here once hid a 403 that made
+        // the whole feature dead with no error to work from.
         console.warn('[push] token registration failed', error);
       });
     };
@@ -69,8 +59,8 @@ export const usePushNotifications = () => {
   useEffect(() => {
     if (!lastResponse) return;
 
-    // A cold-start tap must not try to push /home at the auth stack, and
-    // must not race the household query the destination screen depends on.
+    // A cold-start tap must not push /home at the auth stack, nor race the
+    // household query the destination screen depends on.
     if (status !== 'signedIn' || !household) return;
 
     const identifier = lastResponse.notification.request.identifier;
@@ -81,8 +71,7 @@ export const usePushNotifications = () => {
     if (!data?.screen) return;
 
     // A notification delivered before the route was renamed carries the old
-    // path. It sits on the phone until it is tapped, so dropping this mapping
-    // sends those taps to Unmatched Route.
+    // path and sits on the phone until tapped.
     const screen = (data.screen as string).replace(/^\/household/, '/posts');
 
     const navigate = () =>
@@ -91,15 +80,12 @@ export const usePushNotifications = () => {
         params: data.params as Record<string, string>
       });
 
-    // A push belongs to a household, which may not be the active one. Switch
-    // first, or the tap lands on the right screen showing the wrong pets.
+    // Switch first, or the tap lands on the right screen with the wrong pets.
     const targetId = data.householdId as string | undefined;
 
     if (!targetId) return navigate();
 
-    // Left the household, or were removed from it. There is nothing to show and
-    // no household to switch to, so do nothing rather than route somewhere that
-    // will render an error.
+    // Left or removed: there is no household to switch to, so do nothing.
     if (!households.some((candidate) => candidate.id === targetId)) return;
 
     if (targetId === household.id) return navigate();

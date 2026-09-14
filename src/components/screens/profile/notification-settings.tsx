@@ -23,15 +23,8 @@ import {
 import { useStyles } from '@/hooks/use-styles';
 import { optionLabel } from '@/utils/options';
 
-/**
- * What the household will and won't send this member.
- *
- * The screen is driven by the OS permission first and the stored preference
- * second, because that is the real order of authority: a toggle reading "on"
- * while iOS silently drops every push is the app lying about its own state.
- * When permission is denied the toggle is rendered disabled rather than hidden
- * -- hiding it would leave no explanation for why nothing arrives.
- */
+// The OS permission is read first, because a toggle reading "on" while iOS
+// drops every push is the app lying. Denied renders disabled, never hidden.
 type Props = {
   householdId: string;
 };
@@ -50,11 +43,9 @@ const NotificationSettings = ({ householdId }: Props) => {
 
   const requestPermission = useRequestNotificationPermission();
 
-  // The OS permission is read through Query rather than useState + an AppState
-  // listener so it re-reads on foreground for free: the root layout already
-  // wires AppState into TanStack's focusManager, and this query is stale
-  // immediately. That matters here more than anywhere else in the app --
-  // this screen is the one people leave for Settings and come straight back to.
+  // Through Query, not useState, so it re-reads on foreground for free: the
+  // root layout already wires AppState into focusManager. This is the screen
+  // people leave for Settings and come straight back to.
   const { data: permission } = useQuery({
     queryKey: NOTIFICATION_PERMISSION_QUERY_KEY,
     queryFn: () => Notifications.getPermissionsAsync()
@@ -84,7 +75,7 @@ const NotificationSettings = ({ householdId }: Props) => {
 
     return (
       <>
-        {/* These are stored per membership, so they apply to this household
+        {/* Stored per membership, so they apply to this household
             alone. Naming it is the only thing stopping a member of several
             believing they have just silenced all of them. */}
         {household && (
@@ -105,7 +96,7 @@ const NotificationSettings = ({ householdId }: Props) => {
             />
           </View>
 
-          {/* Off is the member's own choice, so hiding this is one control
+          {/* Off is the member's choice, so hiding this is one control
               saying one thing. Denied is not, so the row stays and greys out. */}
           {(preferences?.feedDueAlerts || isDenied) && (
             <SettingsRow

@@ -50,8 +50,8 @@ const CareCardEditor = () => {
   const [stepIndex, setStepIndex] = useState(0);
   const helpRef = useRef<CareCardHelpHandle | null>(null);
 
-  const progress = useSharedValue((1 / CARE_CARD_STEPS.length) * 100);
-  const progressStyle = useAnimatedStyle(() => ({ width: `${progress.value}%` }));
+  const progress = useSharedValue(1 / CARE_CARD_STEPS.length);
+  const progressStyle = useAnimatedStyle(() => ({ transform: [{ scaleX: progress.get() }] }));
 
   const step = CARE_CARD_STEPS[stepIndex];
 
@@ -59,9 +59,9 @@ const CareCardEditor = () => {
     const next = Math.min(Math.max(index, 0), CARE_CARD_STEPS.length - 1);
     void hapticLight();
     setStepIndex(next);
-    progress.value = withTiming(((next + 1) / CARE_CARD_STEPS.length) * 100, {
-      duration: PROGRESS_DURATION_MS
-    });
+    progress.set(
+      withTiming((next + 1) / CARE_CARD_STEPS.length, { duration: PROGRESS_DURATION_MS })
+    );
   };
 
   const close = () => router.back();
@@ -214,6 +214,10 @@ const makeStyles = ({ spacing, colors }: AppTheme) =>
     },
     progress: {
       height: 3,
+      width: '100%',
+      // Scaled, not resized, so the bar composites instead of laying out. The
+      // origin has to be left or it grows from the middle in both directions.
+      transformOrigin: 'left',
       borderRadius: Radius.full,
       backgroundColor: colors.primary
     },

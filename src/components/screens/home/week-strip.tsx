@@ -1,7 +1,7 @@
 import type { LegendListRef } from '@legendapp/list/react-native';
 import { useCallback, useEffect, useMemo, useRef } from 'react';
 import { StyleSheet, useWindowDimensions, View } from 'react-native';
-import Animated, { useAnimatedStyle, withTiming } from 'react-native-reanimated';
+import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 
 import AppText from '@/components/core/app-text';
 import MainLegendList from '@/components/core/main-legend-list';
@@ -19,36 +19,27 @@ const WEEKS_EACH_SIDE = 52;
 const VIEWABILITY = { itemVisiblePercentThreshold: 60 };
 
 type Props = {
-  /** The day in view. Not necessarily today. */
   selectedDay: string;
-  /** Today in the household's timezone, so a past day can be told apart. */
   today: string;
   reminderKinds?: Record<string, ReminderKind[]>;
   onSelectDay: (day: string) => void;
 };
 
-// Warm ink for a feed, not gold: issue #122 gives gold exactly three jobs --
-// the banner wash, the Log chip, the active tab. A fourth drains the other
-// three. The Kind colours are on trial; see DECISIONS.md.
+// Warm ink, not gold: gold has exactly three jobs and a fourth drains them.
 const DOT_COLOUR = {
   feed: 'text',
   medication: 'medication',
   vet: 'vet'
 } as const;
 
-/**
- * The week the selected day sits in, one full-width page per week.
- *
- * The window is anchored on today, not on the selection -- rebuilding it around
- * the selected day would renumber every index mid-scroll.
- */
+// Anchored on today, not the selection: rebuilding around the selected day
+// renumbers every index mid-scroll.
 const WeekStrip = ({ selectedDay, today, reminderKinds, onSelectDay }: Props) => {
   const styles = useStyles(makeStyles);
   const { width: pageWidth } = useWindowDimensions();
 
   const listRef = useRef<LegendListRef>(null);
-  // The viewability callback must stay stable, so it reads these rather than
-  // closing over them.
+  // The viewability callback must stay stable, so it reads these refs.
   const selectedRef = useRef(selectedDay);
   const onSelectRef = useRef(onSelectDay);
 
@@ -83,8 +74,8 @@ const WeekStrip = ({ selectedDay, today, reminderKinds, onSelectDay }: Props) =>
     listRef.current?.scrollToIndex({ index: selectedIndex, animated: true });
   }, [selectedWeek, selectedIndex]);
 
-  // LegendList adjusts its own scroll offset, so the offset cannot name the
-  // page -- only viewability can.
+  // LegendList adjusts its own scroll offset, so only viewability names the
+  // page.
   const onViewableItemsChanged = useCallback(
     ({ viewableItems }: { viewableItems: { item: string }[] }) => {
       const week = viewableItems.at(0)?.item;
@@ -157,15 +148,24 @@ const WeekPage = ({
   const selectedIndex = days.indexOf(selectedDay);
   const cellWidth = (width - ScreenGutter * 2 - theme.spacing.one * 6) / 7;
 
-  const underlineStyle = useAnimatedStyle(() => {
-    const left =
-      selectedIndex * (cellWidth + theme.spacing.one) + (cellWidth - UNDERLINE_WIDTH) / 2;
+  const translateX = useSharedValue(0);
 
-    return {
-      opacity: selectedIndex < 0 ? 0 : 1,
-      transform: [{ translateX: withTiming(Math.max(0, left), { duration: SLIDE_MS }) }]
-    };
-  });
+  const left =
+    selectedIndex < 0
+      ? 0
+      : Math.max(
+          0,
+          selectedIndex * (cellWidth + theme.spacing.one) + (cellWidth - UNDERLINE_WIDTH) / 2
+        );
+
+  useEffect(() => {
+    translateX.set(withTiming(left, { duration: SLIDE_MS }));
+  }, [left, translateX]);
+
+  const underlineStyle = useAnimatedStyle(() => ({
+    opacity: selectedIndex < 0 ? 0 : 1,
+    transform: [{ translateX: translateX.get() }]
+  }));
 
   return (
     <View style={[styles.page, { width }]}>
@@ -190,8 +190,7 @@ const WeekPage = ({
               <AppText size={11} fontWeight="bold" color="textSecondary" style={styles.initial}>
                 {weekdayInitial(day)}
               </AppText>
-              {/* Today keeps a mark once the strip pages away from it. Gold ink,
-                  not a gold fill -- the fill means "selected". */}
+              {/* Gold ink, not a gold fill: the fill means "selected". */}
               <AppText
                 variant="header"
                 size={16}
@@ -199,7 +198,7 @@ const WeekPage = ({
                 color={todayColour(isSelected, isToday, isPast)}>
                 {dayOfMonth(day)}
               </AppText>
-              {/* Always rendered -- a slot that appears would resize the cell. */}
+              {/* Always rendered: a slot that appears would resize the cell. */}
               <View style={styles.dotSlot}>
                 {reminderKinds?.[day]?.map((kind) => (
                   <View

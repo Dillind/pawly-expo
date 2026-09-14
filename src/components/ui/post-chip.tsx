@@ -7,18 +7,13 @@ import { Radius, type AppTheme } from '@/constants/theme';
 import { useStyles } from '@/hooks/use-styles';
 
 type Props = {
-  /** The avatar or the emoji that stands at the head of the pill. */
   leading?: ReactNode;
-  /** Absent on an Occasion that carries an emoji and no words. */
   label?: string | null;
   onPress?: () => void;
   accessibilityLabel?: string;
 };
 
-/**
- * The pill under a Post's caption. One shell, so a pet and an Occasion cannot
- * drift apart -- they answer the same question and sit in the same row.
- */
+// One shell, so a pet and an Occasion cannot drift apart.
 const PostChip = ({ leading, label, onPress, accessibilityLabel }: Props) => {
   const styles = useStyles(makeStyles);
 
@@ -56,12 +51,11 @@ const makeStyles = ({ colors, spacing }: AppTheme) =>
       gap: spacing.one,
       paddingVertical: spacing.one,
       paddingRight: spacing.two,
-      // The avatar and the emoji fill the same 20pt slot, so both hug the left
-      // edge. A pill with neither needs the padding back.
+      // Avatar and emoji fill the same 20pt slot, so both hug the left edge.
       paddingLeft: spacing.one,
       borderRadius: Radius.full,
-      // Not `backgroundElement`: it is #FFFFFF, and so is `postSurface`, so the
-      // pill had no edge at all in light mode.
+      // Not `backgroundElement`: it matches `postSurface` in light mode and the
+      // pill loses its edge.
       backgroundColor: colors.backgroundSelected
     },
     chipWithoutLeading: {

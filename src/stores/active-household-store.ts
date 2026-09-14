@@ -19,11 +19,9 @@ const initialState: State = {
   hasHydrated: false
 };
 
-/**
- * Which household the user is currently looking at. On the device rather than
- * on `users`, because it is a UI preference: switching on a phone should not
- * change what the same account shows on an iPad.
- */
+// Which household the user is currently looking at. On the device rather than on `users`,
+// because it is a UI preference: switching on a phone should not change what the same account
+// shows on an iPad.
 export const useActiveHouseholdStore = create<State & Action>((set) => ({
   ...initialState,
   setActiveHousehold: async (householdId) => {

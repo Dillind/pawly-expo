@@ -3,11 +3,9 @@ import { queryOptions, useQuery } from '@tanstack/react-query';
 import { emptyCareCard } from '@/constants/care-card-fields';
 import CareCardService from '@/services/care-card.service';
 
-/**
- * Exported so sharing can fetch several pets' cards imperatively through
- * `queryClient.fetchQuery` -- a hook cannot be called once per pet in a loop,
- * and the cache should still be the one that answers.
- */
+// Exported so sharing can fetch several pets' cards imperatively through
+// `queryClient.fetchQuery` -- a hook cannot be called once per pet in a loop, and the cache
+// should still be the one that answers.
 export const careCardQueryOptions = (petId: string) =>
   queryOptions({
     queryKey: ['care-card', petId],
@@ -28,7 +26,6 @@ export function useCareCard(petId: string | undefined) {
   });
 }
 
-/** Shared so the card and the editor cannot disagree on what a Pet has. */
 export function useCareCardData(petId: string) {
   const query = useCareCard(petId);
 

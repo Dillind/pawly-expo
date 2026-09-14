@@ -24,7 +24,6 @@ import { useStyles } from '@/hooks/use-styles';
 import type { PostComment } from '@/services/comment.service';
 import { useAuthStore } from '@/stores/auth-store';
 
-/** What the composer is answering. Null composes a top-level comment. */
 type ReplyTarget = { parentCommentId: string; replyToUserId: string | null; name: string };
 
 const Comments = () => {

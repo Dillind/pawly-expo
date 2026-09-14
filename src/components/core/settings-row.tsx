@@ -14,9 +14,8 @@ export type SettingsRowVariant = 'default' | 'destructive';
 type Props = {
   icon: IconName;
   label: string;
-  /** Right-hand value, e.g. the current appearance or an email address. */
   value?: string | null;
-  /** What the row is. Orthogonal to `isSoon`, which is whether it works yet. */
+  // What the row is. Orthogonal to `isSoon`, which is whether it works yet.
   variant?: SettingsRowVariant;
   isSoon?: boolean;
   isDisabled?: boolean;

@@ -7,7 +7,7 @@ import { useStyles } from '@/hooks/use-styles';
 
 type Props = {
   title?: string;
-  /** Left inset of the divider, so it starts under the row's text rather than its glyph. */
+  // Left inset of the divider, so it starts under the row's text rather than its glyph.
   dividerInset?: number;
   children: ReactNode;
 };
@@ -31,10 +31,9 @@ const SettingsSection = ({ title, dividerInset = DEFAULT_DIVIDER_INSET, children
 
       <View style={styles.card}>
         {rows.map((row, index) => (
-          // `Children.toArray` keys a child that carries its own key by it, and
-          // falls back to the position for a literal row. A section holding a
-          // list -- households, say -- has to give its rows keys, or a join or a
-          // leave reuses the wrong one.
+          // `Children.toArray` falls back to the position for a literal row, so
+          // a section holding a list must give its rows keys or a join reuses
+          // the wrong one.
           <View key={isElement(row) ? row.key : index}>
             {index > 0 && <View style={[styles.divider, { marginLeft: dividerInset }]} />}
             {row}

@@ -21,13 +21,8 @@ type Props = {
 
 const AVATAR = 28;
 
-/**
- * Multi-select, and nothing is ever pre-selected -- not even in a single-pet
- * household. A tag is a claim about what is in the photo, so an untagged Post
- * has to be able to mean "no pet in particular" (the empty bowl, a note about
- * the vet). Ticking the only pet by default would make every Post claim a
- * subject its author never chose.
- */
+// Nothing is ever pre-selected, not even in a single-pet household: an untagged
+// Post has to be able to mean "no pet in particular".
 const TagPetsSheet = ({ sheetRef, pets, selectedPetIds, onToggle, onDone }: Props) => {
   const styles = useStyles(makeStyles);
 

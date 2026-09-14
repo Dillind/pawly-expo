@@ -5,7 +5,7 @@ import PetService, { type PetPatch } from '@/services/pet.service';
 
 type Messages = { success: string; failure: string };
 
-/** Messages are an argument: two call sites, and "Pet details updated" is not "Bio updated". */
+// Messages are an argument: two call sites, and "Pet details updated" is not "Bio updated".
 export function useUpdatePet(petId: string, messages: Messages) {
   const queryClient = useQueryClient();
 

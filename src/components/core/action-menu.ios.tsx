@@ -2,15 +2,9 @@ import { Button, Divider, Host, Menu } from '@expo/ui/swift-ui';
 
 import type { ActionMenuProps } from './action-menu.types';
 
-/**
- * A native iOS pull-down menu (UIMenu), presented by UIKit in its own window.
- * That is the whole point of it: an in-tree dropdown gets clipped by a sheet or
- * a scroll view, and this cannot be.
- *
- * This is for COMMANDS. For choosing one value from a set, use
- * `DropdownPickerValidated`, which is a Picker and draws a tick beside the
- * selected row.
- */
+// UIKit presents this in its own window, so unlike an in-tree dropdown a sheet
+// cannot clip it. For commands only: to choose a value use
+// `DropdownPickerValidated`.
 const ActionMenu = ({ label, systemImage, actions, onPrimaryAction }: ActionMenuProps) => (
   <Host matchContents>
     <Menu label={label} systemImage={systemImage} onPrimaryAction={onPrimaryAction}>

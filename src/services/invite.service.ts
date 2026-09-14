@@ -49,10 +49,7 @@ const toInvite = (row: InviteRow): PendingInvite => ({
 });
 
 namespace InviteService {
-  /**
-   * Never reports whether the address has an account. The invite is created
-   * either way, so there is no lookup result to leak — see ADR 0020.
-   */
+  // Never reports whether the address has an account. See ADR 0020.
   export async function create(params: {
     householdId: string;
     email: string;
@@ -71,7 +68,6 @@ namespace InviteService {
     return { status: result.status, code: result.code };
   }
 
-  /** Everything still outstanding for a household. Owner-only by RLS. */
   export async function listPending(householdId: string): Promise<PendingInvite[]> {
     const { data, error } = await supabase
       .from('household_invites')
@@ -86,11 +82,8 @@ namespace InviteService {
     return (data as InviteRow[]).map(toInvite);
   }
 
-  /**
-   * What a code is offering, without accepting it. Holding the code is the
-   * authorisation — the select policy covers owners and the named invitee, and
-   * someone who scanned a QR is usually neither.
-   */
+  // Holding the code is the authorisation: someone who scanned a QR is neither
+  // an owner nor the named invitee.
   export async function preview(code: string): Promise<InvitePreview> {
     const { data, error } = await supabase.rpc('preview_household_invite', {
       invite_code: code
@@ -109,11 +102,8 @@ namespace InviteService {
     if (error) throw error;
   }
 
-  /**
-   * By code when typed or scanned, by id when tapped in the inbox. Returns a
-   * status rather than throwing — expired, revoked and already_used each need
-   * different wording.
-   */
+  // Returns a status rather than throwing: expired, revoked and already_used
+  // each need different wording.
   export async function redeem(params: {
     code?: string;
     inviteId?: string;

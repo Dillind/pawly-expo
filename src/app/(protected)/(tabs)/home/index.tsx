@@ -60,8 +60,7 @@ const Home = () => {
   const refreshOccurrences = useRefreshOccurrences();
   const refreshUnread = useRefreshUnreadAlertCount(household?.id);
 
-  // The rows come from pets, the day's counts from occurrences, and the bell
-  // from a third query. Refreshing one leaves the other two stale on screen.
+  // Three queries feed this screen; refreshing one leaves the others stale.
   const { isRefreshing, onRefresh } = usePullToRefresh([
     refetch,
     refreshOccurrences,
@@ -73,14 +72,12 @@ const Home = () => {
   const timezone = household?.timezone;
   const today = timezone ? todayInTimezone(timezone) : undefined;
 
-  // The day the strip is showing, which is today until someone taps another
-  // cell. Held as a string rather than a Date: it is the occurrence query's
-  // cache key, and a Date re-serialises every render.
+  // A string, not a Date: it is the occurrence query's cache key, and a Date
+  // re-serialises every render.
   const [pickedDay, setPickedDay] = useState<string | undefined>(undefined);
   const day = pickedDay ?? today;
 
-  // The strip only ever draws the selected day's week, so the dots ask for
-  // exactly that week and refetch when it pages.
+  // The strip draws one week, so the dots ask for exactly that week.
   const week = day ? weekOf(day) : undefined;
   const { data: reminderKinds } = useReminderDays(household?.id, week?.at(0), week?.at(-1));
 
@@ -111,15 +108,9 @@ const Home = () => {
 
   const { data: deepLinkedLog } = useFeedLog(logId || undefined);
 
-  // Mirroring the resolved query result here, during render, rather than inside
-  // the effect below -- react-hooks flags a setState call synchronous with an
-  // effect body as a cascading-render risk. Comparing against activeLogId
-  // itself keeps this a one-shot assignment per resolved id rather than a loop.
-  //
-  // Gated on logId, which the effect clears as soon as the sheet is up. Home
-  // also has openLog, and without the gate a tap on a different occurrence row
-  // would make the ids differ again and snap the sheet back to the
-  // notification's log. Activity had no competing setter and did not need this.
+  // Mirrored during render, not in the effect, which react-hooks flags as a
+  // cascading render. Gated on logId, or a tap on another row would snap the
+  // sheet back to the notification's log.
   if (logId && deepLinkedLog && deepLinkedLog.id !== activeLogId) {
     setActiveLogId(deepLinkedLog.id);
     setActivePetId(deepLinkedLog.petId);
@@ -129,15 +120,13 @@ const Home = () => {
     if (!logId || !deepLinkedLog) return;
 
     void detailSheetRef.current?.present();
-    // Clearing the param immediately means back-navigation and a second tap on
-    // the same notification both behave.
+    // Cleared at once so back-navigation and a second tap both behave.
     router.setParams({ logId: '' });
   }, [logId, deepLinkedLog, router]);
 
   const hasHousehold = households.length > 0;
   const hasPets = pets.length > 0;
-  // No household at all is a valid, permanent state -- the sitter with no pets
-  // of their own. It gets the two doors, not a loading state.
+  // No household is a valid permanent state, so it gets doors, not a spinner.
   const hasNoHousehold = !isLoadingHouseholds && households.length === 0;
   const isPending = !hasNoHousehold && (isLoading || !timezone || !today);
   const isOnlyPet = pets.length === 1;

@@ -6,21 +6,13 @@ import type { PersistQueryClientOptions } from '@tanstack/react-query-persist-cl
 const MINUTE_MS = 60_000;
 const DAY_MS = 24 * 60 * MINUTE_MS;
 
-/**
- * Bump when a cached shape changes. A stored cache written by an older build is
- * thrown away rather than rehydrated into code that no longer understands it.
- */
+// Bump when a cached shape changes: an older build's cache is thrown away
+// rather than rehydrated into code that no longer understands it.
 const CACHE_VERSION = '1';
 
-/**
- * `staleTime` is 30s across the board, with longer settings on the few queries
- * that rarely change (set on the hooks themselves). The default of 0 left every
- * query stale the moment it landed, so returning to Home re-ran one RPC per pet
- * every time.
- *
- * `gcTime` has to outlive `maxAge` below, or a restored query is evicted before
- * anything observes it and painting from cache does nothing.
- */
+// The `staleTime` default of 0 left every query stale on arrival, so returning
+// to Home re-ran one RPC per pet. `gcTime` must outlive `maxAge` below, or a
+// restored query is evicted before anything observes it.
 export const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
@@ -42,11 +34,8 @@ export const persistOptions: Omit<PersistQueryClientOptions, 'queryClient'> = {
   buster: CACHE_VERSION
 };
 
-/**
- * The cache is per-account and AsyncStorage is not, so signing out has to take
- * the stored copy with it. Otherwise the next person to sign in on this device
- * paints from the last one's data before their own arrives.
- */
+// The cache is per-account and AsyncStorage is not, so the next person to sign
+// in on this device would paint from the last one's data.
 export async function clearPersistedQueryCache() {
   queryClient.clear();
 

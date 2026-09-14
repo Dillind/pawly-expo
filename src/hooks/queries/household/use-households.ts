@@ -5,10 +5,9 @@ import { useAuthStore } from '@/stores/auth-store';
 
 const FIVE_MINUTES_MS = 5 * 60_000;
 
-/** The key every mutation that changes membership has to invalidate. */
+// The key every mutation that changes membership has to invalidate.
 export const householdsKey = (userId: string | undefined) => ['households', userId];
 
-/** Every household the signed-in user belongs to, oldest membership first. */
 export function useHouseholds() {
   const { userId } = useAuthStore();
 

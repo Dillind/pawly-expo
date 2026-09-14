@@ -27,7 +27,7 @@ type Props = {
   householdId: string;
 };
 
-/** "since August" -- the month they were accepted, which is all anyone reads it for. */
+// "since August" -- the month they were accepted, which is all anyone reads it for.
 const sinceText = (follower: Follower): string | null => {
   const stamp = follower.respondedAt ?? follower.requestedAt;
   if (!stamp) return null;
@@ -35,11 +35,9 @@ const sinceText = (follower: Follower): string | null => {
   return `since ${new Intl.DateTimeFormat('en-AU', { month: 'long' }).format(new Date(stamp))}`;
 };
 
-/**
- * The Owner's audience. Removing is here rather than on a follower's own
- * screen, because there is no such screen -- ADR 0036 keeps followers invisible
- * to each other, and that holds for the Owner's view of them too.
- */
+// The Owner's audience. Removing is here rather than on a follower's own screen, because there
+// is no such screen -- ADR 0036 keeps followers invisible to each other, and that holds for the
+// Owner's view of them too.
 const FollowersList = ({ householdId }: Props) => {
   const styles = useStyles(makeStyles);
   const router = useRouter();

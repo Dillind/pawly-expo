@@ -22,6 +22,7 @@ const getConfig = ({ config }: ConfigContext): ExpoConfig => {
       supportsTablet: false,
       bundleIdentifier: 'au.com.crumpet.ios',
       infoPlist: {
+        UIStatusBarStyle: 'UIStatusBarStyleDarkContent',
         ITSAppUsesNonExemptEncryption: false,
         NSUserNotificationUsageDescription:
           '$(PRODUCT_NAME) sends reminders when you need to check in.'
@@ -40,7 +41,19 @@ const getConfig = ({ config }: ConfigContext): ExpoConfig => {
       'expo-router',
       'expo-video',
       'expo-screen-orientation',
-      'expo-splash-screen',
+      [
+        'expo-splash-screen',
+        {
+          backgroundColor: '#F0A81C',
+          image: './assets/images/splash-crumpet.png',
+          imageWidth: 112,
+          dark: {
+            backgroundColor: '#F0A81C',
+            image: './assets/images/splash-crumpet.png',
+            imageWidth: 112
+          }
+        }
+      ],
       'expo-status-bar',
       'expo-web-browser',
       [

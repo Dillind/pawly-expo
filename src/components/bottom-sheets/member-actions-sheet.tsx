@@ -16,7 +16,7 @@ type Props = {
   onRemove: () => void;
 };
 
-/** Owner-only. Never rendered for the signed-in member -- they leave instead. */
+// Owner-only. Never rendered for the signed-in member -- they leave instead.
 const MemberActionsSheet = ({ sheetRef, member, onSetRole, onRemove }: Props) => {
   const styles = useStyles(makeStyles);
 

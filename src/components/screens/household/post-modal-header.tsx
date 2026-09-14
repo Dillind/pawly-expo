@@ -8,7 +8,6 @@ import { useStyles } from '@/hooks/use-styles';
 
 type Props = {
   title: string;
-  /** "Post" when sharing, "Save" when editing. */
   confirmText: string;
   isConfirmDisabled?: boolean;
   isBusy?: boolean;
@@ -16,10 +15,8 @@ type Props = {
   onConfirm: () => void;
 };
 
-/**
- * Both post routes are full-screen modals rather than stack screens, so neither
- * gets a native header and each has to draw its own.
- */
+// Both post routes are full-screen modals rather than stack screens, so neither gets a native
+// header and each has to draw its own.
 const PostModalHeader = ({
   title,
   confirmText,

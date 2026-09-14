@@ -14,11 +14,9 @@ type Props = {
   action?: ReactNode;
 };
 
-/**
- * No `illustration` prop yet — there is no artwork to pass it. The value of
- * the component now is that when v2 art arrives it is one file to change and
- * every empty state in the app moves together.
- */
+// No `illustration` prop yet — there is no artwork to pass it. The value of the component now
+// is that when v2 art arrives it is one file to change and every empty state in the app moves
+// together.
 const EmptyState = ({ icon, title, description, action }: Props) => {
   const styles = useStyles(makeStyles);
 
