@@ -59,22 +59,28 @@ const HouseholdSwitcherSheet = ({ sheetRef, activeHouseholdId }: Props) => {
         ))}
       </View>
 
+      <View style={styles.divider} />
+
       <View style={styles.doors}>
         <SheetRow icon="plus" label="New household" onPress={openNew} />
-        <SheetRow icon="userPlus" label="Join with a code" onPress={openJoin} />
+        <SheetRow icon="key" label="Join with a code" onPress={openJoin} />
       </View>
     </BaseSheet>
   );
 };
 
-const makeStyles = ({ spacing }: AppTheme) =>
+const makeStyles = ({ colors, spacing }: AppTheme) =>
   StyleSheet.create({
     rows: {
       gap: spacing.two
     },
+    divider: {
+      height: StyleSheet.hairlineWidth,
+      marginVertical: spacing.three,
+      backgroundColor: colors.border
+    },
     doors: {
-      gap: spacing.two,
-      paddingTop: spacing.two
+      gap: spacing.two
     }
   });
 

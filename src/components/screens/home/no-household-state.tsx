@@ -13,15 +13,25 @@ import { useStyles } from '@/hooks/use-styles';
 import { createShadowMedium } from '@/lib/styles/shadows';
 import { countDigits } from '@/utils/counts';
 
+// What the flow behind the first door will ask for, in its order. A door with
+// four named steps behind it reads as short; an unlabelled button does not.
+const FLOW_STEPS: { icon: IconName; label: string }[] = [
+  { icon: 'house', label: 'Household' },
+  { icon: 'camera', label: 'Pet' },
+  { icon: 'utensils', label: 'Feeds' },
+  { icon: 'userPlus', label: 'Invite' }
+];
+
 type DoorProps = {
   icon: IconName;
   isPrimaryDoor?: boolean;
   title: string;
   description: string;
+  hasSteps?: boolean;
   action: ReactNode;
 };
 
-const Door = ({ icon, isPrimaryDoor, title, description, action }: DoorProps) => {
+const Door = ({ icon, isPrimaryDoor, title, description, hasSteps, action }: DoorProps) => {
   const styles = useStyles(makeStyles);
 
   return (
@@ -38,6 +48,19 @@ const Door = ({ icon, isPrimaryDoor, title, description, action }: DoorProps) =>
       <AppText size={14} color="textSecondary">
         {description}
       </AppText>
+
+      {hasSteps && (
+        <View style={styles.steps}>
+          {FLOW_STEPS.map((step) => (
+            <View key={step.label} style={styles.step}>
+              <Icon name={step.icon} size={19} color="textSecondary" />
+              <AppText size={12} color="textSecondary">
+                {step.label}
+              </AppText>
+            </View>
+          ))}
+        </View>
+      )}
 
       {action}
     </View>
@@ -66,18 +89,19 @@ const NoHouseholdState = () => {
         <Door
           icon="pawPrint"
           isPrimaryDoor
+          hasSteps
           title="I look after a pet"
-          description="We create a household you own, and your pet is the first thing in it. Invite the rest of the house whenever you like."
-          action={<MainButton text="Add a pet" href="/home/add-pet" />}
+          description="Name your household, add your first pet, then invite the rest of the house."
+          action={<MainButton text="Set up your household" href="/home/new-household" />}
         />
 
         <Door
           icon="users"
           title="Someone invited me"
-          description="Join their household with the code they sent. You'll see their pets, feeds and posts. You won't need a pet of your own."
+          description="Join with the code they sent. You won't need a pet of your own."
           action={
             <MainButton
-              text="Join a household"
+              text="Enter a code"
               variant="secondary"
               onPress={() => router.push('/home/join-household')}
             />
@@ -107,10 +131,6 @@ const NoHouseholdState = () => {
           </View>
         </PressableOpacity>
       )}
-
-      <AppText size={13} align="center" color="textSecondary">
-        You can do the other one later. Neither choice is final.
-      </AppText>
     </View>
   );
 };
@@ -151,6 +171,18 @@ const makeStyles = ({ colors, spacing }: AppTheme) =>
     },
     tilePrimary: {
       backgroundColor: colors.primaryMuted
+    },
+    steps: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      paddingVertical: spacing.three - spacing.half,
+      borderTopWidth: StyleSheet.hairlineWidth,
+      borderBottomWidth: StyleSheet.hairlineWidth,
+      borderColor: colors.border
+    },
+    step: {
+      alignItems: 'center',
+      gap: spacing.one + 2
     },
     followCard: {
       flexDirection: 'row',
