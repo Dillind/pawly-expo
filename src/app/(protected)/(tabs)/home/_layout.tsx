@@ -74,6 +74,8 @@ export default function HomeLayout() {
 
         <Stack.Screen name="add-pet" />
 
+        <Stack.Screen name="new-household" />
+
         {/* No native header: the screen draws its own bar, which condenses the
             household's name and role as the identity block scrolls away. */}
         <Stack.Screen name="household/[householdId]/index" />

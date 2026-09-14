@@ -35,6 +35,11 @@ const HouseholdSwitcherSheet = ({ sheetRef, activeHouseholdId }: Props) => {
     router.push('/home/join-household');
   };
 
+  const openNew = () => {
+    void sheetRef.current?.dismiss();
+    router.push('/home/new-household');
+  };
+
   return (
     <BaseSheet sheetRef={sheetRef} title="Your households" detents={['auto']}>
       <View style={styles.rows}>
@@ -55,6 +60,7 @@ const HouseholdSwitcherSheet = ({ sheetRef, activeHouseholdId }: Props) => {
       </View>
 
       <View style={styles.doors}>
+        <SheetRow icon="plus" label="New household" onPress={openNew} />
         <SheetRow icon="userPlus" label="Join with a code" onPress={openJoin} />
       </View>
     </BaseSheet>
