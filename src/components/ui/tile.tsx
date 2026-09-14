@@ -1,5 +1,5 @@
 import { useRouter, type Href } from 'expo-router';
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet } from 'react-native';
 
 import AppText from '@/components/core/app-text';
 import Icon from '@/components/core/icon';
