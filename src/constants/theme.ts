@@ -16,6 +16,7 @@ export const COLORS = {
     textSecondary: '#746A60',
     border: 'rgba(58, 48, 38, 0.13)',
     error: '#CE3C39',
+    errorMuted: 'rgba(206, 60, 57, 0.11)',
     like: '#E0405E',
     // A fill, never text: #F0A81C on white is 2.0:1.
     primary: '#F0A81C',
@@ -48,6 +49,7 @@ export const COLORS = {
     textSecondary: '#A99C90',
     border: 'rgba(255, 255, 255, 0.14)',
     error: '#E05B58',
+    errorMuted: 'rgba(224, 91, 88, 0.16)',
     like: '#FF4D6D',
     primary: '#F5B435',
     primaryMuted: 'rgba(245, 180, 53, 0.20)',

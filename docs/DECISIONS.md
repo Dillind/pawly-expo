@@ -1029,3 +1029,19 @@ said so in five rows is the same sentence twice.
 
 Deleting a Household is the contrast and it does get a toast, because it lands
 the Owner on Home, which says nothing about what just happened.
+
+## Deleting a Household shows counts, not a list
+
+The Danger zone screen says "3 members", not their names. A list of the people about to lose their
+Pet reads as a plea, and the Owner cannot act on it — nobody is asked and nobody is warned. A count
+is the size of the thing being destroyed, which is what the Owner actually needs to weigh. The names
+are one tap away on the Members screen for an Owner who wants them.
+
+## The Danger zone button is under the keyboard, and that is allowed
+
+The red button sits below the field, so it is hidden while the name is being typed. It could be
+pinned in a `ScreenFooter`, but that component uses the real bottom inset because every other caller
+is a full-screen modal — on a pushed screen it would sit behind the tab bar. The screen keeps the
+same field-then-button shape as `household-handle.tsx`, and `returnKeyType="done"` plus
+`keyboardDismissMode="on-drag"` bring the button back. A moment's friction before an irreversible
+delete is not the worst trade.

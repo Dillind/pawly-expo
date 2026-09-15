@@ -33,6 +33,14 @@ _Avoid_: Helper, guest, viewer, collaborator.
 **User**:
 An authenticated account (email/password). A User may be a Member of a household. Distinct from Member.
 
+**Danger zone**:
+The one screen where a Household is deleted. Named for what it is, not for the action: it is reached
+from the ellipsis menu on the Household screen, it is Owner only, and its red button stays dead
+until the Owner types the Household's name exactly. Deleting is immediate and total — every Pet,
+Member, Follower, Post, feed time and Care Card goes with it, for everyone, not just for the Owner.
+There is no restore.
+_Avoid_: Advanced, danger area, delete screen.
+
 **Invite**:
 A shareable, revocable, expiring link/code an Owner generates so someone can join the household as a Contributor.
 _Avoid_: Referral, share link.

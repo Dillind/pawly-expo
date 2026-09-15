@@ -5,6 +5,9 @@ import { assertWrote } from '@/lib/supabase/assert-wrote';
 import { supabase } from '@/lib/supabase/client';
 import type { HouseholdMember, HouseholdSummary, LeadMinutes, PetSex, PetType } from '@/types/core';
 
+const PET_PHOTO_BUCKET = 'pet-photos';
+const POST_PHOTO_BUCKET = 'post-photos';
+
 export type NotificationPreferences = {
   feedDueAlerts: boolean;
   missedFeedAlerts: boolean;
@@ -55,6 +58,19 @@ export type CreateHouseholdInput = {
 export type CreateHouseholdResult =
   | { status: 'created'; householdId: string; petId: string; petName: string }
   | { status: 'handle_taken' };
+
+// Outcomes the screen words differently, so none of them throws. The RPC
+// returns `name_mismatch` even though the Zod schema refused it first: the
+// screen is not the only possible caller.
+export type DeleteHouseholdResult = {
+  status: 'deleted' | 'not_owner' | 'not_found' | 'name_mismatch';
+};
+
+type HouseholdPhotoManifest = {
+  status: 'ok' | 'not_owner' | 'not_found' | 'name_mismatch';
+  petPhotos: string[];
+  postPhotos: string[];
+};
 
 namespace HouseholdService {
   // Separate selects rather than a PostgREST embed: household_members.user_id
@@ -189,6 +205,65 @@ namespace HouseholdService {
       petId: row.pet_id as string,
       petName: row.pet_name as string
     };
+  }
+
+  // Three steps, not one: Postgres refuses a delete from storage.objects, and
+  // the photos go first because the policies that authorise the Owner read the
+  // rows the cascade is about to take away. See KNOWLEDGE.
+  export async function remove(
+    householdId: string,
+    confirmedName: string
+  ): Promise<DeleteHouseholdResult> {
+    const manifest = await photoManifest(householdId, confirmedName);
+
+    if (manifest.status !== 'ok') return { status: manifest.status };
+
+    await removeObjects(PET_PHOTO_BUCKET, manifest.petPhotos);
+    await removeObjects(POST_PHOTO_BUCKET, manifest.postPhotos);
+
+    const { data, error } = await supabase.rpc('delete_household', {
+      target_household_id: householdId,
+      confirmed_name: confirmedName
+    });
+
+    if (error) throw error;
+
+    return data as DeleteHouseholdResult;
+  }
+
+  async function photoManifest(
+    householdId: string,
+    confirmedName: string
+  ): Promise<HouseholdPhotoManifest> {
+    const { data, error } = await supabase.rpc('household_photo_manifest', {
+      target_household_id: householdId,
+      confirmed_name: confirmedName
+    });
+
+    if (error) throw error;
+
+    const row = data as {
+      status: HouseholdPhotoManifest['status'];
+      pet_photos?: string[];
+      post_photos?: string[];
+    };
+
+    return {
+      status: row.status,
+      petPhotos: row.pet_photos ?? [],
+      postPhotos: row.post_photos ?? []
+    };
+  }
+
+  // A failure here is an orphaned file, not lost data, and the Household still
+  // stands -- so it is logged and the delete carries on rather than stranding
+  // the Owner on a screen that will not complete.
+  async function removeObjects(bucket: string, paths: string[]) {
+    if (paths.length === 0) return;
+
+    const { error } = await supabase.storage.from(bucket).remove(paths);
+
+    if (error) console.error(error);
   }
 
   export async function isHandleAvailable(candidate: string): Promise<boolean> {

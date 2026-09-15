@@ -652,3 +652,100 @@ native header must pass `edges={[]}`, or the top inset is claimed twice.
 The rule: **a loading branch renders inside the same scroller, with the same
 props and the same content style, as the branch it stands in for.** Anything
 less and the skeleton is measuring a different box from the screen it imitates.
+
+## Postgres cannot delete a Storage object, so the client does it first
+
+`delete_household` was first written to take the bucket objects with it — collect the paths, then
+`delete from storage.objects`. It applied cleanly and failed at runtime:
+
+```
+42501: Direct deletion from storage tables is not allowed. Use the Storage API instead.
+This prevents accidental data loss from orphaned objects.
+```
+
+Supabase blocks the statement with a trigger. `security definer` does not get past it — this is not
+a privilege the function is missing, it is a refusal. **No SQL anywhere in this repo can delete a
+Storage object.** The Storage API is the only door, which means the client.
+
+Sending the client through that door needed the DELETE policies fixed first, because both of them
+keyed off the object's **path**, and a path does not say which Household it belongs to:
+
+- **`pet-photos`** — allowed the Owner for a photo filed under a Pet id, but a cover is filed under
+  the uploader's id, so another member's cover was refused.
+- **`post-photos`** — `(storage.foldername(name))[1] = auth.uid()`. Uploader only. An Owner could
+  never delete another member's Post photos, and those are spread across everyone who ever posted.
+
+`private.is_household_photo(bucket, object_name)` replaces both with a row lookup, and two policies
+call it. So `HouseholdService.remove` is three steps, in this order and no other:
+
+1. `household_photo_manifest` — Owner-gated and name-gated, returns the paths.
+2. The Storage API, one call per bucket.
+3. `delete_household`.
+
+**The photos must go first.** Every policy that authorises the Owner reads the rows the cascade is
+about to take away; after step 3 there is nothing left to prove the objects were ever theirs.
+
+A failure in step 2 is logged and stepped over rather than thrown. An orphaned file is not lost
+data, and the Household still stands, so stranding the Owner mid-flow buys nothing.
+
+## A loading state outside the scroller starts under the transparent header
+
+`PetDetailSkeleton` was rendered straight inside `ScreenView`, while the loaded
+screen renders inside `ScreenScrollView` with
+`contentInsetAdjustmentBehavior="automatic"`. That prop is what clears a
+transparent native header — nothing else does. So the skeleton began at the top
+of the window, under the bar, and every row jumped down when the Pet arrived,
+which is exactly what the skeleton's own comment promises will not happen.
+
+`SafeAreaView` is not the fix and `edges` is not the cause. A screen with a
+native header must pass `edges={[]}`, or the top inset is claimed twice.
+
+The rule: **a loading branch renders inside the same scroller, with the same
+props and the same content style, as the branch it stands in for.** Anything
+less and the skeleton is measuring a different box from the screen it imitates.
+
+## Postgres cannot delete a Storage object, and neither can the Owner
+
+`delete_household` was first written to take the bucket objects with it — collect the paths from
+`pets.photo_url`, `pet_photos.storage_path` and `post_photos.storage_path`, then
+`delete from storage.objects`. It applied cleanly and failed at runtime:
+
+```
+42501: Direct deletion from storage tables is not allowed. Use the Storage API instead.
+This prevents accidental data loss from orphaned objects.
+```
+
+Supabase blocks the statement with a trigger. `security definer` does not get past it — this is not
+a privilege the function is missing, it is a refusal.
+
+The obvious fallback, doing it from the client through the Storage API before the row delete, only
+half works, and the half that fails is the larger one. The DELETE policies are:
+
+- **`pet-photos`** — the Owner may delete, through `private.is_pet_household_owner`, but only while
+  the Pet row still exists.
+- **`post-photos`** — `(storage.foldername(name))[1] = auth.uid()`. Only the person who uploaded a
+  photo may remove it. **An Owner can never delete another member's Post photos**, and a Household's
+  Post photos are spread across every member who ever posted.
+
+So a client-side sweep would silently leave most of the files behind while appearing to work. It was
+dropped rather than shipped as a half measure, and deleting a Household now leaves its objects in
+the buckets.
+
+The real fix is a scheduled sweep running as the service role, which is the only identity that can
+delete across every member's prefix. It is not built. If you are about to "fix" the RPC by adding
+the `delete from storage.objects` back, this is why it is not there.
+
+## `if btrim(null) <> name` is not false, it is NULL — and NULL does not delete
+
+The first `delete_household` compared the typed name with
+`if btrim(confirmed_name) <> household_name then return name_mismatch`. Pass a
+null name and that expression is NULL, `if NULL then` does not run, and
+execution falls through to the irreversible delete with no confirmation at all.
+
+A guard written as "return early when it does not match" is only a guard while
+both sides are known. Any nullable argument reaching a `<>` in a gate needs its
+own `is null` check first, ahead of the comparison.
+
+The same function had the trimming half-applied: the typed name was trimmed and
+the stored one was not, so a Household whose name carried a trailing space
+passed the screen, failed the RPC, and could not be deleted by anyone.

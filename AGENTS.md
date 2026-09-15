@@ -210,6 +210,12 @@ This applies to any change to layout, styling, copy, navigation, screen composit
 
 ### Navigation
 
+**Invoke `/expo:expo-router` before touching navigation.** Any route, layout, header, toolbar,
+tab, modal, sheet or `Link` — adding one, moving one, or changing how one behaves. It carries the
+SDK 57 surface, so the answer is the platform's own navigator rather than a hand-rolled
+approximation of it, and it is the reference for `Stack.Toolbar`, `Stack.Title`, form sheets and
+native tabs. The rules below are this repo's own; they sit on top of the skill, not instead of it.
+
 Expo Router (file-based). Auth is enforced with `Stack.Protected` guards in `src/app/_layout.tsx`; routes are split into `(public)` and `(protected)` groups. The authenticated area uses Expo Router **native tabs** (`expo-router/unstable-native-tabs`), not a JS tab bar. Auth is wired with real Supabase authentication via `useAuthSession` and `useAuthStore`.
 
 **A dynamic route is a folder, never a file.** `[param]/index.tsx`, with that entity's other screens
