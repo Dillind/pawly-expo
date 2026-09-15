@@ -64,7 +64,7 @@ const CareCardEditor = () => {
           accessibilityLabel={
             step.kind === 'review' ? 'About sharing a Care Card' : 'What is a Care Card?'
           }
-          variant="ghost"
+          variant="glass"
           size={20}
           onPress={() =>
             step.kind === 'review'

@@ -60,7 +60,7 @@ const FlowScreen = ({
           <IconButton
             name="caretLeft"
             accessibilityLabel="Go back a step"
-            variant="ghost"
+            variant="glass"
             size={22}
             strokeWidth={2}
             onPress={onBack}
@@ -74,7 +74,7 @@ const FlowScreen = ({
           <IconButton
             name="close"
             accessibilityLabel={closeLabel}
-            variant="ghost"
+            variant="glass"
             size={22}
             strokeWidth={2}
             onPress={onClose}
