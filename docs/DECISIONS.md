@@ -1030,18 +1030,15 @@ said so in five rows is the same sentence twice.
 Deleting a Household is the contrast and it does get a toast, because it lands
 the Owner on Home, which says nothing about what just happened.
 
-## Deleting a Household shows counts, not a list
+## Deleting a Household is a sheet, not a screen
 
-The Danger zone screen says "3 members", not their names. A list of the people about to lose their
-Pet reads as a plea, and the Owner cannot act on it — nobody is asked and nobody is warned. A count
-is the size of the thing being destroyed, which is what the Owner actually needs to weigh. The names
-are one tap away on the Members screen for an Owner who wants them.
+The confirmation was a pushed screen with a warning, a six-row list of what goes with the
+Household, and the type-the-name field. A destructive confirmation is secondary content raised over
+the thing it acts on, which is what `BaseSheet` is for, so it is now `delete-household-sheet.tsx`
+raised from the ... menu on Household settings. The route and its `Stack.Screen` are gone.
 
-## The Danger zone button is under the keyboard, and that is allowed
-
-The red button sits below the field, so it is hidden while the name is being typed. It could be
-pinned in a `ScreenFooter`, but that component uses the real bottom inset because every other caller
-is a full-screen modal — on a pushed screen it would sit behind the tab bar. The screen keeps the
-same field-then-button shape as `household-handle.tsx`, and `returnKeyType="done"` plus
-`keyboardDismissMode="on-drag"` bring the button back. A moment's friction before an irreversible
-delete is not the worst trade.
+The list of losses went with the screen. It counted pets, members and followers and named four more
+things, which is a second page of reading in front of an Owner who has already chosen to delete. One
+warning sentence carries the same point: everything in the Household goes, for everyone, and nothing
+comes back. The counts also cost two queries whose loading state gated the red button, and that gate
+is gone too.

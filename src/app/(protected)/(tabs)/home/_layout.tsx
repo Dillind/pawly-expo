@@ -98,12 +98,6 @@ export default function HomeLayout() {
           <Stack.Screen.BackButton displayMode="minimal" />
         </Stack.Screen>
 
-        <Stack.Screen name="household/[householdId]/delete" options={{ headerShown: true }}>
-          <Stack.Title style={HeaderTitleStyle}>Delete household</Stack.Title>
-          <Stack.Header transparent />
-          <Stack.Screen.BackButton displayMode="minimal" />
-        </Stack.Screen>
-
         <Stack.Screen name="household/[householdId]/notifications" options={{ headerShown: true }}>
           <Stack.Title style={HeaderTitleStyle}>Notifications</Stack.Title>
           <Stack.Header transparent />
