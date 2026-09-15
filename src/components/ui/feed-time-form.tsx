@@ -24,6 +24,9 @@ import { optionLabel } from '@/utils/options';
 type Props = {
   feedTime: FeedTime | null;
   isSaving: boolean;
+  // False in the setup flows: the pet has no schedule yet, so nothing starts
+  // tomorrow and no day has already gone.
+  isScheduleLive?: boolean;
   isRemoving?: boolean;
   onSubmit: (values: FeedTimeInput) => void;
   onRemove?: () => void;
@@ -32,7 +35,14 @@ type Props = {
 // One feed's whole definition — which feed, what time, which days, what the pet gets. Shared by
 // the pet screen, where it is raised as a sheet, and the add-pet flow, where it is a pushed
 // screen. Same content either way, which is why the form owns no presentation.
-const FeedTimeForm = ({ feedTime, isSaving, isRemoving = false, onSubmit, onRemove }: Props) => {
+const FeedTimeForm = ({
+  feedTime,
+  isSaving,
+  isScheduleLive = true,
+  isRemoving = false,
+  onSubmit,
+  onRemove
+}: Props) => {
   const styles = useStyles(makeStyles);
   const labelSheetRef = useRef<TrueSheet | null>(null);
 
@@ -134,8 +144,10 @@ const FeedTimeForm = ({ feedTime, isSaving, isRemoving = false, onSubmit, onRemo
         />
 
         <AppText size={13} color="textSecondary">
-          Whoever feeds them sees this when they log it. Changes start tomorrow — days already gone
-          keep the times they had.
+          Whoever feeds them sees this when they log it.
+          {isScheduleLive
+            ? ' Changes start tomorrow — days already gone keep the times they had.'
+            : ''}
         </AppText>
 
         <MainButton

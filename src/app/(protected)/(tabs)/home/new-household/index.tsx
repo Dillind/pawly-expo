@@ -51,7 +51,7 @@ const NameYourHousehold = () => {
             value={value}
             onChangeText={onChange}
             onBlur={onBlur}
-            placeholder="The Lindsay House"
+            placeholder="Kathy's House"
             returnKeyType="next"
           />
         )}

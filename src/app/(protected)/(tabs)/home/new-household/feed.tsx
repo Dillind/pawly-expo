@@ -43,6 +43,7 @@ const NewHouseholdFeed = () => {
               : null
           }
           isSaving={false}
+          isScheduleLive={false}
           onSubmit={(values) => {
             if (existing) update(position, values);
             else append(values);
