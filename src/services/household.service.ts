@@ -56,6 +56,14 @@ export type CreateHouseholdResult =
   | { status: 'created'; householdId: string; petId: string; petName: string }
   | { status: 'handle_taken' };
 
+// Every one of these is an outcome the screen words differently, so none of
+// them throws. `name_mismatch` should be unreachable -- the Zod schema on the
+// Danger zone screen has already refused it -- and it is returned anyway,
+// because the RPC is what actually guards the delete.
+export type DeleteHouseholdResult = {
+  status: 'deleted' | 'not_owner' | 'not_found' | 'name_mismatch';
+};
+
 namespace HouseholdService {
   // Separate selects rather than a PostgREST embed: household_members.user_id
   // points at auth.users, so the embed graph is not the obvious one.
@@ -189,6 +197,22 @@ namespace HouseholdService {
       petId: row.pet_id as string,
       petName: row.pet_name as string
     };
+  }
+
+  // Irreversible, and it destroys data that belongs to every other member, so
+  // the typed name travels to the RPC rather than being checked only on screen.
+  export async function remove(
+    householdId: string,
+    confirmedName: string
+  ): Promise<DeleteHouseholdResult> {
+    const { data, error } = await supabase.rpc('delete_household', {
+      target_household_id: householdId,
+      confirmed_name: confirmedName
+    });
+
+    if (error) throw error;
+
+    return data as DeleteHouseholdResult;
   }
 
   export async function isHandleAvailable(candidate: string): Promise<boolean> {

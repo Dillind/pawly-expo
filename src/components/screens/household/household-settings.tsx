@@ -238,6 +238,18 @@ const HouseholdSettings = ({ householdId }: Props) => {
           hidden={!isOwner}
           onPress={copyFollowLink}
         />
+
+        <Stack.Toolbar.Menu
+          accessibilityLabel="Manage this household"
+          icon="ellipsis"
+          hidden={!isOwner}>
+          <Stack.Toolbar.MenuAction
+            icon="trash"
+            destructive
+            onPress={() => router.push(`/home/household/${householdId}/delete`)}>
+            Delete household
+          </Stack.Toolbar.MenuAction>
+        </Stack.Toolbar.Menu>
       </Stack.Toolbar>
 
       <ScreenScrollView

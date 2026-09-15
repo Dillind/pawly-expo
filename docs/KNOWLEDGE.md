@@ -652,3 +652,33 @@ native header must pass `edges={[]}`, or the top inset is claimed twice.
 The rule: **a loading branch renders inside the same scroller, with the same
 props and the same content style, as the branch it stands in for.** Anything
 less and the skeleton is measuring a different box from the screen it imitates.
+## Postgres cannot delete a Storage object, and neither can the Owner
+
+`delete_household` was first written to take the bucket objects with it — collect the paths from
+`pets.photo_url`, `pet_photos.storage_path` and `post_photos.storage_path`, then
+`delete from storage.objects`. It applied cleanly and failed at runtime:
+
+```
+42501: Direct deletion from storage tables is not allowed. Use the Storage API instead.
+This prevents accidental data loss from orphaned objects.
+```
+
+Supabase blocks the statement with a trigger. `security definer` does not get past it — this is not
+a privilege the function is missing, it is a refusal.
+
+The obvious fallback, doing it from the client through the Storage API before the row delete, only
+half works, and the half that fails is the larger one. The DELETE policies are:
+
+- **`pet-photos`** — the Owner may delete, through `private.is_pet_household_owner`, but only while
+  the Pet row still exists.
+- **`post-photos`** — `(storage.foldername(name))[1] = auth.uid()`. Only the person who uploaded a
+  photo may remove it. **An Owner can never delete another member's Post photos**, and a Household's
+  Post photos are spread across every member who ever posted.
+
+So a client-side sweep would silently leave most of the files behind while appearing to work. It was
+dropped rather than shipped as a half measure, and deleting a Household now leaves its objects in
+the buckets.
+
+The real fix is a scheduled sweep running as the service role, which is the only identity that can
+delete across every member's prefix. It is not built. If you are about to "fix" the RPC by adding
+the `delete from storage.objects` back, this is why it is not there.
