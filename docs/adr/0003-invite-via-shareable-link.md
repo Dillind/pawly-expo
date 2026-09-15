@@ -1,5 +1,11 @@
 # Household invites use a shareable revocable link/code, not server-sent email
 
+> **Superseded in part by [ADR 0020](./0020-an-invite-is-delivered-in-app-and-keyed-to-an-email.md).**
+> The rejection of server-sent email invites still stands, and invites are still revocable and
+> expiring. The delivery mechanism does not stand: there is no link and no App Store fallback
+> carrying a code across an install. An Invite is raised in the app against an email address, and
+> the invitee finds it waiting when they sign in.
+
 ## Status
 
 **Superseded by ADR 0020.** The link is dead — Firebase Dynamic Links shut down in August 2025 and
