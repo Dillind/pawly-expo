@@ -93,6 +93,8 @@ The Posts line follows the rule the rest of the list follows: never cap the core
 
 **None of this is built.** The 30-day Posts limit in particular is deliberately _not_ implemented in CRU-011 — every household sees its full history until subscriptions are actually built. Gating history before there is anything to gate adds a code path with no revenue attached to it, and the cut-off is a `where` clause whenever it is wanted.
 
+**One member pays, the whole household benefits.** Per-seat pricing is not a choice we are declining on taste. An Apple subscription carries no quantity, so a seat count that follows the household is not buildable. Fixed member tiers are buildable, and they are rejected because a downgrade would have to lock existing members out. See [ADR 0041](./adr/0041-a-subscription-is-household-scoped.md). If household size should ever affect price, the lever is a member cap on the free tier, not seats.
+
 **No paywall in v1.** Get RevenueCat initialised and ready; don't flip the switch until real users are asking for more.
 
 ---
