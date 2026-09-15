@@ -41,10 +41,8 @@ const AddPetFeeds = () => {
         <MainButton text="Continue" onPress={() => router.push('/home/add-pet/instructions')} />
       }>
       <View style={styles.list}>
-        {/* Mapped over the watched values, not over `fields`. On the render
-            after an append the two lengths differ, and mapping `fields` drew a
-            row whose value was undefined -- so a feed the user had just added
-            was silently dropped from the list and added again. */}
+        {/* Watched values, not `fields`: one render after an append the two
+            lengths differ, and mapping `fields` dropped the new feed. */}
         {feedTimes.map((feedTime, index) => {
           return (
             <PressableOpacity

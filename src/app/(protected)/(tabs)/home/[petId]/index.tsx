@@ -69,10 +69,8 @@ const PetDetail = () => {
     return (
       <ScreenView edges={[]}>
         {title}
-        {/* The same scroller the loaded screen uses, because
-            contentInsetAdjustmentBehavior is what clears the transparent
-            header. Rendered bare, the skeleton started under the bar and every
-            row jumped down when the pet arrived. */}
+        {/* The loaded screen's scroller: its automatic inset is what clears
+            the transparent header, so the skeleton does not jump. */}
         <ScreenScrollView
           contentContainerStyle={styles.content}
           contentInsetAdjustmentBehavior="automatic"

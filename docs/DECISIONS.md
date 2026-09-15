@@ -1015,3 +1015,17 @@ them. Its settings sit behind a gear as plain rows, which is where ours stay.
 A tile is a promise of content. "Sign out" in a tile is a broken promise. So the grid takes only
 real destinations, and it stays at two — Pets and Household — until History and Statistics exist as
 screens. A tile that opens nothing is worse than no tile.
+
+## Creating a Household shows no success toast
+
+Every other mutation confirms with a toast. This one does not, and a review has
+flagged it once already.
+
+The rule's exception is a control that displays what it just wrote. The Done
+screen is that, several times over: it names the Household, its Handle, whether
+it is Listed, the Pet and the number of feed times, and it is the only thing on
+screen. A toast saying "Household created" on top of a screen that has just
+said so in five rows is the same sentence twice.
+
+Deleting a Household is the contrast and it does get a toast, because it lands
+the Owner on Home, which says nothing about what just happened.
