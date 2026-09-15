@@ -87,7 +87,7 @@ const HouseholdSettings = ({ householdId }: Props) => {
       return (
         <ErrorState
           title="You are no longer in this household"
-          description="Go back to Settings to see the households you are in."
+          description="Go back to Home to see the households you are in."
         />
       );
     }

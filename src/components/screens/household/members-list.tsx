@@ -122,12 +122,13 @@ const MembersList = ({ householdId }: Props) => {
       {
         text: 'Leave',
         style: 'destructive',
-        // This screen sits under the household just left, so popping back
-        // would land on it.
+        // Home, not Settings: since CRU-145 the Household lives on Home, and
+        // Settings no longer lists the ones you are in. This screen also sits
+        // under the household just left, so popping back would land on it.
         onPress: () =>
           leaveHousehold(undefined, {
             onSuccess: (status) => {
-              if (status === 'left') router.dismissTo('/profile/settings');
+              if (status === 'left') router.dismissTo('/home');
             }
           })
       }
