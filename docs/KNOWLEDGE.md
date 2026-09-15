@@ -652,6 +652,58 @@ native header must pass `edges={[]}`, or the top inset is claimed twice.
 The rule: **a loading branch renders inside the same scroller, with the same
 props and the same content style, as the branch it stands in for.** Anything
 less and the skeleton is measuring a different box from the screen it imitates.
+
+## Postgres cannot delete a Storage object, so the client does it first
+
+`delete_household` was first written to take the bucket objects with it — collect the paths, then
+`delete from storage.objects`. It applied cleanly and failed at runtime:
+
+```
+42501: Direct deletion from storage tables is not allowed. Use the Storage API instead.
+This prevents accidental data loss from orphaned objects.
+```
+
+Supabase blocks the statement with a trigger. `security definer` does not get past it — this is not
+a privilege the function is missing, it is a refusal. **No SQL anywhere in this repo can delete a
+Storage object.** The Storage API is the only door, which means the client.
+
+Sending the client through that door needed the DELETE policies fixed first, because both of them
+keyed off the object's **path**, and a path does not say which Household it belongs to:
+
+- **`pet-photos`** — allowed the Owner for a photo filed under a Pet id, but a cover is filed under
+  the uploader's id, so another member's cover was refused.
+- **`post-photos`** — `(storage.foldername(name))[1] = auth.uid()`. Uploader only. An Owner could
+  never delete another member's Post photos, and those are spread across everyone who ever posted.
+
+`private.is_household_photo(bucket, object_name)` replaces both with a row lookup, and two policies
+call it. So `HouseholdService.remove` is three steps, in this order and no other:
+
+1. `household_photo_manifest` — Owner-gated and name-gated, returns the paths.
+2. The Storage API, one call per bucket.
+3. `delete_household`.
+
+**The photos must go first.** Every policy that authorises the Owner reads the rows the cascade is
+about to take away; after step 3 there is nothing left to prove the objects were ever theirs.
+
+A failure in step 2 is logged and stepped over rather than thrown. An orphaned file is not lost
+data, and the Household still stands, so stranding the Owner mid-flow buys nothing.
+
+## A loading state outside the scroller starts under the transparent header
+
+`PetDetailSkeleton` was rendered straight inside `ScreenView`, while the loaded
+screen renders inside `ScreenScrollView` with
+`contentInsetAdjustmentBehavior="automatic"`. That prop is what clears a
+transparent native header — nothing else does. So the skeleton began at the top
+of the window, under the bar, and every row jumped down when the Pet arrived,
+which is exactly what the skeleton's own comment promises will not happen.
+
+`SafeAreaView` is not the fix and `edges` is not the cause. A screen with a
+native header must pass `edges={[]}`, or the top inset is claimed twice.
+
+The rule: **a loading branch renders inside the same scroller, with the same
+props and the same content style, as the branch it stands in for.** Anything
+less and the skeleton is measuring a different box from the screen it imitates.
+
 ## Postgres cannot delete a Storage object, and neither can the Owner
 
 `delete_household` was first written to take the bucket objects with it — collect the paths from

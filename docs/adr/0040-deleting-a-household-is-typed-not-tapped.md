@@ -58,8 +58,12 @@ closes, and opening it reads as "You are no longer in this household", which is 
 This is accepted rather than fixed: the alternative is a realtime channel for an event that happens
 once in the life of a Household.
 
-**Storage objects are left behind, and this is a platform limit, not an oversight.** See
-`KNOWLEDGE.md`. Neither the RPC nor the Owner's client can remove them.
+**The photos go through the Storage API, not the cascade.** Postgres refuses a
+`delete from storage.objects` outright, so `HouseholdService.remove` reads a manifest, clears both
+buckets, and only then calls the RPC — in that order, because the policies that authorise the Owner
+read the rows the cascade is about to take away. Two new policies key off those rows rather than off
+the object's path, which is what lets an Owner remove a photo another member uploaded.
+`KNOWLEDGE.md` has the detail.
 
 ## Alternatives considered
 
