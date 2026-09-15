@@ -45,11 +45,10 @@ const DeleteHouseholdSheet = ({ sheetRef, householdId, name }: Props) => {
 
   const isConfirmed = confirmation?.trim() === name.trim() && name.length > 0;
 
-  // No alert on top of this. The typed name is the confirmation, and a second
-  // one would teach the Owner to tap through both.
-  // onDone comes from the event handler: React Compiler only permits a ref
-  // read in event-handler position.
-  const submit = (onDone: () => void) =>
+  // No alert on top of this: the typed name is the confirmation, and a second
+  // one would teach the Owner to tap through both. onDismissed comes from the
+  // event handler because React Compiler only permits a ref read there.
+  const submit = (onDismissed: () => Promise<void>) =>
     handleSubmit((values) =>
       deleteHousehold(values.confirmation, {
         onSuccess: (result) => {
@@ -62,19 +61,27 @@ const DeleteHouseholdSheet = ({ sheetRef, householdId, name }: Props) => {
             return;
           }
 
-          onDone();
-          showSuccessToast(SuccessMessage.HouseholdDeleted);
+          // The navigation waits for the native dismissal: it tears down the
+          // screen that owns this sheet.
+          void onDismissed().then(() => {
+            showSuccessToast(SuccessMessage.HouseholdDeleted);
 
-          // dismissTo rather than back: every screen below this one belongs to
-          // the household that no longer exists.
-          router.dismissTo('/home');
+            // dismissTo rather than back: every screen below this one belongs
+            // to the household that no longer exists.
+            router.dismissTo('/home');
+          });
         },
         onError: () => showErrorToast(ErrorMessage.HouseholdDeleteFailed)
       })
     )();
 
   return (
-    <BaseSheet sheetRef={sheetRef} title="Delete household" detents={['auto']}>
+    <BaseSheet
+      sheetRef={sheetRef}
+      title="Delete household"
+      detents={['auto']}
+      // A confirmed name left behind would reopen the sheet already armed.
+      onDismiss={() => form.reset()}>
       <View style={styles.body}>
         <View style={styles.warning}>
           <View style={styles.warningHeading}>
@@ -115,7 +122,7 @@ const DeleteHouseholdSheet = ({ sheetRef, householdId, name }: Props) => {
               variant="destructive"
               isLoading={isDeleting}
               isDisabled={!isConfirmed || isDeleting}
-              onPress={() => void submit(() => void sheetRef.current?.dismiss())}
+              onPress={() => void submit(async () => void (await sheetRef.current?.dismiss()))}
             />
           </View>
         </FormProvider>
