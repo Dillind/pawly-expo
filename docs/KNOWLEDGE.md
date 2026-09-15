@@ -734,3 +734,18 @@ the buckets.
 The real fix is a scheduled sweep running as the service role, which is the only identity that can
 delete across every member's prefix. It is not built. If you are about to "fix" the RPC by adding
 the `delete from storage.objects` back, this is why it is not there.
+
+## `if btrim(null) <> name` is not false, it is NULL — and NULL does not delete
+
+The first `delete_household` compared the typed name with
+`if btrim(confirmed_name) <> household_name then return name_mismatch`. Pass a
+null name and that expression is NULL, `if NULL then` does not run, and
+execution falls through to the irreversible delete with no confirmation at all.
+
+A guard written as "return early when it does not match" is only a guard while
+both sides are known. Any nullable argument reaching a `<>` in a gate needs its
+own `is null` check first, ahead of the comparison.
+
+The same function had the trimming half-applied: the typed name was trimmed and
+the stored one was not, so a Household whose name carried a trailing space
+passed the screen, failed the RPC, and could not be deleted by anyone.

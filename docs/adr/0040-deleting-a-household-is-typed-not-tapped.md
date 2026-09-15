@@ -65,6 +65,21 @@ read the rows the cascade is about to take away. Two new policies key off those 
 the object's path, which is what lets an Owner remove a photo another member uploaded.
 `KNOWLEDGE.md` has the detail.
 
+## Two objections, and why they stand as they are
+
+**The photos are deleted before the Household, and there is no rollback.** True. If the final RPC
+failed after the buckets were cleared, the Household would stand with its images gone. The order is
+not a preference: every policy that authorises the Owner to delete a photo reads the rows the
+cascade is about to remove, so after the delete there is nothing left to prove the objects were
+ever theirs. The window is narrowed instead — the manifest RPC applies the same Owner and
+typed-name checks as the delete, and the delete re-reads ownership behind a row lock, so by the
+time a file is touched the only remaining failure is the network.
+
+**The new policies let an Owner delete a Household's photos without deleting the Household.** Also
+true, and it grants nothing the role did not already have. An Owner may delete any Pet or any Post
+in their Household, and both take the same objects with them. The policies close a gap where the
+Owner could destroy the row but not the file it pointed at.
+
 ## Alternatives considered
 
 - **An alert, like removing a Pet.** Rejected above. Consistency with the Pet screen is worth less

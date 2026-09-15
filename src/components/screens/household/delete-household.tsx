@@ -36,8 +36,8 @@ const DeleteHousehold = ({ householdId }: Props) => {
   const router = useRouter();
 
   const { data: household, isLoading, isError, refetch } = useHouseholdById(householdId);
-  const { data: members = [] } = useHouseholdMembers(householdId);
-  const { data: followers = [] } = useFollowers(householdId);
+  const { data: members, isPending: isLoadingMembers } = useHouseholdMembers(householdId);
+  const { data: followers, isPending: isLoadingFollowers } = useFollowers(householdId);
 
   const { mutate: deleteHousehold, isPending: isDeleting } = useDeleteHousehold(householdId);
 
@@ -46,10 +46,8 @@ const DeleteHousehold = ({ householdId }: Props) => {
   const form = useForm<DeleteHouseholdInput>({
     resolver: zodResolver(deleteHouseholdSchema(name)),
     defaultValues: { confirmation: '' },
-    // The one screen in the app that revalidates on every keystroke. The red
-    // button has to turn on at the exact moment the name matches, and an error
-    // that waits for a blur would sit under a field the Owner has just got
-    // right.
+    // On every keystroke, not on blur: the red button has to arm the moment
+    // the name matches.
     mode: 'onChange'
   });
 
@@ -57,6 +55,10 @@ const DeleteHousehold = ({ householdId }: Props) => {
   const confirmation = useWatch({ control, name: 'confirmation' });
 
   const isConfirmed = confirmation?.trim() === name.trim() && name.length > 0;
+
+  // An unresolved count renders as "0 members", which understates what is
+  // about to be destroyed -- so nothing can be deleted until both have landed.
+  const hasCounts = !isLoadingMembers && !isLoadingFollowers;
   const isBusy = isDeleting || formState.isSubmitting;
 
   // No alert on top of this. The typed name is the confirmation, and a second
@@ -101,8 +103,11 @@ const DeleteHousehold = ({ householdId }: Props) => {
 
   const losses: Loss[] = [
     { icon: 'pawPrint', label: countDigits(household.pets.length, 'pet') },
-    { icon: 'users', label: countDigits(members.length, 'member') },
-    { icon: 'userPlus', label: countDigits(followers.length, 'follower') },
+    { icon: 'users', label: members ? countDigits(members.length, 'member') : 'Every member' },
+    {
+      icon: 'userPlus',
+      label: followers ? countDigits(followers.length, 'follower') : 'Every follower'
+    },
     { icon: 'utensils', label: 'Every feed time and the whole feed history' },
     { icon: 'image', label: 'Every post, photo and comment' },
     { icon: 'clipboardList', label: 'Every Care Card and reminder' }
@@ -167,7 +172,7 @@ const DeleteHousehold = ({ householdId }: Props) => {
             text={isDeleting ? 'Deleting…' : 'Delete this household'}
             variant="destructive"
             isLoading={isDeleting}
-            isDisabled={!isConfirmed || isBusy}
+            isDisabled={!isConfirmed || !hasCounts || isBusy}
             onPress={submit}
           />
         </FormProvider>

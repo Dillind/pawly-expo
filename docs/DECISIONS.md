@@ -1029,6 +1029,7 @@ said so in five rows is the same sentence twice.
 
 Deleting a Household is the contrast and it does get a toast, because it lands
 the Owner on Home, which says nothing about what just happened.
+
 ## Deleting a Household shows counts, not a list
 
 The Danger zone screen says "3 members", not their names. A list of the people about to lose their

@@ -59,10 +59,9 @@ export type CreateHouseholdResult =
   | { status: 'created'; householdId: string; petId: string; petName: string }
   | { status: 'handle_taken' };
 
-// Every one of these is an outcome the screen words differently, so none of
-// them throws. `name_mismatch` should be unreachable -- the Zod schema on the
-// Danger zone screen has already refused it -- and it is returned anyway,
-// because the RPC is what actually guards the delete.
+// Outcomes the screen words differently, so none of them throws. The RPC
+// returns `name_mismatch` even though the Zod schema refused it first: the
+// screen is not the only possible caller.
 export type DeleteHouseholdResult = {
   status: 'deleted' | 'not_owner' | 'not_found' | 'name_mismatch';
 };
@@ -208,13 +207,9 @@ namespace HouseholdService {
     };
   }
 
-  // Irreversible, and it destroys data that belongs to every other member, so
-  // the typed name travels to the RPC rather than being checked only on screen.
-  //
-  // Three steps rather than one, because Postgres refuses a delete from
-  // storage.objects and the Storage API is the only way in -- see KNOWLEDGE.
-  // The photos go first: every policy that authorises the Owner reads the rows
-  // the cascade is about to take away.
+  // Three steps, not one: Postgres refuses a delete from storage.objects, and
+  // the photos go first because the policies that authorise the Owner read the
+  // rows the cascade is about to take away. See KNOWLEDGE.
   export async function remove(
     householdId: string,
     confirmedName: string

@@ -15,12 +15,11 @@ export function useDeleteHousehold(householdId: string) {
     onSuccess: async (result) => {
       if (result.status !== 'deleted') return;
 
-      // Refetch before clearing, or useHousehold heals against a list that
-      // still holds the household just deleted and writes its id straight back.
+      // Refetch first, or useHousehold heals against a stale list and writes
+      // the deleted id straight back. Clearing is enough after that: the hook
+      // falls back to the first household, or to none.
       await queryClient.refetchQueries({ queryKey: householdsKey(userId) });
 
-      // Cleared rather than moved: useHousehold already falls back to the first
-      // household, and to nothing at all when that was the last one.
       if (activeHouseholdId === householdId) await clearActiveHousehold();
     }
   });
