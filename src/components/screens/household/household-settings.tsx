@@ -4,6 +4,7 @@ import { Stack, useRouter } from 'expo-router';
 import { useRef } from 'react';
 import { ActivityIndicator, StyleSheet, View } from 'react-native';
 
+import DeleteHouseholdSheet from '@/components/bottom-sheets/delete-household-sheet';
 import OptionSheet from '@/components/bottom-sheets/option-sheet';
 import RenameHouseholdSheet from '@/components/bottom-sheets/rename-household-sheet';
 import AppText from '@/components/core/app-text';
@@ -39,6 +40,7 @@ const HouseholdSettings = ({ householdId }: Props) => {
   const renameSheetRef = useRef<TrueSheet | null>(null);
   const timezoneSheetRef = useRef<TrueSheet | null>(null);
   const graceSheetRef = useRef<TrueSheet | null>(null);
+  const deleteSheetRef = useRef<TrueSheet | null>(null);
 
   const {
     data: household,
@@ -246,7 +248,7 @@ const HouseholdSettings = ({ householdId }: Props) => {
           <Stack.Toolbar.MenuAction
             icon="trash"
             destructive
-            onPress={() => router.push(`/home/household/${householdId}/delete`)}>
+            onPress={() => void deleteSheetRef.current?.present()}>
             Delete household
           </Stack.Toolbar.MenuAction>
         </Stack.Toolbar.Menu>
@@ -262,6 +264,11 @@ const HouseholdSettings = ({ householdId }: Props) => {
         <>
           <RenameHouseholdSheet
             sheetRef={renameSheetRef}
+            householdId={householdId}
+            name={household.name}
+          />
+          <DeleteHouseholdSheet
+            sheetRef={deleteSheetRef}
             householdId={householdId}
             name={household.name}
           />
