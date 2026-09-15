@@ -38,7 +38,7 @@ describe('buildFollowRequestedMessage', () => {
     });
 
     expect(message.data).toEqual({
-      screen: '/profile/household/[householdId]/followers/requests',
+      screen: '/home/household/[householdId]/followers/requests',
       params: { householdId: 'household-1' }
     });
   });

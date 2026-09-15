@@ -5,18 +5,18 @@ import { StyleSheet } from 'react-native';
 import ScreenScrollView from '@/components/layout/screen-scroll-view';
 import ScreenView from '@/components/layout/screen-view';
 import FeedTimeForm from '@/components/ui/feed-time-form';
-import type { AddPetFormValues } from '@/constants/schemas/add-pet';
+import type { NewHouseholdFormValues } from '@/constants/schemas/new-household';
 import type { AppTheme } from '@/constants/theme';
 import { useStyles } from '@/hooks/use-styles';
 
 // Pushed, not raised in a sheet: a sheet on a modal is two modals. Which feed
 // is a route param, so back-and-forward cannot land on a different row.
-const AddPetFeed = () => {
+const NewHouseholdFeed = () => {
   const styles = useStyles(makeStyles);
   const router = useRouter();
   const { index } = useLocalSearchParams<{ index?: string }>();
 
-  const { control } = useFormContext<AddPetFormValues>();
+  const { control } = useFormContext<NewHouseholdFormValues>();
   const { append, update, remove } = useFieldArray({ control, name: 'feedTimes' });
   const feedTimes = useWatch({ control, name: 'feedTimes' });
 
@@ -72,4 +72,4 @@ const makeStyles = ({ spacing }: AppTheme) =>
     }
   });
 
-export default AddPetFeed;
+export default NewHouseholdFeed;

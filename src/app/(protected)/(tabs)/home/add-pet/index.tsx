@@ -1,9 +1,9 @@
 import type { TrueSheet } from '@lodev09/react-native-true-sheet';
 import { Image } from 'expo-image';
-import { Stack, useRouter } from 'expo-router';
+import { useRouter } from 'expo-router';
 import { useRef } from 'react';
-import { Controller, useFormContext, useFormState, useWatch } from 'react-hook-form';
-import { ActionSheetIOS, Alert, StyleSheet, View } from 'react-native';
+import { Controller, useFormContext, useWatch } from 'react-hook-form';
+import { StyleSheet, View } from 'react-native';
 
 import PhotoSourceSheet from '@/components/bottom-sheets/photo-source-sheet';
 import AgePickerValidated from '@/components/core/age-picker-validated';
@@ -15,22 +15,19 @@ import MainButton from '@/components/core/main-button';
 import PressableOpacity from '@/components/core/pressable-opacity';
 import SegmentedControl from '@/components/core/segmented-control';
 import TextInputValidated from '@/components/core/text-input-validated';
-import ScreenFooter from '@/components/layout/screen-footer';
-import ScreenScrollView from '@/components/layout/screen-scroll-view';
-import ScreenView from '@/components/layout/screen-view';
-import FlowStepper from '@/components/ui/flow-stepper';
+import FlowScreen from '@/components/layout/flow-screen';
 import { breedName, breedSpeciesFor } from '@/constants/breeds';
 import { PET_TYPE_OPTIONS, SEX_OPTIONS } from '@/constants/options';
 import {
   ADD_PET_DETAIL_FIELDS,
-  ADD_PET_STEPS,
+  ADD_PET_STEP_COUNT,
   type AddPetFormValues
 } from '@/constants/schemas/add-pet';
 import { Radius, type AppTheme } from '@/constants/theme';
+import { useAddPetExit } from '@/hooks/use-add-pet-exit';
 import { useStyles } from '@/hooks/use-styles';
 import { birthdateFromAge } from '@/lib/dates';
 import type { AgeMode } from '@/types/core';
-import { isIOS } from '@/utils/platform';
 
 const AGE_OPTIONS: { value: AgeMode; label: string }[] = [
   { value: 'birthdate', label: 'Date of birth' },
@@ -42,11 +39,9 @@ const AddPetDetails = () => {
   const router = useRouter();
   const photoSheetRef = useRef<TrueSheet | null>(null);
 
-  const { control, setValue, trigger, reset } = useFormContext<AddPetFormValues>();
+  const { control, setValue, trigger } = useFormContext<AddPetFormValues>();
+  const { exit } = useAddPetExit();
 
-  const { isDirty } = useFormState({ control });
-
-  const petName = useWatch({ control, name: 'name' });
   const ageMode = useWatch({ control, name: 'ageMode' });
   const birthdate = useWatch({ control, name: 'birthdate' });
   const photoUri = useWatch({ control, name: 'photoUri' });
@@ -54,50 +49,6 @@ const AddPetDetails = () => {
   const breedId = useWatch({ control, name: 'breedId' });
 
   const breedSpecies = breedSpeciesFor(petType);
-
-  // back(), because add-pet opens from five places. The guard is for a cold
-  // start onto this route, where GO_BACK goes unhandled.
-  const leave = () => {
-    reset();
-
-    if (router.canGoBack()) {
-      router.back();
-      return;
-    }
-
-    router.replace('/home/pets');
-  };
-
-  const cancel = () => {
-    if (!isDirty) {
-      leave();
-      return;
-    }
-
-    const title = `You have not added ${petName.trim() || 'this pet'} yet`;
-    const message = 'Everything you have entered will be lost.';
-
-    if (isIOS) {
-      ActionSheetIOS.showActionSheetWithOptions(
-        {
-          title,
-          message,
-          options: ['Keep editing', 'Discard'],
-          cancelButtonIndex: 0,
-          destructiveButtonIndex: 1
-        },
-        (index) => {
-          if (index === 1) leave();
-        }
-      );
-      return;
-    }
-
-    Alert.alert(title, message, [
-      { text: 'Keep editing', style: 'cancel', isPreferred: true },
-      { text: 'Discard', style: 'destructive', onPress: leave }
-    ]);
-  };
 
   // The schema is the gate, so each input renders its own error.
   const onContinue = async () => {
@@ -107,174 +58,149 @@ const AddPetDetails = () => {
   };
 
   return (
-    <ScreenView edges={[]}>
-      <Stack.Toolbar placement="left">
-        <Stack.Toolbar.Button onPress={cancel}>Cancel</Stack.Toolbar.Button>
-      </Stack.Toolbar>
-
-      <ScreenScrollView
-        contentInsetAdjustmentBehavior="automatic"
-        keyboardShouldPersistTaps="handled"
-        isKeyboardAware
-        contentContainerStyle={styles.content}>
-        <FlowStepper current={1} steps={ADD_PET_STEPS} />
-
-        <View style={styles.intro}>
-          <AppText variant="header" size={28}>
-            Who are you caring for?
-          </AppText>
-          <AppText size={15} color="textSecondary">
-            The basics. You can fill in the rest later.
-          </AppText>
-        </View>
-
-        <Controller
-          control={control}
-          name="name"
-          render={({ field: { onChange, onBlur, value } }) => (
-            <TextInputValidated
-              name="name"
-              label="Name"
-              isLabelIndicated
-              value={value}
-              onChangeText={onChange}
-              onBlur={onBlur}
-              placeholder="Bailey"
-              returnKeyType="next"
-            />
-          )}
-        />
-
-        <PressableOpacity
-          style={styles.photoPicker}
-          accessibilityRole="button"
-          accessibilityLabel="Add a photo"
-          onPress={() => void photoSheetRef.current?.present()}>
-          {photoUri ? (
-            <Image source={{ uri: photoUri }} style={styles.photo} />
-          ) : (
-            <View style={[styles.photo, styles.photoPlaceholder]}>
-              <Icon name="camera" size={24} color="textSecondary" />
-            </View>
-          )}
-          <View style={styles.photoHint}>
-            <AppText color="primaryText" size={15} fontWeight="semibold">
-              {photoUri ? 'Change photo' : 'Add a photo'}
-            </AppText>
-            <AppText color="textSecondary" size={13}>
-              Optional
-            </AppText>
-          </View>
-        </PressableOpacity>
-
-        <Controller
-          control={control}
-          name="petType"
-          render={({ field: { onChange, value } }) => (
-            <SegmentedControl
-              name="petType"
-              label="Pet type"
-              options={PET_TYPE_OPTIONS}
-              value={value}
-              onChange={(next) => {
-                onChange(next);
-                // Changing the type clears a breed that no longer applies.
-                if (breedSpeciesFor(next) !== breedSpecies) {
-                  setValue('breedId', null, { shouldDirty: true });
-                }
-              }}
-            />
-          )}
-        />
-
-        {breedSpecies && (
-          <BreedField
-            value={breedName(breedId) ?? null}
-            onPress={() => router.push('/home/add-pet/breed')}
+    <FlowScreen
+      step={1}
+      stepCount={ADD_PET_STEP_COUNT}
+      title="Who are you caring for?"
+      subtitle="The basics. You can fill in the rest later."
+      closeLabel="Close, and do not add this pet"
+      onClose={exit}
+      isKeyboardAware
+      footer={<MainButton text="Continue" onPress={() => void onContinue()} />}>
+      <Controller
+        control={control}
+        name="name"
+        render={({ field: { onChange, onBlur, value } }) => (
+          <TextInputValidated
+            name="name"
+            label="Name"
+            isLabelIndicated
+            value={value}
+            onChangeText={onChange}
+            onBlur={onBlur}
+            placeholder="Bailey"
+            returnKeyType="next"
           />
         )}
+      />
 
-        <Controller
-          control={control}
-          name="sex"
-          render={({ field: { onChange, value } }) => (
-            <SegmentedControl
-              name="sex"
-              label="Sex"
-              options={SEX_OPTIONS}
-              value={value}
-              onChange={onChange}
+      <PressableOpacity
+        style={styles.photoPicker}
+        accessibilityRole="button"
+        accessibilityLabel="Add a photo"
+        onPress={() => void photoSheetRef.current?.present()}>
+        {photoUri ? (
+          <Image source={{ uri: photoUri }} style={styles.photo} />
+        ) : (
+          <View style={[styles.photo, styles.photoPlaceholder]}>
+            <Icon name="camera" size={24} color="textSecondary" />
+          </View>
+        )}
+        <View style={styles.photoHint}>
+          <AppText color="primaryText" size={15} fontWeight="semibold">
+            {photoUri ? 'Change photo' : 'Add a photo'}
+          </AppText>
+          <AppText color="textSecondary" size={13}>
+            Optional
+          </AppText>
+        </View>
+      </PressableOpacity>
+
+      <Controller
+        control={control}
+        name="petType"
+        render={({ field: { onChange, value } }) => (
+          <SegmentedControl
+            name="petType"
+            label="Pet type"
+            options={PET_TYPE_OPTIONS}
+            value={value}
+            onChange={(next) => {
+              onChange(next);
+              // Changing the type clears a breed that no longer applies.
+              if (breedSpeciesFor(next) !== breedSpecies) {
+                setValue('breedId', null, { shouldDirty: true });
+              }
+            }}
+          />
+        )}
+      />
+
+      {breedSpecies && (
+        <BreedField
+          value={breedName(breedId) ?? null}
+          onPress={() => router.push('/home/add-pet/breed')}
+        />
+      )}
+
+      <Controller
+        control={control}
+        name="sex"
+        render={({ field: { onChange, value } }) => (
+          <SegmentedControl
+            name="sex"
+            label="Sex"
+            options={SEX_OPTIONS}
+            value={value}
+            onChange={onChange}
+          />
+        )}
+      />
+
+      <Controller
+        control={control}
+        name="ageMode"
+        render={({ field: { onChange, value } }) => (
+          <SegmentedControl
+            name="ageMode"
+            label="Age"
+            options={AGE_OPTIONS}
+            value={value}
+            onChange={(next) => {
+              onChange(next);
+              if (next === 'approximate' && !birthdate) {
+                setValue('birthdate', birthdateFromAge({ years: 0, months: 0 }), {
+                  shouldDirty: true
+                });
+              }
+            }}
+          />
+        )}
+      />
+
+      <Controller
+        control={control}
+        name="birthdate"
+        render={({ field: { onChange, value } }) =>
+          ageMode === 'birthdate' ? (
+            <DateTimePickerValidated
+              name="birthdate"
+              label="Date of birth"
+              isLabelIndicated
+              selectedDate={value}
+              setSelectedDate={onChange}
             />
-          )}
-        />
-
-        <Controller
-          control={control}
-          name="ageMode"
-          render={({ field: { onChange, value } }) => (
-            <SegmentedControl
-              name="ageMode"
-              label="Age"
-              options={AGE_OPTIONS}
-              value={value}
-              onChange={(next) => {
-                onChange(next);
-                if (next === 'approximate' && !birthdate) {
-                  setValue('birthdate', birthdateFromAge({ years: 0, months: 0 }), {
-                    shouldDirty: true
-                  });
-                }
-              }}
+          ) : (
+            <AgePickerValidated
+              name="birthdate"
+              label="How old are they?"
+              isLabelIndicated
+              selectedDate={value}
+              setSelectedDate={onChange}
             />
-          )}
-        />
-
-        <Controller
-          control={control}
-          name="birthdate"
-          render={({ field: { onChange, value } }) =>
-            ageMode === 'birthdate' ? (
-              <DateTimePickerValidated
-                name="birthdate"
-                label="Date of birth"
-                isLabelIndicated
-                selectedDate={value}
-                setSelectedDate={onChange}
-              />
-            ) : (
-              <AgePickerValidated
-                name="birthdate"
-                label="How old are they?"
-                isLabelIndicated
-                selectedDate={value}
-                setSelectedDate={onChange}
-              />
-            )
-          }
-        />
-      </ScreenScrollView>
-
-      <ScreenFooter>
-        <MainButton text="Continue" onPress={() => void onContinue()} />
-      </ScreenFooter>
-
+          )
+        }
+      />
       <PhotoSourceSheet
         sheetRef={photoSheetRef}
         onPicked={([uri]) => setValue('photoUri', uri, { shouldDirty: true })}
       />
-    </ScreenView>
+    </FlowScreen>
   );
 };
 
 const makeStyles = ({ colors, spacing }: AppTheme) =>
   StyleSheet.create({
-    content: {
-      gap: spacing.three,
-      paddingBottom: spacing.four
-    },
-    intro: {
-      gap: spacing.one
-    },
     photoPicker: {
       flexDirection: 'row',
       alignItems: 'center',

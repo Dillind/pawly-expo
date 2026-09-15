@@ -1,8 +1,9 @@
 import { ErrorMessage } from '@/constants/enums';
 import { UserFacingError } from '@/lib/errors';
+import type { FeedTimeInput } from '@/lib/form/pet-schemas';
 import { assertWrote } from '@/lib/supabase/assert-wrote';
 import { supabase } from '@/lib/supabase/client';
-import type { HouseholdMember, HouseholdSummary, LeadMinutes } from '@/types/core';
+import type { HouseholdMember, HouseholdSummary, LeadMinutes, PetSex, PetType } from '@/types/core';
 
 export type NotificationPreferences = {
   feedDueAlerts: boolean;
@@ -36,6 +37,24 @@ type MembershipRow = {
 
 // Postgres unique_violation, raised by the handle's unique index.
 const UNIQUE_VIOLATION = '23505';
+
+export type CreateHouseholdInput = {
+  name: string;
+  handle: string;
+  isListed: boolean;
+  timezone: string;
+  petName: string;
+  petType: PetType;
+  sex: PetSex;
+  photoUrl: string | null;
+  feedTimes: FeedTimeInput[];
+};
+
+// `handle_taken` is an outcome to word, not a failure: nothing was written and
+// the flow sends the Owner back to step 1 with their details still in hand.
+export type CreateHouseholdResult =
+  | { status: 'created'; householdId: string; petId: string; petName: string }
+  | { status: 'handle_taken' };
 
 namespace HouseholdService {
   // Separate selects rather than a PostgREST embed: household_members.user_id
@@ -127,6 +146,49 @@ namespace HouseholdService {
     if (error) throw error;
 
     assertWrote(data, 'Only an owner can change household settings');
+  }
+
+  // One transaction, because a household with no pet and no owner is not a
+  // household. The handle is re-checked inside it -- see DECISIONS.
+  export async function createWithPet(input: CreateHouseholdInput): Promise<CreateHouseholdResult> {
+    const { data, error } = await supabase.rpc('create_household_with_pet', {
+      household_name: input.name.trim(),
+      household_handle: input.handle,
+      household_is_listed: input.isListed,
+      household_timezone: input.timezone,
+      pet_name: input.petName.trim(),
+      pet_sex: input.sex,
+      pet_birthdate: null,
+      pet_birthdate_is_approximate: false,
+      pet_photo_url: input.photoUrl,
+      feeding_times: input.feedTimes.map((feedTime) => ({
+        scheduledTime: feedTime.localTime,
+        label: feedTime.label,
+        daysOfWeek: feedTime.daysOfWeek,
+        instructions: feedTime.instructions
+      })),
+      pet_pet_type: input.petType,
+      pet_breed_id: null
+    });
+
+    if (error?.code === UNIQUE_VIOLATION) return { status: 'handle_taken' };
+    if (error) throw error;
+
+    const row = data as {
+      status: 'created' | 'handle_taken';
+      household_id?: string;
+      pet_id?: string;
+      pet_name?: string;
+    };
+
+    if (row.status !== 'created') return { status: 'handle_taken' };
+
+    return {
+      status: 'created',
+      householdId: row.household_id as string,
+      petId: row.pet_id as string,
+      petName: row.pet_name as string
+    };
   }
 
   export async function isHandleAvailable(candidate: string): Promise<boolean> {

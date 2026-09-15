@@ -1,5 +1,6 @@
 import type { TrueSheet } from '@lodev09/react-native-true-sheet';
-import { useRouter } from 'expo-router';
+import * as Clipboard from 'expo-clipboard';
+import { Stack, useRouter } from 'expo-router';
 import { useRef } from 'react';
 import { ActivityIndicator, StyleSheet, View } from 'react-native';
 
@@ -14,14 +15,17 @@ import ScreenScrollView from '@/components/layout/screen-scroll-view';
 import ScreenView from '@/components/layout/screen-view';
 import HouseholdPets from '@/components/ui/household-pets';
 import { SuccessMessage } from '@/constants/enums';
+import { followLink } from '@/constants/follow-link';
 import { GRACE_WINDOW_OPTIONS, TIMEZONE_OPTIONS } from '@/constants/options';
-import { BottomTabInset, type AppTheme } from '@/constants/theme';
+import { BottomTabInset, HeaderTitleStyle, type AppTheme } from '@/constants/theme';
 import { useFollowers, useFollowRequests } from '@/hooks/queries/follow/use-follows';
 import { useHouseholdById } from '@/hooks/queries/household/use-household-by-id';
 import { useHouseholdMembers } from '@/hooks/queries/household/use-household-members';
 import { useSetHouseholdListed } from '@/hooks/queries/household/use-set-household-listed';
 import { useUpdateHousehold } from '@/hooks/queries/household/use-update-household';
 import { useStyles } from '@/hooks/use-styles';
+import { hapticLight } from '@/lib/haptics';
+import { showSuccessToast } from '@/lib/toast';
 import { optionLabel } from '@/utils/options';
 
 type Props = {
@@ -59,6 +63,14 @@ const HouseholdSettings = ({ householdId }: Props) => {
   const { mutate: setListed, isPending: isSettingListed } = useSetHouseholdListed(householdId);
 
   const isOwner = household?.isOwner ?? false;
+  const role = isOwner ? 'Owner' : 'Contributor';
+
+  // Owner only, because a Contributor cannot accept the follower it brings.
+  const copyFollowLink = () => {
+    hapticLight();
+    void Clipboard.setStringAsync(followLink(householdId));
+    showSuccessToast(SuccessMessage.FollowLinkCopied);
+  };
 
   // A bare switch cannot say that Listing governs discovery, never access.
   const listedDescription = !household?.handle
@@ -67,7 +79,6 @@ const HouseholdSettings = ({ householdId }: Props) => {
       ? 'Anyone can find your household by name or handle.'
       : 'Only people with your follow link can find you.';
 
-  // A bare ScreenView under a transparent header draws beneath the bar.
   const renderBody = () => {
     if (isLoading) return <ActivityIndicator style={styles.loading} />;
 
@@ -76,7 +87,7 @@ const HouseholdSettings = ({ householdId }: Props) => {
       return (
         <ErrorState
           title="You are no longer in this household"
-          description="Go back to Settings to see the households you are in."
+          description="Go back to Home to see the households you are in."
         />
       );
     }
@@ -90,11 +101,12 @@ const HouseholdSettings = ({ householdId }: Props) => {
         <View style={styles.identity}>
           <HouseholdPets pets={household.pets} ringColor="background" />
           <View style={styles.identityText}>
-            <AppText variant="header" size={19} fontWeight="bold" numberOfLines={1}>
+            <AppText variant="header" size={24} fontWeight="bold" numberOfLines={1}>
               {household.name}
             </AppText>
-            <AppText size={13} color="textSecondary">
-              {isOwner ? 'You are the Owner' : 'You are a Contributor'}
+            <AppText size={13} color="textSecondary" numberOfLines={1}>
+              You are the {role}
+              {household.handle ? `  ·  @${household.handle}` : ''}
             </AppText>
           </View>
         </View>
@@ -105,7 +117,7 @@ const HouseholdSettings = ({ householdId }: Props) => {
               icon="users"
               label="Members"
               value={String(members.length)}
-              onPress={() => router.push(`/profile/household/${householdId}/members`)}
+              onPress={() => router.push(`/home/household/${householdId}/members`)}
             />
             {/* Owner only: the select policy on household_follows is
                 owner-or-self, so a Contributor reads no rows: they would see a
@@ -123,7 +135,7 @@ const HouseholdSettings = ({ householdId }: Props) => {
                     ? `${followRequests.length} waiting`
                     : String(followers.length)
                 }
-                onPress={() => router.push(`/profile/household/${householdId}/followers`)}
+                onPress={() => router.push(`/home/household/${householdId}/followers`)}
               />
             )}
           </SettingsSection>
@@ -142,7 +154,7 @@ const HouseholdSettings = ({ householdId }: Props) => {
               label="Handle"
               value={household.handle ? `@${household.handle}` : 'Not set'}
               onPress={
-                isOwner ? () => router.push(`/profile/household/${householdId}/handle`) : undefined
+                isOwner ? () => router.push(`/home/household/${householdId}/handle`) : undefined
               }
             />
             {/* ToggleSwitch brings no padding of its own; its only other
@@ -174,7 +186,7 @@ const HouseholdSettings = ({ householdId }: Props) => {
             <SettingsRow
               icon="bell"
               label="Notifications"
-              onPress={() => router.push(`/profile/household/${householdId}/notifications`)}
+              onPress={() => router.push(`/home/household/${householdId}/notifications`)}
             />
           </SettingsSection>
           <AppText size={13} color="textSecondary" style={styles.caption}>
@@ -215,9 +227,22 @@ const HouseholdSettings = ({ householdId }: Props) => {
 
   return (
     <ScreenView edges={[]}>
+      {/* Outside every early return: behind one the bar has no title and falls
+          back to the route name. */}
+      <Stack.Title style={HeaderTitleStyle}>Household</Stack.Title>
+
+      <Stack.Toolbar placement="right">
+        <Stack.Toolbar.Button
+          icon="square.and.arrow.up"
+          accessibilityLabel="Copy the follow link"
+          hidden={!isOwner}
+          onPress={copyFollowLink}
+        />
+      </Stack.Toolbar>
+
       <ScreenScrollView
-        contentContainerStyle={styles.content}
-        contentInsetAdjustmentBehavior="automatic">
+        contentInsetAdjustmentBehavior="automatic"
+        contentContainerStyle={styles.content}>
         {renderBody()}
       </ScreenScrollView>
 
@@ -262,7 +287,6 @@ const HouseholdSettings = ({ householdId }: Props) => {
 const makeStyles = ({ spacing }: AppTheme) =>
   StyleSheet.create({
     content: {
-      paddingVertical: spacing.four,
       paddingBottom: BottomTabInset + spacing.four,
       gap: spacing.four
     },

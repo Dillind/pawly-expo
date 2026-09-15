@@ -69,7 +69,14 @@ const PetDetail = () => {
     return (
       <ScreenView edges={[]}>
         {title}
-        <PetDetailSkeleton />
+        {/* The loaded screen's scroller: its automatic inset is what clears
+            the transparent header, so the skeleton does not jump. */}
+        <ScreenScrollView
+          contentContainerStyle={styles.content}
+          contentInsetAdjustmentBehavior="automatic"
+          scrollEnabled={false}>
+          <PetDetailSkeleton />
+        </ScreenScrollView>
       </ScreenView>
     );
   }

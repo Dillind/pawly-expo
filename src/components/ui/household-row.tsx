@@ -31,7 +31,7 @@ const HouseholdRow = ({ household }: Props) => {
     <PressableOpacity
       accessibilityRole="button"
       accessibilityLabel={`${household.name} settings`}
-      onPress={() => router.push(`/profile/household/${household.id}`)}>
+      onPress={() => router.push(`/home/household/${household.id}`)}>
       <View style={styles.row}>
         <View style={styles.avatars}>
           <HouseholdPets pets={household.pets} ringColor="backgroundElement" />

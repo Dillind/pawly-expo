@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { StyleSheet, View } from 'react-native';
 import Animated, { FadeInDown, ReduceMotion } from 'react-native-reanimated';
 
+import AppText from '@/components/core/app-text';
 import Tile from '@/components/ui/tile';
 import type { IconName } from '@/constants/icon-map';
 import type { AppTheme } from '@/constants/theme';
@@ -10,7 +11,6 @@ import { useStyles } from '@/hooks/use-styles';
 export type TileDescriptor = {
   id: string;
   label: string;
-  subtitle?: string;
   icon: IconName;
   span: 1 | 2;
   href: string;
@@ -35,27 +35,38 @@ const TileGrid = ({ tiles }: Props) => {
   if (tiles.length === 0) return null;
 
   return (
-    <View style={styles.grid}>
-      {tiles.map((tile, index) => (
-        <Animated.View
-          key={tile.id}
-          entering={
-            shouldAnimate
-              ? FadeInDown.delay(index * 60)
-                  .springify()
-                  .reduceMotion(ReduceMotion.System)
-              : undefined
-          }
-          style={tile.span === 2 ? styles.full : styles.half}>
-          <Tile label={tile.label} subtitle={tile.subtitle} icon={tile.icon} href={tile.href} />
-        </Animated.View>
-      ))}
+    <View style={styles.section}>
+      {/* Quiet and secondary: the tiles are the content, and a bold heading
+          competes with them. */}
+      <AppText size={17} color="textSecondary">
+        Dashboard
+      </AppText>
+
+      <View style={styles.grid}>
+        {tiles.map((tile, index) => (
+          <Animated.View
+            key={tile.id}
+            entering={
+              shouldAnimate
+                ? FadeInDown.delay(index * 60)
+                    .springify()
+                    .reduceMotion(ReduceMotion.System)
+                : undefined
+            }
+            style={tile.span === 2 ? styles.full : styles.half}>
+            <Tile label={tile.label} icon={tile.icon} href={tile.href} />
+          </Animated.View>
+        ))}
+      </View>
     </View>
   );
 };
 
 const makeStyles = ({ spacing }: AppTheme) =>
   StyleSheet.create({
+    section: {
+      gap: spacing.two + spacing.one
+    },
     grid: {
       flexDirection: 'row',
       flexWrap: 'wrap',

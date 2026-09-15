@@ -8,18 +8,15 @@ import Icon from '@/components/core/icon';
 import PressableOpacity from '@/components/core/pressable-opacity';
 import type { AppTheme } from '@/constants/theme';
 import { useHousehold } from '@/hooks/queries/household/use-household';
-import { useHouseholds } from '@/hooks/queries/household/use-households';
 import { useStyles } from '@/hooks/use-styles';
 
-// The active household's name, and a chevron that opens the switcher. With one household there
-// is no chevron and no tap target -- a dropdown over a list of one is worse than none. It
-// appears when the second household does.
+// The active household's name, and a chevron that opens the switcher. The sheet is worth
+// opening over a list of one, because it also holds the two doors to a second household.
 const HouseholdSwitcher = () => {
   const styles = useStyles(makeStyles);
   const sheetRef = useRef<TrueSheet | null>(null);
 
   const { data: household } = useHousehold();
-  const { data: households = [] } = useHouseholds();
 
   if (!household) return null;
 
@@ -28,8 +25,6 @@ const HouseholdSwitcher = () => {
       {household.name}
     </AppText>
   );
-
-  if (households.length < 2) return <View style={styles.row}>{title}</View>;
 
   return (
     <>

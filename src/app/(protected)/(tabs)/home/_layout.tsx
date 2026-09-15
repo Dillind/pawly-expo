@@ -72,12 +72,71 @@ export default function HomeLayout() {
           <Stack.Screen.BackButton displayMode="minimal" />
         </Stack.Screen>
 
+        {/* A full-screen modal, not a push: a pushed screen keeps the tab bar,
+            so a half-filled setup could be abandoned by tapping Posts with no
+            prompt, and the footer had to pad itself under the bar. */}
         <Stack.Screen
           name="add-pet"
-          options={{
-            presentation: 'modal'
-          }}
+          options={{ presentation: 'fullScreenModal', animation: 'slide_from_bottom' }}
         />
+
+        <Stack.Screen
+          name="new-household"
+          options={{ presentation: 'fullScreenModal', animation: 'slide_from_bottom' }}
+        />
+
+        {/* The title is the household's name, which only the screen has, so it
+            sets its own `Stack.Title`. */}
+        <Stack.Screen name="household/[householdId]/index" options={{ headerShown: true }}>
+          <Stack.Header transparent />
+          <Stack.Screen.BackButton displayMode="minimal" />
+        </Stack.Screen>
+
+        <Stack.Screen name="household/[householdId]/handle" options={{ headerShown: true }}>
+          <Stack.Title style={HeaderTitleStyle}>Handle</Stack.Title>
+          <Stack.Header transparent />
+          <Stack.Screen.BackButton displayMode="minimal" />
+        </Stack.Screen>
+
+        <Stack.Screen name="household/[householdId]/notifications" options={{ headerShown: true }}>
+          <Stack.Title style={HeaderTitleStyle}>Notifications</Stack.Title>
+          <Stack.Header transparent />
+          <Stack.Screen.BackButton displayMode="minimal" />
+        </Stack.Screen>
+
+        <Stack.Screen name="household/[householdId]/members" options={{ headerShown: true }}>
+          <Stack.Title style={HeaderTitleStyle}>Members</Stack.Title>
+          <Stack.Header transparent />
+          <Stack.Screen.BackButton displayMode="minimal" />
+        </Stack.Screen>
+
+        <Stack.Screen
+          name="household/[householdId]/followers/index"
+          options={{ headerShown: true }}>
+          <Stack.Title style={HeaderTitleStyle}>Followers</Stack.Title>
+          <Stack.Header transparent />
+          <Stack.Screen.BackButton displayMode="minimal" />
+        </Stack.Screen>
+
+        <Stack.Screen
+          name="household/[householdId]/followers/requests"
+          options={{ headerShown: true }}>
+          <Stack.Title style={HeaderTitleStyle}>Requests</Stack.Title>
+          <Stack.Header transparent />
+          <Stack.Screen.BackButton displayMode="minimal" />
+        </Stack.Screen>
+
+        <Stack.Screen name="household/[householdId]/followers/link" options={{ headerShown: true }}>
+          <Stack.Title style={HeaderTitleStyle}>Follow link</Stack.Title>
+          <Stack.Header transparent />
+          <Stack.Screen.BackButton displayMode="minimal" />
+        </Stack.Screen>
+
+        <Stack.Screen name="household/[householdId]/invite" options={{ headerShown: true }}>
+          <Stack.Title style={HeaderTitleStyle}>Invite someone</Stack.Title>
+          <Stack.Header transparent />
+          <Stack.Screen.BackButton displayMode="minimal" />
+        </Stack.Screen>
 
         {/* The title is the pet's name, which only the screen has, so it sets
             its own `Stack.Title`. */}

@@ -28,4 +28,4 @@ export const ADD_PET_DETAIL_FIELDS = [
   'breedId'
 ] as const;
 
-export const ADD_PET_STEPS = ['Pet details', 'Feed times', 'What they eat'];
+export const ADD_PET_STEP_COUNT = 3;

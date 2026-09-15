@@ -83,7 +83,7 @@ const FollowersList = ({ householdId }: Props) => {
               icon="userPlus"
               label="Requests"
               value={String(requests.length)}
-              onPress={() => router.push(`/profile/household/${householdId}/followers/requests`)}
+              onPress={() => router.push(`/home/household/${householdId}/followers/requests`)}
             />
           </SettingsSection>
         )}
@@ -144,7 +144,7 @@ const FollowersList = ({ householdId }: Props) => {
             <SettingsRow
               icon="share"
               label="Share a follow link"
-              onPress={() => router.push(`/profile/household/${householdId}/followers/link`)}
+              onPress={() => router.push(`/home/household/${householdId}/followers/link`)}
             />
           </SettingsSection>
         )}

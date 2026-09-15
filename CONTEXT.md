@@ -329,3 +329,18 @@ The part of a Pet a Follower sees: name, photo, breed, bio and gallery. Not a sc
 a Member sees the whole Pet. It is the name for the boundary, and it holds no care information of
 any kind.
 _Avoid_: Pet page, public pet, pet detail (that is the Member's screen).
+
+## Settings
+
+**Household Settings**:
+The settings owned by a Household. Reached from Home, and always scoped to the Active Household —
+a Member of several switches first, then opens them. Covers the Household's name, its Handle,
+whether it is Listed, its timezone, its Feed timing, its Members, its Followers and its Alerts.
+Only an Owner can change them; a Contributor reads them.
+_Avoid_: Household preferences, group settings, admin.
+
+**Account Settings**:
+The settings owned by a User. Reached from Profile. Covers the account itself, appearance,
+subscription, support and sign-out. Nothing here belongs to a Household, and no Household is named
+on any of these screens — that is the whole point of the split.
+_Avoid_: Profile settings, app settings, user preferences.

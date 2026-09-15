@@ -636,3 +636,19 @@ machinery the file trusts. `utc` and `timezone` still ship with dayjs and need
 no install; they rely on `Intl`, and onboarding already reads
 `Intl.DateTimeFormat().resolvedOptions().timeZone`, which is the evidence the
 ICU data is present.
+
+## A loading state outside the scroller starts under the transparent header
+
+`PetDetailSkeleton` was rendered straight inside `ScreenView`, while the loaded
+screen renders inside `ScreenScrollView` with
+`contentInsetAdjustmentBehavior="automatic"`. That prop is what clears a
+transparent native header — nothing else does. So the skeleton began at the top
+of the window, under the bar, and every row jumped down when the Pet arrived,
+which is exactly what the skeleton's own comment promises will not happen.
+
+`SafeAreaView` is not the fix and `edges` is not the cause. A screen with a
+native header must pass `edges={[]}`, or the top inset is claimed twice.
+
+The rule: **a loading branch renders inside the same scroller, with the same
+props and the same content style, as the branch it stands in for.** Anything
+less and the skeleton is measuring a different box from the screen it imitates.

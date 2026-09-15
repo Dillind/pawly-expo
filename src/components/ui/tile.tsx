@@ -1,5 +1,5 @@
 import { useRouter, type Href } from 'expo-router';
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet } from 'react-native';
 
 import AppText from '@/components/core/app-text';
 import Icon from '@/components/core/icon';
@@ -12,12 +12,11 @@ import { createShadowMedium } from '@/lib/styles/shadows';
 
 type Props = {
   label: string;
-  subtitle?: string;
   icon: IconName;
   href: string;
 };
 
-const Tile = ({ label, subtitle, icon, href }: Props) => {
+const Tile = ({ label, icon, href }: Props) => {
   const router = useRouter();
   const theme = useTheme();
   const styles = useStyles(makeStyles);
@@ -25,23 +24,14 @@ const Tile = ({ label, subtitle, icon, href }: Props) => {
   return (
     <PressableOpacity
       accessibilityRole="button"
-      accessibilityLabel={subtitle ? `${label}. ${subtitle}` : label}
+      accessibilityLabel={label}
       onPress={() => router.navigate(href as Href)}
       style={[styles.container, createShadowMedium(theme.colors)]}>
-      <View style={styles.iconWell}>
-        <Icon name={icon} size={22} color="text" />
-      </View>
+      <Icon name={icon} size={20} color="text" />
 
-      <View style={styles.labels}>
-        <AppText variant="header" size={16}>
-          {label}
-        </AppText>
-        {subtitle && (
-          <AppText size={13} color="textSecondary">
-            {subtitle}
-          </AppText>
-        )}
-      </View>
+      <AppText variant="header" size={16} numberOfLines={1}>
+        {label}
+      </AppText>
     </PressableOpacity>
   );
 };
@@ -50,25 +40,14 @@ const makeStyles = ({ spacing, colors }: AppTheme) =>
   StyleSheet.create({
     container: {
       flex: 1,
-      minHeight: 120,
-      padding: spacing.three,
-      gap: spacing.three,
-      borderRadius: Radius.card,
-      backgroundColor: colors.backgroundElement,
-      justifyContent: 'space-between'
-    },
-    iconWell: {
-      width: 40,
-      height: 40,
-      borderRadius: Radius.tile,
-      // Not colors.background -- that is pure black in dark mode, so the well
-      // reads as a hole punched through the tile.
-      backgroundColor: colors.backgroundSelected,
+      minHeight: 60,
+      flexDirection: 'row',
       alignItems: 'center',
-      justifyContent: 'center'
-    },
-    labels: {
-      gap: 2
+      gap: spacing.two + spacing.one,
+      paddingHorizontal: spacing.three,
+      borderRadius: Radius.card,
+      borderCurve: 'continuous',
+      backgroundColor: colors.backgroundElement
     }
   });
 

@@ -265,7 +265,7 @@ export const buildFollowRequestedMessage = (
   body: `${authorName(input.requesterFirstName)} requested to follow your household`,
   sound: 'default',
   data: {
-    screen: '/profile/household/[householdId]/followers/requests',
+    screen: '/home/household/[householdId]/followers/requests',
     params: { householdId: input.householdId }
   }
 });
