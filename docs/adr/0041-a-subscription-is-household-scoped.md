@@ -16,13 +16,15 @@ platform constraint that would otherwise be re-litigated every time someone sugg
 
 ## Considered options
 
-- **Per-seat pricing — pay more per member** — not rejected on taste. It is **not possible**. An
-  Apple auto-renewable subscription carries no quantity, and RevenueCat is a thin layer over StoreKit
-  and Google Play Billing, so seats cannot be added to or removed from a subscription once it has
-  started. The documented workaround is separate tiered products ("Pro, 2 members", "Pro, 5 members")
-  moved between inside one subscription group — which means that on downgrade the app must pick
-  existing members of a household and lock them out. There is no acceptable screen for that. Per-seat
-  billing is a Stripe idea, and Stripe is not available for digital goods inside an iOS app.
+- **Per-seat pricing — pay more per member** — rejected in two steps, and not on taste. **A seat
+  count that follows the household is not buildable at all.** An Apple auto-renewable subscription
+  carries no quantity, and RevenueCat is a thin layer over StoreKit and Google Play Billing, so
+  seats cannot be added to or removed from a live subscription. The one mechanism that does exist is
+  **separate fixed tiers** ("Pro, 2 members", "Pro, 5 members") in one subscription group, moved
+  between by an upgrade or a downgrade. That is buildable, and it is rejected on its downgrade
+  behaviour: the app would have to pick existing members of a household and lock them out, and there
+  is no acceptable screen for that. Per-seat billing as it is normally meant is a Stripe idea, and
+  Stripe is not available for digital goods inside an iOS app.
 - **Store the entitlement on the household** — rejected. A subscription belongs to an Apple ID and
   cannot be cancelled, transferred or refunded by the app. Modelling Pro as household property
   creates a handover problem with no mechanism behind it: what happens to the household's Pro when the

@@ -42,7 +42,7 @@ There is no restore.
 _Avoid_: Advanced, danger area, delete screen.
 
 **Invite**:
-A revocable, expiring invitation an Owner raises against one email address so that person can join the household as a Contributor. It is delivered in the app, not by a link: the invitee finds it waiting when they sign in with that address. One Invite per person, so each can be revoked on its own. See [ADR 0020](./docs/adr/0020-an-invite-is-delivered-in-app-and-keyed-to-an-email.md).
+A revocable, expiring invitation an Owner raises against one email address so that person can join the household as a Contributor. It is delivered in the app, not by a link: the invitee finds it waiting when they sign in with that address. One pending Invite per email address per household, so each can be revoked on its own and the same person can hold invitations from several households at once. See [ADR 0020](./docs/adr/0020-an-invite-is-delivered-in-app-and-keyed-to-an-email.md).
 _Avoid_: Referral, share link, invite link (there isn't one).
 
 ## Pets & care
