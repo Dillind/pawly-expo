@@ -11,6 +11,7 @@ export type ChecklistItem = {
   isTicked: boolean;
   tickedBy: string | null;
   tickedAt: string | null;
+  createdAt: string;
 };
 
 export type TravelChecklist = {
@@ -43,6 +44,7 @@ type ItemRow = {
   is_ticked: boolean;
   ticked_by: string | null;
   ticked_at: string | null;
+  created_at: string;
 };
 
 type ChecklistRow = {
@@ -58,7 +60,7 @@ type ChecklistDetailRow = Omit<ChecklistRow, 'travel_checklist_items'> & {
 };
 
 const ITEM_SELECT =
-  'id, checklist_id, text, emoji, pet_id, sort_order, is_ticked, ticked_by, ticked_at';
+  'id, checklist_id, text, emoji, pet_id, sort_order, is_ticked, ticked_by, ticked_at, created_at';
 const LIST_SELECT = `id, household_id, name, emoji, travel_checklist_items (is_ticked, ticked_at)`;
 const DETAIL_SELECT = `id, household_id, name, emoji, travel_checklist_items (${ITEM_SELECT})`;
 
@@ -73,7 +75,8 @@ const mapItem = (row: ItemRow): ChecklistItem => ({
   sortOrder: row.sort_order,
   isTicked: row.is_ticked,
   tickedBy: row.ticked_by,
-  tickedAt: row.ticked_at
+  tickedAt: row.ticked_at,
+  createdAt: row.created_at
 });
 
 const mapChecklist = (row: ChecklistRow): TravelChecklist => ({
@@ -91,7 +94,9 @@ const mapChecklist = (row: ChecklistRow): TravelChecklist => ({
   )
 });
 
-const byOrder = (a: ChecklistItem, b: ChecklistItem) => a.sortOrder - b.sortOrder;
+// Two devices can hand out the same sort_order; the tie-break keeps one order.
+const byOrder = (a: ChecklistItem, b: ChecklistItem) =>
+  a.sortOrder - b.sortOrder || a.createdAt.localeCompare(b.createdAt) || a.id.localeCompare(b.id);
 
 const isCapError = (error: { message?: string } | null) =>
   Boolean(error?.message?.includes(CAP_REACHED));

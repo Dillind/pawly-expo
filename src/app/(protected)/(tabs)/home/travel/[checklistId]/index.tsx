@@ -67,13 +67,22 @@ const Checklist = () => {
     .filter((pet) => items.some((item) => item.petId === pet.id))
     .map((pet) => pet.name);
 
-  // The last tick, on this device: a remote tick arriving by refetch is not a
-  // moment for the person holding this phone.
+  // The last tick, on this device, once it is written: a remote tick arriving
+  // by refetch is not a moment for the person holding this phone, and a tick
+  // that rolls back was not the last one.
   const tick = (item: ChecklistItem, isTicked: boolean) => {
-    if (isTicked && tickedCount === items.length - 1) hapticSuccess();
-    tickItem({ itemId: item.id, isTicked });
+    const isLast = isTicked && tickedCount === items.length - 1;
+    tickItem({ itemId: item.id, isTicked }, { onSuccess: () => isLast && hapticSuccess() });
   };
-  const nextSortOrder = items.length === 0 ? 0 : items[items.length - 1].sortOrder + 1;
+
+  // Return fires faster than the cache refreshes, so the counter, not the
+  // cache, hands out the next position.
+  const lastSortOrder = useRef(-1);
+  const nextSortOrder = () => {
+    const fromCache = items.length === 0 ? -1 : items[items.length - 1].sortOrder;
+    lastSortOrder.current = Math.max(lastSortOrder.current, fromCache) + 1;
+    return lastSortOrder.current;
+  };
 
   const heading = checklist ? [checklist.emoji, checklist.name].filter(Boolean).join(' ') : '';
 
@@ -220,7 +229,7 @@ const Checklist = () => {
             <AddItemRow
               onAdd={(text) =>
                 addItem(
-                  { text, sortOrder: nextSortOrder },
+                  { text, sortOrder: nextSortOrder() },
                   // The keyboard-aware inset follows focus, not growth: a new row
                   // lands under the keyboard unless the list follows it.
                   { onSuccess: () => scrollRef.current?.scrollToEnd({ animated: true }) }

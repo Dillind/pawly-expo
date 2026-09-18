@@ -99,6 +99,7 @@ describe('TravelChecklistService.get', () => {
           emoji: null,
           pet_id: null,
           sort_order: 2,
+          created_at: '2026-09-18T00:00:02Z',
           is_ticked: false,
           ticked_by: null,
           ticked_at: null
@@ -110,6 +111,7 @@ describe('TravelChecklistService.get', () => {
           emoji: '💉',
           pet_id: 'p1',
           sort_order: 1,
+          created_at: '2026-09-18T00:00:01Z',
           is_ticked: true,
           ticked_by: 'u1',
           ticked_at: '2026-09-18T00:00:00Z'
@@ -127,10 +129,38 @@ describe('TravelChecklistService.get', () => {
       emoji: '💉',
       petId: 'p1',
       sortOrder: 1,
+      createdAt: '2026-09-18T00:00:01Z',
       isTicked: true,
       tickedBy: 'u1',
       tickedAt: '2026-09-18T00:00:00Z'
     });
+  });
+
+  it('breaks a sort_order tie on created_at, then id', async () => {
+    const item = (id: string, sort_order: number, created_at: string) => ({
+      id,
+      checklist_id: 'c1',
+      text: id,
+      emoji: null,
+      pet_id: null,
+      sort_order,
+      created_at,
+      is_ticked: false,
+      ticked_by: null,
+      ticked_at: null
+    });
+    result.data = {
+      ...row,
+      travel_checklist_items: [
+        item('b', 3, '2026-09-18T00:00:05Z'),
+        item('a', 3, '2026-09-18T00:00:05Z'),
+        item('c', 3, '2026-09-18T00:00:04Z')
+      ]
+    };
+
+    const detail = await TravelChecklistService.get('c1');
+
+    expect(detail.items.map((entry) => entry.id)).toEqual(['c', 'a', 'b']);
   });
 });
 
