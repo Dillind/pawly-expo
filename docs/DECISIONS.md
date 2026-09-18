@@ -1045,6 +1045,13 @@ is gone too.
 
 ## 2026-09-18
 
+## The `qa` build carries its backend in `eas.json`, not in an EAS environment
+
+A `qa` store build points at `crumpet-qa`. EAS keeps build variables in environments, but a custom
+environment needs a paid plan, so the profile extends `production` and overrides the two Supabase
+variables in its own `env` block. Both are public values that ship in the binary anyway. If the plan
+is ever upgraded, a `crumpet-qa` EAS environment is the tidier home and the block can go.
+
 ## A Travel Checklist is the Household's, and a tick is everyone's
 
 CRU-128 started as a per-Pet packing list on the Pet screen. It ships as a Household object behind

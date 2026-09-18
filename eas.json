@@ -23,6 +23,13 @@
         "resourceClass": "m-medium"
       }
     },
+    "qa": {
+      "extends": "production",
+      "env": {
+        "EXPO_PUBLIC_SUPABASE_URL": "https://zkckgmvykrmswnjxvfii.supabase.co",
+        "EXPO_PUBLIC_SUPABASE_KEY": "sb_publishable_itiOcniPpalCSZx0lFTu4A_vqfVOgNh"
+      }
+    },
     "development-simulator": {
       "developmentClient": true,
       "distribution": "internal",
@@ -33,6 +40,7 @@
     }
   },
   "submit": {
-    "production": {}
+    "production": {},
+    "qa": {}
   }
 }
