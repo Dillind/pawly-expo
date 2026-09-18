@@ -6,11 +6,10 @@ description: How this repo builds and ships iOS through EAS and TestFlight. Read
 # Releasing Crumpet through EAS
 
 The build scripts always name a profile, deliberately. A bare `eas build` defaults to
-**production**, whose EAS environment holds no variables, so the build dies at
-`src/lib/supabase/client.ts` with "Missing EXPO_PUBLIC_SUPABASE_URL or
-EXPO_PUBLIC_SUPABASE_KEY". Only the `development` environment is populated -- `.env` is
-gitignored and never reaches the builder, so anything the app reads from
-`process.env` has to exist as an EAS environment variable too (`eas env:list`).
+**production** by accident. All three EAS environments hold the same five variables and all point
+at the production Supabase project. `.env` is gitignored and never reaches the builder, so anything
+the app reads from `process.env` has to exist as an EAS environment variable too (`eas env:list`),
+or, for the `qa` profile, in its `env` block.
 
 ## TestFlight
 
@@ -48,18 +47,27 @@ build and involves no review at all.
 `autoIncrement` on the production profile with `appVersionSource: "remote"` is what stops a build
 being rejected for reusing a build number. Don't hand-set `buildNumber` in `app.json`.
 
-A **`qa` profile is still absent, but the reason it was absent has gone.** The qa/production split
-is two _store_ builds pointing at two _backends_, both going through TestFlight, and the note here
-used to say it earns its keep once a non-production Supabase project exists. **One does now** —
-the `crumpet-qa` project, created 2026-08-20, carrying the same schema as
-production and its own users. So a `qa` build would no longer be a second binary on the same
-database, which was the whole objection.
+A **`qa` profile points a store build at the `crumpet-qa` Supabase project** (`bun run build:qa`).
+It extends `production`, so it is a TestFlight build with the same Google client IDs, and its own
+`env` block swaps only `EXPO_PUBLIC_SUPABASE_URL` and `EXPO_PUBLIC_SUPABASE_KEY`. A profile's
+`env` wins over the EAS environment, which is the whole trick. `submit.qa` is empty for the same
+reason `submit.production` is.
 
-Adding one is not just an `eas.json` entry. It needs a **`qa` EAS environment** holding that
-project's `EXPO_PUBLIC_SUPABASE_URL` and `EXPO_PUBLIC_SUPABASE_KEY` — `.env` never reaches the
-builder, so anything read from `process.env` has to exist there too (`eas env:list`). It also needs
-a `submit.qa`, because `--auto-submit` runs the submit profile whose name matches the build profile.
-Until someone does that, `preview` and `production` are the only two profiles, and **both point at
-production data**.
+**It is not a `qa` EAS environment, because EAS will not make one.** Custom environments need the
+Production or Enterprise plan; on this plan `eas env:set --environment crumpet-qa` fails with
+"Custom environments are supported on Production and Enterprise plans". Both values in the block
+are public — they ship inside the app — so committing them costs nothing.
+
+**A QA build and a production build are the same app in TestFlight.** Same bundle id, one build
+number sequence. Nothing on the tester's phone says which backend a build talks to; the build
+number and the TestFlight "What to Test" note are the only tells, so write the backend there.
+
+**QA sign-in needs the providers on the QA project.** As of 2026-09-18 Google and Apple are off on
+`crumpet-qa`, so a QA build signs in with email only until someone enables them in the dashboard
+with the same client IDs as production. QA also has no custom SMTP, so auth emails go through
+Supabase's rate-limited default sender.
+
+`preview` and `production` still point at production data, as does `development` and the local
+`.env`.
 
 No Android build scripts until FCM credentials exist.
