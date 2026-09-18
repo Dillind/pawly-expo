@@ -36,6 +36,7 @@ import {
   List,
   Lock,
   LogOut,
+  Luggage,
   Mail,
   MessageCircle,
   Moon,
@@ -121,7 +122,8 @@ export const iconMap = {
   info: Info,
   shield: Shield,
   fileText: FileText,
-  logOut: LogOut
+  logOut: LogOut,
+  luggage: Luggage
 } as const;
 
 export type IconName = keyof typeof iconMap;

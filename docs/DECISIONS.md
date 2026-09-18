@@ -1042,3 +1042,44 @@ things, which is a second page of reading in front of an Owner who has already c
 warning sentence carries the same point: everything in the Household goes, for everyone, and nothing
 comes back. The counts also cost two queries whose loading state gated the red button, and that gate
 is gone too.
+
+## 2026-09-18
+
+## A Travel Checklist is the Household's, and a tick is everyone's
+
+CRU-128 started as a per-Pet packing list on the Pet screen. It ships as a Household object behind
+a Travel tile on Home, because a trip usually takes every Pet. The odd item that is one Pet's, like
+insulin, carries a Pet Tag on the item, not on the list.
+
+Ticks live on the item and are shared: a tick on one phone shows on every phone, so two people
+packing do not both pack the bowl. Any Member ticks and resets; only an Owner writes the list. The
+trigger sets who ticked from the session, so a Contributor cannot write another Member's id.
+
+## The free cap is a database trigger, not only a sheet
+
+Free holds one Travel Checklist per Household. The Pro sheet is the door in the app, and
+`enforce_checklist_cap` is the lock: a second insert on a free Household raises, whatever build
+sent it. The service maps that raise to a `cap_reached` result so the screen opens the sheet
+without reading a Postgres string.
+
+## All packed is a state on the screen, not a date and not a push
+
+The last tick on a Travel Checklist gives one success haptic on the phone that ticked it, and the
+progress strip becomes a green card: "All packed", the Pets' names, when it was packed, and Reset.
+Nothing is sent. The person who ticked already knows, and a push for every last tick and every
+reset would be noise for a list that is packed the night before.
+
+There is no trip date and no automatic reset. A date needs a scheduler and timezone rules, and a
+list that empties itself can empty at the wrong moment. The reset is for the next trip, not the end
+of this one, so the card carries the age instead: after seven days it goes neutral and asks
+"Packing for the next trip?", and Reset becomes the primary action. If a trip ever gets real dates
+they should mute alerts and hold the Care Card for the sitter too; that is a Trip, and its own issue.
+
+"Packed at" is derived, not stored: the latest `ticked_at` across the items, and only when every
+item is ticked.
+
+## `user_entitlements` exists before RevenueCat does
+
+ADR 0041 put the entitlement on the User, derived per Household. The row did not exist until this
+change. It is created now, empty, with a select policy for the user's own row and no write policy:
+only the service role writes it, which is what the RevenueCat webhook will be. Empty means free.

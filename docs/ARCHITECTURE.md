@@ -11,7 +11,8 @@ The shape of the system, not its parts. Library choices and versions are in
 This is the single most important thing to understand, and reading `src/` will not tell you.
 
 The Grace Window arithmetic, slot matching, the Double Feed guard and the missed-feed sweep all
-live in Postgres — as functions, triggers and cron. The React Native app renders their results.
+live in Postgres — as functions, triggers and cron. So do the Travel Checklist's free cap and its
+Owner-only edit rule. The React Native app renders their results.
 
 Two consequences:
 

@@ -112,6 +112,24 @@ _Avoid_: Skipped feed, overdue meal, and "Missed" as user-facing copy.
 The user-facing label for a Missed Feed — the Occurrence has no Satisfying Feed. It describes the record, not the animal, and it names its own remedy: not logged, so log it. Correcting one is ordinary, not an admission of neglect: a Member logs it whenever they remember, and the Occurrence is then genuinely satisfied.
 _Avoid_: Missed, skipped, overdue, late.
 
+**Travel Checklist**:
+A named list of the things a Household packs when it takes its Pets away — food, bed, leads, a
+teddy. It belongs to the Household, not to a Pet, because a trip usually takes every Pet. It carries
+a name and an optional emoji, and it holds Checklist Items in the order the Owner put them. An Owner
+creates, edits and deletes one; any Member ticks items off and resets the list for the next trip,
+and a tick is shared, so two people packing see the same bag. When every item is ticked the list is
+**All Packed**: the screen says so, with the Pets' names and how long ago, until a Member resets it
+for the next trip. Nothing resets on its own. A free Household has one; more is Pro.
+Reached from the **Travel** tile on Home. What a sitter needs to know is the Care Card; what they
+need to bring is this, and the two never merge.
+_Avoid_: Packing list, to-do, task, trip, itinerary.
+
+**Checklist Item**:
+One line on a Travel Checklist — text, an optional emoji, and an optional Pet Tag saying which Pet
+the thing is for. An item with no tag is for the whole trip. Ticked or not ticked, nothing more: no
+quantity, no photo, no due date.
+_Avoid_: Task, entry, line item.
+
 ## Notifications
 
 **Alert**:
@@ -282,7 +300,7 @@ not a Member at all), and never "Viewer", which was a Member role and is the thi
 
 **Follower**:
 A User whose Follow of a Household has been accepted. They read that Household's Posts and Pet
-Profiles, and they may Like and Comment. They never see Feed Times, Feed Logs, Reminders or the Care
+Profiles, and they may Like and Comment. They never see Feed Times, Feed Logs, Reminders, Travel Checklists or the Care
 Card. They are never a Member, are never counted as a carer, never appear in the Members list, and
 have no screen of their own anywhere in the app — their name appears only beside something they
 wrote.

@@ -108,7 +108,13 @@ const MainButton: FunctionComponent<MainButtonProps> = ({
       {isLoading ? (
         <ActivityIndicator
           size="small"
-          color={variant === 'primary' || variant === 'destructive' ? colors.onPrimary : undefined}
+          color={
+            variant === 'primary'
+              ? colors.onPrimary
+              : variant === 'destructive'
+                ? colors.onError
+                : undefined
+          }
           style={styles.icon}
         />
       ) : (
@@ -217,7 +223,7 @@ const makeStyles = ({ colors }: AppTheme) =>
       color: colors.text
     },
     destructiveLabel: {
-      color: colors.onPrimary
+      color: colors.onError
     },
     textLabel: {
       color: colors.primaryText
