@@ -749,3 +749,20 @@ own `is null` check first, ahead of the comparison.
 The same function had the trimming half-applied: the typed name was trimmed and
 the stored one was not, so a Household whose name carried a trailing space
 passed the screen, failed the RPC, and could not be deleted by anyone.
+
+## A `private` helper called from a policy needs `execute` for `authenticated`
+
+`security definer` covers what the function reads, not who may call it. A policy runs as the
+signed-in role, so a helper it names must be granted to `authenticated`, or every read of the
+table returns 403 with "permission denied for function". `private.checklist_household` shipped
+with only the `revoke` line and the Travel screen showed "Couldn't load this" until the grant was
+added. `slot_states` and `is_household_member` carry the grant; copy that line, not the revoke alone.
+
+**A sheet that returns `null` until it has data cannot be presented on the first tap.** The
+`ItemOptionsTray` rendered nothing while no item was active, so its ref was `null` when the tap that
+set the item also called `present()`. The second tap worked, which is why it passed a quick run. Keep
+a sheet mounted and render an empty body instead.
+
+**The keyboard-aware inset follows focus, not growth.** `KeyboardAwareScrollView` scrolls to the
+focused input once. A list that gains a row on every Return keeps the same input focused, so the
+new rows push it under the keyboard. Scroll to the end in the mutation's `onSuccess`.

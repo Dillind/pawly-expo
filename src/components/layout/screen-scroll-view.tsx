@@ -1,3 +1,4 @@
+import type { RefObject } from 'react';
 import { ScrollView, type ScrollViewProps } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
 
@@ -5,6 +6,7 @@ import ThemedRefreshControl from '@/components/core/themed-refresh-control';
 import { ScreenGutter } from '@/constants/theme';
 
 type Props = ScrollViewProps & {
+  ref?: RefObject<ScrollView | null>;
   onRefresh?: () => void;
   isRefreshing?: boolean;
   // KeyboardProvider is already at the root, so this is the whole opt-in.
@@ -20,7 +22,8 @@ const ScreenScrollView = ({
   isKeyboardAware = false,
   ...rest
 }: Props) => {
-  const Scroller = isKeyboardAware ? KeyboardAwareScrollView : ScrollView;
+  // Both expose scrollTo/scrollToEnd; the keyboard-aware ref type is just narrower.
+  const Scroller = (isKeyboardAware ? KeyboardAwareScrollView : ScrollView) as typeof ScrollView;
 
   return (
     <Scroller

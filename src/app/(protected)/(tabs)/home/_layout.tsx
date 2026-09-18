@@ -138,6 +138,17 @@ export default function HomeLayout() {
           <Stack.Screen.BackButton displayMode="minimal" />
         </Stack.Screen>
 
+        <Stack.Screen name="travel/index" options={{ headerShown: true }}>
+          <Stack.Header transparent />
+          <Stack.Screen.BackButton displayMode="minimal" />
+        </Stack.Screen>
+
+        {/* The title is the checklist's name, so the screen sets it. */}
+        <Stack.Screen name="travel/[checklistId]/index" options={{ headerShown: true }}>
+          <Stack.Header transparent />
+          <Stack.Screen.BackButton displayMode="minimal" />
+        </Stack.Screen>
+
         {/* The title is the pet's name, which only the screen has, so it sets
             its own `Stack.Title`. */}
         <Stack.Screen name="[petId]/index" options={{ headerShown: true }}>
