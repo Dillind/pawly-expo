@@ -4,7 +4,7 @@ import AppText from '@/components/core/app-text';
 import Icon from '@/components/core/icon';
 import PressableOpacity from '@/components/core/pressable-opacity';
 import type { IconName } from '@/constants/icon-map';
-import { Radius, type AppTheme } from '@/constants/theme';
+import { IconSize, Radius, type AppTheme } from '@/constants/theme';
 import { useStyles } from '@/hooks/use-styles';
 
 const ROW_HEIGHT = 44;
@@ -41,7 +41,7 @@ const SettingsRow = ({
 
   const body = (
     <View style={[styles.row, isDisabled && styles.disabled]}>
-      <Icon name={icon} size={18} color={isDestructive ? 'error' : 'textSecondary'} />
+      <Icon name={icon} size={IconSize.control} color={isDestructive ? 'error' : 'textSecondary'} />
       <AppText size={16} color={tone} style={styles.label} numberOfLines={1}>
         {label}
       </AppText>
@@ -61,7 +61,7 @@ const SettingsRow = ({
           )}
           {/* A destructive row acts in place, so a chevron would promise a screen. */}
           {isPressable && !isDestructive && (
-            <Icon name="caretRight" size={16} color="textSecondary" />
+            <Icon name="caretRight" size={IconSize.inline} color="textSecondary" />
           )}
         </>
       )}

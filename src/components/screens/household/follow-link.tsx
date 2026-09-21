@@ -11,7 +11,7 @@ import ScreenScrollView from '@/components/layout/screen-scroll-view';
 import ScreenView from '@/components/layout/screen-view';
 import { SuccessMessage } from '@/constants/enums';
 import { followLink } from '@/constants/follow-link';
-import { BottomTabInset, Radius, ScreenGutter, type AppTheme } from '@/constants/theme';
+import { BottomTabInset, IconSize, Radius, ScreenGutter, type AppTheme } from '@/constants/theme';
 import { useHouseholdById } from '@/hooks/queries/household/use-household-by-id';
 import { useStyles } from '@/hooks/use-styles';
 import { hapticLight } from '@/lib/haptics';
@@ -73,28 +73,28 @@ const FollowLink = ({ householdId }: Props) => {
               <AppText size={14} numberOfLines={1} ellipsizeMode="middle" style={styles.linkText}>
                 {link}
               </AppText>
-              <Icon name="copy" size={18} color="primary" />
+              <Icon name="copy" size={IconSize.control} color="primary" />
             </View>
           </PressableOpacity>
 
           <MainButton
             text="Share link"
             variant="secondary"
-            leftIcon={<Icon name="share" size={18} color="text" />}
+            leftIcon={<Icon name="share" size={IconSize.control} color="text" />}
             onPress={share}
           />
         </ListCard>
 
         <View style={styles.notes}>
           <View style={styles.note}>
-            <Icon name="lock" size={16} color="textSecondary" />
+            <Icon name="lock" size={IconSize.inline} color="textSecondary" />
             <AppText size={13} color="textSecondary" style={styles.noteText}>
               Anyone with the link can ask to follow. You accept each request yourself, so the link
               gives nothing away on its own.
             </AppText>
           </View>
           <View style={styles.note}>
-            <Icon name="hourglass" size={16} color="textSecondary" />
+            <Icon name="hourglass" size={IconSize.inline} color="textSecondary" />
             <AppText size={13} color="textSecondary" style={styles.noteText}>
               It does not expire. An invite code does, because it hands over a seat.
             </AppText>

@@ -152,6 +152,7 @@ export default function HomeLayout() {
         {/* The title is the pet's name, which only the screen has, so it sets
             its own `Stack.Title`. */}
         <Stack.Screen name="[petId]/index" options={{ headerShown: true }}>
+          <Stack.Title style={HeaderTitleStyle}>Pet Details</Stack.Title>
           <Stack.Header transparent />
           <Stack.Screen.BackButton displayMode="minimal" />
         </Stack.Screen>
@@ -178,10 +179,21 @@ export default function HomeLayout() {
           </Stack.Toolbar>
         </Stack.Screen>
 
-        <Stack.Screen name="[petId]/care-card" options={{ headerShown: true }}>
-          <Stack.Header transparent />
-          <Stack.Screen.BackButton displayMode="minimal" />
-        </Stack.Screen>
+        {/* No bar: the destination IS the card, zoomed out of its tile, over a
+            blurred wash of the screen it came from. Presented modally so the
+            wash covers the tab bar, and *transparently* because a
+            `fullScreenModal` leaves nothing behind it -- the blur then has only
+            black to work with and the wash goes flat. The zoom survives a modal
+            presentation; only a link preview navigation requires one. */}
+        <Stack.Screen
+          name="[petId]/care-card"
+          options={{
+            headerShown: false,
+            presentation: 'transparentModal',
+            animation: 'fade',
+            contentStyle: { backgroundColor: 'transparent' }
+          }}
+        />
 
         <Stack.Screen
           name="[petId]/care-card-editor"

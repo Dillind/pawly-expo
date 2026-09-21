@@ -14,7 +14,7 @@ import PressableOpacity from '@/components/core/pressable-opacity';
 import TextInputValidated from '@/components/core/text-input-validated';
 import DayOfWeekPicker from '@/components/ui/day-of-week-picker';
 import { FEEDING_SCHEDULE_LABEL_OPTIONS } from '@/constants/options';
-import { Radius, type AppTheme } from '@/constants/theme';
+import { IconSize, Radius, type AppTheme } from '@/constants/theme';
 import { useStyles } from '@/hooks/use-styles';
 import { EVERY_DAY, feedTimeSchema, type FeedTimeInput } from '@/lib/form/pet-schemas';
 import type { FeedTime } from '@/services/feed-time.service';
@@ -82,7 +82,7 @@ const FeedTimeForm = ({
                   <AppText size={16} style={styles.pickerValue}>
                     {optionLabel(FEEDING_SCHEDULE_LABEL_OPTIONS, value)}
                   </AppText>
-                  <Icon name="caretRight" size={16} color="textSecondary" />
+                  <Icon name="caretRight" size={IconSize.inline} color="textSecondary" />
                 </PressableOpacity>
               </View>
 

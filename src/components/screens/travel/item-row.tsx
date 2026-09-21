@@ -9,7 +9,7 @@ import PressableOpacity from '@/components/core/pressable-opacity';
 import PetAvatar from '@/components/screens/home/pet-avatar';
 import PostChip from '@/components/ui/post-chip';
 import { CHECKLIST_ITEM_MAX } from '@/constants/schemas/travel';
-import { Fonts, Radius, type AppTheme } from '@/constants/theme';
+import { Fonts, IconSize, Radius, type AppTheme } from '@/constants/theme';
 import { useStyles } from '@/hooks/use-styles';
 import { useTheme } from '@/hooks/use-theme';
 import { hapticLight } from '@/lib/haptics';
@@ -44,7 +44,7 @@ const DeleteAction = ({ label, onPress }: { label: string; onPress: () => void }
       accessibilityRole="button"
       accessibilityLabel={label}
       onPress={onPress}>
-      <Icon name="trash" size={20} color="onError" />
+      <Icon name="trash" size={IconSize.action} color="onError" />
     </PressableOpacity>
   );
 };
@@ -101,7 +101,9 @@ const ItemRow = ({
         style={styles.tickTarget}
         onPress={tick}>
         <View style={[styles.tick, item.isTicked && styles.tickOn]}>
-          {item.isTicked && <Icon name="check" size={16} color="onPrimary" strokeWidth={2.6} />}
+          {item.isTicked && (
+            <Icon name="check" size={IconSize.inline} color="onPrimary" strokeWidth={2.6} />
+          )}
         </View>
       </PressableOpacity>
 
@@ -160,7 +162,7 @@ const ItemRow = ({
           accessibilityLabel={`Edit ${item.text}`}
           variant="ghost"
           color="textSecondary"
-          size={18}
+          size={IconSize.control}
           onPress={onOptions}
         />
       )}

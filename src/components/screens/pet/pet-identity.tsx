@@ -1,6 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import type { TrueSheet } from '@lodev09/react-native-true-sheet';
-import { useRouter } from 'expo-router';
+import { Link } from 'expo-router';
 import { useRef } from 'react';
 import { FormProvider, useForm, useFormContext, useWatch } from 'react-hook-form';
 import { ActivityIndicator, StyleSheet, View } from 'react-native';
@@ -18,7 +18,7 @@ import BreedPicker from '@/components/ui/breed-picker';
 import { breedSpeciesFor, petBreedLabel } from '@/constants/breeds';
 import { SEX_OPTIONS } from '@/constants/options';
 import { petDetailsEditSchema, type PetDetailsEditValues } from '@/constants/schemas/pet-details';
-import { Radius, ScreenGutter, type AppTheme } from '@/constants/theme';
+import { IconSize, Radius, ScreenGutter, type AppTheme } from '@/constants/theme';
 import { useChangePetPhoto } from '@/hooks/queries/pet/use-pet-photo-mutations';
 import { useStyles } from '@/hooks/use-styles';
 import { formatAge } from '@/lib/dates';
@@ -64,7 +64,6 @@ type Props = {
 
 const PetIdentity = ({ pet, isOwner }: Props) => {
   const styles = useStyles(makeStyles);
-  const router = useRouter();
   const detailsTrayRef = useRef<TrueSheet | null>(null);
   const photoSheetRef = useRef<TrueSheet | null>(null);
   const { mutate: changePhoto, isPending: isChangingPhoto } = useChangePetPhoto(pet.id);
@@ -139,25 +138,24 @@ const PetIdentity = ({ pet, isOwner }: Props) => {
               {isChangingPhoto ? (
                 <ActivityIndicator />
               ) : (
-                <Icon name="camera" size={20} color="text" />
+                <Icon name="camera" size={IconSize.action} color="text" />
               )}
             </View>
           )}
         </PressableOpacity>
 
-        <CareCardTile
-          petName={pet.name}
-          onPress={() =>
-            router.push({
-              pathname: '/home/[petId]/care-card',
-              params: {
-                petId: pet.id,
-                petName: pet.name,
-                ...(petBreedLabel(pet) ? { petSubtitle: petBreedLabel(pet) as string } : {})
-              }
-            })
-          }
-        />
+        <Link
+          href={{
+            pathname: '/home/[petId]/care-card',
+            params: {
+              petId: pet.id,
+              petName: pet.name,
+              ...(petBreedLabel(pet) ? { petSubtitle: petBreedLabel(pet) as string } : {})
+            }
+          }}
+          asChild>
+          <CareCardTile petName={pet.name} />
+        </Link>
       </View>
 
       <View style={styles.nameRow}>
@@ -169,7 +167,7 @@ const PetIdentity = ({ pet, isOwner }: Props) => {
             name="pencil"
             accessibilityLabel="Edit details"
             variant="ghost"
-            size={20}
+            size={IconSize.action}
             onPress={() => void detailsTrayRef.current?.present()}
           />
         )}

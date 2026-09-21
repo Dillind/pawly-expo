@@ -5,7 +5,8 @@ import AppText from '@/components/core/app-text';
 import Icon from '@/components/core/icon';
 import IconButton from '@/components/core/icon-button';
 import MainButton from '@/components/core/main-button';
-import { Radius, type AppTheme } from '@/constants/theme';
+import { REACHING_YOU_NOTE } from '@/constants/care-card-fields';
+import { IconSize, Radius, type AppTheme } from '@/constants/theme';
 import { useDeleteContact } from '@/hooks/queries/pet/use-care-card-mutations';
 import { useStyles } from '@/hooks/use-styles';
 import { MAX_CARE_CARD_CONTACTS, type CareCardContact } from '@/services/care-card.service';
@@ -39,7 +40,7 @@ const ContactRow = ({
         name="pencil"
         accessibilityLabel={`Edit ${contact.name}`}
         variant="ghost"
-        size={18}
+        size={IconSize.control}
         onPress={onEdit}
       />
       <IconButton
@@ -47,7 +48,7 @@ const ContactRow = ({
         accessibilityLabel={`Remove ${contact.name}`}
         variant="ghost"
         color="error"
-        size={20}
+        size={IconSize.action}
         isDisabled={isBusy}
         onPress={onRemove}
       />
@@ -96,7 +97,7 @@ const ReachingYouStep = ({ petId, contacts, onNext }: Props) => {
     <>
       <View style={styles.step}>
         <AppText color="textSecondary" size={15}>
-          Who a sitter should ring, in the order they should try. Add yourself first.
+          {REACHING_YOU_NOTE}
         </AppText>
 
         {contacts.map((contact) => (
@@ -117,7 +118,7 @@ const ReachingYouStep = ({ petId, contacts, onNext }: Props) => {
           <MainButton
             text="Add contact"
             variant="secondary"
-            leftIcon={<Icon name="plus" size={16} />}
+            leftIcon={<Icon name="plus" size={IconSize.inline} />}
             onPress={() => setEditing({ contact: null })}
           />
         )}

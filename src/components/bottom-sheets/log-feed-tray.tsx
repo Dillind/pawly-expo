@@ -15,7 +15,7 @@ import TextInputValidated from '@/components/core/text-input-validated';
 import Tray, { useTray, type TrayStepDescriptor } from '@/components/core/tray';
 import PetAvatar from '@/components/screens/home/pet-avatar';
 import { newFeedLogSchema, type NewFeedLogFormValues } from '@/constants/schemas/feed-log';
-import { Radius, type AppTheme } from '@/constants/theme';
+import { IconSize, Radius, type AppTheme } from '@/constants/theme';
 import { useOccurrences } from '@/hooks/queries/feeding/use-occurrences';
 import type { useLogFlow } from '@/hooks/use-log-flow';
 import { useStyles } from '@/hooks/use-styles';
@@ -78,7 +78,7 @@ const PetPickerStep = ({
                 {pet.name}
               </AppText>
 
-              {isSelected && <Icon name="check" size={18} color="success" />}
+              {isSelected && <Icon name="check" size={IconSize.control} color="success" />}
             </PressableOpacity>
           );
         })}
@@ -130,7 +130,7 @@ const FeedPickerStep = ({
             </AppText>
           </View>
 
-          <Icon name="caretRight" size={16} color="textSecondary" />
+          <Icon name="caretRight" size={IconSize.inline} color="textSecondary" />
         </PressableOpacity>
       ))}
 
@@ -146,7 +146,7 @@ const FeedPickerStep = ({
           </AppText>
         </View>
 
-        <Icon name="caretRight" size={16} color="textSecondary" />
+        <Icon name="caretRight" size={IconSize.inline} color="textSecondary" />
       </PressableOpacity>
     </View>
   );

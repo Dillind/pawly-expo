@@ -39,14 +39,27 @@ black, never white. A gold _label_ is a separate token, `primaryText` `#8F5A03`,
 4.5:1 where `primary` cannot. In dark mode the two collapse to one value; the call sites still use
 both names, because a call site must not know which mode it is in.
 
-**Gold has exactly four surfaces**: the Home banner wash, the Log chip, the active tab, and the
-primary button. Gold marks what needs doing.
+**Gold has exactly five surfaces**: the Home banner wash, the Log chip, the active tab, the primary
+button, and the front of the Care Card. Gold marks what needs doing — and, in the fifth case, the
+one object the product hands to somebody else.
 
 The fourth was not counted when this ADR was written, and the code has had it all along:
 `main-button.tsx` defaults to `variant = 'primary'`, which is gold. The budget is corrected rather
 than the button, because a primary button is exactly "what needs doing" and every alternative
-demotes the one control a screen is built around. Four is the ceiling. Anything new that wants gold
-takes it from one of these, or does without.
+demotes the one control a screen is built around.
+
+**The fifth is the Care Card front** ([ADR 0042](./0042-the-care-card-is-an-object-not-a-page.md)).
+It is the only surface here that is not an action, and it earns the exception because it is not a
+piece of a screen: it is the artefact, gold because the icon is gold, and a sitter who is handed it
+should recognise the app it came from without being told. It is also the only gold that keeps its
+value in dark mode, for the same reason the splash does — an object does not repaint itself at dusk.
+Its ink is `onPrimary` at full opacity, 8.08:1.
+
+**A muted tint is not a gold surface.** `primaryMuted` is a 14% wash, it carries no label, and it
+reads as a tinted well rather than as gold — the Care Card tile's pawprint well is one. The budget
+counts fills, so tints are not counted against it and do not need this argument.
+
+Five is the ceiling. Anything new that wants gold takes it from one of these, or does without.
 
 **`success` `#10696B` is new**, and marks what is done. The tick used to be `primary`. It could not
 stay, because a gold tick on every logged row would have put gold in fourteen more places and

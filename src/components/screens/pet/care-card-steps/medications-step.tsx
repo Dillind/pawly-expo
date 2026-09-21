@@ -5,7 +5,7 @@ import AppText from '@/components/core/app-text';
 import Icon from '@/components/core/icon';
 import IconButton from '@/components/core/icon-button';
 import MainButton from '@/components/core/main-button';
-import { Radius, type AppTheme } from '@/constants/theme';
+import { IconSize, Radius, type AppTheme } from '@/constants/theme';
 import { useDeleteMedication } from '@/hooks/queries/pet/use-care-card-mutations';
 import { useStyles } from '@/hooks/use-styles';
 import { hasValue } from '@/lib/care-card-view';
@@ -43,7 +43,7 @@ const MedicationRow = ({
         name="pencil"
         accessibilityLabel={`Edit ${medication.name}`}
         variant="ghost"
-        size={18}
+        size={IconSize.control}
         onPress={onEdit}
       />
       <IconButton
@@ -51,7 +51,7 @@ const MedicationRow = ({
         accessibilityLabel={`Remove ${medication.name}`}
         variant="ghost"
         color="error"
-        size={18}
+        size={IconSize.control}
         isDisabled={isBusy}
         onPress={onRemove}
       />
@@ -91,10 +91,6 @@ const MedicationsStep = ({ petId, medications, onBack, onNext }: Props) => {
   return (
     <>
       <View style={styles.list}>
-        <AppText color="textSecondary" size={15}>
-          Anything they take, and how to get it into them.
-        </AppText>
-
         {medications.map((medication) => (
           <MedicationRow
             key={medication.id}
@@ -108,7 +104,7 @@ const MedicationsStep = ({ petId, medications, onBack, onNext }: Props) => {
         <MainButton
           text="Add a medication"
           variant="secondary"
-          leftIcon={<Icon name="plus" size={16} />}
+          leftIcon={<Icon name="plus" size={IconSize.inline} />}
           onPress={() => setEditing({ medication: null })}
         />
       </View>

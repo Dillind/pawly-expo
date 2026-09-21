@@ -1,24 +1,38 @@
-import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
-import { useRef } from 'react';
-import { ActivityIndicator, StyleSheet } from 'react-native';
+import { BlurView } from 'expo-blur';
+import { useLocalSearchParams, useRouter } from 'expo-router';
+import { useRef, useState } from 'react';
+import { ActivityIndicator, StyleSheet, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
-import AppText from '@/components/core/app-text';
-import EmptyState from '@/components/core/empty-state';
-import Icon from '@/components/core/icon';
-import PressableOpacity from '@/components/core/pressable-opacity';
-import ScreenScrollView from '@/components/layout/screen-scroll-view';
-import ScreenView from '@/components/layout/screen-view';
+import IconButton from '@/components/core/icon-button';
+import CardBackFace from '@/components/screens/pet/care-card/card-back-face';
+import CardFrontFace from '@/components/screens/pet/care-card/card-front-face';
 import CareCardHelpSheets, {
   type CareCardHelpHandle
 } from '@/components/screens/pet/care-card/care-card-help-sheets';
-import CareCardSections from '@/components/screens/pet/care-card/care-card-sections';
-import { BottomTabInset, type AppTheme } from '@/constants/theme';
+import CareCardSectionSheet from '@/components/screens/pet/care-card/care-card-section-sheet';
+import CareCardSectionTray from '@/components/screens/pet/care-card/care-card-section-tray';
+import FlipCard from '@/components/screens/pet/care-card/flip-card';
+import { CardInset, CardPalette } from '@/constants/care-card-palette';
+import { IconSize, Radius, type AppTheme } from '@/constants/theme';
 import { useHousehold } from '@/hooks/queries/household/use-household';
 import { useCareCardData } from '@/hooks/queries/pet/use-care-card';
+import { usePetDetail } from '@/hooks/queries/pet/use-pet-detail';
+import { useCareCardSections } from '@/hooks/use-care-card-sections';
 import { useShareCareCard } from '@/hooks/use-share-care-card';
 import { useStyles } from '@/hooks/use-styles';
-import { careCardBlocks } from '@/lib/care-card-view';
+import {
+  careCardBackRows,
+  careCardBlocks,
+  careCardSectionBlock,
+  frontNumbers,
+  type CareCardRow
+} from '@/lib/care-card-view';
 import { deviceTimezone, formatDateWithYear } from '@/lib/dates';
+import { showErrorToast } from '@/lib/toast';
+import { callNumber } from '@/utils/linking';
+
+const BLUR_INTENSITY = 48;
 
 const CareCardScreen = () => {
   const { petId, petName, petSubtitle } = useLocalSearchParams<{
@@ -28,88 +42,152 @@ const CareCardScreen = () => {
   }>();
   const router = useRouter();
   const styles = useStyles(makeStyles);
+
   const helpRef = useRef<CareCardHelpHandle | null>(null);
+  const [isFlipped, setIsFlipped] = useState(false);
 
   const { card, medications, contacts, isLoading } = useCareCardData(petId);
-  const { shareCareCard, isSharing } = useShareCareCard();
+  const { data: pet } = usePetDetail(petId);
   const { data: household } = useHousehold();
+  const { shareCareCard, isSharing } = useShareCareCard();
 
-  const blocks = careCardBlocks(card, medications, contacts);
   const isOwner = household?.isOwner ?? false;
-  // The date is part of the title block, so it must not wait on the household
-  // read to land.
   const timezone = household?.timezone ?? deviceTimezone();
+  const isEmpty = careCardBlocks(card, medications, contacts).length === 0;
+  const { trayRef, sheetRef, openSectionId, openSection, closeSection } =
+    useCareCardSections(isOwner);
+
+  const openEditor = () =>
+    router.push({
+      pathname: '/home/[petId]/care-card-editor',
+      params: { petId, petName, ...(petSubtitle ? { petSubtitle } : {}) }
+    });
+
+  const call = async ({ value }: CareCardRow) => {
+    if (!(await callNumber(value))) showErrorToast('This device cannot make calls');
+  };
 
   return (
-    <ScreenView edges={[]}>
-      {/* The large title IS the page's heading -- drawing both put the same
-          words on the screen twice. */}
-      <Stack.Title large>{`${petName}'s care card`}</Stack.Title>
+    <View style={styles.screen}>
+      <BlurView intensity={BLUR_INTENSITY} tint="dark" style={StyleSheet.absoluteFill} />
+      <View style={[StyleSheet.absoluteFill, styles.wash]} />
 
-      <Stack.Toolbar placement="right">
-        <Stack.Toolbar.Button
-          icon="questionmark.circle"
-          accessibilityLabel="What is a Care Card?"
-          onPress={() => helpRef.current?.openWhatIsIt()}
-        />
-        <Stack.Toolbar.Button
-          icon="square.and.arrow.up"
-          accessibilityLabel="Share the Care Card"
-          disabled={isSharing || blocks.length === 0}
-          onPress={() => void shareCareCard([petId])}
-        />
-        {/* A view holding a Lucide pencil, not a Button: an SF Symbol made one
-            screen use two pencils. `hidden`, not a conditional child -- the
-            toolbar reads its children once and removing one leaves a gap. */}
-        <Stack.Toolbar.View hidden={!isOwner}>
-          <PressableOpacity
-            accessibilityRole="button"
-            accessibilityLabel="Edit the Care Card"
-            hitSlop={12}
-            onPress={() =>
-              router.push({
-                pathname: '/home/[petId]/care-card-editor',
-                params: { petId, petName, ...(petSubtitle ? { petSubtitle } : {}) }
-              })
-            }>
-            <Icon name="pencil" size={20} />
-          </PressableOpacity>
-        </Stack.Toolbar.View>
-      </Stack.Toolbar>
-
-      <ScreenScrollView
-        contentContainerStyle={styles.content}
-        contentInsetAdjustmentBehavior="automatic">
-        {card.updatedAt && (
-          <AppText size={13} color="textSecondary">
-            {`Updated ${formatDateWithYear(new Date(card.updatedAt), timezone)}`}
-          </AppText>
-        )}
-
+      <SafeAreaView style={styles.safe} edges={['top', 'bottom']}>
         {isLoading ? (
-          <ActivityIndicator />
-        ) : blocks.length > 0 ? (
-          <CareCardSections blocks={blocks} />
+          <View style={styles.loading}>
+            <ActivityIndicator />
+          </View>
         ) : (
-          <EmptyState
-            icon="clipboardList"
-            title="Nothing on the card yet"
-            description={`Add what a sitter needs to know about ${petName}, and it is here whenever they open it.`}
-          />
+          <View style={styles.stage}>
+            <FlipCard
+              isFlipped={isFlipped}
+              front={
+                <CardFrontFace
+                  petName={petName}
+                  petSubtitle={petSubtitle ?? null}
+                  photoUrl={pet?.photoUrl ?? null}
+                  numbers={frontNumbers(card, contacts)}
+                  isEmpty={isEmpty}
+                  isOwner={isOwner}
+                  isSharing={isSharing}
+                  onHelp={() => helpRef.current?.openWhatIsIt()}
+                  onShare={() => void shareCareCard([petId])}
+                  onFlip={() => setIsFlipped(true)}
+                  onFill={openEditor}
+                  onCall={(number) => void call(number)}
+                />
+              }
+              back={
+                <CardBackFace
+                  petName={petName}
+                  updatedLabel={
+                    card.updatedAt
+                      ? `Updated ${formatDateWithYear(new Date(card.updatedAt), timezone)}`
+                      : null
+                  }
+                  rows={careCardBackRows(card, medications, contacts)}
+                  isOwner={isOwner}
+                  onFlip={() => setIsFlipped(false)}
+                  onOpenSection={openSection}
+                />
+              }
+            />
+
+            <View style={styles.footer}>
+              <IconButton
+                name="close"
+                accessibilityLabel="Close the Care Card"
+                variant="ghost"
+                color="onGlass"
+                size={IconSize.control}
+                containerStyle={styles.control}
+                onPress={() => router.back()}
+              />
+            </View>
+          </View>
         )}
-      </ScreenScrollView>
+      </SafeAreaView>
+
+      {isOwner ? (
+        <CareCardSectionTray
+          sheetRef={trayRef}
+          petId={petId}
+          card={card}
+          medications={medications}
+          contacts={contacts}
+          initialStepId={openSectionId}
+          onDismiss={closeSection}
+        />
+      ) : (
+        <CareCardSectionSheet
+          sheetRef={sheetRef}
+          block={
+            openSectionId ? careCardSectionBlock(openSectionId, card, medications, contacts) : null
+          }
+          onDismiss={closeSection}
+        />
+      )}
 
       <CareCardHelpSheets ref={helpRef} />
-    </ScreenView>
+    </View>
   );
 };
 
 const makeStyles = ({ spacing }: AppTheme) =>
   StyleSheet.create({
-    content: {
-      flexGrow: 1,
-      gap: spacing.three,
-      paddingBottom: BottomTabInset + spacing.four
+    screen: {
+      flex: 1
+    },
+    wash: {
+      backgroundColor: CardPalette.wash
+    },
+    safe: {
+      flex: 1,
+      paddingHorizontal: CardInset,
+      paddingVertical: spacing.four
+    },
+    loading: {
+      flex: 1,
+      alignItems: 'center',
+      justifyContent: 'center'
+    },
+    stage: {
+      flex: 1,
+      justifyContent: 'center'
+    },
+    footer: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+      paddingTop: spacing.four
+    },
+    control: {
+      width: 38,
+      height: 38,
+      minWidth: 38,
+      minHeight: 38,
+      borderRadius: Radius.full,
+      backgroundColor: CardPalette.control
     }
   });
 

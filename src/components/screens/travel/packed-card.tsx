@@ -3,7 +3,7 @@ import { StyleSheet, View } from 'react-native';
 import AppText from '@/components/core/app-text';
 import Icon from '@/components/core/icon';
 import PressableOpacity from '@/components/core/pressable-opacity';
-import { Radius, type AppTheme } from '@/constants/theme';
+import { IconSize, Radius, type AppTheme } from '@/constants/theme';
 import { useStyles } from '@/hooks/use-styles';
 import { describePackedAge, isPackedStale } from '@/lib/travel-packing';
 
@@ -34,7 +34,7 @@ const PackedCard = ({ packedAt, petNames, isResetting, onReset }: Props) => {
   return (
     <View style={[styles.card, isStale ? styles.cardStale : styles.cardFresh]}>
       <View style={[styles.glyph, isStale ? styles.glyphStale : styles.glyphFresh]}>
-        <Icon name="check" size={20} color={ink} strokeWidth={2.2} />
+        <Icon name="check" size={IconSize.action} color={ink} strokeWidth={2.2} />
       </View>
 
       <View style={styles.text}>
@@ -53,7 +53,7 @@ const PackedCard = ({ packedAt, petNames, isResetting, onReset }: Props) => {
         hitSlop={RESET_HIT_SLOP}
         style={[styles.reset, isStale ? styles.resetStale : styles.resetFresh]}
         onPress={onReset}>
-        <Icon name="refresh" size={16} color={isStale ? 'onPrimary' : 'onSuccess'} />
+        <Icon name="refresh" size={IconSize.inline} color={isStale ? 'onPrimary' : 'onSuccess'} />
         <AppText size={14} fontWeight="bold" color={isStale ? 'onPrimary' : 'onSuccess'}>
           Reset
         </AppText>

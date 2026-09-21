@@ -3,7 +3,7 @@ import { StyleSheet } from 'react-native';
 import AppText from '@/components/core/app-text';
 import Icon from '@/components/core/icon';
 import PressableOpacity from '@/components/core/pressable-opacity';
-import { ScreenGutter, type AppTheme } from '@/constants/theme';
+import { IconSize, ScreenGutter, type AppTheme } from '@/constants/theme';
 import { useStyles } from '@/hooks/use-styles';
 
 type Props = {
@@ -31,7 +31,7 @@ const CommentsLinkRow = ({ count, onPress }: Props) => {
       <AppText size={15} color="primaryText" fontWeight="bold" style={styles.label}>
         {text}
       </AppText>
-      <Icon name="caretRight" size={18} color="primaryText" />
+      <Icon name="caretRight" size={IconSize.control} color="primaryText" />
     </PressableOpacity>
   );
 };

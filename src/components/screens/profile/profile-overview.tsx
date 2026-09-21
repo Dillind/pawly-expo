@@ -16,7 +16,7 @@ import ScreenView from '@/components/layout/screen-view';
 import ProfileStats from '@/components/screens/profile/profile-stats';
 import PostCard from '@/components/ui/post-card';
 import { ROLE_OPTIONS } from '@/constants/options';
-import { BottomTabInset, Radius, ScreenGutter, type AppTheme } from '@/constants/theme';
+import { BottomTabInset, IconSize, Radius, ScreenGutter, type AppTheme } from '@/constants/theme';
 import { useChangeProfilePhoto } from '@/hooks/queries/account/use-change-profile-photo';
 import { useSessionEmail } from '@/hooks/queries/account/use-session-email';
 import { useUserProfile } from '@/hooks/queries/account/use-user-profile';
@@ -99,7 +99,7 @@ const ProfileOverview = () => {
               name="camera"
               accessibilityLabel="Change your profile photo"
               variant="primary"
-              size={18}
+              size={IconSize.control}
               isDisabled={isChangingPhoto}
               onPress={() => void photoSheetRef.current?.present()}
             />
@@ -132,14 +132,14 @@ const ProfileOverview = () => {
           accessibilityLabel="Households you follow"
           onPress={() => router.push('/profile/following')}>
           <View style={styles.householdCard}>
-            <Icon name="users" size={18} color="textSecondary" />
+            <Icon name="users" size={IconSize.control} color="textSecondary" />
             <AppText size={16} numberOfLines={1} style={styles.householdName}>
               Following
             </AppText>
             <AppText size={14} color="textSecondary">
               {following.length}
             </AppText>
-            <Icon name="caretRight" size={16} color="textSecondary" />
+            <Icon name="caretRight" size={IconSize.inline} color="textSecondary" />
           </View>
         </PressableOpacity>
       )}

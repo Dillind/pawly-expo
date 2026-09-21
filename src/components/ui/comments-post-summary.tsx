@@ -6,7 +6,7 @@ import PressableOpacity from '@/components/core/pressable-opacity';
 import UserAvatar from '@/components/core/user-avatar';
 import PostLikers from '@/components/ui/post-likers';
 import { ICON_ACTIVE_OPACITY } from '@/constants/primitives';
-import { ScreenGutter, type AppTheme } from '@/constants/theme';
+import { IconSize, ScreenGutter, type AppTheme } from '@/constants/theme';
 import { useStyles } from '@/hooks/use-styles';
 import { formatRelativeTime } from '@/lib/dates';
 import { hapticLight } from '@/lib/haptics';
@@ -59,7 +59,7 @@ const CommentsPostSummary = ({ post, onToggleLike, onOpenPost }: Props) => {
         <AppText size={20} fontWeight="bold" numberOfLines={2} style={styles.title}>
           {post.title ?? post.caption ?? 'Photo'}
         </AppText>
-        <Icon name="caretRight" size={20} color="textSecondary" />
+        <Icon name="caretRight" size={IconSize.action} color="textSecondary" />
       </PressableOpacity>
 
       <View style={styles.likeRow}>

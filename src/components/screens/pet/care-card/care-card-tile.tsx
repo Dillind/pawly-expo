@@ -3,9 +3,10 @@ import { StyleSheet, View } from 'react-native';
 import AppText from '@/components/core/app-text';
 import Icon from '@/components/core/icon';
 import PressableOpacity from '@/components/core/pressable-opacity';
-import { Radius, type AppTheme } from '@/constants/theme';
+import { IconSize, Radius, type AppTheme } from '@/constants/theme';
 import { useStyles } from '@/hooks/use-styles';
 import { useTheme } from '@/hooks/use-theme';
+import { hapticLight } from '@/lib/haptics';
 import { createShadowMedium } from '@/lib/styles/shadows';
 
 export const TileWidth = 64;
@@ -17,10 +18,9 @@ const LINE_WIDTHS = ['100%', '78%', '56%'] as const;
 
 type Props = {
   petName: string;
-  onPress: () => void;
+  onPress?: () => void;
 };
 
-// Drawn as a card whether the card has content or not: the screen opens either way.
 const CareCardTile = ({ petName, onPress }: Props) => {
   const theme = useTheme();
   const styles = useStyles(makeStyles);
@@ -29,11 +29,14 @@ const CareCardTile = ({ petName, onPress }: Props) => {
     <PressableOpacity
       accessibilityRole="button"
       accessibilityLabel={`${petName}'s care card`}
-      onPress={onPress}>
+      onPress={() => {
+        void hapticLight();
+        onPress?.();
+      }}>
       <View style={styles.column}>
         <View style={[styles.tile, createShadowMedium(theme.colors)]}>
           <View style={styles.well}>
-            <Icon name="pawPrint" size={15} color="text" />
+            <Icon name="pawPrint" size={IconSize.inline} color="primaryText" />
           </View>
 
           <View style={styles.lines}>
@@ -81,7 +84,7 @@ const makeStyles = ({ spacing, colors }: AppTheme) =>
       borderRadius: Radius.full,
       alignItems: 'center',
       justifyContent: 'center',
-      backgroundColor: colors.backgroundSelected
+      backgroundColor: colors.primaryMuted
     }
   });
 

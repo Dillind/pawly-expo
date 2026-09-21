@@ -3,7 +3,7 @@ import { StyleSheet, TextInput, View, type StyleProp, type ViewStyle } from 'rea
 
 import Icon from '@/components/core/icon';
 import PressableOpacity from '@/components/core/pressable-opacity';
-import { InterFontFamily, Radius, type AppTheme } from '@/constants/theme';
+import { IconSize, InterFontFamily, Radius, type AppTheme } from '@/constants/theme';
 import { useDebounce } from '@/hooks/use-debounce';
 import { useStyles } from '@/hooks/use-styles';
 import { useTheme } from '@/hooks/use-theme';
@@ -40,7 +40,7 @@ const SearchBar = ({
 
   return (
     <View style={[styles.field, containerStyle]}>
-      <Icon name="search" size={18} color="textSecondary" />
+      <Icon name="search" size={IconSize.control} color="textSecondary" />
 
       <TextInput
         style={styles.input}
@@ -59,7 +59,7 @@ const SearchBar = ({
           onPress={() => setTerm('')}
           accessibilityRole="button"
           accessibilityLabel="Clear the search">
-          <Icon name="close" size={16} color="textSecondary" />
+          <Icon name="close" size={IconSize.inline} color="textSecondary" />
         </PressableOpacity>
       )}
     </View>

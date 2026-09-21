@@ -20,7 +20,7 @@ import {
   type PostFormValues,
   type PostPhotoValue
 } from '@/constants/schemas/post';
-import { ScreenGutter, type AppTheme } from '@/constants/theme';
+import { IconSize, ScreenGutter, type AppTheme } from '@/constants/theme';
 import { useOccasions } from '@/hooks/queries/posts/use-occasions';
 import { useStyles } from '@/hooks/use-styles';
 import type { PostOccasion } from '@/services/post.service';
@@ -203,14 +203,14 @@ const PostComposer = ({ pets, householdName, householdId, currentOccasion }: Pro
           accessibilityRole="button"
           accessibilityLabel="Tag pets"
           disabled={pets.length === 0}>
-          <Icon name="pawPrint" size={20} color="textSecondary" />
+          <Icon name="pawPrint" size={IconSize.action} color="textSecondary" />
           <AppText size={16} style={styles.rowLabel}>
             Tag pets
           </AppText>
           <AppText size={15} color="textSecondary" numberOfLines={1} style={styles.rowValue}>
             {taggedNames || 'None'}
           </AppText>
-          <Icon name="caretRight" size={18} color="textSecondary" />
+          <Icon name="caretRight" size={IconSize.control} color="textSecondary" />
         </PressableOpacity>
 
         <PressableOpacity
@@ -219,7 +219,7 @@ const PostComposer = ({ pets, householdName, householdId, currentOccasion }: Pro
           accessibilityRole="button"
           accessibilityLabel="Choose an occasion"
           disabled={!householdId}>
-          <Icon name="sparkles" size={20} color="textSecondary" />
+          <Icon name="sparkles" size={IconSize.action} color="textSecondary" />
           <AppText size={16} style={styles.rowLabel}>
             Occasion
           </AppText>
@@ -239,7 +239,7 @@ const PostComposer = ({ pets, householdName, householdId, currentOccasion }: Pro
             </AppText>
           )}
 
-          <Icon name="caretRight" size={18} color="textSecondary" />
+          <Icon name="caretRight" size={IconSize.control} color="textSecondary" />
         </PressableOpacity>
       </View>
 

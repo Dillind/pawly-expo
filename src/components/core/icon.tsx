@@ -1,5 +1,5 @@
 import { iconMap, type IconName } from '@/constants/icon-map';
-import type { ThemeColor } from '@/constants/theme';
+import { IconSize, type ThemeColor } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 
 type Props = {
@@ -10,7 +10,7 @@ type Props = {
   strokeWidth?: number;
 };
 
-const Icon = ({ name, size = 16, color = 'text', fill, strokeWidth }: Props) => {
+const Icon = ({ name, size = IconSize.inline, color = 'text', fill, strokeWidth }: Props) => {
   const theme = useTheme();
   const LucideIcon = iconMap[name];
 

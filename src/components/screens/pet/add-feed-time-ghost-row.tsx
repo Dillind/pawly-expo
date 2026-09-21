@@ -3,7 +3,7 @@ import { StyleSheet, View } from 'react-native';
 import AppText from '@/components/core/app-text';
 import Icon from '@/components/core/icon';
 import PressableOpacity from '@/components/core/pressable-opacity';
-import { Radius, type AppTheme } from '@/constants/theme';
+import { IconSize, Radius, type AppTheme } from '@/constants/theme';
 import { useStyles } from '@/hooks/use-styles';
 
 const WELL_SIZE = 32;
@@ -20,7 +20,7 @@ const AddFeedTimeGhostRow = ({ onPress }: { onPress: () => void }) => {
       accessibilityLabel="Add a feed time"
       onPress={onPress}>
       <View style={styles.well}>
-        <Icon name="plus" size={18} color="text" />
+        <Icon name="plus" size={IconSize.control} color="text" />
       </View>
 
       <AppText size={17}>Add a feed time</AppText>

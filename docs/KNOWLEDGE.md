@@ -766,3 +766,59 @@ a sheet mounted and render an empty body instead.
 **The keyboard-aware inset follows focus, not growth.** `KeyboardAwareScrollView` scrolls to the
 focused input once. A list that gains a row on every Return keeps the same input focused, so the
 new rows push it under the keyboard. Scroll to the end in the mutation's `onSuccess`.
+
+## A Fabric card that turns over needs an opacity switch as well as `backfaceVisibility`
+
+Nothing in `src/` used `rotateY` before CRU-166, and `backfaceVisibility: 'hidden'` has a long
+history of being ignored on Fabric views on iOS. The failure is not a crash: the two faces simply
+draw on top of each other, mirrored, and the card looks like a rendering bug rather than a missing
+style.
+
+`flip-card.tsx` therefore does both. Each face carries `backfaceVisibility: 'hidden'` **and** an
+`opacity`/`zIndex` that flips at the halfway point of the same shared value that drives the
+rotation. Where the native style works the opacity switch is invisible; where it does not, the card
+is still correct. Keep both — dropping the opacity half is the change that will look fine in review
+and wrong on a device.
+
+The second half of the trap is the scroller. The back face is a `ScrollView` inside a parent with a
+live `rotateY`, and its hit-testing is only reliable because the rotation is at rest whenever the
+back is interactive. Do not make the flip interruptible by a drag without re-checking that scroll.
+
+## Apple Zoom hides the screen behind a transparent destination
+
+The Care Card used `Link.AppleZoom` into a `transparentModal` with a `BlurView` backdrop. During
+the zoom iOS covers the source screen with its own dimming, so the blur samples grey. When the zoom
+ends the source comes back and the backdrop jumps. Fading the blur in on `transitionEnd` does not
+fix it. A zoom and a see-through destination do not mix; use `animation: 'fade'`.
+
+## Apple Zoom's dismissal gesture fights any scroller on the destination
+
+`Link.AppleZoom` gives the destination an interactive dismissal — pinch, swipe down at the top of a
+scroll, swipe from the leading edge. The Care Card's back is a scrolling list, and the two read the
+same downward drag. `usePreventZoomTransitionDismissal({ unstable_dismissalBoundsRect: { maxX: 0,
+maxY: 0 } })` fences it off entirely, which is why the card always draws its own round close button.
+
+Two things follow. `withAppleZoom` **throws** unless its trigger is inside a real `Link` — a
+`PressableOpacity` calling `router.push` is not enough, and the error is at render, not at tap. And
+on iOS 16 and 17 none of this exists: the route pushes normally, the hook does nothing, and the
+close button is the only exit. That is the reason it is unconditional.
+
+## `StyleSheet.absoluteFillObject` is not in the React Native 0.86 types
+
+`StyleSheet.absoluteFill` is. Spreading `absoluteFillObject` into a `StyleSheet.create` entry — the
+documented way to add properties to a full-bleed layer — fails typecheck with TS2551. Write the four
+offsets out, or use `absoluteFill` in the style array where nothing needs to be merged.
+
+## Touch injection can fail silently on a whole simulator
+
+On 2026-09-21 argent 0.15.0 could not deliver a single tap to the iPhone 17 Pro Max (iOS 26.5) or
+the iPhone 16 Pro (iOS 18.6) on this machine. Nothing errors: `gesture-tap` returns
+`{ tapped: true }`, `describe` returns a correct tree, and the screen never changes. It is not the
+app — the same taps do nothing in **Settings**, which is the check worth running first, and it costs
+one call.
+
+When that happens, a screen is still verifiable. `open-url` with the app's scheme reaches any route
+with its params (`crumpetapp:///home/<petId>/care-card?petName=…`), and Metro's fast refresh will
+carry a temporary default — a flipped face, a tray presented from a `useEffect` — long enough to
+screenshot it. What cannot be verified that way is anything about the gesture itself, and that has
+to be said plainly rather than implied by a screenshot of the right pixels.

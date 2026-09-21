@@ -11,6 +11,7 @@ Crumpet uses a small, in-repo theme — **no component library and no NativeWind
   variables on web. Both are embedded by the `expo-font` config plugin in `app.config.ts`, so adding
   a face means a prebuild — see KNOWLEDGE.md.
 - **`Spacing`**, plus `BottomTabInset` and `MaxContentWidth`.
+- **`IconSize`** — the only sizes an icon takes. The scale and its roles are in [icons.md](./conventions/icons.md#sizes).
 - **`AppTheme`** — the resolved shape returned by `useTheme()`: `{ colors, isDark, spacing }`.
 
 Current colour tokens (keys are the `ThemeColor` union):

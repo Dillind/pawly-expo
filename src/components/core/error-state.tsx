@@ -3,7 +3,7 @@ import { StyleSheet, View } from 'react-native';
 import AppText from '@/components/core/app-text';
 import Icon from '@/components/core/icon';
 import MainButton from '@/components/core/main-button';
-import type { AppTheme } from '@/constants/theme';
+import { IconSize, type AppTheme } from '@/constants/theme';
 import { useStyles } from '@/hooks/use-styles';
 
 type Props = {
@@ -24,7 +24,7 @@ const ErrorState = ({
 
   return (
     <View style={styles.container}>
-      <Icon name="circleAlert" size={28} color="error" />
+      <Icon name="circleAlert" size={IconSize.feature} color="error" />
       <AppText size={18} fontWeight="bold" align="center">
         {title}
       </AppText>

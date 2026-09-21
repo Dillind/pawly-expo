@@ -11,7 +11,7 @@ import SectionLabel from '@/components/core/section-label';
 import SectionCard from '@/components/screens/pet/section-card';
 import ReminderRow from '@/components/ui/reminder-row';
 import { REMINDERS_HELP } from '@/constants/reminders-help';
-import type { AppTheme } from '@/constants/theme';
+import { IconSize, type AppTheme } from '@/constants/theme';
 import { isTickPending, useTickReminder } from '@/hooks/queries/reminder/use-reminder-mutations';
 import { useUpcomingReminders } from '@/hooks/queries/reminder/use-reminders';
 import { useStyles } from '@/hooks/use-styles';
@@ -52,7 +52,7 @@ const RemindersSection = ({ pet, today }: Props) => {
                 name="info"
                 accessibilityLabel="What is a Reminder?"
                 variant="ghost"
-                size={20}
+                size={IconSize.action}
                 onPress={() => void helpRef.current?.present()}
               />
             }

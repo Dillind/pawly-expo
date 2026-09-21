@@ -57,15 +57,26 @@ type Props = {
   card: CareCard;
   section: CareCardSection;
   isFirst: boolean;
+  // The wizard fires nine of these in a row, so it keeps the toast off. A single
+  // repair from the card's back is one mutation and confirms itself.
+  isSilent?: boolean;
+  nextLabel?: string;
   onBack: () => void;
   onNext: () => void;
 };
 
-const SectionStep = ({ petId, card, section, isFirst, onBack, onNext }: Props) => {
+const SectionStep = ({
+  petId,
+  card,
+  section,
+  isFirst,
+  isSilent = true,
+  nextLabel,
+  onBack,
+  onNext
+}: Props) => {
   const styles = useStyles(makeStyles);
-  const { mutate: upsertCareCard, isPending: isSaving } = useUpsertCareCard(petId, {
-    isSilent: true
-  });
+  const { mutate: upsertCareCard, isPending: isSaving } = useUpsertCareCard(petId, { isSilent });
 
   const form = useForm<CareCardInput>({
     resolver: zodResolver(careCardSchema),
@@ -86,9 +97,11 @@ const SectionStep = ({ petId, card, section, isFirst, onBack, onNext }: Props) =
   return (
     <FormProvider {...form}>
       <View style={styles.fields}>
-        <AppText color="textSecondary" size={15}>
-          {section.blurb}
-        </AppText>
+        {section.note && (
+          <AppText color="textSecondary" size={15}>
+            {section.note}
+          </AppText>
+        )}
 
         {section.fields.map((field) => (
           <FieldInput key={field} field={field} />
@@ -98,6 +111,7 @@ const SectionStep = ({ petId, card, section, isFirst, onBack, onNext }: Props) =
       <StepFooter
         isFirst={isFirst}
         isBusy={isSaving}
+        nextLabel={nextLabel}
         onBack={onBack}
         onNext={() => void onSubmit()}
       />

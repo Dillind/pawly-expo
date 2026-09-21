@@ -13,7 +13,7 @@ import AppText from '@/components/core/app-text';
 import Icon from '@/components/core/icon';
 import IndicatedText from '@/components/core/indicated-text';
 import PressableOpacity from '@/components/core/pressable-opacity';
-import type { AppTheme, ThemeColor } from '@/constants/theme';
+import { IconSize, type AppTheme, type ThemeColor } from '@/constants/theme';
 import { useStyles } from '@/hooks/use-styles';
 import { useTheme } from '@/hooks/use-theme';
 import CharacterCount from '@/lib/form/components/character-count';
@@ -164,7 +164,11 @@ const TextInputValidated = React.forwardRef<TextInputRef, Props>(
             <PressableOpacity
               onPress={() => setIsSecured(!isSecured)}
               style={styles.visibilityIcon}>
-              {isSecured ? <Icon name="eyeOff" size={16} /> : <Icon name="eye" size={16} />}
+              {isSecured ? (
+                <Icon name="eyeOff" size={IconSize.inline} />
+              ) : (
+                <Icon name="eye" size={IconSize.inline} />
+              )}
             </PressableOpacity>
           )}
         </View>

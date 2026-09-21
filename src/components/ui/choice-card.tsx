@@ -4,7 +4,7 @@ import AppText from '@/components/core/app-text';
 import Icon from '@/components/core/icon';
 import PressableOpacity from '@/components/core/pressable-opacity';
 import type { IconName } from '@/constants/icon-map';
-import { Radius, type AppTheme } from '@/constants/theme';
+import { IconSize, Radius, type AppTheme } from '@/constants/theme';
 import { useStyles } from '@/hooks/use-styles';
 
 const TICK = 22;
@@ -30,7 +30,11 @@ const ChoiceCard = ({ icon, label, description, isSelected, onPress }: Props) =>
       accessibilityLabel={`${label}. ${description}`}
       style={[styles.card, isSelected && styles.cardSelected]}
       onPress={onPress}>
-      <Icon name={icon} size={20} color={isSelected ? 'primaryText' : 'textSecondary'} />
+      <Icon
+        name={icon}
+        size={IconSize.action}
+        color={isSelected ? 'primaryText' : 'textSecondary'}
+      />
 
       <View style={styles.body}>
         <AppText size={16} fontWeight="semibold">

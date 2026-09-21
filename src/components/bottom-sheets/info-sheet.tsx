@@ -8,7 +8,7 @@ import Icon from '@/components/core/icon';
 import IconButton from '@/components/core/icon-button';
 import MainButton from '@/components/core/main-button';
 import type { IconName } from '@/constants/icon-map';
-import { Radius, type AppTheme } from '@/constants/theme';
+import { IconSize, Radius, type AppTheme } from '@/constants/theme';
 import { useStyles } from '@/hooks/use-styles';
 
 export type InfoBlock = { kind: 'paragraph' | 'heading'; text: string };
@@ -41,7 +41,7 @@ const InfoSheet = ({ sheetRef, glyph, title, subtitle, body }: Props) => {
             accessibilityLabel="Close"
             variant="ghost"
             color="onPrimary"
-            size={18}
+            size={IconSize.control}
             containerStyle={styles.closeButton}
             onPress={dismiss}
           />

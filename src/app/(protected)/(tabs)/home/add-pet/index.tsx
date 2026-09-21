@@ -23,7 +23,7 @@ import {
   ADD_PET_STEP_COUNT,
   type AddPetFormValues
 } from '@/constants/schemas/add-pet';
-import { Radius, type AppTheme } from '@/constants/theme';
+import { IconSize, Radius, type AppTheme } from '@/constants/theme';
 import { useAddPetExit } from '@/hooks/use-add-pet-exit';
 import { useStyles } from '@/hooks/use-styles';
 import { birthdateFromAge } from '@/lib/dates';
@@ -93,7 +93,7 @@ const AddPetDetails = () => {
           <Image source={{ uri: photoUri }} style={styles.photo} />
         ) : (
           <View style={[styles.photo, styles.photoPlaceholder]}>
-            <Icon name="camera" size={24} color="textSecondary" />
+            <Icon name="camera" size={IconSize.header} color="textSecondary" />
           </View>
         )}
         <View style={styles.photoHint}>

@@ -7,7 +7,7 @@ import AppText from '@/components/core/app-text';
 import Icon from '@/components/core/icon';
 import SettingsRow from '@/components/core/settings-row';
 import SettingsSection from '@/components/core/settings-section';
-import { Radius, type AppTheme } from '@/constants/theme';
+import { IconSize, Radius, type AppTheme } from '@/constants/theme';
 import { useStyles } from '@/hooks/use-styles';
 import { APP_VERSION } from '@/lib/support';
 
@@ -30,10 +30,10 @@ const AboutSheet = ({ sheetRef }: Props) => {
     <BaseSheet sheetRef={sheetRef} detents={['auto', 0.9]} scrollable>
       <View style={styles.portraits}>
         <View style={styles.portrait}>
-          <Icon name="user" size={28} color="textSecondary" />
+          <Icon name="user" size={IconSize.feature} color="textSecondary" />
         </View>
         <View style={[styles.portrait, styles.portraitOverlap]}>
-          <Icon name="pawPrint" size={28} color="textSecondary" />
+          <Icon name="pawPrint" size={IconSize.feature} color="textSecondary" />
         </View>
       </View>
 

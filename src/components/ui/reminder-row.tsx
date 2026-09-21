@@ -13,7 +13,7 @@ import MainButton from '@/components/core/main-button';
 import PressableOpacity from '@/components/core/pressable-opacity';
 import { Curve, Duration } from '@/constants/motion';
 import { REMINDER_KIND_ICON } from '@/constants/options';
-import type { AppTheme } from '@/constants/theme';
+import { IconSize, type AppTheme } from '@/constants/theme';
 import { useStyles } from '@/hooks/use-styles';
 import type { ReminderKind, ReminderOccurrence } from '@/types/core';
 
@@ -74,7 +74,7 @@ const ReminderRow = ({ reminder, dateLabel, isTicking = false, onTick }: Props) 
       <Animated.View style={styles.slot} layout={RowReflow}>
         {isDone ? (
           <Animated.View entering={TickIn}>
-            <Icon name="check" size={20} color="success" />
+            <Icon name="check" size={IconSize.action} color="success" />
           </Animated.View>
         ) : (
           <>

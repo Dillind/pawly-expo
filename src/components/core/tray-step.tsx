@@ -3,7 +3,7 @@ import { StyleSheet, View } from 'react-native';
 
 import AppText from '@/components/core/app-text';
 import IconButton from '@/components/core/icon-button';
-import type { AppTheme } from '@/constants/theme';
+import { IconSize, type AppTheme } from '@/constants/theme';
 import { useStyles } from '@/hooks/use-styles';
 
 type Props = {
@@ -25,7 +25,7 @@ const TrayStep = ({ title, header, isFirst, onBack, onClose, children }: Props) 
           name={isFirst ? 'close' : 'caretLeft'}
           accessibilityLabel={isFirst ? 'Close' : 'Back'}
           variant="ghost"
-          size={20}
+          size={IconSize.action}
           onPress={isFirst ? onClose : onBack}
         />
 

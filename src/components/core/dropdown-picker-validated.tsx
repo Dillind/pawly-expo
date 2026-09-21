@@ -4,7 +4,7 @@ import { Dropdown } from 'react-native-element-dropdown';
 
 import AppText from '@/components/core/app-text';
 import Icon from '@/components/core/icon';
-import type { AppTheme } from '@/constants/theme';
+import { IconSize, type AppTheme } from '@/constants/theme';
 import { useStyles } from '@/hooks/use-styles';
 import FieldError from '@/lib/form/components/field-error';
 import type { Option } from '@/types/core';
@@ -74,7 +74,7 @@ const DropdownPickerValidated = <T extends string>({
         placeholderStyle={styles.placeholderStyle}
         selectedTextStyle={styles.selectedTextStyle}
         containerStyle={styles.dropdownContainer}
-        renderRightIcon={() => <Icon name="caretDown" size={16} />}
+        renderRightIcon={() => <Icon name="caretDown" size={IconSize.inline} />}
         data={options}
         renderItem={(item, isSelected) => (
           <View style={[styles.item, isSelected && styles.itemSelected]}>

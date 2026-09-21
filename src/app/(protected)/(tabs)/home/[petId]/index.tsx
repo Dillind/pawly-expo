@@ -14,7 +14,7 @@ import PetDetailSkeleton from '@/components/screens/pet/pet-detail-skeleton';
 import PetIdentity from '@/components/screens/pet/pet-identity';
 import RemindersSection from '@/components/screens/pet/reminders-section';
 import SectionCard from '@/components/screens/pet/section-card';
-import { BottomTabInset, HeaderTitleStyle, ScreenGutter, type AppTheme } from '@/constants/theme';
+import { BottomTabInset, ScreenGutter, type AppTheme } from '@/constants/theme';
 import { usePetPause } from '@/hooks/queries/feeding/use-pet-pause';
 import { useHousehold } from '@/hooks/queries/household/use-household';
 import { useHouseholdMembers } from '@/hooks/queries/household/use-household-members';
@@ -48,14 +48,9 @@ const PetDetail = () => {
     void detailSheetRef.current?.present();
   };
 
-  // Outside every early return: behind one the bar has no title and falls back
-  // to the route name.
-  const title = <Stack.Title style={HeaderTitleStyle}>{pet?.name ?? ''}</Stack.Title>;
-
   if (!petId || isError) {
     return (
       <ScreenView edges={[]}>
-        {title}
         <ErrorState
           onRetry={() => {
             void refetch();
@@ -68,7 +63,6 @@ const PetDetail = () => {
   if (isLoading || !pet || !timezone || !today) {
     return (
       <ScreenView edges={[]}>
-        {title}
         {/* The loaded screen's scroller: its automatic inset is what clears
             the transparent header, so the skeleton does not jump. */}
         <ScreenScrollView
@@ -83,8 +77,6 @@ const PetDetail = () => {
 
   return (
     <ScreenView edges={[]}>
-      {title}
-
       <Stack.Toolbar placement="right">
         <Stack.Toolbar.Menu
           accessibilityLabel={`Manage ${pet.name}`}

@@ -186,6 +186,15 @@ export const Spacing = {
   six: 64
 } as const;
 
+// An icon is sized by its role. See docs/conventions/icons.md.
+export const IconSize = {
+  inline: 16,
+  control: 18,
+  action: 20,
+  header: 24,
+  feature: 28
+} as const;
+
 export const Radius = {
   tile: 12,
   card: 24,

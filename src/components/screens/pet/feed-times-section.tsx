@@ -13,7 +13,7 @@ import Tray, { useTray, type TrayStepDescriptor } from '@/components/core/tray';
 import AddFeedTimeGhostRow from '@/components/screens/pet/add-feed-time-ghost-row';
 import FeedTimeForm from '@/components/ui/feed-time-form';
 import OccurrenceList from '@/components/ui/occurrence-list';
-import type { AppTheme } from '@/constants/theme';
+import { IconSize, type AppTheme } from '@/constants/theme';
 import { useEndFeedTime, useSaveFeedTime } from '@/hooks/queries/feeding/use-feed-time-mutations';
 import { useFeedTimes } from '@/hooks/queries/feeding/use-feed-times';
 import { useOccurrences } from '@/hooks/queries/feeding/use-occurrences';
@@ -228,7 +228,7 @@ const FeedTimesSection = ({
                 name="pencil"
                 accessibilityLabel="Edit feed times"
                 variant="ghost"
-                size={20}
+                size={IconSize.action}
                 onPress={() => openTray('list')}
               />
               <IconButton

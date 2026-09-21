@@ -12,7 +12,7 @@ import PetAvatar from '@/components/core/pet-avatar';
 import PressableOpacity from '@/components/core/pressable-opacity';
 import SectionLabel from '@/components/core/section-label';
 import ScrollScreen from '@/components/layout/scroll-screen';
-import { Radius, ScreenGutter, type AppTheme } from '@/constants/theme';
+import { IconSize, Radius, ScreenGutter, type AppTheme } from '@/constants/theme';
 import {
   useFollowPreview,
   useRequestFollow,
@@ -68,7 +68,7 @@ const FollowHousehold = ({ householdId }: Props) => {
             </AppText>
           )}
         </View>
-        {isAccepted && <Icon name="caretRight" size={16} color="textSecondary" />}
+        {isAccepted && <Icon name="caretRight" size={IconSize.inline} color="textSecondary" />}
       </View>
     );
 
@@ -220,7 +220,7 @@ const FollowHousehold = ({ householdId }: Props) => {
           ) : (
             <View style={styles.locked}>
               <View style={styles.lockCircle}>
-                <Icon name="lock" size={20} color="textSecondary" />
+                <Icon name="lock" size={IconSize.action} color="textSecondary" />
               </View>
               <AppText size={16} fontWeight="bold" align="center">
                 This household is private

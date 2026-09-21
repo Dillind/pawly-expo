@@ -7,7 +7,7 @@ import Icon from '@/components/core/icon';
 import MainButton from '@/components/core/main-button';
 import PressableOpacity from '@/components/core/pressable-opacity';
 import type { IconName } from '@/constants/icon-map';
-import { Radius, type AppTheme } from '@/constants/theme';
+import { IconSize, Radius, type AppTheme } from '@/constants/theme';
 import { useFollowedHouseholdIds } from '@/hooks/queries/follow/use-follows';
 import { useStyles } from '@/hooks/use-styles';
 import { createShadowMedium } from '@/lib/styles/shadows';
@@ -38,7 +38,11 @@ const Door = ({ icon, isPrimaryDoor, title, description, hasSteps, action }: Doo
     <View style={styles.door}>
       <View style={styles.doorHeading}>
         <View style={[styles.tile, isPrimaryDoor && styles.tilePrimary]}>
-          <Icon name={icon} size={20} color={isPrimaryDoor ? 'primaryText' : 'textSecondary'} />
+          <Icon
+            name={icon}
+            size={IconSize.action}
+            color={isPrimaryDoor ? 'primaryText' : 'textSecondary'}
+          />
         </View>
         <AppText variant="header" size={19}>
           {title}
@@ -118,7 +122,7 @@ const NoHouseholdState = () => {
           accessibilityLabel="Households you follow"
           onPress={() => router.push('/profile/following')}>
           <View style={styles.followCard}>
-            <Icon name="users" size={18} color="textSecondary" />
+            <Icon name="users" size={IconSize.control} color="textSecondary" />
             <View style={styles.followText}>
               <AppText size={16} numberOfLines={1}>
                 You follow {countDigits(followedCount, 'household')}
@@ -127,7 +131,7 @@ const NoHouseholdState = () => {
                 Their posts are on the Posts tab.
               </AppText>
             </View>
-            <Icon name="caretRight" size={16} color="textSecondary" />
+            <Icon name="caretRight" size={IconSize.inline} color="textSecondary" />
           </View>
         </PressableOpacity>
       )}

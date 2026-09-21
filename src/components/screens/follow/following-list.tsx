@@ -9,7 +9,7 @@ import Icon from '@/components/core/icon';
 import PressableOpacity from '@/components/core/pressable-opacity';
 import SettingsSection from '@/components/core/settings-section';
 import ScrollScreen from '@/components/layout/scroll-screen';
-import { BottomTabInset, Spacing, type AppTheme } from '@/constants/theme';
+import { BottomTabInset, IconSize, Spacing, type AppTheme } from '@/constants/theme';
 import { useFollowing } from '@/hooks/queries/follow/use-follows';
 import { useStyles } from '@/hooks/use-styles';
 import { countText } from '@/utils/counts';
@@ -66,7 +66,7 @@ const FollowingList = () => {
                 </AppText>
               </View>
               {household.status === 'accepted' && (
-                <Icon name="caretRight" size={16} color="textSecondary" />
+                <Icon name="caretRight" size={IconSize.inline} color="textSecondary" />
               )}
             </View>
           </PressableOpacity>
