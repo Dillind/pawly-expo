@@ -13,7 +13,7 @@ import AppText from '@/components/core/app-text';
 import Icon from '@/components/core/icon';
 import IndicatedText from '@/components/core/indicated-text';
 import PressableOpacity from '@/components/core/pressable-opacity';
-import { IconSize, type AppTheme, type ThemeColor } from '@/constants/theme';
+import { IconSize, MaxFontScale, type AppTheme, type ThemeColor } from '@/constants/theme';
 import { useStyles } from '@/hooks/use-styles';
 import { useTheme } from '@/hooks/use-theme';
 import CharacterCount from '@/lib/form/components/character-count';
@@ -111,6 +111,7 @@ const TextInputValidated = React.forwardRef<TextInputRef, Props>(
     const input = (
       <View style={styles.inputHost}>
         <TextInput
+          maxFontSizeMultiplier={MaxFontScale.body}
           ref={ref}
           defaultValue={value}
           onChangeText={onChangeText}

@@ -14,6 +14,7 @@ import FieldError from '@/lib/form/components/field-error';
 import { hapticSelection } from '@/lib/haptics';
 
 import AppText from './app-text';
+import IndicatedText from './indicated-text';
 import PressableOpacity from './pressable-opacity';
 
 type Option<T> = {
@@ -23,10 +24,11 @@ type Option<T> = {
 
 type Props<T extends string> = {
   label?: string;
+  isLabelIndicated?: boolean;
   // Without it the control cannot render its own error.
   name?: string;
   options: Option<T>[];
-  value: T;
+  value: T | null;
   onChange: (value: T) => void;
 };
 
@@ -42,6 +44,7 @@ const ThumbSpring = {
 
 const SegmentedControl = <T extends string>({
   label,
+  isLabelIndicated = false,
   name,
   options,
   value,
@@ -96,7 +99,9 @@ const SegmentedControl = <T extends string>({
 
   return (
     <View style={styles.container}>
-      {label ? (
+      {label && isLabelIndicated ? (
+        <IndicatedText text={label} size={14} fontWeight="bold" />
+      ) : label ? (
         <AppText size={14} fontWeight="bold">
           {label}
         </AppText>
@@ -119,6 +124,9 @@ const SegmentedControl = <T extends string>({
               <AppText
                 size={14}
                 align="center"
+                numberOfLines={1}
+                adjustsFontSizeToFit
+                minimumFontScale={0.7}
                 fontWeight={isSelected ? 'bold' : 'regular'}
                 color={isSelected ? 'text' : 'textSecondary'}>
                 {option.label}

@@ -144,8 +144,7 @@ locked down precisely because that leaked into component code once already.
 - **The SQL.** `slot_states`, `log_feed`, the Grace Window arithmetic and the missed-feed sweep are
   the real logic of this app and they live in Postgres. Jest cannot reach any of it. That wants
   pgTAP against a local `supabase db reset`.
-- **Anything native.** TrueSheet, the SwiftUI picker in `dropdown-picker-validated.ios.tsx`, native
-  tabs. Jest renders mocks. A test that calls `onValueChange` on a mocked `Switch` passes happily
+- **Anything native.** TrueSheet and native tabs. Jest renders mocks. A test that calls `onValueChange` on a mocked `Switch` passes happily
   while the real control is dead on device — which is exactly the state of the Feed Logged Alerts
   toggle. Verify native surfaces on a device with Argent, not in Jest.
 
@@ -338,7 +337,7 @@ holding two mutations otherwise has two fields with the same name. Queries follo
 Four different things, four different surfaces. Do not mix them up.
 
 - **Form validation → inline.** Zod/react-hook-form errors render under the offending field. The
-  validated inputs (`TextInputValidated`, `DropdownPickerValidated`, `DateTimePickerValidated`) do
+  validated inputs (`TextInputValidated`, `SegmentedControl`, `DateTimePickerValidated`) do
   this themselves via `useFormContext` — but only when the input is given a **`name`** prop. An
   input without `name` silently cannot show its own error.
 - **API failure → toast.** Network dropped, RLS denied the write, Postgres threw. Not attributable

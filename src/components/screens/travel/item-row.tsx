@@ -9,7 +9,7 @@ import PressableOpacity from '@/components/core/pressable-opacity';
 import PetAvatar from '@/components/screens/home/pet-avatar';
 import PostChip from '@/components/ui/post-chip';
 import { CHECKLIST_ITEM_MAX } from '@/constants/schemas/travel';
-import { Fonts, IconSize, Radius, type AppTheme } from '@/constants/theme';
+import { Fonts, IconSize, MaxFontScale, Radius, type AppTheme } from '@/constants/theme';
 import { useStyles } from '@/hooks/use-styles';
 import { useTheme } from '@/hooks/use-theme';
 import { hapticLight } from '@/lib/haptics';
@@ -122,6 +122,7 @@ const ItemRow = ({
 
       {isEditing ? (
         <TextInput
+          maxFontSizeMultiplier={MaxFontScale.body}
           value={draft}
           onChangeText={setDraft}
           onBlur={commit}

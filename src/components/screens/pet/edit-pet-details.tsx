@@ -3,7 +3,6 @@ import { StyleSheet, View } from 'react-native';
 
 import BreedField from '@/components/core/breed-field';
 import DateTimePickerValidated from '@/components/core/date-time-picker-validated';
-import DropdownPickerValidated from '@/components/core/dropdown-picker-validated';
 import MainButton from '@/components/core/main-button';
 import SegmentedControl from '@/components/core/segmented-control';
 import TextInputValidated from '@/components/core/text-input-validated';
@@ -120,12 +119,12 @@ const EditPetDetails = ({ petId, details, onDone }: Props) => {
         control={control}
         name="sex"
         render={({ field: { onChange, value } }) => (
-          <DropdownPickerValidated
+          <SegmentedControl
             name="sex"
             label="Sex"
             isLabelIndicated
             options={SEX_OPTIONS}
-            value={value ?? ''}
+            value={value}
             onChange={onChange}
           />
         )}

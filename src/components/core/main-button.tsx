@@ -13,7 +13,7 @@ import {
 import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 
 import { APP_ACTIVE_OPACITY } from '@/constants/primitives';
-import type { AppTheme } from '@/constants/theme';
+import { MaxFontScale, type AppTheme } from '@/constants/theme';
 import { useStyles } from '@/hooks/use-styles';
 import { useTheme } from '@/hooks/use-theme';
 import { hapticLight } from '@/lib/haptics';
@@ -121,6 +121,7 @@ const MainButton: FunctionComponent<MainButtonProps> = ({
         leftIcon && <View style={styles.icon}>{leftIcon}</View>
       )}
       <Text
+        maxFontSizeMultiplier={MaxFontScale.body}
         style={[
           styles.label,
           styles[`${labelVariant}Label`],

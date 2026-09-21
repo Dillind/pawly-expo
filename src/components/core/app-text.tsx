@@ -1,7 +1,7 @@
 import React from 'react';
 import { StyleProp, Text, TextStyle } from 'react-native';
 
-import { Fonts, ThemeColor } from '@/constants/theme';
+import { Fonts, MaxFontScale, ThemeColor } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { FontVariant, FontWeight } from '@/types/core';
 import { isAndroid } from '@/utils/platform';
@@ -16,6 +16,8 @@ type Props = {
   style?: StyleProp<TextStyle>;
   ellipsizeMode?: 'clip' | 'middle' | 'head' | 'tail';
   numberOfLines?: number;
+  adjustsFontSizeToFit?: boolean;
+  minimumFontScale?: number;
   onPress?: () => void;
 };
 
@@ -43,6 +45,8 @@ const AppText = ({
   style,
   ellipsizeMode,
   numberOfLines,
+  adjustsFontSizeToFit,
+  minimumFontScale,
   onPress
 }: Props) => {
   const theme = useTheme();
@@ -52,6 +56,7 @@ const AppText = ({
   };
 
   const fontSize = size ?? getDefaultFontSize();
+  const maxFontSizeMultiplier = variant === 'header' ? MaxFontScale.header : MaxFontScale.body;
 
   return (
     <Text
@@ -68,7 +73,10 @@ const AppText = ({
         style
       ]}
       ellipsizeMode={ellipsizeMode}
-      numberOfLines={numberOfLines}>
+      numberOfLines={numberOfLines}
+      adjustsFontSizeToFit={adjustsFontSizeToFit}
+      minimumFontScale={minimumFontScale}
+      maxFontSizeMultiplier={maxFontSizeMultiplier}>
       {children}
     </Text>
   );
