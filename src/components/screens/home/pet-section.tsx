@@ -19,11 +19,13 @@ import IconButton from '@/components/core/icon-button';
 import MainButton from '@/components/core/main-button';
 import PressableOpacity from '@/components/core/pressable-opacity';
 import PetAvatar from '@/components/screens/home/pet-avatar';
+import AdditionalLogs from '@/components/ui/additional-logs';
 import OccurrenceList from '@/components/ui/occurrence-list';
 import ReminderRow from '@/components/ui/reminder-row';
 import { IconSize, Radius, type AppTheme } from '@/constants/theme';
 import { useFeedTimes } from '@/hooks/queries/feeding/use-feed-times';
 import { useOccurrences } from '@/hooks/queries/feeding/use-occurrences';
+import { useOffScheduleLogs } from '@/hooks/queries/feeding/use-off-schedule-logs';
 import { usePetPause } from '@/hooks/queries/feeding/use-pet-pause';
 import { isTickPending, useTickReminder } from '@/hooks/queries/reminder/use-reminder-mutations';
 import { useReminders } from '@/hooks/queries/reminder/use-reminders';
@@ -73,6 +75,7 @@ const PetSection = ({
   const { data: pause } = usePetPause(pet.id, day);
   const { data: feedTimes } = useFeedTimes(pet.id);
   const { data: reminders = [] } = useReminders(pet.id, day);
+  const { data: offScheduleLogs = [] } = useOffScheduleLogs(pet.id, day, timezone);
   const { mutate: tickReminder, isPending: isTicking, variables: tickingInput } = useTickReminder();
   const reminderTrayRef = useRef<TrueSheet | null>(null);
   const isPaused = Boolean(pause);
@@ -126,6 +129,17 @@ const PetSection = ({
           </PressableOpacity>
 
           {isAllLogged && <Icon name="check" size={IconSize.action} color="success" />}
+
+          {/* The tray writes against now, so it is not offered on another day. */}
+          {isToday && !isPaused && (
+            <IconButton
+              name="plus"
+              accessibilityLabel={`Log something else for ${pet.name}`}
+              variant="ghost"
+              size={IconSize.control}
+              onPress={onLogPress}
+            />
+          )}
 
           <Animated.View style={caretStyle}>
             <IconButton
@@ -190,6 +204,13 @@ const PetSection = ({
                 </View>
               )}
 
+              <AdditionalLogs
+                logs={offScheduleLogs}
+                timezone={timezone}
+                members={members}
+                onOpenLog={onOpenLog}
+              />
+
               {!isPaused &&
                 reminders.map((reminder) => (
                   <ReminderRow
@@ -213,20 +234,6 @@ const PetSection = ({
                     }
                   />
                 ))}
-
-              {/* The tray writes against now, so it is not offered on another day. */}
-              {isToday && !isPaused && (
-                <PressableOpacity
-                  style={styles.other}
-                  accessibilityRole="button"
-                  accessibilityLabel={`Log something else for ${pet.name}`}
-                  onPress={onLogPress}>
-                  <Icon name="plus" size={17} color="textSecondary" />
-                  <AppText size={15} color="textSecondary">
-                    Other
-                  </AppText>
-                </PressableOpacity>
-              )}
 
               {isToday && !isPaused && (
                 <MainButton
@@ -260,19 +267,6 @@ const makeStyles = ({ colors, spacing }: AppTheme) =>
     empty: {
       gap: spacing.two,
       paddingTop: spacing.three
-    },
-    // Dashed, never filled: it must not read as loud as a Log chip.
-    other: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      gap: spacing.two,
-      height: 44,
-      marginTop: spacing.one,
-      paddingHorizontal: spacing.two,
-      borderWidth: 1.5,
-      borderStyle: 'dashed',
-      borderColor: colors.ghostBorder,
-      borderRadius: 14
     },
     headerRow: {
       flexDirection: 'row',

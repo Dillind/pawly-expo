@@ -1,3 +1,4 @@
+import { dayInTimezone, shiftDays } from '@/lib/dates';
 import { assertWrote } from '@/lib/supabase/assert-wrote';
 import { supabase } from '@/lib/supabase/client';
 import type { FeedingScheduleLabel, FeedLog } from '@/types/core';
@@ -86,6 +87,27 @@ namespace FeedLogService {
     if (error) throw error;
 
     return mapFeedLogRow(data as unknown as FeedLogRow);
+  }
+
+  export async function getOffScheduleForDay(
+    petId: string,
+    day: string,
+    timezone: string
+  ): Promise<FeedLog[]> {
+    const { data, error } = await supabase
+      .from('feed_logs')
+      .select(FEED_LOG_SELECT)
+      .eq('pet_id', petId)
+      .is('feed_time_series_id', null)
+      .gte('logged_at', `${shiftDays(day, -1)}T00:00:00Z`)
+      .lt('logged_at', `${shiftDays(day, 2)}T00:00:00Z`)
+      .order('logged_at', { ascending: true });
+
+    if (error) throw error;
+
+    return (data as unknown as FeedLogRow[])
+      .map(mapFeedLogRow)
+      .filter((log) => dayInTimezone(log.loggedAt, timezone) === day);
   }
 
   // The only write path for a feed log: the check and the insert share one
