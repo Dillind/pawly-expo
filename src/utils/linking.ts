@@ -16,3 +16,14 @@ export const openExternalURL = async (url: string): Promise<boolean> => {
     return false;
   }
 };
+
+// Opens the dialler directly: `canOpenURL` reports false for `tel:` unless the
+// scheme is listed in LSApplicationQueriesSchemes, and it is not.
+export const callNumber = async (phone: string): Promise<boolean> => {
+  try {
+    await Linking.openURL(`tel:${phone.replace(/[^\d+]/g, '')}`);
+    return true;
+  } catch {
+    return false;
+  }
+};

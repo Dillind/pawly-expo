@@ -15,6 +15,13 @@ zoom ends. No timing on our side removes that. The route is now a `transparentMo
 `animation: 'fade'`, and the card springs from 0.92 scale into place. The sections below about
 `Link.AppleZoom`, its dismissal and iOS 16/17 describe the first build, not the current one.
 
+**Amended 2026-09-21: the front names people, the back is the app's own surface.** The front shows
+the first two Reaching-you contacts, each tappable to call, and falls back to a vet only when there
+are none: the people a sitter should try are the first call, and the vet is one flip away. The back
+is white with the app's own ink (`#1C1815`, `#746A60`), because a cream used nowhere else in the app
+read as a different product. A member who is not an owner can open every section too, in a
+read-only sheet; the database already refused their writes, so this is about reading, not access.
+
 ## Context
 
 CRU-055 built the Care Card as an ordinary pushed screen: a large title, a `Stack.Toolbar`, and the

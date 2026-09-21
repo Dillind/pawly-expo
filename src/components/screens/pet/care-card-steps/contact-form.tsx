@@ -2,7 +2,6 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { Controller, FormProvider, useForm, useWatch, type Control } from 'react-hook-form';
 import { StyleSheet, View } from 'react-native';
 
-import AppText from '@/components/core/app-text';
 import TextInputValidated from '@/components/core/text-input-validated';
 import type { AppTheme } from '@/constants/theme';
 import { useUpsertContact } from '@/hooks/queries/pet/use-care-card-mutations';
@@ -77,10 +76,6 @@ const ContactForm = ({ petId, contact, onDone }: Props) => {
   return (
     <FormProvider {...form}>
       <View style={styles.fields}>
-        <AppText color="textSecondary" size={15}>
-          Someone a sitter can ring when they cannot get hold of you.
-        </AppText>
-
         {CONTACT_FIELDS.map((field) => (
           <ContactFieldInput key={field.name} control={form.control} field={field} />
         ))}

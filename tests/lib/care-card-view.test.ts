@@ -2,8 +2,9 @@ import { emptyCareCard } from '@/constants/care-card-fields';
 import {
   careCardBackRows,
   careCardBlocks,
-  emergencyNumber,
-  firstStepForSection
+  careCardSectionBlock,
+  firstStepForSection,
+  frontNumbers
 } from '@/lib/care-card-view';
 import type { CareCard, CareCardContact, Medication } from '@/services/care-card.service';
 
@@ -136,26 +137,77 @@ describe('careCardBackRows', () => {
   });
 });
 
-describe('emergencyNumber', () => {
-  it('prefers the emergency vet, then the vet, then the first contact with a number', () => {
-    expect(
-      emergencyNumber(
-        card({ emergencyVetName: 'Melbourne AE', emergencyVetPhone: '03 9370 5555' }),
-        [contact()]
-      )
-    ).toEqual({ label: 'Melbourne AE', value: '03 9370 5555' });
+describe('frontNumbers', () => {
+  const vets = card({
+    vetName: 'Fitzroy Vet',
+    vetPhone: '03 9482 1234',
+    emergencyVetName: 'Melbourne AE',
+    emergencyVetPhone: '03 9370 5555'
+  });
 
-    expect(emergencyNumber(card({ vetPhone: '03 9482 1234' }), [contact()])).toEqual({
-      label: 'Vet',
-      value: '03 9482 1234'
+  it('shows the first two contacts with a number, ahead of any vet', () => {
+    const numbers = frontNumbers(vets, [
+      contact({ id: 'a', name: 'Dylan', phone: null }),
+      contact({ id: 'b', name: 'Lisa' }),
+      contact({ id: 'c', name: 'Priya' }),
+      contact({ id: 'd', name: 'Sam' })
+    ]);
+
+    expect(numbers.map((row) => row.label)).toEqual(['Lisa', 'Priya']);
+  });
+
+  it('falls back to the emergency vet, then the vet', () => {
+    expect(frontNumbers(vets, [])).toEqual([
+      { id: 'emergencyVet', label: 'Melbourne AE', value: '03 9370 5555' }
+    ]);
+    expect(frontNumbers(card({ vetPhone: '03 9482 1234' }), [])).toEqual([
+      { id: 'vet', label: 'Vet', value: '03 9482 1234' }
+    ]);
+  });
+
+  it('is empty when there is nobody to ring', () => {
+    expect(frontNumbers(card(), [contact({ phone: null })])).toEqual([]);
+  });
+});
+
+describe('careCardSectionBlock', () => {
+  it('holds every contact for Reaching you', () => {
+    const block = careCardSectionBlock('reaching-you', card(), [], [contact()]);
+
+    expect(block).toMatchObject({
+      kind: 'fields',
+      title: 'Reaching you',
+      rows: [{ label: 'Priya next door', value: '0433 221 100' }]
     });
+  });
 
-    expect(emergencyNumber(card(), [contact()])).toEqual({
-      label: 'Priya next door',
-      value: '0433 221 100'
-    });
+  it('holds the vet fields for If something goes wrong, without the contacts', () => {
+    const block = careCardSectionBlock(
+      'emergency',
+      card({ vetName: 'Fitzroy Vet' }),
+      [],
+      [contact()]
+    );
 
-    expect(emergencyNumber(card(), [])).toBeNull();
+    expect(block).toMatchObject({ rows: [{ id: 'vetName', value: 'Fitzroy Vet' }] });
+  });
+
+  it('holds the full text of a long answer', () => {
+    const allergies = 'Chicken. '.repeat(40);
+    const block = careCardSectionBlock('watch-for', card({ allergies }), [], []);
+
+    expect(block).toMatchObject({ rows: [{ value: allergies }] });
+  });
+
+  it('holds medications', () => {
+    const block = careCardSectionBlock('medications', card(), [medication()], []);
+
+    expect(block).toMatchObject({ kind: 'medications', items: [{ name: 'Apoquel' }] });
+  });
+
+  it('is null for a step that is not a section', () => {
+    expect(careCardSectionBlock('review', card(), [], [])).toBeNull();
+    expect(careCardSectionBlock('nope', card(), [], [])).toBeNull();
   });
 });
 

@@ -3,10 +3,10 @@ import { StyleSheet, View } from 'react-native';
 
 import AppText from '@/components/core/app-text';
 import CrumpetMark from '@/components/core/crumpet-mark';
-import Icon from '@/components/core/icon';
 import IconButton from '@/components/core/icon-button';
 import MainButton from '@/components/core/main-button';
 import PetAvatar from '@/components/core/pet-avatar';
+import CardNumber from '@/components/screens/pet/care-card/card-number';
 import CardRim from '@/components/screens/pet/care-card/card-rim';
 import CardSweep from '@/components/screens/pet/care-card/card-sweep';
 import {
@@ -21,18 +21,21 @@ import {
 } from '@/constants/care-card-palette';
 import { Radius, type AppTheme } from '@/constants/theme';
 import { useStyles } from '@/hooks/use-styles';
+import type { CareCardRow } from '@/lib/care-card-view';
 
 type Props = {
   petName: string;
   petSubtitle: string | null;
   photoUrl: string | null;
-  emergency: { label: string; value: string } | null;
+  numbers: CareCardRow[];
   isEmpty: boolean;
+  isOwner: boolean;
   isSharing: boolean;
   onHelp: () => void;
   onShare: () => void;
   onFlip: () => void;
   onFill: () => void;
+  onCall: (number: CareCardRow) => void;
 };
 
 // Ink is full-opacity `onGold` throughout. Hierarchy is size and weight only --
@@ -41,13 +44,15 @@ const CardFrontFace = ({
   petName,
   petSubtitle,
   photoUrl,
-  emergency,
+  numbers,
   isEmpty,
+  isOwner,
   isSharing,
   onHelp,
   onShare,
   onFlip,
-  onFill
+  onFill,
+  onCall
 }: Props) => {
   const styles = useStyles(makeStyles);
 
@@ -116,33 +121,31 @@ const CardFrontFace = ({
             </AppText>
           )}
 
-          {!isEmpty && emergency && (
-            <View style={styles.emergency}>
-              <AppText
-                size={11}
-                fontWeight="bold"
-                align="center"
-                style={[styles.ink, styles.label]}>
-                {emergency.label}
-              </AppText>
-              <View style={styles.number}>
-                <Icon name="phone" size={17} color="onPrimary" />
-                <AppText size={21} fontWeight="bold" style={styles.ink}>
-                  {emergency.value}
-                </AppText>
-              </View>
+          {numbers.length > 0 && (
+            <View style={styles.numbers}>
+              {numbers.map((number) => (
+                <CardNumber key={number.id} number={number} onCall={onCall} />
+              ))}
             </View>
           )}
         </View>
 
-        {isEmpty ? (
+        {isEmpty && isOwner && (
           <MainButton
             text="Fill in the card"
             variant="secondary"
             containerStyle={styles.fill}
             onPress={onFill}
           />
-        ) : (
+        )}
+
+        {isEmpty && !isOwner && (
+          <AppText size={14} fontWeight="semibold" align="center" style={styles.ink}>
+            Not filled in yet
+          </AppText>
+        )}
+
+        {!isEmpty && (
           <IconButton
             name="turnOver"
             accessibilityLabel="Turn the card over"
@@ -170,12 +173,6 @@ const makeStyles = ({ spacing }: AppTheme) =>
     },
     ink: {
       color: CardPalette.onGold
-    },
-    // The one place the card shouts. Letter-spaced small caps, the way a
-    // membership number is set on a real card.
-    label: {
-      letterSpacing: 1.1,
-      textTransform: 'uppercase'
     },
     top: {
       flexDirection: 'row',
@@ -209,18 +206,13 @@ const makeStyles = ({ spacing }: AppTheme) =>
       borderColor: CardPalette.ring,
       marginBottom: spacing.three
     },
-    emergency: {
-      alignItems: 'center',
-      gap: spacing.half,
+    numbers: {
+      alignSelf: 'stretch',
+      flexDirection: 'row',
+      justifyContent: 'center',
+      gap: spacing.five,
       marginTop: spacing.four
     },
-    number: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      gap: spacing.two
-    },
-    // The control is centred in the sweep, so it is part of the printed corner
-    // rather than a button parked next to it.
     flip: {
       position: 'absolute',
       right: CardFlipInset,

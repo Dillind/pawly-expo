@@ -7,6 +7,7 @@ import Animated, {
   useAnimatedStyle,
   useReducedMotion,
   useSharedValue,
+  withSpring,
   withTiming
 } from 'react-native-reanimated';
 import { scheduleOnRN } from 'react-native-worklets';
@@ -23,10 +24,10 @@ import { createShadowLarge } from '@/lib/styles/shadows';
 
 const FLIP_MS = 520;
 const REDUCED_MS = 180;
-// Closer perspective than the old 1200: the card has to turn in the room, not
-// on a flat plane. Under about 700 the near edge distorts.
+// Below about 700 the near edge of the turning card distorts.
 const PERSPECTIVE = 820;
 const LIFT_SCALE = 1.06;
+const ENTER_SCALE = 0.92;
 const EASE_IN_OUT = Easing.bezier(0.77, 0, 0.175, 1);
 
 type Props = {
@@ -41,6 +42,11 @@ const FlipCard = ({ isFlipped, front, back }: Props) => {
   const { colors } = useTheme();
   const isReduced = useReducedMotion();
   const progress = useSharedValue(isFlipped ? 1 : 0);
+  const enter = useSharedValue(isReduced ? 1 : ENTER_SCALE);
+
+  useEffect(() => {
+    enter.set(withSpring(1, { duration: 400, dampingRatio: 0.85 }));
+  }, [enter]);
 
   useEffect(() => {
     progress.set(
@@ -58,14 +64,13 @@ const FlipCard = ({ isFlipped, front, back }: Props) => {
     }
   );
 
-  // The card rises towards the viewer as it turns and settles back. Without it
-  // the rotation reads as a texture swapping, not as an object turning over.
+  // Without the lift the rotation reads as a texture swap, not an object turning.
   const liftStyle = useAnimatedStyle(() => {
-    if (isReduced) return {};
+    if (isReduced) return { transform: [{ scale: enter.get() }] };
     return {
       transform: [
         { perspective: PERSPECTIVE },
-        { scale: interpolate(progress.get(), [0, 0.5, 1], [1, LIFT_SCALE, 1]) }
+        { scale: enter.get() * interpolate(progress.get(), [0, 0.5, 1], [1, LIFT_SCALE, 1]) }
       ]
     };
   });
@@ -108,9 +113,7 @@ const FlipCard = ({ isFlipped, front, back }: Props) => {
 };
 
 const styles = StyleSheet.create({
-  // The stage hugs the card rather than filling the screen. Its owner does the
-  // centring, so the close control below can sit against the card instead of
-  // beyond a column of leftover space.
+  // Hugs the card so the close control can sit against it; the owner centres.
   stage: {
     alignSelf: 'stretch',
     alignItems: 'center'

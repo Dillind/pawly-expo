@@ -97,9 +97,11 @@ const SectionStep = ({
   return (
     <FormProvider {...form}>
       <View style={styles.fields}>
-        <AppText color="textSecondary" size={15}>
-          {section.blurb}
-        </AppText>
+        {section.note && (
+          <AppText color="textSecondary" size={15}>
+            {section.note}
+          </AppText>
+        )}
 
         {section.fields.map((field) => (
           <FieldInput key={field} field={field} />

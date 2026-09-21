@@ -1,14 +1,7 @@
-import type { TrueSheet } from '@lodev09/react-native-true-sheet';
 import { BlurView } from 'expo-blur';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { useEffect, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 import { ActivityIndicator, StyleSheet, View } from 'react-native';
-import Animated, {
-  useAnimatedStyle,
-  useReducedMotion,
-  useSharedValue,
-  withSpring
-} from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import IconButton from '@/components/core/icon-button';
@@ -17,6 +10,7 @@ import CardFrontFace from '@/components/screens/pet/care-card/card-front-face';
 import CareCardHelpSheets, {
   type CareCardHelpHandle
 } from '@/components/screens/pet/care-card/care-card-help-sheets';
+import CareCardSectionSheet from '@/components/screens/pet/care-card/care-card-section-sheet';
 import CareCardSectionTray from '@/components/screens/pet/care-card/care-card-section-tray';
 import FlipCard from '@/components/screens/pet/care-card/flip-card';
 import { CardInset, CardPalette } from '@/constants/care-card-palette';
@@ -24,13 +18,21 @@ import { Radius, type AppTheme } from '@/constants/theme';
 import { useHousehold } from '@/hooks/queries/household/use-household';
 import { useCareCardData } from '@/hooks/queries/pet/use-care-card';
 import { usePetDetail } from '@/hooks/queries/pet/use-pet-detail';
+import { useCareCardSections } from '@/hooks/use-care-card-sections';
 import { useShareCareCard } from '@/hooks/use-share-care-card';
 import { useStyles } from '@/hooks/use-styles';
-import { careCardBackRows, careCardBlocks, emergencyNumber } from '@/lib/care-card-view';
+import {
+  careCardBackRows,
+  careCardBlocks,
+  careCardSectionBlock,
+  frontNumbers,
+  type CareCardRow
+} from '@/lib/care-card-view';
 import { deviceTimezone, formatDateWithYear } from '@/lib/dates';
+import { showErrorToast } from '@/lib/toast';
+import { callNumber } from '@/utils/linking';
 
 const BLUR_INTENSITY = 48;
-const CARD_START_SCALE = 0.92;
 
 const CareCardScreen = () => {
   const { petId, petName, petSubtitle } = useLocalSearchParams<{
@@ -42,39 +44,28 @@ const CareCardScreen = () => {
   const styles = useStyles(makeStyles);
 
   const helpRef = useRef<CareCardHelpHandle | null>(null);
-  const trayRef = useRef<TrueSheet | null>(null);
   const [isFlipped, setIsFlipped] = useState(false);
-  const [openSectionId, setOpenSectionId] = useState<string | undefined>(undefined);
 
   const { card, medications, contacts, isLoading } = useCareCardData(petId);
   const { data: pet } = usePetDetail(petId);
   const { data: household } = useHousehold();
   const { shareCareCard, isSharing } = useShareCareCard();
 
-  // The native fade carries the backdrop, so the blur always has the screen
-  // behind to sample. The card alone grows into place on top of it.
-  const isReduced = useReducedMotion();
-  const cardScale = useSharedValue(isReduced ? 1 : CARD_START_SCALE);
-  const cardStyle = useAnimatedStyle(() => ({ transform: [{ scale: cardScale.get() }] }));
-
-  useEffect(() => {
-    cardScale.set(withSpring(1, { duration: 400, dampingRatio: 0.85 }));
-  }, [cardScale]);
-
   const isOwner = household?.isOwner ?? false;
   const timezone = household?.timezone ?? deviceTimezone();
   const isEmpty = careCardBlocks(card, medications, contacts).length === 0;
-
-  const openSection = (sectionId: string) => {
-    setOpenSectionId(sectionId);
-    void trayRef.current?.present();
-  };
+  const { trayRef, sheetRef, openSectionId, openSection, closeSection } =
+    useCareCardSections(isOwner);
 
   const openEditor = () =>
     router.push({
       pathname: '/home/[petId]/care-card-editor',
       params: { petId, petName, ...(petSubtitle ? { petSubtitle } : {}) }
     });
+
+  const call = async ({ value }: CareCardRow) => {
+    if (!(await callNumber(value))) showErrorToast('This device cannot make calls');
+  };
 
   return (
     <View style={styles.screen}>
@@ -87,7 +78,7 @@ const CareCardScreen = () => {
             <ActivityIndicator />
           </View>
         ) : (
-          <Animated.View style={[styles.stage, cardStyle]}>
+          <View style={styles.stage}>
             <FlipCard
               isFlipped={isFlipped}
               front={
@@ -95,13 +86,15 @@ const CareCardScreen = () => {
                   petName={petName}
                   petSubtitle={petSubtitle ?? null}
                   photoUrl={pet?.photoUrl ?? null}
-                  emergency={emergencyNumber(card, contacts)}
+                  numbers={frontNumbers(card, contacts)}
                   isEmpty={isEmpty}
+                  isOwner={isOwner}
                   isSharing={isSharing}
                   onHelp={() => helpRef.current?.openWhatIsIt()}
                   onShare={() => void shareCareCard([petId])}
                   onFlip={() => setIsFlipped(true)}
                   onFill={openEditor}
+                  onCall={(number) => void call(number)}
                 />
               }
               back={
@@ -120,8 +113,6 @@ const CareCardScreen = () => {
               }
             />
 
-            {/* Close acts on the card, so it sits outside it rather than on a
-            face. Editing lives on the back, one section at a time. */}
             <View style={styles.footer}>
               <IconButton
                 name="close"
@@ -133,19 +124,29 @@ const CareCardScreen = () => {
                 onPress={() => router.back()}
               />
             </View>
-          </Animated.View>
+          </View>
         )}
       </SafeAreaView>
 
-      <CareCardSectionTray
-        sheetRef={trayRef}
-        petId={petId}
-        card={card}
-        medications={medications}
-        contacts={contacts}
-        initialStepId={openSectionId}
-        onDismiss={() => setOpenSectionId(undefined)}
-      />
+      {isOwner ? (
+        <CareCardSectionTray
+          sheetRef={trayRef}
+          petId={petId}
+          card={card}
+          medications={medications}
+          contacts={contacts}
+          initialStepId={openSectionId}
+          onDismiss={closeSection}
+        />
+      ) : (
+        <CareCardSectionSheet
+          sheetRef={sheetRef}
+          block={
+            openSectionId ? careCardSectionBlock(openSectionId, card, medications, contacts) : null
+          }
+          onDismiss={closeSection}
+        />
+      )}
 
       <CareCardHelpSheets ref={helpRef} />
     </View>

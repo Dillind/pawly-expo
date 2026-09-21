@@ -73,7 +73,7 @@ const ReviewStep = ({
               worth handing over.
             </AppText>
           ) : (
-            <CareCardBlocks blocks={blocks} tone="onPage" />
+            <CareCardBlocks blocks={blocks} />
           )}
         </View>
       </View>

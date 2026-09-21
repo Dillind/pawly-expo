@@ -91,10 +91,6 @@ const MedicationsStep = ({ petId, medications, onBack, onNext }: Props) => {
   return (
     <>
       <View style={styles.list}>
-        <AppText color="textSecondary" size={15}>
-          Anything they take, and how to get it into them.
-        </AppText>
-
         {medications.map((medication) => (
           <MedicationRow
             key={medication.id}

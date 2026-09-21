@@ -6,7 +6,7 @@ import {
 } from '@/constants/care-card-fields';
 import type { CareCard, CareCardContact, Medication } from '@/services/care-card.service';
 
-// Lifted into the top panel: a sitter at 2am is looking for one of these.
+// The PDF's top panel: a sitter at 2am is looking for one of these.
 export const EMERGENCY_FIELDS: CareCardField[] = [
   'vetName',
   'vetPhone',
@@ -31,6 +31,21 @@ export type CareCardBlock =
 export const hasValue = (value: string | null | undefined): value is string =>
   typeof value === 'string' && value.trim().length > 0;
 
+const contactRows = (contacts: CareCardContact[]): CareCardRow[] =>
+  contacts.map((contact) => ({
+    id: contact.id,
+    label: contact.name,
+    value: contact.phone ?? 'No number given'
+  }));
+
+const medicationEntries = (medications: Medication[]): CareCardMedicationEntry[] =>
+  medications.map((medication) => ({
+    id: medication.id,
+    name: medication.name,
+    detail: [medication.dose, medication.scheduleText].filter(hasValue).join(' · ') || null,
+    instructions: hasValue(medication.instructions) ? medication.instructions : null
+  }));
+
 const fieldRows = (card: CareCard, fields: CareCardField[]): CareCardRow[] =>
   fields
     .filter((field) => hasValue(card[field]))
@@ -49,14 +64,7 @@ export const careCardBlocks = (
 ): CareCardBlock[] => {
   const blocks: CareCardBlock[] = [];
 
-  const emergencyRows = [
-    ...contacts.map((contact) => ({
-      id: contact.id,
-      label: contact.name,
-      value: contact.phone ?? 'No number given'
-    })),
-    ...fieldRows(card, EMERGENCY_FIELDS)
-  ];
+  const emergencyRows = [...contactRows(contacts), ...fieldRows(card, EMERGENCY_FIELDS)];
 
   if (emergencyRows.length > 0) {
     blocks.push({
@@ -73,12 +81,7 @@ export const careCardBlocks = (
       kind: 'medications',
       id: 'medications',
       title: 'Medications',
-      items: medications.map((medication) => ({
-        id: medication.id,
-        name: medication.name,
-        detail: [medication.dose, medication.scheduleText].filter(hasValue).join(' · ') || null,
-        instructions: hasValue(medication.instructions) ? medication.instructions : null
-      }))
+      items: medicationEntries(medications)
     });
   }
 
@@ -149,19 +152,51 @@ export const careCardBackRows = (
     };
   });
 
-// The one number a sitter reaches for at 2am, in the order they would try it.
-export const emergencyNumber = (
-  card: CareCard,
-  contacts: CareCardContact[]
-): { label: string; value: string } | null => {
+const FRONT_NUMBER_LIMIT = 2;
+
+// The people to ring come first. A card with none still shows a vet, so the
+// front is never blank.
+export const frontNumbers = (card: CareCard, contacts: CareCardContact[]): CareCardRow[] => {
+  const people = contacts.filter((contact) => hasValue(contact.phone)).slice(0, FRONT_NUMBER_LIMIT);
+  if (people.length > 0) return contactRows(people);
+
   if (hasValue(card.emergencyVetPhone)) {
-    return { label: card.emergencyVetName ?? 'Emergency vet', value: card.emergencyVetPhone };
+    return [
+      {
+        id: 'emergencyVet',
+        label: card.emergencyVetName ?? 'Emergency vet',
+        value: card.emergencyVetPhone
+      }
+    ];
   }
   if (hasValue(card.vetPhone)) {
-    return { label: card.vetName ?? 'Vet', value: card.vetPhone };
+    return [{ id: 'vet', label: card.vetName ?? 'Vet', value: card.vetPhone }];
   }
-  const contact = contacts.find((candidate) => hasValue(candidate.phone));
-  return contact ? { label: contact.name, value: contact.phone as string } : null;
+  return [];
+};
+
+// One section of the back, whole, for a member who can read but not edit.
+export const careCardSectionBlock = (
+  sectionId: string,
+  card: CareCard,
+  medications: Medication[],
+  contacts: CareCardContact[]
+): CareCardBlock | null => {
+  const step = CARE_CARD_STEPS.find((candidate) => candidate.id === sectionId);
+  if (!step || step.kind === 'review') return null;
+
+  if (step.kind === 'medications') {
+    return {
+      kind: 'medications',
+      id: step.id,
+      title: step.title,
+      items: medicationEntries(medications)
+    };
+  }
+
+  const rows =
+    step.kind === 'reaching-you' ? contactRows(contacts) : fieldRows(card, step.section.fields);
+  return { kind: 'fields', id: step.id, title: step.title, isEmergency: false, rows };
 };
 
 // A section with two long answers is split into one step per field, named

@@ -9,23 +9,18 @@ export const CardPalette = {
   onGold: '#2A1D06',
   // The corner sweep: the same gold, deepened. Ink still clears 4.5:1 on it.
   sweep: '#C07F08',
-  // The rim. A real card is laminated, so its edge is a band of light on the
-  // lit side and a band of shade on the other -- not a single hairline.
   rimStops: [
     'rgba(255, 255, 255, 0.82)',
     'rgba(255, 255, 255, 0.20)',
     'rgba(42, 29, 6, 0.30)'
   ] as const,
-  // 14.30:1 with `onCream`, 5.79:1 with `onCreamSecondary`.
-  cream: '#FBEED2',
-  creamStops: ['#FEF8EA', '#FBEED2'] as const,
-  onCream: '#2A1D06',
-  creamSweep: '#F3E2BE',
-  onCreamSecondary: '#6B5A3D',
-  rule: 'rgba(42, 29, 6, 0.14)',
+  // The back is the app's own light surface and ink, fixed so both modes match.
+  paperStops: ['#FFFFFF', '#FBFAF8'] as const,
+  onPaper: '#1C1815',
+  onPaperSecondary: '#746A60',
+  paperSweep: '#F1EFEC',
+  rule: 'rgba(58, 48, 38, 0.13)',
   ring: '#FFFFFF',
-  // A hairline of light along the top edge, the way a laminated card catches it.
-  edge: 'rgba(255, 255, 255, 0.34)',
   // The pill behind an icon on a face. Bare glyphs on gold read as printing on
   // the card rather than as controls.
   pill: 'rgba(42, 29, 6, 0.13)',
@@ -41,8 +36,7 @@ export const CardInset = 20;
 export const CardRadius = 28;
 export const CardRimWidth = 2.5;
 export const CardFaceRadius = CardRadius - CardRimWidth;
-// The flip control sits at the centre of the corner sweep in `card-sweep.tsx`:
-// bottom-right on the front, mirrored to bottom-left on the back.
+// The flip control's offset puts it at the centre of the corner sweep.
 export const CardFlipInset = 15;
 export const CardFlipBottom = 17;
 export const CardPhotoSize = 150;

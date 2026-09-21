@@ -7,7 +7,8 @@ export type CareCardSection = {
   id: string;
   // Named after the situation the sitter is in, not the columns underneath.
   title: string;
-  blurb: string;
+  // Only where a label cannot say it.
+  note?: string;
   fields: CareCardField[];
 };
 
@@ -58,41 +59,38 @@ export const CARE_CARD_PHONE_FIELDS: ReadonlySet<CareCardField> = new Set([
   'emergencyVetPhone'
 ]);
 
+export const REACHING_YOU_NOTE = 'In the order to try.';
+
 export const CARE_CARD_SECTIONS: CareCardSection[] = [
   {
     id: 'emergency',
     title: 'If something goes wrong',
-    blurb: 'The numbers to ring, and which one answers at 2am.',
     fields: ['vetName', 'vetPhone', 'emergencyVetName', 'emergencyVetPhone']
   },
   {
     id: 'watch-for',
     title: 'What to watch for',
-    blurb: 'Allergies, and the things that set them off.',
     fields: ['allergies', 'behaviourNotes']
   },
   {
     id: 'eating',
     title: 'How they eat',
-    blurb: 'Amounts and quirks. The feed times themselves are set separately.',
+    note: 'Feed times are set separately.',
     fields: ['feedingNotes']
   },
   {
     id: 'around-the-house',
     title: 'Getting around the house',
-    blurb: 'Walks, toilet breaks, and where everything lives.',
     fields: ['walkRoutine', 'whereThingsAre']
   },
   {
     id: 'paperwork',
     title: 'Paperwork',
-    blurb: 'Numbers a vet may ask for.',
     fields: ['microchipNumber', 'insuranceProvider', 'insurancePolicyNumber']
   },
   {
     id: 'anything-else',
     title: 'Anything else',
-    blurb: "Whatever the other steps didn't cover.",
     fields: ['notes']
   }
 ];

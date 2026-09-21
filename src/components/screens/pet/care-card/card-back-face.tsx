@@ -41,29 +41,23 @@ const SectionRow = ({
 }) => {
   const styles = useStyles(makeStyles);
 
-  const body = (
-    <View style={styles.row}>
-      <View style={styles.rowText}>
-        <AppText size={16} fontWeight="semibold" style={styles.ink}>
-          {row.title}
-        </AppText>
-        <AppText size={13} numberOfLines={2} ellipsizeMode="tail" style={styles.inkQuiet}>
-          {row.summary ?? 'Nothing here yet'}
-        </AppText>
-      </View>
-
-      {isOwner && <Icon name="caretRight" size={18} color="onPrimary" />}
-    </View>
-  );
-
-  if (!isOwner) return body;
-
   return (
     <PressableOpacity
       accessibilityRole="button"
-      accessibilityLabel={`Edit ${row.title}`}
+      accessibilityLabel={`${isOwner ? 'Edit' : 'Read'} ${row.title}`}
       onPress={onPress}>
-      {body}
+      <View style={styles.row}>
+        <View style={styles.rowText}>
+          <AppText size={16} fontWeight="semibold" style={styles.ink}>
+            {row.title}
+          </AppText>
+          <AppText size={13} numberOfLines={2} ellipsizeMode="tail" style={styles.inkQuiet}>
+            {row.summary ?? 'Nothing here yet'}
+          </AppText>
+        </View>
+
+        <Icon name="caretRight" size={18} color="textSecondary" />
+      </View>
     </PressableOpacity>
   );
 };
@@ -74,11 +68,11 @@ const CardBackFace = ({ petName, updatedLabel, rows, isOwner, onFlip, onOpenSect
   return (
     <CardRim>
       <LinearGradient
-        colors={CardPalette.creamStops}
+        colors={CardPalette.paperStops}
         start={CardGradientStart}
         end={CardGradientEnd}
         style={styles.face}>
-        <CardSweep face="back" fill={CardPalette.creamSweep} />
+        <CardSweep face="back" fill={CardPalette.paperSweep} />
 
         <View style={styles.header}>
           <AppText variant="header" size={20} numberOfLines={1} style={styles.ink}>
@@ -128,10 +122,10 @@ const makeStyles = ({ spacing }: AppTheme) =>
       overflow: 'hidden'
     },
     ink: {
-      color: CardPalette.onCream
+      color: CardPalette.onPaper
     },
     inkQuiet: {
-      color: CardPalette.onCreamSecondary
+      color: CardPalette.onPaperSecondary
     },
     header: {
       gap: 1,
@@ -162,7 +156,6 @@ const makeStyles = ({ spacing }: AppTheme) =>
       marginLeft: CardInset,
       backgroundColor: CardPalette.rule
     },
-    // Mirrored from the front: a card turned over has the corner on the other side.
     flip: {
       position: 'absolute',
       left: CardFlipInset,

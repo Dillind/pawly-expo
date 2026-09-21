@@ -5,6 +5,7 @@ import AppText from '@/components/core/app-text';
 import Icon from '@/components/core/icon';
 import IconButton from '@/components/core/icon-button';
 import MainButton from '@/components/core/main-button';
+import { REACHING_YOU_NOTE } from '@/constants/care-card-fields';
 import { Radius, type AppTheme } from '@/constants/theme';
 import { useDeleteContact } from '@/hooks/queries/pet/use-care-card-mutations';
 import { useStyles } from '@/hooks/use-styles';
@@ -96,7 +97,7 @@ const ReachingYouStep = ({ petId, contacts, onNext }: Props) => {
     <>
       <View style={styles.step}>
         <AppText color="textSecondary" size={15}>
-          Who a sitter should ring, in the order they should try. Add yourself first.
+          {REACHING_YOU_NOTE}
         </AppText>
 
         {contacts.map((contact) => (

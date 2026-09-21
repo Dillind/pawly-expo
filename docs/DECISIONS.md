@@ -217,9 +217,11 @@ fields and saves through the same mutation. The nine-step editor stays for exact
 first fill of an empty card — walking nine steps to correct one phone number is the complaint the
 redesign answers. The Tray hard-codes `detents={['auto']}` and `TrayStep` has no scroller, so a
 section with two long answers is split one field per step rather than the shared Tray being changed:
-`watch-for` and `around-the-house` each became two.
+`watch-for` and `around-the-house` each became two. A row therefore names a section, not a step, and `firstStepForSection` resolves it — without that, both rows opened Reaching you.
 
-**The two faces keep their colours in both modes.** Gold front, cream back, one ink. The wash behind
+**A section's subtext appears only where a label cannot say it.** "How they eat" notes that feed times are set elsewhere, and Reaching you gives the order to try. Every other line restated its title and read as filler.
+
+**The two faces keep their colours in both modes.** Gold front, white back in the app's own ink. The wash behind
 the card carries the theme; the card does not, because a physical object does not repaint itself.
 
 **Its bar is gone with the page.** The `Stack.Toolbar` capsule, the large title and the Lucide pencil
