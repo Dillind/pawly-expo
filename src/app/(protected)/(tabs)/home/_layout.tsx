@@ -152,6 +152,7 @@ export default function HomeLayout() {
         {/* The title is the pet's name, which only the screen has, so it sets
             its own `Stack.Title`. */}
         <Stack.Screen name="[petId]/index" options={{ headerShown: true }}>
+          <Stack.Title style={HeaderTitleStyle}>Pet Details</Stack.Title>
           <Stack.Header transparent />
           <Stack.Screen.BackButton displayMode="minimal" />
         </Stack.Screen>

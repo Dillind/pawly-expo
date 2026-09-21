@@ -1,5 +1,5 @@
-import { useEffect, type ReactNode } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { useEffect, useRef, type ReactNode } from 'react';
+import { AccessibilityInfo, StyleSheet, View } from 'react-native';
 import Animated, {
   Easing,
   interpolate,
@@ -22,7 +22,7 @@ import { useTheme } from '@/hooks/use-theme';
 import { hapticLight } from '@/lib/haptics';
 import { createShadowLarge } from '@/lib/styles/shadows';
 
-const FLIP_MS = 520;
+const FLIP_MS = 420;
 const REDUCED_MS = 180;
 // Below about 700 the near edge of the turning card distorts.
 const PERSPECTIVE = 820;
@@ -57,6 +57,15 @@ const FlipCard = ({ isFlipped, front, back }: Props) => {
     );
   }, [isFlipped, isReduced, progress]);
 
+  const hasMounted = useRef(false);
+  useEffect(() => {
+    if (!hasMounted.current) {
+      hasMounted.current = true;
+      return;
+    }
+    AccessibilityInfo.announceForAccessibility(isFlipped ? 'Back of card' : 'Front of card');
+  }, [isFlipped]);
+
   useAnimatedReaction(
     () => (progress.get() > 0.5 ? 1 : 0),
     (turned, previous) => {
@@ -64,7 +73,6 @@ const FlipCard = ({ isFlipped, front, back }: Props) => {
     }
   );
 
-  // Without the lift the rotation reads as a texture swap, not an object turning.
   const liftStyle = useAnimatedStyle(() => {
     if (isReduced) return { transform: [{ scale: enter.get() }] };
     return {
@@ -77,8 +85,8 @@ const FlipCard = ({ isFlipped, front, back }: Props) => {
 
   const frontStyle = useAnimatedStyle(() => {
     const isHidden = progress.get() > 0.5;
+    if (isReduced) return { opacity: 1 - progress.get(), zIndex: isHidden ? 0 : 1 };
     const base = { opacity: isHidden ? 0 : 1, zIndex: isHidden ? 0 : 1 };
-    if (isReduced) return base;
     return {
       ...base,
       transform: [{ perspective: PERSPECTIVE }, { rotateY: `${progress.get() * 180}deg` }]
@@ -87,8 +95,8 @@ const FlipCard = ({ isFlipped, front, back }: Props) => {
 
   const backStyle = useAnimatedStyle(() => {
     const isHidden = progress.get() <= 0.5;
+    if (isReduced) return { opacity: progress.get(), zIndex: isHidden ? 0 : 1 };
     const base = { opacity: isHidden ? 0 : 1, zIndex: isHidden ? 0 : 1 };
-    if (isReduced) return base;
     return {
       ...base,
       transform: [{ perspective: PERSPECTIVE }, { rotateY: `${progress.get() * 180 - 180}deg` }]
@@ -100,11 +108,17 @@ const FlipCard = ({ isFlipped, front, back }: Props) => {
       <Animated.View style={[styles.card, createShadowLarge(colors), styles.cardShadow, liftStyle]}>
         <Animated.View
           style={[styles.face, frontStyle]}
-          pointerEvents={isFlipped ? 'none' : 'auto'}>
+          pointerEvents={isFlipped ? 'none' : 'auto'}
+          accessibilityElementsHidden={isFlipped}
+          importantForAccessibility={isFlipped ? 'no-hide-descendants' : 'auto'}>
           {front}
         </Animated.View>
 
-        <Animated.View style={[styles.face, backStyle]} pointerEvents={isFlipped ? 'auto' : 'none'}>
+        <Animated.View
+          style={[styles.face, backStyle]}
+          pointerEvents={isFlipped ? 'auto' : 'none'}
+          accessibilityElementsHidden={!isFlipped}
+          importantForAccessibility={isFlipped ? 'auto' : 'no-hide-descendants'}>
           {back}
         </Animated.View>
       </Animated.View>
@@ -113,7 +127,6 @@ const FlipCard = ({ isFlipped, front, back }: Props) => {
 };
 
 const styles = StyleSheet.create({
-  // Hugs the card so the close control can sit against it; the owner centres.
   stage: {
     alignSelf: 'stretch',
     alignItems: 'center'

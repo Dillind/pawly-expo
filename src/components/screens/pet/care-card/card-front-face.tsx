@@ -208,8 +208,10 @@ const makeStyles = ({ spacing }: AppTheme) =>
     numbers: {
       alignSelf: 'stretch',
       flexDirection: 'row',
+      flexWrap: 'wrap',
       justifyContent: 'center',
-      gap: spacing.five,
+      columnGap: spacing.five,
+      rowGap: spacing.two,
       marginTop: spacing.four
     },
     flip: {
