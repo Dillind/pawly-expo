@@ -15,7 +15,7 @@ import { Curve, Duration } from '@/constants/motion';
 import { REMINDER_KIND_ICON } from '@/constants/options';
 import { IconSize, type AppTheme } from '@/constants/theme';
 import { useStyles } from '@/hooks/use-styles';
-import type { ReminderKind, ReminderOccurrence } from '@/types/core';
+import type { ReminderOccurrence } from '@/types/core';
 
 type Props = {
   reminder: ReminderOccurrence;

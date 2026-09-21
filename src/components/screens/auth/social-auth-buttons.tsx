@@ -4,7 +4,7 @@ import { StyleSheet, Text, View } from 'react-native';
 
 import PressableOpacity from '@/components/core/pressable-opacity';
 import GoogleMark from '@/components/screens/auth/google-mark';
-import type { AppTheme } from '@/constants/theme';
+import { MaxFontScale, type AppTheme } from '@/constants/theme';
 import { useSocialAuth } from '@/hooks/use-social-auth';
 import { useStyles } from '@/hooks/use-styles';
 import { useTheme } from '@/hooks/use-theme';
@@ -56,7 +56,9 @@ const SocialAuthButtons = () => {
         onPress={() => void signInWithGoogle()}
         accessibilityRole="button">
         <GoogleMark />
-        <Text style={[styles.label, styles.googleLabel]}>Continue with Google</Text>
+        <Text maxFontSizeMultiplier={MaxFontScale.body} style={[styles.label, styles.googleLabel]}>
+          Continue with Google
+        </Text>
       </PressableOpacity>
     </View>
   );

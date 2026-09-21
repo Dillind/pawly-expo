@@ -24,11 +24,12 @@ export type Option<T = string> = { value: T; label: string };
 `value` is what gets stored, `label` is what the user reads. Keeping them apart is what stops a
 stored enum being rendered raw, or a display string being written to a column. The lists live in
 `src/constants/options.ts` and are typed to the domain — `Option<PetSex>[]`, not `string[]` — so
-`DropdownPickerValidated` infers `T` and the call site needs no cast. Read a label back with
+`SegmentedControl` infers `T` and the call site needs no cast. Read a label back with
 `optionLabel(SEX_OPTIONS, sex)` from `@/utils/options` rather than a second hand-kept map.
 
-`DropdownPickerValidated` has an **`.ios.tsx` variant** backed by a real SwiftUI menu. Change both
-or iOS silently keeps the old behaviour — the fallback file is not what runs on device.
+**There is no dropdown.** Two or three short options are a `SegmentedControl`. A longer list is a
+`BaseSheet` + `SheetRow` list. `DropdownPickerValidated` was deleted in CRU-162 once its last
+caller, the invite role, moved to a segmented control.
 
 
 ### Forms
@@ -46,12 +47,10 @@ optional until the user tries to save. The schema is the source of truth, not th
   the form always gives a value — `defaultValues: { sex: 'male' }` means the user cannot submit it
   empty, and an asterisk there is noise.
 
-The four validated inputs take the prop: `TextInputValidated`, `DateTimePickerValidated`, and both
-`DropdownPickerValidated` files. **`SegmentedControl` does not take it yet**, only because no caller
-needs it — every one of them carries a value from `defaultValues`. It _can_ look unset: since
-CRU-093 a control whose value matches no option paints no thumb. So a segmented control that can
-start empty does need the indicator, and adding it means giving `IndicatedText` a `size` and
-`fontWeight` first — the segmented label is 14/bold and `IndicatedText` is fixed at 16/regular.
+Three inputs take the prop: `TextInputValidated`, `DateTimePickerValidated` and `SegmentedControl`.
+A segmented control needs it only when it can start empty. Since CRU-093 a control whose value
+matches no option paints no thumb, and Edit details' Sex starts that way for a Pet with no sex
+recorded. One that always gets a value from `defaultValues` leaves it off.
 
 When you add a field, set `isLabelIndicated` in the same edit as the schema line. Checking a form
 afterwards means reading every field against every schema, which is how these get missed.

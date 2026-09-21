@@ -7,9 +7,9 @@ import { StyleSheet, View } from 'react-native';
 
 import InfoSheet from '@/components/bottom-sheets/info-sheet';
 import AppText from '@/components/core/app-text';
-import DropdownPickerValidated from '@/components/core/dropdown-picker-validated';
 import HeaderIconButton from '@/components/core/header-icon-button';
 import MainButton from '@/components/core/main-button';
+import SegmentedControl from '@/components/core/segmented-control';
 import TextInputValidated from '@/components/core/text-input-validated';
 import ScreenScrollView from '@/components/layout/screen-scroll-view';
 import ScreenView from '@/components/layout/screen-view';
@@ -57,7 +57,6 @@ const InviteMember = ({ householdId }: Props) => {
   const { control, handleSubmit } = form;
 
   const email = useWatch({ control, name: 'email' });
-  const role = useWatch({ control, name: 'role' });
 
   const onSubmit = handleSubmit((values) => {
     createInvite(values, {
@@ -101,12 +100,12 @@ const InviteMember = ({ householdId }: Props) => {
             <Controller
               control={control}
               name="role"
-              render={({ field: { onChange } }) => (
-                <DropdownPickerValidated
+              render={({ field: { onChange, value } }) => (
+                <SegmentedControl
                   name="role"
                   label="Role"
                   options={ROLE_OPTIONS}
-                  value={role ?? 'contributor'}
+                  value={value}
                   onChange={onChange}
                 />
               )}

@@ -7,7 +7,7 @@ import Icon from '@/components/core/icon';
 import MainLegendList from '@/components/core/main-legend-list';
 import PressableOpacity from '@/components/core/pressable-opacity';
 import { breedsFor, type BreedSpecies } from '@/constants/breeds';
-import { Radius, type AppTheme } from '@/constants/theme';
+import { MaxFontScale, Radius, type AppTheme } from '@/constants/theme';
 import { useDebounce } from '@/hooks/use-debounce';
 import { useStyles } from '@/hooks/use-styles';
 import { useTheme } from '@/hooks/use-theme';
@@ -63,6 +63,7 @@ const BreedPicker = ({ species, value, onChange }: Props) => {
       <View style={styles.search}>
         <Icon name="search" size={17} color="textSecondary" strokeWidth={2.2} />
         <TextInput
+          maxFontSizeMultiplier={MaxFontScale.body}
           style={styles.input}
           value={searchQuery}
           onChangeText={setSearchQuery}

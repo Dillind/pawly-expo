@@ -3,7 +3,7 @@ import { StyleSheet, TextInput, View } from 'react-native';
 
 import Icon from '@/components/core/icon';
 import { CHECKLIST_ITEM_MAX } from '@/constants/schemas/travel';
-import { Fonts, IconSize, type AppTheme } from '@/constants/theme';
+import { Fonts, IconSize, MaxFontScale, type AppTheme } from '@/constants/theme';
 import { useStyles } from '@/hooks/use-styles';
 import { useTheme } from '@/hooks/use-theme';
 
@@ -31,6 +31,7 @@ const AddItemRow = ({ onAdd }: Props) => {
         <Icon name="plus" size={IconSize.action} color="textSecondary" />
       </View>
       <TextInput
+        maxFontSizeMultiplier={MaxFontScale.body}
         value={text}
         onChangeText={setText}
         onSubmitEditing={submit}
