@@ -315,7 +315,10 @@ const EmojiStep = ({ onPick }: { onPick: (emoji: string) => void }) => {
     <View style={styles.stack}>
       <SearchBar onSearch={setTerm} />
 
-      <ScrollView style={styles.emojiScroll} keyboardShouldPersistTaps="handled">
+      <ScrollView
+        style={styles.emojiScroll}
+        keyboardShouldPersistTaps="handled"
+        nestedScrollEnabled>
         <View style={styles.emojiGroups}>
           {groups.map((group) => (
             <View key={group.title} style={styles.emojiGroup}>
