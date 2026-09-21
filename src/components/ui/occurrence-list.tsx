@@ -20,8 +20,6 @@ type Props = {
   onPickOccurrence?: (occurrence: Occurrence) => void;
 };
 
-// An `upcoming` row has no Log button: RLS rejects a `logged_at` later than
-// now(), so there is nothing a tap could write.
 const OccurrenceList = ({
   occurrences,
   timezone,
@@ -48,9 +46,7 @@ const OccurrenceList = ({
                 : undefined
             }
             onLog={
-              onPickOccurrence &&
-              isToday &&
-              (occurrence.state === 'due' || occurrence.state === 'missed')
+              onPickOccurrence && isToday && occurrence.state !== 'fed'
                 ? () => onPickOccurrence(occurrence)
                 : undefined
             }
