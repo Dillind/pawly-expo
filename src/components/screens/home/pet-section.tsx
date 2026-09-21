@@ -204,14 +204,12 @@ const PetSection = ({
                 </View>
               )}
 
-              {!isPaused && (
-                <AdditionalLogs
-                  logs={offScheduleLogs}
-                  timezone={timezone}
-                  members={members}
-                  onOpenLog={onOpenLog}
-                />
-              )}
+              <AdditionalLogs
+                logs={offScheduleLogs}
+                timezone={timezone}
+                members={members}
+                onOpenLog={onOpenLog}
+              />
 
               {!isPaused &&
                 reminders.map((reminder) => (
