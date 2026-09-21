@@ -62,10 +62,3 @@ begin
   order by occurrences.occurrence_at asc;
 end;
 $$;
-
-create or replace function public.pet_occurrence_states(target_pet_id uuid, target_date date)
-returns table (
-  series_id         uuid,
-  local_time        time,
-  label             public.feeding_schedule_label,
-  instructions      text,
