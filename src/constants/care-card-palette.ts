@@ -37,8 +37,8 @@ export const CardRadius = 28;
 export const CardRimWidth = 2.5;
 export const CardFaceRadius = CardRadius - CardRimWidth;
 // The flip control's offset puts it at the centre of the corner sweep.
-export const CardFlipInset = 15;
-export const CardFlipBottom = 17;
+export const CardFlipInset = 8;
+export const CardFlipBottom = 4;
 export const CardPhotoSize = 150;
 // A card, not a page: the wash stays visible above and below it. Roughly the
 // proportion of a real membership card held in one hand.

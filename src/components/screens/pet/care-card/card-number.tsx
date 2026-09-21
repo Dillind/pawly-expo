@@ -1,10 +1,9 @@
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet } from 'react-native';
 
 import AppText from '@/components/core/app-text';
-import Icon from '@/components/core/icon';
 import PressableOpacity from '@/components/core/pressable-opacity';
 import { CardPalette } from '@/constants/care-card-palette';
-import { IconSize, type AppTheme } from '@/constants/theme';
+import type { AppTheme } from '@/constants/theme';
 import { useStyles } from '@/hooks/use-styles';
 import type { CareCardRow } from '@/lib/care-card-view';
 
@@ -25,12 +24,9 @@ const CardNumber = ({ number, onCall }: Props) => {
       <AppText size={11} fontWeight="bold" numberOfLines={1} style={[styles.ink, styles.label]}>
         {number.label}
       </AppText>
-      <View style={styles.dial}>
-        <Icon name="phone" size={IconSize.inline} color="onPrimary" />
-        <AppText size={19} fontWeight="bold" style={styles.ink}>
-          {number.value}
-        </AppText>
-      </View>
+      <AppText size={19} fontWeight="bold" style={styles.ink}>
+        {number.value}
+      </AppText>
     </PressableOpacity>
   );
 };
@@ -48,11 +44,6 @@ const makeStyles = ({ spacing }: AppTheme) =>
     label: {
       letterSpacing: 1.1,
       textTransform: 'uppercase'
-    },
-    dial: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      gap: spacing.one
     }
   });
 
