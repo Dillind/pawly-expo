@@ -122,6 +122,7 @@ const EditPetDetails = ({ petId, details, onDone }: Props) => {
           <SegmentedControl
             name="sex"
             label="Sex"
+            isLabelIndicated
             options={SEX_OPTIONS}
             value={value}
             onChange={onChange}

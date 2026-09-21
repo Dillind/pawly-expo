@@ -47,11 +47,10 @@ optional until the user tries to save. The schema is the source of truth, not th
   the form always gives a value — `defaultValues: { sex: 'male' }` means the user cannot submit it
   empty, and an asterisk there is noise.
 
-The two validated inputs take the prop: `TextInputValidated` and `DateTimePickerValidated`. **`SegmentedControl` does not take it yet**, only because no caller
-needs it — every one of them carries a value from `defaultValues`. It _can_ look unset: since
-CRU-093 a control whose value matches no option paints no thumb. So a segmented control that can
-start empty does need the indicator, and adding it means giving `IndicatedText` a `size` and
-`fontWeight` first — the segmented label is 14/bold and `IndicatedText` is fixed at 16/regular.
+Three inputs take the prop: `TextInputValidated`, `DateTimePickerValidated` and `SegmentedControl`.
+A segmented control needs it only when it can start empty. Since CRU-093 a control whose value
+matches no option paints no thumb, and Edit details' Sex starts that way for a Pet with no sex
+recorded. One that always gets a value from `defaultValues` leaves it off.
 
 When you add a field, set `isLabelIndicated` in the same edit as the schema line. Checking a form
 afterwards means reading every field against every schema, which is how these get missed.
