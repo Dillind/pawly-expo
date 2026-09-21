@@ -127,6 +127,17 @@ const PetSection = ({
 
           {isAllLogged && <Icon name="check" size={IconSize.action} color="success" />}
 
+          {/* The tray writes against now, so it is not offered on another day. */}
+          {isToday && !isPaused && (
+            <IconButton
+              name="plus"
+              accessibilityLabel={`Log something else for ${pet.name}`}
+              variant="ghost"
+              size={IconSize.control}
+              onPress={onLogPress}
+            />
+          )}
+
           <Animated.View style={caretStyle}>
             <IconButton
               name="caretDown"
@@ -214,20 +225,6 @@ const PetSection = ({
                   />
                 ))}
 
-              {/* The tray writes against now, so it is not offered on another day. */}
-              {isToday && !isPaused && (
-                <PressableOpacity
-                  style={styles.other}
-                  accessibilityRole="button"
-                  accessibilityLabel={`Log something else for ${pet.name}`}
-                  onPress={onLogPress}>
-                  <Icon name="plus" size={17} color="textSecondary" />
-                  <AppText size={15} color="textSecondary">
-                    Other
-                  </AppText>
-                </PressableOpacity>
-              )}
-
               {isToday && !isPaused && (
                 <MainButton
                   text="Add a reminder"
@@ -260,19 +257,6 @@ const makeStyles = ({ colors, spacing }: AppTheme) =>
     empty: {
       gap: spacing.two,
       paddingTop: spacing.three
-    },
-    // Dashed, never filled: it must not read as loud as a Log chip.
-    other: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      gap: spacing.two,
-      height: 44,
-      marginTop: spacing.one,
-      paddingHorizontal: spacing.two,
-      borderWidth: 1.5,
-      borderStyle: 'dashed',
-      borderColor: colors.ghostBorder,
-      borderRadius: 14
     },
     headerRow: {
       flexDirection: 'row',
