@@ -1,5 +1,5 @@
 import { Host, Picker, Text } from '@expo/ui/swift-ui';
-import { foregroundStyle, pickerStyle, tag } from '@expo/ui/swift-ui/modifiers';
+import { foregroundStyle, pickerStyle, tag, tint } from '@expo/ui/swift-ui/modifiers';
 import { useFormContext } from 'react-hook-form';
 import { StyleProp, StyleSheet, View, ViewStyle } from 'react-native';
 
@@ -78,6 +78,7 @@ const DropdownPickerValidated = <T extends string>({
             // A menu picker draws its label and chevron in the accent colour.
             modifiers={[
               pickerStyle('menu'),
+              tint(hasValue ? colors.text : colors.textSecondary),
               foregroundStyle(hasValue ? colors.text : colors.textSecondary)
             ]}
             label={selectedText}
