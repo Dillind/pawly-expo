@@ -189,6 +189,7 @@ export default function HomeLayout() {
           options={{
             headerShown: false,
             presentation: 'transparentModal',
+            animation: 'fade',
             contentStyle: { backgroundColor: 'transparent' }
           }}
         />

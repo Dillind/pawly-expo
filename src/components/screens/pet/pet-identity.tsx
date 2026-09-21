@@ -144,8 +144,6 @@ const PetIdentity = ({ pet, isOwner }: Props) => {
           )}
         </PressableOpacity>
 
-        {/* A real Link, not a push: `withAppleZoom` throws without one, and the
-            tile is what the card zooms out of. */}
         <Link
           href={{
             pathname: '/home/[petId]/care-card',
@@ -156,9 +154,7 @@ const PetIdentity = ({ pet, isOwner }: Props) => {
             }
           }}
           asChild>
-          <Link.Trigger withAppleZoom>
-            <CareCardTile petName={pet.name} />
-          </Link.Trigger>
+          <CareCardTile petName={pet.name} />
         </Link>
       </View>
 

@@ -45,6 +45,9 @@ export const CardFaceRadius = CardRadius - CardRimWidth;
 // corner. Measured against the sweep path in `card-sweep.tsx`.
 export const CardFlipRight = 31;
 export const CardFlipBottom = 35;
+// The back's corner is smaller and on the left, so its control sits closer in.
+export const CardBackFlipLeft = 15;
+export const CardBackFlipBottom = 17;
 export const CardPhotoSize = 150;
 // A card, not a page: the wash stays visible above and below it. Roughly the
 // proportion of a real membership card held in one hand.

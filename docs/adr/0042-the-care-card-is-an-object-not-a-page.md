@@ -9,6 +9,12 @@ Accepted. Overturns the "The care card is a route, not an overlay" entry in
 [ADR 0034](./0034-a-warm-light-first-palette-with-gold-as-a-fill.md), which is amended to name the
 card front as a gold surface.
 
+**Amended 2026-09-21: the zoom is gone.** On device, iOS hides the Pet screen under its own dimming
+while the zoom runs, so the blurred backdrop has nothing to sample and visibly changes when the
+zoom ends. No timing on our side removes that. The route is now a `transparentModal` with
+`animation: 'fade'`, and the card springs from 0.92 scale into place. The sections below about
+`Link.AppleZoom`, its dismissal and iOS 16/17 describe the first build, not the current one.
+
 ## Context
 
 CRU-055 built the Care Card as an ordinary pushed screen: a large title, a `Stack.Toolbar`, and the

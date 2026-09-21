@@ -204,7 +204,7 @@ and offered a second copy of the same action.
 
 **The Care Card is a card object, not a page.** `home/[petId]/care-card` keeps its route name, but
 the screen inside it has no native header: one card inset 20pt either side, over a dark blurred wash
-of the Pet screen, with a round close button beneath. The tile zooms into it with `Link.AppleZoom`.
+of the Pet screen, with a round close button beneath. The screen fades in and the card springs into place; the first build zoomed from the tile, and ADR 0042 records why that went.
 This overturns the CRU-055 entry that stood here, which said a sitter wants every section at once
 and a face they had to turn over hid half of them. The back now carries **every** section as one
 scrolling list, so nothing sits behind a second tap — only behind one turn of the card — and the

@@ -9,9 +9,9 @@ import PressableOpacity from '@/components/core/pressable-opacity';
 import CardRim from '@/components/screens/pet/care-card/card-rim';
 import CardSweep from '@/components/screens/pet/care-card/card-sweep';
 import {
+  CardBackFlipBottom,
+  CardBackFlipLeft,
   CardFaceRadius,
-  CardFlipBottom,
-  CardFlipRight,
   CardGradientEnd,
   CardGradientStart,
   CardInset,
@@ -78,7 +78,7 @@ const CardBackFace = ({ petName, updatedLabel, rows, isOwner, onFlip, onOpenSect
         start={CardGradientStart}
         end={CardGradientEnd}
         style={styles.face}>
-        <CardSweep fill={CardPalette.creamSweep} />
+        <CardSweep face="back" fill={CardPalette.creamSweep} />
 
         <View style={styles.header}>
           <AppText variant="header" size={20} numberOfLines={1} style={styles.ink}>
@@ -141,7 +141,7 @@ const makeStyles = ({ spacing }: AppTheme) =>
     // The list stops above the corner, so no row runs under the flip control.
     list: {
       flex: 1,
-      marginBottom: CardFlipBottom + 44 - CardInset
+      marginBottom: CardBackFlipBottom + 44 - CardInset + spacing.two
     },
     listContent: {
       paddingBottom: spacing.two
@@ -162,12 +162,11 @@ const makeStyles = ({ spacing }: AppTheme) =>
       marginLeft: CardInset,
       backgroundColor: CardPalette.rule
     },
-    // The same place as the front, so the control does not move when the card
-    // turns over.
+    // Mirrored from the front: a card turned over has the corner on the other side.
     flip: {
       position: 'absolute',
-      right: CardFlipRight,
-      bottom: CardFlipBottom,
+      left: CardBackFlipLeft,
+      bottom: CardBackFlipBottom,
       width: 44,
       height: 44,
       minWidth: 44,

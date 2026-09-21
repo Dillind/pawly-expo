@@ -784,6 +784,13 @@ The second half of the trap is the scroller. The back face is a `ScrollView` ins
 live `rotateY`, and its hit-testing is only reliable because the rotation is at rest whenever the
 back is interactive. Do not make the flip interruptible by a drag without re-checking that scroll.
 
+## Apple Zoom hides the screen behind a transparent destination
+
+The Care Card used `Link.AppleZoom` into a `transparentModal` with a `BlurView` backdrop. During
+the zoom iOS covers the source screen with its own dimming, so the blur samples grey. When the zoom
+ends the source comes back and the backdrop jumps. Fading the blur in on `transitionEnd` does not
+fix it. A zoom and a see-through destination do not mix; use `animation: 'fade'`.
+
 ## Apple Zoom's dismissal gesture fights any scroller on the destination
 
 `Link.AppleZoom` gives the destination an interactive dismissal — pinch, swipe down at the top of a

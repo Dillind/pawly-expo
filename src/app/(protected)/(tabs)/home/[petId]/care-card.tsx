@@ -1,14 +1,14 @@
 import type { TrueSheet } from '@lodev09/react-native-true-sheet';
 import { BlurView } from 'expo-blur';
-import {
-  useLocalSearchParams,
-  useNavigation,
-  usePreventZoomTransitionDismissal,
-  useRouter
-} from 'expo-router';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, StyleSheet, View } from 'react-native';
-import Animated, { Easing, useSharedValue, withTiming } from 'react-native-reanimated';
+import Animated, {
+  useAnimatedStyle,
+  useReducedMotion,
+  useSharedValue,
+  withSpring
+} from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import IconButton from '@/components/core/icon-button';
@@ -29,13 +29,8 @@ import { useStyles } from '@/hooks/use-styles';
 import { careCardBackRows, careCardBlocks, emergencyNumber } from '@/lib/care-card-view';
 import { deviceTimezone, formatDateWithYear } from '@/lib/dates';
 
-// The generic navigation type does not know the native stack's own events.
-type StackEvents = { addListener: (event: 'transitionEnd', listener: () => void) => () => void };
-
 const BLUR_INTENSITY = 48;
-const WASH_IN_MS = 280;
-const WASH_FALLBACK_MS = 700;
-const EASE_OUT = Easing.bezier(0.23, 1, 0.32, 1);
+const CARD_START_SCALE = 0.92;
 
 const CareCardScreen = () => {
   const { petId, petName, petSubtitle } = useLocalSearchParams<{
@@ -56,25 +51,15 @@ const CareCardScreen = () => {
   const { data: household } = useHousehold();
   const { shareCareCard, isSharing } = useShareCareCard();
 
-  // During the zoom iOS does not always keep the screen behind drawn, so a blur
-  // shown then has nothing to sample and changes when the zoom ends. Fade it in
-  // after the transition instead. Intensity never animates -- see ADR 0042.
-  const navigation = useNavigation() as unknown as StackEvents;
-  const washOpacity = useSharedValue(0);
+  // The native fade carries the backdrop, so the blur always has the screen
+  // behind to sample. The card alone grows into place on top of it.
+  const isReduced = useReducedMotion();
+  const cardScale = useSharedValue(isReduced ? 1 : CARD_START_SCALE);
+  const cardStyle = useAnimatedStyle(() => ({ transform: [{ scale: cardScale.get() }] }));
 
   useEffect(() => {
-    const fadeIn = () => washOpacity.set(withTiming(1, { duration: WASH_IN_MS, easing: EASE_OUT }));
-    const unsubscribe = navigation.addListener('transitionEnd', fadeIn);
-    const fallback = setTimeout(fadeIn, WASH_FALLBACK_MS);
-    return () => {
-      unsubscribe();
-      clearTimeout(fallback);
-    };
-  }, [navigation, washOpacity]);
-
-  // The card's own scroller owns the vertical gesture, so the zoom's interactive
-  // dismissal is fenced off entirely and the round close button is the way out.
-  usePreventZoomTransitionDismissal({ unstable_dismissalBoundsRect: { maxX: 0, maxY: 0 } });
+    cardScale.set(withSpring(1, { duration: 400, dampingRatio: 0.85 }));
+  }, [cardScale]);
 
   const isOwner = household?.isOwner ?? false;
   const timezone = household?.timezone ?? deviceTimezone();
@@ -93,10 +78,8 @@ const CareCardScreen = () => {
 
   return (
     <View style={styles.screen}>
-      <Animated.View style={[StyleSheet.absoluteFill, { opacity: washOpacity }]}>
-        <BlurView intensity={BLUR_INTENSITY} tint="dark" style={StyleSheet.absoluteFill} />
-        <View style={[StyleSheet.absoluteFill, styles.wash]} />
-      </Animated.View>
+      <BlurView intensity={BLUR_INTENSITY} tint="dark" style={StyleSheet.absoluteFill} />
+      <View style={[StyleSheet.absoluteFill, styles.wash]} />
 
       <SafeAreaView style={styles.safe} edges={['top', 'bottom']}>
         {isLoading ? (
@@ -104,7 +87,7 @@ const CareCardScreen = () => {
             <ActivityIndicator />
           </View>
         ) : (
-          <View style={styles.stage}>
+          <Animated.View style={[styles.stage, cardStyle]}>
             <FlipCard
               isFlipped={isFlipped}
               front={
@@ -150,7 +133,7 @@ const CareCardScreen = () => {
                 onPress={() => router.back()}
               />
             </View>
-          </View>
+          </Animated.View>
         )}
       </SafeAreaView>
 
