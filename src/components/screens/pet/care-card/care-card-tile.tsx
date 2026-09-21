@@ -18,11 +18,9 @@ const LINE_WIDTHS = ['100%', '78%', '56%'] as const;
 
 type Props = {
   petName: string;
-  // Supplied by `Link.Trigger`, which clones this element with its own handler.
   onPress?: () => void;
 };
 
-// Drawn as a card whether the card has content or not: the screen opens either way.
 const CareCardTile = ({ petName, onPress }: Props) => {
   const theme = useTheme();
   const styles = useStyles(makeStyles);
