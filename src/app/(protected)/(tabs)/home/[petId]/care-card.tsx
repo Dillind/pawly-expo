@@ -1,6 +1,11 @@
 import type { TrueSheet } from '@lodev09/react-native-true-sheet';
 import { BlurView } from 'expo-blur';
-import { useLocalSearchParams, usePreventZoomTransitionDismissal, useRouter } from 'expo-router';
+import {
+  useLocalSearchParams,
+  useNavigation,
+  usePreventZoomTransitionDismissal,
+  useRouter
+} from 'expo-router';
 import { useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, StyleSheet, View } from 'react-native';
 import Animated, { Easing, useSharedValue, withTiming } from 'react-native-reanimated';
@@ -24,8 +29,12 @@ import { useStyles } from '@/hooks/use-styles';
 import { careCardBackRows, careCardBlocks, emergencyNumber } from '@/lib/care-card-view';
 import { deviceTimezone, formatDateWithYear } from '@/lib/dates';
 
+// The generic navigation type does not know the native stack's own events.
+type StackEvents = { addListener: (event: 'transitionEnd', listener: () => void) => () => void };
+
 const BLUR_INTENSITY = 48;
-const WASH_IN_MS = 320;
+const WASH_IN_MS = 280;
+const WASH_FALLBACK_MS = 700;
 const EASE_OUT = Easing.bezier(0.23, 1, 0.32, 1);
 
 const CareCardScreen = () => {
@@ -47,15 +56,21 @@ const CareCardScreen = () => {
   const { data: household } = useHousehold();
   const { shareCareCard, isSharing } = useShareCareCard();
 
-  // The screen behind is not composited on the first frame, so a blur at full
-  // strength from the start pops when it finally has something to blur. Fading
-  // the whole backdrop in covers that frame. The intensity itself never
-  // animates -- on Android that re-renders the blur every frame.
+  // During the zoom iOS does not always keep the screen behind drawn, so a blur
+  // shown then has nothing to sample and changes when the zoom ends. Fade it in
+  // after the transition instead. Intensity never animates -- see ADR 0042.
+  const navigation = useNavigation() as unknown as StackEvents;
   const washOpacity = useSharedValue(0);
 
   useEffect(() => {
-    washOpacity.set(withTiming(1, { duration: WASH_IN_MS, easing: EASE_OUT }));
-  }, [washOpacity]);
+    const fadeIn = () => washOpacity.set(withTiming(1, { duration: WASH_IN_MS, easing: EASE_OUT }));
+    const unsubscribe = navigation.addListener('transitionEnd', fadeIn);
+    const fallback = setTimeout(fadeIn, WASH_FALLBACK_MS);
+    return () => {
+      unsubscribe();
+      clearTimeout(fallback);
+    };
+  }, [navigation, washOpacity]);
 
   // The card's own scroller owns the vertical gesture, so the zoom's interactive
   // dismissal is fenced off entirely and the round close button is the way out.

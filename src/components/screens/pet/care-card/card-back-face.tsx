@@ -7,6 +7,7 @@ import Icon from '@/components/core/icon';
 import IconButton from '@/components/core/icon-button';
 import PressableOpacity from '@/components/core/pressable-opacity';
 import CardRim from '@/components/screens/pet/care-card/card-rim';
+import CardSweep from '@/components/screens/pet/care-card/card-sweep';
 import {
   CardFaceRadius,
   CardFlipBottom,
@@ -77,6 +78,8 @@ const CardBackFace = ({ petName, updatedLabel, rows, isOwner, onFlip, onOpenSect
         start={CardGradientStart}
         end={CardGradientEnd}
         style={styles.face}>
+        <CardSweep fill={CardPalette.creamSweep} />
+
         <View style={styles.header}>
           <AppText variant="header" size={20} numberOfLines={1} style={styles.ink}>
             {`${petName}'s care card`}
@@ -135,11 +138,13 @@ const makeStyles = ({ spacing }: AppTheme) =>
       paddingHorizontal: CardInset,
       paddingBottom: spacing.three
     },
+    // The list stops above the corner, so no row runs under the flip control.
     list: {
-      flex: 1
+      flex: 1,
+      marginBottom: CardFlipBottom + 44 - CardInset
     },
     listContent: {
-      paddingBottom: spacing.six
+      paddingBottom: spacing.two
     },
     row: {
       flexDirection: 'row',

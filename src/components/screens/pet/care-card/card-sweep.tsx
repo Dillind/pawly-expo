@@ -8,13 +8,13 @@ import { CardPalette } from '@/constants/care-card-palette';
 // coloured rectangle. One arc of a single radius, so the curve stays even from
 // the right edge to the bottom edge. Drawn in the card's own 350x566 space and
 // stretched with it, so the proportion holds at any size.
-const CardSweep = () => (
+const CardSweep = ({ fill = CardPalette.sweep }: { fill?: string }) => (
   <Svg
     viewBox="0 0 350 566"
     preserveAspectRatio="none"
     pointerEvents="none"
     style={StyleSheet.absoluteFill}>
-    <Path d="M350 330 C 350 460 229 566 130 566 L 350 566 Z" fill={CardPalette.sweep} />
+    <Path d="M350 330 C 350 460 229 566 130 566 L 350 566 Z" fill={fill} />
   </Svg>
 );
 
