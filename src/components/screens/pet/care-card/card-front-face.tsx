@@ -54,7 +54,7 @@ const CardFrontFace = ({
       style={styles.face}>
       <View style={styles.top}>
         <AppText size={13} fontWeight="semibold" style={styles.ink}>
-          Crumpet care card
+          Care card
         </AppText>
 
         {!isEmpty && (

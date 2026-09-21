@@ -110,8 +110,8 @@ const CareCardScreen = () => {
           />
         )}
 
-        {/* Close and edit act on the card, so they sit outside it rather than
-            on a face. Icons only: the card is plainly a card. */}
+        {/* Close acts on the card, so it sits outside it rather than on a
+            face. Editing lives on the back, one section at a time. */}
         <View style={styles.footer}>
           <IconButton
             name="close"
@@ -122,18 +122,6 @@ const CareCardScreen = () => {
             containerStyle={styles.control}
             onPress={() => router.back()}
           />
-
-          {isOwner && !isEmpty && (
-            <IconButton
-              name="pencil"
-              accessibilityLabel="Edit the Care Card"
-              variant="ghost"
-              color="onGlass"
-              size={20}
-              containerStyle={styles.control}
-              onPress={openEditor}
-            />
-          )}
         </View>
       </SafeAreaView>
 
@@ -175,7 +163,6 @@ const makeStyles = ({ spacing }: AppTheme) =>
       flexDirection: 'row',
       alignItems: 'center',
       justifyContent: 'center',
-      gap: spacing.four,
       paddingTop: spacing.four,
       paddingBottom: BottomTabInset - spacing.three
     },
