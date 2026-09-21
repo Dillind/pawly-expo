@@ -48,9 +48,7 @@ const OccurrenceList = ({
                 : undefined
             }
             onLog={
-              onPickOccurrence &&
-              isToday &&
-              (occurrence.state === 'due' || occurrence.state === 'missed')
+              onPickOccurrence && isToday && occurrence.state !== 'fed'
                 ? () => onPickOccurrence(occurrence)
                 : undefined
             }
