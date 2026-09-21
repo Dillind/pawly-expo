@@ -104,7 +104,7 @@ There is no component library and no Tailwind (ADR 0004). Colours come from `use
 from a module-level `makeStyles` factory via `useStyles`.
 
 Several surfaces are genuinely native and only _look_ like React components: TrueSheet bottom
-sheets, the SwiftUI picker in `dropdown-picker-validated.ios.tsx`, native tabs, liquid glass.
+sheets, native tabs, liquid glass.
 
 **Jest renders mocks of all of them.** A test can pass against a control that is dead on device —
 this has already happened. Native surfaces are verified on a device, not in Jest.
