@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { ScrollView, StyleSheet, useWindowDimensions, View } from 'react-native';
 
 import AppText from '@/components/core/app-text';
 import IconButton from '@/components/core/icon-button';
@@ -17,6 +17,7 @@ type Props = {
 
 const TrayStep = ({ title, header, isFirst, onBack, onClose, children }: Props) => {
   const styles = useStyles(makeStyles);
+  const { height } = useWindowDimensions();
 
   return (
     <View style={styles.container}>
@@ -40,7 +41,14 @@ const TrayStep = ({ title, header, isFirst, onBack, onClose, children }: Props) 
         )}
       </View>
 
-      {children}
+      {/* TrueSheet's scrollable does not support an auto detent, so the step bounds and scrolls itself. */}
+      <ScrollView
+        style={{ maxHeight: height * 0.7 }}
+        contentContainerStyle={styles.body}
+        alwaysBounceVertical={false}
+        keyboardShouldPersistTaps="handled">
+        {children}
+      </ScrollView>
     </View>
   );
 };
@@ -48,6 +56,9 @@ const TrayStep = ({ title, header, isFirst, onBack, onClose, children }: Props) 
 const makeStyles = ({ spacing }: AppTheme) =>
   StyleSheet.create({
     container: {
+      gap: spacing.three
+    },
+    body: {
       gap: spacing.three
     },
     header: {
