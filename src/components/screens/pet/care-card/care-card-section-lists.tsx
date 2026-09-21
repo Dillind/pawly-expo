@@ -7,7 +7,7 @@ import MainButton from '@/components/core/main-button';
 import PressableOpacity from '@/components/core/pressable-opacity';
 import { useTray } from '@/components/core/tray';
 import { REACHING_YOU_NOTE } from '@/constants/care-card-fields';
-import { Radius, type AppTheme } from '@/constants/theme';
+import { IconSize, Radius, type AppTheme } from '@/constants/theme';
 import { useDeleteContact, useDeleteMedication } from '@/hooks/queries/pet/use-care-card-mutations';
 import { useStyles } from '@/hooks/use-styles';
 import { hasValue } from '@/lib/care-card-view';
@@ -51,7 +51,7 @@ const EntryRow = ({ label, detail, onEdit, onRemove, isBusy }: EntryRowProps) =>
         accessibilityLabel={`Remove ${label}`}
         variant="ghost"
         color="error"
-        size={18}
+        size={IconSize.control}
         isDisabled={isBusy}
         onPress={onRemove}
       />
@@ -103,7 +103,7 @@ export const ContactsStep = ({ petId, contacts, onEdit }: ContactsStepProps) => 
         <MainButton
           text="Add contact"
           variant="secondary"
-          leftIcon={<Icon name="plus" size={16} />}
+          leftIcon={<Icon name="plus" size={IconSize.inline} />}
           onPress={() => edit(null)}
         />
       )}
@@ -152,7 +152,7 @@ export const MedicationsStep = ({ petId, medications, onEdit }: MedicationsStepP
       <MainButton
         text="Add a medication"
         variant="secondary"
-        leftIcon={<Icon name="plus" size={16} />}
+        leftIcon={<Icon name="plus" size={IconSize.inline} />}
         onPress={() => edit(null)}
       />
 

@@ -12,7 +12,7 @@ import {
   RESERVED_HANDLES,
   type HouseholdHandleInput
 } from '@/constants/schemas/household';
-import type { AppTheme } from '@/constants/theme';
+import { IconSize, type AppTheme } from '@/constants/theme';
 import {
   useHandleAvailable,
   useHandleSuggestions
@@ -122,12 +122,12 @@ const HandleField = ({ currentHandle, stem, onAvailabilityChange, autoFocus }: P
                 <ActivityIndicator size="small" color={colors.textSecondary} />
               ) : status === 'unchecked' ? (
                 <PressableOpacity onPress={() => void refetch()}>
-                  <Icon name="refresh" size={20} color="textSecondary" />
+                  <Icon name="refresh" size={IconSize.action} color="textSecondary" />
                 </PressableOpacity>
               ) : (
                 <Icon
                   name={status === 'free' ? 'circleCheck' : 'circleX'}
-                  size={20}
+                  size={IconSize.action}
                   color="backgroundElement"
                   fill={status === 'free' ? 'success' : 'error'}
                 />

@@ -5,7 +5,7 @@ import AppText from '@/components/core/app-text';
 import Icon from '@/components/core/icon';
 import PressableOpacity from '@/components/core/pressable-opacity';
 import type { IconName } from '@/constants/icon-map';
-import { Radius, type AppTheme } from '@/constants/theme';
+import { IconSize, Radius, type AppTheme } from '@/constants/theme';
 import { useStyles } from '@/hooks/use-styles';
 
 type Props = {
@@ -55,7 +55,7 @@ const SheetRow = ({
           </AppText>
         )}
 
-        {isSelected && <Icon name="check" size={20} color="success" />}
+        {isSelected && <Icon name="check" size={IconSize.action} color="success" />}
       </View>
     </PressableOpacity>
   );

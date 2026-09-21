@@ -8,7 +8,7 @@ import DateTimePickerModal from 'react-native-modal-datetime-picker';
 import AppText from '@/components/core/app-text';
 import Icon from '@/components/core/icon';
 import PressableOpacity from '@/components/core/pressable-opacity';
-import type { AppTheme } from '@/constants/theme';
+import { IconSize, type AppTheme } from '@/constants/theme';
 import { useStyles } from '@/hooks/use-styles';
 import FieldError from '@/lib/form/components/field-error';
 
@@ -109,7 +109,7 @@ const DateTimePickerValidated = ({
             ? dayjs(selectedDate, storeFormat[mode]).format(displayFormat[mode])
             : placeholderText[mode]}
         </AppText>
-        <Icon name={mode === 'time' ? 'clock' : 'calendar'} size={16} />
+        <Icon name={mode === 'time' ? 'clock' : 'calendar'} size={IconSize.inline} />
       </PressableOpacity>
       {form && name && <SubscribedFieldError control={form.control} name={name} />}
     </View>

@@ -19,7 +19,7 @@ import {
   CardPalette,
   CardPhotoSize
 } from '@/constants/care-card-palette';
-import { Radius, type AppTheme } from '@/constants/theme';
+import { IconSize, Radius, type AppTheme } from '@/constants/theme';
 import { useStyles } from '@/hooks/use-styles';
 import type { CareCardRow } from '@/lib/care-card-view';
 
@@ -75,7 +75,7 @@ const CardFrontFace = ({
                 accessibilityLabel="What is a Care Card?"
                 variant="ghost"
                 color="onPrimary"
-                size={19}
+                size={IconSize.control}
                 containerStyle={styles.pill}
                 onPress={onHelp}
               />
@@ -84,7 +84,7 @@ const CardFrontFace = ({
                 accessibilityLabel="Share the Care Card"
                 variant="ghost"
                 color="onPrimary"
-                size={19}
+                size={IconSize.control}
                 isLoading={isSharing}
                 containerStyle={styles.pill}
                 onPress={onShare}
@@ -151,7 +151,7 @@ const CardFrontFace = ({
             accessibilityLabel="Turn the card over"
             variant="ghost"
             color="onPrimary"
-            size={20}
+            size={IconSize.control}
             hapticFeedback={false}
             containerStyle={styles.flip}
             onPress={onFlip}
@@ -185,7 +185,6 @@ const makeStyles = ({ spacing }: AppTheme) =>
       alignItems: 'center',
       gap: spacing.two
     },
-    // Bare glyphs on gold read as printing rather than as controls.
     pill: {
       width: 38,
       height: 38,

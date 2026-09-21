@@ -10,7 +10,7 @@ import MainButton from '@/components/core/main-button';
 import TextInputValidated from '@/components/core/text-input-validated';
 import Tray, { type TrayStepDescriptor } from '@/components/core/tray';
 import { ErrorMessage, SuccessMessage } from '@/constants/enums';
-import type { AppTheme } from '@/constants/theme';
+import { IconSize, type AppTheme } from '@/constants/theme';
 import { useHousehold } from '@/hooks/queries/household/use-household';
 import { useUpdatePet } from '@/hooks/queries/pet/use-update-pet';
 import { useStyles } from '@/hooks/use-styles';
@@ -98,7 +98,7 @@ const PetBio = ({ petId, name, bio }: Props) => {
             name="pencil"
             accessibilityLabel="Edit about"
             variant="ghost"
-            size={20}
+            size={IconSize.action}
             onPress={() => void sheetRef.current?.present()}
           />
         )}

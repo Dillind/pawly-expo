@@ -102,6 +102,10 @@ import Icon from '@/components/core/icon';
 <Icon name="calendar" size={16} />;
 ```
 
+**Size every icon with an `IconSize` token** (`inline` 16, `control` 18, `action` 20, `header`
+24, `feature` 28), chosen by the icon's role, never a number copied from nearby. Controls that sit
+together share one size.
+
 An icon-only tappable control is `IconButton`, which owns the 44pt target and a **required**
 `accessibilityLabel`. A bar button is `Stack.Toolbar.Button`, never a React view, and never
 `variant="glass"` inside a native header.

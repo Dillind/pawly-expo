@@ -6,7 +6,7 @@ import Icon from '@/components/core/icon';
 import PressableOpacity from '@/components/core/pressable-opacity';
 import StatusPill from '@/components/core/status-pill';
 import PetAvatar from '@/components/screens/home/pet-avatar';
-import type { AppTheme } from '@/constants/theme';
+import { IconSize, type AppTheme } from '@/constants/theme';
 import { useFeedTimes } from '@/hooks/queries/feeding/use-feed-times';
 import { useOccurrences } from '@/hooks/queries/feeding/use-occurrences';
 import { usePetPause } from '@/hooks/queries/feeding/use-pet-pause';
@@ -61,7 +61,7 @@ const PetManageRow = ({ pet, today }: Props) => {
           )}
         </View>
 
-        <Icon name="caretRight" size={18} color="textSecondary" />
+        <Icon name="caretRight" size={IconSize.control} color="textSecondary" />
       </PressableOpacity>
     </Link>
   );

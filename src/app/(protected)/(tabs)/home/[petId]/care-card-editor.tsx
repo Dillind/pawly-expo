@@ -12,7 +12,7 @@ import CareCardHelpSheets, {
   type CareCardHelpHandle
 } from '@/components/screens/pet/care-card/care-card-help-sheets';
 import { CARE_CARD_STEPS } from '@/constants/care-card-fields';
-import type { AppTheme } from '@/constants/theme';
+import { IconSize, type AppTheme } from '@/constants/theme';
 import { useHousehold } from '@/hooks/queries/household/use-household';
 import { useCareCardData } from '@/hooks/queries/pet/use-care-card';
 import { useShareCareCard } from '@/hooks/use-share-care-card';
@@ -65,7 +65,7 @@ const CareCardEditor = () => {
             step.kind === 'review' ? 'About sharing a Care Card' : 'What is a Care Card?'
           }
           variant="glass"
-          size={20}
+          size={IconSize.action}
           onPress={() =>
             step.kind === 'review'
               ? helpRef.current?.openSharing()

@@ -4,7 +4,7 @@ import { StyleSheet, View } from 'react-native';
 import AppText from '@/components/core/app-text';
 import Icon from '@/components/core/icon';
 import PressableOpacity from '@/components/core/pressable-opacity';
-import { Radius, type AppTheme } from '@/constants/theme';
+import { IconSize, Radius, type AppTheme } from '@/constants/theme';
 import { useStyles } from '@/hooks/use-styles';
 import type { HomeTip as Tip } from '@/utils/home-tip';
 
@@ -24,7 +24,7 @@ const HomeTip = ({ tip }: Props) => {
       accessibilityRole="button"
       accessibilityLabel={`${tip.title} ${tip.action}`}
       onPress={() => router.push(`/home/${tip.petId}`)}>
-      <Icon name="lightbulb" size={18} color="textSecondary" />
+      <Icon name="lightbulb" size={IconSize.control} color="textSecondary" />
       <View style={styles.copy}>
         <AppText size={14}>{tip.title}</AppText>
         <AppText size={12} color="textSecondary">

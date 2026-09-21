@@ -4,7 +4,7 @@ import AppText from '@/components/core/app-text';
 import Icon from '@/components/core/icon';
 import PressableOpacity from '@/components/core/pressable-opacity';
 import { CardPalette } from '@/constants/care-card-palette';
-import type { AppTheme } from '@/constants/theme';
+import { IconSize, type AppTheme } from '@/constants/theme';
 import { useStyles } from '@/hooks/use-styles';
 import type { CareCardRow } from '@/lib/care-card-view';
 
@@ -26,7 +26,7 @@ const CardNumber = ({ number, onCall }: Props) => {
         {number.label}
       </AppText>
       <View style={styles.dial}>
-        <Icon name="phone" size={16} color="onPrimary" />
+        <Icon name="phone" size={IconSize.inline} color="onPrimary" />
         <AppText size={19} fontWeight="bold" style={styles.ink}>
           {number.value}
         </AppText>

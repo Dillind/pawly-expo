@@ -15,7 +15,7 @@ import {
   deleteHouseholdSchema,
   type DeleteHouseholdInput
 } from '@/constants/schemas/delete-household';
-import { Radius, type AppTheme } from '@/constants/theme';
+import { IconSize, Radius, type AppTheme } from '@/constants/theme';
 import { useDeleteHousehold } from '@/hooks/queries/household/use-delete-household';
 import { useStyles } from '@/hooks/use-styles';
 import { showErrorToast, showSuccessToast } from '@/lib/toast';
@@ -85,7 +85,7 @@ const DeleteHouseholdSheet = ({ sheetRef, householdId, name }: Props) => {
       <View style={styles.body}>
         <View style={styles.warning}>
           <View style={styles.warningHeading}>
-            <Icon name="circleAlert" size={20} color="error" />
+            <Icon name="circleAlert" size={IconSize.action} color="error" />
             <AppText variant="header" size={18} fontWeight="bold" color="error">
               This cannot be undone
             </AppText>

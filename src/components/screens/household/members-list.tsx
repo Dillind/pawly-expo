@@ -14,7 +14,7 @@ import SettingsSection from '@/components/core/settings-section';
 import UserAvatar from '@/components/core/user-avatar';
 import ScreenScrollView from '@/components/layout/screen-scroll-view';
 import ScreenView from '@/components/layout/screen-view';
-import { BottomTabInset, Spacing, type AppTheme } from '@/constants/theme';
+import { BottomTabInset, IconSize, Spacing, type AppTheme } from '@/constants/theme';
 import { useHouseholdById } from '@/hooks/queries/household/use-household-by-id';
 import { useHouseholdMembers } from '@/hooks/queries/household/use-household-members';
 import { usePendingInvites, useRevokeInvite } from '@/hooks/queries/household/use-invites';
@@ -169,7 +169,9 @@ const MembersList = ({ householdId }: Props) => {
           {isSelf ? ' (you)' : ''}
         </AppText>
 
-        {isOwner && !isSelf && <Icon name="caretRight" size={16} color="textSecondary" />}
+        {isOwner && !isSelf && (
+          <Icon name="caretRight" size={IconSize.inline} color="textSecondary" />
+        )}
       </View>
     );
 
@@ -228,7 +230,7 @@ const MembersList = ({ householdId }: Props) => {
                     {roleLabel(invite.role)} · code {invite.code}
                   </AppText>
                 </View>
-                <Icon name="caretRight" size={18} color="textSecondary" />
+                <Icon name="caretRight" size={IconSize.control} color="textSecondary" />
               </PressableOpacity>
             ))}
           </SettingsSection>

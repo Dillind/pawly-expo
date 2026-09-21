@@ -21,7 +21,7 @@ import PressableOpacity from '@/components/core/pressable-opacity';
 import PetAvatar from '@/components/screens/home/pet-avatar';
 import OccurrenceList from '@/components/ui/occurrence-list';
 import ReminderRow from '@/components/ui/reminder-row';
-import { Radius, type AppTheme } from '@/constants/theme';
+import { IconSize, Radius, type AppTheme } from '@/constants/theme';
 import { useFeedTimes } from '@/hooks/queries/feeding/use-feed-times';
 import { useOccurrences } from '@/hooks/queries/feeding/use-occurrences';
 import { usePetPause } from '@/hooks/queries/feeding/use-pet-pause';
@@ -125,14 +125,14 @@ const PetSection = ({
             </View>
           </PressableOpacity>
 
-          {isAllLogged && <Icon name="check" size={20} color="success" />}
+          {isAllLogged && <Icon name="check" size={IconSize.action} color="success" />}
 
           <Animated.View style={caretStyle}>
             <IconButton
               name="caretDown"
               accessibilityLabel={isOpen ? `Hide ${pet.name}'s feeds` : `Show ${pet.name}'s feeds`}
               variant="ghost"
-              size={18}
+              size={IconSize.control}
               hapticFeedback={false}
               onPress={() => setIsExpanded(!isOpen)}
             />

@@ -18,7 +18,7 @@ import BreedPicker from '@/components/ui/breed-picker';
 import { breedSpeciesFor, petBreedLabel } from '@/constants/breeds';
 import { SEX_OPTIONS } from '@/constants/options';
 import { petDetailsEditSchema, type PetDetailsEditValues } from '@/constants/schemas/pet-details';
-import { Radius, ScreenGutter, type AppTheme } from '@/constants/theme';
+import { IconSize, Radius, ScreenGutter, type AppTheme } from '@/constants/theme';
 import { useChangePetPhoto } from '@/hooks/queries/pet/use-pet-photo-mutations';
 import { useStyles } from '@/hooks/use-styles';
 import { formatAge } from '@/lib/dates';
@@ -138,7 +138,7 @@ const PetIdentity = ({ pet, isOwner }: Props) => {
               {isChangingPhoto ? (
                 <ActivityIndicator />
               ) : (
-                <Icon name="camera" size={20} color="text" />
+                <Icon name="camera" size={IconSize.action} color="text" />
               )}
             </View>
           )}
@@ -167,7 +167,7 @@ const PetIdentity = ({ pet, isOwner }: Props) => {
             name="pencil"
             accessibilityLabel="Edit details"
             variant="ghost"
-            size={20}
+            size={IconSize.action}
             onPress={() => void detailsTrayRef.current?.present()}
           />
         )}

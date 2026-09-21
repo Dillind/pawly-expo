@@ -11,7 +11,7 @@ import Icon from '@/components/core/icon';
 import MainButton from '@/components/core/main-button';
 import PressableOpacity from '@/components/core/pressable-opacity';
 import { Curve, Duration } from '@/constants/motion';
-import type { AppTheme } from '@/constants/theme';
+import { IconSize, type AppTheme } from '@/constants/theme';
 import { useStyles } from '@/hooks/use-styles';
 import { formatScheduledTime, formatTimeOfDay } from '@/lib/dates';
 import type { FeedingScheduleLabel, Occurrence } from '@/types/core';
@@ -104,7 +104,7 @@ const OccurrenceRow = ({
       <Animated.View style={styles.slot} layout={SlotReflow}>
         {isFed ? (
           <Animated.View entering={TickIn}>
-            <Icon name="check" size={20} color="success" />
+            <Icon name="check" size={IconSize.action} color="success" />
           </Animated.View>
         ) : onLog ? (
           <Animated.View exiting={SlotOut}>

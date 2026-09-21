@@ -1090,3 +1090,12 @@ item is ticked.
 ADR 0041 put the entitlement on the User, derived per Household. The row did not exist until this
 change. It is created now, empty, with a select policy for the user's own row and no write policy:
 only the service role writes it, which is what the RevenueCat webhook will be. Empty means free.
+
+## Icon sizes are a scale of roles, but `size` still takes a number
+
+`IconSize` has five steps, named for what an icon does rather than how big it is, so a new icon is
+sized by asking what it is for. The prop stays a `number` because a glyph inside a drawn shape and
+an illustration are sized to something else, and typing it to the scale would force a cast at each
+of those. The rule lives in [icons.md](./conventions/icons.md#sizes); every exact match was moved
+onto a token, and the values left off the scale are either one of the two exceptions or drift
+still to be fixed on a device.

@@ -8,18 +8,23 @@ Icons come from `lucide-react-native` (backed by `react-native-svg`), but **neve
 ```tsx
 import Icon from '@/components/core/icon';
 
-<Icon name="calendar" size={16} />
-<Icon name="camera" size={24} color="textSecondary" />
+<Icon name="calendar" />
+<Icon name="camera" size={IconSize.header} color="textSecondary" />
 ```
 
 - **`name`** — required, typed as `IconName` (`keyof typeof iconMap`). Only icons registered in the map are selectable — this is deliberate, not a limitation: it keeps every icon the bundler ever sees an explicit, reviewable choice instead of the whole Lucide set being reachable.
-- **`size`** — defaults to `16`.
+- **`size`** — an `IconSize` token, never a number. Defaults to `IconSize.inline`. See [Sizes](#sizes).
 - **`color`** — a `ThemeColor` key (`'text'`, `'textSecondary'`, etc., same set `AppText` uses), defaults to `'text'`.
 - **`strokeWidth`** — optional passthrough; omit to use Lucide's own default (`2`).
 - `Icon` is decorative by default (hidden from the accessibility tree) — it does not accept an `accessibilityLabel`. Icon-only tappable controls must use `IconButton` (`src/components/core/icon-button.tsx`), which owns the 44pt tap target and takes a **required** `accessibilityLabel`; don't bolt accessibility props onto `Icon` itself.
 
 ```tsx
-<IconButton name="plus" accessibilityLabel="Log a feed" size={28} onPress={onLogPress} />
+<IconButton
+  name="plus"
+  accessibilityLabel="Log a feed"
+  size={IconSize.feature}
+  onPress={onLogPress}
+/>
 ```
 
 Unlike `MainButton`, it never stretches to fill its parent — it is a fixed circular target (`alignSelf: 'center'`). Variants are `primary` / `secondary` / `ghost` / `glass`; the first two draw the glyph in `onPrimary`, `ghost` in `text`, and `glass` in `primary` (white on clear glass is invisible over a light background).
@@ -60,3 +65,29 @@ nothing else is drawing the circle.
 3. Use `<Icon name="yourNewKey" />` at the call site.
 
 Never import from `lucide-react-native` anywhere except `icon-map.ts` — that's what keeps the bundle from silently growing as icons get added. See [ADR 0008](../adr/0008-lucide-icon-library-typed-icon-map.md) for why Phosphor was replaced.
+
+## Sizes
+
+**An icon is sized by its role, from `IconSize` in `@/constants/theme`. Never by eye.** Before this
+scale existed the app used seventeen sizes, and one Care Card had its controls at 18, 19 and 20 for
+the same job. Pick the row that describes what the icon is for:
+
+| Token     | Size | Role                                                 | Examples                                                                 |
+| --------- | ---- | ---------------------------------------------------- | ------------------------------------------------------------------------ |
+| `inline`  | 16   | A glyph beside text, or inside a button with a label | the phone beside a number, `plus` in "Add contact"                       |
+| `control` | 18   | A compact control inside a sheet, a row or a card    | sheet close, delete in a list, a row's chevron, the Care Card's controls |
+| `action`  | 20   | A screen's own action, on the page                   | edit and add on a section header                                         |
+| `header`  | 24   | A header button. `IconButton`'s default              |                                                                          |
+| `feature` | 28   | The one primary action on a screen                   | the log button                                                           |
+
+Controls that sit together share one size. If two buttons side by side want different sizes, one of
+them has the wrong role.
+
+Two exceptions, and only these:
+
+- **A glyph inside a drawn shape** — a tick in a checkbox, a cross on a photo, a badge. It is sized
+  to its shape, not to the scale. Name the size as a constant beside the shape it fits.
+- **An illustration** — artwork at the top of a sheet, 120 and above. It is not an icon in the
+  sense above.
+
+Anything else off the scale is drift. Do not copy a nearby number; pick the role.

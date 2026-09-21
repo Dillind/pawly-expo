@@ -17,7 +17,7 @@ import {
   CardInset,
   CardPalette
 } from '@/constants/care-card-palette';
-import type { AppTheme } from '@/constants/theme';
+import { IconSize, type AppTheme } from '@/constants/theme';
 import { useStyles } from '@/hooks/use-styles';
 import type { CareCardBackRow } from '@/lib/care-card-view';
 
@@ -56,7 +56,7 @@ const SectionRow = ({
           </AppText>
         </View>
 
-        <Icon name="caretRight" size={18} color="textSecondary" />
+        <Icon name="caretRight" size={IconSize.control} color="textSecondary" />
       </View>
     </PressableOpacity>
   );
@@ -102,7 +102,7 @@ const CardBackFace = ({ petName, updatedLabel, rows, isOwner, onFlip, onOpenSect
           accessibilityLabel="Turn the card back over"
           variant="ghost"
           color="onPrimary"
-          size={20}
+          size={IconSize.control}
           hapticFeedback={false}
           containerStyle={styles.flip}
           onPress={onFlip}

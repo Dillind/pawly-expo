@@ -15,7 +15,7 @@ import {
   NEW_HOUSEHOLD_STEP_COUNT,
   type NewHouseholdFormValues
 } from '@/constants/schemas/new-household';
-import { Radius, type AppTheme } from '@/constants/theme';
+import { IconSize, Radius, type AppTheme } from '@/constants/theme';
 import { useCreateHouseholdWithPet } from '@/hooks/queries/household/use-create-household-with-pet';
 import { useNewHouseholdExit } from '@/hooks/use-new-household-exit';
 import { useStyles } from '@/hooks/use-styles';
@@ -128,7 +128,7 @@ const FeedTimes = () => {
                 </AppText>
               </View>
 
-              <Icon name="caretRight" size={16} color="textSecondary" />
+              <Icon name="caretRight" size={IconSize.inline} color="textSecondary" />
             </PressableOpacity>
           );
         })}

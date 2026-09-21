@@ -6,7 +6,7 @@ import BaseSheet from '@/components/bottom-sheets/base-sheet';
 import AppText from '@/components/core/app-text';
 import Icon from '@/components/core/icon';
 import IconButton from '@/components/core/icon-button';
-import { Radius, type AppTheme } from '@/constants/theme';
+import { IconSize, Radius, type AppTheme } from '@/constants/theme';
 import { useStyles } from '@/hooks/use-styles';
 
 type Props = {
@@ -39,7 +39,7 @@ const ProSheet = ({ sheetRef, title, lead, body }: Props) => {
             accessibilityLabel="Close"
             variant="ghost"
             color="onPrimary"
-            size={18}
+            size={IconSize.control}
             containerStyle={styles.close}
             onPress={() => void sheetRef.current?.dismiss()}
           />

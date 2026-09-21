@@ -10,7 +10,7 @@ import PressableOpacity from '@/components/core/pressable-opacity';
 import FlowScreen from '@/components/layout/flow-screen';
 import { FEEDING_SCHEDULE_LABEL_OPTIONS } from '@/constants/options';
 import { ADD_PET_STEP_COUNT, type AddPetFormValues } from '@/constants/schemas/add-pet';
-import { Radius, type AppTheme } from '@/constants/theme';
+import { IconSize, Radius, type AppTheme } from '@/constants/theme';
 import { useAddPetExit } from '@/hooks/use-add-pet-exit';
 import { useStyles } from '@/hooks/use-styles';
 import { describeDays } from '@/utils/days';
@@ -62,7 +62,7 @@ const AddPetFeeds = () => {
                 </AppText>
               </View>
 
-              <Icon name="caretRight" size={16} color="textSecondary" />
+              <Icon name="caretRight" size={IconSize.inline} color="textSecondary" />
             </PressableOpacity>
           );
         })}

@@ -3,7 +3,7 @@ import { StyleSheet, View } from 'react-native';
 import AppText from '@/components/core/app-text';
 import Icon from '@/components/core/icon';
 import PressableOpacity from '@/components/core/pressable-opacity';
-import { Radius, type AppTheme } from '@/constants/theme';
+import { IconSize, Radius, type AppTheme } from '@/constants/theme';
 import { useStyles } from '@/hooks/use-styles';
 
 type Props = {
@@ -29,7 +29,7 @@ const BreedField = ({ value, description, onPress }: Props) => {
         <AppText size={16} color={value ? 'text' : 'textSecondary'} style={styles.value}>
           {value ?? 'Choose a breed'}
         </AppText>
-        <Icon name="caretRight" size={16} color="textSecondary" />
+        <Icon name="caretRight" size={IconSize.inline} color="textSecondary" />
       </PressableOpacity>
 
       {description && (

@@ -4,7 +4,7 @@ import { StyleSheet, View } from 'react-native';
 import AppText from '@/components/core/app-text';
 import Icon from '@/components/core/icon';
 import type { IconName } from '@/constants/icon-map';
-import type { AppTheme } from '@/constants/theme';
+import { IconSize, type AppTheme } from '@/constants/theme';
 import { useStyles } from '@/hooks/use-styles';
 
 type Props = {
@@ -23,7 +23,7 @@ const EmptyState = ({ icon, title, description, action }: Props) => {
   return (
     <View style={styles.container}>
       <View style={styles.iconCircle}>
-        <Icon name={icon} size={28} color="textSecondary" />
+        <Icon name={icon} size={IconSize.feature} color="textSecondary" />
       </View>
       <AppText size={18} fontWeight="bold" align="center">
         {title}

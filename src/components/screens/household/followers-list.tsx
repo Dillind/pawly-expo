@@ -10,7 +10,7 @@ import SettingsRow from '@/components/core/settings-row';
 import SettingsSection from '@/components/core/settings-section';
 import UserAvatar from '@/components/core/user-avatar';
 import ScrollScreen from '@/components/layout/scroll-screen';
-import { BottomTabInset, Spacing, type AppTheme } from '@/constants/theme';
+import { BottomTabInset, IconSize, Spacing, type AppTheme } from '@/constants/theme';
 import {
   useFollowers,
   useFollowRequests,
@@ -120,7 +120,9 @@ const FollowersList = ({ householdId }: Props) => {
                       </AppText>
                     )}
                   </View>
-                  {isOwner && <Icon name="caretRight" size={16} color="textSecondary" />}
+                  {isOwner && (
+                    <Icon name="caretRight" size={IconSize.inline} color="textSecondary" />
+                  )}
                 </View>
               );
 

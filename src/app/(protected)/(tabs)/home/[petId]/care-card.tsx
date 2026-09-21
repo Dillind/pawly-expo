@@ -14,7 +14,7 @@ import CareCardSectionSheet from '@/components/screens/pet/care-card/care-card-s
 import CareCardSectionTray from '@/components/screens/pet/care-card/care-card-section-tray';
 import FlipCard from '@/components/screens/pet/care-card/flip-card';
 import { CardInset, CardPalette } from '@/constants/care-card-palette';
-import { Radius, type AppTheme } from '@/constants/theme';
+import { IconSize, Radius, type AppTheme } from '@/constants/theme';
 import { useHousehold } from '@/hooks/queries/household/use-household';
 import { useCareCardData } from '@/hooks/queries/pet/use-care-card';
 import { usePetDetail } from '@/hooks/queries/pet/use-pet-detail';
@@ -119,7 +119,7 @@ const CareCardScreen = () => {
                 accessibilityLabel="Close the Care Card"
                 variant="ghost"
                 color="onGlass"
-                size={18}
+                size={IconSize.control}
                 containerStyle={styles.control}
                 onPress={() => router.back()}
               />

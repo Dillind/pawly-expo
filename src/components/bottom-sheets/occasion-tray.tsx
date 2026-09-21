@@ -16,7 +16,7 @@ import Tray, { useTray, type TrayStepDescriptor } from '@/components/core/tray';
 import OccasionEmoji from '@/components/ui/occasion-emoji';
 import PostChip from '@/components/ui/post-chip';
 import { EMOJI_GROUPS } from '@/constants/emoji';
-import { Radius, type AppTheme } from '@/constants/theme';
+import { IconSize, Radius, type AppTheme } from '@/constants/theme';
 import {
   useCreateOccasion,
   useOccasions,
@@ -154,7 +154,7 @@ const ChooseStep = ({
               <IconButton
                 name="trash"
                 variant="ghost"
-                size={18}
+                size={IconSize.control}
                 accessibilityLabel={`Remove ${occasion.label ?? 'this occasion'}`}
                 onPress={() => void confirmRemove(occasion)}
               />

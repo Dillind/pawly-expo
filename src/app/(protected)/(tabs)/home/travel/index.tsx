@@ -15,7 +15,7 @@ import { SkeletonBlock } from '@/components/core/skeleton';
 import ScreenScrollView from '@/components/layout/screen-scroll-view';
 import ScreenView from '@/components/layout/screen-view';
 import ChecklistRow from '@/components/screens/travel/checklist-row';
-import { BottomTabInset, HeaderTitleStyle, type AppTheme } from '@/constants/theme';
+import { BottomTabInset, HeaderTitleStyle, IconSize, type AppTheme } from '@/constants/theme';
 import { TRAVEL_HELP } from '@/constants/travel-help';
 import { useHousehold } from '@/hooks/queries/household/use-household';
 import { useIsHouseholdPro } from '@/hooks/queries/household/use-is-household-pro';
@@ -89,7 +89,7 @@ const Travel = () => {
             isOwner ? (
               <MainButton
                 text="Create checklist"
-                leftIcon={<Icon name="plus" size={20} color="onPrimary" />}
+                leftIcon={<Icon name="plus" size={IconSize.action} color="onPrimary" />}
                 onPress={openCreate}
               />
             ) : undefined

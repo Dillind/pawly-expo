@@ -3,7 +3,7 @@ import { StyleSheet, View } from 'react-native';
 import AppText from '@/components/core/app-text';
 import IconButton from '@/components/core/icon-button';
 import UserAvatar from '@/components/core/user-avatar';
-import type { AppTheme } from '@/constants/theme';
+import { IconSize, type AppTheme } from '@/constants/theme';
 import { useStyles } from '@/hooks/use-styles';
 import { formatRelativeTime } from '@/lib/dates';
 import type { Post } from '@/services/post.service';
@@ -49,7 +49,7 @@ const PostHeader = ({ post, showActions = false, householdName, onOpenActions }:
         <IconButton
           name="ellipsis"
           variant="ghost"
-          size={20}
+          size={IconSize.action}
           accessibilityLabel={`Manage ${authorName}'s post`}
           onPress={onOpenActions}
         />

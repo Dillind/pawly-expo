@@ -4,7 +4,7 @@ import { StyleSheet, View } from 'react-native';
 import AppText from '@/components/core/app-text';
 import Icon from '@/components/core/icon';
 import PressableOpacity from '@/components/core/pressable-opacity';
-import { Radius, type AppTheme } from '@/constants/theme';
+import { IconSize, Radius, type AppTheme } from '@/constants/theme';
 import { useStyles } from '@/hooks/use-styles';
 import { describePackedAge, isPackedStale } from '@/lib/travel-packing';
 import type { TravelChecklist } from '@/services/travel-checklist.service';
@@ -42,7 +42,7 @@ const ChecklistRow = ({ checklist }: { checklist: TravelChecklist }) => {
               {checklist.emoji ? (
                 <AppText size={22}>{checklist.emoji}</AppText>
               ) : (
-                <Icon name="luggage" size={20} color="textSecondary" />
+                <Icon name="luggage" size={IconSize.action} color="textSecondary" />
               )}
             </View>
             {checklist.packedAt && (
@@ -64,7 +64,7 @@ const ChecklistRow = ({ checklist }: { checklist: TravelChecklist }) => {
             </AppText>
           </View>
 
-          <Icon name="caretRight" size={18} color="textSecondary" />
+          <Icon name="caretRight" size={IconSize.control} color="textSecondary" />
         </View>
       </PressableOpacity>
     </Link>

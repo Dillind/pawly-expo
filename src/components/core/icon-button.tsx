@@ -10,7 +10,7 @@ import {
 import Icon from '@/components/core/icon';
 import PressableOpacity from '@/components/core/pressable-opacity';
 import type { IconName } from '@/constants/icon-map';
-import { Radius, type AppTheme, type ThemeColor } from '@/constants/theme';
+import { IconSize, Radius, type AppTheme, type ThemeColor } from '@/constants/theme';
 import { useStyles } from '@/hooks/use-styles';
 import { useTheme } from '@/hooks/use-theme';
 import { hapticLight } from '@/lib/haptics';
@@ -42,7 +42,7 @@ const IconButton = ({
   onPress,
   variant = 'primary',
   color,
-  size = 24,
+  size = IconSize.header,
   strokeWidth,
   isLoading = false,
   isDisabled = false,

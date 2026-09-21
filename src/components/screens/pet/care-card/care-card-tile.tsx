@@ -3,7 +3,7 @@ import { StyleSheet, View } from 'react-native';
 import AppText from '@/components/core/app-text';
 import Icon from '@/components/core/icon';
 import PressableOpacity from '@/components/core/pressable-opacity';
-import { Radius, type AppTheme } from '@/constants/theme';
+import { IconSize, Radius, type AppTheme } from '@/constants/theme';
 import { useStyles } from '@/hooks/use-styles';
 import { useTheme } from '@/hooks/use-theme';
 import { hapticLight } from '@/lib/haptics';
@@ -38,7 +38,7 @@ const CareCardTile = ({ petName, onPress }: Props) => {
       <View style={styles.column}>
         <View style={[styles.tile, createShadowMedium(theme.colors)]}>
           <View style={styles.well}>
-            <Icon name="pawPrint" size={15} color="primaryText" />
+            <Icon name="pawPrint" size={IconSize.inline} color="primaryText" />
           </View>
 
           <View style={styles.lines}>

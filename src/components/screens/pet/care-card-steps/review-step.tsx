@@ -4,7 +4,7 @@ import AppText from '@/components/core/app-text';
 import Icon from '@/components/core/icon';
 import MainButton from '@/components/core/main-button';
 import CareCardBlocks from '@/components/screens/pet/care-card/care-card-blocks';
-import { Radius, type AppTheme } from '@/constants/theme';
+import { IconSize, Radius, type AppTheme } from '@/constants/theme';
 import { useStyles } from '@/hooks/use-styles';
 import { careCardBlocks } from '@/lib/care-card-view';
 import { hapticSuccess } from '@/lib/haptics';
@@ -81,7 +81,7 @@ const ReviewStep = ({
       <StepFooter
         isBusy={isSharing}
         nextLabel="Share"
-        nextIcon={<Icon name="share" size={16} color="onPrimary" />}
+        nextIcon={<Icon name="share" size={IconSize.inline} color="onPrimary" />}
         isNextDisabled={blocks.length === 0}
         onBack={onBack}
         onNext={() => {

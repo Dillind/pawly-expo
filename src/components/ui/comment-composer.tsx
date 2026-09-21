@@ -4,7 +4,7 @@ import { ScrollView, StyleSheet, TextInput, View } from 'react-native';
 import AppText from '@/components/core/app-text';
 import Icon from '@/components/core/icon';
 import PressableOpacity from '@/components/core/pressable-opacity';
-import { BottomTabInset, Radius, type AppTheme } from '@/constants/theme';
+import { BottomTabInset, IconSize, Radius, type AppTheme } from '@/constants/theme';
 import { useStyles } from '@/hooks/use-styles';
 import { useTheme } from '@/hooks/use-theme';
 import { hapticLight } from '@/lib/haptics';
@@ -70,7 +70,7 @@ const CommentComposer = ({
             accessibilityRole="button"
             accessibilityLabel={`Stop replying to ${replyingToName}`}
             style={styles.cancelTarget}>
-            <Icon name="close" size={16} color="textSecondary" />
+            <Icon name="close" size={IconSize.inline} color="textSecondary" />
           </PressableOpacity>
         </View>
       )}
