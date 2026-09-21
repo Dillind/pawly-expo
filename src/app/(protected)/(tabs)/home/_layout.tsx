@@ -179,10 +179,18 @@ export default function HomeLayout() {
         </Stack.Screen>
 
         {/* No bar: the destination IS the card, zoomed out of its tile, over a
-            blurred wash of the screen it came from. */}
+            blurred wash of the screen it came from. Presented modally so the
+            wash covers the tab bar, and *transparently* because a
+            `fullScreenModal` leaves nothing behind it -- the blur then has only
+            black to work with and the wash goes flat. The zoom survives a modal
+            presentation; only a link preview navigation requires one. */}
         <Stack.Screen
           name="[petId]/care-card"
-          options={{ headerShown: false, contentStyle: { backgroundColor: 'transparent' } }}
+          options={{
+            headerShown: false,
+            presentation: 'transparentModal',
+            contentStyle: { backgroundColor: 'transparent' }
+          }}
         />
 
         <Stack.Screen

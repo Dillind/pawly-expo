@@ -14,7 +14,7 @@ import CareCardHelpSheets, {
 import CareCardSectionTray from '@/components/screens/pet/care-card/care-card-section-tray';
 import FlipCard from '@/components/screens/pet/care-card/flip-card';
 import { CardInset, CardPalette } from '@/constants/care-card-palette';
-import { BottomTabInset, Radius, type AppTheme } from '@/constants/theme';
+import { Radius, type AppTheme } from '@/constants/theme';
 import { useHousehold } from '@/hooks/queries/household/use-household';
 import { useCareCardData } from '@/hooks/queries/pet/use-care-card';
 import { usePetDetail } from '@/hooks/queries/pet/use-pet-detail';
@@ -151,20 +151,19 @@ const makeStyles = ({ spacing }: AppTheme) =>
     safe: {
       flex: 1,
       paddingHorizontal: CardInset,
-      paddingTop: spacing.four
+      paddingVertical: spacing.four
     },
     loading: {
       flex: 1,
       alignItems: 'center',
       justifyContent: 'center'
     },
-    // The card is pushed inside the tabs, so the bar is still drawn beneath it.
     footer: {
       flexDirection: 'row',
       alignItems: 'center',
       justifyContent: 'center',
       paddingTop: spacing.four,
-      paddingBottom: BottomTabInset - spacing.three
+      paddingBottom: spacing.three
     },
     control: {
       width: 50,

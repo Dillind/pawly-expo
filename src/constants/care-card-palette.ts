@@ -7,13 +7,18 @@ export const CardPalette = {
   gold: '#F0A81C',
   goldStops: ['#F7BB40', '#F0A81C', '#DC960F'] as const,
   onGold: '#2A1D06',
+  // The corner sweep: the same gold, deepened. Ink still clears 4.5:1 on it.
+  sweep: '#C07F08',
   // 14.30:1 with `onCream`, 5.79:1 with `onCreamSecondary`.
   cream: '#FBEED2',
   creamStops: ['#FEF8EA', '#FBEED2'] as const,
   onCream: '#2A1D06',
+  creamSweep: '#F3E2BE',
   onCreamSecondary: '#6B5A3D',
   rule: 'rgba(42, 29, 6, 0.14)',
   ring: '#FFFFFF',
+  // A hairline of light along the top edge, the way a laminated card catches it.
+  edge: 'rgba(255, 255, 255, 0.34)',
   // The pill behind an icon on a face. Bare glyphs on gold read as printing on
   // the card rather than as controls.
   pill: 'rgba(42, 29, 6, 0.13)',

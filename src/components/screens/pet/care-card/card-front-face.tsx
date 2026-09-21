@@ -6,6 +6,7 @@ import Icon from '@/components/core/icon';
 import IconButton from '@/components/core/icon-button';
 import MainButton from '@/components/core/main-button';
 import PetAvatar from '@/components/core/pet-avatar';
+import CardSweep from '@/components/screens/pet/care-card/card-sweep';
 import {
   CardGradientEnd,
   CardGradientStart,
@@ -52,6 +53,8 @@ const CardFrontFace = ({
       start={CardGradientStart}
       end={CardGradientEnd}
       style={styles.face}>
+      <CardSweep />
+
       <View style={styles.top}>
         <AppText size={13} fontWeight="semibold" style={styles.ink}>
           Care card
@@ -157,7 +160,9 @@ const makeStyles = ({ spacing }: AppTheme) =>
       padding: CardInset,
       borderRadius: CardRadius,
       borderCurve: 'continuous',
-      overflow: 'hidden'
+      overflow: 'hidden',
+      borderWidth: StyleSheet.hairlineWidth,
+      borderColor: CardPalette.edge
     },
     ink: {
       color: CardPalette.onGold
