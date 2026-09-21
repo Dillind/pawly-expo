@@ -1,5 +1,5 @@
-import { useEffect, useRef, type ReactNode } from 'react';
-import { AccessibilityInfo, StyleSheet, View } from 'react-native';
+import { useEffect, type ReactNode } from 'react';
+import { StyleSheet, View } from 'react-native';
 import Animated, {
   Easing,
   interpolate,
@@ -57,15 +57,6 @@ const FlipCard = ({ isFlipped, front, back }: Props) => {
     );
   }, [isFlipped, isReduced, progress]);
 
-  const hasMounted = useRef(false);
-  useEffect(() => {
-    if (!hasMounted.current) {
-      hasMounted.current = true;
-      return;
-    }
-    AccessibilityInfo.announceForAccessibility(isFlipped ? 'Back of card' : 'Front of card');
-  }, [isFlipped]);
-
   useAnimatedReaction(
     () => (progress.get() > 0.5 ? 1 : 0),
     (turned, previous) => {
@@ -108,17 +99,11 @@ const FlipCard = ({ isFlipped, front, back }: Props) => {
       <Animated.View style={[styles.card, createShadowLarge(colors), styles.cardShadow, liftStyle]}>
         <Animated.View
           style={[styles.face, frontStyle]}
-          pointerEvents={isFlipped ? 'none' : 'auto'}
-          accessibilityElementsHidden={isFlipped}
-          importantForAccessibility={isFlipped ? 'no-hide-descendants' : 'auto'}>
+          pointerEvents={isFlipped ? 'none' : 'auto'}>
           {front}
         </Animated.View>
 
-        <Animated.View
-          style={[styles.face, backStyle]}
-          pointerEvents={isFlipped ? 'auto' : 'none'}
-          accessibilityElementsHidden={!isFlipped}
-          importantForAccessibility={isFlipped ? 'auto' : 'no-hide-descendants'}>
+        <Animated.View style={[styles.face, backStyle]} pointerEvents={isFlipped ? 'auto' : 'none'}>
           {back}
         </Animated.View>
       </Animated.View>
