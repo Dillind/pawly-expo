@@ -1,8 +1,9 @@
 import type { TrueSheet } from '@lodev09/react-native-true-sheet';
 import { BlurView } from 'expo-blur';
 import { useLocalSearchParams, usePreventZoomTransitionDismissal, useRouter } from 'expo-router';
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, StyleSheet, View } from 'react-native';
+import Animated, { Easing, useSharedValue, withTiming } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import IconButton from '@/components/core/icon-button';
@@ -24,6 +25,8 @@ import { careCardBackRows, careCardBlocks, emergencyNumber } from '@/lib/care-ca
 import { deviceTimezone, formatDateWithYear } from '@/lib/dates';
 
 const BLUR_INTENSITY = 48;
+const WASH_IN_MS = 320;
+const EASE_OUT = Easing.bezier(0.23, 1, 0.32, 1);
 
 const CareCardScreen = () => {
   const { petId, petName, petSubtitle } = useLocalSearchParams<{
@@ -43,6 +46,16 @@ const CareCardScreen = () => {
   const { data: pet } = usePetDetail(petId);
   const { data: household } = useHousehold();
   const { shareCareCard, isSharing } = useShareCareCard();
+
+  // The screen behind is not composited on the first frame, so a blur at full
+  // strength from the start pops when it finally has something to blur. Fading
+  // the whole backdrop in covers that frame. The intensity itself never
+  // animates -- on Android that re-renders the blur every frame.
+  const washOpacity = useSharedValue(0);
+
+  useEffect(() => {
+    washOpacity.set(withTiming(1, { duration: WASH_IN_MS, easing: EASE_OUT }));
+  }, [washOpacity]);
 
   // The card's own scroller owns the vertical gesture, so the zoom's interactive
   // dismissal is fenced off entirely and the round close button is the way out.
@@ -65,8 +78,10 @@ const CareCardScreen = () => {
 
   return (
     <View style={styles.screen}>
-      <BlurView intensity={BLUR_INTENSITY} tint="dark" style={StyleSheet.absoluteFill} />
-      <View style={[StyleSheet.absoluteFill, styles.wash]} />
+      <Animated.View style={[StyleSheet.absoluteFill, { opacity: washOpacity }]}>
+        <BlurView intensity={BLUR_INTENSITY} tint="dark" style={StyleSheet.absoluteFill} />
+        <View style={[StyleSheet.absoluteFill, styles.wash]} />
+      </Animated.View>
 
       <SafeAreaView style={styles.safe} edges={['top', 'bottom']}>
         {isLoading ? (
@@ -74,55 +89,54 @@ const CareCardScreen = () => {
             <ActivityIndicator />
           </View>
         ) : (
-          <FlipCard
-            isFlipped={isFlipped}
-            front={
-              <CardFrontFace
-                petName={petName}
-                petSubtitle={petSubtitle ?? null}
-                photoUrl={pet?.photoUrl ?? null}
-                emergency={emergencyNumber(card, contacts)}
-                isEmpty={isEmpty}
-                isSharing={isSharing}
-                onHelp={() => helpRef.current?.openWhatIsIt()}
-                onShare={() => void shareCareCard([petId])}
-                onFlip={() => setIsFlipped(true)}
-                onFill={openEditor}
-              />
-            }
-            back={
-              <CardBackFace
-                petName={petName}
-                updatedLabel={
-                  card.updatedAt
-                    ? `Updated ${formatDateWithYear(new Date(card.updatedAt), timezone)}`
-                    : null
-                }
-                rows={careCardBackRows(card, medications, contacts)}
-                isOwner={isOwner}
-                isSharing={isSharing}
-                onHelp={() => helpRef.current?.openWhatIsIt()}
-                onShare={() => void shareCareCard([petId])}
-                onFlip={() => setIsFlipped(false)}
-                onOpenSection={openSection}
-              />
-            }
-          />
-        )}
+          <View style={styles.stage}>
+            <FlipCard
+              isFlipped={isFlipped}
+              front={
+                <CardFrontFace
+                  petName={petName}
+                  petSubtitle={petSubtitle ?? null}
+                  photoUrl={pet?.photoUrl ?? null}
+                  emergency={emergencyNumber(card, contacts)}
+                  isEmpty={isEmpty}
+                  isSharing={isSharing}
+                  onHelp={() => helpRef.current?.openWhatIsIt()}
+                  onShare={() => void shareCareCard([petId])}
+                  onFlip={() => setIsFlipped(true)}
+                  onFill={openEditor}
+                />
+              }
+              back={
+                <CardBackFace
+                  petName={petName}
+                  updatedLabel={
+                    card.updatedAt
+                      ? `Updated ${formatDateWithYear(new Date(card.updatedAt), timezone)}`
+                      : null
+                  }
+                  rows={careCardBackRows(card, medications, contacts)}
+                  isOwner={isOwner}
+                  onFlip={() => setIsFlipped(false)}
+                  onOpenSection={openSection}
+                />
+              }
+            />
 
-        {/* Close acts on the card, so it sits outside it rather than on a
+            {/* Close acts on the card, so it sits outside it rather than on a
             face. Editing lives on the back, one section at a time. */}
-        <View style={styles.footer}>
-          <IconButton
-            name="close"
-            accessibilityLabel="Close the Care Card"
-            variant="ghost"
-            color="onGlass"
-            size={22}
-            containerStyle={styles.control}
-            onPress={() => router.back()}
-          />
-        </View>
+            <View style={styles.footer}>
+              <IconButton
+                name="close"
+                accessibilityLabel="Close the Care Card"
+                variant="ghost"
+                color="onGlass"
+                size={18}
+                containerStyle={styles.control}
+                onPress={() => router.back()}
+              />
+            </View>
+          </View>
+        )}
       </SafeAreaView>
 
       <CareCardSectionTray
@@ -158,18 +172,21 @@ const makeStyles = ({ spacing }: AppTheme) =>
       alignItems: 'center',
       justifyContent: 'center'
     },
+    stage: {
+      flex: 1,
+      justifyContent: 'center'
+    },
     footer: {
       flexDirection: 'row',
       alignItems: 'center',
       justifyContent: 'center',
-      paddingTop: spacing.four,
-      paddingBottom: spacing.three
+      paddingTop: spacing.four
     },
     control: {
-      width: 50,
-      height: 50,
-      minWidth: 50,
-      minHeight: 50,
+      width: 38,
+      height: 38,
+      minWidth: 38,
+      minHeight: 38,
       borderRadius: Radius.full,
       backgroundColor: CardPalette.control
     }

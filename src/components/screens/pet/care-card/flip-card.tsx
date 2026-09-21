@@ -2,6 +2,7 @@ import { useEffect, type ReactNode } from 'react';
 import { StyleSheet, View } from 'react-native';
 import Animated, {
   Easing,
+  interpolate,
   useAnimatedReaction,
   useAnimatedStyle,
   useReducedMotion,
@@ -20,9 +21,12 @@ import { useTheme } from '@/hooks/use-theme';
 import { hapticLight } from '@/lib/haptics';
 import { createShadowLarge } from '@/lib/styles/shadows';
 
-const FLIP_MS = 460;
+const FLIP_MS = 520;
 const REDUCED_MS = 180;
-const PERSPECTIVE = 1200;
+// Closer perspective than the old 1200: the card has to turn in the room, not
+// on a flat plane. Under about 700 the near edge distorts.
+const PERSPECTIVE = 820;
+const LIFT_SCALE = 1.06;
 const EASE_IN_OUT = Easing.bezier(0.77, 0, 0.175, 1);
 
 type Props = {
@@ -54,6 +58,18 @@ const FlipCard = ({ isFlipped, front, back }: Props) => {
     }
   );
 
+  // The card rises towards the viewer as it turns and settles back. Without it
+  // the rotation reads as a texture swapping, not as an object turning over.
+  const liftStyle = useAnimatedStyle(() => {
+    if (isReduced) return {};
+    return {
+      transform: [
+        { perspective: PERSPECTIVE },
+        { scale: interpolate(progress.get(), [0, 0.5, 1], [1, LIFT_SCALE, 1]) }
+      ]
+    };
+  });
+
   const frontStyle = useAnimatedStyle(() => {
     const isHidden = progress.get() > 0.5;
     const base = { opacity: isHidden ? 0 : 1, zIndex: isHidden ? 0 : 1 };
@@ -76,7 +92,7 @@ const FlipCard = ({ isFlipped, front, back }: Props) => {
 
   return (
     <View style={styles.stage}>
-      <View style={[styles.card, createShadowLarge(colors), styles.cardShadow]}>
+      <Animated.View style={[styles.card, createShadowLarge(colors), styles.cardShadow, liftStyle]}>
         <Animated.View
           style={[styles.face, frontStyle]}
           pointerEvents={isFlipped ? 'none' : 'auto'}>
@@ -86,18 +102,18 @@ const FlipCard = ({ isFlipped, front, back }: Props) => {
         <Animated.View style={[styles.face, backStyle]} pointerEvents={isFlipped ? 'auto' : 'none'}>
           {back}
         </Animated.View>
-      </View>
+      </Animated.View>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  // The card is centred in whatever room it is given, so the wash stays visible
-  // above and below it. A face that filled the screen read as a gold page.
+  // The stage hugs the card rather than filling the screen. Its owner does the
+  // centring, so the close control below can sit against the card instead of
+  // beyond a column of leftover space.
   stage: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center'
+    alignSelf: 'stretch',
+    alignItems: 'center'
   },
   card: {
     width: '100%',

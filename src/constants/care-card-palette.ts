@@ -9,6 +9,13 @@ export const CardPalette = {
   onGold: '#2A1D06',
   // The corner sweep: the same gold, deepened. Ink still clears 4.5:1 on it.
   sweep: '#C07F08',
+  // The rim. A real card is laminated, so its edge is a band of light on the
+  // lit side and a band of shade on the other -- not a single hairline.
+  rimStops: [
+    'rgba(255, 255, 255, 0.82)',
+    'rgba(255, 255, 255, 0.20)',
+    'rgba(42, 29, 6, 0.30)'
+  ] as const,
   // 14.30:1 with `onCream`, 5.79:1 with `onCreamSecondary`.
   cream: '#FBEED2',
   creamStops: ['#FEF8EA', '#FBEED2'] as const,
@@ -32,6 +39,12 @@ export const CardGradientEnd = { x: 0.9, y: 1 } as const;
 
 export const CardInset = 20;
 export const CardRadius = 28;
+export const CardRimWidth = 2.5;
+export const CardFaceRadius = CardRadius - CardRimWidth;
+// The flip control sits at the optical centre of the corner sweep, not in the
+// corner. Measured against the sweep path in `card-sweep.tsx`.
+export const CardFlipRight = 52;
+export const CardFlipBottom = 35;
 export const CardPhotoSize = 150;
 // A card, not a page: the wash stays visible above and below it. Roughly the
 // proportion of a real membership card held in one hand.
