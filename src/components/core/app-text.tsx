@@ -16,6 +16,8 @@ type Props = {
   style?: StyleProp<TextStyle>;
   ellipsizeMode?: 'clip' | 'middle' | 'head' | 'tail';
   numberOfLines?: number;
+  adjustsFontSizeToFit?: boolean;
+  minimumFontScale?: number;
   onPress?: () => void;
 };
 
@@ -43,6 +45,8 @@ const AppText = ({
   style,
   ellipsizeMode,
   numberOfLines,
+  adjustsFontSizeToFit,
+  minimumFontScale,
   onPress
 }: Props) => {
   const theme = useTheme();
@@ -68,7 +72,9 @@ const AppText = ({
         style
       ]}
       ellipsizeMode={ellipsizeMode}
-      numberOfLines={numberOfLines}>
+      numberOfLines={numberOfLines}
+      adjustsFontSizeToFit={adjustsFontSizeToFit}
+      minimumFontScale={minimumFontScale}>
       {children}
     </Text>
   );

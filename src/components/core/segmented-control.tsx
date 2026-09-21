@@ -26,7 +26,7 @@ type Props<T extends string> = {
   // Without it the control cannot render its own error.
   name?: string;
   options: Option<T>[];
-  value: T;
+  value: T | null;
   onChange: (value: T) => void;
 };
 
@@ -119,6 +119,9 @@ const SegmentedControl = <T extends string>({
               <AppText
                 size={14}
                 align="center"
+                numberOfLines={1}
+                adjustsFontSizeToFit
+                minimumFontScale={0.7}
                 fontWeight={isSelected ? 'bold' : 'regular'}
                 color={isSelected ? 'text' : 'textSecondary'}>
                 {option.label}
