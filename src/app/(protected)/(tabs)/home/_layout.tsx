@@ -178,10 +178,12 @@ export default function HomeLayout() {
           </Stack.Toolbar>
         </Stack.Screen>
 
-        <Stack.Screen name="[petId]/care-card" options={{ headerShown: true }}>
-          <Stack.Header transparent />
-          <Stack.Screen.BackButton displayMode="minimal" />
-        </Stack.Screen>
+        {/* No bar: the destination IS the card, zoomed out of its tile, over a
+            blurred wash of the screen it came from. */}
+        <Stack.Screen
+          name="[petId]/care-card"
+          options={{ headerShown: false, contentStyle: { backgroundColor: 'transparent' } }}
+        />
 
         <Stack.Screen
           name="[petId]/care-card-editor"

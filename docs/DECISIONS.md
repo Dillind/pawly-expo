@@ -202,31 +202,29 @@ list the user never asked for.
 header already carries the plus, the illustrated empty state was taller than the card it explained
 and offered a second copy of the same action.
 
-**The care card is a route, not an overlay.** `home/[petId]/care-card` — a push, a real back
-button, and a URL a notification could reach one day. It was a gold card that morphed out of its
-tile and flipped to show its contents; a sitter reading it wants every section at once, and a face
-they had to turn over hid half of them behind an animation. `care-card-overlay.tsx`,
-`card-front-face.tsx`, `card-back-face.tsx`, `card-face-header.tsx` and `card-action-button.tsx`
-are gone, and `CareCardTile` no longer measures its own frame.
+**The Care Card is a card object, not a page.** `home/[petId]/care-card` keeps its route name, but
+the screen inside it has no native header: one card inset 20pt either side, over a dark blurred wash
+of the Pet screen, with a round close button beneath. The tile zooms into it with `Link.AppleZoom`.
+This overturns the CRU-055 entry that stood here, which said a sitter wants every section at once
+and a face they had to turn over hid half of them. The back now carries **every** section as one
+scrolling list, so nothing sits behind a second tap — only behind one turn of the card — and the
+turn is what makes the card read as an object rather than as a screen. See
+[ADR 0042](./adr/0042-the-care-card-is-an-object-not-a-page.md) for the alternatives, including the
+page this replaces.
 
-**Its bar is `Stack.Toolbar`, so iOS 26 draws one glass capsule beside the back button's own.** A
-row of `IconButton`s stacked our material on the bar's and read visibly heavier.
+**A section opens its own Tray, not the wizard.** Tapping a row on the back edits that section's
+fields and saves through the same mutation. The nine-step editor stays for exactly one job, the
+first fill of an empty card — walking nine steps to correct one phone number is the complaint the
+redesign answers. The Tray hard-codes `detents={['auto']}` and `TrayStep` has no scroller, so a
+section with two long answers is split one field per step rather than the shared Tray being changed:
+`watch-for` and `around-the-house` each became two.
 
-**Help and share are SF Symbols; the pencil is Lucide's.** `questionmark.circle` and
-`square.and.arrow.up` have no equivalent in the icon map, but `pencil` does, and the Feed times and
-About headers already draw it — an SF Symbol here put two different pencils on one screen. It is a
-`Stack.Toolbar.View` holding the `Icon`, which shares the bar's background rather than drawing its
-own.
+**The two faces keep their colours in both modes.** Gold front, cream back, one ink. The wash behind
+the card carries the theme; the card does not, because a physical object does not repaint itself.
 
-**The pencil uses `hidden`, not a conditional child.** The toolbar reads its children once, so
-removing one for a Contributor left a gap where the item had been.
-
-**The large title is the heading.** `<Stack.Title large>` collapses into the bar on scroll, so the
-page draws the words once. Rendering both put "Crumpet's care card" on the screen twice.
-
-**Share kept its PDF.** The design drew no Share at all; dropping it would have taken the whole of
-CRU-010 with it, so it is a bar button beside the pencil, disabled while sharing and on an empty
-card.
+**Its bar is gone with the page.** The `Stack.Toolbar` capsule, the large title and the Lucide pencil
+described here were the page's chrome. Help and share are now `IconButton`s on the card's own faces,
+and the pencil is replaced by a chevron on each section row.
 
 **`CareCard` now carries `updatedAt`.** The date under the title comes from the column the
 `care_cards_set_updated_at` trigger already maintained. There is no `updated_by`, so the line reads

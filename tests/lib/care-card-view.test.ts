@@ -1,5 +1,5 @@
 import { emptyCareCard } from '@/constants/care-card-fields';
-import { careCardBlocks } from '@/lib/care-card-view';
+import { careCardBackRows, careCardBlocks, emergencyNumber } from '@/lib/care-card-view';
 import type { CareCard, CareCardContact, Medication } from '@/services/care-card.service';
 
 const card = (overrides: Partial<CareCard> = {}): CareCard => ({
@@ -106,5 +106,50 @@ describe('careCardBlocks with contacts', () => {
     expect(block).toMatchObject({
       rows: [{ label: 'Priya' }, { label: 'Sam' }]
     });
+  });
+});
+
+describe('careCardBackRows', () => {
+  it('lists every section, filled or not, so nothing hides behind a second tap', () => {
+    const rows = careCardBackRows(card(), [], []);
+
+    expect(rows).toHaveLength(8);
+    expect(rows.every((row) => row.summary === null)).toBe(true);
+    expect(rows[0].id).toBe('reaching-you');
+  });
+
+  it('summarises a section from the fields that have answers', () => {
+    const rows = careCardBackRows(
+      card({ allergies: 'Chicken', behaviourNotes: 'Bolts at the door' }),
+      [medication()],
+      [contact()]
+    );
+
+    expect(rows.find((row) => row.id === 'watch-for')?.summary).toBe('Chicken · Bolts at the door');
+    expect(rows.find((row) => row.id === 'medications')?.summary).toBe('Apoquel');
+    expect(rows.find((row) => row.id === 'reaching-you')?.summary).toBe('Priya next door');
+  });
+});
+
+describe('emergencyNumber', () => {
+  it('prefers the emergency vet, then the vet, then the first contact with a number', () => {
+    expect(
+      emergencyNumber(
+        card({ emergencyVetName: 'Melbourne AE', emergencyVetPhone: '03 9370 5555' }),
+        [contact()]
+      )
+    ).toEqual({ label: 'Melbourne AE', value: '03 9370 5555' });
+
+    expect(emergencyNumber(card({ vetPhone: '03 9482 1234' }), [contact()])).toEqual({
+      label: 'Vet',
+      value: '03 9482 1234'
+    });
+
+    expect(emergencyNumber(card(), [contact()])).toEqual({
+      label: 'Priya next door',
+      value: '0433 221 100'
+    });
+
+    expect(emergencyNumber(card(), [])).toBeNull();
   });
 });

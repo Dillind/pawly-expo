@@ -1,6 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import type { TrueSheet } from '@lodev09/react-native-true-sheet';
-import { useRouter } from 'expo-router';
+import { Link } from 'expo-router';
 import { useRef } from 'react';
 import { FormProvider, useForm, useFormContext, useWatch } from 'react-hook-form';
 import { ActivityIndicator, StyleSheet, View } from 'react-native';
@@ -64,7 +64,6 @@ type Props = {
 
 const PetIdentity = ({ pet, isOwner }: Props) => {
   const styles = useStyles(makeStyles);
-  const router = useRouter();
   const detailsTrayRef = useRef<TrueSheet | null>(null);
   const photoSheetRef = useRef<TrueSheet | null>(null);
   const { mutate: changePhoto, isPending: isChangingPhoto } = useChangePetPhoto(pet.id);
@@ -145,19 +144,22 @@ const PetIdentity = ({ pet, isOwner }: Props) => {
           )}
         </PressableOpacity>
 
-        <CareCardTile
-          petName={pet.name}
-          onPress={() =>
-            router.push({
-              pathname: '/home/[petId]/care-card',
-              params: {
-                petId: pet.id,
-                petName: pet.name,
-                ...(petBreedLabel(pet) ? { petSubtitle: petBreedLabel(pet) as string } : {})
-              }
-            })
-          }
-        />
+        {/* A real Link, not a push: `withAppleZoom` throws without one, and the
+            tile is what the card zooms out of. */}
+        <Link
+          href={{
+            pathname: '/home/[petId]/care-card',
+            params: {
+              petId: pet.id,
+              petName: pet.name,
+              ...(petBreedLabel(pet) ? { petSubtitle: petBreedLabel(pet) as string } : {})
+            }
+          }}
+          asChild>
+          <Link.Trigger withAppleZoom>
+            <CareCardTile petName={pet.name} />
+          </Link.Trigger>
+        </Link>
       </View>
 
       <View style={styles.nameRow}>
