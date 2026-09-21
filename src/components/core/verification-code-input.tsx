@@ -3,7 +3,7 @@ import { useFormState } from 'react-hook-form';
 import { StyleSheet, TextInput, View } from 'react-native';
 
 import AppText from '@/components/core/app-text';
-import { Radius, type AppTheme } from '@/constants/theme';
+import { MaxFontScale, Radius, type AppTheme } from '@/constants/theme';
 import { useStyles } from '@/hooks/use-styles';
 import FieldError from '@/lib/form/components/field-error';
 import { isAndroid } from '@/utils/platform';
@@ -87,6 +87,7 @@ const VerificationCodeInput = ({
         </View>
 
         <TextInput
+          maxFontSizeMultiplier={MaxFontScale.body}
           ref={inputRef}
           value={value}
           onChangeText={handleChange}

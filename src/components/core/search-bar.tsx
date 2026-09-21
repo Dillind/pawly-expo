@@ -3,7 +3,7 @@ import { StyleSheet, TextInput, View, type StyleProp, type ViewStyle } from 'rea
 
 import Icon from '@/components/core/icon';
 import PressableOpacity from '@/components/core/pressable-opacity';
-import { IconSize, InterFontFamily, Radius, type AppTheme } from '@/constants/theme';
+import { IconSize, InterFontFamily, MaxFontScale, Radius, type AppTheme } from '@/constants/theme';
 import { useDebounce } from '@/hooks/use-debounce';
 import { useStyles } from '@/hooks/use-styles';
 import { useTheme } from '@/hooks/use-theme';
@@ -43,6 +43,7 @@ const SearchBar = ({
       <Icon name="search" size={IconSize.control} color="textSecondary" />
 
       <TextInput
+        maxFontSizeMultiplier={MaxFontScale.body}
         style={styles.input}
         value={term}
         onChangeText={setTerm}

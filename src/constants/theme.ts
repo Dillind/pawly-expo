@@ -205,6 +205,9 @@ export const Radius = {
 // Measured off the running iOS 26 tab bar, not guessed: expo-router's native
 // tabs expose no hook for the height, and anything floating above the bar
 // depends on this number.
+// Uncapped, iOS scales text about 3x at the top accessibility size, which no layout here holds.
+export const MaxFontScale = { body: 1.5, header: 1.2 } as const;
+
 export const BottomTabInset = Platform.select({ ios: 84, android: 80 }) ?? 0;
 
 // Cannot be a shared component: `Stack.Screen` reads direct children only, so a
