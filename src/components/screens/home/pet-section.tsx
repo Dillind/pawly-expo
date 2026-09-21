@@ -19,11 +19,13 @@ import IconButton from '@/components/core/icon-button';
 import MainButton from '@/components/core/main-button';
 import PressableOpacity from '@/components/core/pressable-opacity';
 import PetAvatar from '@/components/screens/home/pet-avatar';
+import AdditionalLogs from '@/components/ui/additional-logs';
 import OccurrenceList from '@/components/ui/occurrence-list';
 import ReminderRow from '@/components/ui/reminder-row';
 import { IconSize, Radius, type AppTheme } from '@/constants/theme';
 import { useFeedTimes } from '@/hooks/queries/feeding/use-feed-times';
 import { useOccurrences } from '@/hooks/queries/feeding/use-occurrences';
+import { useOffScheduleLogs } from '@/hooks/queries/feeding/use-off-schedule-logs';
 import { usePetPause } from '@/hooks/queries/feeding/use-pet-pause';
 import { isTickPending, useTickReminder } from '@/hooks/queries/reminder/use-reminder-mutations';
 import { useReminders } from '@/hooks/queries/reminder/use-reminders';
@@ -73,6 +75,7 @@ const PetSection = ({
   const { data: pause } = usePetPause(pet.id, day);
   const { data: feedTimes } = useFeedTimes(pet.id);
   const { data: reminders = [] } = useReminders(pet.id, day);
+  const { data: offScheduleLogs = [] } = useOffScheduleLogs(pet.id, day, timezone);
   const { mutate: tickReminder, isPending: isTicking, variables: tickingInput } = useTickReminder();
   const reminderTrayRef = useRef<TrueSheet | null>(null);
   const isPaused = Boolean(pause);
@@ -199,6 +202,15 @@ const PetSection = ({
                     />
                   )}
                 </View>
+              )}
+
+              {!isPaused && (
+                <AdditionalLogs
+                  logs={offScheduleLogs}
+                  timezone={timezone}
+                  members={members}
+                  onOpenLog={onOpenLog}
+                />
               )}
 
               {!isPaused &&
