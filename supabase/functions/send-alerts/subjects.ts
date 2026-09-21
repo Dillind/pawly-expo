@@ -269,6 +269,18 @@ export const buildMessageForAlert = async (
     case 'missed_feed': {
       if (!alert.subject_date) return null;
 
+      // A retry can run long after the queue, so a late log must still cancel it.
+      const { data: log, error: logError } = await client
+        .from('feed_logs')
+        .select('id')
+        .eq('feed_time_series_id', alert.subject_id)
+        .eq('occurrence_date', alert.subject_date)
+        .limit(1)
+        .maybeSingle();
+
+      if (logError) throw logError;
+      if (log) return { suppressed: 'already fed' };
+
       // The version that applied on the day being nudged about, not the current
       // one. A feed time is versioned, so "dinner at 6" has to be read through
       // the schedule that was in force then -- see ADR 0030.

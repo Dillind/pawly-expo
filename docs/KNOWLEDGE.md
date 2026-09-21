@@ -822,3 +822,13 @@ with its params (`crumpetapp:///home/<petId>/care-card?petName=…`), and Metro'
 carry a temporary default — a flipped face, a tray presented from a `useEffect` — long enough to
 screenshot it. What cannot be verified that way is anything about the gesture itself, and that has
 to be said plainly rather than implied by a screenshot of the right pixels.
+
+## An outbox retry sends the state of the queue, not the state of now
+
+A `missed_feed` alert was queued at 08:00:00. The feed was logged at 08:06:22. The first sends
+failed, and a retry at 08:10:02 pushed "not logged" for a pet logged four minutes earlier (CRU-152).
+The sweep was right when it queued the row. The dispatch was wrong because it trusted the row.
+
+**Every alert kind about a condition that can be resolved must re-check it in `send-alerts`, at send
+time.** `feed_due` and `reminder_due` always did, because their rebuild is the check. `missed_feed`
+did not. It now looks for a feed log on its occurrence and stamps `suppressed_reason = 'already fed'`.
