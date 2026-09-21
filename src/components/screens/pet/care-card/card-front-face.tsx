@@ -1,10 +1,19 @@
+import { LinearGradient } from 'expo-linear-gradient';
 import { StyleSheet, View } from 'react-native';
 
 import AppText from '@/components/core/app-text';
+import Icon from '@/components/core/icon';
 import IconButton from '@/components/core/icon-button';
 import MainButton from '@/components/core/main-button';
 import PetAvatar from '@/components/core/pet-avatar';
-import { CardInset, CardPalette, CardPhotoSize, CardRadius } from '@/constants/care-card-palette';
+import {
+  CardGradientEnd,
+  CardGradientStart,
+  CardInset,
+  CardPalette,
+  CardPhotoSize,
+  CardRadius
+} from '@/constants/care-card-palette';
 import { Radius, type AppTheme } from '@/constants/theme';
 import { useStyles } from '@/hooks/use-styles';
 
@@ -38,7 +47,11 @@ const CardFrontFace = ({
   const styles = useStyles(makeStyles);
 
   return (
-    <View style={styles.face}>
+    <LinearGradient
+      colors={CardPalette.goldStops}
+      start={CardGradientStart}
+      end={CardGradientEnd}
+      style={styles.face}>
       <View style={styles.top}>
         <AppText size={13} fontWeight="semibold" style={styles.ink}>
           Crumpet care card
@@ -51,8 +64,8 @@ const CardFrontFace = ({
               accessibilityLabel="What is a Care Card?"
               variant="ghost"
               color="onPrimary"
-              size={20}
-              containerStyle={styles.action}
+              size={19}
+              containerStyle={styles.pill}
               onPress={onHelp}
             />
             <IconButton
@@ -60,9 +73,9 @@ const CardFrontFace = ({
               accessibilityLabel="Share the Care Card"
               variant="ghost"
               color="onPrimary"
-              size={20}
+              size={19}
               isLoading={isSharing}
-              containerStyle={styles.action}
+              containerStyle={styles.pill}
               onPress={onShare}
             />
           </View>
@@ -76,7 +89,7 @@ const CardFrontFace = ({
 
         <AppText
           variant="header"
-          size={34}
+          size={36}
           fontWeight="bold"
           align="center"
           numberOfLines={2}
@@ -86,9 +99,29 @@ const CardFrontFace = ({
         </AppText>
 
         {petSubtitle && (
-          <AppText size={15} align="center" numberOfLines={2} style={styles.ink}>
+          <AppText
+            size={14}
+            fontWeight="semibold"
+            align="center"
+            numberOfLines={1}
+            ellipsizeMode="tail"
+            style={styles.ink}>
             {petSubtitle}
           </AppText>
+        )}
+
+        {!isEmpty && emergency && (
+          <View style={styles.emergency}>
+            <AppText size={11} fontWeight="bold" align="center" style={[styles.ink, styles.label]}>
+              {emergency.label}
+            </AppText>
+            <View style={styles.number}>
+              <Icon name="phone" size={17} color="onPrimary" />
+              <AppText size={21} fontWeight="bold" style={styles.ink}>
+                {emergency.value}
+              </AppText>
+            </View>
+          </View>
         )}
       </View>
 
@@ -101,38 +134,19 @@ const CardFrontFace = ({
             onPress={onFill}
           />
         ) : (
-          <>
-            <View style={styles.emergency}>
-              {emergency ? (
-                <>
-                  <AppText size={13} fontWeight="semibold" style={styles.ink}>
-                    {emergency.label}
-                  </AppText>
-                  <AppText size={22} fontWeight="bold" style={styles.ink}>
-                    {emergency.value}
-                  </AppText>
-                </>
-              ) : (
-                <AppText size={13} style={styles.ink}>
-                  No emergency number on the card yet
-                </AppText>
-              )}
-            </View>
-
-            <IconButton
-              name="flip"
-              accessibilityLabel="Turn the card over"
-              variant="ghost"
-              color="onPrimary"
-              size={22}
-              hapticFeedback={false}
-              containerStyle={styles.action}
-              onPress={onFlip}
-            />
-          </>
+          <IconButton
+            name="turnOver"
+            accessibilityLabel="Turn the card over"
+            variant="ghost"
+            color="onPrimary"
+            size={20}
+            hapticFeedback={false}
+            containerStyle={styles.pill}
+            onPress={onFlip}
+          />
         )}
       </View>
-    </View>
+    </LinearGradient>
   );
 };
 
@@ -143,11 +157,16 @@ const makeStyles = ({ spacing }: AppTheme) =>
       padding: CardInset,
       borderRadius: CardRadius,
       borderCurve: 'continuous',
-      overflow: 'hidden',
-      backgroundColor: CardPalette.gold
+      overflow: 'hidden'
     },
     ink: {
       color: CardPalette.onGold
+    },
+    // The one place the card shouts. Letter-spaced small caps, the way a
+    // membership number is set on a real card.
+    label: {
+      letterSpacing: 1.1,
+      textTransform: 'uppercase'
     },
     top: {
       flexDirection: 'row',
@@ -157,33 +176,44 @@ const makeStyles = ({ spacing }: AppTheme) =>
     },
     actions: {
       flexDirection: 'row',
-      alignItems: 'center'
+      alignItems: 'center',
+      gap: spacing.two
     },
-    action: {
-      minWidth: 40,
-      minHeight: 40
+    // Bare glyphs on gold read as printing rather than as controls.
+    pill: {
+      width: 38,
+      height: 38,
+      minWidth: 38,
+      minHeight: 38,
+      borderRadius: Radius.full,
+      backgroundColor: CardPalette.pill
     },
     middle: {
       flex: 1,
       alignItems: 'center',
       justifyContent: 'center',
-      gap: spacing.two
+      gap: spacing.one
     },
     ring: {
       borderRadius: Radius.full,
       borderWidth: 4,
       borderColor: CardPalette.ring,
-      marginBottom: spacing.two
+      marginBottom: spacing.three
+    },
+    emergency: {
+      alignItems: 'center',
+      gap: spacing.half,
+      marginTop: spacing.four
+    },
+    number: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: spacing.two
     },
     bottom: {
       flexDirection: 'row',
       alignItems: 'flex-end',
-      justifyContent: 'space-between',
-      gap: spacing.two
-    },
-    emergency: {
-      flex: 1,
-      gap: 1
+      justifyContent: 'flex-end'
     },
     fill: {
       flex: 1

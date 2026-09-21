@@ -14,7 +14,7 @@ import CareCardHelpSheets, {
 import CareCardSectionTray from '@/components/screens/pet/care-card/care-card-section-tray';
 import FlipCard from '@/components/screens/pet/care-card/flip-card';
 import { CardInset, CardPalette } from '@/constants/care-card-palette';
-import { BottomTabInset, type AppTheme } from '@/constants/theme';
+import { BottomTabInset, Radius, type AppTheme } from '@/constants/theme';
 import { useHousehold } from '@/hooks/queries/household/use-household';
 import { useCareCardData } from '@/hooks/queries/pet/use-care-card';
 import { usePetDetail } from '@/hooks/queries/pet/use-pet-detail';
@@ -23,7 +23,7 @@ import { useStyles } from '@/hooks/use-styles';
 import { careCardBackRows, careCardBlocks, emergencyNumber } from '@/lib/care-card-view';
 import { deviceTimezone, formatDateWithYear } from '@/lib/dates';
 
-const BLUR_INTENSITY = 36;
+const BLUR_INTENSITY = 48;
 
 const CareCardScreen = () => {
   const { petId, petName, petSubtitle } = useLocalSearchParams<{
@@ -110,15 +110,30 @@ const CareCardScreen = () => {
           />
         )}
 
+        {/* Close and edit act on the card, so they sit outside it rather than
+            on a face. Icons only: the card is plainly a card. */}
         <View style={styles.footer}>
           <IconButton
             name="close"
             accessibilityLabel="Close the Care Card"
             variant="ghost"
             color="onGlass"
-            containerStyle={styles.close}
+            size={22}
+            containerStyle={styles.control}
             onPress={() => router.back()}
           />
+
+          {isOwner && !isEmpty && (
+            <IconButton
+              name="pencil"
+              accessibilityLabel="Edit the Care Card"
+              variant="ghost"
+              color="onGlass"
+              size={20}
+              containerStyle={styles.control}
+              onPress={openEditor}
+            />
+          )}
         </View>
       </SafeAreaView>
 
@@ -148,7 +163,7 @@ const makeStyles = ({ spacing }: AppTheme) =>
     safe: {
       flex: 1,
       paddingHorizontal: CardInset,
-      paddingVertical: spacing.three
+      paddingTop: spacing.four
     },
     loading: {
       flex: 1,
@@ -157,12 +172,20 @@ const makeStyles = ({ spacing }: AppTheme) =>
     },
     // The card is pushed inside the tabs, so the bar is still drawn beneath it.
     footer: {
+      flexDirection: 'row',
       alignItems: 'center',
-      paddingTop: spacing.three,
+      justifyContent: 'center',
+      gap: spacing.four,
+      paddingTop: spacing.four,
       paddingBottom: BottomTabInset - spacing.three
     },
-    close: {
-      backgroundColor: CardPalette.washControl
+    control: {
+      width: 50,
+      height: 50,
+      minWidth: 50,
+      minHeight: 50,
+      borderRadius: Radius.full,
+      backgroundColor: CardPalette.control
     }
   });
 

@@ -1,5 +1,5 @@
 import { useEffect, type ReactNode } from 'react';
-import { StyleSheet } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import Animated, {
   Easing,
   useAnimatedReaction,
@@ -10,7 +10,15 @@ import Animated, {
 } from 'react-native-reanimated';
 import { scheduleOnRN } from 'react-native-worklets';
 
+import {
+  CardAspectRatio,
+  CardMaxWidth,
+  CardPalette,
+  CardRadius
+} from '@/constants/care-card-palette';
+import { useTheme } from '@/hooks/use-theme';
 import { hapticLight } from '@/lib/haptics';
+import { createShadowLarge } from '@/lib/styles/shadows';
 
 const FLIP_MS = 460;
 const REDUCED_MS = 180;
@@ -26,6 +34,7 @@ type Props = {
 // `backfaceVisibility` alone has been unreliable on Fabric, so each face is also
 // switched at the halfway point -- the card reads correctly where it is ignored.
 const FlipCard = ({ isFlipped, front, back }: Props) => {
+  const { colors } = useTheme();
   const isReduced = useReducedMotion();
   const progress = useSharedValue(isFlipped ? 1 : 0);
 
@@ -66,21 +75,43 @@ const FlipCard = ({ isFlipped, front, back }: Props) => {
   });
 
   return (
-    <Animated.View style={styles.stage}>
-      <Animated.View style={[styles.face, frontStyle]} pointerEvents={isFlipped ? 'none' : 'auto'}>
-        {front}
-      </Animated.View>
+    <View style={styles.stage}>
+      <View style={[styles.card, createShadowLarge(colors), styles.cardShadow]}>
+        <Animated.View
+          style={[styles.face, frontStyle]}
+          pointerEvents={isFlipped ? 'none' : 'auto'}>
+          {front}
+        </Animated.View>
 
-      <Animated.View style={[styles.face, backStyle]} pointerEvents={isFlipped ? 'auto' : 'none'}>
-        {back}
-      </Animated.View>
-    </Animated.View>
+        <Animated.View style={[styles.face, backStyle]} pointerEvents={isFlipped ? 'auto' : 'none'}>
+          {back}
+        </Animated.View>
+      </View>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
+  // The card is centred in whatever room it is given, so the wash stays visible
+  // above and below it. A face that filled the screen read as a gold page.
   stage: {
-    flex: 1
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center'
+  },
+  card: {
+    width: '100%',
+    maxWidth: CardMaxWidth,
+    aspectRatio: CardAspectRatio,
+    borderRadius: CardRadius,
+    borderCurve: 'continuous'
+  },
+  // The shadow sits on the wrapper, never on a face: a rotating view cannot
+  // carry one, and `overflow: hidden` on the face would clip it anyway.
+  cardShadow: {
+    shadowColor: CardPalette.onGold,
+    shadowOpacity: 0.34,
+    shadowRadius: 34
   },
   face: {
     position: 'absolute',

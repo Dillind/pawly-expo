@@ -1,3 +1,4 @@
+import { LinearGradient } from 'expo-linear-gradient';
 import { Fragment } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
 
@@ -5,8 +6,14 @@ import AppText from '@/components/core/app-text';
 import Icon from '@/components/core/icon';
 import IconButton from '@/components/core/icon-button';
 import PressableOpacity from '@/components/core/pressable-opacity';
-import { CardInset, CardPalette, CardRadius } from '@/constants/care-card-palette';
-import type { AppTheme } from '@/constants/theme';
+import {
+  CardGradientEnd,
+  CardGradientStart,
+  CardInset,
+  CardPalette,
+  CardRadius
+} from '@/constants/care-card-palette';
+import { Radius, type AppTheme } from '@/constants/theme';
 import { useStyles } from '@/hooks/use-styles';
 import type { CareCardBackRow } from '@/lib/care-card-view';
 
@@ -74,7 +81,11 @@ const CardBackFace = ({
   const styles = useStyles(makeStyles);
 
   return (
-    <View style={styles.face}>
+    <LinearGradient
+      colors={CardPalette.creamStops}
+      start={CardGradientStart}
+      end={CardGradientEnd}
+      style={styles.face}>
       <View style={styles.header}>
         <View style={styles.headerText}>
           <AppText variant="header" size={20} numberOfLines={1} style={styles.ink}>
@@ -92,8 +103,8 @@ const CardBackFace = ({
           accessibilityLabel="What is a Care Card?"
           variant="ghost"
           color="onPrimary"
-          size={20}
-          containerStyle={styles.action}
+          size={19}
+          containerStyle={styles.pill}
           onPress={onHelp}
         />
         <IconButton
@@ -103,7 +114,7 @@ const CardBackFace = ({
           color="onPrimary"
           size={20}
           isLoading={isSharing}
-          containerStyle={styles.action}
+          containerStyle={styles.pill}
           onPress={onShare}
         />
       </View>
@@ -122,17 +133,17 @@ const CardBackFace = ({
 
       <View style={styles.footer}>
         <IconButton
-          name="flip"
+          name="turnOver"
           accessibilityLabel="Turn the card back over"
           variant="ghost"
           color="onPrimary"
-          size={22}
+          size={20}
           hapticFeedback={false}
-          containerStyle={styles.action}
+          containerStyle={styles.pill}
           onPress={onFlip}
         />
       </View>
-    </View>
+    </LinearGradient>
   );
 };
 
@@ -143,8 +154,7 @@ const makeStyles = ({ spacing }: AppTheme) =>
       paddingVertical: CardInset,
       borderRadius: CardRadius,
       borderCurve: 'continuous',
-      overflow: 'hidden',
-      backgroundColor: CardPalette.cream
+      overflow: 'hidden'
     },
     ink: {
       color: CardPalette.onCream
@@ -155,7 +165,7 @@ const makeStyles = ({ spacing }: AppTheme) =>
     header: {
       flexDirection: 'row',
       alignItems: 'center',
-      gap: spacing.one,
+      gap: spacing.two,
       paddingHorizontal: CardInset,
       paddingBottom: spacing.three
     },
@@ -163,9 +173,13 @@ const makeStyles = ({ spacing }: AppTheme) =>
       flex: 1,
       gap: 1
     },
-    action: {
-      minWidth: 40,
-      minHeight: 40
+    pill: {
+      width: 38,
+      height: 38,
+      minWidth: 38,
+      minHeight: 38,
+      borderRadius: Radius.full,
+      backgroundColor: CardPalette.pill
     },
     list: {
       flex: 1
