@@ -43,7 +43,7 @@ export const CardRimWidth = 2.5;
 export const CardFaceRadius = CardRadius - CardRimWidth;
 // The flip control sits at the optical centre of the corner sweep, not in the
 // corner. Measured against the sweep path in `card-sweep.tsx`.
-export const CardFlipRight = 52;
+export const CardFlipRight = 31;
 export const CardFlipBottom = 35;
 export const CardPhotoSize = 150;
 // A card, not a page: the wash stays visible above and below it. Roughly the

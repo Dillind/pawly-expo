@@ -14,7 +14,7 @@ const CardSweep = () => (
     preserveAspectRatio="none"
     pointerEvents="none"
     style={StyleSheet.absoluteFill}>
-    <Path d="M350 372 C 350 479 279 566 172 566 L 350 566 Z" fill={CardPalette.sweep} />
+    <Path d="M350 330 C 350 460 229 566 130 566 L 350 566 Z" fill={CardPalette.sweep} />
   </Svg>
 );
 
