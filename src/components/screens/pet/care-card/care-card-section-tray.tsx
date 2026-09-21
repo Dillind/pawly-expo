@@ -21,7 +21,7 @@ import {
 import { Radius, type AppTheme } from '@/constants/theme';
 import { useDeleteContact, useDeleteMedication } from '@/hooks/queries/pet/use-care-card-mutations';
 import { useStyles } from '@/hooks/use-styles';
-import { hasValue } from '@/lib/care-card-view';
+import { firstStepForSection, hasValue } from '@/lib/care-card-view';
 import {
   MAX_CARE_CARD_CONTACTS,
   type CareCard,
@@ -343,7 +343,10 @@ const CareCardSectionTray = ({
     <Tray
       sheetRef={sheetRef}
       steps={steps}
-      initialStepId={initialStepId}
+      initialStepId={firstStepForSection(
+        steps.map((step) => step.id),
+        initialStepId
+      )}
       onDismiss={() => {
         setEditingContact(null);
         setEditingMedication(null);

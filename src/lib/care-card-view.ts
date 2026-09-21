@@ -163,3 +163,10 @@ export const emergencyNumber = (
   const contact = contacts.find((candidate) => hasValue(candidate.phone));
   return contact ? { label: contact.name, value: contact.phone as string } : null;
 };
+
+// A section with two long answers is split into one step per field, named
+// `section:field`, so a section id alone has to find its first step.
+export const firstStepForSection = (stepIds: string[], sectionId: string | undefined) =>
+  sectionId === undefined
+    ? undefined
+    : stepIds.find((id) => id === sectionId || id.startsWith(`${sectionId}:`));

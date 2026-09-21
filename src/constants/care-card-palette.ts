@@ -41,13 +41,10 @@ export const CardInset = 20;
 export const CardRadius = 28;
 export const CardRimWidth = 2.5;
 export const CardFaceRadius = CardRadius - CardRimWidth;
-// The flip control sits at the optical centre of the corner sweep, not in the
-// corner. Measured against the sweep path in `card-sweep.tsx`.
-export const CardFlipRight = 31;
-export const CardFlipBottom = 35;
-// The back's corner is smaller and on the left, so its control sits closer in.
-export const CardBackFlipLeft = 15;
-export const CardBackFlipBottom = 17;
+// The flip control sits at the centre of the corner sweep in `card-sweep.tsx`:
+// bottom-right on the front, mirrored to bottom-left on the back.
+export const CardFlipInset = 15;
+export const CardFlipBottom = 17;
 export const CardPhotoSize = 150;
 // A card, not a page: the wash stays visible above and below it. Roughly the
 // proportion of a real membership card held in one hand.

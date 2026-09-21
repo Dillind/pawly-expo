@@ -12,7 +12,7 @@ import CardSweep from '@/components/screens/pet/care-card/card-sweep';
 import {
   CardFaceRadius,
   CardFlipBottom,
-  CardFlipRight,
+  CardFlipInset,
   CardGradientEnd,
   CardGradientStart,
   CardInset,
@@ -223,7 +223,7 @@ const makeStyles = ({ spacing }: AppTheme) =>
     // rather than a button parked next to it.
     flip: {
       position: 'absolute',
-      right: CardFlipRight,
+      right: CardFlipInset,
       bottom: CardFlipBottom,
       width: 44,
       height: 44,

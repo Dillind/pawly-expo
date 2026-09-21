@@ -1,5 +1,10 @@
 import { emptyCareCard } from '@/constants/care-card-fields';
-import { careCardBackRows, careCardBlocks, emergencyNumber } from '@/lib/care-card-view';
+import {
+  careCardBackRows,
+  careCardBlocks,
+  emergencyNumber,
+  firstStepForSection
+} from '@/lib/care-card-view';
 import type { CareCard, CareCardContact, Medication } from '@/services/care-card.service';
 
 const card = (overrides: Partial<CareCard> = {}): CareCard => ({
@@ -151,5 +156,31 @@ describe('emergencyNumber', () => {
     });
 
     expect(emergencyNumber(card(), [])).toBeNull();
+  });
+});
+
+describe('firstStepForSection', () => {
+  const stepIds = [
+    'reaching-you',
+    'emergency',
+    'watch-for:allergies',
+    'watch-for:behaviourNotes',
+    'medications'
+  ];
+
+  it('finds a section that is one step', () => {
+    expect(firstStepForSection(stepIds, 'emergency')).toBe('emergency');
+  });
+
+  it('finds the first step of a split section', () => {
+    expect(firstStepForSection(stepIds, 'watch-for')).toBe('watch-for:allergies');
+  });
+
+  it('does not match a section whose id is only a prefix', () => {
+    expect(firstStepForSection(['watch-for-more'], 'watch-for')).toBeUndefined();
+  });
+
+  it('returns undefined when no section is asked for', () => {
+    expect(firstStepForSection(stepIds, undefined)).toBeUndefined();
   });
 });
