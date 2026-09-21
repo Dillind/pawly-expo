@@ -89,7 +89,6 @@ namespace FeedLogService {
     return mapFeedLogRow(data as unknown as FeedLogRow);
   }
 
-  // The UTC window is padded a day each side, then cut to `day` in the household zone.
   export async function getOffScheduleForDay(
     petId: string,
     day: string,
