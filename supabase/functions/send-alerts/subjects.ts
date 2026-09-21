@@ -270,7 +270,7 @@ export const buildMessageForAlert = async (
       if (!alert.subject_date) return null;
 
       // A retry can run long after the queue, so a late log must still cancel it.
-      const { data: log } = await client
+      const { data: log, error: logError } = await client
         .from('feed_logs')
         .select('id')
         .eq('feed_time_series_id', alert.subject_id)
@@ -278,6 +278,7 @@ export const buildMessageForAlert = async (
         .limit(1)
         .maybeSingle();
 
+      if (logError) throw logError;
       if (log) return { suppressed: 'already fed' };
 
       // The version that applied on the day being nudged about, not the current
