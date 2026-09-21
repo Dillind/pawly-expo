@@ -215,8 +215,9 @@ page this replaces.
 **A section opens its own Tray, not the wizard.** Tapping a row on the back edits that section's
 fields and saves through the same mutation. The nine-step editor stays for exactly one job, the
 first fill of an empty card — walking nine steps to correct one phone number is the complaint the
-redesign answers. The Tray hard-codes `detents={['auto']}` and `TrayStep` has no scroller, so a
-section with two long answers is split one field per step rather than the shared Tray being changed:
+redesign answers. The Tray sizes to its content with `detents={['auto']}`. Since CRU-158 a `TrayStep` scrolls once it
+passes 70% of the window, but that is a fallback for large text, not a layout. A section with two
+long answers is still split one field per step:
 `watch-for` and `around-the-house` each became two. A row therefore names a section, not a step, and `firstStepForSection` resolves it — without that, both rows opened Reaching you.
 
 **A section's subtext appears only where a label cannot say it.** "How they eat" notes that feed times are set elsewhere, and Reaching you gives the order to try. Every other line restated its title and read as filler.

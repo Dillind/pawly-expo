@@ -86,6 +86,7 @@ const BreedPicker = ({ species, value, onChange }: Props) => {
           renderItem={renderBreedRow}
           estimatedItemSize={53}
           keyboardShouldPersistTaps="handled"
+          nestedScrollEnabled
           contentContainerStyle={styles.list}
           style={styles.card}
         />
