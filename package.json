@@ -8,6 +8,8 @@
   },
   "scripts": {
     "start": "expo start",
+    "start:prod": "expo start --clear",
+    "start:qa": "bun run scripts/start-qa.ts",
     "reset-project": "node ./scripts/reset-project.js",
     "android": "expo run:android",
     "ios": "expo run:ios",

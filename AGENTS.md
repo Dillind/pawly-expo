@@ -108,6 +108,12 @@ client is typed from it, so a renamed column fails typecheck instead of failing 
 return shape goes in `src/types/database-overrides.ts`. CI regenerates the types from
 `supabase/migrations/` and fails when the committed file differs.
 
+**`.env` points at production.** A simulator run writes real rows. For a device test that writes
+data, run `bun run start:qa`: it starts Metro with the QA project's values from the `qa` profile in
+`eas.json`. `bun run start:prod` switches back. Both clear the Metro cache, because a stale bundle
+keeps the other project's values. Sign in again after a switch; the two projects have different
+accounts. Confirm the target before a write with `process.env.EXPO_PUBLIC_SUPABASE_URL`.
+
 The build scripts always name a profile, deliberately. A bare `eas build` defaults to
 **production**, whose EAS environment holds no variables, so the build dies at
 `src/lib/supabase/client.ts` with "Missing EXPO_PUBLIC_SUPABASE_URL or
