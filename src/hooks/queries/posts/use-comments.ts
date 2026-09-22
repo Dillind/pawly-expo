@@ -1,14 +1,32 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import {
+  useInfiniteQuery,
+  useMutation,
+  useQueryClient,
+  type InfiniteData
+} from '@tanstack/react-query';
 
 import { ErrorMessage, SuccessMessage } from '@/constants/enums';
 import { queryKeys } from '@/lib/query-keys';
-import CommentService, { type PostComment } from '@/services/comment.service';
+import CommentService, { type CommentsCursor, type PostComment } from '@/services/comment.service';
 import { useAuthStore } from '@/stores/auth-store';
 
+type CommentPages = InfiniteData<
+  { comments: PostComment[]; nextCursor: CommentsCursor | null },
+  CommentsCursor | null
+>;
+
 export function useComments(postId: string | undefined, viewerId: string | undefined) {
-  return useQuery({
+  return useInfiniteQuery({
     queryKey: queryKeys.comments(postId),
-    queryFn: () => CommentService.list({ postId: postId!, viewerId: viewerId ?? null }),
+    queryFn: ({ pageParam }) =>
+      CommentService.list({
+        postId: postId!,
+        viewerId: viewerId ?? null,
+        cursor: pageParam ?? undefined
+      }),
+    initialPageParam: null as CommentsCursor | null,
+    getNextPageParam: (lastPage) => lastPage.nextCursor,
+    select: (data) => data.pages.flatMap((page) => page.comments),
     enabled: Boolean(postId)
   });
 }
@@ -66,7 +84,7 @@ export function useToggleCommentLike(postId: string | undefined) {
       const key = queryKeys.comments(postId);
       await queryClient.cancelQueries({ queryKey: key });
 
-      const previous = queryClient.getQueryData<PostComment[]>(key);
+      const previous = queryClient.getQueryData<CommentPages>(key);
 
       // Without an id the write fails RLS, so the heart must not flip.
       if (!userId) return { previous };
@@ -80,11 +98,19 @@ export function useToggleCommentLike(postId: string | undefined) {
             }
           : comment;
 
-      queryClient.setQueryData<PostComment[]>(key, (old) =>
-        old?.map((comment) => ({
-          ...applyLike(comment),
-          replies: comment.replies.map(applyLike)
-        }))
+      queryClient.setQueryData<CommentPages>(key, (old) =>
+        old
+          ? {
+              ...old,
+              pages: old.pages.map((page) => ({
+                ...page,
+                comments: page.comments.map((comment) => ({
+                  ...applyLike(comment),
+                  replies: comment.replies.map(applyLike)
+                }))
+              }))
+            }
+          : old
       );
 
       return { previous };

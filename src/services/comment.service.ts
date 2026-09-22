@@ -91,23 +91,62 @@ function buildThread(rows: PostComment[]): PostComment[] {
   return topLevel;
 }
 
+export const COMMENTS_PAGE_SIZE = 30;
+
+export type CommentsCursor = { createdAt: string; id: string };
+
 namespace CommentService {
+  // Pages the top-level comments only, then fetches every reply to that page,
+  // so a parent never arrives without its replies.
   export async function list(params: {
     postId: string;
     viewerId: string | null;
-  }): Promise<PostComment[]> {
-    const data = await unwrap(
-      supabase
-        .from('post_comments')
-        .select(COMMENT_SELECT)
-        .eq('post_id', params.postId)
-        .order('created_at', { ascending: true })
-    );
+    cursor?: CommentsCursor;
+  }): Promise<{ comments: PostComment[]; nextCursor: CommentsCursor | null }> {
+    let query = supabase
+      .from('post_comments')
+      .select(COMMENT_SELECT)
+      .eq('post_id', params.postId)
+      .is('parent_comment_id', null)
+      .order('created_at', { ascending: true })
+      .order('id', { ascending: true })
+      .limit(COMMENTS_PAGE_SIZE);
 
-    // Without generated types PostgREST infers these to-one embeds as arrays.
-    const comments = data.map((row) => mapCommentRow(row, params.viewerId));
+    if (params.cursor) {
+      query = query.or(
+        `created_at.gt.${params.cursor.createdAt},` +
+          `and(created_at.eq.${params.cursor.createdAt},id.gt.${params.cursor.id})`
+      );
+    }
 
-    return buildThread(comments);
+    const parents = (await unwrap(query)).map((row) => mapCommentRow(row, params.viewerId));
+
+    let replies: PostComment[] = [];
+    if (parents.length > 0) {
+      const replyRows = await unwrap(
+        supabase
+          .from('post_comments')
+          .select(COMMENT_SELECT)
+          .in(
+            'parent_comment_id',
+            parents.map((parent) => parent.id)
+          )
+          .order('created_at', { ascending: true })
+          .order('id', { ascending: true })
+      );
+
+      replies = replyRows.map((row) => mapCommentRow(row, params.viewerId));
+    }
+
+    const last = parents.at(-1);
+
+    return {
+      comments: buildThread([...parents, ...replies]),
+      nextCursor:
+        parents.length === COMMENTS_PAGE_SIZE && last
+          ? { createdAt: last.createdAt, id: last.id }
+          : null
+    };
   }
 
   export async function create(params: {

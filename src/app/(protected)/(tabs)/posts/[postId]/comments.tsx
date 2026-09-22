@@ -1,14 +1,17 @@
+import type { LegendListRef } from '@legendapp/list/react-native';
 import type { TrueSheet } from '@lodev09/react-native-true-sheet';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { useRef, useState } from 'react';
-import { ActivityIndicator, Alert, ScrollView, StyleSheet } from 'react-native';
+import { useEffect, useRef, useState } from 'react';
+import { ActivityIndicator, Alert, StyleSheet } from 'react-native';
 import { KeyboardAvoidingView } from 'react-native-keyboard-controller';
 
 import CommentActionsSheet from '@/components/bottom-sheets/comment-actions-sheet';
 import ErrorState from '@/components/core/error-state';
+import MainButton from '@/components/core/main-button';
+import MainLegendList from '@/components/core/main-legend-list';
 import ScreenView from '@/components/layout/screen-view';
 import CommentComposer from '@/components/ui/comment-composer';
-import CommentThread from '@/components/ui/comment-thread';
+import CommentGroup from '@/components/ui/comment-group';
 import CommentsEmpty from '@/components/ui/comments-empty';
 import CommentsPostSummary from '@/components/ui/comments-post-summary';
 import { BottomTabInset, type AppTheme } from '@/constants/theme';
@@ -30,7 +33,8 @@ const Comments = () => {
   const styles = useStyles(makeStyles);
   const router = useRouter();
   const commentSheetRef = useRef<TrueSheet | null>(null);
-  const scrollRef = useRef<ScrollView | null>(null);
+  const listRef = useRef<LegendListRef | null>(null);
+  const shouldScrollToEnd = useRef(false);
 
   const [replyTarget, setReplyTarget] = useState<ReplyTarget | null>(null);
   // Bumped only once a comment lands, so a failed send keeps the draft.
@@ -42,7 +46,20 @@ const Comments = () => {
   const { data: households = [] } = useHouseholds();
   const { data: post, isLoading, isError, refetch } = usePost(postId, userId ?? undefined);
 
-  const { data: comments = [] } = useComments(postId, userId ?? undefined);
+  const {
+    data: comments = [],
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage
+  } = useComments(postId, userId ?? undefined);
+
+  // The new comment arrives with the refetch, after onSuccess has already run.
+  useEffect(() => {
+    if (!shouldScrollToEnd.current) return;
+
+    shouldScrollToEnd.current = false;
+    void listRef.current?.scrollToEnd({ animated: true });
+  }, [comments]);
 
   const { mutate: toggleLike } = useToggleLike();
   const { mutate: addComment, isPending: isSending } = useCreateComment(postId);
@@ -79,7 +96,7 @@ const Comments = () => {
         onSuccess: () => {
           setSentCount((count) => count + 1);
           setReplyTarget(null);
-          scrollRef.current?.scrollToEnd({ animated: true });
+          shouldScrollToEnd.current = true;
         }
       }
     );
@@ -128,24 +145,17 @@ const Comments = () => {
           behavior="padding"
           keyboardVerticalOffset={-BottomTabInset}
           style={styles.fill}>
-          <ScrollView
-            ref={scrollRef}
+          <MainLegendList<PostComment>
+            ref={listRef}
+            data={comments}
+            keyExtractor={(comment) => comment.id}
             contentInsetAdjustmentBehavior="automatic"
             keyboardShouldPersistTaps="handled"
-            contentContainerStyle={styles.content}>
-            <CommentsPostSummary
-              post={post}
-              onToggleLike={() => toggleLike({ postId: post.id, liked: post.likedByMe })}
-              onOpenPost={() =>
-                router.push({ pathname: '/posts/[postId]', params: { postId: post.id } })
-              }
-            />
-
-            {comments.length === 0 ? (
-              <CommentsEmpty />
-            ) : (
-              <CommentThread
-                comments={comments}
+            showsVerticalScrollIndicator
+            contentContainerStyle={styles.content}
+            renderItem={({ item }) => (
+              <CommentGroup
+                comment={item}
                 canManagePost={canManagePost}
                 viewerId={userId ?? null}
                 onToggleLike={(comment) =>
@@ -158,7 +168,29 @@ const Comments = () => {
                 }}
               />
             )}
-          </ScrollView>
+            ListHeaderComponent={
+              <CommentsPostSummary
+                post={post}
+                onToggleLike={() => toggleLike({ postId: post.id, liked: post.likedByMe })}
+                onOpenPost={() =>
+                  router.push({ pathname: '/posts/[postId]', params: { postId: post.id } })
+                }
+              />
+            }
+            ListEmptyComponent={<CommentsEmpty />}
+            ListFooterComponent={
+              hasNextPage ? (
+                <MainButton
+                  text="Load more comments"
+                  variant="text"
+                  size="sm"
+                  isLoading={isFetchingNextPage}
+                  onPress={() => void fetchNextPage()}
+                  containerStyle={styles.loadMore}
+                />
+              ) : null
+            }
+          />
 
           <CommentComposer
             replyingToName={replyTarget?.name ?? null}
@@ -185,6 +217,10 @@ const makeStyles = ({ spacing }: AppTheme) =>
     },
     content: {
       paddingBottom: spacing.four
+    },
+    loadMore: {
+      alignSelf: 'center',
+      marginTop: spacing.four
     }
   });
 
