@@ -2,7 +2,8 @@ import { UserFacingError } from '@/lib/errors';
 import type { FeedTimeInput } from '@/lib/form/pet-schemas';
 import { supabase } from '@/lib/supabase/client';
 import { unwrap } from '@/lib/supabase/unwrap';
-import type { FeedingScheduleLabel, Occurrence, OccurrenceStateValue } from '@/types/core';
+import type { FeedingScheduleLabel, Occurrence } from '@/types/core';
+import type { RpcRow } from '@/types/database-overrides';
 
 type PetPause = {
   id: string;
@@ -21,32 +22,14 @@ export type FeedTime = {
 
 const DUPLICATE_LABEL = '23505';
 
-type FeedTimeRow = {
-  series_id: string;
-  local_time: string;
-  label: FeedingScheduleLabel;
-  days_of_week: number[];
-  instructions: string | null;
-};
-
-type OccurrenceRow = {
-  series_id: string;
-  local_time: string;
-  label: FeedingScheduleLabel;
-  instructions: string | null;
-  scheduled_at: string;
-  state: OccurrenceStateValue;
-  satisfying_log_id: string | null;
-  satisfied_at: string | null;
-  satisfied_by: string | null;
-};
+type FeedTimeRow = RpcRow<'pet_feed_times'>;
 
 namespace FeedTimeService {
   // A version closed in the past is history and never appears here.
   export async function list(petId: string): Promise<FeedTime[]> {
     const data = await unwrap(supabase.rpc('pet_feed_times', { target_pet_id: petId }));
 
-    return (data as FeedTimeRow[]).map(mapFeedTimeRow);
+    return data.map(mapFeedTimeRow);
   }
 
   // Never an update in place: the RPC closes the current version and opens a
@@ -96,6 +79,7 @@ namespace FeedTimeService {
     );
     if (!data) return null;
 
+    // `during` is a tstzrange, which the generator types as unknown.
     const row = data as { id: string; during: string; reason: string | null };
 
     return { id: row.id, during: row.during, reason: row.reason };
@@ -125,7 +109,7 @@ namespace FeedTimeService {
       })
     );
 
-    return (data as OccurrenceRow[]).map((row) => ({
+    return data.map((row) => ({
       seriesId: row.series_id,
       occurrenceDate: date,
       localTime: row.local_time,

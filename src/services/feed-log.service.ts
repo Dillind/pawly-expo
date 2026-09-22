@@ -3,6 +3,7 @@ import { assertWrote } from '@/lib/supabase/assert-wrote';
 import { supabase } from '@/lib/supabase/client';
 import { unwrap } from '@/lib/supabase/unwrap';
 import type { FeedingScheduleLabel, FeedLog } from '@/types/core';
+import type { Rpc } from '@/types/database-overrides';
 
 // Null when the author deleted their account.
 const FEED_LOG_SELECT =
@@ -45,15 +46,7 @@ function mapFeedLogRow(row: FeedLogRow): FeedLog {
 
 // The RPC returns jsonb, which supabase-js hands back as `any`. Mapped here so
 // one place knows the wire shape and an unknown status fails loudly.
-function mapLogFeedResult(data: unknown): LogFeedResult {
-  const payload = data as {
-    status?: string;
-    log_id?: string;
-    is_extra_feed?: boolean;
-    occurrence?: { label: FeedingScheduleLabel; local_time: string };
-    existing?: { id: string; logged_at: string; logged_by: string | null };
-  };
-
+function mapLogFeedResult(payload: Rpc<'log_feed'>): LogFeedResult {
   if (payload.status === 'logged' && payload.log_id) {
     return {
       status: 'logged',
@@ -83,7 +76,7 @@ namespace FeedLogService {
       supabase.from('feed_logs').select(FEED_LOG_SELECT).eq('id', logId).single()
     );
 
-    return mapFeedLogRow(data as FeedLogRow);
+    return mapFeedLogRow(data);
   }
 
   export async function getOffScheduleForDay(
@@ -102,9 +95,7 @@ namespace FeedLogService {
         .order('logged_at', { ascending: true })
     );
 
-    return (data as FeedLogRow[])
-      .map(mapFeedLogRow)
-      .filter((log) => dayInTimezone(log.loggedAt, timezone) === day);
+    return data.map(mapFeedLogRow).filter((log) => dayInTimezone(log.loggedAt, timezone) === day);
   }
 
   // The only write path for a feed log: the check and the insert share one

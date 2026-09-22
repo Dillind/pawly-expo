@@ -847,8 +847,10 @@ remounts it. Any other `MainLegendList` whose last row can be removed in place h
 It types `pet_birthdate: null` as `string`, and an argument with `default null` as `string |
 undefined`, so a correct RPC call fails typecheck. `bun run db:types` runs `scripts/db-types.ts`,
 which adds `| null` to every function argument. It also marks every `returns table` column as
-non-null, which is wrong for most of them — so an RPC result keeps its hand-written row type and a
-cast, and only a `.from()` select trusts the generated row.
+non-null and types `jsonb` as `Json`, so `src/types/database-overrides.ts` declares what each RPC
+really returns, and the client uses the merged type. That file is hand-written: when an RPC's SQL
+changes, its entry must change too, or the types lie again. On its first compile, the `list_alerts`
+entry found three alert kinds that the Notifications screen had no words for.
 
 ## An error toast at a `mutate()` call site shows twice
 

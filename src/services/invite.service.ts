@@ -1,6 +1,7 @@
 import { supabase } from '@/lib/supabase/client';
 import { unwrap } from '@/lib/supabase/unwrap';
 import type { HouseholdRole } from '@/types/core';
+import type { Rpc } from '@/types/database-overrides';
 
 export type PendingInvite = {
   id: string;
@@ -11,10 +12,9 @@ export type PendingInvite = {
   expiresAt: string;
 };
 
-type CreateInviteStatus = 'created' | 'already_member' | 'not_owner';
+type CreateInviteStatus = Rpc<'create_household_invite'>['status'];
 
-export type PreviewStatus =
-  'valid' | 'already_member' | 'already_used' | 'expired' | 'revoked' | 'not_found';
+export type PreviewStatus = Rpc<'preview_household_invite'>['status'];
 
 type InvitePreview = {
   status: PreviewStatus;
@@ -22,14 +22,7 @@ type InvitePreview = {
   role?: HouseholdRole;
 };
 
-export type RedeemStatus =
-  | 'joined'
-  | 'already_member'
-  | 'already_used'
-  | 'expired'
-  | 'revoked'
-  | 'not_found'
-  | 'not_signed_in';
+export type RedeemStatus = Rpc<'redeem_household_invite'>['status'];
 
 type InviteRow = {
   id: string;
@@ -64,7 +57,7 @@ namespace InviteService {
       })
     );
 
-    const result = data as { status: CreateInviteStatus; code?: string };
+    const result = data;
 
     return { status: result.status, code: result.code };
   }
@@ -80,7 +73,7 @@ namespace InviteService {
         .order('created_at', { ascending: false })
     );
 
-    return (data as InviteRow[]).map(toInvite);
+    return data.map(toInvite);
   }
 
   // Holding the code is the authorisation: someone who scanned a QR is neither
@@ -92,7 +85,7 @@ namespace InviteService {
       })
     );
 
-    const result = data as { status: PreviewStatus; household_name?: string; role?: HouseholdRole };
+    const result = data;
 
     return { status: result.status, householdName: result.household_name, role: result.role };
   }
@@ -114,7 +107,7 @@ namespace InviteService {
       })
     );
 
-    const result = data as { status: RedeemStatus; household_id?: string };
+    const result = data;
 
     return { status: result.status, householdId: result.household_id };
   }

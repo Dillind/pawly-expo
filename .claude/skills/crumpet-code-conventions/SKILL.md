@@ -44,8 +44,14 @@ const data = await unwrap(supabase.rpc('list_feature_requests', { sort, page_siz
 - **The client is typed.** `src/types/database.ts` is generated: run `bun run db:types` after every
   migration and commit it. Use `Tables<'x'>`, `TablesInsert<'x'>` and `TablesUpdate<'x'>` for row
   and patch types — never `Record<string, unknown>`.
-- **A cast needs a reason.** `data as X` is correct only for an RPC that returns `Json` or a
-  `returns table`, whose nullability the generator gets wrong. Never cast a `.from()` select.
+- **An RPC's real return type lives in `src/types/database-overrides.ts`.** The generator types
+  `jsonb` as `Json` and marks every `returns table` column non-null, so each RPC the app calls has an
+  entry there, and the client is typed with the merged `Database`. A service derives its row type
+  from it — `type AlertRow = RpcRow<'list_alerts'>`, `Rpc<'request_follow'>['status']` — and
+  never casts. A new RPC gets its override in the same change as its migration.
+- **Enums come from the database:** `Enum<'pet_sex'>`, never a copied string union.
+- A cast is allowed only where no type can say the truth, with a one-line reason — a `tstzrange`
+  column the generator types as `unknown`.
 - An update that RLS can filter to nothing pairs `.select()` with `assertWrote`.
 
 ## Query hooks

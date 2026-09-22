@@ -105,7 +105,7 @@ namespace CommentService {
     );
 
     // Without generated types PostgREST infers these to-one embeds as arrays.
-    const comments = (data as CommentRow[]).map((row) => mapCommentRow(row, params.viewerId));
+    const comments = data.map((row) => mapCommentRow(row, params.viewerId));
 
     return buildThread(comments);
   }

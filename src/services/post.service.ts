@@ -172,7 +172,7 @@ namespace PostService {
 
     const data = await unwrap(query);
 
-    const posts = (data as PostRow[]).map((row) => mapPostRow(row, params.viewerId));
+    const posts = data.map((row) => mapPostRow(row, params.viewerId));
     const last = posts.at(-1);
 
     return {
@@ -189,7 +189,7 @@ namespace PostService {
       supabase.from('posts').select(POST_SELECT).eq('id', params.postId).single()
     );
 
-    return mapPostRow(data as PostRow, params.viewerId);
+    return mapPostRow(data, params.viewerId);
   }
 
   // Sequential, not `Promise.all`: each resize holds native memory, and ten at

@@ -4,8 +4,7 @@ import type {
   ReminderKind,
   ReminderLeadDays,
   ReminderOccurrence,
-  ReminderRepeat,
-  ReminderStateValue
+  ReminderRepeat
 } from '@/types/core';
 
 export type ReminderInput = {
@@ -19,20 +18,6 @@ export type ReminderInput = {
   leadDays: ReminderLeadDays;
 };
 
-type ReminderRow = {
-  reminder_id: string;
-  title: string;
-  kind: ReminderKind;
-  local_time: string;
-  state: ReminderStateValue;
-  done_by: string | null;
-  done_at: string | null;
-};
-
-type ReminderRangeRow = ReminderRow & { occurrence_date: string };
-
-type ReminderDayRow = { day: string; kinds: ReminderKind[] };
-
 namespace ReminderService {
   // `date` is an ISO YYYY-MM-DD string in the household's timezone.
   export async function listForDay(petId: string, date: string): Promise<ReminderOccurrence[]> {
@@ -43,7 +28,7 @@ namespace ReminderService {
       })
     );
 
-    return (data as ReminderRow[]).map((row) => ({
+    return data.map((row) => ({
       reminderId: row.reminder_id,
       occurrenceDate: date,
       title: row.title,
@@ -69,7 +54,7 @@ namespace ReminderService {
       })
     );
 
-    return (data as ReminderRangeRow[]).map((row) => ({
+    return data.map((row) => ({
       reminderId: row.reminder_id,
       occurrenceDate: row.occurrence_date,
       title: row.title,
@@ -95,7 +80,7 @@ namespace ReminderService {
       })
     );
 
-    return Object.fromEntries((data as ReminderDayRow[]).map((row) => [row.day, row.kinds]));
+    return Object.fromEntries(data.map((row) => [row.day, row.kinds]));
   }
 
   export async function create(input: ReminderInput): Promise<string> {
@@ -121,7 +106,7 @@ namespace ReminderService {
         .single()
     );
 
-    return (data as { id: string }).id;
+    return data.id;
   }
 
   // Soft: a hard delete cascades the completions away and rewrites what the

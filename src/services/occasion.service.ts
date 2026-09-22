@@ -43,7 +43,7 @@ namespace OccasionService {
         .order('sort_order', { ascending: true })
     );
 
-    return (data as OccasionRow[]).map(mapRow);
+    return data.map(mapRow);
   }
 
   export async function create(params: {
@@ -73,7 +73,7 @@ namespace OccasionService {
         .single()
     );
 
-    return mapRow(data as OccasionRow);
+    return mapRow(data);
   }
 
   export async function update(params: {

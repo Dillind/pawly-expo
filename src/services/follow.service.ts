@@ -1,5 +1,6 @@
 import { supabase } from '@/lib/supabase/client';
 import { unwrap } from '@/lib/supabase/unwrap';
+import type { Rpc } from '@/types/database-overrides';
 
 export type FollowRelationship = 'member' | 'pending' | 'accepted' | 'none';
 
@@ -18,12 +19,11 @@ type FollowPreview = {
   pets: FollowPreviewPet[];
 };
 
-export type RequestFollowStatus =
-  'pending' | 'accepted' | 'already_member' | 'blocked' | 'not_found';
+export type RequestFollowStatus = Rpc<'request_follow'>['status'];
 
-type RespondStatus = 'accepted' | 'declined' | 'not_owner' | 'not_pending' | 'not_found';
+type RespondStatus = Rpc<'respond_to_follow_request'>['status'];
 
-type RemoveFollowerStatus = 'removed' | 'not_owner' | 'not_found';
+type RemoveFollowerStatus = Rpc<'remove_follower'>['status'];
 
 export type HouseholdSearchResult = {
   householdId: string;
@@ -88,13 +88,7 @@ namespace FollowService {
       })
     );
 
-    const result = data as {
-      status: FollowRelationship | 'not_found';
-      household_id?: string;
-      name?: string;
-      handle?: string | null;
-      pets?: { id: string; name: string; breed: string | null; photo_url: string | null }[];
-    };
+    const result = data;
 
     // An absence, not a relationship: inside `status` every reader had to test
     // the one value that means the other four cannot apply.
@@ -121,7 +115,7 @@ namespace FollowService {
       })
     );
 
-    return (data as { status: RequestFollowStatus }).status;
+    return data.status;
   }
 
   export async function unfollow(householdId: string): Promise<void> {
@@ -144,13 +138,13 @@ namespace FollowService {
       })
     );
 
-    return (data as { status: RespondStatus }).status;
+    return data.status;
   }
 
   export async function remove(followId: string): Promise<RemoveFollowerStatus> {
     const data = await unwrap(supabase.rpc('remove_follower', { follow_id: followId }));
 
-    return (data as { status: RemoveFollowerStatus }).status;
+    return data.status;
   }
 
   export async function listFollowing(): Promise<FollowedHousehold[]> {
@@ -207,7 +201,7 @@ namespace FollowService {
         .order(orderBy, { ascending: true })
     );
 
-    return (data as FollowerRow[]).map(toFollower);
+    return data.map(toFollower);
   }
 
   export function listFollowers(householdId: string): Promise<Follower[]> {

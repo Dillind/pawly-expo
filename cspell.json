@@ -3,6 +3,7 @@
   "language": "en,en-GB",
   "useGitignore": true,
   "words": [
+    "tstzrange",
     "ABCDEFGHJKMNPQRSTUVWXYZ",
     "anyelement",
     "Apoquel",

@@ -4,7 +4,7 @@ import { supabase } from '@/lib/supabase/client';
 import { unwrap } from '@/lib/supabase/unwrap';
 import PetPhotoService from '@/services/pet-photo.service';
 import type { FeedingScheduleLabel, Pet, PetSex, PetType } from '@/types/core';
-import type { TablesUpdate } from '@/types/database';
+import type { Tables, TablesUpdate } from '@/types/database';
 
 export type PetDetail = {
   id: string;
@@ -123,11 +123,10 @@ namespace PetService {
         })
         .single()
     );
+    // supabase-js types .single() on a one-to-one RPC as never; the row is a pets row.
+    const pet = data as Tables<'pets'>;
 
-    // supabase-js types the row as unknown without generated database types.
-    const row = data as { id: string; name: string; photo_url: string | null };
-
-    return { id: row.id, name: row.name, photoUrl: row.photo_url };
+    return { id: pet.id, name: pet.name, photoUrl: pet.photo_url };
   }
 
   // The photo rows cascade but their files do not, and once the rows are gone

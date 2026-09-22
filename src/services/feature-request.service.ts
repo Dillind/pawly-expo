@@ -1,7 +1,8 @@
 import { supabase } from '@/lib/supabase/client';
 import { unwrap } from '@/lib/supabase/unwrap';
+import type { Enum, RpcRow } from '@/types/database-overrides';
 
-export type FeatureRequestStatus = 'open' | 'planned' | 'in_progress' | 'done' | 'declined';
+export type FeatureRequestStatus = Enum<'feature_request_status'>;
 
 export type FeatureRequestSort = 'top' | 'new';
 
@@ -32,19 +33,7 @@ export type FeatureRequestsPage = {
 
 export type CreateFeatureRequestError = 'daily_limit_reached' | 'blocked_content' | 'board_banned';
 
-type FeatureRequestRow = {
-  id: string;
-  title: string;
-  description: string | null;
-  status: FeatureRequestStatus;
-  vote_count: number;
-  has_voted: boolean;
-  is_mine: boolean;
-  is_team_post: boolean;
-  is_hidden: boolean;
-  report_count: number;
-  created_at: string;
-};
+type FeatureRequestRow = RpcRow<'list_feature_requests'>;
 
 const PAGE_SIZE = 20;
 
@@ -91,7 +80,7 @@ namespace FeatureRequestService {
       })
     );
 
-    const requests = (data as FeatureRequestRow[]).map(mapFeatureRequest);
+    const requests = data.map(mapFeatureRequest);
     const last = requests.at(-1);
 
     return {
@@ -106,7 +95,7 @@ namespace FeatureRequestService {
   export async function get(requestId: string): Promise<FeatureRequest | null> {
     const data = await unwrap(supabase.rpc('get_feature_request', { request_id: requestId }));
 
-    const row = (data as FeatureRequestRow[])[0];
+    const row = data[0];
     return row ? mapFeatureRequest(row) : null;
   }
 

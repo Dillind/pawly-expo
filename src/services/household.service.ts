@@ -6,6 +6,7 @@ import { supabase } from '@/lib/supabase/client';
 import { unwrap } from '@/lib/supabase/unwrap';
 import type { HouseholdMember, HouseholdSummary, LeadMinutes, PetSex, PetType } from '@/types/core';
 import type { TablesUpdate } from '@/types/database';
+import type { Rpc } from '@/types/database-overrides';
 
 const PET_PHOTO_BUCKET = 'pet-photos';
 const POST_PHOTO_BUCKET = 'post-photos';
@@ -24,21 +25,7 @@ export type AlertPreference = Exclude<keyof NotificationPreferences, 'feedDueLea
 
 // Every membership RPC answers with a jsonb status rather than throwing:
 // `last_owner` and `not_owner` are outcomes to word, not failures.
-export type MembershipStatus =
-  | 'changed'
-  | 'unchanged'
-  | 'removed'
-  | 'left'
-  | 'last_owner'
-  | 'not_owner'
-  | 'not_a_member'
-  | 'use_leave';
-
-type MembershipRow = {
-  user_id: string;
-  role: HouseholdMember['role'];
-  feed_logged_alerts: boolean;
-};
+export type MembershipStatus = Rpc<'set_member_role'>['status'];
 
 // Postgres unique_violation, raised by the handle's unique index.
 const UNIQUE_VIOLATION = '23505';
@@ -64,9 +51,7 @@ type CreateHouseholdResult =
 // Outcomes the screen words differently, so none of them throws. The RPC
 // returns `name_mismatch` even though the Zod schema refused it first: the
 // screen is not the only possible caller.
-type DeleteHouseholdResult = {
-  status: 'deleted' | 'not_owner' | 'not_found' | 'name_mismatch';
-};
+type DeleteHouseholdResult = Rpc<'delete_household'>;
 
 type HouseholdPhotoManifest = {
   status: 'ok' | 'not_owner' | 'not_found' | 'name_mismatch';
@@ -192,12 +177,7 @@ namespace HouseholdService {
     if (error?.code === UNIQUE_VIOLATION) return { status: 'handle_taken' };
     if (error) throw error;
 
-    const row = data as {
-      status: 'created' | 'handle_taken';
-      household_id?: string;
-      pet_id?: string;
-      pet_name?: string;
-    };
+    const row = data;
 
     if (row.status !== 'created') return { status: 'handle_taken' };
 
@@ -230,7 +210,7 @@ namespace HouseholdService {
       })
     );
 
-    return data as DeleteHouseholdResult;
+    return data;
   }
 
   async function photoManifest(
@@ -244,11 +224,7 @@ namespace HouseholdService {
       })
     );
 
-    const row = data as {
-      status: HouseholdPhotoManifest['status'];
-      pet_photos?: string[];
-      post_photos?: string[];
-    };
+    const row = data;
 
     return {
       status: row.status,
@@ -288,7 +264,7 @@ namespace HouseholdService {
 
     if (membershipsError) throw membershipsError;
 
-    const userIds = (memberships as MembershipRow[]).map((membership) => membership.user_id);
+    const userIds = memberships.map((membership) => membership.user_id);
 
     if (userIds.length === 0) return [];
 
@@ -310,7 +286,7 @@ namespace HouseholdService {
       ).map((profile) => [profile.id, profile])
     );
 
-    return (memberships as MembershipRow[]).map((membership) => ({
+    return memberships.map((membership) => ({
       userId: membership.user_id,
       role: membership.role,
       firstName: profileById.get(membership.user_id)?.first_name ?? null,
@@ -320,8 +296,7 @@ namespace HouseholdService {
     }));
   }
 
-  const membershipStatus = (data: unknown): MembershipStatus =>
-    (data as { status: MembershipStatus }).status;
+  const membershipStatus = (data: Rpc<'set_member_role'>): MembershipStatus => data.status;
 
   export async function setMemberRole(params: {
     householdId: string;

@@ -112,7 +112,7 @@ namespace TravelChecklistService {
         .order('created_at', { ascending: true })
     );
 
-    return (data as ChecklistRow[]).map(mapChecklist);
+    return data.map(mapChecklist);
   }
 
   export async function get(checklistId: string): Promise<TravelChecklistDetail> {

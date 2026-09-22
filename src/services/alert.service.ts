@@ -1,19 +1,12 @@
 import { supabase } from '@/lib/supabase/client';
 import { unwrap } from '@/lib/supabase/unwrap';
+import type { RpcRow } from '@/types/database-overrides';
 
 export const ALERTS_PAGE_SIZE = 30;
 
 // `feed_logged` and `feed_due` are deliberately absent: each stays in the
 // database as a delivery record. See ADR 0023 and ADR 0033.
-type AlertKind =
-  | 'missed_feed'
-  | 'post'
-  | 'post_liked'
-  | 'post_commented'
-  | 'comment_liked'
-  | 'member_removed'
-  | 'member_role_changed'
-  | 'member_left';
+type AlertKind = AlertRow['kind'];
 
 // A row survives its subject, so every resolved field here can be null.
 export type Alert = {
@@ -39,27 +32,7 @@ export type Alert = {
 // Keyset: an alert queued mid-scroll must not shift a page.
 export type AlertsCursor = { createdAt: string; id: string };
 
-type AlertRow = {
-  id: string;
-  kind: AlertKind;
-  created_at: string;
-  suppressed_reason: string | null;
-  is_read: boolean;
-  actor_first_name: string | null;
-  actor_last_name: string | null;
-  pet_id: string | null;
-  pet_name: string | null;
-  slot_label: string | null;
-  post_id: string | null;
-  post_caption: string | null;
-  comment_id: string | null;
-  comment_body: string | null;
-  comment_is_reply_to_me: boolean;
-  comment_post_is_mine: boolean;
-  subject_first_name: string | null;
-  subject_last_name: string | null;
-  subject_is_me: boolean;
-};
+type AlertRow = RpcRow<'list_alerts'>;
 
 // Must agree with authorName in send-alerts/message.ts.
 const displayName = (firstName: string | null, lastName: string | null): string | null => {
@@ -102,7 +75,7 @@ namespace AlertService {
       })
     );
 
-    return (data as AlertRow[]).map(toAlert);
+    return data.map(toAlert);
   }
 
   export async function unreadCount(householdId: string): Promise<number> {

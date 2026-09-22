@@ -104,7 +104,9 @@ hand. Only CI sees every change — a Claude hook binds an agent, and a git hook
 hand.
 
 **Run `bun run db:types` after every migration** and commit `src/types/database.ts`. The Supabase
-client is typed from it, so a renamed column fails typecheck instead of failing on a device.
+client is typed from it, so a renamed column fails typecheck instead of failing on a device. An RPC's
+return shape goes in `src/types/database-overrides.ts`. CI regenerates the types from
+`supabase/migrations/` and fails when the committed file differs.
 
 The build scripts always name a profile, deliberately. A bare `eas build` defaults to
 **production**, whose EAS environment holds no variables, so the build dies at

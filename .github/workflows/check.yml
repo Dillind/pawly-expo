@@ -73,3 +73,29 @@ jobs:
 
       - name: ${{ matrix.name }}
         run: ${{ matrix.run }}
+
+  # src/types/database.ts must be what supabase/migrations produce. A migration merged without
+  # `bun run db:types` fails here, not on a device. Local, so CI holds no production credentials.
+  database-types:
+    name: database types
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.3.5
+
+      - name: Install
+        run: bun install --frozen-lockfile
+
+      - name: Start a database from the migrations
+        run: bunx supabase db start
+
+      - name: Generate types
+        run: bun run scripts/db-types.ts --local
+
+      - name: Compare with the committed file
+        run: git diff --exit-code -- src/types/database.ts
