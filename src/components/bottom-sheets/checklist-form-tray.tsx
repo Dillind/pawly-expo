@@ -58,7 +58,7 @@ const NameStep = ({
           accessibilityLabel={emoji ? `Emoji ${emoji}, change it` : 'Choose an emoji'}
           onPress={() => goTo('emoji')}>
           {emoji ? (
-            <AppText size={28}>{emoji}</AppText>
+            <AppText size="title1">{emoji}</AppText>
           ) : (
             <Icon name="sparkles" size={22} color="textSecondary" />
           )}
@@ -78,7 +78,7 @@ const NameStep = ({
         </View>
       </View>
 
-      <AppText size={13} color="textSecondary">
+      <AppText size="footnote" color="textSecondary">
         Tap the emoji to change it. It is optional.
       </AppText>
 

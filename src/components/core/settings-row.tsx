@@ -42,20 +42,20 @@ const SettingsRow = ({
   const body = (
     <View style={[styles.row, isDisabled && styles.disabled]}>
       <Icon name={icon} size={IconSize.control} color={isDestructive ? 'error' : 'textSecondary'} />
-      <AppText size={16} color={tone} style={styles.label} numberOfLines={1}>
+      <AppText size="body" color={tone} style={styles.label} numberOfLines={1}>
         {label}
       </AppText>
 
       {isSoon ? (
         <View style={styles.soon}>
-          <AppText size={11} color="textSecondary">
+          <AppText size="caption2" color="textSecondary">
             Soon
           </AppText>
         </View>
       ) : (
         <>
           {value && (
-            <AppText size={14} color="textSecondary" numberOfLines={1} style={styles.value}>
+            <AppText size="subhead" color="textSecondary" numberOfLines={1} style={styles.value}>
               {value}
             </AppText>
           )}

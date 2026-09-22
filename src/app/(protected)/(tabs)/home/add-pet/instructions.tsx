@@ -119,7 +119,7 @@ const AddPetInstructions = () => {
 
         return (
           <View key={field.id} style={styles.card}>
-            <AppText size={15} fontWeight="bold">
+            <AppText size="callout" fontWeight="bold">
               {optionLabel(FEEDING_SCHEDULE_LABEL_OPTIONS, feedTime.label)}
               {'  ·  '}
               {dayjs(feedTime.localTime, 'HH:mm').format('h:mm A')}

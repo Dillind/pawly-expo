@@ -49,7 +49,7 @@ const Door = ({ icon, isPrimaryDoor, title, description, hasSteps, action }: Doo
         </AppText>
       </View>
 
-      <AppText size={14} color="textSecondary">
+      <AppText size="subhead" color="textSecondary">
         {description}
       </AppText>
 
@@ -58,7 +58,7 @@ const Door = ({ icon, isPrimaryDoor, title, description, hasSteps, action }: Doo
           {FLOW_STEPS.map((step) => (
             <View key={step.label} style={styles.step}>
               <Icon name={step.icon} size={19} color="textSecondary" />
-              <AppText size={12} color="textSecondary">
+              <AppText size="caption" color="textSecondary">
                 {step.label}
               </AppText>
             </View>
@@ -81,10 +81,10 @@ const NoHouseholdState = () => {
   return (
     <View style={styles.container}>
       <View style={styles.intro}>
-        <AppText variant="header" size={28}>
+        <AppText variant="header" size="title1">
           Welcome to Crumpet
         </AppText>
-        <AppText size={15} color="textSecondary">
+        <AppText size="callout" color="textSecondary">
           Two ways in. Pick the one that sounds like you.
         </AppText>
       </View>
@@ -124,10 +124,10 @@ const NoHouseholdState = () => {
           <View style={styles.followCard}>
             <Icon name="users" size={IconSize.control} color="textSecondary" />
             <View style={styles.followText}>
-              <AppText size={16} numberOfLines={1}>
+              <AppText size="body" numberOfLines={1}>
                 You follow {countDigits(followedCount, 'household')}
               </AppText>
-              <AppText size={13} color="textSecondary">
+              <AppText size="footnote" color="textSecondary">
                 Their posts are on the Posts tab.
               </AppText>
             </View>

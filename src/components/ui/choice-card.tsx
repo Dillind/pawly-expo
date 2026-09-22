@@ -37,10 +37,10 @@ const ChoiceCard = ({ icon, label, description, isSelected, onPress }: Props) =>
       />
 
       <View style={styles.body}>
-        <AppText size={16} fontWeight="semibold">
+        <AppText size="body" fontWeight="semibold">
           {label}
         </AppText>
-        <AppText size={13} color="textSecondary">
+        <AppText size="footnote" color="textSecondary">
           {description}
         </AppText>
       </View>

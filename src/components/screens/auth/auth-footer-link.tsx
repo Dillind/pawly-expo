@@ -22,13 +22,13 @@ const AuthFooterLink = ({ prompt, linkText, href, isReplace, isDismissTo }: Prop
   return (
     <View style={styles.container}>
       {prompt ? (
-        <AppText color="textSecondary" size={14}>
+        <AppText color="textSecondary" size="subhead">
           {prompt}
         </AppText>
       ) : null}
       <Link href={href} replace={isReplace} dismissTo={isDismissTo} asChild>
         <PressableOpacity>
-          <AppText color="primaryText" size={14} fontWeight="bold">
+          <AppText color="primaryText" size="subhead" fontWeight="bold">
             {linkText}
           </AppText>
         </PressableOpacity>

@@ -98,7 +98,7 @@ const SectionStep = ({
     <FormProvider {...form}>
       <View style={styles.fields}>
         {section.note && (
-          <AppText color="textSecondary" size={15}>
+          <AppText color="textSecondary" size="callout">
             {section.note}
           </AppText>
         )}

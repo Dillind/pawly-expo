@@ -143,7 +143,7 @@ const PostComposer = ({ pets, householdName, householdId, currentOccasion }: Pro
         />
 
         <View style={styles.photos}>
-          <AppText size={16}>Photos</AppText>
+          <AppText size="body">Photos</AppText>
 
           {photos.length === 0 ? (
             <AddPhotoTile isDropzone onPress={() => void photoSheetRef.current?.present()} />
@@ -172,7 +172,7 @@ const PostComposer = ({ pets, householdName, householdId, currentOccasion }: Pro
             </ScrollView>
           )}
 
-          <AppText size={13} color="textSecondary">
+          <AppText size="footnote" color="textSecondary">
             {isAtCap
               ? `${PHOTO_CAP} of ${PHOTO_CAP} photos. Remove one to add another.`
               : `${photos.length} of ${PHOTO_CAP} photos`}
@@ -186,10 +186,10 @@ const PostComposer = ({ pets, householdName, householdId, currentOccasion }: Pro
           accessibilityLabel="Tag pets"
           disabled={pets.length === 0}>
           <Icon name="pawPrint" size={IconSize.action} color="textSecondary" />
-          <AppText size={16} style={styles.rowLabel}>
+          <AppText size="body" style={styles.rowLabel}>
             Tag pets
           </AppText>
-          <AppText size={15} color="textSecondary" numberOfLines={1} style={styles.rowValue}>
+          <AppText size="callout" color="textSecondary" numberOfLines={1} style={styles.rowValue}>
             {taggedNames || 'None'}
           </AppText>
           <Icon name="caretRight" size={IconSize.control} color="textSecondary" />
@@ -202,7 +202,7 @@ const PostComposer = ({ pets, householdName, householdId, currentOccasion }: Pro
           accessibilityLabel="Choose an occasion"
           disabled={!householdId}>
           <Icon name="sparkles" size={IconSize.action} color="textSecondary" />
-          <AppText size={16} style={styles.rowLabel}>
+          <AppText size="body" style={styles.rowLabel}>
             Occasion
           </AppText>
 
@@ -210,13 +210,13 @@ const PostComposer = ({ pets, householdName, householdId, currentOccasion }: Pro
             <View style={styles.occasionValue}>
               {occasion.emoji && <OccasionEmoji emoji={occasion.emoji} size={20} />}
               {occasion.label && (
-                <AppText size={15} color="textSecondary" numberOfLines={1}>
+                <AppText size="callout" color="textSecondary" numberOfLines={1}>
                   {occasion.label}
                 </AppText>
               )}
             </View>
           ) : (
-            <AppText size={15} color="textSecondary" numberOfLines={1} style={styles.rowValue}>
+            <AppText size="callout" color="textSecondary" numberOfLines={1} style={styles.rowValue}>
               What&rsquo;s the occasion?
             </AppText>
           )}

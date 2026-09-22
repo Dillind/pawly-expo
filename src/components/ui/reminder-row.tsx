@@ -13,7 +13,7 @@ import MainButton from '@/components/core/main-button';
 import PressableOpacity from '@/components/core/pressable-opacity';
 import { Curve, Duration } from '@/constants/motion';
 import { REMINDER_KIND_ICON } from '@/constants/options';
-import { IconSize, type AppTheme } from '@/constants/theme';
+import { IconSize, Radius, type AppTheme } from '@/constants/theme';
 import { useStyles } from '@/hooks/use-styles';
 import type { ReminderOccurrence } from '@/types/core';
 
@@ -61,11 +61,11 @@ const ReminderRow = ({ reminder, dateLabel, isTicking = false, onTick }: Props) 
       <Icon name={REMINDER_KIND_ICON[reminder.kind]} size={19} color={KIND_COLOUR[reminder.kind]} />
 
       <Animated.View style={styles.text} layout={RowReflow}>
-        <AppText size={15} numberOfLines={1}>
+        <AppText size="callout" numberOfLines={1}>
           {reminder.title}
         </AppText>
         {dateLabel && (
-          <AppText size={13} color="textSecondary">
+          <AppText size="footnote" color="textSecondary">
             {dateLabel}
           </AppText>
         )}
@@ -145,7 +145,7 @@ const makeStyles = ({ colors, spacing }: AppTheme) =>
     future: {
       paddingHorizontal: 6,
       paddingVertical: 1,
-      borderRadius: 100,
+      borderRadius: Radius.full,
       borderWidth: 1,
       borderStyle: 'dashed',
       borderColor: colors.ghostBorder

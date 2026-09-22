@@ -34,10 +34,10 @@ const ToggleSwitch = ({
       <View style={styles.textColumn}>
         {/* Both lines drop to textSecondary when disabled, so the row reads as
             inert rather than merely unresponsive. */}
-        <AppText size={14} color={isDisabled ? 'textSecondary' : 'text'} fontWeight="bold">
+        <AppText size="subhead" color={isDisabled ? 'textSecondary' : 'text'} fontWeight="bold">
           {label}
         </AppText>
-        <AppText size={13} color="textSecondary" fontWeight="regular">
+        <AppText size="footnote" color="textSecondary" fontWeight="regular">
           {description}
         </AppText>
       </View>

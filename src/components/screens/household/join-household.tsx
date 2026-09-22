@@ -45,10 +45,10 @@ const JoinHousehold = () => {
         contentInsetAdjustmentBehavior="automatic">
         <FormProvider {...form}>
           <View style={styles.form}>
-            <AppText variant="header" size={18}>
+            <AppText variant="header" size="title3">
               Have a code?
             </AppText>
-            <AppText size={15} color="textSecondary">
+            <AppText size="callout" color="textSecondary">
               Enter the code an owner shared with you. You&apos;ll see that household&apos;s pets,
               feeds and posts.
             </AppText>

@@ -174,6 +174,31 @@ export const Fonts = Platform.select({
   }
 })!;
 
+// Fixed in both modes: each sits on a photo or on a coloured fill, never on the page.
+export const OverlayColors = {
+  media: '#000000',
+  onMedia: '#FFFFFF',
+  scrim: 'rgba(0, 0, 0, 0.35)',
+  fillSubtle: 'rgba(255, 255, 255, 0.18)',
+  fillStrong: 'rgba(255, 255, 255, 0.35)'
+} as const;
+
+export const TypeScale = {
+  caption2: 11,
+  caption: 12,
+  footnote: 13,
+  subhead: 14,
+  callout: 15,
+  body: 16,
+  headline: 17,
+  title3: 18,
+  title2: 22,
+  title1: 28,
+  largeTitle: 34
+} as const;
+
+export type TextSize = keyof typeof TypeScale;
+
 export const Spacing = {
   half: 2,
   one: 4,
@@ -194,18 +219,22 @@ export const IconSize = {
 } as const;
 
 export const Radius = {
+  input: 8,
+  control: 10,
   tile: 12,
+  panel: 14,
+  row: 18,
   card: 24,
   banner: 28,
   full: 100
 } as const;
 
-// Measured off the running iOS 26 tab bar, not guessed: expo-router's native
-// tabs expose no hook for the height, and anything floating above the bar
-// depends on this number.
 // Uncapped, iOS scales text about 3x at the top accessibility size, which no layout here holds.
 export const MaxFontScale = { body: 1.5, header: 1.2 } as const;
 
+// Measured off the running iOS 26 tab bar, not guessed: expo-router's native
+// tabs expose no hook for the height, and anything floating above the bar
+// depends on this number.
 export const BottomTabInset = Platform.select({ ios: 84, android: 80 }) ?? 0;
 
 // Cannot be a shared component: `Stack.Screen` reads direct children only, so a

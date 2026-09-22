@@ -117,7 +117,7 @@ const ChooseStep = ({
           onPress={() => setIsEditing((current) => !current)}
           accessibilityRole="button"
           accessibilityLabel={isEditing ? 'Finish editing occasions' : 'Edit occasions'}>
-          <AppText size={15} color="primaryText" fontWeight="bold">
+          <AppText size="callout" color="primaryText" fontWeight="bold">
             {isEditing ? 'Done' : 'Edit'}
           </AppText>
         </PressableOpacity>
@@ -177,7 +177,7 @@ const ChooseStep = ({
               isSelected={!isEditing}
               onPress={() => onChoose(null)}
             />
-            <AppText size={12} color="textSecondary">
+            <AppText size="caption" color="textSecondary">
               Removed from the picker. Tap it to take it off this post.
             </AppText>
           </View>
@@ -245,7 +245,7 @@ const EditStep = ({
         </View>
       </View>
 
-      <AppText size={12} color="textSecondary">
+      <AppText size="caption" color="textSecondary">
         Add an emoji, a label, or both. One of the two is enough &mdash; an occasion with neither is
         nothing.
       </AppText>
@@ -253,14 +253,14 @@ const EditStep = ({
       <Divider />
 
       <View style={styles.preview}>
-        <AppText size={11} fontWeight="bold" color="textSecondary" style={styles.caption}>
+        <AppText size="caption2" fontWeight="bold" color="textSecondary" style={styles.caption}>
           HOW IT WILL READ
         </AppText>
 
         {/* On `postSurface`: the only ground the chip is ever
             seen against -- it disappears on the sheet's own fill. */}
         <View style={styles.previewSurface}>
-          <AppText size={17} fontWeight="bold">
+          <AppText size="headline" fontWeight="bold">
             {previewTitle}
           </AppText>
 
@@ -271,7 +271,7 @@ const EditStep = ({
                 label={label || null}
               />
             ) : (
-              <AppText size={13} color="textSecondary">
+              <AppText size="footnote" color="textSecondary">
                 Your occasion appears here.
               </AppText>
             )}
@@ -322,7 +322,11 @@ const EmojiStep = ({ onPick }: { onPick: (emoji: string) => void }) => {
         <View style={styles.emojiGroups}>
           {groups.map((group) => (
             <View key={group.title} style={styles.emojiGroup}>
-              <AppText size={11} fontWeight="bold" color="textSecondary" style={styles.caption}>
+              <AppText
+                size="caption2"
+                fontWeight="bold"
+                color="textSecondary"
+                style={styles.caption}>
                 {group.title.toUpperCase()}
               </AppText>
 
@@ -345,7 +349,7 @@ const EmojiStep = ({ onPick }: { onPick: (emoji: string) => void }) => {
           ))}
 
           {groups.length === 0 && (
-            <AppText size={15} color="textSecondary">
+            <AppText size="callout" color="textSecondary">
               No emoji match &ldquo;{term.trim()}&rdquo;.
             </AppText>
           )}

@@ -83,7 +83,7 @@ const DayBanner = ({ name, status, timezone }: Props) => {
         {/* Keyed on the text so the line cross-fades when the count changes,
             rather than swapping a word under the reader. */}
         <Animated.View key={status} entering={FadeIn.duration(180)} exiting={FadeOut.duration(140)}>
-          <AppText size={15} style={{ color: ink, opacity: 0.78 }}>
+          <AppText size="callout" style={{ color: ink, opacity: 0.78 }}>
             {status}
           </AppText>
         </Animated.View>

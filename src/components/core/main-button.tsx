@@ -13,7 +13,7 @@ import {
 import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 
 import { APP_ACTIVE_OPACITY } from '@/constants/primitives';
-import { MaxFontScale, type AppTheme } from '@/constants/theme';
+import { MaxFontScale, Radius, type AppTheme } from '@/constants/theme';
 import { useStyles } from '@/hooks/use-styles';
 import { useTheme } from '@/hooks/use-theme';
 import { hapticLight } from '@/lib/haptics';
@@ -44,10 +44,10 @@ type MainButtonProps = {
 
 // Fixed heights, not padding: two sizes in one row must still line up.
 const SIZE_STYLES = {
-  xs: { height: 28, paddingHorizontal: 12, borderRadius: 100, fontSize: 13 },
-  sm: { height: 34, paddingHorizontal: 14, borderRadius: 100, fontSize: 14 },
-  md: { height: 42, paddingHorizontal: 18, borderRadius: 100, fontSize: 17 },
-  lg: { height: 50, paddingHorizontal: 22, borderRadius: 100, fontSize: 20 }
+  xs: { height: 28, paddingHorizontal: 12, borderRadius: Radius.full, fontSize: 13 },
+  sm: { height: 34, paddingHorizontal: 14, borderRadius: Radius.full, fontSize: 14 },
+  md: { height: 42, paddingHorizontal: 18, borderRadius: Radius.full, fontSize: 17 },
+  lg: { height: 50, paddingHorizontal: 22, borderRadius: Radius.full, fontSize: 20 }
 } as const;
 
 // xs is 28pt, so it needs 8pt either side to clear 44pt.

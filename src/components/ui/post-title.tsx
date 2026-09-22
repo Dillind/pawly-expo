@@ -11,7 +11,7 @@ const PostTitle = ({ title, numberOfLines, onPress }: Props) => {
   if (!title) return null;
 
   const text = (
-    <AppText size={17} fontWeight="bold" numberOfLines={numberOfLines}>
+    <AppText size="headline" fontWeight="bold" numberOfLines={numberOfLines}>
       {title}
     </AppText>
   );

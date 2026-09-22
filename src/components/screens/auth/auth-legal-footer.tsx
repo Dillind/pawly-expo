@@ -14,11 +14,11 @@ const AuthLegalFooter = () => {
 
   return (
     <View style={styles.container}>
-      <AppText color="textSecondary" size={12} align="center">
+      <AppText color="textSecondary" size="caption" align="center">
         By using Crumpet, you agree to our{' '}
         <AppText
           color="textSecondary"
-          size={12}
+          size="caption"
           fontWeight="bold"
           onPress={() => void openExternalUrl(TERMS_URL)}>
           Terms of Use
@@ -26,7 +26,7 @@ const AuthLegalFooter = () => {
         and{' '}
         <AppText
           color="textSecondary"
-          size={12}
+          size="caption"
           fontWeight="bold"
           onPress={() => void openExternalUrl(PRIVACY_URL)}>
           Privacy Policy

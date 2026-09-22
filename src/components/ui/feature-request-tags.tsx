@@ -2,7 +2,7 @@ import { StyleSheet, View } from 'react-native';
 
 import AppText from '@/components/core/app-text';
 import { FEATURE_REQUEST_STATUS_OPTIONS } from '@/constants/options';
-import type { AppTheme, ThemeColor } from '@/constants/theme';
+import { Radius, type AppTheme, type ThemeColor } from '@/constants/theme';
 import { useStyles } from '@/hooks/use-styles';
 import { useTheme } from '@/hooks/use-theme';
 import type { FeatureRequest, FeatureRequestStatus } from '@/services/feature-request.service';
@@ -22,7 +22,7 @@ const Pill = ({ label, fill, ink }: { label: string; fill: ThemeColor; ink: Them
 
   return (
     <View style={[styles.pill, { backgroundColor: colors[fill] }]}>
-      <AppText size={12} fontWeight="semibold" color={ink} numberOfLines={1}>
+      <AppText size="caption" fontWeight="semibold" color={ink} numberOfLines={1}>
         {label}
       </AppText>
     </View>
@@ -57,13 +57,13 @@ const FeatureRequestTags = ({ request, isReviewing = false }: Props) => {
       )}
       {request.isTeamPost ? (
         <View style={styles.team}>
-          <AppText size={11} fontWeight="semibold" color="textSecondary" numberOfLines={1}>
+          <AppText size="caption2" fontWeight="semibold" color="textSecondary" numberOfLines={1}>
             Crumpet team
           </AppText>
         </View>
       ) : null}
       {request.reportCount > 0 ? (
-        <AppText size={13} color="textSecondary">
+        <AppText size="footnote" color="textSecondary">
           {request.reportCount === 1 ? '1 report' : `${request.reportCount} reports`}
         </AppText>
       ) : null}
@@ -82,7 +82,7 @@ const makeStyles = ({ colors, spacing }: AppTheme) =>
     pill: {
       paddingHorizontal: 9,
       paddingVertical: 3,
-      borderRadius: 999
+      borderRadius: Radius.full
     },
     team: {
       paddingHorizontal: 7,

@@ -41,7 +41,7 @@ const PostModalHeader = ({
         isDisabled={isBusy}
       />
 
-      <AppText size={16} fontWeight="bold">
+      <AppText size="body" fontWeight="bold">
         {title}
       </AppText>
 

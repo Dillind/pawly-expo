@@ -48,10 +48,10 @@ const SectionRow = ({
       onPress={onPress}>
       <View style={styles.row}>
         <View style={styles.rowText}>
-          <AppText size={16} fontWeight="semibold" style={styles.ink}>
+          <AppText size="body" fontWeight="semibold" style={styles.ink}>
             {row.title}
           </AppText>
-          <AppText size={13} numberOfLines={2} ellipsizeMode="tail" style={styles.inkQuiet}>
+          <AppText size="footnote" numberOfLines={2} ellipsizeMode="tail" style={styles.inkQuiet}>
             {row.summary ?? 'Nothing here yet'}
           </AppText>
         </View>
@@ -79,7 +79,7 @@ const CardBackFace = ({ petName, updatedLabel, rows, isOwner, onFlip, onOpenSect
             {`${petName}'s care card`}
           </AppText>
           {updatedLabel && (
-            <AppText size={12} style={styles.inkQuiet}>
+            <AppText size="caption" style={styles.inkQuiet}>
               {updatedLabel}
             </AppText>
           )}

@@ -58,10 +58,10 @@ const HouseholdSearchRow = ({ household, isStale }: Props) => {
             accessibilityLabel={`Open ${household.name}`}>
             <HouseholdCrest size={SEARCH_ROW_CREST} iconSize={20} />
             <View style={styles.text}>
-              <AppText size={16} numberOfLines={1}>
+              <AppText size="body" numberOfLines={1}>
                 {household.name}
               </AppText>
-              <AppText size={13} color="textSecondary" numberOfLines={1}>
+              <AppText size="footnote" color="textSecondary" numberOfLines={1}>
                 {`@${household.handle} · ${countDigits(household.petCount, 'pet')}`}
               </AppText>
             </View>
@@ -82,7 +82,7 @@ const HouseholdSearchRow = ({ household, isStale }: Props) => {
           onPress={() => requestFollow()}
         />
       ) : (
-        <AppText size={13} color="textSecondary">
+        <AppText size="footnote" color="textSecondary">
           Your household
         </AppText>
       )}

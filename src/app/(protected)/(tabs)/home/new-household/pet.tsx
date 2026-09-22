@@ -62,7 +62,7 @@ const FirstPet = () => {
             <Icon name="camera" size={26} color="textSecondary" />
           </View>
         )}
-        <AppText size={13} color="textSecondary">
+        <AppText size="footnote" color="textSecondary">
           {photoUri ? 'Change photo' : 'Add a photo'}
         </AppText>
       </PressableOpacity>

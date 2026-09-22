@@ -43,7 +43,7 @@ const PostActionRow = ({ liked, count, commentCount, onToggleLike, onOpenComment
           fill={liked ? 'like' : undefined}
         />
         {count > 0 && (
-          <AppText size={14} color={liked ? 'like' : 'textSecondary'} style={styles.count}>
+          <AppText size="subhead" color={liked ? 'like' : 'textSecondary'} style={styles.count}>
             {count}
           </AppText>
         )}
@@ -58,7 +58,7 @@ const PostActionRow = ({ liked, count, commentCount, onToggleLike, onOpenComment
         accessibilityLabel={commentCount === 1 ? '1 comment' : `${commentCount} comments`}>
         <Icon name="comment" size={ICON_SIZE} color="textSecondary" />
         {commentCount > 0 && (
-          <AppText size={14} color="textSecondary" style={styles.count}>
+          <AppText size="subhead" color="textSecondary" style={styles.count}>
             {commentCount}
           </AppText>
         )}

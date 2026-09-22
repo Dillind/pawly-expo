@@ -23,7 +23,7 @@ const AddFeedTimeGhostRow = ({ onPress }: { onPress: () => void }) => {
         <Icon name="plus" size={IconSize.control} color="text" />
       </View>
 
-      <AppText size={17}>Add a feed time</AppText>
+      <AppText size="headline">Add a feed time</AppText>
     </PressableOpacity>
   );
 };

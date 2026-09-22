@@ -41,10 +41,10 @@ const CommentsPostSummary = ({ post, onToggleLike, onOpenPost }: Props) => {
           size={AVATAR}
         />
         <View style={styles.authorText}>
-          <AppText size={15} fontWeight="bold" numberOfLines={1}>
+          <AppText size="callout" fontWeight="bold" numberOfLines={1}>
             {authorName}
           </AppText>
-          <AppText size={13} color="textSecondary" numberOfLines={1}>
+          <AppText size="footnote" color="textSecondary" numberOfLines={1}>
             {formatRelativeTime(post.occurredAt)}
             {post.editedAt ? ' · Edited' : ''}
           </AppText>

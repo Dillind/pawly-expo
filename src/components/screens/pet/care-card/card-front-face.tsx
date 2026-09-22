@@ -111,7 +111,7 @@ const CardFrontFace = ({
 
           {petSubtitle && (
             <AppText
-              size={14}
+              size="subhead"
               fontWeight="semibold"
               align="center"
               numberOfLines={1}
@@ -140,7 +140,7 @@ const CardFrontFace = ({
         )}
 
         {isEmpty && !isOwner && (
-          <AppText size={14} fontWeight="semibold" align="center" style={styles.ink}>
+          <AppText size="subhead" fontWeight="semibold" align="center" style={styles.ink}>
             Not filled in yet
           </AppText>
         )}

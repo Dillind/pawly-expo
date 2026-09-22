@@ -31,9 +31,9 @@ const MedicationRow = ({
   return (
     <View style={styles.row}>
       <View style={styles.rowText}>
-        <AppText size={16}>{medication.name}</AppText>
+        <AppText size="body">{medication.name}</AppText>
         {detail.length > 0 && (
-          <AppText size={13} color="textSecondary">
+          <AppText size="footnote" color="textSecondary">
             {detail}
           </AppText>
         )}

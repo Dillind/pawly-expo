@@ -22,7 +22,7 @@ const Welcome = () => {
       <ScreenScrollView contentContainerStyle={styles.scrollContent}>
         <WelcomeArt />
 
-        <AppText variant="header" size={34} align="center" fontWeight="bold">
+        <AppText variant="header" size="largeTitle" align="center" fontWeight="bold">
           Every feed, every pet, everyone in the loop.
         </AppText>
 

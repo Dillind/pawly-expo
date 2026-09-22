@@ -59,7 +59,7 @@ const VerificationCodeInput = ({
   return (
     <View style={styles.container}>
       {label ? (
-        <AppText size={16} fontWeight="bold">
+        <AppText size="body" fontWeight="bold">
           {label}
         </AppText>
       ) : null}
@@ -78,7 +78,7 @@ const VerificationCodeInput = ({
                   digit ? styles.boxFilled : null,
                   isNext ? styles.boxNext : null
                 ]}>
-                <AppText size={22} align="center">
+                <AppText size="title2" align="center">
                   {digit}
                 </AppText>
               </View>

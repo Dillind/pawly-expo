@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { ActivityIndicator, ScrollView, StyleSheet, useWindowDimensions, View } from 'react-native';
 
 import ZoomablePhoto from '@/components/ui/zoomable-photo';
+import { OverlayColors } from '@/constants/theme';
 import { usePost } from '@/hooks/queries/posts/use-posts';
 import { useAuthStore } from '@/stores/auth-store';
 
@@ -58,11 +59,11 @@ export default function PostPhotoScreen() {
 const styles = StyleSheet.create({
   root: {
     flex: 1,
-    backgroundColor: '#000000'
+    backgroundColor: OverlayColors.media
   },
   loading: {
     flex: 1,
-    backgroundColor: '#000000',
+    backgroundColor: OverlayColors.media,
     alignItems: 'center',
     justifyContent: 'center'
   }

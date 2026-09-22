@@ -164,7 +164,7 @@ const MembersList = ({ householdId }: Props) => {
         />
         {/* No role on the row: the section heading says it, and
             repeating it on every line is noise. */}
-        <AppText size={16} style={styles.name} numberOfLines={1}>
+        <AppText size="body" style={styles.name} numberOfLines={1}>
           {fullName(member) || 'Member'}
           {isSelf ? ' (you)' : ''}
         </AppText>
@@ -223,10 +223,10 @@ const MembersList = ({ householdId }: Props) => {
                 accessibilityLabel={`Show the invite code for ${invite.email}`}
                 onPress={() => openInvite(invite)}>
                 <View style={styles.name}>
-                  <AppText size={16} numberOfLines={1}>
+                  <AppText size="body" numberOfLines={1}>
                     {invite.email}
                   </AppText>
-                  <AppText size={13} color="textSecondary">
+                  <AppText size="footnote" color="textSecondary">
                     {roleLabel(invite.role)} · code {invite.code}
                   </AppText>
                 </View>

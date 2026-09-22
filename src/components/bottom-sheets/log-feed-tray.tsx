@@ -57,7 +57,7 @@ const PetPickerStep = ({
 
   return (
     <View style={styles.stack}>
-      <AppText size={14} fontWeight="bold">
+      <AppText size="subhead" fontWeight="bold">
         Who did you feed?
       </AppText>
 
@@ -75,7 +75,7 @@ const PetPickerStep = ({
               onPress={() => onToggle(pet)}>
               <PetAvatar photoUrl={pet.photoUrl} size={32} />
 
-              <AppText size={16} style={styles.petName}>
+              <AppText size="body" style={styles.petName}>
                 {pet.name}
               </AppText>
 
@@ -124,8 +124,8 @@ const FeedPickerStep = ({
           accessibilityLabel={`${LABEL_TEXT[occurrence.label]} at ${formatScheduledTime(occurrence.localTime)}`}
           onPress={() => choose(occurrence)}>
           <View style={styles.petName}>
-            <AppText size={16}>{LABEL_TEXT[occurrence.label]}</AppText>
-            <AppText size={13} color="textSecondary">
+            <AppText size="body">{LABEL_TEXT[occurrence.label]}</AppText>
+            <AppText size="footnote" color="textSecondary">
               {formatScheduledTime(occurrence.localTime)}
               {occurrence.state === 'fed' ? '  ·  already logged' : ''}
             </AppText>
@@ -141,8 +141,8 @@ const FeedPickerStep = ({
         accessibilityLabel="Not on the schedule"
         onPress={() => choose(null)}>
         <View style={styles.petName}>
-          <AppText size={16}>Not on the schedule</AppText>
-          <AppText size={13} color="textSecondary">
+          <AppText size="body">Not on the schedule</AppText>
+          <AppText size="footnote" color="textSecondary">
             A snack, or a feed you do not plan for.
           </AppText>
         </View>
@@ -229,14 +229,14 @@ const ConfirmStep = ({
           {pets.map((pet) => (
             <View key={pet.id} style={styles.petSummaryRow}>
               <PetAvatar photoUrl={pet.photoUrl} size={32} />
-              <AppText size={16}>{pet.name}</AppText>
+              <AppText size="body">{pet.name}</AppText>
             </View>
           ))}
         </View>
 
         {occurrence?.instructions ? (
           <View style={styles.instructions}>
-            <AppText size={14}>{occurrence.instructions}</AppText>
+            <AppText size="subhead">{occurrence.instructions}</AppText>
           </View>
         ) : null}
 
@@ -281,7 +281,7 @@ const PetHeading = ({ pet }: { pet: Pet }) => {
   return (
     <View style={styles.heading}>
       <PetAvatar photoUrl={pet.photoUrl} size={32} />
-      <AppText variant="header" size={18}>
+      <AppText variant="header" size="title3">
         {pet.name}
       </AppText>
     </View>

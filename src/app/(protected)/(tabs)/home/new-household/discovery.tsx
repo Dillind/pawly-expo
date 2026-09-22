@@ -56,7 +56,7 @@ const Discovery = () => {
         )}
       />
 
-      <AppText size={13} color="textSecondary" style={styles.hint}>
+      <AppText size="footnote" color="textSecondary" style={styles.hint}>
         You accept every follower yourself, listed or not.
       </AppText>
     </FlowScreen>

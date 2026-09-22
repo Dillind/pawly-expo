@@ -5,7 +5,7 @@ import AppText from '@/components/core/app-text';
 import FeatureRequestTags from '@/components/ui/feature-request-tags';
 import FeatureRequestVoteButton from '@/components/ui/feature-request-vote-button';
 import { FEATURE_REQUEST_STATUS_OPTIONS } from '@/constants/options';
-import type { AppTheme } from '@/constants/theme';
+import { Radius, type AppTheme } from '@/constants/theme';
 import {
   featureRequestPermissions,
   useFeatureRequestActions
@@ -47,11 +47,11 @@ const FeatureRequestCard = ({ request, isTeam, isBanned, isReviewing = false }: 
             if (nativeEvent.actionName === 'vote') actions.toggleVote(request);
           }}>
           <View style={styles.body}>
-            <AppText variant="header" size={17} fontWeight="semibold" numberOfLines={2}>
+            <AppText variant="header" size="headline" fontWeight="semibold" numberOfLines={2}>
               {request.title}
             </AppText>
             {request.description ? (
-              <AppText size={14} color="textSecondary" numberOfLines={2} style={styles.lead}>
+              <AppText size="subhead" color="textSecondary" numberOfLines={2} style={styles.lead}>
                 {request.description}
               </AppText>
             ) : null}
@@ -125,7 +125,7 @@ const makeStyles = ({ colors, spacing }: AppTheme) =>
       alignItems: 'flex-start',
       gap: 14,
       padding: spacing.three,
-      borderRadius: 18,
+      borderRadius: Radius.row,
       borderCurve: 'continuous',
       borderWidth: 1,
       borderColor: colors.border,

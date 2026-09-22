@@ -11,7 +11,7 @@ const PostCaption = ({ caption, numberOfLines, onPress }: Props) => {
   if (!caption) return null;
 
   const text = (
-    <AppText size={15} numberOfLines={numberOfLines}>
+    <AppText size="callout" numberOfLines={numberOfLines}>
       {caption}
     </AppText>
   );

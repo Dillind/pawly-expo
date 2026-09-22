@@ -18,7 +18,7 @@ import {
   type FeedLogFormValues,
   type FeedLogNotesOnlyFormValues
 } from '@/constants/schemas/feed-log';
-import type { AppTheme } from '@/constants/theme';
+import { Radius, type AppTheme } from '@/constants/theme';
 import { useFeedLog } from '@/hooks/queries/feeding/use-feed-log';
 import { useDeleteFeedLog, useUpdateFeedLog } from '@/hooks/queries/feeding/use-feed-log-mutations';
 import { useHousehold } from '@/hooks/queries/household/use-household';
@@ -106,13 +106,13 @@ const FeedLogDetailSheet = ({ sheetRef, logId, petId }: Props) => {
         <ActivityIndicator />
       ) : (
         <View style={styles.content}>
-          <AppText size={14} color="textSecondary">
+          <AppText size="subhead" color="textSecondary">
             {authorName} · {formatDayHeading(dayInTimezone(log.loggedAt, timezone), timezone)} ·{' '}
             {formatTimeOfDay(log.loggedAt, timezone)}
           </AppText>
 
           {!canEdit ? (
-            <AppText size={16}>{log.notes ?? 'No notes on this feed.'}</AppText>
+            <AppText size="body">{log.notes ?? 'No notes on this feed.'}</AppText>
           ) : (
             <>
               {isRecent ? (
@@ -207,7 +207,7 @@ function EditableLogForm({ log, timezone, isOwner, isSaving, onSave }: EditableL
                   key={option}
                   style={[styles.dayChip, value === option && styles.dayChipSelected]}
                   onPress={() => onChange(option)}>
-                  <AppText size={14} color={value === option ? 'text' : 'textSecondary'}>
+                  <AppText size="subhead" color={value === option ? 'text' : 'textSecondary'}>
                     {label}
                   </AppText>
                 </PressableOpacity>
@@ -323,7 +323,7 @@ const makeStyles = ({ colors, spacing }: AppTheme) =>
     dayChip: {
       paddingVertical: spacing.two,
       paddingHorizontal: spacing.three,
-      borderRadius: 100,
+      borderRadius: Radius.full,
       backgroundColor: colors.backgroundSheetRow
     },
     dayChipSelected: {

@@ -93,7 +93,7 @@ const FeatureRequestSheet = ({ sheetRef }: Props) => {
 
           <View style={styles.note}>
             <Icon name="info" size={IconSize.inline} color="textSecondary" />
-            <AppText size={13} color="textSecondary" style={styles.noteText}>
+            <AppText size="footnote" color="textSecondary" style={styles.noteText}>
               Every Crumpet user can see your request. Your name is not shown. No abusive or
               offensive content.
             </AppText>

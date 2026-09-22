@@ -44,7 +44,7 @@ const BaseSheet = ({
         {title && (
           <>
             <View style={styles.header}>
-              <AppText variant="header" size={22}>
+              <AppText variant="header" size="title2">
                 {title}
               </AppText>
               <IconButton

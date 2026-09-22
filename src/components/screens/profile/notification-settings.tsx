@@ -55,7 +55,7 @@ const NotificationSettings = ({ householdId }: Props) => {
     if (permission.status === Notifications.PermissionStatus.UNDETERMINED) {
       return (
         <View style={styles.section}>
-          <AppText size={14} color="textSecondary">
+          <AppText size="subhead" color="textSecondary">
             Turn on notifications to know before a feed is due, and the moment someone feeds a pet
             or shares a photo.
           </AppText>
@@ -77,7 +77,7 @@ const NotificationSettings = ({ householdId }: Props) => {
             alone. Naming it is the only thing stopping a member of several
             believing they have just silenced all of them. */}
         {household && (
-          <AppText size={14} color="textSecondary">
+          <AppText size="subhead" color="textSecondary">
             What {household.name} will and won&apos;t send you. Each household you belong to has its
             own settings.
           </AppText>
@@ -156,7 +156,7 @@ const NotificationSettings = ({ householdId }: Props) => {
 
         {isDenied && (
           <View style={styles.section}>
-            <AppText size={13} color="textSecondary">
+            <AppText size="footnote" color="textSecondary">
               Notifications are turned off for Crumpet, so you won&apos;t hear when a feed is coming
               up, when someone feeds a pet, or when someone shares a photo.
             </AppText>

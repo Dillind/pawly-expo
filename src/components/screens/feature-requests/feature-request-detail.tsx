@@ -11,7 +11,7 @@ import ScreenView from '@/components/layout/screen-view';
 import FeatureRequestTags from '@/components/ui/feature-request-tags';
 import FeatureRequestVoteButton from '@/components/ui/feature-request-vote-button';
 import { FEATURE_REQUEST_STATUS_OPTIONS } from '@/constants/options';
-import { BottomTabInset, type AppTheme } from '@/constants/theme';
+import { BottomTabInset, Radius, type AppTheme } from '@/constants/theme';
 import {
   useFeatureRequest,
   useIsBoardBanned,
@@ -44,7 +44,7 @@ const FeatureRequestDetail = ({ requestId }: { requestId: string }) => {
         <View style={styles.skeleton}>
           <SkeletonBlock height={28} width="70%" />
           <SkeletonBlock height={16} width="40%" />
-          <SkeletonBlock height={96} radius={18} />
+          <SkeletonBlock height={96} radius={Radius.row} />
         </View>
       );
     }
@@ -70,12 +70,12 @@ const FeatureRequestDetail = ({ requestId }: { requestId: string }) => {
       <View style={styles.body}>
         <View style={styles.top}>
           <View style={styles.heading}>
-            <AppText variant="header" size={28} fontWeight="bold" style={styles.title}>
+            <AppText variant="header" size="title1" fontWeight="bold" style={styles.title}>
               {request.title}
             </AppText>
             <View style={styles.meta}>
               <FeatureRequestTags request={request} />
-              <AppText size={13} color="textSecondary">
+              <AppText size="footnote" color="textSecondary">
                 Posted {formatDayAndShortMonth(request.createdAt, deviceTimezone())}
               </AppText>
             </View>
@@ -89,7 +89,7 @@ const FeatureRequestDetail = ({ requestId }: { requestId: string }) => {
         </View>
         <View style={styles.divider} />
         {request.description ? (
-          <AppText size={16} style={styles.description}>
+          <AppText size="body" style={styles.description}>
             {request.description}
           </AppText>
         ) : null}

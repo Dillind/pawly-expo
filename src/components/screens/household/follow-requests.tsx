@@ -41,7 +41,7 @@ const FollowRequests = ({ householdId }: Props) => {
 
     return (
       <>
-        <AppText size={14} color="textSecondary">
+        <AppText size="subhead" color="textSecondary">
           A follower reads your posts and pet profiles, and can like and comment. They never see
           feeds, reminders or the Care Card.
         </AppText>
@@ -67,10 +67,10 @@ const FollowRequests = ({ householdId }: Props) => {
                     size={AVATAR_SIZE}
                   />
                   <View style={styles.personText}>
-                    <AppText size={16} numberOfLines={1}>
+                    <AppText size="body" numberOfLines={1}>
                       {name}
                     </AppText>
-                    <AppText size={13} color="textSecondary" numberOfLines={1}>
+                    <AppText size="footnote" color="textSecondary" numberOfLines={1}>
                       {detail}
                     </AppText>
                   </View>

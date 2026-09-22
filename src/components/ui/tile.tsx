@@ -29,7 +29,7 @@ const Tile = ({ label, icon, href }: Props) => {
       style={[styles.container, createShadowMedium(theme.colors)]}>
       <Icon name={icon} size={IconSize.action} color="text" />
 
-      <AppText variant="header" size={16} numberOfLines={1}>
+      <AppText variant="header" size="body" numberOfLines={1}>
         {label}
       </AppText>
     </PressableOpacity>

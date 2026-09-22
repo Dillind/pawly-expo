@@ -121,7 +121,7 @@ const ResetPassword = () => {
               onPress={() => {
                 void startOver();
               }}>
-              <AppText size={14} fontWeight="bold" color="primaryText">
+              <AppText size="subhead" fontWeight="bold" color="primaryText">
                 Start over
               </AppText>
             </PressableOpacity>

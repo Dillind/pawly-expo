@@ -90,13 +90,13 @@ const RemindersSection = ({ pet, today }: Props) => {
               />
             ))
           ) : (
-            <AppText size={14} color="textSecondary">
+            <AppText size="subhead" color="textSecondary">
               A worming tablet, a vet appointment. Everyone in the household is told.
             </AppText>
           )}
 
           {hiddenCount > 0 && (
-            <AppText size={13} color="textSecondary">
+            <AppText size="footnote" color="textSecondary">
               {`${hiddenCount} more still to come.`}
             </AppText>
           )}

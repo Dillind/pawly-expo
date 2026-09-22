@@ -23,7 +23,7 @@ const AdditionalLogs = ({ logs, timezone, members, onOpenLog }: Props) => {
 
   return (
     <View style={styles.section}>
-      <AppText size={13} color="textSecondary" fontWeight="bold">
+      <AppText size="footnote" color="textSecondary" fontWeight="bold">
         Additional logs
       </AppText>
       {logs.map((log) => (
@@ -35,12 +35,12 @@ const AdditionalLogs = ({ logs, timezone, members, onOpenLog }: Props) => {
           onPress={() => onOpenLog(log.id)}>
           <View style={styles.text}>
             <View style={styles.heading}>
-              <AppText size={15}>Feed</AppText>
-              <AppText size={15} color="textSecondary">
+              <AppText size="callout">Feed</AppText>
+              <AppText size="callout" color="textSecondary">
                 {formatTimeOfDay(log.loggedAt, timezone)}
               </AppText>
             </View>
-            <AppText size={13} color="textSecondary" numberOfLines={2}>
+            <AppText size="footnote" color="textSecondary" numberOfLines={2}>
               {memberDisplayName(members, log.loggedBy)}
             </AppText>
           </View>

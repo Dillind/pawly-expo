@@ -56,10 +56,10 @@ const FollowingList = () => {
             <View style={styles.row}>
               <HouseholdCrest size={CREST} iconSize={18} />
               <View style={styles.rowText}>
-                <AppText size={16} numberOfLines={1}>
+                <AppText size="body" numberOfLines={1}>
                   {household.name}
                 </AppText>
-                <AppText size={13} color="textSecondary">
+                <AppText size="footnote" color="textSecondary">
                   {household.status === 'pending'
                     ? 'Waiting to be accepted'
                     : countText(household.petCount, 'pet')}

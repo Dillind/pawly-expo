@@ -71,7 +71,7 @@ const InviteMember = ({ householdId }: Props) => {
         contentInsetAdjustmentBehavior="automatic">
         <FormProvider {...form}>
           <View style={styles.form}>
-            <AppText size={15} color="textSecondary">
+            <AppText size="callout" color="textSecondary">
               Send them the code or the QR below — it&apos;s how they join. The invite is tied to
               this address, and waits for them if they haven&apos;t signed up yet.
             </AppText>

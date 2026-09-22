@@ -1,7 +1,7 @@
 import React from 'react';
 import { StyleProp, Text, TextStyle } from 'react-native';
 
-import { Fonts, MaxFontScale, ThemeColor } from '@/constants/theme';
+import { Fonts, MaxFontScale, ThemeColor, TypeScale, type TextSize } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { FontVariant, FontWeight } from '@/types/core';
 import { isAndroid } from '@/utils/platform';
@@ -9,7 +9,7 @@ import { isAndroid } from '@/utils/platform';
 type Props = {
   children?: React.ReactNode;
   variant?: FontVariant;
-  size?: number;
+  size?: TextSize | number;
   align?: 'left' | 'center' | 'right';
   color?: ThemeColor;
   fontWeight?: FontWeight;
@@ -51,11 +51,10 @@ const AppText = ({
 }: Props) => {
   const theme = useTheme();
 
-  const getDefaultFontSize = (): number => {
-    return variant === 'header' ? 32 : 16;
-  };
-
-  const fontSize = size ?? getDefaultFontSize();
+  const fontSize =
+    typeof size === 'string'
+      ? TypeScale[size]
+      : (size ?? (variant === 'header' ? 32 : TypeScale.body));
   const maxFontSizeMultiplier = variant === 'header' ? MaxFontScale.header : MaxFontScale.body;
 
   return (

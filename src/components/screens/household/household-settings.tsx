@@ -106,7 +106,7 @@ const HouseholdSettings = ({ householdId }: Props) => {
             <AppText variant="header" size={24} fontWeight="bold" numberOfLines={1}>
               {household.name}
             </AppText>
-            <AppText size={13} color="textSecondary" numberOfLines={1}>
+            <AppText size="footnote" color="textSecondary" numberOfLines={1}>
               You are the {role}
               {household.handle ? `  ·  @${household.handle}` : ''}
             </AppText>
@@ -141,7 +141,7 @@ const HouseholdSettings = ({ householdId }: Props) => {
               />
             )}
           </SettingsSection>
-          <AppText size={13} color="textSecondary" style={styles.caption}>
+          <AppText size="footnote" color="textSecondary" style={styles.caption}>
             Roles, invites and Leave household live on the Members screen.
           </AppText>
         </View>
@@ -178,7 +178,7 @@ const HouseholdSettings = ({ householdId }: Props) => {
               />
             </View>
           </SettingsSection>
-          <AppText size={13} color="textSecondary" style={styles.caption}>
+          <AppText size="footnote" color="textSecondary" style={styles.caption}>
             You accept every follower, listed or not.
           </AppText>
         </View>
@@ -191,7 +191,7 @@ const HouseholdSettings = ({ householdId }: Props) => {
               onPress={() => router.push(`/home/household/${householdId}/notifications`)}
             />
           </SettingsSection>
-          <AppText size={13} color="textSecondary" style={styles.caption}>
+          <AppText size="footnote" color="textSecondary" style={styles.caption}>
             A follow request tells you here. Followers never get a notification of their own.
           </AppText>
         </View>
@@ -218,7 +218,7 @@ const HouseholdSettings = ({ householdId }: Props) => {
             />
           </SettingsSection>
           {!isOwner && (
-            <AppText size={13} color="textSecondary" style={styles.caption}>
+            <AppText size="footnote" color="textSecondary" style={styles.caption}>
               Only an Owner can change these.
             </AppText>
           )}

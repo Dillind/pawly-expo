@@ -24,7 +24,7 @@ const SettingsSection = ({ title, dividerInset = DEFAULT_DIVIDER_INSET, children
   return (
     <View style={styles.section}>
       {title && (
-        <AppText size={13} color="textSecondary" style={styles.title}>
+        <AppText size="footnote" color="textSecondary" style={styles.title}>
           {title}
         </AppText>
       )}

@@ -3,7 +3,7 @@ import { StyleSheet, View } from 'react-native';
 import AppText from '@/components/core/app-text';
 import Icon from '@/components/core/icon';
 import PressableOpacity from '@/components/core/pressable-opacity';
-import { IconSize, Radius, type AppTheme } from '@/constants/theme';
+import { IconSize, OverlayColors, Radius, type AppTheme } from '@/constants/theme';
 import { useStyles } from '@/hooks/use-styles';
 import { describePackedAge, isPackedStale } from '@/lib/travel-packing';
 
@@ -38,10 +38,10 @@ const PackedCard = ({ packedAt, petNames, isResetting, onReset }: Props) => {
       </View>
 
       <View style={styles.text}>
-        <AppText variant="header" size={16} color={ink}>
+        <AppText variant="header" size="body" color={ink}>
           {isStale ? 'Packing for the next trip?' : readyLine(petNames)}
         </AppText>
-        <AppText size={13} color={ink} style={styles.age}>
+        <AppText size="footnote" color={ink} style={styles.age}>
           Packed {describePackedAge(packedAt)}
         </AppText>
       </View>
@@ -54,7 +54,7 @@ const PackedCard = ({ packedAt, petNames, isResetting, onReset }: Props) => {
         style={[styles.reset, isStale ? styles.resetStale : styles.resetFresh]}
         onPress={onReset}>
         <Icon name="refresh" size={IconSize.inline} color={isStale ? 'onPrimary' : 'onSuccess'} />
-        <AppText size={14} fontWeight="bold" color={isStale ? 'onPrimary' : 'onSuccess'}>
+        <AppText size="subhead" fontWeight="bold" color={isStale ? 'onPrimary' : 'onSuccess'}>
           Reset
         </AppText>
       </PressableOpacity>
@@ -87,7 +87,7 @@ const makeStyles = ({ spacing, colors }: AppTheme) =>
       justifyContent: 'center'
     },
     glyphFresh: {
-      backgroundColor: 'rgba(255, 255, 255, 0.22)'
+      backgroundColor: OverlayColors.fillSubtle
     },
     glyphStale: {
       backgroundColor: colors.ghostBorder
@@ -108,9 +108,9 @@ const makeStyles = ({ spacing, colors }: AppTheme) =>
       borderRadius: Radius.full
     },
     resetFresh: {
-      backgroundColor: 'rgba(255, 255, 255, 0.18)',
+      backgroundColor: OverlayColors.fillSubtle,
       borderWidth: 1,
-      borderColor: 'rgba(255, 255, 255, 0.35)'
+      borderColor: OverlayColors.fillStrong
     },
     resetStale: {
       backgroundColor: colors.primary

@@ -70,7 +70,7 @@ const PillRow = <T extends string | number>({
             accessibilityState={{ selected: isSelected }}
             onPress={() => onChange(option.value)}>
             {glyph && <Icon name={glyph.name} size={15} color={glyph.color} />}
-            <AppText size={14} fontWeight={isSelected ? 'bold' : 'regular'}>
+            <AppText size="subhead" fontWeight={isSelected ? 'bold' : 'regular'}>
               {option.label}
             </AppText>
           </PressableOpacity>
@@ -115,7 +115,7 @@ const WhatStep = ({
       />
 
       <View style={styles.field}>
-        <AppText size={14} fontWeight="bold">
+        <AppText size="subhead" fontWeight="bold">
           Kind
         </AppText>
         <PillRow
@@ -179,7 +179,7 @@ const WhenStep = ({
       />
 
       <View style={styles.field}>
-        <AppText size={14} fontWeight="bold">
+        <AppText size="subhead" fontWeight="bold">
           Repeat
         </AppText>
         <PillRow
@@ -191,7 +191,7 @@ const WhenStep = ({
 
       {/* Not "Lead time": the Member's nudge setting already owns that name. */}
       <View style={styles.field}>
-        <AppText size={14} fontWeight="bold">
+        <AppText size="subhead" fontWeight="bold">
           Tell us
         </AppText>
         <PillRow
@@ -231,16 +231,16 @@ const WhoStep = ({
         <PetAvatar photoUrl={pet.photoUrl} size={40} />
 
         <View style={styles.summaryText}>
-          <AppText size={16} fontWeight="bold">
+          <AppText size="body" fontWeight="bold">
             {pet.name}
           </AppText>
-          <AppText size={13} color="textSecondary">
+          <AppText size="footnote" color="textSecondary">
             {title} · {formatReminderDate(startsOn)}, {formatScheduledTime(localTime)}
           </AppText>
         </View>
       </View>
 
-      <AppText size={13} color="textSecondary">
+      <AppText size="footnote" color="textSecondary">
         Everyone in the household is told.
       </AppText>
 

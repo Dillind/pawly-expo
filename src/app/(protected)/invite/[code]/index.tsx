@@ -59,7 +59,7 @@ export default function InviteScreen() {
             <AppText variant="header" size={24}>
               This invite can&apos;t be used
             </AppText>
-            <AppText size={16} color="textSecondary">
+            <AppText size="body" color="textSecondary">
               {refusal}
             </AppText>
             <MainButton text="Close" variant="secondary" onPress={dismiss} />
@@ -69,7 +69,7 @@ export default function InviteScreen() {
             <AppText variant="header" size={24}>
               Join {preview.householdName}?
             </AppText>
-            <AppText size={16} color="textSecondary">
+            <AppText size="body" color="textSecondary">
               You&apos;d join as {preview.role ? roleWithArticle(preview.role) : 'a member'}, and
               you&apos;ll see this household&apos;s pets, feeds and posts.
             </AppText>

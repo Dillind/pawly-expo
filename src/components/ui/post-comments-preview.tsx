@@ -30,7 +30,7 @@ const PostCommentsPreview = ({ comments, count, onToggleLike, onOpenThread }: Pr
 
   return (
     <View style={styles.section}>
-      <AppText size={17} fontWeight="bold" style={styles.heading}>
+      <AppText size="headline" fontWeight="bold" style={styles.heading}>
         Comments
       </AppText>
 

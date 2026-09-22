@@ -35,7 +35,7 @@ const TrayStep = ({ title, header, isFirst, onBack, onClose, children }: Props) 
             {header()}
           </View>
         ) : (
-          <AppText variant="header" size={18}>
+          <AppText variant="header" size="title3">
             {title}
           </AppText>
         )}

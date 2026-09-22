@@ -38,9 +38,9 @@ const EntryRow = ({ label, detail, onEdit, onRemove, isBusy }: EntryRowProps) =>
         accessibilityLabel={`Edit ${label}`}
         style={styles.entryText}
         onPress={onEdit}>
-        <AppText size={16}>{label}</AppText>
+        <AppText size="body">{label}</AppText>
         {detail && (
-          <AppText size={13} color="textSecondary" numberOfLines={1}>
+          <AppText size="footnote" color="textSecondary" numberOfLines={1}>
             {detail}
           </AppText>
         )}
@@ -84,7 +84,7 @@ export const ContactsStep = ({ petId, contacts, onEdit }: ContactsStepProps) => 
 
   return (
     <View style={styles.list}>
-      <AppText color="textSecondary" size={15}>
+      <AppText color="textSecondary" size="callout">
         {REACHING_YOU_NOTE}
       </AppText>
 

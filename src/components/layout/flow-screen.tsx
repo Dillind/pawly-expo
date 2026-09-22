@@ -90,14 +90,14 @@ const FlowScreen = ({
       </View>
 
       <View style={styles.head}>
-        <AppText size={13} color="textSecondary">
+        <AppText size="footnote" color="textSecondary">
           Step {step} of {stepCount}
         </AppText>
-        <AppText variant="header" size={28} fontWeight="bold" style={styles.title}>
+        <AppText variant="header" size="title1" fontWeight="bold" style={styles.title}>
           {title}
         </AppText>
         {subtitle ? (
-          <AppText size={14} color="textSecondary" style={styles.subtitle}>
+          <AppText size="subhead" color="textSecondary" style={styles.subtitle}>
             {subtitle}
           </AppText>
         ) : null}

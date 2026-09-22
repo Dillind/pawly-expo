@@ -51,7 +51,7 @@ const ResendCodeRow = ({ onResend, cooldownSeconds = 60 }: Props) => {
 
   return (
     <View style={styles.container}>
-      <AppText size={14} color="textSecondary">
+      <AppText size="subhead" color="textSecondary">
         {"Didn't get a code?"}
       </AppText>
       <PressableOpacity
@@ -60,7 +60,7 @@ const ResendCodeRow = ({ onResend, cooldownSeconds = 60 }: Props) => {
           void handleResend();
         }}
         testID="resend-code">
-        <AppText size={14} fontWeight="bold" color={isDisabled ? 'textSecondary' : 'primary'}>
+        <AppText size="subhead" fontWeight="bold" color={isDisabled ? 'textSecondary' : 'primary'}>
           {remaining > 0 ? `Send again (${remaining}s)` : 'Send again'}
         </AppText>
       </PressableOpacity>

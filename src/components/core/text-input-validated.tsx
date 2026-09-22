@@ -13,7 +13,7 @@ import AppText from '@/components/core/app-text';
 import Icon from '@/components/core/icon';
 import IndicatedText from '@/components/core/indicated-text';
 import PressableOpacity from '@/components/core/pressable-opacity';
-import { IconSize, MaxFontScale, type AppTheme, type ThemeColor } from '@/constants/theme';
+import { IconSize, MaxFontScale, Radius, type AppTheme, type ThemeColor } from '@/constants/theme';
 import { useStyles } from '@/hooks/use-styles';
 import { useTheme } from '@/hooks/use-theme';
 import CharacterCount from '@/lib/form/components/character-count';
@@ -147,12 +147,12 @@ const TextInputValidated = React.forwardRef<TextInputRef, Props>(
           (isLabelIndicated ? (
             <IndicatedText text={label} marginBottom={description ? 0 : 4} textColor="text" />
           ) : (
-            <AppText color="text" size={16} style={{ marginBottom: description ? 0 : 4 }}>
+            <AppText color="text" size="body" style={{ marginBottom: description ? 0 : 4 }}>
               {label}
             </AppText>
           ))}
         {description && (
-          <AppText size={14} style={{ marginBottom: 4 }} color="textSecondary">
+          <AppText size="subhead" style={{ marginBottom: 4 }} color="textSecondary">
             {description}
           </AppText>
         )}
@@ -199,7 +199,7 @@ const SubscribedFieldError = ({
 const makeStyles = ({ colors }: AppTheme, borderColor: ThemeColor, backgroundColor: ThemeColor) =>
   StyleSheet.create({
     textInputContainer: {
-      borderRadius: 8,
+      borderRadius: Radius.input,
       flexDirection: 'row',
       alignItems: 'center',
       borderWidth: 1,

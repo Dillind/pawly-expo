@@ -80,7 +80,7 @@ const PetBio = ({ petId, name, bio }: Props) => {
   return (
     <View style={styles.section}>
       <View style={styles.header}>
-        <AppText variant="header" size={17} fontWeight="bold">
+        <AppText variant="header" size="headline" fontWeight="bold">
           About
         </AppText>
         {household?.isOwner && (
@@ -95,9 +95,9 @@ const PetBio = ({ petId, name, bio }: Props) => {
       </View>
 
       {bio ? (
-        <AppText size={16}>{bio}</AppText>
+        <AppText size="body">{bio}</AppText>
       ) : (
-        <AppText color="textSecondary" size={14}>
+        <AppText color="textSecondary" size="subhead">
           Add a few words about {name}
         </AppText>
       )}

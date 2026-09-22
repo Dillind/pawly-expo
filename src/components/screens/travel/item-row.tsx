@@ -85,7 +85,7 @@ const ItemRow = ({
   };
 
   const emojiSlot = item.emoji ? (
-    <AppText size={18}>{item.emoji}</AppText>
+    <AppText size="title3">{item.emoji}</AppText>
   ) : isOwner ? (
     <View style={styles.emojiEmpty}>
       <Icon name="sparkles" size={12} color="textSecondary" />
@@ -140,7 +140,7 @@ const ItemRow = ({
           onPress={isOwner ? startEdit : tick}
           onLongPress={isOwner ? onOptions : undefined}>
           <AppText
-            size={16}
+            size="body"
             color={item.isTicked ? 'textSecondary' : 'text'}
             style={item.isTicked && styles.ticked}>
             {item.text}

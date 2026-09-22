@@ -54,7 +54,7 @@ const AgePickerValidated = ({
         (isLabelIndicated ? (
           <IndicatedText text={label} marginBottom={8} />
         ) : (
-          <AppText size={14} fontWeight="bold">
+          <AppText size="subhead" fontWeight="bold">
             {label}
           </AppText>
         ))}
@@ -92,7 +92,7 @@ const AgePickerValidated = ({
       {selectedDate && (
         <View style={styles.caption}>
           <Icon name="calendar" size={15} color="textSecondary" />
-          <AppText size={13} color="textSecondary">
+          <AppText size="footnote" color="textSecondary">
             {formatBirthMonth(selectedDate)}
           </AppText>
         </View>

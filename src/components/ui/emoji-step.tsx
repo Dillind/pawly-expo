@@ -39,7 +39,11 @@ const EmojiStep = ({ onPick }: Props) => {
         <View style={styles.groups}>
           {groups.map((group) => (
             <View key={group.title} style={styles.group}>
-              <AppText size={11} fontWeight="bold" color="textSecondary" style={styles.caption}>
+              <AppText
+                size="caption2"
+                fontWeight="bold"
+                color="textSecondary"
+                style={styles.caption}>
                 {group.title.toUpperCase()}
               </AppText>
 
@@ -59,7 +63,7 @@ const EmojiStep = ({ onPick }: Props) => {
           ))}
 
           {groups.length === 0 && (
-            <AppText size={15} color="textSecondary">
+            <AppText size="callout" color="textSecondary">
               No emoji match &ldquo;{term.trim()}&rdquo;.
             </AppText>
           )}

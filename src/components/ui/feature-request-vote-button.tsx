@@ -8,7 +8,7 @@ import Animated, {
 
 import AppText from '@/components/core/app-text';
 import Icon from '@/components/core/icon';
-import { IconSize, type AppTheme } from '@/constants/theme';
+import { IconSize, Radius, type AppTheme } from '@/constants/theme';
 import { useStyles } from '@/hooks/use-styles';
 import { hapticLight } from '@/lib/haptics';
 
@@ -53,7 +53,7 @@ const FeatureRequestVoteButton = ({ count, hasVoted, isDisabled = false, onPress
           color={hasVoted ? 'primaryText' : 'text'}
           strokeWidth={2.5}
         />
-        <AppText size={15} fontWeight="bold" color={hasVoted ? 'primaryText' : 'text'}>
+        <AppText size="callout" fontWeight="bold" color={hasVoted ? 'primaryText' : 'text'}>
           {count}
         </AppText>
       </Animated.View>
@@ -69,7 +69,7 @@ const makeStyles = ({ colors }: AppTheme) =>
       alignItems: 'center',
       justifyContent: 'center',
       gap: 2,
-      borderRadius: 14,
+      borderRadius: Radius.panel,
       borderCurve: 'continuous',
       borderWidth: 1.5,
       borderColor: colors.border,

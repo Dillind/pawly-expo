@@ -40,7 +40,7 @@ const AddPhotoTile = ({
           <>
             <Icon name="imagePlus" size={22} color="textSecondary" />
             {isDropzone && (
-              <AppText size={16} color="textSecondary">
+              <AppText size="body" color="textSecondary">
                 Add a photo
               </AppText>
             )}

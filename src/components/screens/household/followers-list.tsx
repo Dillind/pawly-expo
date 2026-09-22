@@ -111,11 +111,11 @@ const FollowersList = ({ householdId }: Props) => {
                     size={AVATAR_SIZE}
                   />
                   <View style={styles.rowText}>
-                    <AppText size={16} numberOfLines={1}>
+                    <AppText size="body" numberOfLines={1}>
                       {name}
                     </AppText>
                     {detail != null && detail.length > 0 && (
-                      <AppText size={13} color="textSecondary" numberOfLines={1}>
+                      <AppText size="footnote" color="textSecondary" numberOfLines={1}>
                         {detail}
                       </AppText>
                     )}

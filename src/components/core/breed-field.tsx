@@ -17,7 +17,7 @@ const BreedField = ({ value, description, onPress }: Props) => {
 
   return (
     <View style={styles.field}>
-      <AppText size={14} fontWeight="bold">
+      <AppText size="subhead" fontWeight="bold">
         Breed
       </AppText>
 
@@ -26,14 +26,14 @@ const BreedField = ({ value, description, onPress }: Props) => {
         accessibilityRole="button"
         accessibilityLabel={value ? `Breed: ${value}` : 'Choose a breed'}
         onPress={onPress}>
-        <AppText size={16} color={value ? 'text' : 'textSecondary'} style={styles.value}>
+        <AppText size="body" color={value ? 'text' : 'textSecondary'} style={styles.value}>
           {value ?? 'Choose a breed'}
         </AppText>
         <Icon name="caretRight" size={IconSize.inline} color="textSecondary" />
       </PressableOpacity>
 
       {description && (
-        <AppText size={13} color="textSecondary">
+        <AppText size="footnote" color="textSecondary">
           {description}
         </AppText>
       )}

@@ -60,7 +60,7 @@ const ListStep = ({ feedTimes, onPick }: ListStepProps) => {
 
       <AddFeedTimeGhostRow onPress={() => open(null)} />
 
-      <AppText size={13} color="textSecondary">
+      <AppText size="footnote" color="textSecondary">
         Everyone in the household is nudged at these times.
       </AppText>
     </View>
@@ -160,8 +160,8 @@ const FeedTimesSection = ({
     if (isPaused) {
       return (
         <View style={styles.pausedBlock}>
-          <AppText size={15}>Paused — no feeds expected</AppText>
-          <AppText size={13} color="textSecondary">
+          <AppText size="callout">Paused — no feeds expected</AppText>
+          <AppText size="footnote" color="textSecondary">
             {pet.name} is paused. No feeds are expected and nobody is nudged.
           </AppText>
         </View>
@@ -193,7 +193,7 @@ const FeedTimesSection = ({
     if (occurrences.length === 0) {
       return (
         <View style={styles.block}>
-          <AppText size={13} color="textSecondary">
+          <AppText size="footnote" color="textSecondary">
             {emptyCopy(pet.name, feedTimes.length > 0, isOwner)}
           </AppText>
         </View>
@@ -218,7 +218,7 @@ const FeedTimesSection = ({
     <>
       <ListCard>
         <View style={styles.header}>
-          <AppText variant="header" size={17} fontWeight="bold" style={styles.headerTitle}>
+          <AppText variant="header" size="headline" fontWeight="bold" style={styles.headerTitle}>
             Feed times
           </AppText>
 

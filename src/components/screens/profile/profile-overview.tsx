@@ -16,7 +16,14 @@ import ScreenView from '@/components/layout/screen-view';
 import ProfileStats from '@/components/screens/profile/profile-stats';
 import PostCard from '@/components/ui/post-card';
 import { ROLE_OPTIONS } from '@/constants/options';
-import { BottomTabInset, IconSize, Radius, ScreenGutter, type AppTheme } from '@/constants/theme';
+import {
+  BottomTabInset,
+  IconSize,
+  OverlayColors,
+  Radius,
+  ScreenGutter,
+  type AppTheme
+} from '@/constants/theme';
 import { useChangeProfilePhoto } from '@/hooks/queries/account/use-change-profile-photo';
 import { useSessionEmail } from '@/hooks/queries/account/use-session-email';
 import { useUserProfile } from '@/hooks/queries/account/use-user-profile';
@@ -106,17 +113,17 @@ const ProfileOverview = () => {
             />
           </View>
         </View>
-        <AppText variant="header" size={22}>
+        <AppText variant="header" size="title2">
           {name || 'Your profile'}
         </AppText>
         {email && (
-          <AppText size={14} color="textSecondary">
+          <AppText size="subhead" color="textSecondary">
             {email}
           </AppText>
         )}
         {household && (
           <View style={styles.rolePill}>
-            <AppText size={12} color="primaryText">
+            <AppText size="caption" color="primaryText">
               {optionLabel(ROLE_OPTIONS, household.role)}
             </AppText>
           </View>
@@ -134,10 +141,10 @@ const ProfileOverview = () => {
           onPress={() => router.push('/profile/following')}>
           <View style={styles.householdCard}>
             <Icon name="users" size={IconSize.control} color="textSecondary" />
-            <AppText size={16} numberOfLines={1} style={styles.householdName}>
+            <AppText size="body" numberOfLines={1} style={styles.householdName}>
               Following
             </AppText>
-            <AppText size={14} color="textSecondary">
+            <AppText size="subhead" color="textSecondary">
               {following.length}
             </AppText>
             <Icon name="caretRight" size={IconSize.inline} color="textSecondary" />
@@ -147,7 +154,7 @@ const ProfileOverview = () => {
 
       {/* Quiet and grey: the cards below are
           the content, and a bold heading competes with them. */}
-      <AppText size={17} color="textSecondary">
+      <AppText size="headline" color="textSecondary">
         Posts
       </AppText>
     </View>
@@ -253,7 +260,7 @@ const makeStyles = ({ colors, spacing }: AppTheme) =>
       justifyContent: 'center',
       borderRadius: Radius.full,
       // A scrim over an image, not a themed surface.
-      backgroundColor: 'rgba(0, 0, 0, 0.4)'
+      backgroundColor: OverlayColors.scrim
     },
     // The avatar circle is `primary` too, so without this ring the two merge.
     editWell: {

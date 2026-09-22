@@ -85,11 +85,11 @@ const DeleteHouseholdSheet = ({ sheetRef, householdId, name }: Props) => {
         <View style={styles.warning}>
           <View style={styles.warningHeading}>
             <Icon name="circleAlert" size={IconSize.action} color="error" />
-            <AppText variant="header" size={18} fontWeight="bold" color="error">
+            <AppText variant="header" size="title3" fontWeight="bold" color="error">
               This cannot be undone
             </AppText>
           </View>
-          <AppText size={14} color="text">
+          <AppText size="subhead" color="text">
             Deleting {name} removes it for everyone, not just for you. Every pet, member, feed, post
             and Care Card goes with it, and nothing can be restored.
           </AppText>

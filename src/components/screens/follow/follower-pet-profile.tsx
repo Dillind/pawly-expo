@@ -45,16 +45,16 @@ const FollowerPetProfile = ({ petId }: Props) => {
         <ListCard style={styles.identity}>
           <PetAvatar photoUrl={pet.photoUrl} size={AVATAR} />
           <View style={styles.identityText}>
-            <AppText variant="header" size={22} fontWeight="bold" numberOfLines={1}>
+            <AppText variant="header" size="title2" fontWeight="bold" numberOfLines={1}>
               {pet.name}
             </AppText>
             {breed && (
-              <AppText size={14} color="textSecondary">
+              <AppText size="subhead" color="textSecondary">
                 {breed}
               </AppText>
             )}
             {age && (
-              <AppText size={14} color="textSecondary">
+              <AppText size="subhead" color="textSecondary">
                 {age}
               </AppText>
             )}
@@ -83,7 +83,7 @@ const FollowerPetProfile = ({ petId }: Props) => {
           <View style={styles.section}>
             <SectionLabel>About</SectionLabel>
             <ListCard style={styles.bio}>
-              <AppText size={15}>{pet.bio}</AppText>
+              <AppText size="callout">{pet.bio}</AppText>
             </ListCard>
           </View>
         )}

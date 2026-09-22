@@ -52,10 +52,10 @@ const AddPetFeeds = () => {
               accessibilityLabel={`Edit the ${feedTime.label} feed`}
               onPress={() => router.push(`/home/add-pet/feed?index=${index}`)}>
               <View style={styles.cardBody}>
-                <AppText size={16} fontWeight="bold">
+                <AppText size="body" fontWeight="bold">
                   {optionLabel(FEEDING_SCHEDULE_LABEL_OPTIONS, feedTime.label)}
                 </AppText>
-                <AppText size={13} color="textSecondary">
+                <AppText size="footnote" color="textSecondary">
                   {dayjs(feedTime.localTime, 'HH:mm').format('h:mm A')}
                   {'  ·  '}
                   {describeDays(feedTime.daysOfWeek)}
@@ -74,7 +74,7 @@ const AddPetFeeds = () => {
         onPress={() => router.push('/home/add-pet/feed')}
       />
 
-      <AppText size={13} color="textSecondary">
+      <AppText size="footnote" color="textSecondary">
         Days are set per feed — they can skip dinner on Sundays and still eat breakfast.
       </AppText>
     </FlowScreen>

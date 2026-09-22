@@ -88,10 +88,10 @@ const AddPetDetails = () => {
           </View>
         )}
         <View style={styles.photoHint}>
-          <AppText color="primaryText" size={15} fontWeight="semibold">
+          <AppText color="primaryText" size="callout" fontWeight="semibold">
             {photoUri ? 'Change photo' : 'Add a photo'}
           </AppText>
-          <AppText color="textSecondary" size={13}>
+          <AppText color="textSecondary" size="footnote">
             Optional
           </AppText>
         </View>

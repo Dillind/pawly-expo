@@ -219,7 +219,7 @@ const Checklist = () => {
 
           {items.length === 0 && !isOwner && (
             <View style={styles.emptyItems}>
-              <AppText size={15} color="textSecondary">
+              <AppText size="callout" color="textSecondary">
                 Nothing on the list yet.
               </AppText>
             </View>
