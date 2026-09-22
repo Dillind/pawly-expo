@@ -44,6 +44,7 @@ type MembershipResult = {
 // What each RPC really returns. The generator types jsonb as Json and marks every `returns table`
 // column non-null; each entry here replaces one of those guesses. Keep it in step with the SQL.
 type RpcReturns = {
+  account_deletion_blockers: string[];
   list_alerts: {
     id: string;
     kind: Exclude<Enum<'alert_kind'>, 'feed_logged' | 'feed_due'>;

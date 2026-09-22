@@ -1137,21 +1137,21 @@ export type Database = {
       reminder_completions: {
         Row: {
           done_at: string;
-          done_by: string;
+          done_by: string | null;
           id: string;
           occurrence_date: string;
           reminder_id: string;
         };
         Insert: {
           done_at?: string;
-          done_by: string;
+          done_by?: string | null;
           id?: string;
           occurrence_date: string;
           reminder_id: string;
         };
         Update: {
           done_at?: string;
-          done_by?: string;
+          done_by?: string | null;
           id?: string;
           occurrence_date?: string;
           reminder_id?: string;
@@ -1169,7 +1169,7 @@ export type Database = {
       reminders: {
         Row: {
           created_at: string;
-          created_by: string;
+          created_by: string | null;
           deleted_at: string | null;
           id: string;
           kind: Database['public']['Enums']['reminder_kind'];
@@ -1182,7 +1182,7 @@ export type Database = {
         };
         Insert: {
           created_at?: string;
-          created_by: string;
+          created_by?: string | null;
           deleted_at?: string | null;
           id?: string;
           kind: Database['public']['Enums']['reminder_kind'];
@@ -1195,7 +1195,7 @@ export type Database = {
         };
         Update: {
           created_at?: string;
-          created_by?: string;
+          created_by?: string | null;
           deleted_at?: string | null;
           id?: string;
           kind?: Database['public']['Enums']['reminder_kind'];
@@ -1361,6 +1361,7 @@ export type Database = {
       [_ in never]: never;
     };
     Functions: {
+      account_deletion_blockers: { Args: never; Returns: Json };
       add_pet:
         | {
             Args: {
@@ -1730,6 +1731,10 @@ export type Database = {
           state: string;
           title: string;
         }[];
+      };
+      prepare_account_deletion: {
+        Args: { target_user_id: string | null };
+        Returns: Json;
       };
       preview_household_invite: { Args: { invite_code: string | null }; Returns: Json };
       redeem_household_invite: {

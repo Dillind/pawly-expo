@@ -33,6 +33,13 @@ _Avoid_: Helper, guest, viewer, collaborator.
 **User**:
 An authenticated account (email/password). A User may be a Member of a household. Distinct from Member.
 
+**Deleting an account**:
+A User removing themselves for good, confirmed by typing "delete my account". Every Household they
+are the only Member of goes with them; they leave every other one. Their Feed Logs, Posts, Comments
+and Reminders stay with the Household, without an author. It is refused while they are the last
+Owner of a Household someone else still uses. See [ADR 0044](./docs/adr/0044-deleting-an-account-keeps-the-households-record.md).
+_Avoid_: Closing an account, deactivating.
+
 **Danger zone**:
 The one screen where a Household is deleted. Named for what it is, not for the action: it is reached
 from the ellipsis menu on the Household screen, it is Owner only, and its red button stays dead

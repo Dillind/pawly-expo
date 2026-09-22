@@ -71,6 +71,7 @@ export enum SuccessMessage {
   CodeResent = 'New code sent',
   SignedIn = 'Signed in',
   SignedOut = 'Signed out',
+  AccountDeleted = 'Your account has been deleted',
   TimezoneUpdated = 'Timezone updated'
 }
 
@@ -159,6 +160,7 @@ export enum ErrorMessage {
   SignInFailed = 'Could not sign in',
   SupportEmailUnavailable = 'No email app to contact support from',
   SignOutFailed = 'Failed to sign out',
+  AccountDeleteFailed = 'Could not delete your account',
   SignUpFailed = 'Could not sign up',
   VerificationFailed = 'Could not verify code'
 }

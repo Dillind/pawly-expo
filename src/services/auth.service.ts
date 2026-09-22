@@ -6,6 +6,7 @@ import * as Crypto from 'expo-crypto';
 import { toUserFacingError } from '@/lib/auth-errors';
 import { UserFacingError } from '@/lib/errors';
 import { supabase } from '@/lib/supabase/client';
+import { unwrap } from '@/lib/supabase/unwrap';
 import PushTokenService from '@/services/push-token.service';
 import UserService from '@/services/user.service';
 
@@ -26,6 +27,11 @@ const saveAppleName = async (
   await supabase.auth.updateUser({ data: { first_name: firstName, last_name: lastName ?? '' } });
   await UserService.updateName(userId, { firstName, lastName: lastName ?? '' });
 };
+
+export type DeleteAccountResult =
+  | { status: 'deleted' }
+  | { status: 'last_owner'; households: string[] }
+  | { status: 'confirmation_mismatch' };
 
 namespace AuthService {
   export async function signUp(params: { email: string; password: string }) {
@@ -153,6 +159,33 @@ namespace AuthService {
     } = supabase.auth.onAuthStateChange((_event, session) => handler(session?.user.id));
 
     return subscription;
+  }
+
+  export async function accountDeletionBlockers(): Promise<string[]> {
+    return (await unwrap(supabase.rpc('account_deletion_blockers'))) ?? [];
+  }
+
+  export async function deleteAccount(confirmation: string): Promise<DeleteAccountResult> {
+    const result = await unwrap(
+      supabase.functions.invoke<{ status: DeleteAccountResult['status']; households?: string[] }>(
+        'delete-account',
+        { body: { confirmation } }
+      )
+    );
+
+    if (!result) throw new Error('delete-account returned no body');
+
+    if (result.status === 'deleted') {
+      // Local only: the server session died with the user, so a global sign-out has nothing to revoke.
+      await supabase.auth.signOut({ scope: 'local' });
+      return { status: 'deleted' };
+    }
+
+    if (result.status === 'last_owner') {
+      return { status: 'last_owner', households: result.households ?? [] };
+    }
+
+    return { status: result.status };
   }
 
   export async function signOut() {
