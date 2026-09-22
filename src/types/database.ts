@@ -1,11 +1,6 @@
 export type Json = string | number | boolean | null | { [key: string]: Json | undefined } | Json[];
 
 export type Database = {
-  // Allows to automatically instantiate createClient with right options
-  // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
-  __InternalSupabase: {
-    PostgrestVersion: '14.5';
-  };
   public: {
     Tables: {
       alert_reads: {
@@ -1106,21 +1101,21 @@ export type Database = {
       reminder_completions: {
         Row: {
           done_at: string;
-          done_by: string | null;
+          done_by: string;
           id: string;
           occurrence_date: string;
           reminder_id: string;
         };
         Insert: {
           done_at?: string;
-          done_by?: string | null;
+          done_by: string;
           id?: string;
           occurrence_date: string;
           reminder_id: string;
         };
         Update: {
           done_at?: string;
-          done_by?: string | null;
+          done_by?: string;
           id?: string;
           occurrence_date?: string;
           reminder_id?: string;
@@ -1138,7 +1133,7 @@ export type Database = {
       reminders: {
         Row: {
           created_at: string;
-          created_by: string | null;
+          created_by: string;
           deleted_at: string | null;
           id: string;
           kind: Database['public']['Enums']['reminder_kind'];
@@ -1151,7 +1146,7 @@ export type Database = {
         };
         Insert: {
           created_at?: string;
-          created_by?: string | null;
+          created_by: string;
           deleted_at?: string | null;
           id?: string;
           kind: Database['public']['Enums']['reminder_kind'];
@@ -1164,7 +1159,7 @@ export type Database = {
         };
         Update: {
           created_at?: string;
-          created_by?: string | null;
+          created_by?: string;
           deleted_at?: string | null;
           id?: string;
           kind?: Database['public']['Enums']['reminder_kind'];
@@ -1330,7 +1325,6 @@ export type Database = {
       [_ in never]: never;
     };
     Functions: {
-      account_deletion_blockers: { Args: never; Returns: Json };
       add_pet:
         | {
             Args: {
@@ -1676,10 +1670,6 @@ export type Database = {
           state: string;
           title: string;
         }[];
-      };
-      prepare_account_deletion: {
-        Args: { target_user_id: string | null };
-        Returns: Json;
       };
       preview_household_invite: { Args: { invite_code: string | null }; Returns: Json };
       redeem_household_invite: {
