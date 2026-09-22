@@ -30,6 +30,8 @@ type Props<T extends string> = {
   options: Option<T>[];
   value: T | null;
   onChange: (value: T) => void;
+  // A white thumb on a grey track, for a control that filters a list rather than fills a form.
+  isThumbRaised?: boolean;
 };
 
 const TrackPadding = Spacing.one;
@@ -48,7 +50,8 @@ const SegmentedControl = <T extends string>({
   name,
   options,
   value,
-  onChange
+  onChange,
+  isThumbRaised = false
 }: Props<T>) => {
   const styles = useStyles(makeStyles);
   const form = useFormContext();
@@ -106,9 +109,9 @@ const SegmentedControl = <T extends string>({
           {label}
         </AppText>
       ) : null}
-      <View style={styles.track} onLayout={handleLayout}>
+      <View style={[styles.track, isThumbRaised && styles.trackRaised]} onLayout={handleLayout}>
         {segmentWidth > 0 && hasSelection ? (
-          <Animated.View style={[styles.thumb, thumbStyle]} />
+          <Animated.View style={[styles.thumb, isThumbRaised && styles.thumbRaised, thumbStyle]} />
         ) : null}
         {options.map((option) => {
           const isSelected = option.value === value;
@@ -173,6 +176,13 @@ const makeStyles = ({ colors, spacing }: AppTheme) =>
       borderRadius: 10,
       borderCurve: 'continuous',
       backgroundColor: colors.backgroundSelected
+    },
+    trackRaised: {
+      backgroundColor: colors.backgroundSelected
+    },
+    thumbRaised: {
+      backgroundColor: colors.backgroundElement,
+      boxShadow: '0 1px 3px rgba(74, 58, 38, 0.12)'
     },
     segment: {
       flex: 1,

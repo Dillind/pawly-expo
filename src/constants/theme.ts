@@ -29,6 +29,7 @@ export const COLORS = {
     primaryText: '#8F5A03',
     onPrimary: '#2A1D06',
     success: '#10696B',
+    successMuted: 'rgba(16, 105, 107, 0.12)',
     // A Reminder's Kind. On trial: gold is the fallback if they read as noise.
     medication: '#7A5C86',
     medicationMuted: 'rgba(122, 92, 134, 0.14)',
@@ -64,6 +65,7 @@ export const COLORS = {
     primaryText: '#F5B435',
     onPrimary: '#2A1D06',
     success: '#2FA8A2',
+    successMuted: 'rgba(47, 168, 162, 0.18)',
     medication: '#B49CC0',
     medicationMuted: 'rgba(180, 156, 192, 0.20)',
     vet: '#8FB0D2',

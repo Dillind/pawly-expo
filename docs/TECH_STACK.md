@@ -39,7 +39,7 @@ Mobile app — iOS first, Android to follow. Built with Expo (React Native) + Ex
 | Payments        | RevenueCat                                                                                       | **Planned**                          | Initialise in v1, paywall off until v2                                                                                                                                                                                                                                                                                                                                  |
 | Analytics       | PostHog                                                                                          | **Planned**                          | Retention cohorts, weekly-active tracking                                                                                                                                                                                                                                                                                                                               |
 | Crash reporting | Sentry                                                                                           | **Planned**                          | Wire in early                                                                                                                                                                                                                                                                                                                                                           |
-| Feature voting  | Canny                                                                                            | **Planned**                          | Surfaced in settings                                                                                                                                                                                                                                                                                                                                                    |
+| Feature voting  | In-house board (Supabase), UserJot or Canny later                                                | **Installed**                        | Settings → Request a feature. A stopgap: the hosted tools sign users in only on a paid plan. See ADR 0043.                                                                                                                                                                                                                                                              |
 | Deployment      | EAS Build / Update / Submit                                                                      | Planned                              | Standard Expo pipeline; `eas.projectId` not yet set in `app.config.ts`                                                                                                                                                                                                                                                                                                  |
 
 ---
@@ -117,12 +117,12 @@ The cron Edge Function runs on a schedule (e.g. every 15 min), evaluates each pe
 
 ## Third-Party Services (planned)
 
-| Service    | Purpose                                                   |
-| ---------- | --------------------------------------------------------- |
-| PostHog    | Product analytics, retention, weekly-active users         |
-| Sentry     | Crash reporting and error monitoring                      |
-| Canny      | In-app feature requests and voting (settings)             |
-| RevenueCat | Subscriptions/entitlements (initialised v1, activated v2) |
+| Service          | Purpose                                                                   |
+| ---------------- | ------------------------------------------------------------------------- |
+| PostHog          | Product analytics, retention, weekly-active users                         |
+| Sentry           | Crash reporting and error monitoring                                      |
+| UserJot or Canny | Hosted feature voting, once there is income (replaces the in-house board) |
+| RevenueCat       | Subscriptions/entitlements (initialised v1, activated v2)                 |
 
 ---
 

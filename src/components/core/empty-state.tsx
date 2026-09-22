@@ -12,18 +12,23 @@ type Props = {
   title: string;
   description?: string;
   action?: ReactNode;
+  isIconAccent?: boolean;
 };
 
 // No `illustration` prop yet — there is no artwork to pass it. The value of the component now
 // is that when v2 art arrives it is one file to change and every empty state in the app moves
 // together.
-const EmptyState = ({ icon, title, description, action }: Props) => {
+const EmptyState = ({ icon, title, description, action, isIconAccent = false }: Props) => {
   const styles = useStyles(makeStyles);
 
   return (
     <View style={styles.container}>
-      <View style={styles.iconCircle}>
-        <Icon name={icon} size={IconSize.feature} color="textSecondary" />
+      <View style={[styles.iconCircle, isIconAccent && styles.iconCircleAccent]}>
+        <Icon
+          name={icon}
+          size={IconSize.feature}
+          color={isIconAccent ? 'primaryText' : 'textSecondary'}
+        />
       </View>
       <AppText size={18} fontWeight="bold" align="center">
         {title}
@@ -55,6 +60,9 @@ const makeStyles = ({ colors, spacing }: AppTheme) =>
       justifyContent: 'center',
       backgroundColor: colors.backgroundElement,
       marginBottom: spacing.two
+    },
+    iconCircleAccent: {
+      backgroundColor: colors.primaryMuted
     },
     action: {
       alignSelf: 'stretch',

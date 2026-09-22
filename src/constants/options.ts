@@ -1,5 +1,6 @@
 import type { IconName } from '@/constants/icon-map';
 import { COMMON_TIMEZONES } from '@/constants/timezones';
+import type { FeatureRequestSort, FeatureRequestStatus } from '@/services/feature-request.service';
 import type {
   FeedingScheduleLabel,
   HouseholdRole,
@@ -101,4 +102,17 @@ export const REMINDER_LEAD_OPTIONS: Option<ReminderLeadDays>[] = [
   { value: 1, label: '1 day early' },
   { value: 2, label: '2 days' },
   { value: 3, label: '3 days' }
+];
+
+export const FEATURE_REQUEST_SORT_OPTIONS: Option<FeatureRequestSort>[] = [
+  { value: 'top', label: 'Top' },
+  { value: 'new', label: 'New' }
+];
+
+export const FEATURE_REQUEST_STATUS_OPTIONS: Option<FeatureRequestStatus>[] = [
+  { value: 'open', label: 'Open' },
+  { value: 'planned', label: 'Planned' },
+  { value: 'in_progress', label: 'In progress' },
+  { value: 'done', label: 'Done' },
+  { value: 'declined', label: 'Declined' }
 ];

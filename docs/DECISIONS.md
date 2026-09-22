@@ -1100,3 +1100,21 @@ an illustration are sized to something else, and typing it to the scale would fo
 of those. The rule lives in [icons.md](./conventions/icons.md#sizes); every exact match was moved
 onto a token, and the values left off the scale are either one of the two exceptions or drift
 still to be fixed on a device.
+
+## The feature request board is a stopgap for UserJot or Canny
+
+Both sign a Crumpet user in without a second account, but only on a paid plan, and that is not
+worth it before there is income. So the board is built in Supabase and kept easy to leave: one
+Settings row is the only entry, the columns are plain, and votes are keyed on the user ID the hosted
+tool will identify people by. Do not grow it into a product. See ADR 0043.
+
+## Feature requests take upvotes only
+
+A downvote tells someone their idea was rejected by a stranger and adds little signal the count
+does not already give. Canny and UserJot make the same choice.
+
+## Three reports hide a feature request, but only from established accounts
+
+Three reports from accounts older than seven days hide a request until the Crumpet team looks.
+Counting every account would let one person with three new sign-ups hide anything. A Crumpet team
+request never hides, and Restore clears the reports.

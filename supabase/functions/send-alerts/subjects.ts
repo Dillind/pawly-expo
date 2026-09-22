@@ -1,6 +1,7 @@
 import type { SupabaseClient } from 'npm:@supabase/supabase-js@2';
 
 import {
+  buildFeatureRequestReportedMessage,
   buildFeedDueMessage,
   buildFeedLoggedMessage,
   buildFollowRequestedMessage,
@@ -21,7 +22,8 @@ export type AlertKind =
   | 'reminder_due'
   | 'post'
   | 'post_commented'
-  | 'follow_requested';
+  | 'follow_requested'
+  | 'feature_request_reported';
 
 /**
  * A deliberate third outcome, alongside a message and null.
@@ -112,6 +114,18 @@ export const buildMessageForAlert = async (
   alert: AlertSubject
 ): Promise<BuiltMessage> => {
   switch (alert.kind) {
+    case 'feature_request_reported': {
+      const { data: request } = await client
+        .from('feature_requests')
+        .select('id')
+        .eq('id', alert.subject_id)
+        .maybeSingle();
+
+      if (!request) return null;
+
+      return buildFeatureRequestReportedMessage();
+    }
+
     case 'follow_requested': {
       const { data: follow } = await client
         .from('household_follows')

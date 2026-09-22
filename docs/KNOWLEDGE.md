@@ -832,3 +832,12 @@ The sweep was right when it queued the row. The dispatch was wrong because it tr
 **Every alert kind about a condition that can be resolved must re-check it in `send-alerts`, at send
 time.** `feed_due` and `reminder_due` always did, because their rebuild is the check. `missed_feed`
 did not. It now looks for a feed log on its occurrence and stamps `suppressed_reason = 'already fed'`.
+
+## LegendList keeps its last row when the data empties
+
+On the feature board, deleting the only request refetched the list and the server returned `[]`, but
+the card stayed on screen until a pull to refresh (CRU-174). The query was right. `LegendList` does not
+redraw when its data goes from some rows to none, so `ListEmptyComponent` never appears.
+
+The board keys the list on emptiness (`key={requests.length === 0 ? 'empty' : 'rows'}`), which
+remounts it. Any other `MainLegendList` whose last row can be removed in place has the same trap.
