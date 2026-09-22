@@ -99,3 +99,11 @@ jobs:
 
       - name: Compare with the committed file
         run: git diff --exit-code -- src/types/database.ts
+
+      # The file CI expects, so a red run can be fixed without Docker on the laptop.
+      - name: Upload the expected types
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: database-types
+          path: src/types/database.ts
