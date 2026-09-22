@@ -12,13 +12,15 @@ import FeatureRequestTags from '@/components/ui/feature-request-tags';
 import FeatureRequestVoteButton from '@/components/ui/feature-request-vote-button';
 import { FEATURE_REQUEST_STATUS_OPTIONS } from '@/constants/options';
 import { BottomTabInset, type AppTheme } from '@/constants/theme';
-import { useToggleVote } from '@/hooks/queries/feature-requests/use-feature-request-mutations';
 import {
   useFeatureRequest,
   useIsBoardBanned,
   useIsCrumpetTeam
 } from '@/hooks/queries/feature-requests/use-feature-requests';
-import { useFeatureRequestActions } from '@/hooks/use-feature-request-actions';
+import {
+  featureRequestPermissions,
+  useFeatureRequestActions
+} from '@/hooks/use-feature-request-actions';
 import { usePullToRefresh } from '@/hooks/use-pull-to-refresh';
 import { useStyles } from '@/hooks/use-styles';
 import { deviceTimezone, formatDayAndShortMonth } from '@/lib/dates';
@@ -30,8 +32,8 @@ const FeatureRequestDetail = ({ requestId }: { requestId: string }) => {
   const { data: request, isLoading, isError, refetch } = useFeatureRequest(requestId);
   const { data: isTeam = false } = useIsCrumpetTeam();
   const { data: isBanned = false } = useIsBoardBanned();
-  const { mutate: toggleVote } = useToggleVote();
   const actions = useFeatureRequestActions(() => router.back());
+  const can = request ? featureRequestPermissions(request, { isTeam, isBanned }) : null;
   const { isRefreshing, onRefresh } = usePullToRefresh([refetch]);
 
   const renderBody = () => {
@@ -81,8 +83,8 @@ const FeatureRequestDetail = ({ requestId }: { requestId: string }) => {
           <FeatureRequestVoteButton
             count={request.voteCount}
             hasVoted={request.hasVoted}
-            isDisabled={isBanned}
-            onPress={() => toggleVote({ requestId: request.id, hasVoted: request.hasVoted })}
+            isDisabled={!can?.canVote}
+            onPress={() => actions.toggleVote(request)}
           />
         </View>
         <View style={styles.divider} />
@@ -102,24 +104,24 @@ const FeatureRequestDetail = ({ requestId }: { requestId: string }) => {
           <Stack.Toolbar.MenuAction
             icon="flag"
             destructive
-            hidden={!request || request.isMine || isBanned}
+            hidden={!can?.canReport}
             onPress={() => request && actions.report(request)}>
             Report
           </Stack.Toolbar.MenuAction>
           <Stack.Toolbar.MenuAction
             icon="eye.slash"
-            hidden={!request || request.isMine}
+            hidden={!can?.canHideAuthor}
             onPress={() => request && actions.hideAuthor(request)}>
             Hide requests from this person
           </Stack.Toolbar.MenuAction>
           <Stack.Toolbar.MenuAction
             icon="trash"
             destructive
-            hidden={!request?.isMine}
+            hidden={!can?.canDeleteOwn}
             onPress={() => request && actions.confirmDelete(request)}>
             Delete
           </Stack.Toolbar.MenuAction>
-          <Stack.Toolbar.Menu inline title="Crumpet team" hidden={!isTeam}>
+          <Stack.Toolbar.Menu inline title="Crumpet team" hidden={!can?.canModerate}>
             <Stack.Toolbar.Menu title="Set status" icon="tag">
               {FEATURE_REQUEST_STATUS_OPTIONS.map((option) => (
                 <Stack.Toolbar.MenuAction
@@ -132,14 +134,14 @@ const FeatureRequestDetail = ({ requestId }: { requestId: string }) => {
             </Stack.Toolbar.Menu>
             <Stack.Toolbar.MenuAction
               icon="arrow.uturn.backward"
-              hidden={!request || request.reportCount === 0}
+              hidden={!can?.canRestore}
               onPress={() => request && actions.restore(request)}>
               Restore
             </Stack.Toolbar.MenuAction>
             <Stack.Toolbar.MenuAction
               icon="trash"
               destructive
-              hidden={!request || request.isMine}
+              hidden={!can?.canDeleteAsTeam}
               onPress={() => request && actions.confirmDelete(request)}>
               Delete request
             </Stack.Toolbar.MenuAction>

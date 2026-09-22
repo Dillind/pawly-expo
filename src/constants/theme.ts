@@ -212,6 +212,8 @@ export const BottomTabInset = Platform.select({ ios: 84, android: 80 }) ?? 0;
 // `Stack.Title` returned by a wrapper never reaches the bar.
 export const HeaderTitleStyle = { fontSize: 18, fontWeight: 'bold' } as const;
 
+export const LargeHeaderTitleStyle = { fontFamily: GabaritoFontFamily.bold, fontSize: 32 } as const;
+
 // Applied on the content container, never the frame: padding on the frame
 // insets the scroll view, which pulls the indicator off the edge.
 export const ScreenGutter = Spacing.four;

@@ -40,6 +40,7 @@ import { usePullToRefresh } from '@/hooks/use-pull-to-refresh';
 import { useRefreshOnFocus } from '@/hooks/use-refresh-on-focus';
 import { useStyles } from '@/hooks/use-styles';
 import { formatWeekdayName, todayInTimezone, weekOf } from '@/lib/dates';
+import { queryKeys } from '@/lib/query-keys';
 import type { Pet } from '@/types/core';
 import { describeDay } from '@/utils/day-summary';
 import { findHomeTip } from '@/utils/home-tip';
@@ -86,7 +87,7 @@ const Home = () => {
   const isOwner = household?.isOwner ?? false;
   const tip = findHomeTip(pets, feedTimes, isOwner);
 
-  useRefreshOnFocus(['occurrences']);
+  useRefreshOnFocus(queryKeys.occurrences.all);
   const detailSheetRef = useRef<TrueSheet | null>(null);
   const logTrayRef = useRef<TrueSheet | null>(null);
   const hasCheckedPermission = useRef(false);

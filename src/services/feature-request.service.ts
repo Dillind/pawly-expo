@@ -120,7 +120,7 @@ namespace FeatureRequestService {
     });
 
     if (error) {
-      const known = KNOWN_CREATE_ERRORS.find((reason) => error.message?.includes(reason));
+      const known = KNOWN_CREATE_ERRORS.find((reason) => error.message === reason);
       if (known) throw new FeatureRequestCreateError(known);
       throw error;
     }

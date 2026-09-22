@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 
-import { showErrorToast, showSuccessToast } from '@/lib/toast';
+import { queryKeys } from '@/lib/query-keys';
 import PetService, { type PetPatch } from '@/services/pet.service';
 
 type Messages = { success: string; failure: string };
@@ -10,17 +10,12 @@ export function useUpdatePet(petId: string, messages: Messages) {
   const queryClient = useQueryClient();
 
   return useMutation({
+    meta: { successMessage: messages.success, errorMessage: messages.failure },
     mutationFn: (patch: PetPatch) => PetService.update(petId, patch),
     onSettled: () => {
-      void queryClient.invalidateQueries({ queryKey: ['pet-detail', petId] });
-      void queryClient.invalidateQueries({ queryKey: ['pet'] });
+      void queryClient.invalidateQueries({ queryKey: queryKeys.petDetail(petId) });
       // The pet lists render the name from the households query.
-      void queryClient.invalidateQueries({ queryKey: ['households'] });
-    },
-    onSuccess: () => showSuccessToast(messages.success),
-    onError: (error) => {
-      console.error(error);
-      showErrorToast(messages.failure);
+      void queryClient.invalidateQueries({ queryKey: queryKeys.households.all });
     }
   });
 }

@@ -70,8 +70,7 @@ const DeleteHouseholdSheet = ({ sheetRef, householdId, name }: Props) => {
             // to the household that no longer exists.
             router.dismissTo('/home');
           });
-        },
-        onError: () => showErrorToast(ErrorMessage.HouseholdDeleteFailed)
+        }
       })
     )();
 

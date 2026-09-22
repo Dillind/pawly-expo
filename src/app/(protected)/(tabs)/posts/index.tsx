@@ -22,6 +22,7 @@ import {
 import { usePullToRefresh } from '@/hooks/use-pull-to-refresh';
 import { useRefreshOnFocus } from '@/hooks/use-refresh-on-focus';
 import { useStyles } from '@/hooks/use-styles';
+import { queryKeys } from '@/lib/query-keys';
 import type { Post } from '@/services/post.service';
 import { useAuthStore } from '@/stores/auth-store';
 
@@ -80,7 +81,7 @@ const Posts = () => {
     isFetchingNextPage
   } = usePosts(householdIds, userId ?? undefined);
 
-  useRefreshOnFocus(['posts']);
+  useRefreshOnFocus(queryKeys.posts.all);
   const { isRefreshing, onRefresh } = usePullToRefresh([refetch]);
 
   const { mutate: toggleLike } = useToggleLike();

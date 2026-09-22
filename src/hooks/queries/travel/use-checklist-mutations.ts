@@ -1,32 +1,28 @@
 import { useMutation, useQueryClient, type QueryClient } from '@tanstack/react-query';
 
 import { ErrorMessage, SuccessMessage } from '@/constants/enums';
+import { queryKeys } from '@/lib/query-keys';
 import { showErrorToast, showSuccessToast } from '@/lib/toast';
 import TravelChecklistService, {
   type ChecklistItem,
   type TravelChecklistDetail
 } from '@/services/travel-checklist.service';
 
-import { travelKeys } from './use-travel-checklists';
-
 function invalidate(queryClient: QueryClient) {
-  void queryClient.invalidateQueries({ queryKey: travelKeys.all });
+  void queryClient.invalidateQueries({ queryKey: queryKeys.travel.all });
 }
 
 export function useCreateChecklist() {
   const queryClient = useQueryClient();
 
   return useMutation({
+    meta: { errorMessage: ErrorMessage.ChecklistSaveFailed },
     mutationFn: (input: { householdId: string; name: string; emoji: string | null }) =>
       TravelChecklistService.create(input),
     onSettled: () => invalidate(queryClient),
     // `cap_reached` is a result, not a success: the caller opens the Pro sheet.
     onSuccess: (result) => {
       if (result.status === 'created') showSuccessToast(SuccessMessage.ChecklistCreated);
-    },
-    onError: (error) => {
-      console.error(error);
-      showErrorToast(ErrorMessage.ChecklistSaveFailed);
     }
   });
 }
@@ -35,14 +31,13 @@ export function useRenameChecklist() {
   const queryClient = useQueryClient();
 
   return useMutation({
+    meta: {
+      successMessage: SuccessMessage.ChecklistUpdated,
+      errorMessage: ErrorMessage.ChecklistSaveFailed
+    },
     mutationFn: (input: { checklistId: string; name: string; emoji: string | null }) =>
       TravelChecklistService.rename(input),
-    onSettled: () => invalidate(queryClient),
-    onSuccess: () => showSuccessToast(SuccessMessage.ChecklistUpdated),
-    onError: (error) => {
-      console.error(error);
-      showErrorToast(ErrorMessage.ChecklistSaveFailed);
-    }
+    onSettled: () => invalidate(queryClient)
   });
 }
 
@@ -50,13 +45,12 @@ export function useDeleteChecklist() {
   const queryClient = useQueryClient();
 
   return useMutation({
+    meta: {
+      successMessage: SuccessMessage.ChecklistDeleted,
+      errorMessage: ErrorMessage.ChecklistDeleteFailed
+    },
     mutationFn: (checklistId: string) => TravelChecklistService.remove(checklistId),
-    onSettled: () => invalidate(queryClient),
-    onSuccess: () => showSuccessToast(SuccessMessage.ChecklistDeleted),
-    onError: (error) => {
-      console.error(error);
-      showErrorToast(ErrorMessage.ChecklistDeleteFailed);
-    }
+    onSettled: () => invalidate(queryClient)
   });
 }
 
@@ -64,13 +58,12 @@ export function useResetChecklist() {
   const queryClient = useQueryClient();
 
   return useMutation({
+    meta: {
+      successMessage: SuccessMessage.ChecklistReset,
+      errorMessage: ErrorMessage.ChecklistResetFailed
+    },
     mutationFn: (checklistId: string) => TravelChecklistService.reset(checklistId),
-    onSettled: () => invalidate(queryClient),
-    onSuccess: () => showSuccessToast(SuccessMessage.ChecklistReset),
-    onError: (error) => {
-      console.error(error);
-      showErrorToast(ErrorMessage.ChecklistResetFailed);
-    }
+    onSettled: () => invalidate(queryClient)
   });
 }
 
@@ -78,13 +71,10 @@ export function useAddItem(checklistId: string) {
   const queryClient = useQueryClient();
 
   return useMutation({
+    meta: { errorMessage: ErrorMessage.ChecklistItemSaveFailed },
     mutationFn: (input: { text: string; sortOrder: number }) =>
       TravelChecklistService.addItem({ checklistId, ...input }),
-    onSettled: () => invalidate(queryClient),
-    onError: (error) => {
-      console.error(error);
-      showErrorToast(ErrorMessage.ChecklistItemSaveFailed);
-    }
+    onSettled: () => invalidate(queryClient)
   });
 }
 
@@ -92,17 +82,14 @@ export function useUpdateItem() {
   const queryClient = useQueryClient();
 
   return useMutation({
+    meta: { errorMessage: ErrorMessage.ChecklistItemSaveFailed },
     mutationFn: (input: {
       itemId: string;
       text?: string;
       emoji?: string | null;
       petId?: string | null;
     }) => TravelChecklistService.updateItem(input),
-    onSettled: () => invalidate(queryClient),
-    onError: (error) => {
-      console.error(error);
-      showErrorToast(ErrorMessage.ChecklistItemSaveFailed);
-    }
+    onSettled: () => invalidate(queryClient)
   });
 }
 
@@ -110,12 +97,9 @@ export function useRemoveItem() {
   const queryClient = useQueryClient();
 
   return useMutation({
+    meta: { errorMessage: ErrorMessage.ChecklistItemRemoveFailed },
     mutationFn: (itemId: string) => TravelChecklistService.removeItem(itemId),
-    onSettled: () => invalidate(queryClient),
-    onError: (error) => {
-      console.error(error);
-      showErrorToast(ErrorMessage.ChecklistItemRemoveFailed);
-    }
+    onSettled: () => invalidate(queryClient)
   });
 }
 
@@ -123,7 +107,7 @@ export function useRemoveItem() {
 // reads as a dead control. No toast, the tick shows its own state.
 export function useTickItem(checklistId: string) {
   const queryClient = useQueryClient();
-  const key = travelKeys.detail(checklistId);
+  const key = queryKeys.travel.detail(checklistId);
 
   return useMutation({
     mutationFn: (input: { itemId: string; isTicked: boolean }) =>
@@ -144,7 +128,6 @@ export function useTickItem(checklistId: string) {
       return { previous };
     },
     onError: (error, _input, context) => {
-      console.error(error);
       if (context?.previous) queryClient.setQueryData(key, context.previous);
       showErrorToast(ErrorMessage.ChecklistTickFailed);
     },

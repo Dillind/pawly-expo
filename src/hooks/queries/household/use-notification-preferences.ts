@@ -1,7 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { ErrorMessage, SuccessMessage } from '@/constants/enums';
-import { showErrorToast, showSuccessToast } from '@/lib/toast';
 import HouseholdService, { type AlertPreference } from '@/services/household.service';
 import { useAuthStore } from '@/stores/auth-store';
 import type { LeadMinutes } from '@/types/core';
@@ -20,6 +19,7 @@ export function useNotificationPreferences(householdId: string | undefined) {
   });
 
   const mutation = useMutation({
+    meta: { errorMessage: ErrorMessage.NotificationSettingsUpdateFailed },
     mutationFn: ({ preference, value }: { preference: AlertPreference; value: boolean }) =>
       HouseholdService.setAlertPreference({
         householdId: householdId as string,
@@ -29,14 +29,14 @@ export function useNotificationPreferences(householdId: string | undefined) {
       }),
     onSettled: () => {
       void queryClient.invalidateQueries({ queryKey });
-    },
-    onError: (error) => {
-      console.error(error);
-      showErrorToast(ErrorMessage.NotificationSettingsUpdateFailed);
     }
   });
 
   const leadMutation = useMutation({
+    meta: {
+      successMessage: SuccessMessage.LeadTimeUpdated,
+      errorMessage: ErrorMessage.NotificationSettingsUpdateFailed
+    },
     mutationFn: (leadMinutes: LeadMinutes) =>
       HouseholdService.setFeedDueLeadMinutes({
         householdId: householdId as string,
@@ -45,11 +45,6 @@ export function useNotificationPreferences(householdId: string | undefined) {
       }),
     onSettled: () => {
       void queryClient.invalidateQueries({ queryKey });
-    },
-    onSuccess: () => showSuccessToast(SuccessMessage.LeadTimeUpdated),
-    onError: (error) => {
-      console.error(error);
-      showErrorToast(ErrorMessage.NotificationSettingsUpdateFailed);
     }
   });
 

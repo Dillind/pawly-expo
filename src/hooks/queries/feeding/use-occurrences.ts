@@ -1,6 +1,7 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useCallback } from 'react';
 
+import { queryKeys } from '@/lib/query-keys';
 import FeedTimeService from '@/services/feed-time.service';
 
 const LIVE_REFETCH_MS = 60_000;
@@ -18,7 +19,7 @@ export function useOccurrences(
   options?: { live?: boolean }
 ) {
   return useQuery({
-    queryKey: ['occurrences', petId, date],
+    queryKey: queryKeys.occurrences.day(petId, date),
     queryFn: () => FeedTimeService.getOccurrences(petId as string, date as string),
     enabled: Boolean(petId) && Boolean(date),
     refetchInterval: options?.live ? LIVE_REFETCH_MS : false,
@@ -30,7 +31,7 @@ export function useRefreshOccurrences() {
   const queryClient = useQueryClient();
 
   return useCallback(
-    () => queryClient.refetchQueries({ queryKey: ['occurrences'], type: 'active' }),
+    () => queryClient.refetchQueries({ queryKey: queryKeys.occurrences.all, type: 'active' }),
     [queryClient]
   );
 }

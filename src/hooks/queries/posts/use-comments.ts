@@ -1,15 +1,13 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { ErrorMessage, SuccessMessage } from '@/constants/enums';
-import { showErrorToast, showSuccessToast } from '@/lib/toast';
+import { queryKeys } from '@/lib/query-keys';
 import CommentService, { type PostComment } from '@/services/comment.service';
 import { useAuthStore } from '@/stores/auth-store';
 
-const commentsKey = (postId: string | undefined) => ['comments', postId];
-
 export function useComments(postId: string | undefined, viewerId: string | undefined) {
   return useQuery({
-    queryKey: commentsKey(postId),
+    queryKey: queryKeys.comments(postId),
     queryFn: () => CommentService.list({ postId: postId!, viewerId: viewerId ?? null }),
     enabled: Boolean(postId)
   });
@@ -20,6 +18,7 @@ export function useCreateComment(postId: string | undefined) {
   const queryClient = useQueryClient();
 
   return useMutation({
+    meta: { errorMessage: ErrorMessage.CommentPostFailed },
     mutationFn: (input: {
       userId: string;
       body: string;
@@ -27,14 +26,10 @@ export function useCreateComment(postId: string | undefined) {
       replyToUserId?: string | null;
     }) => CommentService.create({ postId: postId!, ...input }),
     onSettled: () => {
-      void queryClient.invalidateQueries({ queryKey: commentsKey(postId) });
+      void queryClient.invalidateQueries({ queryKey: queryKeys.comments(postId) });
       // The count is embedded in the Post's own select, so it rides these.
-      void queryClient.invalidateQueries({ queryKey: ['posts'] });
-      void queryClient.invalidateQueries({ queryKey: ['post', postId] });
-    },
-    onError: (error) => {
-      console.error(error);
-      showErrorToast(ErrorMessage.CommentPostFailed);
+      void queryClient.invalidateQueries({ queryKey: queryKeys.posts.all });
+      void queryClient.invalidateQueries({ queryKey: queryKeys.post.detail(postId) });
     }
   });
 }
@@ -43,16 +38,15 @@ export function useDeleteComment(postId: string | undefined) {
   const queryClient = useQueryClient();
 
   return useMutation({
+    meta: {
+      successMessage: SuccessMessage.CommentDeleted,
+      errorMessage: ErrorMessage.CommentDeleteFailed
+    },
     mutationFn: (commentId: string) => CommentService.remove(commentId),
     onSettled: () => {
-      void queryClient.invalidateQueries({ queryKey: commentsKey(postId) });
-      void queryClient.invalidateQueries({ queryKey: ['posts'] });
-      void queryClient.invalidateQueries({ queryKey: ['post', postId] });
-    },
-    onSuccess: () => showSuccessToast(SuccessMessage.CommentDeleted),
-    onError: (error) => {
-      console.error(error);
-      showErrorToast(ErrorMessage.CommentDeleteFailed);
+      void queryClient.invalidateQueries({ queryKey: queryKeys.comments(postId) });
+      void queryClient.invalidateQueries({ queryKey: queryKeys.posts.all });
+      void queryClient.invalidateQueries({ queryKey: queryKeys.post.detail(postId) });
     }
   });
 }
@@ -69,7 +63,7 @@ export function useToggleCommentLike(postId: string | undefined) {
         : CommentService.like({ commentId, userId: userId! }),
 
     onMutate: async ({ commentId, liked }) => {
-      const key = commentsKey(postId);
+      const key = queryKeys.comments(postId);
       await queryClient.cancelQueries({ queryKey: key });
 
       const previous = queryClient.getQueryData<PostComment[]>(key);
@@ -97,10 +91,8 @@ export function useToggleCommentLike(postId: string | undefined) {
     },
 
     onError: (error, _input, context) => {
-      console.error(error);
-
       if (context?.previous) {
-        queryClient.setQueryData(commentsKey(postId), context.previous);
+        queryClient.setQueryData(queryKeys.comments(postId), context.previous);
       }
     }
   });

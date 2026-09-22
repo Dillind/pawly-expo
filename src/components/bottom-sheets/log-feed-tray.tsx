@@ -20,6 +20,7 @@ import { useOccurrences } from '@/hooks/queries/feeding/use-occurrences';
 import type { useLogFlow } from '@/hooks/use-log-flow';
 import { useStyles } from '@/hooks/use-styles';
 import { composeLoggedAt, formatScheduledTime, timeInTimezone } from '@/lib/dates';
+import { queryKeys } from '@/lib/query-keys';
 import FeedTimeService from '@/services/feed-time.service';
 import type { Occurrence, Pet } from '@/types/core';
 
@@ -188,7 +189,7 @@ const ConfirmStep = ({
   // animals that were just fed.
   const occurrenceQueries = useQueries({
     queries: pets.map((pet) => ({
-      queryKey: ['occurrences', pet.id, today],
+      queryKey: queryKeys.occurrences.day(pet.id, today),
       queryFn: () => FeedTimeService.getOccurrences(pet.id, today)
     }))
   });

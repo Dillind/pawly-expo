@@ -83,8 +83,7 @@ const FeedTimes = () => {
           }
 
           router.replace('/home/new-household/done');
-        },
-        onError: () => showErrorToast(ErrorMessage.HouseholdCreateFailed)
+        }
       }
     );
   });

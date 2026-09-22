@@ -16,11 +16,9 @@ import { DEFAULT_LEAD_MINUTES, FEED_DUE_LEAD_OPTIONS } from '@/constants/options
 import { BottomTabInset, type AppTheme } from '@/constants/theme';
 import { useHouseholdById } from '@/hooks/queries/household/use-household-by-id';
 import { useNotificationPreferences } from '@/hooks/queries/household/use-notification-preferences';
-import {
-  NOTIFICATION_PERMISSION_QUERY_KEY,
-  useRequestNotificationPermission
-} from '@/hooks/use-notification-permission';
+import { useRequestNotificationPermission } from '@/hooks/use-notification-permission';
 import { useStyles } from '@/hooks/use-styles';
+import { queryKeys } from '@/lib/query-keys';
 import { optionLabel } from '@/utils/options';
 
 // The OS permission is read first, because a toggle reading "on" while iOS
@@ -47,7 +45,7 @@ const NotificationSettings = ({ householdId }: Props) => {
   // root layout already wires AppState into focusManager. This is the screen
   // people leave for Settings and come straight back to.
   const { data: permission } = useQuery({
-    queryKey: NOTIFICATION_PERMISSION_QUERY_KEY,
+    queryKey: queryKeys.notificationPermission,
     queryFn: () => Notifications.getPermissionsAsync()
   });
 

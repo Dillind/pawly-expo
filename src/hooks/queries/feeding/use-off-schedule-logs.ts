@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 
+import { queryKeys } from '@/lib/query-keys';
 import FeedLogService from '@/services/feed-log.service';
 
 // Under the `occurrences` prefix so every feed-log mutation and refresh already reaches it.
@@ -9,7 +10,7 @@ export function useOffScheduleLogs(
   timezone: string | undefined
 ) {
   return useQuery({
-    queryKey: ['occurrences', petId, 'off-schedule', day],
+    queryKey: queryKeys.occurrences.offSchedule(petId, day),
     queryFn: () =>
       FeedLogService.getOffScheduleForDay(petId as string, day as string, timezone as string),
     enabled: Boolean(petId) && Boolean(day) && Boolean(timezone)

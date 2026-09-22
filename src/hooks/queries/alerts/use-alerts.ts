@@ -2,16 +2,13 @@ import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tansta
 import { useCallback } from 'react';
 
 import { ErrorMessage } from '@/constants/enums';
-import { showErrorToast } from '@/lib/toast';
+import { queryKeys } from '@/lib/query-keys';
 import AlertService, { ALERTS_PAGE_SIZE, type AlertsCursor } from '@/services/alert.service';
-
-const alertsKey = (householdId: string | undefined) => ['alerts', householdId];
-const unreadAlertsKey = (householdId: string | undefined) => ['alerts-unread', householdId];
 
 // The inbox. Cursor on `(created_at, id) desc`.
 export function useAlerts(householdId: string | undefined) {
   return useInfiniteQuery({
-    queryKey: alertsKey(householdId),
+    queryKey: queryKeys.alerts(householdId),
     queryFn: ({ pageParam }) => AlertService.listPage(householdId as string, pageParam),
     initialPageParam: null as AlertsCursor | null,
     getNextPageParam: (lastPage) => {
@@ -27,7 +24,7 @@ export function useAlerts(householdId: string | undefined) {
 
 export function useUnreadAlertCount(householdId: string | undefined) {
   return useQuery({
-    queryKey: unreadAlertsKey(householdId),
+    queryKey: queryKeys.unreadAlerts(householdId),
     queryFn: () => AlertService.unreadCount(householdId as string),
     enabled: Boolean(householdId)
   });
@@ -39,7 +36,7 @@ export function useRefreshUnreadAlertCount(householdId: string | undefined) {
   const queryClient = useQueryClient();
 
   return useCallback(
-    () => queryClient.refetchQueries({ queryKey: unreadAlertsKey(householdId) }),
+    () => queryClient.refetchQueries({ queryKey: queryKeys.unreadAlerts(householdId) }),
     [queryClient, householdId]
   );
 }
@@ -51,8 +48,8 @@ export function useMarkAlertsRead(householdId: string | undefined) {
 
   return useMutation({
     mutationFn: (alertIds: string[]) => AlertService.markRead(alertIds),
-    onSettled: () => queryClient.invalidateQueries({ queryKey: unreadAlertsKey(householdId) }),
-    onError: (error) => console.error(error)
+    onSettled: () =>
+      queryClient.invalidateQueries({ queryKey: queryKeys.unreadAlerts(householdId) })
   });
 }
 
@@ -60,14 +57,11 @@ export function useMarkAllAlertsRead(householdId: string | undefined) {
   const queryClient = useQueryClient();
 
   return useMutation({
+    meta: { errorMessage: ErrorMessage.AlertsMarkReadFailed },
     mutationFn: () => AlertService.markAllRead(householdId as string),
     onSettled: () => {
-      void queryClient.invalidateQueries({ queryKey: unreadAlertsKey(householdId) });
-      void queryClient.invalidateQueries({ queryKey: alertsKey(householdId) });
-    },
-    onError: (error) => {
-      console.error(error);
-      showErrorToast(ErrorMessage.AlertsMarkReadFailed);
+      void queryClient.invalidateQueries({ queryKey: queryKeys.unreadAlerts(householdId) });
+      void queryClient.invalidateQueries({ queryKey: queryKeys.alerts(householdId) });
     }
   });
 }

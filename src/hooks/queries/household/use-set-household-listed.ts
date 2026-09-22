@@ -1,8 +1,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 import { ErrorMessage } from '@/constants/enums';
-import { householdsKey } from '@/hooks/queries/household/use-households';
-import { showErrorToast } from '@/lib/toast';
+import { queryKeys } from '@/lib/query-keys';
 import HouseholdService from '@/services/household.service';
 import { useAuthStore } from '@/stores/auth-store';
 import type { HouseholdSummary } from '@/types/core';
@@ -13,9 +12,10 @@ import type { HouseholdSummary } from '@/types/core';
 export function useSetHouseholdListed(householdId: string | undefined) {
   const queryClient = useQueryClient();
   const { userId } = useAuthStore();
-  const key = householdsKey(userId);
+  const key = queryKeys.households.of(userId);
 
   return useMutation({
+    meta: { errorMessage: ErrorMessage.HouseholdListedFailed },
     mutationFn: (isListed: boolean) => HouseholdService.update(householdId as string, { isListed }),
     onMutate: async (isListed) => {
       await queryClient.cancelQueries({ queryKey: key });
@@ -30,11 +30,8 @@ export function useSetHouseholdListed(householdId: string | undefined) {
 
       return { previous };
     },
-    onError: (error, _isListed, context) => {
+    onError: (_error, _isListed, context) => {
       if (context?.previous) queryClient.setQueryData(key, context.previous);
-
-      console.error(error);
-      showErrorToast(ErrorMessage.HouseholdListedFailed);
     },
     onSettled: () => {
       void queryClient.invalidateQueries({ queryKey: key });

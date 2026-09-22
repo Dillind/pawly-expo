@@ -2,10 +2,9 @@ import { useQueryClient } from '@tanstack/react-query';
 import * as Notifications from 'expo-notifications';
 
 import { requestNotificationPermission } from '@/lib/notification-permission';
+import { queryKeys } from '@/lib/query-keys';
 import PushTokenService from '@/services/push-token.service';
 import { useAuthStore } from '@/stores/auth-store';
-
-export const NOTIFICATION_PERMISSION_QUERY_KEY = ['notification-permission'];
 
 export const useRequestNotificationPermission = () => {
   const { userId } = useAuthStore();
@@ -24,6 +23,6 @@ export const useRequestNotificationPermission = () => {
       });
     }
 
-    await queryClient.invalidateQueries({ queryKey: NOTIFICATION_PERMISSION_QUERY_KEY });
+    await queryClient.invalidateQueries({ queryKey: queryKeys.notificationPermission });
   };
 };

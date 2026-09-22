@@ -27,6 +27,7 @@ import { useAuthorPosts, useDeletePost, useToggleLike } from '@/hooks/queries/po
 import { usePullToRefresh } from '@/hooks/use-pull-to-refresh';
 import { useRefreshOnFocus } from '@/hooks/use-refresh-on-focus';
 import { useStyles } from '@/hooks/use-styles';
+import { queryKeys } from '@/lib/query-keys';
 import type { Post } from '@/services/post.service';
 import { useAuthStore } from '@/stores/auth-store';
 import { fullName } from '@/utils/members';
@@ -64,7 +65,7 @@ const ProfileOverview = () => {
     isFetchingNextPage
   } = useAuthorPosts(userId ?? undefined);
 
-  useRefreshOnFocus(['posts', 'author', userId]);
+  useRefreshOnFocus(queryKeys.posts.byAuthor(userId));
   const { isRefreshing, onRefresh } = usePullToRefresh([refetch]);
 
   const isMultiHousehold = households.length > 1;

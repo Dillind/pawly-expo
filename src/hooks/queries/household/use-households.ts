@@ -1,18 +1,18 @@
 import { useQuery } from '@tanstack/react-query';
 
+import { queryKeys } from '@/lib/query-keys';
 import HouseholdService from '@/services/household.service';
 import { useAuthStore } from '@/stores/auth-store';
 
 const FIVE_MINUTES_MS = 5 * 60_000;
 
 // The key every mutation that changes membership has to invalidate.
-export const householdsKey = (userId: string | undefined) => ['households', userId];
 
 export function useHouseholds() {
   const { userId } = useAuthStore();
 
   return useQuery({
-    queryKey: householdsKey(userId),
+    queryKey: queryKeys.households.of(userId),
     queryFn: () => HouseholdService.listForUser(userId as string),
     enabled: Boolean(userId),
     // Households and their pets change when someone deliberately changes them,

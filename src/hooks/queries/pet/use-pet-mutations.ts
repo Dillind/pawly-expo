@@ -2,9 +2,8 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 import { ErrorMessage, SuccessMessage } from '@/constants/enums';
 import { useHousehold } from '@/hooks/queries/household/use-household';
-import { householdsKey } from '@/hooks/queries/household/use-households';
 import { deviceTimezone } from '@/lib/dates';
-import { showErrorToast, showSuccessToast } from '@/lib/toast';
+import { queryKeys } from '@/lib/query-keys';
 import PetService, { type AddPetInput } from '@/services/pet.service';
 import { useAuthStore } from '@/stores/auth-store';
 import type { Pet } from '@/types/core';
@@ -20,18 +19,20 @@ export function useAddPet() {
   const timezone = household?.timezone ?? deviceTimezone();
 
   return useMutation<Pet, Error, AddPetInput>({
+    meta: { successMessage: SuccessMessage.PetAdded, errorMessage: ErrorMessage.PetAddFailed },
     mutationFn: (input) => PetService.add(input, householdId, timezone),
     onSettled: () => {
       // `all`, not the default `active`: the screen that adds a pet is not the
       // one that lists them, so the list's observer is often unmounted here.
       // The pet lists read from this query too, so it is the only key to bust.
-      void queryClient.invalidateQueries({ queryKey: householdsKey(userId), refetchType: 'all' });
-      void queryClient.invalidateQueries({ queryKey: ['occurrences'], refetchType: 'all' });
-    },
-    onSuccess: () => showSuccessToast(SuccessMessage.PetAdded),
-    onError: (error) => {
-      console.error(error);
-      showErrorToast(ErrorMessage.PetAddFailed);
+      void queryClient.invalidateQueries({
+        queryKey: queryKeys.households.of(userId),
+        refetchType: 'all'
+      });
+      void queryClient.invalidateQueries({
+        queryKey: queryKeys.occurrences.all,
+        refetchType: 'all'
+      });
     }
   });
 }
@@ -40,16 +41,18 @@ export function useRemovePet() {
   const queryClient = useQueryClient();
 
   return useMutation<void, Error, string>({
+    meta: { successMessage: SuccessMessage.PetRemoved, errorMessage: ErrorMessage.PetRemoveFailed },
     mutationFn: (petId) => PetService.remove(petId),
     onSettled: () => {
       // Home keeps rendering a removed pet otherwise.
-      void queryClient.invalidateQueries({ queryKey: ['households'], refetchType: 'all' });
-      void queryClient.invalidateQueries({ queryKey: ['occurrences'], refetchType: 'all' });
-    },
-    onSuccess: () => showSuccessToast(SuccessMessage.PetRemoved),
-    onError: (error) => {
-      console.error(error);
-      showErrorToast(ErrorMessage.PetRemoveFailed);
+      void queryClient.invalidateQueries({
+        queryKey: queryKeys.households.all,
+        refetchType: 'all'
+      });
+      void queryClient.invalidateQueries({
+        queryKey: queryKeys.occurrences.all,
+        refetchType: 'all'
+      });
     }
   });
 }
