@@ -1,9 +1,7 @@
 import { z } from 'zod';
 
-// A factory rather than a constant, because the only rule is "matches this
-// Household's name" and the name is not known until the screen has loaded it.
-// `delete_household` repeats the same comparison, so a caller that is not this
-// screen cannot skip the confirmation.
+// A factory because the name is known only after the screen loads it. `delete_household`
+// repeats the check, so no other caller can skip the confirmation.
 export const deleteHouseholdSchema = (householdName: string) =>
   z.object({
     confirmation: z

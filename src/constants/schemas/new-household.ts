@@ -3,10 +3,8 @@ import { z } from 'zod';
 import { householdHandleSchema, householdNameSchema } from '@/constants/schemas/household';
 import { feedTimeSchema } from '@/lib/form/pet-schemas';
 
-// One schema for the whole flow, so a step gate and the final submit cannot
-// disagree about what "valid" means. Neither age nor breed is asked for: a
-// flow that asks five things before a first feed can be logged is one people
-// abandon, and both are on the pet's own screen afterwards.
+// One schema for the whole flow, so a step gate and the submit agree on "valid".
+// Age and breed are left out to keep setup short; the pet's own screen asks for them.
 export const newHouseholdSchema = z.object({
   name: householdNameSchema.shape.name,
   handle: householdHandleSchema.shape.handle,

@@ -1,15 +1,5 @@
-// Pure: no network, no database. Everything here is a decision about wording,
-// which is the part worth reasoning about on its own.
-//
-// Every kind is one sentence and no title. iOS draws the app name on the top
-// line by itself, so the sentence below it is the `body` -- a title would put a
-// second, bolder line above it and break the shape.
-//
-// Nothing a person typed ever appears: no captions, no feed notes, no comment
-// bodies. A time is not content, so where a time is the reason the push exists
-// it joins the sentence rather than sitting under it. The one exception is a
-// Reminder's title, which is free text and is also the only thing in that push
-// a person can act on -- see buildReminderDueMessage.
+// Pure wording. Every push is one sentence with no title, because iOS already draws the app name.
+// Nothing a person typed appears, except a Reminder's title -- see buildReminderDueMessage.
 
 export type FeedLoggedInput = {
   authorFirstName: string | null;
@@ -21,21 +11,16 @@ export type FeedLoggedInput = {
 
 export type ExpoMessage = {
   to: string[];
-  /** Omitted on purpose. iOS draws the app name; a title would add a line. */
   title?: string;
   body: string;
   sound: 'default';
   data: { screen: string; params: Record<string, string> };
 };
 
-// Matches formatAuthorName in src/utils/members.ts. Every surface must agree --
-// the Home occurrence row, the detail sheet and this notification all render the
-// same feed log, and two different names for one person reads as a bug.
-//
+// Must match formatAuthorName in src/utils/members.ts: two names for one person reads as a bug.
 const authorName = (firstName: string | null): string => firstName ?? 'Someone';
 
-// The household's timezone, never the recipient's device timezone -- the same
-// rule every other surface follows.
+// The household's timezone, never the recipient's.
 const timeOfDay = (loggedAt: string, timezone: string): string =>
   new Intl.DateTimeFormat('en-AU', {
     hour: 'numeric',
@@ -71,10 +56,7 @@ const wallClockTime = (time: string): string => {
 export const buildFeedLoggedMessage = (input: FeedLoggedInput): Omit<ExpoMessage, 'to'> => ({
   body: `${authorName(input.authorFirstName)} fed ${input.petName} at ${timeOfDay(input.loggedAt, input.householdTimezone)}`,
   sound: 'default',
-  // data.screen and data.params are the exact shape usePushNotifications reads,
-  // and /home?logId=... is a deep link home/index.tsx already handles -- so a
-  // tap lands on the correction sheet with no new routing. This path must be
-  // redeployed whenever the route moves.
+  // The shape usePushNotifications reads. Redeploy this function whenever the route moves.
   data: { screen: '/home', params: { logId: input.logId } }
 });
 
@@ -84,10 +66,8 @@ export type MissedFeedInput = {
   scheduledTime: string;
 };
 
-// Names the absent log, never the absent meal -- see ADR 0013 and CONTEXT.md.
-// Keeps the label as well as the time: the label is the word the schedule card
-// and the log sheet use, and the time is what says which one was missed when a
-// pet has two feeds with the same label on different days.
+// Names the absent log, never the absent meal (ADR 0013). The time tells apart two feeds
+// with the same label.
 export const buildMissedFeedMessage = (input: MissedFeedInput): Omit<ExpoMessage, 'to'> => ({
   body: `No one has logged ${input.petName}'s ${slotLabelText[input.label]} feed, due ${wallClockTime(input.scheduledTime)}`,
   sound: 'default',
@@ -100,15 +80,7 @@ export type PostInput = {
   postId: string;
 };
 
-/**
- * The caption used to be the whole line, on the argument that seeing
- * "Sarah: beach day, he's shattered" on the lock screen IS the feature for the
- * member who is away. That was reversed deliberately -- see DECISIONS.md. A
- * push now says what happened and nothing else, and the photo is one tap away.
- *
- * A pet name earns its place only when exactly one pet is tagged: "a photo of
- * Crumpet and Bailey" is worse than saying nothing, and tags are optional.
- */
+// No caption, deliberately (DECISIONS.md). A pet is named only when exactly one is tagged.
 export const buildPostMessage = (input: PostInput): Omit<ExpoMessage, 'to'> => {
   const author = authorName(input.authorFirstName);
 
@@ -124,17 +96,12 @@ export const buildPostMessage = (input: PostInput): Omit<ExpoMessage, 'to'> => {
 
 export type PostCommentedInput = {
   authorFirstName: string | null;
-  /** True when the recipient wrote the comment being replied to. */
   isReplyToRecipient: boolean;
-  /** True when the recipient wrote the post being commented on. */
   isPostAuthor: boolean;
   postId: string;
 };
 
-/**
- * Three cases, not two: the third is the member who is in the thread but owns
- * neither the post nor the parent, and "your post" would be a lie to them.
- */
+// Three cases: a member in the thread who owns neither the post nor the parent is not told "your post".
 export const buildPostCommentedMessage = (input: PostCommentedInput): Omit<ExpoMessage, 'to'> => {
   const author = authorName(input.authorFirstName);
 
@@ -156,7 +123,6 @@ export type FeedDuePet = {
 
 export type FeedDueInput = {
   pets: FeedDuePet[];
-  /** Wall-clock time in the household timezone, as Postgres stores it. */
   scheduledTime: string;
 };
 
@@ -171,9 +137,7 @@ const dueLabelText: Record<ScheduleLabel, string> = {
 
 const sentenceCase = (text: string): string => text.charAt(0).toUpperCase() + text.slice(1);
 
-// Not a list past two: three or more are counted, so the time always fits. A
-// lock screen truncates a long list, and the time is the fact a person acts on
-// where a list of their own pets is not.
+// Three or more pets are counted, not listed, so the lock screen never truncates the time.
 const petsPhrase = (names: string[]): string => {
   if (names.length === 1) return names[0];
   if (names.length === 2) return `${names[0]} and ${names[1]}`;
@@ -181,16 +145,8 @@ const petsPhrase = (names: string[]): string => {
   return `${names.length} pets`;
 };
 
-/**
- * One push per household per feed instant, however many pets it covers. Three
- * notifications for what a person experiences as one event is how this app
- * gets muted, and the volume scales with pet count -- so it lands hardest on
- * exactly the households the multi-pet work is for.
- *
- * Two shapes, decided by whether the pets share a label. They do share one
- * almost always, because a household feeds its pets together; the mixed case
- * cannot name a single label that is true of all of them.
- */
+// One push per household per feed time, however many pets: one event must not become three.
+// Pets with mixed labels get a sentence that names no label.
 export const buildFeedDueMessage = (input: FeedDueInput): Omit<ExpoMessage, 'to'> => {
   const names = input.pets.map((pet) => pet.name);
   const labels = new Set(input.pets.map((pet) => pet.label));
@@ -215,14 +171,11 @@ export const buildFeedDueMessage = (input: FeedDueInput): Omit<ExpoMessage, 'to'
 export type ReminderDueInput = {
   petName: string;
   title: string;
-  /** How many days until it is due: 1, 2 or 3. */
   leadDays: number;
 };
 
-// A Reminder title is free text and sits mid-sentence, so "Worming tablet"
-// would read as "Toby's Worming tablet". Only the plain case is lowered: a
-// second capital anywhere in the first word means a brand or an acronym --
-// NexGard, RSPCA -- which must survive untouched.
+// Lowers the first letter to sit mid-sentence, unless the first word is a brand or an
+// acronym such as NexGard or RSPCA.
 const midSentence = (title: string): string => {
   const [first = ''] = title.split(' ');
 
@@ -231,14 +184,8 @@ const midSentence = (title: string): string => {
     : title;
 };
 
-/**
- * The one kind that still carries text a person typed, deliberately. A
- * Reminder's title is the only thing in this push anyone can act on -- "Crumpet
- * has a reminder tomorrow" says nothing. Do not remove it later as an oversight.
- *
- * It never says "overdue": the push goes out BEFORE the day, so nothing has
- * been missed yet.
- */
+// Carries the typed title on purpose: it is the only thing here anyone can act on.
+// Never "overdue": this push goes out before the day.
 export const buildReminderDueMessage = (input: ReminderDueInput): Omit<ExpoMessage, 'to'> => ({
   body: `${input.petName}'s ${midSentence(input.title)} is due ${input.leadDays === 1 ? 'tomorrow' : `in ${input.leadDays} days`}`,
   sound: 'default',
@@ -250,15 +197,7 @@ export type FollowRequestedInput = {
   householdId: string;
 };
 
-/**
- * The only alert the follow feature adds, and it runs towards the household. A
- * follower is never told anything -- not even that they were accepted. See ADR
- * 0036.
- *
- * The body says "your household" rather than naming it. An Owner can own more
- * than one, but the payload carries the householdId, so the tap still lands on
- * the right Requests screen.
- */
+// A follower is never told anything, not even that they were accepted (ADR 0036).
 export const buildFollowRequestedMessage = (
   input: FollowRequestedInput
 ): Omit<ExpoMessage, 'to'> => ({
@@ -270,10 +209,7 @@ export const buildFollowRequestedMessage = (
   }
 });
 
-/**
- * Goes only to the Crumpet team. The title is typed by a user, so it stays out
- * of the push, like every other piece of user content.
- */
+// Only to the Crumpet team. The typed title stays out of the push.
 export const buildFeatureRequestReportedMessage = (): Omit<ExpoMessage, 'to'> => ({
   body: 'A feature request was reported',
   sound: 'default',

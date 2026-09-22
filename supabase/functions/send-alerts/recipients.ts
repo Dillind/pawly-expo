@@ -2,38 +2,8 @@ import type { SupabaseClient } from 'npm:@supabase/supabase-js@2';
 
 import type { AlertKind } from './subjects.ts';
 
-/**
- * The delivery rule (ADR 0012): a Feed Logged Alert goes to every member of
- * the household EXCEPT the author, unless that member has turned Feed Logged
- * Alerts off.
- *
- * A Missed Feed Alert goes to every member with Missed Feed Alerts on, with
- * nobody excluded -- there is no actor, because the point is that no one acted.
- *
- * Role does not appear in the rule. Role-based routing was rejected because
- * ADR 0001 allows multiple Owners and the realistic v1 household is a couple
- * who are both Owners, so it would notify nobody. It is also the wrong axis:
- * the midday dog walker is precisely the person who most needs to know the dog
- * was already fed at 7am.
- *
- * A Feed Due Alert goes to every member with Feed Due Alerts on WHOSE LEAD TIME
- * MATCHES THE ROW. The row is one cohort of a feed, not the whole feed, so the
- * lead-time filter is what keeps the 30-minute members out of the 10-minute
- * push. Nobody is excluded by actor -- there is no actor.
- *
- * A Post Alert follows the feed_logged shape: everyone except the author, minus
- * anyone with Post Alerts off. The author is excluded for the obvious reason --
- * they are holding the phone they just posted from.
- *
- * A Post Commented Alert is the first kind that names its recipient: "the
- * people in this conversation" cannot be worked out again later, so the trigger
- * writes one row per recipient and this narrows to that person. The preference
- * is still read here.
- *
- * Resolution happens HERE, at send time, rather than being fanned out when the
- * alert was queued -- so a preference changed between queue and delivery is
- * respected.
- */
+// The delivery rule is ADR 0012. Recipients resolve at send time, so a preference changed after
+// the alert was queued still counts. Feed Due also filters on the member's lead time.
 const PREFERENCE_COLUMN: Record<AlertKind, string | null> = {
   feed_logged: 'feed_logged_alerts',
   missed_feed: 'missed_feed_alerts',

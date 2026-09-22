@@ -10,12 +10,8 @@ type Props = {
   children: ReactNode;
 };
 
-// A step's primary action must not scroll away, and the hairline stops the bar
-// reading as the end of the content. KeyboardStickyView so it rides above the
-// keyboard.
-//
-// The real bottom inset, not the tab bar constant: every caller is a
-// full-screen modal, which has no tab bar to duck under.
+// Keeps a step's primary action above the keyboard. The real bottom inset, not BottomTabInset:
+// every caller is a full-screen modal with no tab bar.
 const ScreenFooter = ({ children }: Props) => {
   const styles = useStyles(makeStyles);
   const insets = useSafeAreaInsets();

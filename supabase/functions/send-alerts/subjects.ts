@@ -25,13 +25,8 @@ export type AlertKind =
   | 'follow_requested'
   | 'feature_request_reported';
 
-/**
- * A deliberate third outcome, alongside a message and null.
- *
- * null means the subject is gone and the alert can never be sent, which is a
- * failure worth stamping as one. A suppression is not a failure: the household
- * fed its pets between queue and send, which is the feature working.
- */
+// null is a failure: the subject is gone. A suppression is not: the household fed its pets
+// between queue and send, which is the feature working.
 export type BuiltMessage = Omit<ExpoMessage, 'to'> | { suppressed: string } | null;
 
 type AlertSubject = {
@@ -45,16 +40,8 @@ type AlertSubject = {
   recipient_id: string | null;
 };
 
-/**
- * The pets in a household still waiting on the feed due at `dueAt`.
- *
- * Rebuilt, never stored. The rebuild IS the freshness check: a pet fed since
- * the sweep drops out of the message on its own, and a household that fed
- * everything comes back empty, which the caller turns into a suppression rather
- * than a push. See ADR 0033.
- *
- * Null means the household has no pets at all -- the row cannot be sent.
- */
+// Rebuilt at send time, never stored, so a pet fed since the sweep drops out (ADR 0033).
+// Empty means everyone was fed; null means the household has no pets.
 const collectDuePets = async (
   client: SupabaseClient,
   householdId: string,
@@ -96,19 +83,8 @@ const collectDuePets = async (
   return { pets: duePets, scheduledTime: scheduledTime ?? '' };
 };
 
-/**
- * subject_id is a feed_logs.id for feed_logged, a feed_times.series_id for
- * missed_feed, a posts.id for post, and a post_comments.id for post_commented.
- * Null means the row is gone -- deleted between queue and dispatch.
- *
- * The switch is exhaustive: the default branch assigns the kind to `never`, so
- * adding a further alert_kind fails to compile.
- *
- * feed_due is the exception: its subject_id is the HOUSEHOLD, and the set of
- * pets is rebuilt here rather than stored. See ADR 0033.
- *
- * comment_liked never reaches here -- it is queued suppressed.
- */
+// subject_id names a different table per kind; for feed_due it is the household (ADR 0033).
+// Null means the row was deleted between queue and dispatch.
 export const buildMessageForAlert = async (
   client: SupabaseClient,
   alert: AlertSubject
