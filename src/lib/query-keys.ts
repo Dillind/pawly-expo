@@ -56,6 +56,8 @@ export const queryKeys = {
     all: ['household-members'] as const,
     of: (householdId: Id) => ['household-members', householdId] as const
   },
+  notificationPreferences: (householdId: Id, userId: Id) =>
+    ['notification-preferences', householdId, userId] as const,
   householdIsPro: (householdId: Id) => ['household', 'pro', householdId] as const,
   handleAvailable: (candidate: Id) => ['handle-available', candidate] as const,
   handleSuggestions: (stem: Id) => ['handle-suggestions', stem] as const,

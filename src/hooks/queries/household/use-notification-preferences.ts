@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { ErrorMessage, SuccessMessage } from '@/constants/enums';
+import { queryKeys } from '@/lib/query-keys';
 import HouseholdService, { type AlertPreference } from '@/services/household.service';
 import { useAuthStore } from '@/stores/auth-store';
 import type { LeadMinutes } from '@/types/core';
@@ -9,7 +10,7 @@ export function useNotificationPreferences(householdId: string | undefined) {
   const queryClient = useQueryClient();
   const { userId } = useAuthStore();
 
-  const queryKey = ['notification-preferences', householdId, userId];
+  const queryKey = queryKeys.notificationPreferences(householdId, userId);
 
   const query = useQuery({
     queryKey,

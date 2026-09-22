@@ -6,7 +6,8 @@ const stylesheetPropertyPerLine = require('./eslint-rules/stylesheet-property-pe
 
 // Each is a pattern that passes typecheck and costs a refactor later. See /crumpet-code-conventions.
 const QUERY_KEY = {
-  selector: "Property[key.name='queryKey'] > ArrayExpression",
+  selector:
+    "Property[key.name='queryKey'] > ArrayExpression, VariableDeclarator[id.name=/[kK]ey$/] > ArrayExpression",
   message: 'Build the key with queryKeys from @/lib/query-keys, so invalidation cannot drift.'
 };
 const FORM_TEXT_INPUT = {

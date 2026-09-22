@@ -38,6 +38,7 @@
       "<rootDir>/.claude/"
     ],
     "moduleNameMapper": {
+      "\\.css$": "<rootDir>/tests/style-stub.js",
       "^@/data/(.*)$": "<rootDir>/data/$1",
       "^@/assets/(.*)$": "<rootDir>/assets/$1",
       "^@/(.*)$": "<rootDir>/src/$1"

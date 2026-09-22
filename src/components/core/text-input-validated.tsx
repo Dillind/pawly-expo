@@ -57,6 +57,7 @@ type Props = Pick<
   showFieldError?: boolean;
   isMultiline?: boolean;
   showCharacterCount?: boolean;
+  fieldError?: string;
   ref?: React.Ref<TextInputRef>;
 };
 
@@ -93,7 +94,8 @@ const TextInputValidated = ({
   autoFocus,
   autoCorrect = false,
   isMultiline = false,
-  showCharacterCount = false
+  showCharacterCount = false,
+  fieldError
 }: Props) => {
   const [isSecured, setIsSecured] = useState<boolean | undefined>(secureTextEntry);
 
@@ -172,9 +174,12 @@ const TextInputValidated = ({
       {showCharacterCount && maxLength !== undefined && (
         <CharacterCount value={value} max={maxLength} />
       )}
-      {form && name && showFieldError && (
-        <SubscribedFieldError control={form.control} name={name} />
-      )}
+      {showFieldError &&
+        (fieldError !== undefined ? (
+          <FieldError marginTop={8} error={fieldError} />
+        ) : (
+          form && name && <SubscribedFieldError control={form.control} name={name} />
+        ))}
     </View>
   );
 };

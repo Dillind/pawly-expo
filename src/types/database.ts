@@ -1484,7 +1484,7 @@ export type Database = {
           isSetofReturn: false;
         };
       };
-      decline_household_invite: { Args: { invite_id: string }; Returns: Json };
+      decline_household_invite: { Args: { invite_id: string | null }; Returns: Json };
       delete_feature_request: {
         Args: { request_id: string | null };
         Returns: undefined;
@@ -1501,7 +1501,7 @@ export type Database = {
         Args: { target_pet_id: string | null; target_series_id: string | null };
         Returns: undefined;
       };
-      follow_preview: { Args: { target_household_id: string }; Returns: Json };
+      follow_preview: { Args: { target_household_id: string | null }; Returns: Json };
       get_feature_request: {
         Args: { request_id: string | null };
         Returns: {
@@ -1518,7 +1518,7 @@ export type Database = {
           vote_count: number;
         }[];
       };
-      handle_available: { Args: { candidate: string }; Returns: boolean };
+      handle_available: { Args: { candidate: string | null }; Returns: boolean };
       handle_suggestions: {
         Args: { stem: string | null; wanted?: number | null };
         Returns: string[];
@@ -1548,7 +1548,7 @@ export type Database = {
         Args: { target_household_id: string | null };
         Returns: boolean;
       };
-      leave_household: { Args: { target_household_id: string }; Returns: Json };
+      leave_household: { Args: { target_household_id: string | null }; Returns: Json };
       list_alerts: {
         Args: {
           before_created_at?: string | null;
@@ -1622,7 +1622,7 @@ export type Database = {
         };
         Returns: Json;
       };
-      mark_alerts_read: { Args: { alert_ids: string[] }; Returns: undefined };
+      mark_alerts_read: { Args: { alert_ids: string[] | null }; Returns: undefined };
       mark_all_alerts_read: {
         Args: { target_household_id: string | null };
         Returns: undefined;
@@ -1684,7 +1684,7 @@ export type Database = {
         Args: { target_user_id: string | null };
         Returns: Json;
       };
-      preview_household_invite: { Args: { invite_code: string }; Returns: Json };
+      preview_household_invite: { Args: { invite_code: string | null }; Returns: Json };
       redeem_household_invite: {
         Args: { invite_code?: string | null; invite_id?: string | null };
         Returns: Json;
@@ -1693,7 +1693,7 @@ export type Database = {
         Args: { target_platform: string | null; target_token: string | null };
         Returns: undefined;
       };
-      remove_follower: { Args: { follow_id: string }; Returns: Json };
+      remove_follower: { Args: { follow_id: string | null }; Returns: Json };
       remove_household_member: {
         Args: { target_household_id: string | null; target_user_id: string | null };
         Returns: Json;
@@ -1702,7 +1702,7 @@ export type Database = {
         Args: { request_id: string | null };
         Returns: undefined;
       };
-      request_follow: { Args: { target_household_id: string }; Returns: Json };
+      request_follow: { Args: { target_household_id: string | null }; Returns: Json };
       reset_travel_checklist: {
         Args: { target_checklist_id: string | null };
         Returns: undefined;
@@ -1715,8 +1715,8 @@ export type Database = {
         Args: { request_id: string | null };
         Returns: undefined;
       };
-      resume_pet: { Args: { target_pet_id: string }; Returns: undefined };
-      revoke_household_invite: { Args: { invite_id: string }; Returns: Json };
+      resume_pet: { Args: { target_pet_id: string | null }; Returns: undefined };
+      revoke_household_invite: { Args: { invite_id: string | null }; Returns: Json };
       save_feed_time: {
         Args: {
           target_days_of_week?: number[] | null;

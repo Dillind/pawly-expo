@@ -1,3 +1,4 @@
+import { UserFacingError } from '@/lib/errors';
 import { feedLogErrorMessage } from '@/lib/feed-log-errors';
 
 describe('feedLogErrorMessage', () => {
@@ -16,6 +17,12 @@ describe('feedLogErrorMessage', () => {
   it('points at the connection when the request never arrived', () => {
     expect(feedLogErrorMessage(new TypeError('Network request failed'))).toBe(
       "Couldn't log the feed. Check your connection."
+    );
+  });
+
+  it('keeps a message written for the person using the app', () => {
+    expect(feedLogErrorMessage(new UserFacingError('This feed log can no longer be edited'))).toBe(
+      'This feed log can no longer be edited'
     );
   });
 

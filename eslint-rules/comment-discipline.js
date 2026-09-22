@@ -56,7 +56,11 @@ module.exports = {
           }
 
           const previous = run[run.length - 1];
-          if (previous && comment.loc.start.line !== previous.loc.end.line + 1) flush();
+          const isSameBlock =
+            previous &&
+            comment.loc.start.line === previous.loc.end.line + 1 &&
+            source.text.slice(previous.range[1], comment.range[0]).trim() === '';
+          if (previous && !isSameBlock) flush();
           run.push(comment);
         }
         flush();

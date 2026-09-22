@@ -5,7 +5,7 @@ import TextInputValidated from '@/components/core/text-input-validated';
 
 type Props<T extends FieldValues> = Omit<
   ComponentProps<typeof TextInputValidated>,
-  'name' | 'value' | 'onChangeText' | 'onBlur'
+  'name' | 'value' | 'onChangeText' | 'onBlur' | 'fieldError'
 > & {
   name: FieldPath<T>;
   control?: Control<T>;
@@ -16,7 +16,8 @@ export const emptyAsNull = (text: string) => (text === '' ? null : text);
 
 const FormTextInput = <T extends FieldValues>({ name, control, parse, ...rest }: Props<T>) => {
   const {
-    field: { ref, value, onChange, onBlur }
+    field: { ref, value, onChange, onBlur },
+    fieldState: { error }
   } = useController<T>({ name, control });
 
   return (
@@ -27,6 +28,7 @@ const FormTextInput = <T extends FieldValues>({ name, control, parse, ...rest }:
       value={value ?? ''}
       onChangeText={(text) => onChange(parse ? parse(text) : text)}
       onBlur={onBlur}
+      fieldError={error?.message ?? ''}
     />
   );
 };
