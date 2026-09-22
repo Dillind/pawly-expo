@@ -356,6 +356,28 @@ a Member sees the whole Pet. It is the name for the boundary, and it holds no ca
 any kind.
 _Avoid_: Pet page, public pet, pet detail (that is the Member's screen).
 
+## Feature requests
+
+**Feature Request**:
+A suggestion any User posts to the app-wide board in Settings, for the Crumpet team to consider.
+It has a title, optional details and a status, and shows no author name. It belongs to no
+Household. In code and copy it is never a "post", which is the Household's own thing.
+_Avoid_: Post, idea, suggestion, ticket.
+
+**Vote**:
+One User's upvote on a Feature Request. There is no downvote, and a User votes once per request.
+_Avoid_: Like, upvote count.
+
+**Report**:
+A User's flag that a Feature Request is abusive or off-topic. Three Reports from established
+accounts hide the request until the Crumpet team reviews it.
+_Avoid_: Flag, complaint.
+
+**Crumpet team**:
+The people who run Crumpet. They set a Feature Request's status, restore or delete reported ones,
+and their own requests carry a "Crumpet team" tag. Unrelated to any Household role.
+_Avoid_: Admin, moderator, staff.
+
 ## Settings
 
 **Household Settings**:

@@ -45,13 +45,15 @@ const PREFERENCE_COLUMN: Record<AlertKind, string | null> = {
   // No toggle, on purpose. A follow request is addressed to an Owner and asks
   // them to decide something only they can decide, so there is nothing to opt
   // out of without the request going unanswered.
-  follow_requested: null
+  follow_requested: null,
+  // Addressed to a Crumpet team member, who may belong to no household at all.
+  feature_request_reported: null
 };
 
 export const resolveRecipientTokens = async (
   client: SupabaseClient,
   alert: {
-    household_id: string;
+    household_id: string | null;
     kind: AlertKind;
     actor_id: string | null;
     recipient_id: string | null;
@@ -59,6 +61,11 @@ export const resolveRecipientTokens = async (
   }
 ): Promise<string[]> => {
   const preferenceColumn = PREFERENCE_COLUMN[alert.kind];
+
+  if (alert.household_id === null) {
+    if (!alert.recipient_id) return [];
+    return tokensFor(client, [alert.recipient_id]);
+  }
 
   let query = client
     .from('household_members')
@@ -88,13 +95,17 @@ export const resolveRecipientTokens = async (
   if (membersError) throw membersError;
   if (!members || members.length === 0) return [];
 
+  return tokensFor(
+    client,
+    members.map((member: { user_id: string }) => member.user_id)
+  );
+};
+
+const tokensFor = async (client: SupabaseClient, userIds: string[]): Promise<string[]> => {
   const { data: tokens, error: tokensError } = await client
     .from('push_tokens')
     .select('token')
-    .in(
-      'user_id',
-      members.map((member: { user_id: string }) => member.user_id)
-    );
+    .in('user_id', userIds);
 
   if (tokensError) throw tokensError;
 

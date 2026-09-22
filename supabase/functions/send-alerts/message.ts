@@ -269,3 +269,16 @@ export const buildFollowRequestedMessage = (
     params: { householdId: input.householdId }
   }
 });
+
+/**
+ * Goes only to the Crumpet team. The title is typed by a user, so it stays out
+ * of the push, like every other piece of user content.
+ */
+export const buildFeatureRequestReportedMessage = (): Omit<ExpoMessage, 'to'> => ({
+  body: 'A feature request was reported',
+  sound: 'default',
+  data: {
+    screen: '/profile/settings/feature-requests',
+    params: { reported: '1' }
+  }
+});

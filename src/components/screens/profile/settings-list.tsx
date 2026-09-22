@@ -68,7 +68,11 @@ const SettingsList = () => {
             label="Contact Support"
             onPress={() => void handleContactSupport()}
           />
-          <SettingsRow icon="lightbulb" label="Request a feature" isSoon />
+          <SettingsRow
+            icon="lightbulb"
+            label="Request a feature"
+            onPress={() => router.push('/profile/settings/feature-requests')}
+          />
           <SettingsRow icon="star" label="Rate Crumpet" isSoon />
           <SettingsRow
             icon="info"

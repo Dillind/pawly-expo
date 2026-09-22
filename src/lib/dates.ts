@@ -353,3 +353,8 @@ export function formatBirthMonth(birthdate: string): string {
 
   return `Born around ${label}`;
 }
+
+export const formatDayAndShortMonth = (isoTimestamp: string, timezone: string): string =>
+  new Intl.DateTimeFormat('en-AU', { day: 'numeric', month: 'short', timeZone: timezone }).format(
+    new Date(isoTimestamp)
+  );
