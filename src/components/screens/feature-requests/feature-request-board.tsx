@@ -69,7 +69,12 @@ const FeatureRequestBoard = () => {
     hasNextPage,
     isFetchingNextPage
   } = useFeatureRequests(sort, isReportedFilter);
-  const { data: reportedRequests = [] } = useFeatureRequests('top', true, isTeam);
+  const { data: reportedRequests = [], hasNextPage: hasMoreReported } = useFeatureRequests(
+    'top',
+    true,
+    isTeam
+  );
+  const reportedCount = `${reportedRequests.length}${hasMoreReported ? '+' : ''}`;
   const { isRefreshing, onRefresh } = usePullToRefresh([refetch]);
 
   const setReportedFilter = (isOn: boolean) =>
@@ -159,7 +164,7 @@ const FeatureRequestBoard = () => {
               icon="flag"
               isOn={isReportedFilter}
               onPress={() => setReportedFilter(!isReportedFilter)}>
-              {reportedRequests.length > 0 ? `Reported (${reportedRequests.length})` : 'Reported'}
+              {reportedRequests.length > 0 ? `Reported (${reportedCount})` : 'Reported'}
             </Stack.Toolbar.MenuAction>
           </Stack.Toolbar.Menu>
         </Stack.Toolbar.Menu>
