@@ -226,7 +226,7 @@ const Home = () => {
         {hasHousehold && day && today && (
           <View style={styles.header}>
             <View style={styles.headerRow}>
-              <AppText variant="header" size="largeTitle" fontWeight="bold" style={styles.heading}>
+              <AppText variant="header" size="display" fontWeight="bold" style={styles.heading}>
                 {formatWeekdayName(day)}
               </AppText>
               <MonthPopover selectedDay={day} onSelectDay={setPickedDay} />

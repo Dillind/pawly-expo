@@ -57,7 +57,11 @@ const FeatureRequestTags = ({ request, isReviewing = false }: Props) => {
       )}
       {request.isTeamPost ? (
         <View style={styles.team}>
-          <AppText size="caption2" fontWeight="semibold" color="textSecondary" numberOfLines={1}>
+          <AppText
+            size="captionSmall"
+            fontWeight="semibold"
+            color="textSecondary"
+            numberOfLines={1}>
             Crumpet team
           </AppText>
         </View>

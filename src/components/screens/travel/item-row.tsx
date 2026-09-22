@@ -85,7 +85,7 @@ const ItemRow = ({
   };
 
   const emojiSlot = item.emoji ? (
-    <AppText size="title3">{item.emoji}</AppText>
+    <AppText size="titleSmall">{item.emoji}</AppText>
   ) : isOwner ? (
     <View style={styles.emojiEmpty}>
       <Icon name="sparkles" size={12} color="textSecondary" />

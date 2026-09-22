@@ -281,7 +281,7 @@ const PetHeading = ({ pet }: { pet: Pet }) => {
   return (
     <View style={styles.heading}>
       <PetAvatar photoUrl={pet.photoUrl} size={32} />
-      <AppText variant="header" size="title3">
+      <AppText variant="header" size="titleSmall">
         {pet.name}
       </AppText>
     </View>

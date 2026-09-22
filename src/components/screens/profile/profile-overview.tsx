@@ -113,7 +113,7 @@ const ProfileOverview = () => {
             />
           </View>
         </View>
-        <AppText variant="header" size="title2">
+        <AppText variant="header" size="titleMedium">
           {name || 'Your profile'}
         </AppText>
         {email && (

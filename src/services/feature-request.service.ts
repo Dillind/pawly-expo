@@ -179,6 +179,10 @@ namespace FeatureRequestService {
     await unwrap(supabase.rpc('restore_feature_request', { request_id: requestId }));
   }
 
+  export async function countReported(): Promise<number> {
+    return unwrap(supabase.rpc('count_reported_feature_requests'));
+  }
+
   export async function isCrumpetTeam(): Promise<boolean> {
     const data = await unwrap(supabase.rpc('is_crumpet_team'));
 

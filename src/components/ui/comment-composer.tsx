@@ -94,7 +94,7 @@ const CommentComposer = ({
             accessibilityRole="button"
             accessibilityLabel={`Add ${emoji}`}
             style={styles.emojiTarget}>
-            <AppText size="title2">{emoji}</AppText>
+            <AppText size="titleMedium">{emoji}</AppText>
           </PressableOpacity>
         ))}
       </ScrollView>

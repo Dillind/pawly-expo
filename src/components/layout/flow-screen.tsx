@@ -93,7 +93,7 @@ const FlowScreen = ({
         <AppText size="footnote" color="textSecondary">
           Step {step} of {stepCount}
         </AppText>
-        <AppText variant="header" size="title1" fontWeight="bold" style={styles.title}>
+        <AppText variant="header" size="titleLarge" fontWeight="bold" style={styles.title}>
           {title}
         </AppText>
         {subtitle ? (

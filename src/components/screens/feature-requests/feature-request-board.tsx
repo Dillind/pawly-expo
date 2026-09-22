@@ -27,7 +27,8 @@ import { BottomTabInset, IconSize, Radius, type AppTheme } from '@/constants/the
 import {
   useFeatureRequests,
   useIsBoardBanned,
-  useIsCrumpetTeam
+  useIsCrumpetTeam,
+  useReportedFeatureRequestCount
 } from '@/hooks/queries/feature-requests/use-feature-requests';
 import { usePullToRefresh } from '@/hooks/use-pull-to-refresh';
 import { useStyles } from '@/hooks/use-styles';
@@ -69,12 +70,7 @@ const FeatureRequestBoard = () => {
     hasNextPage,
     isFetchingNextPage
   } = useFeatureRequests(sort, isReportedFilter);
-  const { data: reportedRequests = [], hasNextPage: hasMoreReported } = useFeatureRequests(
-    'top',
-    true,
-    isTeam
-  );
-  const reportedCount = `${reportedRequests.length}${hasMoreReported ? '+' : ''}`;
+  const { data: reportedCount = 0 } = useReportedFeatureRequestCount(isTeam);
   const { isRefreshing, onRefresh } = usePullToRefresh([refetch]);
 
   const setReportedFilter = (isOn: boolean) =>
@@ -146,7 +142,7 @@ const FeatureRequestBoard = () => {
       <Stack.Toolbar placement="right">
         <Stack.Toolbar.Menu icon="arrow.up.arrow.down" accessibilityLabel="Sort">
           {/* An empty iOS badge ignores fontSize; a space lets it size the dot. */}
-          {isTeam && reportedRequests.length > 0 ? (
+          {isTeam && reportedCount > 0 ? (
             <Stack.Toolbar.Badge style={{ fontSize: 4 }}> </Stack.Toolbar.Badge>
           ) : null}
           <Stack.Toolbar.Menu inline title="Sort by">
@@ -164,7 +160,7 @@ const FeatureRequestBoard = () => {
               icon="flag"
               isOn={isReportedFilter}
               onPress={() => setReportedFilter(!isReportedFilter)}>
-              {reportedRequests.length > 0 ? `Reported (${reportedCount})` : 'Reported'}
+              {reportedCount > 0 ? `Reported (${reportedCount})` : 'Reported'}
             </Stack.Toolbar.MenuAction>
           </Stack.Toolbar.Menu>
         </Stack.Toolbar.Menu>

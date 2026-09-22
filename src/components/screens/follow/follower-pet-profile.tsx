@@ -45,7 +45,7 @@ const FollowerPetProfile = ({ petId }: Props) => {
         <ListCard style={styles.identity}>
           <PetAvatar photoUrl={pet.photoUrl} size={AVATAR} />
           <View style={styles.identityText}>
-            <AppText variant="header" size="title2" fontWeight="bold" numberOfLines={1}>
+            <AppText variant="header" size="titleMedium" fontWeight="bold" numberOfLines={1}>
               {pet.name}
             </AppText>
             {breed && (

@@ -40,7 +40,7 @@ const EmojiStep = ({ onPick }: Props) => {
           {groups.map((group) => (
             <View key={group.title} style={styles.group}>
               <AppText
-                size="caption2"
+                size="captionSmall"
                 fontWeight="bold"
                 color="textSecondary"
                 style={styles.caption}>

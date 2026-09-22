@@ -188,7 +188,7 @@ const WeekPage = ({
                 onSelectDay(day);
               }}>
               <AppText
-                size="caption2"
+                size="captionSmall"
                 fontWeight="bold"
                 color="textSecondary"
                 style={styles.initial}>

@@ -117,7 +117,7 @@ const PetSection = ({
             <PetAvatar photoUrl={pet.photoUrl} size={40} />
 
             <View style={styles.names}>
-              <AppText size="title3" fontWeight="bold" numberOfLines={1}>
+              <AppText size="titleSmall" fontWeight="bold" numberOfLines={1}>
                 {pet.name}
               </AppText>
               {occurrences && (

@@ -21,6 +21,7 @@ export const queryKeys = {
     list: (sort: FeatureRequestSort, reportedOnly: boolean) =>
       ['feature-requests', 'list', sort, reportedOnly] as const,
     detail: (requestId: Id) => ['feature-requests', 'detail', requestId] as const,
+    reportedCount: ['feature-requests', 'reported-count'] as const,
     isTeam: ['crumpet-team'] as const,
     isBanned: ['feature-board-banned'] as const
   },

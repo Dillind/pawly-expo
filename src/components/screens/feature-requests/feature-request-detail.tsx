@@ -70,7 +70,7 @@ const FeatureRequestDetail = ({ requestId }: { requestId: string }) => {
       <View style={styles.body}>
         <View style={styles.top}>
           <View style={styles.heading}>
-            <AppText variant="header" size="title1" fontWeight="bold" style={styles.title}>
+            <AppText variant="header" size="titleLarge" fontWeight="bold" style={styles.title}>
               {request.title}
             </AppText>
             <View style={styles.meta}>

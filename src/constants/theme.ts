@@ -184,17 +184,17 @@ export const OverlayColors = {
 } as const;
 
 export const TypeScale = {
-  caption2: 11,
+  captionSmall: 11,
   caption: 12,
   footnote: 13,
   subhead: 14,
   callout: 15,
   body: 16,
   headline: 17,
-  title3: 18,
-  title2: 22,
-  title1: 28,
-  largeTitle: 34
+  titleSmall: 18,
+  titleMedium: 22,
+  titleLarge: 28,
+  display: 34
 } as const;
 
 export type TextSize = keyof typeof TypeScale;

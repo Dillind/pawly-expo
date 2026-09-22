@@ -46,7 +46,7 @@ const CareCardTile = ({ petName, onPress }: Props) => {
           </View>
         </View>
 
-        <AppText size="caption2" color="textSecondary">
+        <AppText size="captionSmall" color="textSecondary">
           Care card
         </AppText>
       </View>

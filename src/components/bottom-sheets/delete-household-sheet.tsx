@@ -85,7 +85,7 @@ const DeleteHouseholdSheet = ({ sheetRef, householdId, name }: Props) => {
         <View style={styles.warning}>
           <View style={styles.warningHeading}>
             <Icon name="circleAlert" size={IconSize.action} color="error" />
-            <AppText variant="header" size="title3" fontWeight="bold" color="error">
+            <AppText variant="header" size="titleSmall" fontWeight="bold" color="error">
               This cannot be undone
             </AppText>
           </View>

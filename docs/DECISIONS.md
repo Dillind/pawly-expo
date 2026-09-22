@@ -1139,8 +1139,9 @@ PostToolUse hook all enforce it from one place. A rule that needs judgement — 
 extract, which surface tells the user — is `/crumpet-code-conventions`. The bash greps that came
 before bound only an agent, and CI never ran them.
 
-## Text sizes come from a scale named after the iOS text styles
+## Text sizes come from a named scale
 
-`TypeScale` in `src/constants/theme.ts`, used as `<AppText size="footnote">`. 312 of the 339 literal
+`TypeScale` in `src/constants/theme.ts`, used as `<AppText size="footnote">`. The names carry no
+numbers: `titleSmall`, `titleMedium`, `titleLarge` and `display`, not `title3` or `largeTitle`. 312 of the 339 literal
 sizes matched a step exactly and moved without a pixel of change. The 27 that did not are left as
 numbers until someone looks at them on a device, because snapping them is a design decision.

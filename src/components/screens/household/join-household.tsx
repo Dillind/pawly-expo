@@ -43,7 +43,7 @@ const JoinHousehold = () => {
         contentInsetAdjustmentBehavior="automatic">
         <FormProvider {...form}>
           <View style={styles.form}>
-            <AppText variant="header" size="title3">
+            <AppText variant="header" size="titleSmall">
               Have a code?
             </AppText>
             <AppText size="callout" color="textSecondary">

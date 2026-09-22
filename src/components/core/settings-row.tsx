@@ -48,7 +48,7 @@ const SettingsRow = ({
 
       {isSoon ? (
         <View style={styles.soon}>
-          <AppText size="caption2" color="textSecondary">
+          <AppText size="captionSmall" color="textSecondary">
             Soon
           </AppText>
         </View>

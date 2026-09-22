@@ -30,7 +30,7 @@ const EmptyState = ({ icon, title, description, action, isIconAccent = false }: 
           color={isIconAccent ? 'primaryText' : 'textSecondary'}
         />
       </View>
-      <AppText size="title3" fontWeight="bold" align="center">
+      <AppText size="titleSmall" fontWeight="bold" align="center">
         {title}
       </AppText>
       {description && (

@@ -50,7 +50,7 @@ const ReviewStep = ({
         <View style={styles.preview}>
           <View style={styles.previewHeader}>
             <View>
-              <AppText size="title3">{petName}</AppText>
+              <AppText size="titleSmall">{petName}</AppText>
               {petSubtitle && (
                 <AppText size="caption" color="textSecondary">
                   {petSubtitle}

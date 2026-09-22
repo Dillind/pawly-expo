@@ -254,7 +254,7 @@ const EditStep = ({
       <Divider />
 
       <View style={styles.preview}>
-        <AppText size="caption2" fontWeight="bold" color="textSecondary" style={styles.caption}>
+        <AppText size="captionSmall" fontWeight="bold" color="textSecondary" style={styles.caption}>
           HOW IT WILL READ
         </AppText>
 
@@ -324,7 +324,7 @@ const EmojiStep = ({ onPick }: { onPick: (emoji: string) => void }) => {
           {groups.map((group) => (
             <View key={group.title} style={styles.emojiGroup}>
               <AppText
-                size="caption2"
+                size="captionSmall"
                 fontWeight="bold"
                 color="textSecondary"
                 style={styles.caption}>

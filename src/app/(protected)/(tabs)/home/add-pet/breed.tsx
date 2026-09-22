@@ -34,7 +34,7 @@ const BreedStep = () => {
     <ScreenView edges={[]}>
       <View style={styles.content}>
         <View style={styles.intro}>
-          <AppText variant="header" size="title1">
+          <AppText variant="header" size="titleLarge">
             {petName ? `What breed is ${petName}?` : 'What breed are they?'}
           </AppText>
           <AppText size="callout" color="textSecondary">

@@ -58,7 +58,7 @@ const Done = () => {
   return (
     <ScreenView>
       <View style={styles.head}>
-        <AppText variant="header" size="title1" fontWeight="bold">
+        <AppText variant="header" size="titleLarge" fontWeight="bold">
           {name}
         </AppText>
         <AppText size="subhead" color="textSecondary" style={styles.subtitle}>
@@ -81,7 +81,7 @@ const Done = () => {
         </View>
 
         <View style={styles.invite}>
-          <AppText variant="header" size="title3" fontWeight="bold">
+          <AppText variant="header" size="titleSmall" fontWeight="bold">
             Invite the rest of the house
           </AppText>
           <AppText size="footnote" color="textSecondary">

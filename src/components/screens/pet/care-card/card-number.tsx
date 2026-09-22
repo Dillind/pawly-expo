@@ -22,7 +22,7 @@ const CardNumber = ({ number, onCall }: Props) => {
       style={styles.number}
       onPress={() => onCall(number)}>
       <AppText
-        size="caption2"
+        size="captionSmall"
         fontWeight="bold"
         numberOfLines={1}
         style={[styles.ink, styles.label]}>

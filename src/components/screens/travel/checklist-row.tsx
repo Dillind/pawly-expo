@@ -40,7 +40,7 @@ const ChecklistRow = ({ checklist }: { checklist: TravelChecklist }) => {
           <View style={styles.wellFrame}>
             <View style={styles.well}>
               {checklist.emoji ? (
-                <AppText size="title2">{checklist.emoji}</AppText>
+                <AppText size="titleMedium">{checklist.emoji}</AppText>
               ) : (
                 <Icon name="luggage" size={IconSize.action} color="textSecondary" />
               )}

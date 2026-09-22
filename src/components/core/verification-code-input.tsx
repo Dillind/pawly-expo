@@ -78,7 +78,7 @@ const VerificationCodeInput = ({
                   digit ? styles.boxFilled : null,
                   isNext ? styles.boxNext : null
                 ]}>
-                <AppText size="title2" align="center">
+                <AppText size="titleMedium" align="center">
                   {digit}
                 </AppText>
               </View>

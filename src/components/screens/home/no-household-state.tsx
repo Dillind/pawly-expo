@@ -81,7 +81,7 @@ const NoHouseholdState = () => {
   return (
     <View style={styles.container}>
       <View style={styles.intro}>
-        <AppText variant="header" size="title1">
+        <AppText variant="header" size="titleLarge">
           Welcome to Crumpet
         </AppText>
         <AppText size="callout" color="textSecondary">

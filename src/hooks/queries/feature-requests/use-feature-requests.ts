@@ -51,6 +51,16 @@ export function useFeatureRequest(requestId: string | undefined) {
   });
 }
 
+// Uncached for the same reason as the Reported list: a report push must not open onto a stale badge.
+export function useReportedFeatureRequestCount(isTeam: boolean) {
+  return useQuery({
+    queryKey: queryKeys.featureRequests.reportedCount,
+    queryFn: FeatureRequestService.countReported,
+    enabled: isTeam,
+    staleTime: 0
+  });
+}
+
 export function useIsCrumpetTeam() {
   return useQuery({
     queryKey: queryKeys.featureRequests.isTeam,

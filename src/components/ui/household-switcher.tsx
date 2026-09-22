@@ -21,7 +21,7 @@ const HouseholdSwitcher = () => {
   if (!household) return null;
 
   const title = (
-    <AppText variant="header" size="title2" fontWeight="bold" numberOfLines={1}>
+    <AppText variant="header" size="titleMedium" fontWeight="bold" numberOfLines={1}>
       {household.name}
     </AppText>
   );

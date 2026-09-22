@@ -25,7 +25,7 @@ const ErrorState = ({
   return (
     <View style={styles.container}>
       <Icon name="circleAlert" size={IconSize.feature} color="error" />
-      <AppText size="title3" fontWeight="bold" align="center">
+      <AppText size="titleSmall" fontWeight="bold" align="center">
         {title}
       </AppText>
       <AppText size="subhead" color="textSecondary" align="center">

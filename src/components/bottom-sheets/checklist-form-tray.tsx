@@ -58,7 +58,7 @@ const NameStep = ({
           accessibilityLabel={emoji ? `Emoji ${emoji}, change it` : 'Choose an emoji'}
           onPress={() => goTo('emoji')}>
           {emoji ? (
-            <AppText size="title1">{emoji}</AppText>
+            <AppText size="titleLarge">{emoji}</AppText>
           ) : (
             <Icon name="sparkles" size={22} color="textSecondary" />
           )}
