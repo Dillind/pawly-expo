@@ -1,4 +1,5 @@
 import { supabase } from '@/lib/supabase/client';
+import { unwrap } from '@/lib/supabase/unwrap';
 import type { HouseholdRole } from '@/types/core';
 
 export type PendingInvite = {
@@ -55,13 +56,13 @@ namespace InviteService {
     email: string;
     role: HouseholdRole;
   }): Promise<{ status: CreateInviteStatus; code?: string }> {
-    const { data, error } = await supabase.rpc('create_household_invite', {
-      target_household_id: params.householdId,
-      invitee_email: params.email,
-      invitee_role: params.role
-    });
-
-    if (error) throw error;
+    const data = await unwrap(
+      supabase.rpc('create_household_invite', {
+        target_household_id: params.householdId,
+        invitee_email: params.email,
+        invitee_role: params.role
+      })
+    );
 
     const result = data as { status: CreateInviteStatus; code?: string };
 
@@ -69,15 +70,15 @@ namespace InviteService {
   }
 
   export async function listPending(householdId: string): Promise<PendingInvite[]> {
-    const { data, error } = await supabase
-      .from('household_invites')
-      .select('id, email, role, code, created_at, expires_at')
-      .eq('household_id', householdId)
-      .eq('status', 'pending')
-      .gt('expires_at', new Date().toISOString())
-      .order('created_at', { ascending: false });
-
-    if (error) throw error;
+    const data = await unwrap(
+      supabase
+        .from('household_invites')
+        .select('id, email, role, code, created_at, expires_at')
+        .eq('household_id', householdId)
+        .eq('status', 'pending')
+        .gt('expires_at', new Date().toISOString())
+        .order('created_at', { ascending: false })
+    );
 
     return (data as InviteRow[]).map(toInvite);
   }
@@ -85,11 +86,11 @@ namespace InviteService {
   // Holding the code is the authorisation: someone who scanned a QR is neither
   // an owner nor the named invitee.
   export async function preview(code: string): Promise<InvitePreview> {
-    const { data, error } = await supabase.rpc('preview_household_invite', {
-      invite_code: code
-    });
-
-    if (error) throw error;
+    const data = await unwrap(
+      supabase.rpc('preview_household_invite', {
+        invite_code: code
+      })
+    );
 
     const result = data as { status: PreviewStatus; household_name?: string; role?: HouseholdRole };
 
@@ -97,9 +98,7 @@ namespace InviteService {
   }
 
   export async function revoke(inviteId: string): Promise<void> {
-    const { error } = await supabase.rpc('revoke_household_invite', { invite_id: inviteId });
-
-    if (error) throw error;
+    await unwrap(supabase.rpc('revoke_household_invite', { invite_id: inviteId }));
   }
 
   // Returns a status rather than throwing: expired, revoked and already_used
@@ -108,12 +107,12 @@ namespace InviteService {
     code?: string;
     inviteId?: string;
   }): Promise<{ status: RedeemStatus; householdId?: string }> {
-    const { data, error } = await supabase.rpc('redeem_household_invite', {
-      invite_code: params.code ?? undefined,
-      invite_id: params.inviteId ?? undefined
-    });
-
-    if (error) throw error;
+    const data = await unwrap(
+      supabase.rpc('redeem_household_invite', {
+        invite_code: params.code ?? undefined,
+        invite_id: params.inviteId ?? undefined
+      })
+    );
 
     const result = data as { status: RedeemStatus; household_id?: string };
 

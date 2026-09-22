@@ -3,6 +3,7 @@ import * as Notifications from 'expo-notifications';
 
 import { COLORS } from '@/constants/theme';
 import { supabase } from '@/lib/supabase/client';
+import { unwrap } from '@/lib/supabase/unwrap';
 import { isAndroid, isIOS } from '@/utils/platform';
 
 const projectId = () => Constants.expoConfig?.extra?.eas?.projectId as string | undefined;
@@ -37,12 +38,12 @@ namespace PushTokenService {
 
     // Never a table write: push_tokens grants no SELECT, which an upsert needs
     // even when nothing conflicts. The RPC derives user_id from auth.uid().
-    const { error } = await supabase.rpc('register_push_token', {
-      target_token: token,
-      target_platform: isIOS ? 'ios' : 'android'
-    });
-
-    if (error) throw error;
+    await unwrap(
+      supabase.rpc('register_push_token', {
+        target_token: token,
+        target_platform: isIOS ? 'ios' : 'android'
+      })
+    );
 
     return token;
   }

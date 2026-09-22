@@ -1,4 +1,5 @@
 import { supabase } from '@/lib/supabase/client';
+import { unwrap } from '@/lib/supabase/unwrap';
 
 export const ALERTS_PAGE_SIZE = 30;
 
@@ -92,42 +93,40 @@ namespace AlertService {
     householdId: string,
     cursor: AlertsCursor | null
   ): Promise<Alert[]> {
-    const { data, error } = await supabase.rpc('list_alerts', {
-      target_household_id: householdId,
-      before_created_at: cursor?.createdAt ?? null,
-      before_id: cursor?.id ?? null,
-      page_size: ALERTS_PAGE_SIZE
-    });
-
-    if (error) throw error;
+    const data = await unwrap(
+      supabase.rpc('list_alerts', {
+        target_household_id: householdId,
+        before_created_at: cursor?.createdAt ?? null,
+        before_id: cursor?.id ?? null,
+        page_size: ALERTS_PAGE_SIZE
+      })
+    );
 
     return (data as AlertRow[]).map(toAlert);
   }
 
   export async function unreadCount(householdId: string): Promise<number> {
-    const { data, error } = await supabase.rpc('unread_alert_count', {
-      target_household_id: householdId
-    });
+    const data = await unwrap(
+      supabase.rpc('unread_alert_count', {
+        target_household_id: householdId
+      })
+    );
 
-    if (error) throw error;
-
-    return (data as number) ?? 0;
+    return data ?? 0;
   }
 
   export async function markRead(alertIds: string[]): Promise<void> {
     if (alertIds.length === 0) return;
 
-    const { error } = await supabase.rpc('mark_alerts_read', { alert_ids: alertIds });
-
-    if (error) throw error;
+    await unwrap(supabase.rpc('mark_alerts_read', { alert_ids: alertIds }));
   }
 
   export async function markAllRead(householdId: string): Promise<void> {
-    const { error } = await supabase.rpc('mark_all_alerts_read', {
-      target_household_id: householdId
-    });
-
-    if (error) throw error;
+    await unwrap(
+      supabase.rpc('mark_all_alerts_read', {
+        target_household_id: householdId
+      })
+    );
   }
 }
 

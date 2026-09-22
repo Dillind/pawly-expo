@@ -1,4 +1,5 @@
 import { supabase } from '@/lib/supabase/client';
+import { unwrap } from '@/lib/supabase/unwrap';
 
 export type FeatureRequestStatus = 'open' | 'planned' | 'in_progress' | 'done' | 'declined';
 
@@ -79,16 +80,16 @@ namespace FeatureRequestService {
     reportedOnly: boolean;
     cursor: FeatureRequestsCursor | null;
   }): Promise<FeatureRequestsPage> {
-    const { data, error } = await supabase.rpc('list_feature_requests', {
-      sort: params.sort,
-      reported_only: params.reportedOnly,
-      after_vote_count: params.cursor?.voteCount ?? null,
-      after_created_at: params.cursor?.createdAt ?? null,
-      after_id: params.cursor?.id ?? null,
-      page_size: PAGE_SIZE
-    });
-
-    if (error) throw error;
+    const data = await unwrap(
+      supabase.rpc('list_feature_requests', {
+        sort: params.sort,
+        reported_only: params.reportedOnly,
+        after_vote_count: params.cursor?.voteCount ?? null,
+        after_created_at: params.cursor?.createdAt ?? null,
+        after_id: params.cursor?.id ?? null,
+        page_size: PAGE_SIZE
+      })
+    );
 
     const requests = (data as FeatureRequestRow[]).map(mapFeatureRequest);
     const last = requests.at(-1);
@@ -103,9 +104,7 @@ namespace FeatureRequestService {
   }
 
   export async function get(requestId: string): Promise<FeatureRequest | null> {
-    const { data, error } = await supabase.rpc('get_feature_request', { request_id: requestId });
-
-    if (error) throw error;
+    const data = await unwrap(supabase.rpc('get_feature_request', { request_id: requestId }));
 
     const row = (data as FeatureRequestRow[])[0];
     return row ? mapFeatureRequest(row) : null;
@@ -126,78 +125,68 @@ namespace FeatureRequestService {
       throw error;
     }
 
-    return data as string;
+    return data;
   }
 
   export async function vote(params: { requestId: string; userId: string }): Promise<void> {
-    const { error } = await supabase
-      .from('feature_request_votes')
-      .insert({ request_id: params.requestId, user_id: params.userId });
-
-    if (error) throw error;
+    await unwrap(
+      supabase
+        .from('feature_request_votes')
+        .insert({ request_id: params.requestId, user_id: params.userId })
+    );
   }
 
   export async function removeVote(params: { requestId: string; userId: string }): Promise<void> {
-    const { error } = await supabase
-      .from('feature_request_votes')
-      .delete()
-      .eq('request_id', params.requestId)
-      .eq('user_id', params.userId);
-
-    if (error) throw error;
+    await unwrap(
+      supabase
+        .from('feature_request_votes')
+        .delete()
+        .eq('request_id', params.requestId)
+        .eq('user_id', params.userId)
+    );
   }
 
   export async function report(requestId: string): Promise<void> {
-    const { error } = await supabase.rpc('report_feature_request', { request_id: requestId });
-
-    if (error) throw error;
+    await unwrap(supabase.rpc('report_feature_request', { request_id: requestId }));
   }
 
   // The client never learns an author's id, so a block names the request instead.
   export async function blockAuthor(requestId: string): Promise<void> {
-    const { error } = await supabase.rpc('block_feature_request_author', {
-      request_id: requestId
-    });
-
-    if (error) throw error;
+    await unwrap(
+      supabase.rpc('block_feature_request_author', {
+        request_id: requestId
+      })
+    );
   }
 
   export async function remove(requestId: string): Promise<void> {
-    const { error } = await supabase.rpc('delete_feature_request', { request_id: requestId });
-
-    if (error) throw error;
+    await unwrap(supabase.rpc('delete_feature_request', { request_id: requestId }));
   }
 
   export async function setStatus(params: {
     requestId: string;
     status: FeatureRequestStatus;
   }): Promise<void> {
-    const { error } = await supabase.rpc('set_feature_request_status', {
-      request_id: params.requestId,
-      new_status: params.status
-    });
-
-    if (error) throw error;
+    await unwrap(
+      supabase.rpc('set_feature_request_status', {
+        request_id: params.requestId,
+        new_status: params.status
+      })
+    );
   }
 
   export async function restore(requestId: string): Promise<void> {
-    const { error } = await supabase.rpc('restore_feature_request', { request_id: requestId });
-
-    if (error) throw error;
+    await unwrap(supabase.rpc('restore_feature_request', { request_id: requestId }));
   }
 
   export async function isCrumpetTeam(): Promise<boolean> {
-    const { data, error } = await supabase.rpc('is_crumpet_team');
-
-    if (error) throw error;
+    const data = await unwrap(supabase.rpc('is_crumpet_team'));
 
     return Boolean(data);
   }
 
   export async function isBanned(): Promise<boolean> {
-    const { data, error } = await supabase.rpc('is_feature_board_banned');
-
-    if (error) throw error;
+    const data = await unwrap(supabase.rpc('is_feature_board_banned'));
 
     return Boolean(data);
   }

@@ -2,6 +2,7 @@ import * as Crypto from 'expo-crypto';
 
 import { UserFacingError } from '@/lib/errors';
 import { supabase } from '@/lib/supabase/client';
+import { unwrap } from '@/lib/supabase/unwrap';
 
 export type PetPhoto = { id: string; url: string; sortOrder: number };
 
@@ -22,14 +23,14 @@ const storagePathFromPublicUrl = (url: string | null): string | null => {
 
 namespace PetPhotoService {
   export async function list(petId: string): Promise<PetPhoto[]> {
-    const { data, error } = await supabase
-      .from('pet_photos')
-      .select('id, storage_path, sort_order')
-      .eq('pet_id', petId)
-      .order('sort_order', { ascending: true })
-      .order('created_at', { ascending: true });
-
-    if (error) throw error;
+    const data = await unwrap(
+      supabase
+        .from('pet_photos')
+        .select('id, storage_path, sort_order')
+        .eq('pet_id', petId)
+        .order('sort_order', { ascending: true })
+        .order('created_at', { ascending: true })
+    );
 
     return data.map((row) => ({
       id: row.id,
@@ -87,11 +88,9 @@ namespace PetPhotoService {
     const arrayBuffer = await response.arrayBuffer();
     const path = `${params.userId}/${Crypto.randomUUID()}.jpg`;
 
-    const { error } = await supabase.storage
-      .from(BUCKET)
-      .upload(path, arrayBuffer, { contentType: 'image/jpeg' });
-
-    if (error) throw error;
+    await unwrap(
+      supabase.storage.from(BUCKET).upload(path, arrayBuffer, { contentType: 'image/jpeg' })
+    );
 
     return supabase.storage.from(BUCKET).getPublicUrl(path).data.publicUrl;
   }

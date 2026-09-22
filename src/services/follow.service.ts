@@ -1,4 +1,5 @@
 import { supabase } from '@/lib/supabase/client';
+import { unwrap } from '@/lib/supabase/unwrap';
 
 export type FollowRelationship = 'member' | 'pending' | 'accepted' | 'none';
 
@@ -81,11 +82,11 @@ namespace FollowService {
   // A definer function: the viewer can read neither the household nor its pets
   // until the Owner accepts.
   export async function preview(householdId: string): Promise<FollowPreview | null> {
-    const { data, error } = await supabase.rpc('follow_preview', {
-      target_household_id: householdId
-    });
-
-    if (error) throw error;
+    const data = await unwrap(
+      supabase.rpc('follow_preview', {
+        target_household_id: householdId
+      })
+    );
 
     const result = data as {
       status: FollowRelationship | 'not_found';
@@ -114,21 +115,21 @@ namespace FollowService {
   }
 
   export async function request(householdId: string): Promise<RequestFollowStatus> {
-    const { data, error } = await supabase.rpc('request_follow', {
-      target_household_id: householdId
-    });
-
-    if (error) throw error;
+    const data = await unwrap(
+      supabase.rpc('request_follow', {
+        target_household_id: householdId
+      })
+    );
 
     return (data as { status: RequestFollowStatus }).status;
   }
 
   export async function unfollow(householdId: string): Promise<void> {
-    const { error } = await supabase.rpc('unfollow_household', {
-      target_household_id: householdId
-    });
-
-    if (error) throw error;
+    await unwrap(
+      supabase.rpc('unfollow_household', {
+        target_household_id: householdId
+      })
+    );
   }
 
   // Owner only, enforced in the function rather than by a write policy.
@@ -136,28 +137,24 @@ namespace FollowService {
     followId: string;
     accept: boolean;
   }): Promise<RespondStatus> {
-    const { data, error } = await supabase.rpc('respond_to_follow_request', {
-      follow_id: params.followId,
-      accept: params.accept
-    });
-
-    if (error) throw error;
+    const data = await unwrap(
+      supabase.rpc('respond_to_follow_request', {
+        follow_id: params.followId,
+        accept: params.accept
+      })
+    );
 
     return (data as { status: RespondStatus }).status;
   }
 
   export async function remove(followId: string): Promise<RemoveFollowerStatus> {
-    const { data, error } = await supabase.rpc('remove_follower', { follow_id: followId });
-
-    if (error) throw error;
+    const data = await unwrap(supabase.rpc('remove_follower', { follow_id: followId }));
 
     return (data as { status: RemoveFollowerStatus }).status;
   }
 
   export async function listFollowing(): Promise<FollowedHousehold[]> {
-    const { data, error } = await supabase.rpc('list_following');
-
-    if (error) throw error;
+    const data = await unwrap(supabase.rpc('list_following'));
 
     const rows = (data ?? []) as {
       household_id: string;
@@ -177,9 +174,7 @@ namespace FollowService {
   // A definer function: is_listed is the gate, and RLS would otherwise return
   // only the caller's own rows.
   export async function search(query: string): Promise<HouseholdSearchResult[]> {
-    const { data, error } = await supabase.rpc('search_households', { query });
-
-    if (error) throw error;
+    const data = await unwrap(supabase.rpc('search_households', { query }));
 
     const rows = (data ?? []) as {
       household_id: string;
@@ -203,16 +198,16 @@ namespace FollowService {
     status: 'accepted' | 'pending',
     orderBy: 'responded_at' | 'requested_at'
   ): Promise<Follower[]> {
-    const { data, error } = await supabase
-      .from('household_follows')
-      .select(FOLLOWER_SELECT)
-      .eq('household_id', householdId)
-      .eq('status', status)
-      .order(orderBy, { ascending: true });
+    const data = await unwrap(
+      supabase
+        .from('household_follows')
+        .select(FOLLOWER_SELECT)
+        .eq('household_id', householdId)
+        .eq('status', status)
+        .order(orderBy, { ascending: true })
+    );
 
-    if (error) throw error;
-
-    return (data as unknown as FollowerRow[]).map(toFollower);
+    return (data as FollowerRow[]).map(toFollower);
   }
 
   export function listFollowers(householdId: string): Promise<Follower[]> {

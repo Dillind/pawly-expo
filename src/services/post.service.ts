@@ -2,6 +2,7 @@ import * as Crypto from 'expo-crypto';
 
 import { resizeForUpload } from '@/lib/photo';
 import { supabase } from '@/lib/supabase/client';
+import { unwrap } from '@/lib/supabase/unwrap';
 
 const POSTS_PAGE_SIZE = 20;
 
@@ -168,12 +169,9 @@ namespace PostService {
       );
     }
 
-    const { data, error } = await query;
-    if (error) throw error;
+    const data = await unwrap(query);
 
-    // With no generated Database types, PostgREST's select parser infers these
-    // to-one embeds as arrays. They arrive as objects, so `unknown` bridges it.
-    const posts = (data as unknown as PostRow[]).map((row) => mapPostRow(row, params.viewerId));
+    const posts = (data as PostRow[]).map((row) => mapPostRow(row, params.viewerId));
     const last = posts.at(-1);
 
     return {
@@ -186,15 +184,11 @@ namespace PostService {
   }
 
   export async function get(params: { postId: string; viewerId: string | null }): Promise<Post> {
-    const { data, error } = await supabase
-      .from('posts')
-      .select(POST_SELECT)
-      .eq('id', params.postId)
-      .single();
+    const data = await unwrap(
+      supabase.from('posts').select(POST_SELECT).eq('id', params.postId).single()
+    );
 
-    if (error) throw error;
-
-    return mapPostRow(data as unknown as PostRow, params.viewerId);
+    return mapPostRow(data as PostRow, params.viewerId);
   }
 
   // Sequential, not `Promise.all`: each resize holds native memory, and ten at
@@ -334,8 +328,7 @@ namespace PostService {
       .select('storage_path')
       .eq('post_id', postId);
 
-    const { error } = await supabase.from('posts').delete().eq('id', postId);
-    if (error) throw error;
+    await unwrap(supabase.from('posts').delete().eq('id', postId));
 
     // An Owner cannot delete another member's objects under the storage policy,
     // which is why this stays best effort.
@@ -352,35 +345,31 @@ namespace PostService {
   }
 
   export async function unlike(params: { postId: string; userId: string }): Promise<void> {
-    const { error } = await supabase
-      .from('post_likes')
-      .delete()
-      .eq('post_id', params.postId)
-      .eq('user_id', params.userId);
-
-    if (error) throw error;
+    await unwrap(
+      supabase.from('post_likes').delete().eq('post_id', params.postId).eq('user_id', params.userId)
+    );
   }
 
   // No `.select()` confirmation: this is the member's own row, runs on a timer,
   // and a throw would surface as a toast nobody asked for.
   export async function markSeen(params: { householdId: string; userId: string }): Promise<void> {
-    const { error } = await supabase
-      .from('household_members')
-      .update({ posts_last_seen_at: new Date().toISOString() })
-      .eq('household_id', params.householdId)
-      .eq('user_id', params.userId);
-
-    if (error) throw error;
+    await unwrap(
+      supabase
+        .from('household_members')
+        .update({ posts_last_seen_at: new Date().toISOString() })
+        .eq('household_id', params.householdId)
+        .eq('user_id', params.userId)
+    );
   }
 
   // One RPC, not two selects and a JS comparison: it runs on a minute's
   // interval and the comparison is a `where` clause.
   export async function hasUnseen(householdId: string): Promise<boolean> {
-    const { data, error } = await supabase.rpc('has_unseen_posts', {
-      target_household_id: householdId
-    });
-
-    if (error) throw error;
+    const data = await unwrap(
+      supabase.rpc('has_unseen_posts', {
+        target_household_id: householdId
+      })
+    );
 
     return data ?? false;
   }

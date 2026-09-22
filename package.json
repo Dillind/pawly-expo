@@ -20,6 +20,7 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "typecheck": "tsc --noEmit",
+    "db:types": "bun run scripts/db-types.ts",
     "spellcheck": "cspell --no-progress \"**/*.{ts,tsx,md,sql}\"",
     "test": "jest",
     "test:watch": "jest --watchAll",

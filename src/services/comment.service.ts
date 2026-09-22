@@ -1,4 +1,5 @@
 import { supabase } from '@/lib/supabase/client';
+import { unwrap } from '@/lib/supabase/unwrap';
 
 // Matches the database check in 20260822100000.
 export const COMMENT_MAX_LENGTH = 500;
@@ -95,18 +96,16 @@ namespace CommentService {
     postId: string;
     viewerId: string | null;
   }): Promise<PostComment[]> {
-    const { data, error } = await supabase
-      .from('post_comments')
-      .select(COMMENT_SELECT)
-      .eq('post_id', params.postId)
-      .order('created_at', { ascending: true });
-
-    if (error) throw error;
+    const data = await unwrap(
+      supabase
+        .from('post_comments')
+        .select(COMMENT_SELECT)
+        .eq('post_id', params.postId)
+        .order('created_at', { ascending: true })
+    );
 
     // Without generated types PostgREST infers these to-one embeds as arrays.
-    const comments = (data as unknown as CommentRow[]).map((row) =>
-      mapCommentRow(row, params.viewerId)
-    );
+    const comments = (data as CommentRow[]).map((row) => mapCommentRow(row, params.viewerId));
 
     return buildThread(comments);
   }
@@ -118,21 +117,19 @@ namespace CommentService {
     parentCommentId?: string | null;
     replyToUserId?: string | null;
   }): Promise<void> {
-    const { error } = await supabase.from('post_comments').insert({
-      post_id: params.postId,
-      author_id: params.userId,
-      body: params.body.trim(),
-      parent_comment_id: params.parentCommentId ?? null,
-      reply_to_user_id: params.replyToUserId ?? null
-    });
-
-    if (error) throw error;
+    await unwrap(
+      supabase.from('post_comments').insert({
+        post_id: params.postId,
+        author_id: params.userId,
+        body: params.body.trim(),
+        parent_comment_id: params.parentCommentId ?? null,
+        reply_to_user_id: params.replyToUserId ?? null
+      })
+    );
   }
 
   export async function remove(commentId: string): Promise<void> {
-    const { error } = await supabase.from('post_comments').delete().eq('id', commentId);
-
-    if (error) throw error;
+    await unwrap(supabase.from('post_comments').delete().eq('id', commentId));
   }
 
   export async function like(params: { commentId: string; userId: string }): Promise<void> {
@@ -145,13 +142,13 @@ namespace CommentService {
   }
 
   export async function unlike(params: { commentId: string; userId: string }): Promise<void> {
-    const { error } = await supabase
-      .from('comment_likes')
-      .delete()
-      .eq('comment_id', params.commentId)
-      .eq('user_id', params.userId);
-
-    if (error) throw error;
+    await unwrap(
+      supabase
+        .from('comment_likes')
+        .delete()
+        .eq('comment_id', params.commentId)
+        .eq('user_id', params.userId)
+    );
   }
 }
 

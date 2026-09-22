@@ -1,4 +1,5 @@
 import { supabase } from '@/lib/supabase/client';
+import { unwrap } from '@/lib/supabase/unwrap';
 import { packedAt } from '@/lib/travel-packing';
 
 export type ChecklistItem = {
@@ -103,25 +104,25 @@ const isCapError = (error: { message?: string } | null) =>
 
 namespace TravelChecklistService {
   export async function list(householdId: string): Promise<TravelChecklist[]> {
-    const { data, error } = await supabase
-      .from('travel_checklists')
-      .select(LIST_SELECT)
-      .eq('household_id', householdId)
-      .order('created_at', { ascending: true });
-
-    if (error) throw error;
+    const data = await unwrap(
+      supabase
+        .from('travel_checklists')
+        .select(LIST_SELECT)
+        .eq('household_id', householdId)
+        .order('created_at', { ascending: true })
+    );
 
     return (data as ChecklistRow[]).map(mapChecklist);
   }
 
   export async function get(checklistId: string): Promise<TravelChecklistDetail> {
-    const { data, error } = await supabase
-      .from('travel_checklists')
-      .select(DETAIL_SELECT)
-      .eq('id', checklistId)
-      .single<ChecklistDetailRow>();
-
-    if (error) throw error;
+    const data = await unwrap(
+      supabase
+        .from('travel_checklists')
+        .select(DETAIL_SELECT)
+        .eq('id', checklistId)
+        .single<ChecklistDetailRow>()
+    );
 
     return {
       id: data.id,
@@ -158,18 +159,16 @@ namespace TravelChecklistService {
     name: string;
     emoji: string | null;
   }): Promise<void> {
-    const { error } = await supabase
-      .from('travel_checklists')
-      .update({ name: params.name.trim(), emoji: params.emoji })
-      .eq('id', params.checklistId);
-
-    if (error) throw error;
+    await unwrap(
+      supabase
+        .from('travel_checklists')
+        .update({ name: params.name.trim(), emoji: params.emoji })
+        .eq('id', params.checklistId)
+    );
   }
 
   export async function remove(checklistId: string): Promise<void> {
-    const { error } = await supabase.from('travel_checklists').delete().eq('id', checklistId);
-
-    if (error) throw error;
+    await unwrap(supabase.from('travel_checklists').delete().eq('id', checklistId));
   }
 
   export async function addItem(params: {
@@ -177,17 +176,17 @@ namespace TravelChecklistService {
     text: string;
     sortOrder: number;
   }): Promise<ChecklistItem> {
-    const { data, error } = await supabase
-      .from('travel_checklist_items')
-      .insert({
-        checklist_id: params.checklistId,
-        text: params.text.trim(),
-        sort_order: params.sortOrder
-      })
-      .select(ITEM_SELECT)
-      .single<ItemRow>();
-
-    if (error) throw error;
+    const data = await unwrap(
+      supabase
+        .from('travel_checklist_items')
+        .insert({
+          checklist_id: params.checklistId,
+          text: params.text.trim(),
+          sort_order: params.sortOrder
+        })
+        .select(ITEM_SELECT)
+        .single<ItemRow>()
+    );
 
     return mapItem(data);
   }
@@ -203,43 +202,36 @@ namespace TravelChecklistService {
     if (params.emoji !== undefined) patch.emoji = params.emoji;
     if (params.petId !== undefined) patch.pet_id = params.petId;
 
-    const { error } = await supabase
-      .from('travel_checklist_items')
-      .update(patch)
-      .eq('id', params.itemId);
-
-    if (error) throw error;
+    await unwrap(supabase.from('travel_checklist_items').update(patch).eq('id', params.itemId));
   }
 
   export async function removeItem(itemId: string): Promise<void> {
-    const { error } = await supabase.from('travel_checklist_items').delete().eq('id', itemId);
-
-    if (error) throw error;
+    await unwrap(supabase.from('travel_checklist_items').delete().eq('id', itemId));
   }
 
   export async function tick(params: { itemId: string; isTicked: boolean }): Promise<void> {
-    const { error } = await supabase
-      .from('travel_checklist_items')
-      .update({ is_ticked: params.isTicked })
-      .eq('id', params.itemId);
-
-    if (error) throw error;
+    await unwrap(
+      supabase
+        .from('travel_checklist_items')
+        .update({ is_ticked: params.isTicked })
+        .eq('id', params.itemId)
+    );
   }
 
   export async function reset(checklistId: string): Promise<void> {
-    const { error } = await supabase.rpc('reset_travel_checklist', {
-      target_checklist_id: checklistId
-    });
-
-    if (error) throw error;
+    await unwrap(
+      supabase.rpc('reset_travel_checklist', {
+        target_checklist_id: checklistId
+      })
+    );
   }
 
   export async function isHouseholdPro(householdId: string): Promise<boolean> {
-    const { data, error } = await supabase.rpc('is_household_pro', {
-      target_household_id: householdId
-    });
-
-    if (error) throw error;
+    const data = await unwrap(
+      supabase.rpc('is_household_pro', {
+        target_household_id: householdId
+      })
+    );
 
     return Boolean(data);
   }

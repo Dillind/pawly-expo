@@ -181,6 +181,7 @@
     ".claude/**",
     ".github/**",
     ".vscode",
+    "src/types/database.ts",
     "android/**",
     "bun.lock",
     "data/breeds.json",

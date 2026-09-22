@@ -1,4 +1,5 @@
 import { supabase } from '@/lib/supabase/client';
+import { unwrap } from '@/lib/supabase/unwrap';
 import type {
   ReminderKind,
   ReminderLeadDays,
@@ -35,12 +36,12 @@ type ReminderDayRow = { day: string; kinds: ReminderKind[] };
 namespace ReminderService {
   // `date` is an ISO YYYY-MM-DD string in the household's timezone.
   export async function listForDay(petId: string, date: string): Promise<ReminderOccurrence[]> {
-    const { data, error } = await supabase.rpc('pet_reminders', {
-      target_pet_id: petId,
-      target_date: date
-    });
-
-    if (error) throw error;
+    const data = await unwrap(
+      supabase.rpc('pet_reminders', {
+        target_pet_id: petId,
+        target_date: date
+      })
+    );
 
     return (data as ReminderRow[]).map((row) => ({
       reminderId: row.reminder_id,
@@ -60,13 +61,13 @@ namespace ReminderService {
     fromDate: string,
     toDate: string
   ): Promise<ReminderOccurrence[]> {
-    const { data, error } = await supabase.rpc('pet_reminders_range', {
-      target_pet_id: petId,
-      from_date: fromDate,
-      to_date: toDate
-    });
-
-    if (error) throw error;
+    const data = await unwrap(
+      supabase.rpc('pet_reminders_range', {
+        target_pet_id: petId,
+        from_date: fromDate,
+        to_date: toDate
+      })
+    );
 
     return (data as ReminderRangeRow[]).map((row) => ({
       reminderId: row.reminder_id,
@@ -86,13 +87,13 @@ namespace ReminderService {
     fromDate: string,
     toDate: string
   ): Promise<Record<string, ReminderKind[]>> {
-    const { data, error } = await supabase.rpc('household_reminder_days', {
-      target_household_id: householdId,
-      from_date: fromDate,
-      to_date: toDate
-    });
-
-    if (error) throw error;
+    const data = await unwrap(
+      supabase.rpc('household_reminder_days', {
+        target_household_id: householdId,
+        from_date: fromDate,
+        to_date: toDate
+      })
+    );
 
     return Object.fromEntries((data as ReminderDayRow[]).map((row) => [row.day, row.kinds]));
   }
@@ -103,22 +104,22 @@ namespace ReminderService {
 
     if (!userId) throw new Error('Not signed in');
 
-    const { data, error } = await supabase
-      .from('reminders')
-      .insert({
-        pet_id: input.petId,
-        title: input.title.trim(),
-        kind: input.kind,
-        starts_on: input.startsOn,
-        local_time: input.localTime,
-        repeat: input.repeat,
-        lead_days: input.leadDays,
-        created_by: userId
-      })
-      .select('id')
-      .single();
-
-    if (error) throw error;
+    const data = await unwrap(
+      supabase
+        .from('reminders')
+        .insert({
+          pet_id: input.petId,
+          title: input.title.trim(),
+          kind: input.kind,
+          starts_on: input.startsOn,
+          local_time: input.localTime,
+          repeat: input.repeat,
+          lead_days: input.leadDays,
+          created_by: userId
+        })
+        .select('id')
+        .single()
+    );
 
     return (data as { id: string }).id;
   }
@@ -126,12 +127,12 @@ namespace ReminderService {
   // Soft: a hard delete cascades the completions away and rewrites what the
   // household did.
   export async function remove(reminderId: string): Promise<void> {
-    const { error } = await supabase
-      .from('reminders')
-      .update({ deleted_at: new Date().toISOString() })
-      .eq('id', reminderId);
-
-    if (error) throw error;
+    await unwrap(
+      supabase
+        .from('reminders')
+        .update({ deleted_at: new Date().toISOString() })
+        .eq('id', reminderId)
+    );
   }
 
   export async function complete(reminderId: string, occurrenceDate: string): Promise<void> {
@@ -140,13 +141,13 @@ namespace ReminderService {
 
     if (!userId) throw new Error('Not signed in');
 
-    const { error } = await supabase.from('reminder_completions').insert({
-      reminder_id: reminderId,
-      occurrence_date: occurrenceDate,
-      done_by: userId
-    });
-
-    if (error) throw error;
+    await unwrap(
+      supabase.from('reminder_completions').insert({
+        reminder_id: reminderId,
+        occurrence_date: occurrenceDate,
+        done_by: userId
+      })
+    );
   }
 
   // Unticking is a delete: a completion is either there or it is not.
@@ -154,13 +155,13 @@ namespace ReminderService {
     reminderId: string,
     occurrenceDate: string
   ): Promise<void> {
-    const { error } = await supabase
-      .from('reminder_completions')
-      .delete()
-      .eq('reminder_id', reminderId)
-      .eq('occurrence_date', occurrenceDate);
-
-    if (error) throw error;
+    await unwrap(
+      supabase
+        .from('reminder_completions')
+        .delete()
+        .eq('reminder_id', reminderId)
+        .eq('occurrence_date', occurrenceDate)
+    );
   }
 }
 
