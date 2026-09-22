@@ -1423,10 +1423,7 @@ export type Database = {
         Args: { request_id: string | null };
         Returns: undefined;
       };
-      count_reported_feature_requests: {
-        Args: never;
-        Returns: number;
-      };
+      count_reported_feature_requests: { Args: never; Returns: number };
       create_feature_request: {
         Args: { description?: string | null; title: string | null };
         Returns: string;
