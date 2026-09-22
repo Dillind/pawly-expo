@@ -21,6 +21,7 @@ import { useAuthStore } from '@/stores/auth-store';
 import { useThemeStore } from '@/stores/theme-store';
 import { isWeb } from '@/utils/platform';
 
+// eslint-disable-next-line @typescript-eslint/no-require-imports -- keeps Reactotron out of release bundles
 if (__DEV__) require('../../ReactotronConfig');
 
 void SplashScreen.preventAutoHideAsync();

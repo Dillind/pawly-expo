@@ -5,7 +5,7 @@ import { Platform } from 'react-native';
 // Overridable so the address is not baked into the bundle once support is not a personal inbox.
 export const SUPPORT_EMAIL = process.env.EXPO_PUBLIC_SUPPORT_EMAIL ?? 'dylan.lindsay234@gmail.com';
 
-export const SUPPORT_SUBJECT = 'Crumpet feedback / bug';
+const SUPPORT_SUBJECT = 'Crumpet feedback / bug';
 
 export const APP_VERSION = Constants.expoConfig?.version ?? '—';
 

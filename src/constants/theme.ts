@@ -101,8 +101,6 @@ export const SplashPalette = {
   crumpetHole: '#E2A02A'
 } as const;
 
-export const Colors = COLORS;
-
 export type ThemeMode = keyof typeof COLORS;
 export type ThemeColor = keyof typeof COLORS.light & keyof typeof COLORS.dark;
 export type ThemeColors = (typeof COLORS)[ThemeMode];
@@ -144,8 +142,6 @@ export const GabaritoFontFamily = Platform.select({
     bold: 'Gabarito_700Bold'
   }
 })!;
-
-export type InterFontFamilyWeight = keyof typeof InterFontFamily;
 
 export const Fonts = Platform.select({
   web: {
@@ -219,4 +215,3 @@ export const HeaderTitleStyle = { fontSize: 18, fontWeight: 'bold' } as const;
 // Applied on the content container, never the frame: padding on the frame
 // insets the scroll view, which pulls the indicator off the edge.
 export const ScreenGutter = Spacing.four;
-export const MaxContentWidth = 800;

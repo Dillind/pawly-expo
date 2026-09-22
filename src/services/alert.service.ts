@@ -4,7 +4,7 @@ export const ALERTS_PAGE_SIZE = 30;
 
 // `feed_logged` and `feed_due` are deliberately absent: each stays in the
 // database as a delivery record. See ADR 0023 and ADR 0033.
-export type AlertKind =
+type AlertKind =
   | 'missed_feed'
   | 'post'
   | 'post_liked'

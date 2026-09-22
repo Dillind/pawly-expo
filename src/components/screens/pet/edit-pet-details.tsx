@@ -17,7 +17,7 @@ import { useUpdatePet } from '@/hooks/queries/pet/use-update-pet';
 import { useStyles } from '@/hooks/use-styles';
 import type { PetSex, PetType } from '@/types/core';
 
-export type EditablePetDetails = {
+type EditablePetDetails = {
   name: string;
   petType: PetType;
   breedId: string | null;

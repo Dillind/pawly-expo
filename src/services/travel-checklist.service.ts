@@ -31,7 +31,7 @@ export type TravelChecklistDetail = Omit<
   items: ChecklistItem[];
 };
 
-export type CreateChecklistResult =
+type CreateChecklistResult =
   { status: 'created'; checklist: TravelChecklist } | { status: 'cap_reached' };
 
 type ItemRow = {

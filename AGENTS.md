@@ -364,7 +364,7 @@ Full rules — when it qualifies, how to word the title, message and buttons, `i
 emphasis, and the live examples — are in **[docs/conventions/alerts.md](./docs/conventions/alerts.md)**.
 Read it before you write or change one.
 
-Toasts go through `@/lib/toast` (`showSuccessToast`, `showErrorToast`, `showInfoToast`) — never
+Toasts go through `@/lib/toast` (`showSuccessToast`, `showErrorToast`) — never
 import `toast` from `sonner-native` outside that file. The optional second argument is a
 description; use it only for text a user can act on. Do **not** pass a raw `error.message` from
 Supabase or Postgres into it: `new row violates row-level security policy` is a developer string,

@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 
-import { Colors, Spacing, type AppTheme, type ThemeMode } from '@/constants/theme';
+import { COLORS, Spacing, type AppTheme, type ThemeMode } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 
 export function useTheme(): AppTheme {
@@ -8,7 +8,7 @@ export function useTheme(): AppTheme {
 
   return useMemo(
     () => ({
-      colors: Colors[mode],
+      colors: COLORS[mode],
       isDark: mode === 'dark',
       spacing: Spacing
     }),

@@ -12,7 +12,7 @@ import type { AppTheme } from '@/constants/theme';
 import { useStyles } from '@/hooks/use-styles';
 import { useTheme } from '@/hooks/use-theme';
 
-export type MainLegendListProps<T> = Omit<
+type MainLegendListProps<T> = Omit<
   LegendListProps<T>,
   'data' | 'renderItem' | 'ListFooterComponent'
 > & {

@@ -12,7 +12,7 @@ import type { TravelChecklist } from '@/services/travel-checklist.service';
 const EMOJI_WELL = 44;
 const BADGE = 18;
 
-export const describeCount = (
+const describeCount = (
   {
     itemCount,
     tickedCount,

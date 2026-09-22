@@ -21,7 +21,7 @@ import { useStyles } from '@/hooks/use-styles';
 
 const EMOJI_WELL = 64;
 
-export type ChecklistFormValues = { name: string; emoji: string | null };
+type ChecklistFormValues = { name: string; emoji: string | null };
 
 type Props = {
   sheetRef: RefObject<TrueSheet | null>;

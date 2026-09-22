@@ -3,7 +3,7 @@ import type { FeedTimeInput } from '@/lib/form/pet-schemas';
 import { supabase } from '@/lib/supabase/client';
 import type { FeedingScheduleLabel, Occurrence, OccurrenceStateValue } from '@/types/core';
 
-export type PetPause = {
+type PetPause = {
   id: string;
   // The raw Postgres daterange, e.g. "[2026-08-20,)".
   during: string;

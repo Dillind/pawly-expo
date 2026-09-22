@@ -9,7 +9,7 @@ import { useStyles } from '@/hooks/use-styles';
 
 const ROW_HEIGHT = 44;
 
-export type SettingsRowVariant = 'default' | 'destructive';
+type SettingsRowVariant = 'default' | 'destructive';
 
 type Props = {
   icon: IconName;

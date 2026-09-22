@@ -5,8 +5,8 @@ import { ErrorMessage } from '@/constants/enums';
 import { showErrorToast } from '@/lib/toast';
 import AlertService, { ALERTS_PAGE_SIZE, type AlertsCursor } from '@/services/alert.service';
 
-export const alertsKey = (householdId: string | undefined) => ['alerts', householdId];
-export const unreadAlertsKey = (householdId: string | undefined) => ['alerts-unread', householdId];
+const alertsKey = (householdId: string | undefined) => ['alerts', householdId];
+const unreadAlertsKey = (householdId: string | undefined) => ['alerts-unread', householdId];
 
 // The inbox. Cursor on `(created_at, id) desc`.
 export function useAlerts(householdId: string | undefined) {

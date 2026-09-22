@@ -10,12 +10,12 @@ export type PendingInvite = {
   expiresAt: string;
 };
 
-export type CreateInviteStatus = 'created' | 'already_member' | 'not_owner';
+type CreateInviteStatus = 'created' | 'already_member' | 'not_owner';
 
 export type PreviewStatus =
   'valid' | 'already_member' | 'already_used' | 'expired' | 'revoked' | 'not_found';
 
-export type InvitePreview = {
+type InvitePreview = {
   status: PreviewStatus;
   householdName?: string;
   role?: HouseholdRole;

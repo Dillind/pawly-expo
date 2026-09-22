@@ -3,11 +3,11 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { ErrorMessage, SuccessMessage } from '@/constants/enums';
 import { useHousehold } from '@/hooks/queries/household/use-household';
 import { householdsKey } from '@/hooks/queries/household/use-households';
+import { deviceTimezone } from '@/lib/dates';
 import { showErrorToast, showSuccessToast } from '@/lib/toast';
 import PetService, { type AddPetInput } from '@/services/pet.service';
 import { useAuthStore } from '@/stores/auth-store';
 import type { Pet } from '@/types/core';
-import { deviceTimezone } from '@/utils/timezone';
 
 export function useAddPet() {
   const queryClient = useQueryClient();

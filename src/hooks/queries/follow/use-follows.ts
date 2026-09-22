@@ -4,7 +4,7 @@ import { ErrorMessage, SuccessMessage } from '@/constants/enums';
 import { showErrorToast, showSuccessToast } from '@/lib/toast';
 import FollowService, { type RequestFollowStatus } from '@/services/follow.service';
 
-export const followingKey = ['following'];
+const followingKey = ['following'];
 
 const previewKey = (householdId: string | undefined) => ['follow-preview', householdId];
 const searchKeyRoot = ['household-search'];

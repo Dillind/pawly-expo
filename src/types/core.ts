@@ -1,35 +1,8 @@
-import { Href } from 'expo-router';
-import { StyleProp, ViewStyle } from 'react-native';
-
 import type { ThemeMode } from '@/constants/theme';
-
-export type IconBaseProps = {
-  style?: StyleProp<ViewStyle>;
-  color?: string;
-  height?: number;
-  width?: number;
-  opacity?: number;
-};
 
 export type FontVariant = 'header' | 'body';
 
 export type FontWeight = 'regular' | 'semibold' | 'bold';
-
-export type ImageFolderType = 'example';
-
-export type NavigationProps = {
-  label: string;
-  value: string;
-  icon: React.ReactNode;
-  route: Href;
-};
-
-export type MoreOptions = {
-  label: string;
-  icon: React.ReactNode;
-  link?: string;
-  route?: Href;
-};
 
 export type UserProfile = {
   id: string;
@@ -46,7 +19,7 @@ export type UserStats = {
 
 export type HouseholdRole = 'owner' | 'contributor';
 
-export type Household = {
+type Household = {
   id: string;
   name: string;
   // Read as `@kathys-house`; stored without the @.
@@ -115,7 +88,7 @@ export type Occurrence = {
   satisfiedBy: string | null;
 };
 
-export type FeedLogAuthor = {
+type FeedLogAuthor = {
   firstName: string | null;
   lastName: string | null;
 };

@@ -53,7 +53,7 @@ const KNOWN_CREATE_ERRORS: CreateFeatureRequestError[] = [
   'board_banned'
 ];
 
-export const mapFeatureRequest = (row: FeatureRequestRow): FeatureRequest => ({
+const mapFeatureRequest = (row: FeatureRequestRow): FeatureRequest => ({
   id: row.id,
   title: row.title,
   description: row.description,

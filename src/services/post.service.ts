@@ -3,11 +3,11 @@ import * as Crypto from 'expo-crypto';
 import { resizeForUpload } from '@/lib/photo';
 import { supabase } from '@/lib/supabase/client';
 
-export const POSTS_PAGE_SIZE = 20;
+const POSTS_PAGE_SIZE = 20;
 
 const BUCKET = 'post-photos';
 
-export type PostAuthor = {
+type PostAuthor = {
   firstName: string | null;
   lastName: string | null;
   avatarUrl: string | null;

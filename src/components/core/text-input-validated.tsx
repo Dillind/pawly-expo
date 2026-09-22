@@ -19,7 +19,7 @@ import { useTheme } from '@/hooks/use-theme';
 import CharacterCount from '@/lib/form/components/character-count';
 import FieldError from '@/lib/form/components/field-error';
 
-export type TextInputRef = React.ElementRef<typeof TextInput>;
+type TextInputRef = React.ElementRef<typeof TextInput>;
 
 type Props = Pick<
   TextInputProps,

@@ -162,11 +162,7 @@ const ALERT_WINDOW_DAYS = 7;
 
 // Whole calendar days, not elapsed hours, so an 11pm log is one day old the
 // next morning. Negative for a future timestamp; callers clamp.
-export function calendarDaysAgo(
-  isoTimestamp: string,
-  zone: string,
-  now: Date = new Date()
-): number {
+function calendarDaysAgo(isoTimestamp: string, zone: string, now: Date = new Date()): number {
   const asUtcDay = ({ year, month, day }: ZonedParts) => Date.UTC(year, month - 1, day);
 
   return Math.round(
@@ -271,14 +267,6 @@ export const formatAge = (birthdate: string | null, isApproximate: boolean): str
 
   return isApproximate ? `About ${value}` : value;
 };
-
-export const formatDayAndDate = (date: Date, timezone: string): string =>
-  new Intl.DateTimeFormat('en-AU', {
-    weekday: 'long',
-    day: 'numeric',
-    month: 'long',
-    timeZone: timezone
-  }).format(date);
 
 // Carries the year because it stamps a printed Care Card, and a sitter cannot
 // tell this trip from last year's without it.

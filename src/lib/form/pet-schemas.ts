@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-export const SCHEDULE_LABELS = ['morning', 'lunch', 'dinner', 'custom'] as const;
+const SCHEDULE_LABELS = ['morning', 'lunch', 'dinner', 'custom'] as const;
 
 export const EVERY_DAY = [0, 1, 2, 3, 4, 5, 6] as const;
 

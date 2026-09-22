@@ -9,7 +9,7 @@ export type FollowPreviewPet = {
   photoUrl: string | null;
 };
 
-export type FollowPreview = {
+type FollowPreview = {
   status: FollowRelationship;
   householdId: string;
   name: string;
@@ -20,9 +20,9 @@ export type FollowPreview = {
 export type RequestFollowStatus =
   'pending' | 'accepted' | 'already_member' | 'blocked' | 'not_found';
 
-export type RespondStatus = 'accepted' | 'declined' | 'not_owner' | 'not_pending' | 'not_found';
+type RespondStatus = 'accepted' | 'declined' | 'not_owner' | 'not_pending' | 'not_found';
 
-export type RemoveFollowerStatus = 'removed' | 'not_owner' | 'not_found';
+type RemoveFollowerStatus = 'removed' | 'not_owner' | 'not_found';
 
 export type HouseholdSearchResult = {
   householdId: string;
@@ -33,7 +33,7 @@ export type HouseholdSearchResult = {
   relationship: FollowRelationship;
 };
 
-export type FollowedHousehold = {
+type FollowedHousehold = {
   householdId: string;
   name: string;
   petCount: number;

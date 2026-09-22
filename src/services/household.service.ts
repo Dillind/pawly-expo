@@ -8,7 +8,7 @@ import type { HouseholdMember, HouseholdSummary, LeadMinutes, PetSex, PetType } 
 const PET_PHOTO_BUCKET = 'pet-photos';
 const POST_PHOTO_BUCKET = 'post-photos';
 
-export type NotificationPreferences = {
+type NotificationPreferences = {
   feedDueAlerts: boolean;
   missedFeedAlerts: boolean;
   feedLoggedAlerts: boolean;
@@ -55,14 +55,14 @@ export type CreateHouseholdInput = {
 
 // `handle_taken` is an outcome to word, not a failure: nothing was written and
 // the flow sends the Owner back to step 1 with their details still in hand.
-export type CreateHouseholdResult =
+type CreateHouseholdResult =
   | { status: 'created'; householdId: string; petId: string; petName: string }
   | { status: 'handle_taken' };
 
 // Outcomes the screen words differently, so none of them throws. The RPC
 // returns `name_mismatch` even though the Zod schema refused it first: the
 // screen is not the only possible caller.
-export type DeleteHouseholdResult = {
+type DeleteHouseholdResult = {
   status: 'deleted' | 'not_owner' | 'not_found' | 'name_mismatch';
 };
 

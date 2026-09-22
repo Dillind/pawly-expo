@@ -3,7 +3,7 @@ import { supabase } from '@/lib/supabase/client';
 // Matches the database check in 20260822100000.
 export const COMMENT_MAX_LENGTH = 500;
 
-export type CommentAuthor = {
+type CommentAuthor = {
   firstName: string | null;
   lastName: string | null;
   avatarUrl: string | null;

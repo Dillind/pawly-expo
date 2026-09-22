@@ -27,7 +27,7 @@ import { useStyles } from '@/hooks/use-styles';
 import OccasionService, { type Occasion } from '@/services/occasion.service';
 import type { PostOccasion } from '@/services/post.service';
 
-export const LABEL_MAX = 24;
+const LABEL_MAX = 24;
 
 type Draft = { id: string | null; emoji: string | null; label: string };
 
@@ -37,7 +37,7 @@ const EMPTY_DRAFT: Draft = {
   label: ''
 };
 
-export type OccasionPreview = {
+type OccasionPreview = {
   title: string;
   pet: { name: string; photoUrl: string | null } | null;
 };
