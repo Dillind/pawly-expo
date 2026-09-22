@@ -19,7 +19,7 @@ import { useTheme } from '@/hooks/use-theme';
 import CharacterCount from '@/lib/form/components/character-count';
 import FieldError from '@/lib/form/components/field-error';
 
-type TextInputRef = React.ElementRef<typeof TextInput>;
+type TextInputRef = React.ComponentRef<typeof TextInput>;
 
 type Props = Pick<
   TextInputProps,
@@ -57,132 +57,127 @@ type Props = Pick<
   showFieldError?: boolean;
   isMultiline?: boolean;
   showCharacterCount?: boolean;
+  ref?: React.Ref<TextInputRef>;
 };
 
-const TextInputValidated = React.forwardRef<TextInputRef, Props>(
-  (
-    {
-      name,
-      placeholder,
-      value,
-      autoCapitalize = 'sentences',
-      containerStyle,
-      isEditable = true,
-      keyboardType,
-      onChangeText,
-      secureTextEntry,
-      label,
-      marginTop,
-      marginBottom,
-      onPress,
-      onBlur,
-      onFocus,
-      isLabelIndicated,
-      leftIcon,
-      description,
-      height = 46,
-      rightIcon,
-      borderColor = 'textSecondary',
-      backgroundColor = 'backgroundElement',
-      returnKeyType = 'done',
-      maxLength,
-      showFieldError = true,
-      autoComplete,
-      testID,
-      onSubmitEditing,
-      autoFocus,
-      autoCorrect = false,
-      isMultiline = false,
-      showCharacterCount = false
-    },
-    ref
-  ) => {
-    const [isSecured, setIsSecured] = useState<boolean | undefined>(secureTextEntry);
+const TextInputValidated = ({
+  ref,
+  name,
+  placeholder,
+  value,
+  autoCapitalize = 'sentences',
+  containerStyle,
+  isEditable = true,
+  keyboardType,
+  onChangeText,
+  secureTextEntry,
+  label,
+  marginTop,
+  marginBottom,
+  onPress,
+  onBlur,
+  onFocus,
+  isLabelIndicated,
+  leftIcon,
+  description,
+  height = 46,
+  rightIcon,
+  borderColor = 'textSecondary',
+  backgroundColor = 'backgroundElement',
+  returnKeyType = 'done',
+  maxLength,
+  showFieldError = true,
+  autoComplete,
+  testID,
+  onSubmitEditing,
+  autoFocus,
+  autoCorrect = false,
+  isMultiline = false,
+  showCharacterCount = false
+}: Props) => {
+  const [isSecured, setIsSecured] = useState<boolean | undefined>(secureTextEntry);
 
-    const theme = useTheme();
-    const form = useFormContext();
+  const theme = useTheme();
+  const form = useFormContext();
 
-    const makeThemedStyles = useCallback(
-      (currentTheme: AppTheme) => makeStyles(currentTheme, borderColor, backgroundColor),
-      [borderColor, backgroundColor]
-    );
-    const styles = useStyles(makeThemedStyles);
+  const makeThemedStyles = useCallback(
+    (currentTheme: AppTheme) => makeStyles(currentTheme, borderColor, backgroundColor),
+    [borderColor, backgroundColor]
+  );
+  const styles = useStyles(makeThemedStyles);
 
-    const input = (
-      <View style={styles.inputHost}>
-        <TextInput
-          maxFontSizeMultiplier={MaxFontScale.body}
-          ref={ref}
-          defaultValue={value}
-          onChangeText={onChangeText}
-          onBlur={onBlur}
-          onFocus={onFocus}
-          secureTextEntry={isSecured}
-          editable={isEditable}
-          autoComplete={autoComplete ?? (secureTextEntry ? 'password' : 'off')}
-          autoCorrect={autoCorrect}
-          autoCapitalize={autoCapitalize}
-          placeholder={placeholder}
-          placeholderTextColor={theme.colors.textSecondary}
-          keyboardType={keyboardType}
-          returnKeyType={returnKeyType}
-          maxLength={maxLength}
-          testID={testID}
-          onSubmitEditing={onSubmitEditing}
-          autoFocus={autoFocus}
-          multiline={isMultiline}
-          style={[
-            styles.textInput,
-            styles.textInputText,
-            isMultiline && styles.textInputMultiline,
-            { color: theme.colors.text }
-          ]}
-        />
-      </View>
-    );
+  const input = (
+    <View style={styles.inputHost}>
+      <TextInput
+        maxFontSizeMultiplier={MaxFontScale.body}
+        ref={ref}
+        defaultValue={value}
+        onChangeText={onChangeText}
+        onBlur={onBlur}
+        onFocus={onFocus}
+        secureTextEntry={isSecured}
+        editable={isEditable}
+        autoComplete={autoComplete ?? (secureTextEntry ? 'password' : 'off')}
+        autoCorrect={autoCorrect}
+        autoCapitalize={autoCapitalize}
+        placeholder={placeholder}
+        placeholderTextColor={theme.colors.textSecondary}
+        keyboardType={keyboardType}
+        returnKeyType={returnKeyType}
+        maxLength={maxLength}
+        testID={testID}
+        onSubmitEditing={onSubmitEditing}
+        autoFocus={autoFocus}
+        multiline={isMultiline}
+        style={[
+          styles.textInput,
+          styles.textInputText,
+          isMultiline && styles.textInputMultiline,
+          { color: theme.colors.text }
+        ]}
+      />
+    </View>
+  );
 
-    return (
-      <View style={[containerStyle, { marginBottom, marginTop }]}>
-        {label &&
-          (isLabelIndicated ? (
-            <IndicatedText text={label} marginBottom={description ? 0 : 4} textColor="text" />
-          ) : (
-            <AppText color="text" size="body" style={{ marginBottom: description ? 0 : 4 }}>
-              {label}
-            </AppText>
-          ))}
-        {description && (
-          <AppText size="subhead" style={{ marginBottom: 4 }} color="textSecondary">
-            {description}
+  return (
+    <View style={[containerStyle, { marginBottom, marginTop }]}>
+      {label &&
+        (isLabelIndicated ? (
+          <IndicatedText text={label} marginBottom={description ? 0 : 4} textColor="text" />
+        ) : (
+          <AppText color="text" size="body" style={{ marginBottom: description ? 0 : 4 }}>
+            {label}
           </AppText>
-        )}
-        <View
-          style={[styles.textInputContainer, isMultiline && styles.multilineContainer, { height }]}>
-          {leftIcon && leftIcon}
-          {onPress ? <PressableOpacity onPress={onPress}>{input}</PressableOpacity> : input}
-          {rightIcon && rightIcon}
-          {secureTextEntry && (
-            <PressableOpacity
-              onPress={() => setIsSecured(!isSecured)}
-              style={styles.visibilityIcon}>
-              {isSecured ? (
-                <Icon name="eyeOff" size={IconSize.inline} />
-              ) : (
-                <Icon name="eye" size={IconSize.inline} />
-              )}
-            </PressableOpacity>
-          )}
-        </View>
-        {showCharacterCount && maxLength !== undefined && (
-          <CharacterCount value={value} max={maxLength} />
-        )}
-        {form && name && showFieldError && (
-          <SubscribedFieldError control={form.control} name={name} />
+        ))}
+      {description && (
+        <AppText size="subhead" style={{ marginBottom: 4 }} color="textSecondary">
+          {description}
+        </AppText>
+      )}
+      <View
+        style={[styles.textInputContainer, isMultiline && styles.multilineContainer, { height }]}>
+        {leftIcon && leftIcon}
+        {onPress ? <PressableOpacity onPress={onPress}>{input}</PressableOpacity> : input}
+        {rightIcon && rightIcon}
+        {secureTextEntry && (
+          <PressableOpacity onPress={() => setIsSecured(!isSecured)} style={styles.visibilityIcon}>
+            {isSecured ? (
+              <Icon name="eyeOff" size={IconSize.inline} />
+            ) : (
+              <Icon name="eye" size={IconSize.inline} />
+            )}
+          </PressableOpacity>
         )}
       </View>
-    );
-  }
-);
+      {showCharacterCount && maxLength !== undefined && (
+        <CharacterCount value={value} max={maxLength} />
+      )}
+      {form && name && showFieldError && (
+        <SubscribedFieldError control={form.control} name={name} />
+      )}
+    </View>
+  );
+};
 
 const SubscribedFieldError = ({
   control,
@@ -237,7 +232,5 @@ const makeStyles = ({ colors }: AppTheme, borderColor: ThemeColor, backgroundCol
       fontWeight: 'normal'
     }
   });
-
-TextInputValidated.displayName = 'TextInputValidated';
 
 export default TextInputValidated;

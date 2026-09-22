@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import type { ReactNode, Ref } from 'react';
 import { Pressable, PressableProps, StyleProp, View, ViewStyle } from 'react-native';
 
 import { APP_ACTIVE_OPACITY } from '@/constants/primitives';
@@ -8,29 +8,19 @@ type Props = {
   // The default 10% fade is invisible on anything as small as a single icon.
   // `ICON_ACTIVE_OPACITY` is the value for those.
   activeOpacity?: number;
-  children: React.ReactNode;
+  children: ReactNode;
+  ref?: Ref<View>;
 } & PressableProps;
 
-const PressableOpacity = React.forwardRef(
-  (
-    { style, activeOpacity = APP_ACTIVE_OPACITY, onPress, children, ...props }: Props,
-    ref: React.Ref<View>
-  ) => {
-    const [isPressed, setIsPressed] = useState(false);
-    return (
-      <Pressable
-        ref={ref}
-        onPress={onPress}
-        onPressIn={() => setIsPressed(true)}
-        onPressOut={() => setIsPressed(false)}
-        style={[{ opacity: isPressed ? activeOpacity : 1 }, style]}
-        {...props}>
-        {children}
-      </Pressable>
-    );
-  }
+const PressableOpacity = ({
+  style,
+  activeOpacity = APP_ACTIVE_OPACITY,
+  children,
+  ...props
+}: Props) => (
+  <Pressable {...props} style={({ pressed }) => [{ opacity: pressed ? activeOpacity : 1 }, style]}>
+    {children}
+  </Pressable>
 );
-
-PressableOpacity.displayName = 'PressableOpacity';
 
 export default PressableOpacity;
