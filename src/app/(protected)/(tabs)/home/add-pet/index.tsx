@@ -10,11 +10,11 @@ import AgePickerValidated from '@/components/core/age-picker-validated';
 import AppText from '@/components/core/app-text';
 import BreedField from '@/components/core/breed-field';
 import DateTimePickerValidated from '@/components/core/date-time-picker-validated';
+import FormTextInput from '@/components/core/form-text-input';
 import Icon from '@/components/core/icon';
 import MainButton from '@/components/core/main-button';
 import PressableOpacity from '@/components/core/pressable-opacity';
 import SegmentedControl from '@/components/core/segmented-control';
-import TextInputValidated from '@/components/core/text-input-validated';
 import FlowScreen from '@/components/layout/flow-screen';
 import { breedName, breedSpeciesFor } from '@/constants/breeds';
 import { PET_TYPE_OPTIONS, SEX_OPTIONS } from '@/constants/options';
@@ -67,21 +67,12 @@ const AddPetDetails = () => {
       onClose={exit}
       isKeyboardAware
       footer={<MainButton text="Continue" onPress={() => void onContinue()} />}>
-      <Controller
-        control={control}
+      <FormTextInput
         name="name"
-        render={({ field: { onChange, onBlur, value } }) => (
-          <TextInputValidated
-            name="name"
-            label="Name"
-            isLabelIndicated
-            value={value}
-            onChangeText={onChange}
-            onBlur={onBlur}
-            placeholder="Bailey"
-            returnKeyType="next"
-          />
-        )}
+        label="Name"
+        isLabelIndicated
+        placeholder="Bailey"
+        returnKeyType="next"
       />
 
       <PressableOpacity

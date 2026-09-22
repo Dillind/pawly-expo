@@ -1,9 +1,9 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Controller, FormProvider, useForm } from 'react-hook-form';
+import { FormProvider, useForm } from 'react-hook-form';
 import { StyleSheet, View } from 'react-native';
 
+import FormTextInput from '@/components/core/form-text-input';
 import MainButton from '@/components/core/main-button';
-import TextInputValidated from '@/components/core/text-input-validated';
 import ScreenScrollView from '@/components/layout/screen-scroll-view';
 import ScreenView from '@/components/layout/screen-view';
 import TextDescriptionHeader from '@/components/layout/text-description-header';
@@ -28,7 +28,6 @@ const SignIn = () => {
   });
 
   const {
-    control,
     handleSubmit,
     formState: { isSubmitting, isValid }
   } = form;
@@ -63,48 +62,30 @@ const SignIn = () => {
 
         <FormProvider {...form}>
           <View style={styles.form}>
-            <Controller
-              control={control}
+            <FormTextInput
               name="email"
-              render={({ field: { onChange, onBlur, value } }) => (
-                <TextInputValidated
-                  name="email"
-                  label="Email"
-                  isLabelIndicated
-                  value={value}
-                  onChangeText={onChange}
-                  onBlur={onBlur}
-                  placeholder="email@example.com"
-                  keyboardType="email-address"
-                  autoCapitalize="none"
-                  autoComplete="email"
-                  returnKeyType="next"
-                  testID="sign-in-email"
-                />
-              )}
+              label="Email"
+              isLabelIndicated
+              placeholder="email@example.com"
+              keyboardType="email-address"
+              autoCapitalize="none"
+              autoComplete="email"
+              returnKeyType="next"
+              testID="sign-in-email"
             />
-            <Controller
-              control={control}
+            <FormTextInput
               name="password"
-              render={({ field: { onChange, onBlur, value } }) => (
-                <TextInputValidated
-                  name="password"
-                  label="Password"
-                  isLabelIndicated
-                  value={value}
-                  onChangeText={onChange}
-                  onBlur={onBlur}
-                  placeholder="Enter your password"
-                  secureTextEntry
-                  autoCapitalize="none"
-                  autoComplete="password"
-                  returnKeyType="done"
-                  onSubmitEditing={() => {
-                    void onSubmit();
-                  }}
-                  testID="sign-in-password"
-                />
-              )}
+              label="Password"
+              isLabelIndicated
+              placeholder="Enter your password"
+              secureTextEntry
+              autoCapitalize="none"
+              autoComplete="password"
+              returnKeyType="done"
+              onSubmitEditing={() => {
+                void onSubmit();
+              }}
+              testID="sign-in-password"
             />
           </View>
 

@@ -1,15 +1,15 @@
 import type { TrueSheet } from '@lodev09/react-native-true-sheet';
 import { useRef } from 'react';
-import { Controller, useFormContext, useWatch } from 'react-hook-form';
+import { useFormContext, useWatch } from 'react-hook-form';
 import { Alert, ScrollView, StyleSheet, View } from 'react-native';
 
 import OccasionTray from '@/components/bottom-sheets/occasion-tray';
 import PhotoSourceSheet from '@/components/bottom-sheets/photo-source-sheet';
 import TagPetsSheet from '@/components/bottom-sheets/tag-pets-sheet';
 import AppText from '@/components/core/app-text';
+import FormTextInput from '@/components/core/form-text-input';
 import Icon from '@/components/core/icon';
 import PressableOpacity from '@/components/core/pressable-opacity';
-import TextInputValidated from '@/components/core/text-input-validated';
 import AddPhotoTile from '@/components/ui/add-photo-tile';
 import OccasionEmoji from '@/components/ui/occasion-emoji';
 import PhotoTile from '@/components/ui/photo-tile';
@@ -123,41 +123,23 @@ const PostComposer = ({ pets, householdName, householdId, currentOccasion }: Pro
   return (
     <>
       <View style={styles.content}>
-        <Controller
-          control={control}
+        <FormTextInput
           name="title"
-          render={({ field: { onChange, onBlur, value } }) => (
-            <TextInputValidated
-              name="title"
-              label="Title"
-              isLabelIndicated
-              value={value}
-              onChangeText={onChange}
-              onBlur={onBlur}
-              placeholder="Name your post"
-              maxLength={TITLE_MAX}
-              showCharacterCount
-            />
-          )}
+          label="Title"
+          isLabelIndicated
+          placeholder="Name your post"
+          maxLength={TITLE_MAX}
+          showCharacterCount
         />
 
-        <Controller
-          control={control}
+        <FormTextInput
           name="caption"
-          render={({ field: { onChange, onBlur, value } }) => (
-            <TextInputValidated
-              name="caption"
-              label="Description"
-              value={value}
-              onChangeText={onChange}
-              onBlur={onBlur}
-              placeholder="Add a description to your post"
-              isMultiline
-              maxLength={CAPTION_MAX}
-              showCharacterCount
-              height={110}
-            />
-          )}
+          label="Description"
+          placeholder="Add a description to your post"
+          isMultiline
+          maxLength={CAPTION_MAX}
+          showCharacterCount
+          height={110}
         />
 
         <View style={styles.photos}>

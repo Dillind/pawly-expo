@@ -8,10 +8,10 @@ import { ActivityIndicator, StyleSheet, View } from 'react-native';
 import AppText from '@/components/core/app-text';
 import DateTimePickerValidated from '@/components/core/date-time-picker-validated';
 import Divider from '@/components/core/divider';
+import FormTextInput from '@/components/core/form-text-input';
 import Icon from '@/components/core/icon';
 import MainButton from '@/components/core/main-button';
 import PressableOpacity from '@/components/core/pressable-opacity';
-import TextInputValidated from '@/components/core/text-input-validated';
 import Tray, { useTray, type TrayStepDescriptor } from '@/components/core/tray';
 import PetAvatar from '@/components/screens/home/pet-avatar';
 import { newFeedLogSchema, type NewFeedLogFormValues } from '@/constants/schemas/feed-log';
@@ -257,20 +257,11 @@ const ConfirmStep = ({
           )}
         />
 
-        <Controller
-          control={control}
+        <FormTextInput
           name="notes"
-          render={({ field: { onChange, onBlur, value } }) => (
-            <TextInputValidated
-              name="notes"
-              label="Note"
-              placeholder="Anything worth passing on"
-              value={value}
-              onBlur={onBlur}
-              onChangeText={onChange}
-              isMultiline
-            />
-          )}
+          label="Note"
+          placeholder="Anything worth passing on"
+          isMultiline
         />
 
         <MainButton

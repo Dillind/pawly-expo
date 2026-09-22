@@ -7,11 +7,11 @@ import { StyleSheet, View } from 'react-native';
 
 import PhotoSourceSheet from '@/components/bottom-sheets/photo-source-sheet';
 import AppText from '@/components/core/app-text';
+import FormTextInput from '@/components/core/form-text-input';
 import Icon from '@/components/core/icon';
 import MainButton from '@/components/core/main-button';
 import PressableOpacity from '@/components/core/pressable-opacity';
 import SegmentedControl from '@/components/core/segmented-control';
-import TextInputValidated from '@/components/core/text-input-validated';
 import FlowScreen from '@/components/layout/flow-screen';
 import { PET_TYPE_OPTIONS, SEX_OPTIONS } from '@/constants/options';
 import {
@@ -67,21 +67,12 @@ const FirstPet = () => {
         </AppText>
       </PressableOpacity>
 
-      <Controller
-        control={control}
+      <FormTextInput
         name="petName"
-        render={({ field: { onChange, onBlur, value } }) => (
-          <TextInputValidated
-            name="petName"
-            label="Name"
-            isLabelIndicated
-            value={value}
-            onChangeText={onChange}
-            onBlur={onBlur}
-            placeholder="Bailey"
-            returnKeyType="next"
-          />
-        )}
+        label="Name"
+        isLabelIndicated
+        placeholder="Bailey"
+        returnKeyType="next"
       />
 
       <Controller

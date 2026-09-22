@@ -1,9 +1,9 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Controller, FormProvider, useForm } from 'react-hook-form';
+import { FormProvider, useForm } from 'react-hook-form';
 import { StyleSheet, View } from 'react-native';
 
+import FormTextInput from '@/components/core/form-text-input';
 import MainButton from '@/components/core/main-button';
-import TextInputValidated from '@/components/core/text-input-validated';
 import ScreenScrollView from '@/components/layout/screen-scroll-view';
 import ScreenView from '@/components/layout/screen-view';
 import TextDescriptionHeader from '@/components/layout/text-description-header';
@@ -27,7 +27,6 @@ const NameStep = () => {
   });
 
   const {
-    control,
     handleSubmit,
     formState: { isValid }
   } = form;
@@ -46,44 +45,26 @@ const NameStep = () => {
 
         <FormProvider {...form}>
           <View style={styles.form}>
-            <Controller
-              control={control}
+            <FormTextInput
               name="firstName"
-              render={({ field: { onChange, onBlur, value } }) => (
-                <TextInputValidated
-                  name="firstName"
-                  label="First name"
-                  isLabelIndicated
-                  value={value}
-                  onChangeText={onChange}
-                  onBlur={onBlur}
-                  placeholder="Sarah"
-                  autoComplete="given-name"
-                  returnKeyType="next"
-                  testID="onboarding-first-name"
-                />
-              )}
+              label="First name"
+              isLabelIndicated
+              placeholder="Sarah"
+              autoComplete="given-name"
+              returnKeyType="next"
+              testID="onboarding-first-name"
             />
-            <Controller
-              control={control}
+            <FormTextInput
               name="lastName"
-              render={({ field: { onChange, onBlur, value } }) => (
-                <TextInputValidated
-                  name="lastName"
-                  label="Last name"
-                  isLabelIndicated
-                  value={value}
-                  onChangeText={onChange}
-                  onBlur={onBlur}
-                  placeholder="Smith"
-                  autoComplete="family-name"
-                  returnKeyType="done"
-                  onSubmitEditing={() => {
-                    void onSubmit();
-                  }}
-                  testID="onboarding-last-name"
-                />
-              )}
+              label="Last name"
+              isLabelIndicated
+              placeholder="Smith"
+              autoComplete="family-name"
+              returnKeyType="done"
+              onSubmitEditing={() => {
+                void onSubmit();
+              }}
+              testID="onboarding-last-name"
             />
           </View>
 

@@ -1,9 +1,9 @@
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
-import { Controller, useFormContext, useWatch } from 'react-hook-form';
+import { useFormContext, useWatch } from 'react-hook-form';
 
+import FormTextInput from '@/components/core/form-text-input';
 import MainButton from '@/components/core/main-button';
-import TextInputValidated from '@/components/core/text-input-validated';
 import FlowScreen from '@/components/layout/flow-screen';
 import HandleField from '@/components/ui/handle-field';
 import {
@@ -40,21 +40,12 @@ const NameYourHousehold = () => {
       footer={
         <MainButton text="Continue" isDisabled={!isAvailable} onPress={() => void onContinue()} />
       }>
-      <Controller
-        control={control}
+      <FormTextInput
         name="name"
-        render={({ field: { onChange, onBlur, value } }) => (
-          <TextInputValidated
-            name="name"
-            label="Household name"
-            isLabelIndicated
-            value={value}
-            onChangeText={onChange}
-            onBlur={onBlur}
-            placeholder="Kathy's House"
-            returnKeyType="next"
-          />
-        )}
+        label="Household name"
+        isLabelIndicated
+        placeholder="Kathy's House"
+        returnKeyType="next"
       />
 
       <HandleField stem={name} onAvailabilityChange={setIsAvailable} />

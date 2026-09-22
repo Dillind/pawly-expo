@@ -1,12 +1,12 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import type { TrueSheet } from '@lodev09/react-native-true-sheet';
 import type { RefObject } from 'react';
-import { Controller, FormProvider, useForm, useWatch } from 'react-hook-form';
+import { FormProvider, useForm } from 'react-hook-form';
 import { StyleSheet, View } from 'react-native';
 
 import BaseSheet from '@/components/bottom-sheets/base-sheet';
+import FormTextInput from '@/components/core/form-text-input';
 import MainButton from '@/components/core/main-button';
-import TextInputValidated from '@/components/core/text-input-validated';
 import { SuccessMessage } from '@/constants/enums';
 import {
   HOUSEHOLD_NAME_MAX,
@@ -34,9 +34,7 @@ const RenameHouseholdSheet = ({ sheetRef, householdId, name }: Props) => {
     resolver: zodResolver(householdNameSchema),
     defaultValues: { name }
   });
-  const { control, handleSubmit } = form;
-
-  const nameValue = useWatch({ control, name: 'name' });
+  const { handleSubmit } = form;
 
   // onDone is passed in from the event handler rather than closed over here:
   // React Compiler only permits reading a ref in event-handler position, and
@@ -50,21 +48,13 @@ const RenameHouseholdSheet = ({ sheetRef, householdId, name }: Props) => {
     <BaseSheet sheetRef={sheetRef} title="Household name" detents={['auto']}>
       <FormProvider {...form}>
         <View style={styles.form}>
-          <Controller
-            control={control}
+          <FormTextInput
             name="name"
-            render={({ field: { onChange } }) => (
-              <TextInputValidated
-                name="name"
-                placeholder="Dylan and Lisa's"
-                value={nameValue ?? ''}
-                onChangeText={onChange}
-                maxLength={HOUSEHOLD_NAME_MAX}
-                autoFocus
-                returnKeyType="done"
-                onSubmitEditing={() => void submit(() => void sheetRef.current?.dismiss())}
-              />
-            )}
+            placeholder="Dylan and Lisa's"
+            maxLength={HOUSEHOLD_NAME_MAX}
+            autoFocus
+            returnKeyType="done"
+            onSubmitEditing={() => void submit(() => void sheetRef.current?.dismiss())}
           />
 
           <MainButton

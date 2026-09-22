@@ -7,9 +7,9 @@ import { ActivityIndicator, Alert, StyleSheet, View } from 'react-native';
 import BaseSheet from '@/components/bottom-sheets/base-sheet';
 import AppText from '@/components/core/app-text';
 import DateTimePickerValidated from '@/components/core/date-time-picker-validated';
+import FormTextInput from '@/components/core/form-text-input';
 import MainButton from '@/components/core/main-button';
 import PressableOpacity from '@/components/core/pressable-opacity';
-import TextInputValidated from '@/components/core/text-input-validated';
 import { FEED_LOG_DAY_OPTIONS } from '@/constants/options';
 import {
   FEED_LOG_NOTES_MAX_LENGTH,
@@ -231,23 +231,14 @@ function EditableLogForm({ log, timezone, isOwner, isSaving, onSave }: EditableL
           )}
         />
 
-        <Controller
-          control={control}
+        <FormTextInput
           name="notes"
-          render={({ field: { onChange, onBlur, value } }) => (
-            <TextInputValidated
-              name="notes"
-              label="Notes"
-              value={value}
-              onChangeText={onChange}
-              onBlur={onBlur}
-              placeholder="Half a scoop, plus her tablet"
-              maxLength={FEED_LOG_NOTES_MAX_LENGTH}
-              height={80}
-              isMultiline
-              showCharacterCount
-            />
-          )}
+          label="Notes"
+          placeholder="Half a scoop, plus her tablet"
+          maxLength={FEED_LOG_NOTES_MAX_LENGTH}
+          height={80}
+          isMultiline
+          showCharacterCount
         />
 
         <MainButton
@@ -280,7 +271,7 @@ function NotesOnlyForm({ log, isSaving, onSave }: NotesOnlyFormProps) {
     mode: 'onBlur'
   });
 
-  const { control, handleSubmit, formState } = form;
+  const { handleSubmit, formState } = form;
 
   // Read during render so the formState Proxy subscribes. See above.
   const { dirtyFields } = formState;
@@ -294,23 +285,14 @@ function NotesOnlyForm({ log, isSaving, onSave }: NotesOnlyFormProps) {
   return (
     <FormProvider {...form}>
       <View style={styles.form}>
-        <Controller
-          control={control}
+        <FormTextInput
           name="notes"
-          render={({ field: { onChange, onBlur, value } }) => (
-            <TextInputValidated
-              name="notes"
-              label="Notes"
-              value={value}
-              onChangeText={onChange}
-              onBlur={onBlur}
-              placeholder="Half a scoop, plus her tablet"
-              maxLength={FEED_LOG_NOTES_MAX_LENGTH}
-              height={80}
-              isMultiline
-              showCharacterCount
-            />
-          )}
+          label="Notes"
+          placeholder="Half a scoop, plus her tablet"
+          maxLength={FEED_LOG_NOTES_MAX_LENGTH}
+          height={80}
+          isMultiline
+          showCharacterCount
         />
 
         <MainButton

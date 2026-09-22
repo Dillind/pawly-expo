@@ -1,13 +1,13 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import type { TrueSheet } from '@lodev09/react-native-true-sheet';
 import { useRef } from 'react';
-import { Controller, FormProvider, useForm, useWatch } from 'react-hook-form';
+import { FormProvider, useForm } from 'react-hook-form';
 import { StyleSheet, View } from 'react-native';
 
 import AppText from '@/components/core/app-text';
+import FormTextInput from '@/components/core/form-text-input';
 import IconButton from '@/components/core/icon-button';
 import MainButton from '@/components/core/main-button';
-import TextInputValidated from '@/components/core/text-input-validated';
 import Tray, { type TrayStepDescriptor } from '@/components/core/tray';
 import { ErrorMessage, SuccessMessage } from '@/constants/enums';
 import { IconSize, type AppTheme } from '@/constants/theme';
@@ -33,9 +33,7 @@ const EditStep = ({ petId, bio, onDone }: EditStepProps) => {
     resolver: zodResolver(bioSchema),
     defaultValues: { bio: bio ?? '' }
   });
-  const { control, handleSubmit } = form;
-
-  const bioValue = useWatch({ control, name: 'bio' });
+  const { handleSubmit } = form;
 
   const onSubmit = handleSubmit((values) => {
     updatePet({ bio: values.bio || null }, { onSuccess: onDone });
@@ -44,19 +42,11 @@ const EditStep = ({ petId, bio, onDone }: EditStepProps) => {
   return (
     <FormProvider {...form}>
       <View style={styles.form}>
-        <Controller
-          control={control}
+        <FormTextInput
           name="bio"
-          render={({ field: { onChange } }) => (
-            <TextInputValidated
-              name="bio"
-              placeholder="Loves the dog park, and a belly rub after dinner."
-              value={bioValue ?? ''}
-              onChangeText={onChange}
-              isMultiline
-              height={120}
-            />
-          )}
+          placeholder="Loves the dog park, and a belly rub after dinner."
+          isMultiline
+          height={120}
         />
 
         <MainButton

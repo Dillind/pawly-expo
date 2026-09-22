@@ -1,14 +1,14 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import type { TrueSheet } from '@lodev09/react-native-true-sheet';
 import { useState, type RefObject } from 'react';
-import { Controller, FormProvider, useForm, useFormContext, useWatch } from 'react-hook-form';
+import { FormProvider, useForm, useFormContext } from 'react-hook-form';
 import { StyleSheet, View } from 'react-native';
 
 import AppText from '@/components/core/app-text';
+import FormTextInput from '@/components/core/form-text-input';
 import Icon from '@/components/core/icon';
 import MainButton from '@/components/core/main-button';
 import PressableOpacity from '@/components/core/pressable-opacity';
-import TextInputValidated from '@/components/core/text-input-validated';
 import Tray, { useTray, type TrayStepDescriptor } from '@/components/core/tray';
 import EmojiStep from '@/components/ui/emoji-step';
 import {
@@ -45,8 +45,7 @@ const NameStep = ({
 }) => {
   const styles = useStyles(makeStyles);
   const { goTo } = useTray();
-  const { control, handleSubmit } = useFormContext<ChecklistNameInput>();
-  const nameValue = useWatch({ control, name: 'name' });
+  const { handleSubmit } = useFormContext<ChecklistNameInput>();
 
   const submit = () => handleSubmit((values) => onSubmit(values.name))();
 
@@ -66,23 +65,15 @@ const NameStep = ({
         </PressableOpacity>
 
         <View style={styles.field}>
-          <Controller
-            control={control}
+          <FormTextInput
             name="name"
-            render={({ field: { onChange } }) => (
-              <TextInputValidated
-                name="name"
-                label="Name"
-                isLabelIndicated
-                placeholder="Overnight at Mum's"
-                value={nameValue ?? ''}
-                onChangeText={onChange}
-                maxLength={CHECKLIST_NAME_MAX}
-                autoFocus
-                returnKeyType="done"
-                onSubmitEditing={() => void submit()}
-              />
-            )}
+            label="Name"
+            isLabelIndicated
+            placeholder="Overnight at Mum's"
+            maxLength={CHECKLIST_NAME_MAX}
+            autoFocus
+            returnKeyType="done"
+            onSubmitEditing={() => void submit()}
           />
         </View>
       </View>
