@@ -14,7 +14,7 @@ import { ErrorMessage, SuccessMessage } from '@/constants/enums';
 import { signInSchema, type SignInFormValues } from '@/constants/schemas/sign-in';
 import type { AppTheme } from '@/constants/theme';
 import { useStyles } from '@/hooks/use-styles';
-import { userFacingMessage } from '@/lib/errors';
+import { logError, userFacingMessage } from '@/lib/errors';
 import { showErrorToast, showSuccessToast } from '@/lib/toast';
 import AuthService from '@/services/auth.service';
 
@@ -37,7 +37,7 @@ const SignIn = () => {
       await AuthService.signInWithPassword(values);
       showSuccessToast(SuccessMessage.SignedIn);
     } catch (error) {
-      console.error(error);
+      logError(error);
       showErrorToast(
         ErrorMessage.SignInFailed,
         userFacingMessage(error, 'Check your details and try again')

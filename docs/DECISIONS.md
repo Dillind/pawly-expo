@@ -1118,3 +1118,29 @@ does not already give. Canny and UserJot make the same choice.
 Three reports from accounts older than seven days hide a request until the Crumpet team looks.
 Counting every account would let one person with three new sign-ups hide anything. A Crumpet team
 request never hides, and Restore clears the reports.
+
+## Every query key is built in one file
+
+`src/lib/query-keys.ts` holds every key, not a `keys.ts` per area. Invalidation crosses areas all
+the time — a pet change refreshes households, a new post refreshes the author's stats — and one tree
+makes the prefix a caller invalidates visible next to the keys it covers. An inline array is a lint
+error, because a typo in one is a stale cache and no error at all.
+
+## A mutation declares its toasts; the query client shows them
+
+`meta: { successMessage, errorMessage }` on `useMutation`, and one `MutationCache` in
+`src/lib/query-client.ts` that logs the error and shows the toast. The same four lines were copied
+into 66 hooks. A `UserFacingError` becomes the title, so a service can still name what went wrong.
+
+## Code rules live in ESLint, judgement lives in a skill
+
+A rule a parser can check is an ESLint rule, so CI, the editor, the pre-commit hook and the agent's
+PostToolUse hook all enforce it from one place. A rule that needs judgement — layers, when to
+extract, which surface tells the user — is `/crumpet-code-conventions`. The bash greps that came
+before bound only an agent, and CI never ran them.
+
+## Text sizes come from a scale named after the iOS text styles
+
+`TypeScale` in `src/constants/theme.ts`, used as `<AppText size="footnote">`. 312 of the 339 literal
+sizes matched a step exactly and moved without a pixel of change. The 27 that did not are left as
+numbers until someone looks at them on a device, because snapping them is a design decision.

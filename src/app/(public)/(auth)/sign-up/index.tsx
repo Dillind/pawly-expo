@@ -14,7 +14,7 @@ import { ErrorMessage } from '@/constants/enums';
 import { signUpSchema, type SignUpFormValues } from '@/constants/schemas/sign-up';
 import type { AppTheme } from '@/constants/theme';
 import { useStyles } from '@/hooks/use-styles';
-import { userFacingMessage } from '@/lib/errors';
+import { logError, userFacingMessage } from '@/lib/errors';
 import { hapticLight } from '@/lib/haptics';
 import { showErrorToast } from '@/lib/toast';
 import AuthService from '@/services/auth.service';
@@ -41,7 +41,7 @@ const SignUp = () => {
       await AuthService.signUp(values);
       router.push({ pathname: '/sign-up/verify', params: { email: values.email } });
     } catch (error) {
-      console.error(error);
+      logError(error);
       showErrorToast(
         ErrorMessage.SignUpFailed,
         userFacingMessage(error, 'Check your details and try again')

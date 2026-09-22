@@ -1,8 +1,8 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Controller, FormProvider, useForm, useWatch, type Control } from 'react-hook-form';
+import { FormProvider, useForm, type Control } from 'react-hook-form';
 import { StyleSheet, View } from 'react-native';
 
-import TextInputValidated from '@/components/core/text-input-validated';
+import FormTextInput from '@/components/core/form-text-input';
 import type { AppTheme } from '@/constants/theme';
 import { useUpsertContact } from '@/hooks/queries/pet/use-care-card-mutations';
 import { useStyles } from '@/hooks/use-styles';
@@ -30,24 +30,15 @@ const ContactFieldInput = ({
   control: Control<CareCardContactInput>;
   field: ContactField;
 }) => {
-  const value = useWatch({ control, name: field.name });
-
   return (
-    <Controller
+    <FormTextInput
       control={control}
       name={field.name}
-      render={({ field: { onChange } }) => (
-        <TextInputValidated
-          name={field.name}
-          label={field.label}
-          isLabelIndicated
-          placeholder={field.placeholder}
-          value={value ?? ''}
-          onChangeText={onChange}
-          keyboardType={field.isPhone ? 'phone-pad' : 'default'}
-          autoCapitalize={field.isPhone ? 'none' : 'words'}
-        />
-      )}
+      label={field.label}
+      isLabelIndicated
+      placeholder={field.placeholder}
+      keyboardType={field.isPhone ? 'phone-pad' : 'default'}
+      autoCapitalize={field.isPhone ? 'none' : 'words'}
     />
   );
 };

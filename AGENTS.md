@@ -103,6 +103,9 @@ hand. Only CI sees every change — a Claude hook binds an agent, and a git hook
 `bun install` wires the git hook through the `prepare` script. `bun run hooks:install` does it by
 hand.
 
+**Run `bun run db:types` after every migration** and commit `src/types/database.ts`. The Supabase
+client is typed from it, so a renamed column fails typecheck instead of failing on a device.
+
 The build scripts always name a profile, deliberately. A bare `eas build` defaults to
 **production**, whose EAS environment holds no variables, so the build dies at
 `src/lib/supabase/client.ts` with "Missing EXPO_PUBLIC_SUPABASE_URL or
@@ -188,6 +191,13 @@ the `create-pr` skill.
 Always use **`bunx expo install <package>`** so the version matches SDK 57. Do not hand-pick versions with a raw `bun add` for Expo-ecosystem packages.
 
 ## Conventions
+
+### Before changing any code
+
+Invoke **`/crumpet-code-conventions`** before you write or change a service, a hook, a store, a
+schema, form logic, a list or a shared helper, and before any refactor. It holds the architecture
+rules — layers, `unwrap()`, `queryKeys`, mutation `meta`, `FormTextInput`, stores, lists, and when to
+extract shared code. ESLint enforces most of them, so a violation fails the edit that made it.
 
 ### Before changing any UI
 
@@ -337,7 +347,7 @@ holding two mutations otherwise has two fields with the same name. Queries follo
 Four different things, four different surfaces. Do not mix them up.
 
 - **Form validation → inline.** Zod/react-hook-form errors render under the offending field. The
-  validated inputs (`TextInputValidated`, `SegmentedControl`, `DateTimePickerValidated`) do
+  validated inputs (`FormTextInput`, `SegmentedControl`, `DateTimePickerValidated`) do
   this themselves via `useFormContext` — but only when the input is given a **`name`** prop. An
   input without `name` silently cannot show its own error.
 - **API failure → toast.** Network dropped, RLS denied the write, Postgres threw. Not attributable
@@ -350,6 +360,10 @@ Four different things, four different surfaces. Do not mix them up.
   wrote still needs its toast — the lead-time picker in that same file is the contrast, and it has
   one. Failure is never exempt: both of those show an error toast.
 - **A decision that has to be made now → alert.** See below.
+
+A mutation names its toasts in `meta: { successMessage, errorMessage }`, and the `MutationCache` in
+`src/lib/query-client.ts` shows them and logs the error. Toast by hand only when the words depend on
+what the mutation returned.
 
 ### Alerts
 
@@ -455,11 +469,9 @@ that file was force-added and stays tracked, so both travel with a clone — see
 rule table.
 
 - **`scripts/check-boundaries.sh`** — `PostToolUse` on `Edit`/`Write`. Checks the one file just
-  written, and only under `src/`. It catches a direct `lucide-react-native` import, the Supabase
-  client outside `src/services/`, a `TrueSheet` value import outside `base-sheet.tsx`, `toast` from
-  `sonner-native` outside `@/lib/toast`, a direct `feed_logs` insert, `watch()` where `useWatch`
-  belongs, and a filename that is not kebab-case. Each of these passes typecheck and lint, which is
-  why prose alone never held them.
+  written, and only under `src/`: a path that is not kebab-case, then ESLint on that file. Every code
+  rule — import boundaries, `queryKeys`, `unwrap()`, `FormTextInput`, tokens, comments — lives in
+  `eslint.config.js`, so CI enforces it as well and the hook only reports it sooner.
 - **`scripts/guard-branch.sh`** — `PreToolUse` on `Bash`. Blocks a `git commit` while `HEAD` is
   `main`. Reads are untouched.
 - **`scripts/check-on-stop.sh`** — `Stop`. Runs `bun run check` when a turn that touched code ends,

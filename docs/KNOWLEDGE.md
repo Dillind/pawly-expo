@@ -841,3 +841,23 @@ redraw when its data goes from some rows to none, so `ListEmptyComponent` never 
 
 The board keys the list on emptiness (`key={requests.length === 0 ? 'empty' : 'rows'}`), which
 remounts it. Any other `MainLegendList` whose last row can be removed in place has the same trap.
+
+## `supabase gen types` cannot say that a function argument is nullable
+
+It types `pet_birthdate: null` as `string`, and an argument with `default null` as `string |
+undefined`, so a correct RPC call fails typecheck. `bun run db:types` runs `scripts/db-types.ts`,
+which adds `| null` to every function argument. It also marks every `returns table` column as
+non-null, which is wrong for most of them — so an RPC result keeps its hand-written row type and a
+cast, and only a `.from()` select trusts the generated row.
+
+## An error toast at a `mutate()` call site shows twice
+
+The `MutationCache` shows `meta.errorMessage` for every mutation, and a call site's own `onError`
+runs as well. A call site may still handle an error, for example to set a field error, but it must
+not toast when the hook has `meta`.
+
+## A later ESLint `no-restricted-syntax` replaces the earlier one
+
+Flat config does not merge a rule's options across blocks. A file that matches two blocks gets only
+the second block's selector list, so an override for one folder must repeat the whole list. That is
+why `eslint.config.js` builds the lists from named constants.

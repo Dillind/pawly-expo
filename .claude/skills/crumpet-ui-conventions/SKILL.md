@@ -31,10 +31,21 @@ stored enum being rendered raw, or a display string being written to a column. T
 `BaseSheet` + `SheetRow` list. `DropdownPickerValidated` was deleted in CRU-162 once its last
 caller, the invite role, moved to a segmented control.
 
-
 ### Forms
 
-`react-hook-form` + **Zod** (`@hookform/resolvers`). Use the shared validated inputs in `src/components/core/` (e.g. `TextInputValidated`, `DatePickerValidated`) which read from `useFormContext` and render `FieldError`. No ad-hoc controlled inputs. Zod schemas are the single validation contract (also used by Edge Functions).
+`react-hook-form` + **Zod** (`@hookform/resolvers`). Zod schemas live in `src/constants/schemas/` and are the single validation contract. No ad-hoc controlled inputs.
+
+**A text field is `FormTextInput`**, never a `<Controller>` around `TextInputValidated`. It binds
+through `useController`, reads the form from `FormProvider` (or a `control` prop), and shows its own
+error. A field that changes the text before it stores it passes `parse` — `parse={emptyAsNull}` for
+an optional field that stores `null`. ESLint rejects the old wrapper.
+
+```tsx
+<FormTextInput name="title" label="Title" isLabelIndicated maxLength={TITLE_MAX} />
+```
+
+`<Controller>` stays for the inputs that are not text: `SegmentedControl`,
+`DateTimePickerValidated`, `DayOfWeekPicker`, `ToggleSwitch`.
 
 **A required field carries `isLabelIndicated`.** The prop draws the red asterisk through
 `IndicatedText`, and it is off by default — so a field the schema rejects when empty looks
@@ -47,7 +58,7 @@ optional until the user tries to save. The schema is the source of truth, not th
   the form always gives a value — `defaultValues: { sex: 'male' }` means the user cannot submit it
   empty, and an asterisk there is noise.
 
-Three inputs take the prop: `TextInputValidated`, `DateTimePickerValidated` and `SegmentedControl`.
+Three inputs take the prop: `FormTextInput`, `DateTimePickerValidated` and `SegmentedControl`.
 A segmented control needs it only when it can start empty. Since CRU-093 a control whose value
 matches no option paints no thumb, and Edit details' Sex starts that way for a Pet with no sex
 recorded. One that always gets a value from `defaultValues` leaves it off.
@@ -87,7 +98,6 @@ One live consequence:
 
 - Inside a sheet this stacks a modal on a native sheet, which the Sheets rule below flags as a rough edge on iOS. The picker still wins — **verify on device**, and if the presentation misbehaves, render the same `mode="time"` spinner inline within the sheet. Reverting to a text input is not the fallback.
 
-
 ### Icons
 
 Icons come from `lucide-react-native`, but **never import a Lucide icon directly in a screen or
@@ -119,7 +129,11 @@ Custom theme tokens — **no component library, no NativeWind/Tailwind** (see [A
 
 - Colours via `useTheme()` (from `@/hooks/use-theme`) — returns the active light/dark palette. Never hard-code colour strings.
 - Styles via a module-level `makeStyles` factory + `useStyles(makeStyles)` — see Theming above. `useStyles` takes no `deps`: the factory itself is the cache key, so wrap it in `useCallback` when it closes over props.
-- Text via the `AppText` primitive; spacing via `Spacing` from `@/constants/theme`.
+- Text via the `AppText` primitive, sized by a `TypeScale` name: `size="footnote"`. A number is
+  only for a one-off display size that no step fits. ESLint rejects a number that is a step.
+- Spacing via `Spacing`, radii via `Radius`, and colours on a photo or a coloured fill via
+  `OverlayColors`, all from `@/constants/theme`. ESLint rejects a raw colour and a raw radius that
+  is a token.
 - `global.css` exists **only** for web font CSS variables — it is not Tailwind; do not delete it.
 
 

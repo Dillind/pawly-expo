@@ -5,6 +5,7 @@ import { AppState, type AppStateStatus } from 'react-native';
 
 import { useHousehold } from '@/hooks/queries/household/use-household';
 import { useHouseholds } from '@/hooks/queries/household/use-households';
+import { logError } from '@/lib/errors';
 import PushTokenService from '@/services/push-token.service';
 import { useActiveHouseholdStore } from '@/stores/active-household-store';
 import { useAuthStore } from '@/stores/auth-store';
@@ -43,7 +44,7 @@ export const usePushNotifications = () => {
       void PushTokenService.register().catch((error: unknown) => {
         // Logged, never dropped: a silent catch here once hid a 403 that made
         // the whole feature dead with no error to work from.
-        console.warn('[push] token registration failed', error);
+        logError(error);
       });
     };
 

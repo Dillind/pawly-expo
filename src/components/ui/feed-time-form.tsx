@@ -8,10 +8,10 @@ import BaseSheet from '@/components/bottom-sheets/base-sheet';
 import SheetRow from '@/components/bottom-sheets/sheet-row';
 import AppText from '@/components/core/app-text';
 import DateTimePickerValidated from '@/components/core/date-time-picker-validated';
+import FormTextInput, { emptyAsNull } from '@/components/core/form-text-input';
 import Icon from '@/components/core/icon';
 import MainButton from '@/components/core/main-button';
 import PressableOpacity from '@/components/core/pressable-opacity';
-import TextInputValidated from '@/components/core/text-input-validated';
 import DayOfWeekPicker from '@/components/ui/day-of-week-picker';
 import { FEEDING_SCHEDULE_LABEL_OPTIONS } from '@/constants/options';
 import { IconSize, Radius, type AppTheme } from '@/constants/theme';
@@ -128,19 +128,12 @@ const FeedTimeForm = ({
           )}
         />
 
-        <Controller
-          control={control}
+        <FormTextInput
           name="instructions"
-          render={({ field: { onChange, value } }) => (
-            <TextInputValidated
-              name="instructions"
-              label="Instructions"
-              placeholder="Half a tin of wet food + 1 cup dry"
-              value={value ?? ''}
-              onChangeText={(next: string) => onChange(next === '' ? null : next)}
-              isMultiline
-            />
-          )}
+          label="Instructions"
+          placeholder="Half a tin of wet food + 1 cup dry"
+          parse={emptyAsNull}
+          isMultiline
         />
 
         <AppText size="footnote" color="textSecondary">

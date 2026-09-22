@@ -24,6 +24,7 @@ import {
   useUpdateOccasion
 } from '@/hooks/queries/posts/use-occasions';
 import { useStyles } from '@/hooks/use-styles';
+import { logError } from '@/lib/errors';
 import OccasionService, { type Occasion } from '@/services/occasion.service';
 import type { PostOccasion } from '@/services/post.service';
 
@@ -83,7 +84,7 @@ const ChooseStep = ({
     try {
       count = await OccasionService.countPosts(occasion.id);
     } catch (error) {
-      console.error(error);
+      logError(error);
     }
 
     const name = occasion.label ?? occasion.emoji ?? 'this occasion';

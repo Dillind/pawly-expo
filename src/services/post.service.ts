@@ -1,5 +1,6 @@
 import * as Crypto from 'expo-crypto';
 
+import { logError } from '@/lib/errors';
 import { resizeForUpload } from '@/lib/photo';
 import { supabase } from '@/lib/supabase/client';
 import { unwrap } from '@/lib/supabase/unwrap';
@@ -229,7 +230,7 @@ namespace PostService {
     if (paths.length === 0) return;
 
     const { error } = await supabase.storage.from(BUCKET).remove(paths);
-    if (error) console.error(error);
+    if (error) logError(error);
   }
 
   export async function create(params: {

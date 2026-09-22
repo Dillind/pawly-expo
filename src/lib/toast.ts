@@ -1,5 +1,7 @@
 import { toast } from 'sonner-native';
 
+export { Toaster } from 'sonner-native';
+
 export const showSuccessToast = (message: string, description?: string) =>
   toast.success(message, description ? { description } : undefined);
 

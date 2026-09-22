@@ -12,6 +12,7 @@ import { careCardQueryOptions } from '@/hooks/queries/pet/use-care-card';
 import { petDetailQueryOptions } from '@/hooks/queries/pet/use-pet-detail';
 import { buildCareCardHtml, careCardFileName, type CareCardPdfPet } from '@/lib/care-card-pdf';
 import { formatAge, formatDateWithYear } from '@/lib/dates';
+import { logError } from '@/lib/errors';
 import { showErrorToast } from '@/lib/toast';
 
 // A4 at 72ppi. expo-print defaults to US Letter, which crops or letterboxes.
@@ -73,7 +74,7 @@ export function useShareCareCard() {
         dialogTitle: pets.length === 1 ? `${pets[0].name}'s Care Card` : 'Care Cards'
       });
     } catch (error) {
-      console.error(error);
+      logError(error);
       showErrorToast(ErrorMessage.CareCardShareFailed);
     } finally {
       isGenerating.current = false;

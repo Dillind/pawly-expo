@@ -27,10 +27,8 @@ export default function HomeLayout() {
           headerBackButtonDisplayMode: 'minimal'
         }}>
         <Stack.Screen name="index" options={{ headerShown: true }}>
-          {/* The switcher is a title, not a left `Stack.Toolbar.View`. A custom
-              left bar item hands its geometry to the next screen's back button,
-              which then draws its background as a wide rectangle for the whole
-              push. A title is outside the left bar-item group, so it cannot. */}
+          {/* A title, not a left Toolbar.View: a left bar item hands its geometry to the next
+              screen's back button, which then draws as a wide rectangle for the whole push. */}
           <Stack.Title asChild>
             <View style={styles.switcher}>
               <HouseholdSwitcher />
@@ -155,12 +153,8 @@ export default function HomeLayout() {
           </Stack.Toolbar>
         </Stack.Screen>
 
-        {/* No bar: the destination IS the card, zoomed out of its tile, over a
-            blurred wash of the screen it came from. Presented modally so the
-            wash covers the tab bar, and *transparently* because a
-            `fullScreenModal` leaves nothing behind it -- the blur then has only
-            black to work with and the wash goes flat. The zoom survives a modal
-            presentation; only a link preview navigation requires one. */}
+        {/* A transparent modal, so the blurred wash covers the tab bar. A fullScreenModal leaves
+            only black behind it, and the wash goes flat. */}
         <Stack.Screen
           name="[petId]/care-card"
           options={{

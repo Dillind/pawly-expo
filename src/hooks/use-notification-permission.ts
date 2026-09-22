@@ -1,6 +1,7 @@
 import { useQueryClient } from '@tanstack/react-query';
 import * as Notifications from 'expo-notifications';
 
+import { logError } from '@/lib/errors';
 import { requestNotificationPermission } from '@/lib/notification-permission';
 import { queryKeys } from '@/lib/query-keys';
 import PushTokenService from '@/services/push-token.service';
@@ -19,7 +20,7 @@ export const useRequestNotificationPermission = () => {
     if (status === Notifications.PermissionStatus.GRANTED && userId) {
       await PushTokenService.register().catch((error: unknown) => {
         // Non-fatal; the next foreground retries.
-        console.warn('[push] token registration failed after grant', error);
+        logError(error);
       });
     }
 

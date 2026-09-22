@@ -98,7 +98,7 @@ const ProfileOverview = () => {
 
           {isChangingPhoto && (
             <View style={styles.uploading}>
-              <ActivityIndicator color="#ffffff" />
+              <ActivityIndicator color={OverlayColors.onMedia} />
             </View>
           )}
 

@@ -10,7 +10,7 @@ import { useUserProfile } from '@/hooks/queries/account/use-user-profile';
 import { useStyles } from '@/hooks/use-styles';
 import { fullName } from '@/utils/members';
 
-// TODO: Delete account is an App Store 5.1.1(v) requirement -- see CRU-013.
+// TODO(CRU-156): Delete account is an App Store 5.1.1(v) requirement.
 const AccountSettings = () => {
   const styles = useStyles(makeStyles);
 

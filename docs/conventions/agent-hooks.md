@@ -31,40 +31,40 @@ Both scripts need `jq`, and both exit 0 for anything they do not cover.
 
 `scripts/check-boundaries.sh` runs after an `Edit` or a `Write`. It reads the hook JSON on stdin,
 takes `tool_input.file_path`, and exits 0 immediately for a path outside `src/`. Inside `src/` it
-checks:
+does two things:
 
-| Rule                                  | Where it is allowed                                                     |
-| ------------------------------------- | ----------------------------------------------------------------------- |
-| `from 'lucide-react-native'`          | `src/constants/icon-map.ts` only                                        |
-| `from '@/lib/supabase/client'`        | `src/services/**` and the client itself                                 |
-| a `TrueSheet` value import            | `src/components/bottom-sheets/base-sheet.tsx` only                      |
-| `toast` from `sonner-native`          | `src/lib/toast.ts` only                                                 |
-| `.from('feed_logs').insert(`          | nowhere — a feed log is written through the `log_feed` RPC              |
-| `= watch(`                            | nowhere — use `useWatch({ control, name })`                             |
-| a path segment that is not kebab-case | leading `_`, leading `+`, `(route-groups)` and `[brackets]` are allowed |
+1. It checks **every** segment of the path for kebab-case, folders included. A leading `_`, a
+   leading `+`, `(route-groups)` and `[brackets]` are allowed.
+2. It runs ESLint on that one file with `--max-warnings=0`, which takes about three seconds.
 
-It checks **every** segment of the path under `src/`, folders included — a basename-only check misses
-`src/components/Bad/thing.tsx`.
+The code rules used to be greps in this script. They moved to `eslint.config.js` in CRU-181, because
+a hook binds only an agent and CI never ran it. ESLint parses the file, so a Prettier-wrapped import,
+a double-quoted specifier and a type-only import are all handled without the normalised-copy trick
+the script once needed. The rules, and the files each one exempts, are in `eslint.config.js`:
 
-Imports are matched against a normalised copy of the file, not line by line. Comments are dropped,
-double quotes are folded to single, and all whitespace is removed, so every import reads as
-`import{a,b}from'mod'`. That is what makes a Prettier-wrapped multiline import and a double-quoted
-specifier match — neither does line by line, and both are what a raw grep silently lets through.
-
-A type-only import is deliberately allowed. `import type { TrueSheet }` and an inline
-`{ type TrueSheet }` specifier are not the value, so neither is a violation.
+| Rule                                                             | Allowed in                                    |
+| ---------------------------------------------------------------- | --------------------------------------------- |
+| `lucide-react-native`, `sonner-native`, `expo-haptics` imports   | their one wrapper in `src/lib` or `constants` |
+| the Supabase client                                              | `src/services/**`                             |
+| a `TrueSheet` value import                                       | `base-sheet.tsx`                              |
+| `FlatList`, `SectionList`, `FlashList`, a `LegendList` value     | `main-legend-list.tsx`                        |
+| `.from('feed_logs').insert(`, `watch()`, `forwardRef`, `console` | nowhere                                       |
+| an inline `queryKey` array                                       | nowhere — use `queryKeys`                     |
+| `if (error) throw error` straight after a query                  | nowhere in services — use `unwrap()`          |
+| `<Controller>` around `TextInputValidated`                       | nowhere — use `FormTextInput`                 |
+| a store read through a selector function                         | nowhere — destructure                         |
+| a text size or radius that is a token, a raw colour              | `src/constants/**` and fixed art              |
+| a comment block over three lines, JSDoc, a banner, a bare TODO   | nowhere                                       |
 
 `scripts/guard-branch.sh` runs before a `Bash` call. It blocks the call when the command contains a
 `git commit` and `HEAD` is `main`. `git log`, `git show` and every other read pass through.
 
-## Why these seven and not others
+## Where a new rule goes
 
-Each one survives `bun run check`. Typecheck sees a valid import. ESLint has no opinion on which
-file may import `lucide-react-native`. The code compiles, the tests pass, and the rule is broken
-anyway — which is the exact failure mode `KNOWLEDGE.md` exists to record.
-
-A rule that a lint config already enforces does not belong here. Neither does a rule that needs
-judgement: "is this an alert or a toast?" has no grep that answers it.
+A rule that a parser can check goes in `eslint.config.js`, never in a script: then CI enforces it,
+the editor shows it, and this hook reports it on the edit. A rule that needs judgement — "is this an
+alert or a toast?", "is this the third copy?" — goes in `/crumpet-code-conventions` or
+`/crumpet-ui-conventions`, because no linter answers it.
 
 ## Testing a change to the boundary script
 
@@ -72,7 +72,9 @@ Exit 2 stops the work, so a false positive is expensive. Two things must both ho
 is the one that catches mistakes:
 
 1. **Every violation is caught.** Write the bad file, run the script on it, expect exit 2.
-2. **No real file is flagged.** Sweep the whole tree:
+2. **No real file is flagged.** For a lint rule, `bun run lint` must pass on the whole tree. For
+   the path check, sweep every file. The sweep also runs ESLint once per file, so expect it to take
+   about 20 minutes:
 
 ```bash
 find src -type f \( -name '*.ts' -o -name '*.tsx' \) | while IFS= read -r f; do

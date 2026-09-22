@@ -1,3 +1,4 @@
+import { logError } from '@/lib/errors';
 import { assertWrote } from '@/lib/supabase/assert-wrote';
 import { supabase } from '@/lib/supabase/client';
 import { unwrap } from '@/lib/supabase/unwrap';
@@ -144,7 +145,7 @@ namespace PetService {
         ...photos.map((photo) => PetPhotoService.removeByPublicUrl(photo.url))
       ]);
     } catch (error) {
-      console.error(error);
+      logError(error);
     }
 
     await unwrap(supabase.from('pets').delete().eq('id', petId));

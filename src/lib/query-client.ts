@@ -65,6 +65,6 @@ export async function clearPersistedQueryCache() {
   try {
     await persister.removeClient();
   } catch (error) {
-    console.error(error);
+    logError(error);
   }
 }

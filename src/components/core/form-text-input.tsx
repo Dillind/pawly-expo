@@ -1,5 +1,5 @@
 import type { ComponentProps } from 'react';
-import { useController, type FieldPath, type FieldValues } from 'react-hook-form';
+import { useController, type Control, type FieldPath, type FieldValues } from 'react-hook-form';
 
 import TextInputValidated from '@/components/core/text-input-validated';
 
@@ -8,12 +8,16 @@ type Props<T extends FieldValues> = Omit<
   'name' | 'value' | 'onChangeText' | 'onBlur'
 > & {
   name: FieldPath<T>;
+  control?: Control<T>;
+  parse?: (text: string) => unknown;
 };
 
-const FormTextInput = <T extends FieldValues>({ name, ...rest }: Props<T>) => {
+export const emptyAsNull = (text: string) => (text === '' ? null : text);
+
+const FormTextInput = <T extends FieldValues>({ name, control, parse, ...rest }: Props<T>) => {
   const {
     field: { ref, value, onChange, onBlur }
-  } = useController<T>({ name });
+  } = useController<T>({ name, control });
 
   return (
     <TextInputValidated
@@ -21,7 +25,7 @@ const FormTextInput = <T extends FieldValues>({ name, ...rest }: Props<T>) => {
       ref={ref}
       name={name}
       value={value ?? ''}
-      onChangeText={onChange}
+      onChangeText={(text) => onChange(parse ? parse(text) : text)}
       onBlur={onBlur}
     />
   );

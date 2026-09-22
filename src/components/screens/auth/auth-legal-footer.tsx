@@ -5,7 +5,7 @@ import type { AppTheme } from '@/constants/theme';
 import { useStyles } from '@/hooks/use-styles';
 import { openExternalUrl } from '@/utils/external-link';
 
-// TODO: placeholders. App Store review requires a working privacy policy link.
+// TODO(CRU-157): placeholders. App Store review requires a working privacy policy link.
 const TERMS_URL = 'https://crumpet.com.au/terms';
 const PRIVACY_URL = 'https://crumpet.com.au/privacy';
 

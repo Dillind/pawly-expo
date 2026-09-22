@@ -1,5 +1,5 @@
 import { ErrorMessage } from '@/constants/enums';
-import { UserFacingError } from '@/lib/errors';
+import { logError, UserFacingError } from '@/lib/errors';
 import type { FeedTimeInput } from '@/lib/form/pet-schemas';
 import { assertWrote } from '@/lib/supabase/assert-wrote';
 import { supabase } from '@/lib/supabase/client';
@@ -265,7 +265,7 @@ namespace HouseholdService {
 
     const { error } = await supabase.storage.from(bucket).remove(paths);
 
-    if (error) console.error(error);
+    if (error) logError(error);
   }
 
   export async function isHandleAvailable(candidate: string): Promise<boolean> {

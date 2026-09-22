@@ -1,9 +1,9 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Controller, FormProvider, useForm, useFormContext, useWatch } from 'react-hook-form';
+import { FormProvider, useForm } from 'react-hook-form';
 import { StyleSheet, View } from 'react-native';
 
 import AppText from '@/components/core/app-text';
-import TextInputValidated from '@/components/core/text-input-validated';
+import FormTextInput from '@/components/core/form-text-input';
 import {
   CARE_CARD_FIELD_LABELS,
   CARE_CARD_FIELD_PLACEHOLDERS,
@@ -28,26 +28,16 @@ const toInput = (card: CareCard): CareCardInput =>
   Object.fromEntries(CARE_CARD_FIELDS.map((field) => [field, card[field]])) as CareCardInput;
 
 const FieldInput = ({ field }: { field: CareCardField }) => {
-  const { control } = useFormContext<CareCardInput>();
-  const value = useWatch({ control, name: field });
   const isMultiline = CARE_CARD_MULTILINE_FIELDS.has(field);
 
   return (
-    <Controller
-      control={control}
+    <FormTextInput<CareCardInput>
       name={field}
-      render={({ field: { onChange } }) => (
-        <TextInputValidated
-          name={field}
-          label={CARE_CARD_FIELD_LABELS[field]}
-          placeholder={CARE_CARD_FIELD_PLACEHOLDERS[field]}
-          value={value ?? ''}
-          onChangeText={onChange}
-          keyboardType={CARE_CARD_PHONE_FIELDS.has(field) ? 'phone-pad' : 'default'}
-          isMultiline={isMultiline}
-          height={isMultiline ? MULTILINE_HEIGHT : SINGLE_LINE_HEIGHT}
-        />
-      )}
+      label={CARE_CARD_FIELD_LABELS[field]}
+      placeholder={CARE_CARD_FIELD_PLACEHOLDERS[field]}
+      keyboardType={CARE_CARD_PHONE_FIELDS.has(field) ? 'phone-pad' : 'default'}
+      isMultiline={isMultiline}
+      height={isMultiline ? MULTILINE_HEIGHT : SINGLE_LINE_HEIGHT}
     />
   );
 };

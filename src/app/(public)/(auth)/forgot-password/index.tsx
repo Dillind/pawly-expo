@@ -16,7 +16,7 @@ import {
 } from '@/constants/schemas/forgot-password';
 import type { AppTheme } from '@/constants/theme';
 import { useStyles } from '@/hooks/use-styles';
-import { userFacingMessage } from '@/lib/errors';
+import { logError, userFacingMessage } from '@/lib/errors';
 import { hapticLight } from '@/lib/haptics';
 import { showErrorToast, showSuccessToast } from '@/lib/toast';
 import AuthService from '@/services/auth.service';
@@ -44,7 +44,7 @@ const ForgotPassword = () => {
       showSuccessToast(SuccessMessage.ResetCodeSent);
       router.push({ pathname: '/forgot-password/verify', params: { email: values.email } });
     } catch (error) {
-      console.error(error);
+      logError(error);
       showErrorToast(ErrorMessage.ResetCodeSendFailed, userFacingMessage(error, 'Try again'));
     }
   });
