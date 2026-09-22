@@ -516,5 +516,5 @@ Keep this list honest and current:
 
 - ~~**Auth**~~ — resolved: real Supabase auth, gated with `Stack.Protected` in `src/app/_layout.tsx`.
 - ~~**Package manager / lockfile**~~ — resolved: bun, single `bun.lock`. See Toolchain above.
-- **Backend:** Supabase (and Sentry/PostHog/RevenueCat/Canny) are decided but **not installed** — see TECH_STACK status column before importing them.
+- **Backend:** Supabase is installed and Sentry is installed (CRU-164); PostHog/RevenueCat/Canny are decided but **not installed** — see TECH_STACK status column before importing them.
 - ~~**Palette**~~ — resolved: CRU-088 landed a warm, light-first palette where gold is a fill. See [ADR 0034](./docs/adr/0034-a-warm-light-first-palette-with-gold-as-a-fill.md).

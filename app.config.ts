@@ -96,6 +96,7 @@ const getConfig = ({ config }: ConfigContext): ExpoConfig => {
         }
       ],
       'expo-apple-authentication',
+      '@sentry/react-native/expo',
       [
         '@react-native-google-signin/google-signin',
         {
@@ -104,6 +105,7 @@ const getConfig = ({ config }: ConfigContext): ExpoConfig => {
       ]
     ],
     extra: {
+      sentryEnvironment: process.env.EAS_BUILD_PROFILE ?? 'development',
       eas: {
         projectId: '3bd7aa83-b1be-43b3-97c2-a3b7d2a7f51c'
       },
