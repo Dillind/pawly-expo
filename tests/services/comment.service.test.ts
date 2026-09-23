@@ -1,13 +1,30 @@
-import CommentService from '@/services/comment.service';
+import CommentService, { COMMENTS_PAGE_SIZE } from '@/services/comment.service';
 
-let listResult: { data: unknown; error: Error | null } = { data: [], error: null };
+type Result = { data: unknown; error: Error | null };
+
+let parentResult: Result = { data: [], error: null };
+let replyResult: Result = { data: [], error: null };
+
+const calls: { method: string; args: unknown[] }[] = [];
+
+// Thenable chain: a query with `.in` is the replies fetch, anything else the parent page.
+function makeChain() {
+  let isReplies = false;
+  const chain: Record<string, unknown> = {};
+  for (const method of ['eq', 'is', 'order', 'limit', 'or', 'in']) {
+    chain[method] = (...args: unknown[]) => {
+      calls.push({ method, args });
+      if (method === 'in') isReplies = true;
+      return chain;
+    };
+  }
+  chain.then = (resolve: (value: Result) => unknown) =>
+    Promise.resolve(isReplies ? replyResult : parentResult).then(resolve);
+  return chain;
+}
 
 const mockInsert = jest.fn().mockResolvedValue({ error: null });
-const mockOrder = jest.fn(() => Promise.resolve(listResult));
-const mockEqDelete = jest.fn().mockResolvedValue({ error: null });
-const mockSelect = jest.fn(() => ({
-  eq: jest.fn(() => ({ order: mockOrder }))
-}));
+const mockSelect = jest.fn(() => makeChain());
 
 jest.mock('@/lib/supabase/client', () => ({
   supabase: {
@@ -15,12 +32,10 @@ jest.mock('@/lib/supabase/client', () => ({
       select: mockSelect,
       insert: (...args: unknown[]) => mockInsert(...(args as [])),
       delete: jest.fn(() => ({
-        eq: (...args: unknown[]) => {
-          const chain = mockEqDelete(...(args as []));
-          return Object.assign(Promise.resolve({ error: null }), {
+        eq: () =>
+          Object.assign(Promise.resolve({ error: null }), {
             eq: () => Promise.resolve({ error: null })
-          }) as unknown as typeof chain;
-        }
+          })
       }))
     }))
   }
@@ -42,39 +57,93 @@ const row = (overrides: Record<string, unknown> = {}) => ({
 
 beforeEach(() => {
   jest.clearAllMocks();
-  listResult = { data: [], error: null };
+  calls.length = 0;
+  parentResult = { data: [], error: null };
+  replyResult = { data: [], error: null };
 });
 
 describe('CommentService.list', () => {
   it('nests replies under their parent and leaves top-level comments flat', async () => {
-    listResult = {
+    parentResult = { data: [row({ id: 'top-1' }), row({ id: 'top-2' })], error: null };
+    replyResult = {
       data: [
-        row({ id: 'top-1' }),
         row({ id: 'reply-1', parent_comment_id: 'top-1' }),
-        row({ id: 'top-2' }),
         row({ id: 'reply-2', parent_comment_id: 'top-1' })
       ],
       error: null
     };
 
-    const thread = await CommentService.list({ postId: 'p1', viewerId: 'u1' });
+    const { comments } = await CommentService.list({ postId: 'p1', viewerId: 'u1' });
 
-    expect(thread.map((comment) => comment.id)).toEqual(['top-1', 'top-2']);
-    expect(thread[0].replies.map((reply) => reply.id)).toEqual(['reply-1', 'reply-2']);
-    expect(thread[1].replies).toEqual([]);
+    expect(comments.map((comment) => comment.id)).toEqual(['top-1', 'top-2']);
+    expect(comments[0].replies.map((reply) => reply.id)).toEqual(['reply-1', 'reply-2']);
+    expect(comments[1].replies).toEqual([]);
   });
 
-  it('drops a reply whose parent is not in the result', async () => {
-    listResult = {
-      data: [row({ id: 'orphan', parent_comment_id: 'missing' })],
-      error: null
-    };
+  it('pages only top-level comments and fetches replies for that page', async () => {
+    parentResult = { data: [row({ id: 'top-1' }), row({ id: 'top-2' })], error: null };
 
-    await expect(CommentService.list({ postId: 'p1', viewerId: 'u1' })).resolves.toEqual([]);
+    await CommentService.list({ postId: 'p1', viewerId: 'u1' });
+
+    expect(calls).toContainEqual({ method: 'is', args: ['parent_comment_id', null] });
+    expect(calls).toContainEqual({ method: 'limit', args: [COMMENTS_PAGE_SIZE + 1] });
+    expect(calls).toContainEqual({ method: 'in', args: ['parent_comment_id', ['top-1', 'top-2']] });
+  });
+
+  it('skips the reply query when the page is empty', async () => {
+    const result = await CommentService.list({ postId: 'p1', viewerId: 'u1' });
+
+    expect(result).toEqual({ comments: [], nextCursor: null });
+    expect(calls.some((call) => call.method === 'in')).toBe(false);
+  });
+
+  const topLevelRows = (count: number) =>
+    Array.from({ length: count }, (_, index) =>
+      row({
+        id: `top-${index}`,
+        created_at: `2026-08-22T01:00:${String(index).padStart(2, '0')}.000Z`
+      })
+    );
+
+  it('returns a cursor when another page exists, and drops the extra row', async () => {
+    parentResult = { data: topLevelRows(COMMENTS_PAGE_SIZE + 1), error: null };
+
+    const { comments, nextCursor } = await CommentService.list({ postId: 'p1', viewerId: 'u1' });
+
+    expect(comments).toHaveLength(COMMENTS_PAGE_SIZE);
+    expect(nextCursor).toEqual({
+      createdAt: `2026-08-22T01:00:${COMMENTS_PAGE_SIZE - 1}.000Z`,
+      id: `top-${COMMENTS_PAGE_SIZE - 1}`
+    });
+  });
+
+  it('returns no cursor when exactly a page is left', async () => {
+    parentResult = { data: topLevelRows(COMMENTS_PAGE_SIZE), error: null };
+
+    const { comments, nextCursor } = await CommentService.list({ postId: 'p1', viewerId: 'u1' });
+
+    expect(comments).toHaveLength(COMMENTS_PAGE_SIZE);
+    expect(nextCursor).toBeNull();
+  });
+
+  it('breaks created_at ties by id after the cursor', async () => {
+    await CommentService.list({
+      postId: 'p1',
+      viewerId: 'u1',
+      cursor: { createdAt: '2026-08-22T01:00:00.000Z', id: 'c9' }
+    });
+
+    expect(calls).toContainEqual({
+      method: 'or',
+      args: [
+        'created_at.gt.2026-08-22T01:00:00.000Z,' +
+          'and(created_at.eq.2026-08-22T01:00:00.000Z,id.gt.c9)'
+      ]
+    });
   });
 
   it('maps snake_case columns onto the domain shape', async () => {
-    listResult = {
+    parentResult = {
       data: [
         row({
           reply_to_user_id: 'u2',
@@ -85,23 +154,23 @@ describe('CommentService.list', () => {
       error: null
     };
 
-    const [comment] = await CommentService.list({ postId: 'p1', viewerId: 'u1' });
+    const {
+      comments: [comment]
+    } = await CommentService.list({ postId: 'p1', viewerId: 'u1' });
 
     expect(comment.replyToUserId).toBe('u2');
     expect(comment.replyToName).toBe('Bob');
     expect(comment.likeCount).toBe(2);
     expect(comment.likedByMe).toBe(true);
-    expect(comment.author).toEqual({
-      firstName: 'Sarah',
-      lastName: 'Smith',
-      avatarUrl: null
-    });
+    expect(comment.author).toEqual({ firstName: 'Sarah', lastName: 'Smith', avatarUrl: null });
   });
 
   it('does not mark a comment as liked by a signed-out viewer', async () => {
-    listResult = { data: [row({ comment_likes: [{ user_id: 'u1' }] })], error: null };
+    parentResult = { data: [row({ comment_likes: [{ user_id: 'u1' }] })], error: null };
 
-    const [comment] = await CommentService.list({ postId: 'p1', viewerId: null });
+    const {
+      comments: [comment]
+    } = await CommentService.list({ postId: 'p1', viewerId: null });
 
     expect(comment.likedByMe).toBe(false);
   });
