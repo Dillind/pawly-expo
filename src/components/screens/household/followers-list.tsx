@@ -1,15 +1,16 @@
 import { useRouter } from 'expo-router';
 import { ActivityIndicator, Alert, StyleSheet, View } from 'react-native';
 
-import AppText from '@/components/core/app-text';
 import EmptyState from '@/components/core/empty-state';
 import ErrorState from '@/components/core/error-state';
-import Icon from '@/components/core/icon';
-import PressableOpacity from '@/components/core/pressable-opacity';
+import IconButton from '@/components/core/icon-button';
 import SettingsRow from '@/components/core/settings-row';
 import SettingsSection from '@/components/core/settings-section';
-import UserAvatar from '@/components/core/user-avatar';
 import ScrollScreen from '@/components/layout/scroll-screen';
+import FollowBackButton from '@/components/screens/follow/follow-back-button';
+import FollowPersonRow, {
+  FOLLOW_PERSON_AVATAR
+} from '@/components/screens/follow/follow-person-row';
 import { BottomTabInset, IconSize, Spacing, type AppTheme } from '@/constants/theme';
 import {
   useFollowers,
@@ -18,21 +19,23 @@ import {
 } from '@/hooks/queries/follow/use-follows';
 import { useHouseholdById } from '@/hooks/queries/household/use-household-by-id';
 import { useStyles } from '@/hooks/use-styles';
+import { namesText } from '@/lib/follow-naming';
 import type { Follower } from '@/services/follow.service';
 import { fullName } from '@/utils/members';
-
-const AVATAR_SIZE = 36;
 
 type Props = {
   householdId: string;
 };
 
-// "since August" -- the month they were accepted, which is all anyone reads it for.
-const sinceText = (follower: Follower): string | null => {
-  const stamp = follower.respondedAt ?? follower.requestedAt;
-  if (!stamp) return null;
+// The Households they named, else "Following since August" -- the month they were accepted.
+const detailText = (follower: Follower): string => {
+  const names = namesText(follower.namedHouseholds.map((household) => household.name));
+  if (names) return names;
 
-  return `since ${new Intl.DateTimeFormat('en-AU', { month: 'long' }).format(new Date(stamp))}`;
+  const stamp = follower.respondedAt ?? follower.requestedAt;
+  const month = new Intl.DateTimeFormat('en-AU', { month: 'long' }).format(new Date(stamp));
+
+  return `Following since ${month}`;
 };
 
 // The Owner's audience. Removing is here rather than on a follower's own screen, because there
@@ -81,7 +84,7 @@ const FollowersList = ({ householdId }: Props) => {
           <SettingsSection>
             <SettingsRow
               icon="userPlus"
-              label="Requests"
+              label="Follow requests"
               value={String(requests.length)}
               onPress={() => router.push(`/home/household/${householdId}/followers/requests`)}
             />
@@ -97,47 +100,30 @@ const FollowersList = ({ householdId }: Props) => {
         ) : (
           <SettingsSection
             title={`Followers · ${followers.length}`}
-            dividerInset={Spacing.three + AVATAR_SIZE + Spacing.three}>
-            {followers.map((follower) => {
-              const name = fullName(follower) || 'Follower';
-              const detail = sinceText(follower);
-
-              const row = (
-                <View style={styles.row}>
-                  <UserAvatar
-                    firstName={follower.firstName}
-                    lastName={follower.lastName}
-                    avatarUrl={follower.avatarUrl}
-                    size={AVATAR_SIZE}
-                  />
-                  <View style={styles.rowText}>
-                    <AppText size="body" numberOfLines={1}>
-                      {name}
-                    </AppText>
-                    {detail != null && detail.length > 0 && (
-                      <AppText size="footnote" color="textSecondary" numberOfLines={1}>
-                        {detail}
-                      </AppText>
-                    )}
-                  </View>
-                  {isOwner && (
-                    <Icon name="caretRight" size={IconSize.inline} color="textSecondary" />
-                  )}
-                </View>
-              );
-
-              if (!isOwner) return <View key={follower.id}>{row}</View>;
-
-              return (
-                <PressableOpacity
-                  key={follower.id}
-                  accessibilityRole="button"
-                  accessibilityLabel={`Remove ${name}`}
-                  onPress={() => confirmRemove(follower)}>
-                  {row}
-                </PressableOpacity>
-              );
-            })}
+            dividerInset={Spacing.three + FOLLOW_PERSON_AVATAR + Spacing.three}>
+            {followers.map((follower) => (
+              <View key={follower.id} style={styles.row}>
+                <FollowPersonRow
+                  person={follower}
+                  detail={detailText(follower)}
+                  trailing={
+                    isOwner && (
+                      <View style={styles.trailing}>
+                        <FollowBackButton person={follower} acceptingHouseholdId={householdId} />
+                        <IconButton
+                          name="close"
+                          variant="ghost"
+                          color="textSecondary"
+                          size={IconSize.control}
+                          accessibilityLabel={`Remove ${fullName(follower) || 'follower'}`}
+                          onPress={() => confirmRemove(follower)}
+                        />
+                      </View>
+                    )
+                  }
+                />
+              </View>
+            ))}
           </SettingsSection>
         )}
 
@@ -168,15 +154,12 @@ const makeStyles = ({ spacing }: AppTheme) =>
       gap: spacing.four
     },
     row: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      gap: spacing.three,
-      minHeight: 56,
       paddingHorizontal: spacing.three
     },
-    rowText: {
-      flex: 1,
-      gap: spacing.half
+    trailing: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: spacing.one
     }
   });
 

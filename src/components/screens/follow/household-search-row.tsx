@@ -7,7 +7,6 @@ import Icon from '@/components/core/icon';
 import MainButton from '@/components/core/main-button';
 import PressableOpacity from '@/components/core/pressable-opacity';
 import { type AppTheme } from '@/constants/theme';
-import { useRequestFollow } from '@/hooks/queries/follow/use-follows';
 import { useStyles } from '@/hooks/use-styles';
 import type { FollowRelationship, HouseholdSearchResult } from '@/services/follow.service';
 import { countDigits } from '@/utils/counts';
@@ -19,6 +18,8 @@ type Props = {
   household: HouseholdSearchResult;
   // The row answers a term already typed past. See the list.
   isStale: boolean;
+  isSending: boolean;
+  onFollow: () => void;
 };
 
 type ButtonState = {
@@ -34,13 +35,8 @@ const BUTTON_STATES: Partial<Record<FollowRelationship, ButtonState>> = {
   accepted: { text: 'Following', variant: 'secondary', hasTick: true }
 };
 
-const HouseholdSearchRow = ({ household, isStale }: Props) => {
+const HouseholdSearchRow = ({ household, isStale, isSending, onFollow }: Props) => {
   const styles = useStyles(makeStyles);
-
-  // One mutation hoisted to the list would spin every button.
-  const { mutate: requestFollow, isPending: isRequesting } = useRequestFollow(
-    household.householdId
-  );
 
   const state = BUTTON_STATES[household.relationship];
 
@@ -75,11 +71,11 @@ const HouseholdSearchRow = ({ household, isStale }: Props) => {
           text={state.text}
           size="sm"
           variant={state.variant}
-          isLoading={isRequesting}
-          isDisabled={household.relationship !== 'none' || isRequesting || isStale}
+          isLoading={isSending}
+          isDisabled={household.relationship !== 'none' || isSending || isStale}
           leftIcon={state.hasTick ? <Icon name="check" size={15} color="text" /> : undefined}
           containerStyle={styles.action}
-          onPress={() => requestFollow()}
+          onPress={onFollow}
         />
       ) : (
         <AppText size="footnote" color="textSecondary">

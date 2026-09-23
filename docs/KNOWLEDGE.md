@@ -863,3 +863,23 @@ not toast when the hook has `meta`.
 Flat config does not merge a rule's options across blocks. A file that matches two blocks gets only
 the second block's selector list, so an override for one folder must repeat the whole list. That is
 why `eslint.config.js` builds the lists from named constants.
+
+## `MainButton` with no `onPress` renders nothing
+
+It returns `null` when it has neither `onPress` nor `href`. A button that only shows a state —
+"Requested", "Following" — then disappears without an error, and a disabled button with no handler
+is exactly that shape. Give it a no-op handler as well as `isDisabled`, as the Follow Back button
+and the search row do.
+
+## Rows written straight to the database do not reach a signed-in simulator for five minutes
+
+`useHouseholds` has a five-minute `staleTime`, and the query cache is persisted, so a restart does
+not refetch it. A Household added with SQL during a device test stays invisible until the time runs
+out. Create test Households through the app, or wait before relaunching.
+
+## React Native text inside `RNHostView` can be measured again at the wrong size
+
+The Home month label lived inside a SwiftUI `Popover.Trigger` through `RNHostView matchContents`.
+After scrolling or coming back to Home it sometimes drew larger and lower, over the week strip. It
+did not reproduce on demand. Keep visible React Native content outside the `Host`: the label is now
+plain React Native, and the trigger is an empty 1-point anchor under it.

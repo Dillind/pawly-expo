@@ -194,6 +194,8 @@ export const buildReminderDueMessage = (input: ReminderDueInput): Omit<ExpoMessa
 
 export type FollowRequestedInput = {
   requesterFirstName: string | null;
+  // The first Household the request named, so the Owner can tell who is asking.
+  requesterHouseholdName: string | null;
   householdId: string;
 };
 
@@ -201,7 +203,7 @@ export type FollowRequestedInput = {
 export const buildFollowRequestedMessage = (
   input: FollowRequestedInput
 ): Omit<ExpoMessage, 'to'> => ({
-  body: `${authorName(input.requesterFirstName)} requested to follow your household`,
+  body: `${authorName(input.requesterFirstName)}${input.requesterHouseholdName ? ` from ${input.requesterHouseholdName}` : ''} requested to follow your household`,
   sound: 'default',
   data: {
     screen: '/home/household/[householdId]/followers/requests',

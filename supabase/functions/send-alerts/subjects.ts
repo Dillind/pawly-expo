@@ -119,8 +119,25 @@ export const buildMessageForAlert = async (
         .eq('id', follow.follower_id)
         .maybeSingle();
 
+      const { data: named } = await client
+        .from('follow_named_households')
+        .select('households(name, household_members(user_id, role))')
+        .eq('follow_id', follow.id);
+
+      // Checked at send time: a Household the requester no longer owns is not theirs to name.
+      const stillOwned = (named ?? [])
+        .map((row) => row.households)
+        .filter((household) =>
+          household?.household_members.some(
+            (member) => member.user_id === follow.follower_id && member.role === 'owner'
+          )
+        )
+        .map((household) => household?.name ?? '')
+        .sort();
+
       return buildFollowRequestedMessage({
         requesterFirstName: requester?.first_name ?? null,
+        requesterHouseholdName: stillOwned[0] ?? null,
         householdId: follow.household_id
       });
     }

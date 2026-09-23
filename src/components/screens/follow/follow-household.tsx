@@ -1,5 +1,7 @@
+import type { TrueSheet } from '@lodev09/react-native-true-sheet';
 import { Image } from 'expo-image';
 import { useRouter } from 'expo-router';
+import { useRef, useState } from 'react';
 import { ActivityIndicator, StyleSheet, View } from 'react-native';
 
 import AppText from '@/components/core/app-text';
@@ -12,14 +14,13 @@ import PetAvatar from '@/components/core/pet-avatar';
 import PressableOpacity from '@/components/core/pressable-opacity';
 import SectionLabel from '@/components/core/section-label';
 import ScrollScreen from '@/components/layout/scroll-screen';
+import AskingAsSheet from '@/components/screens/follow/asking-as-sheet';
 import { IconSize, Radius, ScreenGutter, type AppTheme } from '@/constants/theme';
-import {
-  useFollowPreview,
-  useRequestFollow,
-  useUnfollow
-} from '@/hooks/queries/follow/use-follows';
+import { useFollowPreview, useUnfollow } from '@/hooks/queries/follow/use-follows';
 import { usePosts } from '@/hooks/queries/posts/use-posts';
+import { useSendFollowRequest } from '@/hooks/use-send-follow-request';
 import { useStyles } from '@/hooks/use-styles';
+import { namesText } from '@/lib/follow-naming';
 import type { FollowPreviewPet } from '@/services/follow.service';
 import { useAuthStore } from '@/stores/auth-store';
 import { countText } from '@/utils/counts';
@@ -41,7 +42,26 @@ const FollowHousehold = ({ householdId }: Props) => {
 
   const { userId } = useAuthStore();
   const { data: preview, isLoading, isError, refetch } = useFollowPreview(householdId);
-  const { mutate: requestFollow, isPending: isRequesting } = useRequestFollow(householdId);
+  const { askingAs, send: sendTo, sendingHouseholdId } = useSendFollowRequest();
+  const isRequesting = sendingHouseholdId === householdId || !askingAs.isReady;
+  const askingAsRef = useRef<TrueSheet | null>(null);
+  const [isChoosingToSend, setIsChoosingToSend] = useState(false);
+
+  const send = (namedHouseholdIds?: string[]) => sendTo(householdId, namedHouseholdIds);
+
+  const follow = () => {
+    // Sending before the Households load would name none of them.
+    if (!askingAs.isReady) return;
+    if (!askingAs.needsChoice) return send();
+
+    setIsChoosingToSend(true);
+    void askingAsRef.current?.present();
+  };
+
+  const change = () => {
+    setIsChoosingToSend(false);
+    void askingAsRef.current?.present();
+  };
   const { mutate: unfollow, isPending: isUnfollowing } = useUnfollow();
 
   const isAccepted = preview?.status === 'accepted' || preview?.status === 'member';
@@ -136,13 +156,35 @@ const FollowHousehold = ({ householdId }: Props) => {
         <MainButton
           text="Follow"
           isLoading={isRequesting}
-          isDisabled={isRequesting}
+          isDisabled={isRequesting || !askingAs.canFollow}
           leftIcon={<Icon name="userPlus" size={19} color="onPrimary" />}
-          onPress={() => requestFollow()}
+          onPress={follow}
         />
-        <AppText size="footnote" color="textSecondary" align="center" style={styles.caption}>
-          An Owner has to accept your request before you see anything.
-        </AppText>
+        {askingAs.owned.length > 0 ? (
+          <AppText size="footnote" color="textSecondary" align="center" style={styles.caption}>
+            {askingAs.names.length > 0
+              ? `Asking as ${namesText(askingAs.names)}`
+              : 'Choose a household to ask as'}
+            {' · '}
+            <AppText size="footnote" color="primaryText" fontWeight="semibold" onPress={change}>
+              Change
+            </AppText>
+          </AppText>
+        ) : (
+          <AppText size="footnote" color="textSecondary" align="center" style={styles.caption}>
+            Only a household Owner can follow.
+          </AppText>
+        )}
+        <AskingAsSheet
+          sheetRef={askingAsRef}
+          askingAs={askingAs}
+          targetName={preview.name}
+          confirmText={isChoosingToSend ? 'Follow' : 'Done'}
+          onConfirm={(ids) => {
+            askingAs.choose(ids);
+            if (isChoosingToSend) send(ids);
+          }}
+        />
       </>
     );
   };

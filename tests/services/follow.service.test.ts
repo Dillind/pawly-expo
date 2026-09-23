@@ -1,14 +1,9 @@
 import FollowService from '@/services/follow.service';
 
 const mockRpc = jest.fn();
-const mockOrder = jest.fn();
-const mockEqStatus = jest.fn(() => ({ order: mockOrder }));
-const mockEqHousehold = jest.fn(() => ({ eq: mockEqStatus }));
-const mockSelect = jest.fn(() => ({ eq: mockEqHousehold }));
 
 jest.mock('@/lib/supabase/client', () => ({
   supabase: {
-    from: jest.fn(() => ({ select: mockSelect })),
     rpc: (...args: unknown[]) => mockRpc(...(args as []))
   }
 }));
@@ -75,7 +70,8 @@ describe('the write path', () => {
 
     await expect(FollowService.request('household-1')).resolves.toBe('pending');
     expect(mockRpc).toHaveBeenCalledWith('request_follow', {
-      target_household_id: 'household-1'
+      target_household_id: 'household-1',
+      named_household_ids: []
     });
   });
 
@@ -123,26 +119,30 @@ describe('listFollowing', () => {
 });
 
 describe('listFollowers', () => {
-  it('flattens the embedded user and keeps a missing account null', async () => {
-    mockOrder.mockResolvedValue({
+  it('maps the row and its named Households, and keeps a missing account null', async () => {
+    mockRpc.mockResolvedValue({
       data: [
         {
           id: 'follow-1',
           follower_id: 'user-1',
+          first_name: 'Dylan',
+          last_name: 'Lindsay',
+          avatar_url: null,
           requested_at: '2026-08-01T00:00:00Z',
           responded_at: '2026-08-02T00:00:00Z',
-          users: {
-            first_name: 'Dylan',
-            last_name: 'Lindsay',
-            avatar_url: null
-          }
+          named_households: [
+            { household_id: 'h-2', name: 'The Smiths', handle: 'smiths', relationship: 'none' }
+          ]
         },
         {
           id: 'follow-2',
           follower_id: 'user-2',
+          first_name: null,
+          last_name: null,
+          avatar_url: null,
           requested_at: '2026-08-03T00:00:00Z',
           responded_at: null,
-          users: null
+          named_households: []
         }
       ],
       error: null
@@ -150,6 +150,10 @@ describe('listFollowers', () => {
 
     const followers = await FollowService.listFollowers('household-1');
 
+    expect(mockRpc).toHaveBeenCalledWith('list_household_follows', {
+      target_household_id: 'household-1',
+      follow_status: 'accepted'
+    });
     expect(followers[0]).toEqual({
       id: 'follow-1',
       userId: 'user-1',
@@ -157,21 +161,44 @@ describe('listFollowers', () => {
       lastName: 'Lindsay',
       avatarUrl: null,
       requestedAt: '2026-08-01T00:00:00Z',
-      respondedAt: '2026-08-02T00:00:00Z'
+      respondedAt: '2026-08-02T00:00:00Z',
+      namedHouseholds: [
+        { householdId: 'h-2', name: 'The Smiths', handle: 'smiths', relationship: 'none' }
+      ]
     });
     expect(followers[1].firstName).toBeNull();
-    expect(mockEqStatus).toHaveBeenCalledWith('status', 'accepted');
   });
 });
 
 describe('listRequests', () => {
-  it('asks for the pending rows, oldest first', async () => {
-    mockOrder.mockResolvedValue({ data: [], error: null });
+  it('asks for the pending rows', async () => {
+    mockRpc.mockResolvedValue({ data: [], error: null });
 
     await FollowService.listRequests('household-1');
 
-    expect(mockEqStatus).toHaveBeenCalledWith('status', 'pending');
-    expect(mockOrder).toHaveBeenCalledWith('requested_at', { ascending: true });
+    expect(mockRpc).toHaveBeenCalledWith('list_household_follows', {
+      target_household_id: 'household-1',
+      follow_status: 'pending'
+    });
+  });
+});
+
+describe('requestSummary', () => {
+  it('maps the pinned row', async () => {
+    mockRpc.mockResolvedValue({
+      data: {
+        pending_count: 2,
+        newest: [{ first_name: 'Kara', last_name: null, avatar_url: null }],
+        has_unread: true
+      },
+      error: null
+    });
+
+    await expect(FollowService.requestSummary('household-1')).resolves.toEqual({
+      pendingCount: 2,
+      newest: [{ firstName: 'Kara', lastName: null, avatarUrl: null }],
+      hasUnread: true
+    });
   });
 });
 
