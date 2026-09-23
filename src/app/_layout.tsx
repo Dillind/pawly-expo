@@ -8,6 +8,7 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { KeyboardProvider } from 'react-native-keyboard-controller';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
+import RootErrorScreen from '@/components/screens/error/root-error-screen';
 import AnimatedSplash from '@/components/screens/splash/animated-splash';
 import { useUserProfile } from '@/hooks/queries/account/use-user-profile';
 import { useAuthSession } from '@/hooks/use-auth-session';
@@ -15,6 +16,7 @@ import { useCacheReset } from '@/hooks/use-cache-reset';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { usePushNotifications } from '@/hooks/use-push-notifications';
 import { persistOptions, queryClient } from '@/lib/query-client';
+import { initSentry, wrapWithSentry } from '@/lib/sentry';
 import { Toaster } from '@/lib/toast';
 import { useActiveHouseholdStore } from '@/stores/active-household-store';
 import { useAuthStore } from '@/stores/auth-store';
@@ -24,7 +26,11 @@ import { isWeb } from '@/utils/platform';
 // eslint-disable-next-line @typescript-eslint/no-require-imports -- keeps Reactotron out of release bundles
 if (__DEV__) require('../../ReactotronConfig');
 
+initSentry();
+
 void SplashScreen.preventAutoHideAsync();
+
+export { RootErrorScreen as ErrorBoundary };
 
 const AuthGate = () => {
   useAuthSession();
@@ -48,7 +54,7 @@ const AuthGate = () => {
   );
 };
 
-export default function RootLayout() {
+function RootLayout() {
   const colorScheme = useColorScheme();
   const { hydrate, hasHydrated } = useThemeStore();
   const { hydrate: hydrateActiveHousehold, hasHydrated: hasHydratedHousehold } =
@@ -99,3 +105,5 @@ export default function RootLayout() {
     </GestureHandlerRootView>
   );
 }
+
+export default wrapWithSentry(RootLayout);
