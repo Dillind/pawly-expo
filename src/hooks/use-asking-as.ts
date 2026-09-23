@@ -23,6 +23,7 @@ export function useAskingAs() {
   return {
     owned,
     isReady: !isPending,
+    canFollow: !isPending && owned.length > 0,
     householdIds,
     names,
     needsChoice: chosenIds === null && fallback.needsChoice,

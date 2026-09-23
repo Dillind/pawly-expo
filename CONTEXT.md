@@ -310,8 +310,8 @@ _Avoid_: Fan, subscriber, guest, spectator, viewer, and above all Member.
 A Follow that is waiting on an Owner. Every Household is private, so every Follow starts here. The
 person who asked sees it on their Following list and sees nothing of the Household beyond its name
 and its Pets' names. Only an Owner can accept or decline, exactly as with an Invite, and the Owner
-is notified. A decline is not a block — the person may ask again. A request can name the
-Households the person owns, one or several, or none; the Owner sees them before deciding, and they
+is notified. A decline is not a block — the person may ask again. A request names at least one
+Household the person owns, so only an Owner can follow; the Owner sees them before deciding, and they
 are the only places a Follow Back can go. Naming a Household grants it nothing.
 _Avoid_: Application, invitation, pending invite (an Invite travels the other way, from the
 Household outwards, and it makes a Member).

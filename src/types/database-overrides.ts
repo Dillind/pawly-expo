@@ -107,7 +107,7 @@ type RpcReturns = {
     pets?: { id: string; name: string; breed: string | null; photo_url: string | null }[];
   };
   request_follow: {
-    status: 'pending' | 'accepted' | 'already_member' | 'blocked' | 'not_found';
+    status: 'pending' | 'accepted' | 'already_member' | 'blocked' | 'not_found' | 'no_household';
   };
   respond_to_follow_request: {
     status: 'accepted' | 'declined' | 'not_owner' | 'not_pending' | 'not_found';

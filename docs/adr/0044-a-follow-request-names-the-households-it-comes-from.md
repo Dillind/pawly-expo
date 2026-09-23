@@ -15,13 +15,15 @@ person to a Household, so "back" needs a Household, and a person can be in none,
 ## Decision
 
 **The sender names the Households, not the receiver.** A request can name any of the Households
-the sender owns: one, several or none. They live in `follow_named_households`, which only definer
+the sender owns: one or several, never none. They live in `follow_named_households`, which only definer
 functions reach. The receiver sees them before deciding, and a Follow Back can go only there.
 
 - Only Households the sender **owns**. Naming a Household promises its Owners' consent, and a
   Contributor cannot give it.
-- The default is the current Household if the sender owns it, else their only owned one. Nothing
-  owned: nothing named, nothing asked.
+- **Only an Owner can follow.** A request that names no owned Household is refused
+  (`no_household`), so every request has a Follow Back. A Contributor's role is the Pets' daily
+  care, not the social side; following as a person with no Household is a possible later feature.
+- The default is the current Household if the sender owns it, else their only owned one.
 - It is checked when shown, not when sent. A Household the sender no longer owns is left out of
   the list, the Follow Back and the push.
 - A Follow Back names the Household that accepted, so the other side sees "Following" and the loop

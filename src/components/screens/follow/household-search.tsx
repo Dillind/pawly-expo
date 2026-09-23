@@ -61,6 +61,16 @@ const HouseholdSearch = ({ term }: Props) => {
   };
 
   const renderBody = () => {
+    if (askingAs.isReady && !askingAs.canFollow) {
+      return (
+        <EmptyState
+          icon="search"
+          title="Only Owners can follow"
+          description="Following is done as a household you own. Ask your household's Owner."
+        />
+      );
+    }
+
     if (!isSearchable) {
       return (
         <EmptyState

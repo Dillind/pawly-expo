@@ -27,7 +27,6 @@ type Props = {
   initialIds: string[];
   confirmText: string;
   // An empty choice is allowed only when the flow has a meaning for it.
-  allowsNone?: boolean;
   onConfirm: (ids: string[]) => void;
 };
 
@@ -41,7 +40,6 @@ const HouseholdChoiceSheet = ({
   choices,
   initialIds,
   confirmText,
-  allowsNone = false,
   onConfirm
 }: Props) => {
   const styles = useStyles(makeStyles);
@@ -87,11 +85,7 @@ const HouseholdChoiceSheet = ({
         </AppText>
       )}
 
-      <MainButton
-        text={confirmText}
-        isDisabled={!allowsNone && selectedIds.length === 0}
-        onPress={confirm}
-      />
+      <MainButton text={confirmText} isDisabled={selectedIds.length === 0} onPress={confirm} />
     </BaseSheet>
   );
 };

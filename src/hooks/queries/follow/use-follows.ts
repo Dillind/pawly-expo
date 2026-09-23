@@ -72,7 +72,8 @@ export function useFollowRequests(householdId: string | undefined) {
 const REQUEST_REFUSALS: Partial<Record<RequestFollowStatus, string>> = {
   already_member: ErrorMessage.FollowAlreadyMember,
   blocked: ErrorMessage.FollowRequestFailed,
-  not_found: ErrorMessage.FollowNotFound
+  not_found: ErrorMessage.FollowNotFound,
+  no_household: ErrorMessage.FollowNeedsHousehold
 };
 
 type RequestFollowInput = {

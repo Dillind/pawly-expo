@@ -156,7 +156,7 @@ const FollowHousehold = ({ householdId }: Props) => {
         <MainButton
           text="Follow"
           isLoading={isRequesting}
-          isDisabled={isRequesting}
+          isDisabled={isRequesting || !askingAs.canFollow}
           leftIcon={<Icon name="userPlus" size={19} color="onPrimary" />}
           onPress={follow}
         />
@@ -164,7 +164,7 @@ const FollowHousehold = ({ householdId }: Props) => {
           <AppText size="footnote" color="textSecondary" align="center" style={styles.caption}>
             {askingAs.names.length > 0
               ? `Asking as ${namesText(askingAs.names)}`
-              : 'Asking as just you'}
+              : 'Choose a household to ask as'}
             {' · '}
             <AppText size="footnote" color="primaryText" fontWeight="semibold" onPress={change}>
               Change
@@ -172,7 +172,7 @@ const FollowHousehold = ({ householdId }: Props) => {
           </AppText>
         ) : (
           <AppText size="footnote" color="textSecondary" align="center" style={styles.caption}>
-            An Owner has to accept your request before you see anything.
+            Only a household Owner can follow.
           </AppText>
         )}
         <AskingAsSheet

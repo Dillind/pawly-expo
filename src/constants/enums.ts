@@ -79,6 +79,7 @@ export enum ErrorMessage {
   AlertsMarkReadFailed = 'Could not mark notifications as read',
   BioUpdateFailed = 'Could not update bio',
   FollowAlreadyMember = 'You are already in this household',
+  FollowNeedsHousehold = 'Only a household Owner can follow',
   FollowNotFound = 'That household no longer exists',
   FollowRequestFailed = 'Could not send your request',
   FollowRespondFailed = 'Could not answer that request',

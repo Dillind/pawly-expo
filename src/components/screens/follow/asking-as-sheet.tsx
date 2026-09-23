@@ -18,7 +18,7 @@ const AskingAsSheet = ({ sheetRef, askingAs, targetName, confirmText, onConfirm 
     sheetRef={sheetRef}
     title="Asking as"
     description={`${targetName}'s Owners see these, and can follow them back.`}
-    footnote="Only households you own. Untick them all to ask as just you."
+    footnote="Only households you own."
     choices={askingAs.owned.map((household) => ({
       id: household.id,
       name: household.name,
@@ -31,7 +31,6 @@ const AskingAsSheet = ({ sheetRef, askingAs, targetName, confirmText, onConfirm 
     }))}
     initialIds={askingAs.householdIds}
     confirmText={confirmText}
-    allowsNone
     onConfirm={onConfirm}
   />
 );
