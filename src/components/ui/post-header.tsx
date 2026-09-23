@@ -34,10 +34,10 @@ const PostHeader = ({ post, showActions = false, householdName, onOpenActions }:
         size={AVATAR}
       />
       <View style={styles.headerText}>
-        <AppText size={15} fontWeight="bold" numberOfLines={1}>
+        <AppText size="callout" fontWeight="bold" numberOfLines={1}>
           {householdName ?? authorName}
         </AppText>
-        <AppText size={13} color="textSecondary" numberOfLines={1}>
+        <AppText size="footnote" color="textSecondary" numberOfLines={1}>
           {householdName ? `${authorName} · ` : ''}
           {formatRelativeTime(post.occurredAt)}
           {post.editedAt ? ' · Edited' : ''}

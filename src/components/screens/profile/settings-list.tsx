@@ -93,7 +93,7 @@ const SettingsList = () => {
           </SettingsSection>
         </View>
 
-        <AppText size={12} color="textSecondary" align="center">
+        <AppText size="caption" color="textSecondary" align="center">
           Version {APP_VERSION}
         </AppText>
       </ScreenScrollView>

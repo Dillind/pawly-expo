@@ -16,11 +16,9 @@ import { DEFAULT_LEAD_MINUTES, FEED_DUE_LEAD_OPTIONS } from '@/constants/options
 import { BottomTabInset, type AppTheme } from '@/constants/theme';
 import { useHouseholdById } from '@/hooks/queries/household/use-household-by-id';
 import { useNotificationPreferences } from '@/hooks/queries/household/use-notification-preferences';
-import {
-  NOTIFICATION_PERMISSION_QUERY_KEY,
-  useRequestNotificationPermission
-} from '@/hooks/use-notification-permission';
+import { useRequestNotificationPermission } from '@/hooks/use-notification-permission';
 import { useStyles } from '@/hooks/use-styles';
+import { queryKeys } from '@/lib/query-keys';
 import { optionLabel } from '@/utils/options';
 
 // The OS permission is read first, because a toggle reading "on" while iOS
@@ -47,7 +45,7 @@ const NotificationSettings = ({ householdId }: Props) => {
   // root layout already wires AppState into focusManager. This is the screen
   // people leave for Settings and come straight back to.
   const { data: permission } = useQuery({
-    queryKey: NOTIFICATION_PERMISSION_QUERY_KEY,
+    queryKey: queryKeys.notificationPermission,
     queryFn: () => Notifications.getPermissionsAsync()
   });
 
@@ -57,7 +55,7 @@ const NotificationSettings = ({ householdId }: Props) => {
     if (permission.status === Notifications.PermissionStatus.UNDETERMINED) {
       return (
         <View style={styles.section}>
-          <AppText size={14} color="textSecondary">
+          <AppText size="subhead" color="textSecondary">
             Turn on notifications to know before a feed is due, and the moment someone feeds a pet
             or shares a photo.
           </AppText>
@@ -79,7 +77,7 @@ const NotificationSettings = ({ householdId }: Props) => {
             alone. Naming it is the only thing stopping a member of several
             believing they have just silenced all of them. */}
         {household && (
-          <AppText size={14} color="textSecondary">
+          <AppText size="subhead" color="textSecondary">
             What {household.name} will and won&apos;t send you. Each household you belong to has its
             own settings.
           </AppText>
@@ -158,7 +156,7 @@ const NotificationSettings = ({ householdId }: Props) => {
 
         {isDenied && (
           <View style={styles.section}>
-            <AppText size={13} color="textSecondary">
+            <AppText size="footnote" color="textSecondary">
               Notifications are turned off for Crumpet, so you won&apos;t hear when a feed is coming
               up, when someone feeds a pet, or when someone shares a photo.
             </AppText>

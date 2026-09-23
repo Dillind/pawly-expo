@@ -1,4 +1,5 @@
 import { supabase } from '@/lib/supabase/client';
+import { unwrap } from '@/lib/supabase/unwrap';
 
 // An emoji, a label, or both, never neither: `occasions_carry_something` binds.
 export type Occasion = {
@@ -33,16 +34,16 @@ const SELECT = 'id, household_id, emoji, label, sort_order, deleted_at';
 
 namespace OccasionService {
   export async function list(householdId: string): Promise<Occasion[]> {
-    const { data, error } = await supabase
-      .from('occasions')
-      .select(SELECT)
-      .eq('household_id', householdId)
-      .is('deleted_at', null)
-      .order('sort_order', { ascending: true });
+    const data = await unwrap(
+      supabase
+        .from('occasions')
+        .select(SELECT)
+        .eq('household_id', householdId)
+        .is('deleted_at', null)
+        .order('sort_order', { ascending: true })
+    );
 
-    if (error) throw error;
-
-    return (data as OccasionRow[]).map(mapRow);
+    return data.map(mapRow);
   }
 
   export async function create(params: {
@@ -59,20 +60,20 @@ namespace OccasionService {
       .limit(1)
       .maybeSingle<{ sort_order: number }>();
 
-    const { data, error } = await supabase
-      .from('occasions')
-      .insert({
-        household_id: params.householdId,
-        emoji: params.emoji,
-        label: params.label,
-        sort_order: (last?.sort_order ?? -1) + 1
-      })
-      .select(SELECT)
-      .single();
+    const data = await unwrap(
+      supabase
+        .from('occasions')
+        .insert({
+          household_id: params.householdId,
+          emoji: params.emoji,
+          label: params.label,
+          sort_order: (last?.sort_order ?? -1) + 1
+        })
+        .select(SELECT)
+        .single()
+    );
 
-    if (error) throw error;
-
-    return mapRow(data as OccasionRow);
+    return mapRow(data);
   }
 
   export async function update(params: {
@@ -80,23 +81,20 @@ namespace OccasionService {
     emoji: string | null;
     label: string | null;
   }): Promise<void> {
-    const { error } = await supabase
-      .from('occasions')
-      .update({ emoji: params.emoji, label: params.label })
-      .eq('id', params.id);
-
-    if (error) throw error;
+    await unwrap(
+      supabase
+        .from('occasions')
+        .update({ emoji: params.emoji, label: params.label })
+        .eq('id', params.id)
+    );
   }
 
   // Soft, with no hard alternative: `authenticated` holds no delete grant.
   // Editing the picker must never rewrite what an old Post said.
   export async function remove(id: string): Promise<void> {
-    const { error } = await supabase
-      .from('occasions')
-      .update({ deleted_at: new Date().toISOString() })
-      .eq('id', id);
-
-    if (error) throw error;
+    await unwrap(
+      supabase.from('occasions').update({ deleted_at: new Date().toISOString() }).eq('id', id)
+    );
   }
 
   export async function countPosts(id: string): Promise<number> {

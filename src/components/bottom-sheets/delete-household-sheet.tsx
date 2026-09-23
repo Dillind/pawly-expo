@@ -2,14 +2,14 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import type { TrueSheet } from '@lodev09/react-native-true-sheet';
 import { useRouter } from 'expo-router';
 import type { RefObject } from 'react';
-import { Controller, FormProvider, useForm, useWatch } from 'react-hook-form';
+import { FormProvider, useForm, useWatch } from 'react-hook-form';
 import { StyleSheet, View } from 'react-native';
 
 import BaseSheet from '@/components/bottom-sheets/base-sheet';
 import AppText from '@/components/core/app-text';
+import FormTextInput from '@/components/core/form-text-input';
 import Icon from '@/components/core/icon';
 import MainButton from '@/components/core/main-button';
-import TextInputValidated from '@/components/core/text-input-validated';
 import { ErrorMessage, SuccessMessage } from '@/constants/enums';
 import {
   deleteHouseholdSchema,
@@ -70,8 +70,7 @@ const DeleteHouseholdSheet = ({ sheetRef, householdId, name }: Props) => {
             // to the household that no longer exists.
             router.dismissTo('/home');
           });
-        },
-        onError: () => showErrorToast(ErrorMessage.HouseholdDeleteFailed)
+        }
       })
     )();
 
@@ -86,11 +85,11 @@ const DeleteHouseholdSheet = ({ sheetRef, householdId, name }: Props) => {
         <View style={styles.warning}>
           <View style={styles.warningHeading}>
             <Icon name="circleAlert" size={IconSize.action} color="error" />
-            <AppText variant="header" size={18} fontWeight="bold" color="error">
+            <AppText variant="header" size="titleSmall" fontWeight="bold" color="error">
               This cannot be undone
             </AppText>
           </View>
-          <AppText size={14} color="text">
+          <AppText size="subhead" color="text">
             Deleting {name} removes it for everyone, not just for you. Every pet, member, feed, post
             and Care Card goes with it, and nothing can be restored.
           </AppText>
@@ -98,23 +97,14 @@ const DeleteHouseholdSheet = ({ sheetRef, householdId, name }: Props) => {
 
         <FormProvider {...form}>
           <View style={styles.form}>
-            <Controller
-              control={control}
+            <FormTextInput
               name="confirmation"
-              render={({ field: { onChange, onBlur, value } }) => (
-                <TextInputValidated
-                  name="confirmation"
-                  label={`Type ${name} to confirm`}
-                  isLabelIndicated
-                  value={value}
-                  onChangeText={onChange}
-                  onBlur={onBlur}
-                  placeholder={name}
-                  autoCapitalize="none"
-                  autoCorrect={false}
-                  returnKeyType="done"
-                />
-              )}
+              label={`Type ${name} to confirm`}
+              isLabelIndicated
+              placeholder={name}
+              autoCapitalize="none"
+              autoCorrect={false}
+              returnKeyType="done"
             />
 
             <MainButton

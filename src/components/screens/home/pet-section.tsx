@@ -117,11 +117,11 @@ const PetSection = ({
             <PetAvatar photoUrl={pet.photoUrl} size={40} />
 
             <View style={styles.names}>
-              <AppText size={18} fontWeight="bold" numberOfLines={1}>
+              <AppText size="titleSmall" fontWeight="bold" numberOfLines={1}>
                 {pet.name}
               </AppText>
               {occurrences && (
-                <AppText size={13} color="textSecondary" numberOfLines={1}>
+                <AppText size="footnote" color="textSecondary" numberOfLines={1}>
                   {summarisePetDay(occurrences, isPaused, hasFeedTimes)}
                 </AppText>
               )}
@@ -165,7 +165,7 @@ const PetSection = ({
               {isPaused ? (
                 // Still on Home: hiding it would read as deleted.
                 <View style={styles.empty}>
-                  <AppText size={14} color="textSecondary">
+                  <AppText size="subhead" color="textSecondary">
                     {pet.name} is paused. No feeds are expected and nobody is nudged.
                   </AppText>
                   <MainButton
@@ -187,7 +187,7 @@ const PetSection = ({
                 />
               ) : (
                 <View style={styles.empty}>
-                  <AppText size={14} color="textSecondary">
+                  <AppText size="subhead" color="textSecondary">
                     {hasFeedTimes
                       ? `Nothing is due for ${pet.name} ${isToday ? 'today' : 'that day'}. Their next feed is on the way.`
                       : isOwner

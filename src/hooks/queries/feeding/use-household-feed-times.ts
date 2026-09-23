@@ -1,5 +1,6 @@
 import { useQueries } from '@tanstack/react-query';
 
+import { queryKeys } from '@/lib/query-keys';
 import FeedTimeService, { type FeedTime } from '@/services/feed-time.service';
 import type { Pet } from '@/types/core';
 
@@ -9,7 +10,7 @@ import type { Pet } from '@/types/core';
 export function useHouseholdFeedTimes(pets: Pet[]): Record<string, FeedTime[]> {
   return useQueries({
     queries: pets.map((pet) => ({
-      queryKey: ['feed-times', pet.id],
+      queryKey: queryKeys.feedTimes(pet.id),
       queryFn: () => FeedTimeService.list(pet.id)
     })),
     combine: (results) =>

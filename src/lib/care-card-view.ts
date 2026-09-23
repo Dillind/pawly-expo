@@ -7,7 +7,7 @@ import {
 import type { CareCard, CareCardContact, Medication } from '@/services/care-card.service';
 
 // The PDF's top panel: a sitter at 2am is looking for one of these.
-export const EMERGENCY_FIELDS: CareCardField[] = [
+const EMERGENCY_FIELDS: CareCardField[] = [
   'vetName',
   'vetPhone',
   'emergencyVetName',
@@ -17,7 +17,7 @@ export const EMERGENCY_FIELDS: CareCardField[] = [
 // `id` keys the row: two contacts can share a name, so the label cannot.
 export type CareCardRow = { id: string; label: string; value: string };
 
-export type CareCardMedicationEntry = {
+type CareCardMedicationEntry = {
   id: string;
   name: string;
   detail: string | null;

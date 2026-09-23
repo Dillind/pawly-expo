@@ -1,8 +1,8 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Controller, FormProvider, useForm, useWatch, type Control } from 'react-hook-form';
+import { FormProvider, useForm, type Control } from 'react-hook-form';
 import { StyleSheet, View } from 'react-native';
 
-import TextInputValidated from '@/components/core/text-input-validated';
+import FormTextInput from '@/components/core/form-text-input';
 import type { AppTheme } from '@/constants/theme';
 import { useUpsertMedication } from '@/hooks/queries/pet/use-care-card-mutations';
 import { useStyles } from '@/hooks/use-styles';
@@ -40,24 +40,15 @@ const MedicationFieldInput = ({
   control: Control<MedicationInput>;
   field: MedicationField;
 }) => {
-  const value = useWatch({ control, name: field.name });
-
   return (
-    <Controller
+    <FormTextInput
       control={control}
       name={field.name}
-      render={({ field: { onChange } }) => (
-        <TextInputValidated
-          name={field.name}
-          label={field.label}
-          isLabelIndicated={field.isRequired}
-          placeholder={field.placeholder}
-          value={value ?? ''}
-          onChangeText={onChange}
-          isMultiline={field.isMultiline}
-          height={field.isMultiline ? MEDICATION_MULTILINE_HEIGHT : undefined}
-        />
-      )}
+      label={field.label}
+      isLabelIndicated={field.isRequired}
+      placeholder={field.placeholder}
+      isMultiline={field.isMultiline}
+      height={field.isMultiline ? MEDICATION_MULTILINE_HEIGHT : undefined}
     />
   );
 };

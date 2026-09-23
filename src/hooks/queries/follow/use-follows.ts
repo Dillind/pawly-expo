@@ -1,21 +1,14 @@
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { ErrorMessage, SuccessMessage } from '@/constants/enums';
+import { queryKeys } from '@/lib/query-keys';
 import { showErrorToast, showSuccessToast } from '@/lib/toast';
 import FollowService, { type RequestFollowStatus } from '@/services/follow.service';
-
-export const followingKey = ['following'];
-
-const previewKey = (householdId: string | undefined) => ['follow-preview', householdId];
-const searchKeyRoot = ['household-search'];
-const searchKey = (term: string) => [...searchKeyRoot, term];
-const followersKey = (householdId: string | undefined) => ['followers', householdId];
-const requestsKey = (householdId: string | undefined) => ['follow-requests', householdId];
 
 // Its own query, so the route survives a cold start.
 export function useFollowPreview(householdId: string | undefined) {
   return useQuery({
-    queryKey: previewKey(householdId),
+    queryKey: queryKeys.follow.preview(householdId),
     queryFn: () => FollowService.preview(householdId as string),
     enabled: Boolean(householdId),
     retry: false
@@ -29,7 +22,7 @@ export function useHouseholdSearch(term: string) {
   const query = term.trim();
 
   return useQuery({
-    queryKey: searchKey(query),
+    queryKey: queryKeys.follow.search(query),
     queryFn: () => FollowService.search(query),
     enabled: query.length >= SEARCH_MIN_LENGTH,
     // Previous rows stay while the next term resolves, so the list narrows.
@@ -40,7 +33,7 @@ export function useHouseholdSearch(term: string) {
 
 export function useFollowing() {
   return useQuery({
-    queryKey: followingKey,
+    queryKey: queryKeys.follow.following,
     queryFn: () => FollowService.listFollowing()
   });
 }
@@ -57,7 +50,7 @@ export function useFollowedHouseholdIds(): string[] {
 
 export function useFollowers(householdId: string | undefined) {
   return useQuery({
-    queryKey: followersKey(householdId),
+    queryKey: queryKeys.follow.followers(householdId),
     queryFn: () => FollowService.listFollowers(householdId as string),
     enabled: Boolean(householdId)
   });
@@ -65,7 +58,7 @@ export function useFollowers(householdId: string | undefined) {
 
 export function useFollowRequests(householdId: string | undefined) {
   return useQuery({
-    queryKey: requestsKey(householdId),
+    queryKey: queryKeys.follow.requests(householdId),
     queryFn: () => FollowService.listRequests(householdId as string),
     enabled: Boolean(householdId)
   });
@@ -82,11 +75,12 @@ export function useRequestFollow(householdId: string | undefined) {
   const queryClient = useQueryClient();
 
   return useMutation({
+    meta: { errorMessage: ErrorMessage.FollowRequestFailed },
     mutationFn: () => FollowService.request(householdId as string),
     onSettled: () => {
-      void queryClient.invalidateQueries({ queryKey: previewKey(householdId) });
-      void queryClient.invalidateQueries({ queryKey: followingKey });
-      void queryClient.invalidateQueries({ queryKey: searchKeyRoot });
+      void queryClient.invalidateQueries({ queryKey: queryKeys.follow.preview(householdId) });
+      void queryClient.invalidateQueries({ queryKey: queryKeys.follow.following });
+      void queryClient.invalidateQueries({ queryKey: queryKeys.follow.searchAll });
     },
     onSuccess: (status) => {
       const refusal = REQUEST_REFUSALS[status];
@@ -94,10 +88,6 @@ export function useRequestFollow(householdId: string | undefined) {
       if (refusal) return showErrorToast(refusal);
 
       showSuccessToast(SuccessMessage.FollowRequested);
-    },
-    onError: (error) => {
-      console.error(error);
-      showErrorToast(ErrorMessage.FollowRequestFailed);
     }
   });
 }
@@ -106,17 +96,13 @@ export function useUnfollow() {
   const queryClient = useQueryClient();
 
   return useMutation({
+    meta: { successMessage: SuccessMessage.Unfollowed, errorMessage: ErrorMessage.UnfollowFailed },
     mutationFn: (householdId: string) => FollowService.unfollow(householdId),
     onSettled: (_data, _error, householdId) => {
-      void queryClient.invalidateQueries({ queryKey: previewKey(householdId) });
-      void queryClient.invalidateQueries({ queryKey: followingKey });
-      void queryClient.invalidateQueries({ queryKey: searchKeyRoot });
-      void queryClient.invalidateQueries({ queryKey: ['posts'] });
-    },
-    onSuccess: () => showSuccessToast(SuccessMessage.Unfollowed),
-    onError: (error) => {
-      console.error(error);
-      showErrorToast(ErrorMessage.UnfollowFailed);
+      void queryClient.invalidateQueries({ queryKey: queryKeys.follow.preview(householdId) });
+      void queryClient.invalidateQueries({ queryKey: queryKeys.follow.following });
+      void queryClient.invalidateQueries({ queryKey: queryKeys.follow.searchAll });
+      void queryClient.invalidateQueries({ queryKey: queryKeys.posts.all });
     }
   });
 }
@@ -125,10 +111,11 @@ export function useRespondToFollowRequest(householdId: string | undefined) {
   const queryClient = useQueryClient();
 
   return useMutation({
+    meta: { errorMessage: ErrorMessage.FollowRespondFailed },
     mutationFn: (input: { followId: string; accept: boolean }) => FollowService.respond(input),
     onSettled: () => {
-      void queryClient.invalidateQueries({ queryKey: requestsKey(householdId) });
-      void queryClient.invalidateQueries({ queryKey: followersKey(householdId) });
+      void queryClient.invalidateQueries({ queryKey: queryKeys.follow.requests(householdId) });
+      void queryClient.invalidateQueries({ queryKey: queryKeys.follow.followers(householdId) });
     },
     onSuccess: (status) => {
       if (status === 'not_owner') return showErrorToast(ErrorMessage.FollowRespondNotOwner);
@@ -141,10 +128,6 @@ export function useRespondToFollowRequest(householdId: string | undefined) {
           ? SuccessMessage.FollowRequestAccepted
           : SuccessMessage.FollowRequestDeclined
       );
-    },
-    onError: (error) => {
-      console.error(error);
-      showErrorToast(ErrorMessage.FollowRespondFailed);
     }
   });
 }
@@ -153,18 +136,15 @@ export function useRemoveFollower(householdId: string | undefined) {
   const queryClient = useQueryClient();
 
   return useMutation({
+    meta: { errorMessage: ErrorMessage.FollowerRemoveFailed },
     mutationFn: (followId: string) => FollowService.remove(followId),
     onSettled: () => {
-      void queryClient.invalidateQueries({ queryKey: followersKey(householdId) });
+      void queryClient.invalidateQueries({ queryKey: queryKeys.follow.followers(householdId) });
     },
     onSuccess: (status) => {
       if (status !== 'removed') return showErrorToast(ErrorMessage.FollowerRemoveFailed);
 
       showSuccessToast(SuccessMessage.FollowerRemoved);
-    },
-    onError: (error) => {
-      console.error(error);
-      showErrorToast(ErrorMessage.FollowerRemoveFailed);
     }
   });
 }

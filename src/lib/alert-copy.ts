@@ -60,6 +60,17 @@ export function alertSentence(alert: InboxRow): string {
 
     case 'member_left':
       return `${someone(alert.subjectName ?? alert.actorName)} left the household`;
+
+    case 'follow_requested':
+      return `${actor} requested to follow your household`;
+
+    case 'reminder_due':
+      return alert.petName
+        ? `${alert.petName} has a reminder coming up`
+        : 'A reminder is coming up';
+
+    case 'feature_request_reported':
+      return 'A feature request was reported';
   }
 }
 
@@ -68,6 +79,7 @@ export type AlertGlyph = 'circleAlert' | 'image' | 'heart' | 'comment' | 'users'
 export const alertGlyph = (kind: InboxRow['kind']): AlertGlyph => {
   switch (kind) {
     case 'missed_feed':
+    case 'reminder_due':
       return 'circleAlert';
     case 'post':
       return 'image';

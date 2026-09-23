@@ -2,7 +2,7 @@ import { z } from 'zod';
 
 // Mirrors the `length(btrim(title)) between 1 and 80` check on public.reminders.
 // Two layers, one number.
-export const REMINDER_TITLE_MAX_LENGTH = 80;
+const REMINDER_TITLE_MAX_LENGTH = 80;
 
 const TIME_REGEX = /^([01]\d|2[0-3]):[0-5]\d$/;
 const DATE_REGEX = /^\d{4}-\d{2}-\d{2}$/;

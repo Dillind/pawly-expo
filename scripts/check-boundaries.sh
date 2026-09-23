@@ -1,10 +1,6 @@
 #!/usr/bin/env bash
-# PostToolUse hook. Enforces the import boundaries and file-naming rules in
-# AGENTS.md that a typecheck and a lint pass cannot see.
-#
-# Reads the hook JSON on stdin, checks the one file that was just written, and
-# exits 2 with the reason on stderr so Claude is told to fix it straight away.
-# Exit 0 means clean. Never fails the edit for a file outside src/.
+# PostToolUse hook: checks the one file just written under src/ and exits 2 with the reason,
+# so the fix happens on the edit that caused it. ESLint holds the code rules; this adds paths.
 
 set -uo pipefail
 
@@ -46,52 +42,12 @@ for part in "${parts[@]}"; do
   fi
 done
 
-# --- Normalised copy for import matching -------------------------------------
-# An import is not reliably one line. Prettier wraps a long one across several,
-# and a module specifier may be double-quoted before `bun run format` rewrites
-# it. Matching the raw text line by line misses both, so build one normalised
-# blob first: line comments dropped, double quotes folded to single, all
-# whitespace removed. Every import then reads as import{a,b}from'mod'.
-norm=$(python3 -c '
-import re, sys
-src = open(sys.argv[1], encoding="utf-8", errors="ignore").read()
-src = re.sub(r"^\s*//.*$", "", src, flags=re.M)   # line comments
-src = re.sub(r"/\*.*?\*/", "", src, flags=re.S)   # block comments
-src = src.replace(chr(34), chr(39))               # " -> '"'"'
-sys.stdout.write(re.sub(r"\s+", "", src))
-' "$rel" 2>/dev/null) || norm=$(tr -d '[:space:]' <"$rel")
-
-# --- Import boundaries -------------------------------------------------------
-if printf '%s' "$norm" | grep -qF "from'lucide-react-native'" \
-  && [ "$rel" != 'src/constants/icon-map.ts' ]; then
-  add "Imports lucide-react-native directly. Only src/constants/icon-map.ts may. Use <Icon name=\"...\" /> instead. See ADR 0008."
-fi
-
-if printf '%s' "$norm" | grep -qF "from'@/lib/supabase/client'" \
-  && [[ "$rel" != src/services/* ]] \
-  && [ "$rel" != 'src/lib/supabase/client.ts' ]; then
-  add "Imports the Supabase client outside src/services/. A remote call belongs in a service, and a query hook wraps it."
-fi
-
-# A type-only import is fine — the rule is about the value. `import type {...}`
-# and an inline `type TrueSheet` specifier are both allowed through.
-if printf '%s' "$norm" | grep -qE "import\{([^}]*,)?TrueSheet[,}]" \
-  && [ "$rel" != 'src/components/bottom-sheets/base-sheet.tsx' ]; then
-  add "Value-imports TrueSheet. Only base-sheet.tsx may. Build on BaseSheet and import TrueSheet as a type for the ref."
-fi
-
-if printf '%s' "$norm" | grep -qE "import\{([^}]*,)?toast(,[^}]*)?\}from'sonner-native'" \
-  && [ "$rel" != 'src/lib/toast.ts' ]; then
-  add "Imports toast from sonner-native. Use showSuccessToast / showErrorToast / showInfoToast from @/lib/toast."
-fi
-
-# --- Domain rules ------------------------------------------------------------
-if printf '%s' "$norm" | grep -qF "from('feed_logs').insert("; then
-  add "Inserts into feed_logs directly. A feed log is only created through the log_feed RPC — the Double Feed guard and the alert trigger both hang off it."
-fi
-
-if printf '%s' "$norm" | grep -qE "=watch\(" ; then
-  add "Uses watch() from react-hook-form. Use useWatch({ control, name }) — React Compiler cannot memoise watch()."
+# --- Lint -------------------------------------------------------------------
+# Every code rule lives in eslint.config.js, so CI enforces it too. Running it here
+# reports a violation on the edit that made it, not at the end of the turn.
+if ! lint=$(bunx eslint --no-warn-ignored --max-warnings=0 "$rel" 2>&1); then
+  add "ESLint:
+$lint"
 fi
 
 if [ ${#violations[@]} -eq 0 ]; then

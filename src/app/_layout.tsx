@@ -7,7 +7,6 @@ import { AppState, type AppStateStatus } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { KeyboardProvider } from 'react-native-keyboard-controller';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
-import { Toaster } from 'sonner-native';
 
 import AnimatedSplash from '@/components/screens/splash/animated-splash';
 import { useUserProfile } from '@/hooks/queries/account/use-user-profile';
@@ -16,11 +15,13 @@ import { useCacheReset } from '@/hooks/use-cache-reset';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { usePushNotifications } from '@/hooks/use-push-notifications';
 import { persistOptions, queryClient } from '@/lib/query-client';
+import { Toaster } from '@/lib/toast';
 import { useActiveHouseholdStore } from '@/stores/active-household-store';
 import { useAuthStore } from '@/stores/auth-store';
 import { useThemeStore } from '@/stores/theme-store';
 import { isWeb } from '@/utils/platform';
 
+// eslint-disable-next-line @typescript-eslint/no-require-imports -- keeps Reactotron out of release bundles
 if (__DEV__) require('../../ReactotronConfig');
 
 void SplashScreen.preventAutoHideAsync();

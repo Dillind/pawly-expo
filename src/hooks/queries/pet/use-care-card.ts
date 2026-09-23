@@ -1,6 +1,7 @@
 import { queryOptions, useQuery } from '@tanstack/react-query';
 
 import { emptyCareCard } from '@/constants/care-card-fields';
+import { queryKeys } from '@/lib/query-keys';
 import CareCardService from '@/services/care-card.service';
 
 // Exported so sharing can fetch several pets' cards imperatively through
@@ -8,7 +9,7 @@ import CareCardService from '@/services/care-card.service';
 // should still be the one that answers.
 export const careCardQueryOptions = (petId: string) =>
   queryOptions({
-    queryKey: ['care-card', petId],
+    queryKey: queryKeys.careCard(petId),
     queryFn: async () => {
       const [card, medications, contacts] = await Promise.all([
         CareCardService.getCard(petId),

@@ -50,10 +50,10 @@ const CommentRow = ({ comment, isReply = false, onToggleLike, onReply, onLongPre
 
       <View style={styles.content}>
         <View style={styles.meta}>
-          <AppText size={14} fontWeight="bold" numberOfLines={1}>
+          <AppText size="subhead" fontWeight="bold" numberOfLines={1}>
             {authorName}
           </AppText>
-          <AppText size={13} color="textSecondary">
+          <AppText size="footnote" color="textSecondary">
             {formatRelativeTime(comment.createdAt)}
           </AppText>
         </View>
@@ -61,18 +61,18 @@ const CommentRow = ({ comment, isReply = false, onToggleLike, onReply, onLongPre
         {/* Its own line, not an inline prefix. Without the "@" the name read as
             the first word of the sentence. */}
         {comment.replyToName && (
-          <AppText size={13} color="textSecondary">
+          <AppText size="footnote" color="textSecondary">
             {`Replying to ${comment.replyToName}`}
           </AppText>
         )}
-        <AppText size={15}>{comment.body}</AppText>
+        <AppText size="callout">{comment.body}</AppText>
 
         <PressableOpacity
           style={styles.replyTarget}
           onPress={onReply}
           accessibilityRole="button"
           accessibilityLabel={`Reply to ${authorName}`}>
-          <AppText size={13} color="textSecondary" fontWeight="bold">
+          <AppText size="footnote" color="textSecondary" fontWeight="bold">
             Reply
           </AppText>
         </PressableOpacity>
@@ -94,7 +94,7 @@ const CommentRow = ({ comment, isReply = false, onToggleLike, onReply, onLongPre
         />
         {comment.likeCount > 0 && (
           <AppText
-            size={12}
+            size="caption"
             color={comment.likedByMe ? 'like' : 'textSecondary'}
             style={styles.likeCount}>
             {comment.likeCount}

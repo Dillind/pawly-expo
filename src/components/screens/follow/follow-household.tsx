@@ -59,11 +59,11 @@ const FollowHousehold = ({ householdId }: Props) => {
       <View style={styles.petRow}>
         <PetAvatar photoUrl={pet.photoUrl} size={PET_AVATAR} />
         <View style={styles.petText}>
-          <AppText size={16} numberOfLines={1}>
+          <AppText size="body" numberOfLines={1}>
             {pet.name}
           </AppText>
           {pet.breed && (
-            <AppText size={13} color="textSecondary" numberOfLines={1}>
+            <AppText size="footnote" color="textSecondary" numberOfLines={1}>
               {pet.breed}
             </AppText>
           )}
@@ -92,7 +92,7 @@ const FollowHousehold = ({ householdId }: Props) => {
 
     if (preview.status === 'member') {
       return (
-        <AppText size={13} color="textSecondary" align="center">
+        <AppText size="footnote" color="textSecondary" align="center">
           You are already in this household.
         </AppText>
       );
@@ -108,7 +108,7 @@ const FollowHousehold = ({ householdId }: Props) => {
             leftIcon={<Icon name="check" size={19} color="text" />}
             onPress={() => unfollow(householdId)}
           />
-          <AppText size={13} color="textSecondary" align="center" style={styles.caption}>
+          <AppText size="footnote" color="textSecondary" align="center" style={styles.caption}>
             Their posts are on your Posts tab. Tap to unfollow.
           </AppText>
         </>
@@ -124,7 +124,7 @@ const FollowHousehold = ({ householdId }: Props) => {
             isDisabled={isUnfollowing}
             onPress={() => unfollow(householdId)}
           />
-          <AppText size={13} color="textSecondary" align="center" style={styles.caption}>
+          <AppText size="footnote" color="textSecondary" align="center" style={styles.caption}>
             Waiting on an Owner to accept. Tap to withdraw.
           </AppText>
         </>
@@ -140,7 +140,7 @@ const FollowHousehold = ({ householdId }: Props) => {
           leftIcon={<Icon name="userPlus" size={19} color="onPrimary" />}
           onPress={() => requestFollow()}
         />
-        <AppText size={13} color="textSecondary" align="center" style={styles.caption}>
+        <AppText size="footnote" color="textSecondary" align="center" style={styles.caption}>
           An Owner has to accept your request before you see anything.
         </AppText>
       </>
@@ -171,11 +171,11 @@ const FollowHousehold = ({ householdId }: Props) => {
               person which household they picked. Without it two households
               named the same thing are indistinguishable here. */}
           {preview.handle && (
-            <AppText size={15} color="textSecondary">
+            <AppText size="callout" color="textSecondary">
               @{preview.handle}
             </AppText>
           )}
-          <AppText size={15} color="textSecondary">
+          <AppText size="callout" color="textSecondary">
             {countText(preview.pets.length, 'pet')}
           </AppText>
         </View>
@@ -209,10 +209,14 @@ const FollowHousehold = ({ householdId }: Props) => {
               </View>
             ) : (
               <View style={styles.locked}>
-                <AppText size={16} fontWeight="bold" align="center">
+                <AppText size="body" fontWeight="bold" align="center">
                   Nothing posted yet
                 </AppText>
-                <AppText size={14} color="textSecondary" align="center" style={styles.lockedBody}>
+                <AppText
+                  size="subhead"
+                  color="textSecondary"
+                  align="center"
+                  style={styles.lockedBody}>
                   When this household shares a photo it appears here and on your Posts tab.
                 </AppText>
               </View>
@@ -222,10 +226,14 @@ const FollowHousehold = ({ householdId }: Props) => {
               <View style={styles.lockCircle}>
                 <Icon name="lock" size={IconSize.action} color="textSecondary" />
               </View>
-              <AppText size={16} fontWeight="bold" align="center">
+              <AppText size="body" fontWeight="bold" align="center">
                 This household is private
               </AppText>
-              <AppText size={14} color="textSecondary" align="center" style={styles.lockedBody}>
+              <AppText
+                size="subhead"
+                color="textSecondary"
+                align="center"
+                style={styles.lockedBody}>
                 Once your request is accepted, their posts and pet profiles appear here and on your
                 Posts tab.
               </AppText>

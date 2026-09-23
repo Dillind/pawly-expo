@@ -2,7 +2,7 @@ const DAY_MS = 86_400_000;
 
 // A week: long enough that the trip is over, short enough that the list is not
 // wanted for the next one yet. The card asks; nothing resets on its own.
-export const PACKED_STALE_AFTER_DAYS = 7;
+const PACKED_STALE_AFTER_DAYS = 7;
 
 type TickState = { isTicked: boolean; tickedAt: string | null };
 

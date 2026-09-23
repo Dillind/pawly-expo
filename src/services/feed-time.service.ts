@@ -1,9 +1,11 @@
 import { UserFacingError } from '@/lib/errors';
 import type { FeedTimeInput } from '@/lib/form/pet-schemas';
 import { supabase } from '@/lib/supabase/client';
-import type { FeedingScheduleLabel, Occurrence, OccurrenceStateValue } from '@/types/core';
+import { unwrap } from '@/lib/supabase/unwrap';
+import type { FeedingScheduleLabel, Occurrence } from '@/types/core';
+import type { RpcRow } from '@/types/database-overrides';
 
-export type PetPause = {
+type PetPause = {
   id: string;
   // The raw Postgres daterange, e.g. "[2026-08-20,)".
   during: string;
@@ -20,34 +22,14 @@ export type FeedTime = {
 
 const DUPLICATE_LABEL = '23505';
 
-type FeedTimeRow = {
-  series_id: string;
-  local_time: string;
-  label: FeedingScheduleLabel;
-  days_of_week: number[];
-  instructions: string | null;
-};
-
-type OccurrenceRow = {
-  series_id: string;
-  local_time: string;
-  label: FeedingScheduleLabel;
-  instructions: string | null;
-  scheduled_at: string;
-  state: OccurrenceStateValue;
-  satisfying_log_id: string | null;
-  satisfied_at: string | null;
-  satisfied_by: string | null;
-};
+type FeedTimeRow = RpcRow<'pet_feed_times'>;
 
 namespace FeedTimeService {
   // A version closed in the past is history and never appears here.
   export async function list(petId: string): Promise<FeedTime[]> {
-    const { data, error } = await supabase.rpc('pet_feed_times', { target_pet_id: petId });
+    const data = await unwrap(supabase.rpc('pet_feed_times', { target_pet_id: petId }));
 
-    if (error) throw error;
-
-    return (data as FeedTimeRow[]).map(mapFeedTimeRow);
+    return data.map(mapFeedTimeRow);
   }
 
   // Never an update in place: the RPC closes the current version and opens a
@@ -71,63 +53,63 @@ namespace FeedTimeService {
 
     if (error) throw error;
 
-    return data as string;
+    return data;
   }
 
   // Closes the range. Past days keep the feed, so their history stays true.
   export async function endFeedTime(petId: string, seriesId: string): Promise<void> {
-    const { error } = await supabase.rpc('end_feed_time', {
-      target_pet_id: petId,
-      target_series_id: seriesId
-    });
-
-    if (error) throw error;
+    await unwrap(
+      supabase.rpc('end_feed_time', {
+        target_pet_id: petId,
+        target_series_id: seriesId
+      })
+    );
   }
 
   // A pause is a date range, so "paused" is a question about a day rather than
   // a flag on the pet.
   export async function currentPause(petId: string, date: string): Promise<PetPause | null> {
-    const { data, error } = await supabase
-      .from('pet_pauses')
-      .select('id, during, reason')
-      .eq('pet_id', petId)
-      .contains('during', `[${date},${date}]`)
-      .maybeSingle();
-
-    if (error) throw error;
+    const data = await unwrap(
+      supabase
+        .from('pet_pauses')
+        .select('id, during, reason')
+        .eq('pet_id', petId)
+        .contains('during', `[${date},${date}]`)
+        .maybeSingle()
+    );
     if (!data) return null;
 
+    // `during` is a tstzrange, which the generator types as unknown.
     const row = data as { id: string; during: string; reason: string | null };
 
     return { id: row.id, during: row.during, reason: row.reason };
   }
 
   export async function pause(petId: string, reason?: string | null): Promise<void> {
-    const { error } = await supabase.rpc('pause_pet', {
-      target_pet_id: petId,
-      target_reason: reason ?? null
-    });
-
-    if (error) throw error;
+    await unwrap(
+      supabase.rpc('pause_pet', {
+        target_pet_id: petId,
+        target_reason: reason ?? null
+      })
+    );
   }
 
   // Closes the pause rather than deleting it: a deleted pause makes the days it
   // covered expect feeds again.
   export async function resume(petId: string): Promise<void> {
-    const { error } = await supabase.rpc('resume_pet', { target_pet_id: petId });
-    if (error) throw error;
+    await unwrap(supabase.rpc('resume_pet', { target_pet_id: petId }));
   }
 
   // `date` is an ISO YYYY-MM-DD string in the household's timezone.
   export async function getOccurrences(petId: string, date: string): Promise<Occurrence[]> {
-    const { data, error } = await supabase.rpc('pet_occurrence_states', {
-      target_pet_id: petId,
-      target_date: date
-    });
+    const data = await unwrap(
+      supabase.rpc('pet_occurrence_states', {
+        target_pet_id: petId,
+        target_date: date
+      })
+    );
 
-    if (error) throw error;
-
-    return (data as OccurrenceRow[]).map((row) => ({
+    return data.map((row) => ({
       seriesId: row.series_id,
       occurrenceDate: date,
       localTime: row.local_time,

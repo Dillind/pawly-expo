@@ -1,11 +1,11 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter } from 'expo-router';
-import { Controller, FormProvider, useForm, useWatch } from 'react-hook-form';
+import { FormProvider, useForm } from 'react-hook-form';
 import { StyleSheet, View } from 'react-native';
 
 import AppText from '@/components/core/app-text';
+import FormTextInput from '@/components/core/form-text-input';
 import MainButton from '@/components/core/main-button';
-import TextInputValidated from '@/components/core/text-input-validated';
 import ScreenScrollView from '@/components/layout/screen-scroll-view';
 import ScreenView from '@/components/layout/screen-view';
 import { joinSchema, type JoinInput } from '@/constants/schemas/invite';
@@ -23,9 +23,7 @@ const JoinHousehold = () => {
     resolver: zodResolver(joinSchema),
     defaultValues: { code: '' }
   });
-  const { control, handleSubmit } = form;
-
-  const code = useWatch({ control, name: 'code' });
+  const { handleSubmit } = form;
 
   const onSubmit = handleSubmit((values) => {
     redeem(
@@ -45,31 +43,24 @@ const JoinHousehold = () => {
         contentInsetAdjustmentBehavior="automatic">
         <FormProvider {...form}>
           <View style={styles.form}>
-            <AppText variant="header" size={18}>
+            <AppText variant="header" size="titleSmall">
               Have a code?
             </AppText>
-            <AppText size={15} color="textSecondary">
+            <AppText size="callout" color="textSecondary">
               Enter the code an owner shared with you. You&apos;ll see that household&apos;s pets,
               feeds and posts.
             </AppText>
 
-            <Controller
-              control={control}
+            <FormTextInput
               name="code"
-              render={({ field: { onChange } }) => (
-                <TextInputValidated
-                  name="code"
-                  label="Invite code"
-                  isLabelIndicated
-                  placeholder="ABCD2345"
-                  value={code ?? ''}
-                  onChangeText={(value) => onChange(value.toUpperCase())}
-                  autoCapitalize="characters"
-                  autoCorrect={false}
-                  maxLength={8}
-                  returnKeyType="done"
-                />
-              )}
+              label="Invite code"
+              isLabelIndicated
+              placeholder="ABCD2345"
+              parse={(text) => text.toUpperCase()}
+              autoCapitalize="characters"
+              autoCorrect={false}
+              maxLength={8}
+              returnKeyType="done"
             />
 
             <MainButton

@@ -21,7 +21,7 @@ const PostChip = ({ leading, label, onPress, accessibilityLabel }: Props) => {
     <>
       {leading}
       {label ? (
-        <AppText size={13} color="textSecondary">
+        <AppText size="footnote" color="textSecondary">
           {label}
         </AppText>
       ) : null}

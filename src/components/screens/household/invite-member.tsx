@@ -2,15 +2,15 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import type { TrueSheet } from '@lodev09/react-native-true-sheet';
 import { useNavigation } from 'expo-router';
 import { useLayoutEffect, useRef, useState } from 'react';
-import { Controller, FormProvider, useForm, useWatch } from 'react-hook-form';
+import { Controller, FormProvider, useForm } from 'react-hook-form';
 import { StyleSheet, View } from 'react-native';
 
 import InfoSheet from '@/components/bottom-sheets/info-sheet';
 import AppText from '@/components/core/app-text';
+import FormTextInput from '@/components/core/form-text-input';
 import HeaderIconButton from '@/components/core/header-icon-button';
 import MainButton from '@/components/core/main-button';
 import SegmentedControl from '@/components/core/segmented-control';
-import TextInputValidated from '@/components/core/text-input-validated';
 import ScreenScrollView from '@/components/layout/screen-scroll-view';
 import ScreenView from '@/components/layout/screen-view';
 import InviteCodeCard from '@/components/screens/household/invite-code-card';
@@ -56,8 +56,6 @@ const InviteMember = ({ householdId }: Props) => {
   });
   const { control, handleSubmit } = form;
 
-  const email = useWatch({ control, name: 'email' });
-
   const onSubmit = handleSubmit((values) => {
     createInvite(values, {
       onSuccess: (result) => {
@@ -73,28 +71,20 @@ const InviteMember = ({ householdId }: Props) => {
         contentInsetAdjustmentBehavior="automatic">
         <FormProvider {...form}>
           <View style={styles.form}>
-            <AppText size={15} color="textSecondary">
+            <AppText size="callout" color="textSecondary">
               Send them the code or the QR below — it&apos;s how they join. The invite is tied to
               this address, and waits for them if they haven&apos;t signed up yet.
             </AppText>
 
-            <Controller
-              control={control}
+            <FormTextInput
               name="email"
-              render={({ field: { onChange } }) => (
-                <TextInputValidated
-                  name="email"
-                  label="Email address"
-                  isLabelIndicated
-                  placeholder="lisa@example.com"
-                  value={email ?? ''}
-                  onChangeText={onChange}
-                  keyboardType="email-address"
-                  autoCapitalize="none"
-                  autoCorrect={false}
-                  autoComplete="email"
-                />
-              )}
+              label="Email address"
+              isLabelIndicated
+              placeholder="lisa@example.com"
+              keyboardType="email-address"
+              autoCapitalize="none"
+              autoCorrect={false}
+              autoComplete="email"
             />
 
             <Controller

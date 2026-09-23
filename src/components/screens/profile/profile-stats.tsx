@@ -14,7 +14,7 @@ const Stat = ({ value, label }: { value: number | undefined; label: string }) =>
       <AppText variant="header" size={20} align="center" style={styles.value}>
         {value === undefined ? '–' : formatCount(value)}
       </AppText>
-      <AppText size={13} color="textSecondary" align="center">
+      <AppText size="footnote" color="textSecondary" align="center">
         {label}
       </AppText>
     </View>

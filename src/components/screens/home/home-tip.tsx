@@ -26,8 +26,8 @@ const HomeTip = ({ tip }: Props) => {
       onPress={() => router.push(`/home/${tip.petId}`)}>
       <Icon name="lightbulb" size={IconSize.control} color="textSecondary" />
       <View style={styles.copy}>
-        <AppText size={14}>{tip.title}</AppText>
-        <AppText size={12} color="textSecondary">
+        <AppText size="subhead">{tip.title}</AppText>
+        <AppText size="caption" color="textSecondary">
           {tip.action}
         </AppText>
       </View>

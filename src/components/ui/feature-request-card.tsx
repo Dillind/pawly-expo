@@ -5,9 +5,11 @@ import AppText from '@/components/core/app-text';
 import FeatureRequestTags from '@/components/ui/feature-request-tags';
 import FeatureRequestVoteButton from '@/components/ui/feature-request-vote-button';
 import { FEATURE_REQUEST_STATUS_OPTIONS } from '@/constants/options';
-import type { AppTheme } from '@/constants/theme';
-import { useToggleVote } from '@/hooks/queries/feature-requests/use-feature-request-mutations';
-import { useFeatureRequestActions } from '@/hooks/use-feature-request-actions';
+import { Radius, type AppTheme } from '@/constants/theme';
+import {
+  featureRequestPermissions,
+  useFeatureRequestActions
+} from '@/hooks/use-feature-request-actions';
 import { useStyles } from '@/hooks/use-styles';
 import type { FeatureRequest } from '@/services/feature-request.service';
 
@@ -20,8 +22,8 @@ type Props = {
 
 const FeatureRequestCard = ({ request, isTeam, isBanned, isReviewing = false }: Props) => {
   const styles = useStyles(makeStyles);
-  const { mutate: toggleVote } = useToggleVote();
   const actions = useFeatureRequestActions();
+  const can = featureRequestPermissions(request, { isTeam, isBanned });
 
   return (
     <Link
@@ -37,19 +39,19 @@ const FeatureRequestCard = ({ request, isTeam, isBanned, isReviewing = false }: 
           accessibilityLabel={`${request.title}, ${request.voteCount} ${request.voteCount === 1 ? 'vote' : 'votes'}`}
           accessibilityHint="Opens the request. Touch and hold for more actions."
           accessibilityActions={
-            isBanned ? [] : [{ name: 'vote', label: request.hasVoted ? 'Remove vote' : 'Upvote' }]
+            can.canVote
+              ? [{ name: 'vote', label: request.hasVoted ? 'Remove vote' : 'Upvote' }]
+              : []
           }
           onAccessibilityAction={({ nativeEvent }) => {
-            if (nativeEvent.actionName === 'vote') {
-              toggleVote({ requestId: request.id, hasVoted: request.hasVoted });
-            }
+            if (nativeEvent.actionName === 'vote') actions.toggleVote(request);
           }}>
           <View style={styles.body}>
-            <AppText variant="header" size={17} fontWeight="semibold" numberOfLines={2}>
+            <AppText variant="header" size="headline" fontWeight="semibold" numberOfLines={2}>
               {request.title}
             </AppText>
             {request.description ? (
-              <AppText size={14} color="textSecondary" numberOfLines={2} style={styles.lead}>
+              <AppText size="subhead" color="textSecondary" numberOfLines={2} style={styles.lead}>
                 {request.description}
               </AppText>
             ) : null}
@@ -58,8 +60,8 @@ const FeatureRequestCard = ({ request, isTeam, isBanned, isReviewing = false }: 
           <FeatureRequestVoteButton
             count={request.voteCount}
             hasVoted={request.hasVoted}
-            isDisabled={isBanned}
-            onPress={() => toggleVote({ requestId: request.id, hasVoted: request.hasVoted })}
+            isDisabled={!can.canVote}
+            onPress={() => actions.toggleVote(request)}
           />
         </Pressable>
       </Link.Trigger>
@@ -68,23 +70,23 @@ const FeatureRequestCard = ({ request, isTeam, isBanned, isReviewing = false }: 
           title="Report"
           icon="flag"
           destructive
-          hidden={request.isMine || isBanned}
+          hidden={!can.canReport}
           onPress={() => actions.report(request)}
         />
         <Link.MenuAction
           title="Hide requests from this person"
           icon="eye.slash"
-          hidden={request.isMine}
+          hidden={!can.canHideAuthor}
           onPress={() => actions.hideAuthor(request)}
         />
         <Link.MenuAction
           title="Delete"
           icon="trash"
           destructive
-          hidden={!request.isMine}
+          hidden={!can.canDeleteOwn}
           onPress={() => actions.confirmDelete(request)}
         />
-        {isTeam ? (
+        {can.canModerate ? (
           <Link.Menu title="Crumpet team" inline>
             <Link.Menu title="Set status" icon="tag">
               {FEATURE_REQUEST_STATUS_OPTIONS.map((option) => (
@@ -99,14 +101,14 @@ const FeatureRequestCard = ({ request, isTeam, isBanned, isReviewing = false }: 
             <Link.MenuAction
               title="Restore"
               icon="arrow.uturn.backward"
-              hidden={request.reportCount === 0}
+              hidden={!can.canRestore}
               onPress={() => actions.restore(request)}
             />
             <Link.MenuAction
               title="Delete request"
               icon="trash"
               destructive
-              hidden={request.isMine}
+              hidden={!can.canDeleteAsTeam}
               onPress={() => actions.confirmDelete(request)}
             />
           </Link.Menu>
@@ -123,7 +125,7 @@ const makeStyles = ({ colors, spacing }: AppTheme) =>
       alignItems: 'flex-start',
       gap: 14,
       padding: spacing.three,
-      borderRadius: 18,
+      borderRadius: Radius.row,
       borderCurve: 'continuous',
       borderWidth: 1,
       borderColor: colors.border,

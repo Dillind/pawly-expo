@@ -9,7 +9,7 @@ import { useStyles } from '@/hooks/use-styles';
 
 const ROW_HEIGHT = 44;
 
-export type SettingsRowVariant = 'default' | 'destructive';
+type SettingsRowVariant = 'default' | 'destructive';
 
 type Props = {
   icon: IconName;
@@ -42,20 +42,20 @@ const SettingsRow = ({
   const body = (
     <View style={[styles.row, isDisabled && styles.disabled]}>
       <Icon name={icon} size={IconSize.control} color={isDestructive ? 'error' : 'textSecondary'} />
-      <AppText size={16} color={tone} style={styles.label} numberOfLines={1}>
+      <AppText size="body" color={tone} style={styles.label} numberOfLines={1}>
         {label}
       </AppText>
 
       {isSoon ? (
         <View style={styles.soon}>
-          <AppText size={11} color="textSecondary">
+          <AppText size="captionSmall" color="textSecondary">
             Soon
           </AppText>
         </View>
       ) : (
         <>
           {value && (
-            <AppText size={14} color="textSecondary" numberOfLines={1} style={styles.value}>
+            <AppText size="subhead" color="textSecondary" numberOfLines={1} style={styles.value}>
               {value}
             </AppText>
           )}

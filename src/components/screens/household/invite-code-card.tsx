@@ -27,7 +27,7 @@ const InviteCodeCard = ({ code, householdName }: Props) => {
 
   return (
     <View style={styles.card}>
-      <AppText size={14} color="textSecondary" align="center">
+      <AppText size="subhead" color="textSecondary" align="center">
         Have them scan this, or type the code
       </AppText>
 
@@ -43,7 +43,7 @@ const InviteCodeCard = ({ code, householdName }: Props) => {
 
       <MainButton text="Share code" variant="secondary" onPress={share} />
 
-      <AppText size={12} color="textSecondary" align="center">
+      <AppText size="caption" color="textSecondary" align="center">
         Expires in 72 hours
       </AppText>
     </View>

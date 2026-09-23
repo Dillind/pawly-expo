@@ -54,7 +54,7 @@ const PetManageRow = ({ pet, today }: Props) => {
             <StatusPill label="Paused — no feeds expected" />
           ) : (
             summary && (
-              <AppText size={13} color="textSecondary" numberOfLines={1}>
+              <AppText size="footnote" color="textSecondary" numberOfLines={1}>
                 {summary}
               </AppText>
             )

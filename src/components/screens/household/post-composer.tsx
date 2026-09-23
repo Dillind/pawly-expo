@@ -1,15 +1,15 @@
 import type { TrueSheet } from '@lodev09/react-native-true-sheet';
 import { useRef } from 'react';
-import { Controller, useFormContext, useWatch } from 'react-hook-form';
+import { useFormContext, useWatch } from 'react-hook-form';
 import { Alert, ScrollView, StyleSheet, View } from 'react-native';
 
 import OccasionTray from '@/components/bottom-sheets/occasion-tray';
 import PhotoSourceSheet from '@/components/bottom-sheets/photo-source-sheet';
 import TagPetsSheet from '@/components/bottom-sheets/tag-pets-sheet';
 import AppText from '@/components/core/app-text';
+import FormTextInput from '@/components/core/form-text-input';
 import Icon from '@/components/core/icon';
 import PressableOpacity from '@/components/core/pressable-opacity';
-import TextInputValidated from '@/components/core/text-input-validated';
 import AddPhotoTile from '@/components/ui/add-photo-tile';
 import OccasionEmoji from '@/components/ui/occasion-emoji';
 import PhotoTile from '@/components/ui/photo-tile';
@@ -123,45 +123,27 @@ const PostComposer = ({ pets, householdName, householdId, currentOccasion }: Pro
   return (
     <>
       <View style={styles.content}>
-        <Controller
-          control={control}
+        <FormTextInput
           name="title"
-          render={({ field: { onChange, onBlur, value } }) => (
-            <TextInputValidated
-              name="title"
-              label="Title"
-              isLabelIndicated
-              value={value}
-              onChangeText={onChange}
-              onBlur={onBlur}
-              placeholder="Name your post"
-              maxLength={TITLE_MAX}
-              showCharacterCount
-            />
-          )}
+          label="Title"
+          isLabelIndicated
+          placeholder="Name your post"
+          maxLength={TITLE_MAX}
+          showCharacterCount
         />
 
-        <Controller
-          control={control}
+        <FormTextInput
           name="caption"
-          render={({ field: { onChange, onBlur, value } }) => (
-            <TextInputValidated
-              name="caption"
-              label="Description"
-              value={value}
-              onChangeText={onChange}
-              onBlur={onBlur}
-              placeholder="Add a description to your post"
-              isMultiline
-              maxLength={CAPTION_MAX}
-              showCharacterCount
-              height={110}
-            />
-          )}
+          label="Description"
+          placeholder="Add a description to your post"
+          isMultiline
+          maxLength={CAPTION_MAX}
+          showCharacterCount
+          height={110}
         />
 
         <View style={styles.photos}>
-          <AppText size={16}>Photos</AppText>
+          <AppText size="body">Photos</AppText>
 
           {photos.length === 0 ? (
             <AddPhotoTile isDropzone onPress={() => void photoSheetRef.current?.present()} />
@@ -190,7 +172,7 @@ const PostComposer = ({ pets, householdName, householdId, currentOccasion }: Pro
             </ScrollView>
           )}
 
-          <AppText size={13} color="textSecondary">
+          <AppText size="footnote" color="textSecondary">
             {isAtCap
               ? `${PHOTO_CAP} of ${PHOTO_CAP} photos. Remove one to add another.`
               : `${photos.length} of ${PHOTO_CAP} photos`}
@@ -204,10 +186,10 @@ const PostComposer = ({ pets, householdName, householdId, currentOccasion }: Pro
           accessibilityLabel="Tag pets"
           disabled={pets.length === 0}>
           <Icon name="pawPrint" size={IconSize.action} color="textSecondary" />
-          <AppText size={16} style={styles.rowLabel}>
+          <AppText size="body" style={styles.rowLabel}>
             Tag pets
           </AppText>
-          <AppText size={15} color="textSecondary" numberOfLines={1} style={styles.rowValue}>
+          <AppText size="callout" color="textSecondary" numberOfLines={1} style={styles.rowValue}>
             {taggedNames || 'None'}
           </AppText>
           <Icon name="caretRight" size={IconSize.control} color="textSecondary" />
@@ -220,7 +202,7 @@ const PostComposer = ({ pets, householdName, householdId, currentOccasion }: Pro
           accessibilityLabel="Choose an occasion"
           disabled={!householdId}>
           <Icon name="sparkles" size={IconSize.action} color="textSecondary" />
-          <AppText size={16} style={styles.rowLabel}>
+          <AppText size="body" style={styles.rowLabel}>
             Occasion
           </AppText>
 
@@ -228,13 +210,13 @@ const PostComposer = ({ pets, householdName, householdId, currentOccasion }: Pro
             <View style={styles.occasionValue}>
               {occasion.emoji && <OccasionEmoji emoji={occasion.emoji} size={20} />}
               {occasion.label && (
-                <AppText size={15} color="textSecondary" numberOfLines={1}>
+                <AppText size="callout" color="textSecondary" numberOfLines={1}>
                   {occasion.label}
                 </AppText>
               )}
             </View>
           ) : (
-            <AppText size={15} color="textSecondary" numberOfLines={1} style={styles.rowValue}>
+            <AppText size="callout" color="textSecondary" numberOfLines={1} style={styles.rowValue}>
               What&rsquo;s the occasion?
             </AppText>
           )}

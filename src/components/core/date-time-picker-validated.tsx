@@ -8,7 +8,7 @@ import DateTimePickerModal from 'react-native-modal-datetime-picker';
 import AppText from '@/components/core/app-text';
 import Icon from '@/components/core/icon';
 import PressableOpacity from '@/components/core/pressable-opacity';
-import { IconSize, type AppTheme } from '@/constants/theme';
+import { IconSize, Radius, type AppTheme } from '@/constants/theme';
 import { useStyles } from '@/hooks/use-styles';
 import FieldError from '@/lib/form/components/field-error';
 
@@ -94,17 +94,17 @@ const DateTimePickerValidated = ({
         (isLabelIndicated ? (
           <IndicatedText text={label} marginBottom={description ? 0 : 8} textColor="text" />
         ) : (
-          <AppText color="text" size={16} style={{ marginBottom: description ? 0 : 8 }}>
+          <AppText color="text" size="body" style={{ marginBottom: description ? 0 : 8 }}>
             {label}
           </AppText>
         ))}
       {description && (
-        <AppText size={14} style={{ marginBottom: 8 }} color="textSecondary">
+        <AppText size="subhead" style={{ marginBottom: 8 }} color="textSecondary">
           {description}
         </AppText>
       )}
       <PressableOpacity style={styles.pickerContainer} onPress={() => setIsVisible(true)}>
-        <AppText color={selectedDate ? 'text' : 'textSecondary'} size={14}>
+        <AppText color={selectedDate ? 'text' : 'textSecondary'} size="subhead">
           {selectedDate
             ? dayjs(selectedDate, storeFormat[mode]).format(displayFormat[mode])
             : placeholderText[mode]}
@@ -134,7 +134,7 @@ const makeStyles = ({ colors }: AppTheme) =>
   StyleSheet.create({
     container: {},
     pickerContainer: {
-      borderRadius: 8,
+      borderRadius: Radius.input,
       borderWidth: 1,
       borderColor: colors.textSecondary,
       alignItems: 'center',

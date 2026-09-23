@@ -1,12 +1,12 @@
 import dayjs from 'dayjs';
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
-import { Controller, useFieldArray, useFormContext, useWatch } from 'react-hook-form';
+import { useFieldArray, useFormContext, useWatch } from 'react-hook-form';
 import { StyleSheet, View } from 'react-native';
 
 import AppText from '@/components/core/app-text';
+import FormTextInput, { emptyAsNull } from '@/components/core/form-text-input';
 import MainButton from '@/components/core/main-button';
-import TextInputValidated from '@/components/core/text-input-validated';
 import FlowScreen from '@/components/layout/flow-screen';
 import { ErrorMessage } from '@/constants/enums';
 import { FEEDING_SCHEDULE_LABEL_OPTIONS } from '@/constants/options';
@@ -119,26 +119,18 @@ const AddPetInstructions = () => {
 
         return (
           <View key={field.id} style={styles.card}>
-            <AppText size={15} fontWeight="bold">
+            <AppText size="callout" fontWeight="bold">
               {optionLabel(FEEDING_SCHEDULE_LABEL_OPTIONS, feedTime.label)}
               {'  ·  '}
               {dayjs(feedTime.localTime, 'HH:mm').format('h:mm A')}
             </AppText>
 
-            <Controller
-              control={control}
+            <FormTextInput
               name={`feedTimes.${index}.instructions`}
-              render={({ field: { onChange, onBlur, value } }) => (
-                <TextInputValidated
-                  name={`feedTimes.${index}.instructions`}
-                  label="Instructions"
-                  placeholder="Half a tin of wet food + 1 cup dry"
-                  value={value ?? ''}
-                  onBlur={onBlur}
-                  onChangeText={(next: string) => onChange(next === '' ? null : next)}
-                  isMultiline
-                />
-              )}
+              label="Instructions"
+              placeholder="Half a tin of wet food + 1 cup dry"
+              parse={emptyAsNull}
+              isMultiline
             />
           </View>
         );

@@ -3,7 +3,7 @@ import { StyleSheet, View } from 'react-native';
 
 import AppText from '@/components/core/app-text';
 import PressableOpacity from '@/components/core/pressable-opacity';
-import type { AppTheme } from '@/constants/theme';
+import { Radius, type AppTheme } from '@/constants/theme';
 import { useStyles } from '@/hooks/use-styles';
 import FieldError from '@/lib/form/components/field-error';
 import { hapticSelection } from '@/lib/haptics';
@@ -37,7 +37,7 @@ const DayOfWeekPicker = ({ label = 'Days', name, value, onChange }: Props) => {
 
   return (
     <View style={styles.container}>
-      <AppText size={14} fontWeight="bold">
+      <AppText size="subhead" fontWeight="bold">
         {label}
       </AppText>
 
@@ -54,7 +54,7 @@ const DayOfWeekPicker = ({ label = 'Days', name, value, onChange }: Props) => {
               accessibilityState={{ selected: isOn }}
               onPress={() => toggle(day.value)}>
               <AppText
-                size={14}
+                size="subhead"
                 align="center"
                 fontWeight={isOn ? 'bold' : 'regular'}
                 color={isOn ? 'primaryText' : 'textSecondary'}>
@@ -96,7 +96,7 @@ const makeStyles = ({ colors, spacing }: AppTheme) =>
       // 44pt is the tap target floor, and seven of them still fit a 390pt screen.
       minHeight: 44,
       justifyContent: 'center',
-      borderRadius: 10,
+      borderRadius: Radius.control,
       borderCurve: 'continuous'
     },
     on: {

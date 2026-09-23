@@ -12,10 +12,9 @@ export default function FollowLayout() {
   const close = () => (router.canGoBack() ? router.back() : router.replace('/posts'));
 
   return (
-    <Stack>
+    <Stack screenOptions={{ headerTransparent: true, headerBackButtonDisplayMode: 'minimal' }}>
       <Stack.Screen name="[householdId]/index">
         <Stack.Title style={HeaderTitleStyle}>Household</Stack.Title>
-        <Stack.Header transparent />
         <Stack.Screen.BackButton hidden />
         <Stack.Toolbar placement="left">
           <Stack.Toolbar.Button icon="xmark" accessibilityLabel="Close" onPress={close} />
@@ -23,7 +22,6 @@ export default function FollowLayout() {
       </Stack.Screen>
       <Stack.Screen name="[householdId]/pet/[petId]/index">
         <Stack.Title style={HeaderTitleStyle}>Pet</Stack.Title>
-        <Stack.Header transparent />
         <Stack.Screen.BackButton hidden />
         <Stack.Toolbar placement="left">
           <Stack.Toolbar.Button icon="xmark" accessibilityLabel="Close" onPress={close} />

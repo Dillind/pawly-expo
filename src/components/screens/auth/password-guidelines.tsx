@@ -10,10 +10,10 @@ const PasswordGuidelines = () => {
 
   return (
     <View style={styles.container}>
-      <AppText size={14} fontWeight="bold">
+      <AppText size="subhead" fontWeight="bold">
         Password guidelines
       </AppText>
-      <AppText size={12} color="textSecondary">
+      <AppText size="caption" color="textSecondary">
         {PasswordRules}
       </AppText>
     </View>

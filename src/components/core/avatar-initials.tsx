@@ -11,7 +11,7 @@ type Props = {
   size?: number;
 };
 
-export const toInitials = (
+const toInitials = (
   firstName: string | null | undefined,
   lastName: string | null | undefined
 ): string => {

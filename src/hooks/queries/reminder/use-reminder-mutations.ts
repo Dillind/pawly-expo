@@ -1,25 +1,25 @@
 import { useMutation, useQueryClient, type QueryClient } from '@tanstack/react-query';
 
 import { ErrorMessage, SuccessMessage } from '@/constants/enums';
+import { queryKeys } from '@/lib/query-keys';
 import { showErrorToast, showSuccessToast } from '@/lib/toast';
 import ReminderService, { type ReminderInput } from '@/services/reminder.service';
 
 function invalidate(queryClient: QueryClient) {
-  void queryClient.invalidateQueries({ queryKey: ['reminders'] });
-  void queryClient.invalidateQueries({ queryKey: ['reminder-days'] });
+  void queryClient.invalidateQueries({ queryKey: queryKeys.reminders.all });
+  void queryClient.invalidateQueries({ queryKey: queryKeys.reminderDays.all });
 }
 
 export function useCreateReminder() {
   const queryClient = useQueryClient();
 
   return useMutation({
+    meta: {
+      successMessage: SuccessMessage.ReminderAdded,
+      errorMessage: ErrorMessage.ReminderSaveFailed
+    },
     mutationFn: (input: ReminderInput) => ReminderService.create(input),
-    onSettled: () => invalidate(queryClient),
-    onSuccess: () => showSuccessToast(SuccessMessage.ReminderAdded),
-    onError: (error) => {
-      console.error(error);
-      showErrorToast(ErrorMessage.ReminderSaveFailed);
-    }
+    onSettled: () => invalidate(queryClient)
   });
 }
 
@@ -27,13 +27,12 @@ export function useRemoveReminder() {
   const queryClient = useQueryClient();
 
   return useMutation({
+    meta: {
+      successMessage: SuccessMessage.ReminderRemoved,
+      errorMessage: ErrorMessage.ReminderRemoveFailed
+    },
     mutationFn: (reminderId: string) => ReminderService.remove(reminderId),
-    onSettled: () => invalidate(queryClient),
-    onSuccess: () => showSuccessToast(SuccessMessage.ReminderRemoved),
-    onError: (error) => {
-      console.error(error);
-      showErrorToast(ErrorMessage.ReminderRemoveFailed);
-    }
+    onSettled: () => invalidate(queryClient)
   });
 }
 
@@ -65,7 +64,6 @@ export function useTickReminder() {
         input.isDone ? SuccessMessage.ReminderUnticked : SuccessMessage.ReminderTicked
       ),
     onError: (error, input) => {
-      console.error(error);
       showErrorToast(
         input.isDone ? ErrorMessage.ReminderUntickFailed : ErrorMessage.ReminderTickFailed
       );

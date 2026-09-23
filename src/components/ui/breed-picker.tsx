@@ -49,7 +49,7 @@ const BreedPicker = ({ species, value, onChange }: Props) => {
           accessibilityRole="button"
           accessibilityState={{ selected: isSelected }}
           onPress={() => onChange(breed.value)}>
-          <AppText size={16} fontWeight={isSelected ? 'semibold' : 'regular'}>
+          <AppText size="body" fontWeight={isSelected ? 'semibold' : 'regular'}>
             {breed.label}
           </AppText>
           {isSelected && <Icon name="check" size={19} color="primaryText" strokeWidth={2.6} />}
@@ -77,7 +77,7 @@ const BreedPicker = ({ species, value, onChange }: Props) => {
       </View>
 
       {visibleBreeds.length === 0 ? (
-        <AppText size={15} align="center" color="textSecondary" style={styles.noResults}>
+        <AppText size="callout" align="center" color="textSecondary" style={styles.noResults}>
           {`No breed matches "${settledQuery.trim()}". Pick Unknown and tell us later.`}
         </AppText>
       ) : (

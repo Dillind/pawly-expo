@@ -174,7 +174,7 @@ const PetIdentity = ({ pet, isOwner }: Props) => {
       </View>
 
       {subtitle.length > 0 && (
-        <AppText size={15} color="textSecondary" align="center">
+        <AppText size="callout" color="textSecondary" align="center">
           {subtitle}
         </AppText>
       )}

@@ -10,8 +10,6 @@ export const petDetailsSchema = z.object({
   photoUri: z.string().nullable()
 });
 
-export type PetDetailsFormValues = z.infer<typeof petDetailsSchema>;
-
 export const petDetailsEditSchema = petDetailsSchema.omit({ photoUri: true });
 
 export type PetDetailsEditValues = z.infer<typeof petDetailsEditSchema>;

@@ -25,6 +25,26 @@ const alert = (overrides: Partial<InboxRow>): InboxRow => ({
 });
 
 describe('alertSentence', () => {
+  // list_alerts returns these, and a missing case rendered an empty row.
+  it('words a follow request', () => {
+    expect(alertSentence(alert({ kind: 'follow_requested' }))).toBe(
+      'Sarah Smith requested to follow your household'
+    );
+  });
+
+  it('words a reminder, with and without its pet', () => {
+    expect(alertSentence(alert({ kind: 'reminder_due' }))).toBe('Crumpet has a reminder coming up');
+    expect(alertSentence(alert({ kind: 'reminder_due', petName: null }))).toBe(
+      'A reminder is coming up'
+    );
+  });
+
+  it('words a feature request report', () => {
+    expect(alertSentence(alert({ kind: 'feature_request_reported' }))).toBe(
+      'A feature request was reported'
+    );
+  });
+
   // Nobody did it, so it leads with the pet rather than a person.
   it('names no actor for a missed feed', () => {
     const sentence = alertSentence(

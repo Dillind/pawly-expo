@@ -106,7 +106,7 @@ const HouseholdSettings = ({ householdId }: Props) => {
             <AppText variant="header" size={24} fontWeight="bold" numberOfLines={1}>
               {household.name}
             </AppText>
-            <AppText size={13} color="textSecondary" numberOfLines={1}>
+            <AppText size="footnote" color="textSecondary" numberOfLines={1}>
               You are the {role}
               {household.handle ? `  ·  @${household.handle}` : ''}
             </AppText>
@@ -121,13 +121,8 @@ const HouseholdSettings = ({ householdId }: Props) => {
               value={String(members.length)}
               onPress={() => router.push(`/home/household/${householdId}/members`)}
             />
-            {/* Owner only: the select policy on household_follows is
-                owner-or-self, so a Contributor reads no rows: they would see a
-                count of nothing and open a screen with nothing on it. Who
-                watches is the Owner's decision, and so is the list of them.
-
-                A waiting request is the only number worth the row, so it wins
-                the value slot when there is one. */}
+            {/* Owner only: RLS on household_follows is owner-or-self, so a Contributor reads no
+                rows. A waiting request count wins the value slot when there is one. */}
             {isOwner && (
               <SettingsRow
                 icon="userPlus"
@@ -141,7 +136,7 @@ const HouseholdSettings = ({ householdId }: Props) => {
               />
             )}
           </SettingsSection>
-          <AppText size={13} color="textSecondary" style={styles.caption}>
+          <AppText size="footnote" color="textSecondary" style={styles.caption}>
             Roles, invites and Leave household live on the Members screen.
           </AppText>
         </View>
@@ -163,11 +158,8 @@ const HouseholdSettings = ({ householdId }: Props) => {
                 caller supplies it from outside -- so the row gutter is set
                 here rather than by the component. */}
             <View style={styles.toggleRow}>
-              {/* isBusy, not isDisabled: two quick taps are two
-                  writes with no ordering between them, so the one that commits
-                  last decides -- and that can be the earlier tap. Refusing the
-                  second tap is what stops it. Dimming the row instead would
-                  flash grey on every toggle. */}
+              {/* isBusy, not isDisabled: two quick taps are two unordered writes, so the earlier
+                  tap can commit last. Refusing the second tap stops it without a grey flash. */}
               <ToggleSwitch
                 label="Listed"
                 description={listedDescription}
@@ -178,7 +170,7 @@ const HouseholdSettings = ({ householdId }: Props) => {
               />
             </View>
           </SettingsSection>
-          <AppText size={13} color="textSecondary" style={styles.caption}>
+          <AppText size="footnote" color="textSecondary" style={styles.caption}>
             You accept every follower, listed or not.
           </AppText>
         </View>
@@ -191,7 +183,7 @@ const HouseholdSettings = ({ householdId }: Props) => {
               onPress={() => router.push(`/home/household/${householdId}/notifications`)}
             />
           </SettingsSection>
-          <AppText size={13} color="textSecondary" style={styles.caption}>
+          <AppText size="footnote" color="textSecondary" style={styles.caption}>
             A follow request tells you here. Followers never get a notification of their own.
           </AppText>
         </View>
@@ -218,7 +210,7 @@ const HouseholdSettings = ({ householdId }: Props) => {
             />
           </SettingsSection>
           {!isOwner && (
-            <AppText size={13} color="textSecondary" style={styles.caption}>
+            <AppText size="footnote" color="textSecondary" style={styles.caption}>
               Only an Owner can change these.
             </AppText>
           )}

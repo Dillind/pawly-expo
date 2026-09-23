@@ -1,10 +1,10 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter } from 'expo-router';
-import { Controller, FormProvider, useForm } from 'react-hook-form';
+import { FormProvider, useForm } from 'react-hook-form';
 import { StyleSheet, View } from 'react-native';
 
+import FormTextInput from '@/components/core/form-text-input';
 import MainButton from '@/components/core/main-button';
-import TextInputValidated from '@/components/core/text-input-validated';
 import ScreenScrollView from '@/components/layout/screen-scroll-view';
 import ScreenView from '@/components/layout/screen-view';
 import TextDescriptionHeader from '@/components/layout/text-description-header';
@@ -14,7 +14,7 @@ import { ErrorMessage } from '@/constants/enums';
 import { signUpSchema, type SignUpFormValues } from '@/constants/schemas/sign-up';
 import type { AppTheme } from '@/constants/theme';
 import { useStyles } from '@/hooks/use-styles';
-import { userFacingMessage } from '@/lib/errors';
+import { logError, userFacingMessage } from '@/lib/errors';
 import { hapticLight } from '@/lib/haptics';
 import { showErrorToast } from '@/lib/toast';
 import AuthService from '@/services/auth.service';
@@ -30,7 +30,6 @@ const SignUp = () => {
   });
 
   const {
-    control,
     handleSubmit,
     formState: { isSubmitting, isValid }
   } = form;
@@ -42,7 +41,7 @@ const SignUp = () => {
       await AuthService.signUp(values);
       router.push({ pathname: '/sign-up/verify', params: { email: values.email } });
     } catch (error) {
-      console.error(error);
+      logError(error);
       showErrorToast(
         ErrorMessage.SignUpFailed,
         userFacingMessage(error, 'Check your details and try again')
@@ -63,48 +62,30 @@ const SignUp = () => {
 
         <FormProvider {...form}>
           <View style={styles.form}>
-            <Controller
-              control={control}
+            <FormTextInput
               name="email"
-              render={({ field: { onChange, onBlur, value } }) => (
-                <TextInputValidated
-                  name="email"
-                  label="Email"
-                  isLabelIndicated
-                  value={value}
-                  onChangeText={onChange}
-                  onBlur={onBlur}
-                  placeholder="email@example.com"
-                  keyboardType="email-address"
-                  autoCapitalize="none"
-                  autoComplete="email"
-                  returnKeyType="next"
-                  testID="sign-up-email"
-                />
-              )}
+              label="Email"
+              isLabelIndicated
+              placeholder="email@example.com"
+              keyboardType="email-address"
+              autoCapitalize="none"
+              autoComplete="email"
+              returnKeyType="next"
+              testID="sign-up-email"
             />
-            <Controller
-              control={control}
+            <FormTextInput
               name="password"
-              render={({ field: { onChange, onBlur, value } }) => (
-                <TextInputValidated
-                  name="password"
-                  label="Password"
-                  isLabelIndicated
-                  value={value}
-                  onChangeText={onChange}
-                  onBlur={onBlur}
-                  placeholder="Enter password"
-                  secureTextEntry
-                  autoCapitalize="none"
-                  autoComplete="password-new"
-                  returnKeyType="done"
-                  onSubmitEditing={() => {
-                    void onSubmit();
-                  }}
-                  testID="sign-up-password"
-                />
-              )}
+              label="Password"
+              isLabelIndicated
+              placeholder="Enter password"
+              secureTextEntry
+              autoCapitalize="none"
+              autoComplete="password-new"
+              returnKeyType="done"
+              onSubmitEditing={() => {
+                void onSubmit();
+              }}
+              testID="sign-up-password"
             />
 
             <PasswordGuidelines />

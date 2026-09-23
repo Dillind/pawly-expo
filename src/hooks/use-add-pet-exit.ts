@@ -1,29 +1,17 @@
-import { useRouter } from 'expo-router';
 import { useFormContext, useFormState, useWatch } from 'react-hook-form';
 import { ActionSheetIOS, Alert } from 'react-native';
 
 import type { AddPetFormValues } from '@/constants/schemas/add-pet';
+import { useLeaveModalFlow } from '@/hooks/use-leave-modal-flow';
 import { isIOS } from '@/utils/platform';
 
 // Every step closes the same way, so the discard prompt cannot live on step 1.
 export const useAddPetExit = () => {
-  const router = useRouter();
-
-  const { control, reset } = useFormContext<AddPetFormValues>();
+  const { control } = useFormContext<AddPetFormValues>();
   const { isDirty } = useFormState({ control });
   const petName = useWatch({ control, name: 'name' });
 
-  // Two dispatches, in this order and no other. `dismissTo` takes the flow's
-  // own stack back to step 1, so the `back` that follows has exactly one thing
-  // left to pop: the modal. `dismissAll` popped the presenting screen as well,
-  // and reading `canGoBack` between the two read the state before the first
-  // had applied, which fired GO_BACK at an empty stack.
-  const leave = () => {
-    reset();
-
-    router.dismissTo('/home/add-pet');
-    router.back();
-  };
+  const leave = useLeaveModalFlow('/home/add-pet');
 
   const exit = () => {
     if (!isDirty) {

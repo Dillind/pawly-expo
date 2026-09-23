@@ -3,7 +3,8 @@ import { useCallback } from 'react';
 
 import { SuccessMessage } from '@/constants/enums';
 import { feedLogErrorMessage } from '@/lib/feed-log-errors';
-import { showErrorToast, showSuccessToast } from '@/lib/toast';
+import { queryKeys } from '@/lib/query-keys';
+import { showErrorToast } from '@/lib/toast';
 import FeedLogService from '@/services/feed-log.service';
 
 // Prefix invalidation catches every cached date without enumerating them: Home
@@ -12,8 +13,8 @@ function useInvalidateFeedData(petId: string | undefined) {
   const queryClient = useQueryClient();
 
   return useCallback(() => {
-    void queryClient.invalidateQueries({ queryKey: ['occurrences', petId] });
-    void queryClient.invalidateQueries({ queryKey: ['user-stats'] });
+    void queryClient.invalidateQueries({ queryKey: queryKeys.occurrences.pet(petId) });
+    void queryClient.invalidateQueries({ queryKey: queryKeys.userStats.all });
   }, [queryClient, petId]);
 }
 
@@ -37,8 +38,8 @@ export function useLogFeed() {
     }) => FeedLogService.log(petId, input),
     // The pet comes from the payload, so one instance serves several pets.
     onSettled: (_data, _error, variables) => {
-      void queryClient.invalidateQueries({ queryKey: ['occurrences', variables.petId] });
-      void queryClient.invalidateQueries({ queryKey: ['user-stats'] });
+      void queryClient.invalidateQueries({ queryKey: queryKeys.occurrences.pet(variables.petId) });
+      void queryClient.invalidateQueries({ queryKey: queryKeys.userStats.all });
     }
   });
 }
@@ -48,15 +49,14 @@ export function useUpdateFeedLog(petId: string | undefined) {
   const queryClient = useQueryClient();
 
   return useMutation({
+    meta: { successMessage: SuccessMessage.FeedUpdated },
     mutationFn: (input: { logId: string; loggedAt?: string; notes?: string | null }) =>
       FeedLogService.update(input),
     onSettled: (_data, _error, variables) => {
       invalidate();
-      void queryClient.invalidateQueries({ queryKey: ['feed-log', variables.logId] });
+      void queryClient.invalidateQueries({ queryKey: queryKeys.feedLog(variables.logId) });
     },
-    onSuccess: () => showSuccessToast(SuccessMessage.FeedUpdated),
     onError: (error) => {
-      console.error(error);
       showErrorToast(feedLogErrorMessage(error));
     }
   });
@@ -69,14 +69,13 @@ export function useDeleteFeedLog(petId: string | undefined) {
   const queryClient = useQueryClient();
 
   return useMutation({
+    meta: { successMessage: SuccessMessage.FeedDeleted },
     mutationFn: (input: { logId: string }) => FeedLogService.remove(input.logId),
     onSettled: (_data, _error, variables) => {
       invalidate();
-      void queryClient.invalidateQueries({ queryKey: ['feed-log', variables.logId] });
+      void queryClient.invalidateQueries({ queryKey: queryKeys.feedLog(variables.logId) });
     },
-    onSuccess: () => showSuccessToast(SuccessMessage.FeedDeleted),
     onError: (error) => {
-      console.error(error);
       showErrorToast(feedLogErrorMessage(error));
     }
   });

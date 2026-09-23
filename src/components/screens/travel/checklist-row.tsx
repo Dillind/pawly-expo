@@ -12,7 +12,7 @@ import type { TravelChecklist } from '@/services/travel-checklist.service';
 const EMOJI_WELL = 44;
 const BADGE = 18;
 
-export const describeCount = (
+const describeCount = (
   {
     itemCount,
     tickedCount,
@@ -40,7 +40,7 @@ const ChecklistRow = ({ checklist }: { checklist: TravelChecklist }) => {
           <View style={styles.wellFrame}>
             <View style={styles.well}>
               {checklist.emoji ? (
-                <AppText size={22}>{checklist.emoji}</AppText>
+                <AppText size="titleMedium">{checklist.emoji}</AppText>
               ) : (
                 <Icon name="luggage" size={IconSize.action} color="textSecondary" />
               )}
@@ -53,11 +53,11 @@ const ChecklistRow = ({ checklist }: { checklist: TravelChecklist }) => {
           </View>
 
           <View style={styles.text}>
-            <AppText variant="header" size={17} numberOfLines={1}>
+            <AppText variant="header" size="headline" numberOfLines={1}>
               {checklist.name}
             </AppText>
             <AppText
-              size={13}
+              size="footnote"
               color={isFreshlyPacked ? 'success' : 'textSecondary'}
               fontWeight={isFreshlyPacked ? 'semibold' : undefined}>
               {detail}

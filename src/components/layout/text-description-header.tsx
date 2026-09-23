@@ -13,7 +13,7 @@ const TextDescriptionHeader = ({ title, description }: Props) => {
       <AppText variant="header" size={32} color="text">
         {title}
       </AppText>
-      <AppText variant="body" size={14} color="text">
+      <AppText variant="body" size="subhead" color="text">
         {description}
       </AppText>
     </View>

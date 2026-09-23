@@ -11,10 +11,14 @@ export default function PostsLayout() {
   return (
     <>
       <StatusBar style={isDark ? 'light' : 'dark'} />
-      <Stack screenOptions={{ headerShown: false }}>
+      <Stack
+        screenOptions={{
+          headerShown: false,
+          headerTransparent: true,
+          headerBackButtonDisplayMode: 'minimal'
+        }}>
         <Stack.Screen name="index" options={{ headerShown: true }}>
           <Stack.Title style={HeaderTitleStyle}>Posts</Stack.Title>
-          <Stack.Header transparent />
           <Stack.Toolbar placement="right">
             <Stack.Toolbar.Button
               icon="magnifyingglass"
@@ -30,18 +34,12 @@ export default function PostsLayout() {
         </Stack.Screen>
         <Stack.Screen name="find-household" options={{ headerShown: true }}>
           <Stack.Title style={HeaderTitleStyle}>Find a household</Stack.Title>
-          <Stack.Header transparent />
-          <Stack.Screen.BackButton displayMode="minimal" />
         </Stack.Screen>
         <Stack.Screen name="[postId]/index" options={{ headerShown: true }}>
           <Stack.Title style={HeaderTitleStyle}>Post</Stack.Title>
-          <Stack.Header transparent />
-          <Stack.Screen.BackButton displayMode="minimal" />
         </Stack.Screen>
         <Stack.Screen name="[postId]/comments" options={{ headerShown: true }}>
           <Stack.Title style={HeaderTitleStyle}>Comments</Stack.Title>
-          <Stack.Header transparent />
-          <Stack.Screen.BackButton displayMode="minimal" />
         </Stack.Screen>
         {/* A native screen, not a modal: iOS draws the glass circle behind a
             bar button item, and the push is a render-server transition. */}
@@ -53,7 +51,6 @@ export default function PostsLayout() {
             animation: 'fade_from_bottom',
             title: ''
           }}>
-          <Stack.Header transparent />
           <Stack.Screen.BackButton hidden />
           <Stack.Toolbar placement="right">
             <Stack.Toolbar.Button

@@ -1,18 +1,12 @@
 import { supabase } from '@/lib/supabase/client';
+import { unwrap } from '@/lib/supabase/unwrap';
+import type { RpcRow } from '@/types/database-overrides';
 
 export const ALERTS_PAGE_SIZE = 30;
 
 // `feed_logged` and `feed_due` are deliberately absent: each stays in the
 // database as a delivery record. See ADR 0023 and ADR 0033.
-export type AlertKind =
-  | 'missed_feed'
-  | 'post'
-  | 'post_liked'
-  | 'post_commented'
-  | 'comment_liked'
-  | 'member_removed'
-  | 'member_role_changed'
-  | 'member_left';
+type AlertKind = AlertRow['kind'];
 
 // A row survives its subject, so every resolved field here can be null.
 export type Alert = {
@@ -38,27 +32,7 @@ export type Alert = {
 // Keyset: an alert queued mid-scroll must not shift a page.
 export type AlertsCursor = { createdAt: string; id: string };
 
-type AlertRow = {
-  id: string;
-  kind: AlertKind;
-  created_at: string;
-  suppressed_reason: string | null;
-  is_read: boolean;
-  actor_first_name: string | null;
-  actor_last_name: string | null;
-  pet_id: string | null;
-  pet_name: string | null;
-  slot_label: string | null;
-  post_id: string | null;
-  post_caption: string | null;
-  comment_id: string | null;
-  comment_body: string | null;
-  comment_is_reply_to_me: boolean;
-  comment_post_is_mine: boolean;
-  subject_first_name: string | null;
-  subject_last_name: string | null;
-  subject_is_me: boolean;
-};
+type AlertRow = RpcRow<'list_alerts'>;
 
 // Must agree with authorName in send-alerts/message.ts.
 const displayName = (firstName: string | null, lastName: string | null): string | null => {
@@ -92,42 +66,40 @@ namespace AlertService {
     householdId: string,
     cursor: AlertsCursor | null
   ): Promise<Alert[]> {
-    const { data, error } = await supabase.rpc('list_alerts', {
-      target_household_id: householdId,
-      before_created_at: cursor?.createdAt ?? null,
-      before_id: cursor?.id ?? null,
-      page_size: ALERTS_PAGE_SIZE
-    });
+    const data = await unwrap(
+      supabase.rpc('list_alerts', {
+        target_household_id: householdId,
+        before_created_at: cursor?.createdAt ?? null,
+        before_id: cursor?.id ?? null,
+        page_size: ALERTS_PAGE_SIZE
+      })
+    );
 
-    if (error) throw error;
-
-    return (data as AlertRow[]).map(toAlert);
+    return data.map(toAlert);
   }
 
   export async function unreadCount(householdId: string): Promise<number> {
-    const { data, error } = await supabase.rpc('unread_alert_count', {
-      target_household_id: householdId
-    });
+    const data = await unwrap(
+      supabase.rpc('unread_alert_count', {
+        target_household_id: householdId
+      })
+    );
 
-    if (error) throw error;
-
-    return (data as number) ?? 0;
+    return data ?? 0;
   }
 
   export async function markRead(alertIds: string[]): Promise<void> {
     if (alertIds.length === 0) return;
 
-    const { error } = await supabase.rpc('mark_alerts_read', { alert_ids: alertIds });
-
-    if (error) throw error;
+    await unwrap(supabase.rpc('mark_alerts_read', { alert_ids: alertIds }));
   }
 
   export async function markAllRead(householdId: string): Promise<void> {
-    const { error } = await supabase.rpc('mark_all_alerts_read', {
-      target_household_id: householdId
-    });
-
-    if (error) throw error;
+    await unwrap(
+      supabase.rpc('mark_all_alerts_read', {
+        target_household_id: householdId
+      })
+    );
   }
 }
 

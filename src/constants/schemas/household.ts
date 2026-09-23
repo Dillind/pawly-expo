@@ -18,7 +18,7 @@ export type HouseholdNameInput = z.infer<typeof householdNameSchema>;
 // reserved word passes validation and then reports as taken.
 export const RESERVED_HANDLES = ['admin', 'crumpet', 'support', 'owner', 'help'];
 
-export const HANDLE_MIN = 3;
+const HANDLE_MIN = 3;
 export const HANDLE_MAX = 20;
 
 // The rule `households_handle_format` enforces. The alternation is what forbids

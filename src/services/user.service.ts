@@ -3,6 +3,7 @@ import * as Crypto from 'expo-crypto';
 import { UserFacingError } from '@/lib/errors';
 import { assertWrote } from '@/lib/supabase/assert-wrote';
 import { supabase } from '@/lib/supabase/client';
+import { unwrap } from '@/lib/supabase/unwrap';
 import type { UserProfile, UserStats } from '@/types/core';
 
 const BUCKET = 'user-avatars';
@@ -20,13 +21,13 @@ const storagePathFromPublicUrl = (url: string | null): string | null => {
 
 namespace UserService {
   export async function getProfile(userId: string): Promise<UserProfile> {
-    const { data, error } = await supabase
-      .from('users')
-      .select('id, first_name, last_name, avatar_url')
-      .eq('id', userId)
-      .single();
-
-    if (error) throw error;
+    const data = await unwrap(
+      supabase
+        .from('users')
+        .select('id, first_name, last_name, avatar_url')
+        .eq('id', userId)
+        .single()
+    );
 
     return {
       id: data.id,
@@ -40,13 +41,13 @@ namespace UserService {
     userId: string,
     params: { firstName: string; lastName: string }
   ) {
-    const { data, error } = await supabase
-      .from('users')
-      .update({ first_name: params.firstName, last_name: params.lastName })
-      .eq('id', userId)
-      .select('id');
-
-    if (error) throw error;
+    const data = await unwrap(
+      supabase
+        .from('users')
+        .update({ first_name: params.firstName, last_name: params.lastName })
+        .eq('id', userId)
+        .select('id')
+    );
 
     assertWrote(data, 'Your name could not be updated');
   }
@@ -80,23 +81,17 @@ namespace UserService {
 
     const path = `${params.userId}/${Crypto.randomUUID()}.jpg`;
 
-    const { error } = await supabase.storage
-      .from(BUCKET)
-      .upload(path, arrayBuffer, { contentType: 'image/jpeg' });
-
-    if (error) throw error;
+    await unwrap(
+      supabase.storage.from(BUCKET).upload(path, arrayBuffer, { contentType: 'image/jpeg' })
+    );
 
     return supabase.storage.from(BUCKET).getPublicUrl(path).data.publicUrl;
   }
 
   export async function setAvatarUrl(userId: string, avatarUrl: string | null) {
-    const { data, error } = await supabase
-      .from('users')
-      .update({ avatar_url: avatarUrl })
-      .eq('id', userId)
-      .select('id');
-
-    if (error) throw error;
+    const data = await unwrap(
+      supabase.from('users').update({ avatar_url: avatarUrl }).eq('id', userId).select('id')
+    );
 
     assertWrote(data, 'Your photo could not be saved');
   }

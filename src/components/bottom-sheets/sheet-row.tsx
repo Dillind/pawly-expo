@@ -45,12 +45,12 @@ const SheetRow = ({
       <View style={[styles.row, surface === 'screen' && styles.onScreen]}>
         {leading ?? (icon && <Icon name={icon} size={22} color={tone} />)}
 
-        <AppText size={17} color={tone} style={styles.label}>
+        <AppText size="headline" color={tone} style={styles.label}>
           {label}
         </AppText>
 
         {detail && (
-          <AppText size={14} color="textSecondary">
+          <AppText size="subhead" color="textSecondary">
             {detail}
           </AppText>
         )}

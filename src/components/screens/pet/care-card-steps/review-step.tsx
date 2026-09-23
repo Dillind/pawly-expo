@@ -43,32 +43,32 @@ const ReviewStep = ({
   return (
     <>
       <View style={styles.step}>
-        <AppText color="textSecondary" size={15}>
+        <AppText color="textSecondary" size="callout">
           This is the page they will get. Check it reads right.
         </AppText>
 
         <View style={styles.preview}>
           <View style={styles.previewHeader}>
             <View>
-              <AppText size={18}>{petName}</AppText>
+              <AppText size="titleSmall">{petName}</AppText>
               {petSubtitle && (
-                <AppText size={12} color="textSecondary">
+                <AppText size="caption" color="textSecondary">
                   {petSubtitle}
                 </AppText>
               )}
             </View>
             <View>
-              <AppText size={12} color="textSecondary" align="right">
+              <AppText size="caption" color="textSecondary" align="right">
                 Care Card
               </AppText>
-              <AppText size={12} color="textSecondary" align="right">
+              <AppText size="caption" color="textSecondary" align="right">
                 {generatedOn}
               </AppText>
             </View>
           </View>
 
           {blocks.length === 0 ? (
-            <AppText size={14} color="textSecondary">
+            <AppText size="subhead" color="textSecondary">
               Nothing filled in yet. Go back and add whatever you can — a half-filled card is still
               worth handing over.
             </AppText>

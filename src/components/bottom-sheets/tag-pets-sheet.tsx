@@ -28,7 +28,7 @@ const TagPetsSheet = ({ sheetRef, pets, selectedPetIds, onToggle, onDone }: Prop
 
   return (
     <BaseSheet sheetRef={sheetRef} title="Tag pets" detents={['auto']}>
-      <AppText size={14} color="textSecondary">
+      <AppText size="subhead" color="textSecondary">
         Optional. Say which of your pets are in the photo.
       </AppText>
 

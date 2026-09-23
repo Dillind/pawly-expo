@@ -49,7 +49,7 @@ const PostLikers = ({ likers }: Props) => {
         ))}
       </View>
 
-      <AppText size={13} color="textSecondary" numberOfLines={1} style={styles.summary}>
+      <AppText size="footnote" color="textSecondary" numberOfLines={1} style={styles.summary}>
         {summarise(likers)}
       </AppText>
     </View>

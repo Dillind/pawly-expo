@@ -3,9 +3,9 @@ import { StyleSheet, View } from 'react-native';
 
 import BreedField from '@/components/core/breed-field';
 import DateTimePickerValidated from '@/components/core/date-time-picker-validated';
+import FormTextInput from '@/components/core/form-text-input';
 import MainButton from '@/components/core/main-button';
 import SegmentedControl from '@/components/core/segmented-control';
-import TextInputValidated from '@/components/core/text-input-validated';
 import ToggleSwitch from '@/components/core/toggle-switch';
 import { useTray } from '@/components/core/tray';
 import { breedName, breedSpeciesFor } from '@/constants/breeds';
@@ -17,7 +17,7 @@ import { useUpdatePet } from '@/hooks/queries/pet/use-update-pet';
 import { useStyles } from '@/hooks/use-styles';
 import type { PetSex, PetType } from '@/types/core';
 
-export type EditablePetDetails = {
+type EditablePetDetails = {
   name: string;
   petType: PetType;
   breedId: string | null;
@@ -66,21 +66,12 @@ const EditPetDetails = ({ petId, details, onDone }: Props) => {
 
   return (
     <View style={styles.form}>
-      <Controller
-        control={control}
+      <FormTextInput
         name="name"
-        render={({ field: { onChange, onBlur, value } }) => (
-          <TextInputValidated
-            name="name"
-            label="Name"
-            isLabelIndicated
-            value={value}
-            onChangeText={onChange}
-            onBlur={onBlur}
-            placeholder="Bailey"
-            returnKeyType="next"
-          />
-        )}
+        label="Name"
+        isLabelIndicated
+        placeholder="Bailey"
+        returnKeyType="next"
       />
 
       {/* No `isLabelIndicated`: the row always carries a type, so the

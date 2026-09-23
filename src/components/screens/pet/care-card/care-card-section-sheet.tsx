@@ -25,7 +25,7 @@ const CareCardSectionSheet = ({ sheetRef, block, onDismiss }: Props) => {
     <BaseSheet sheetRef={sheetRef} title={block?.title} detents={['auto']} onDismiss={onDismiss}>
       <View style={styles.body}>
         {block && isBlockEmpty(block) ? (
-          <AppText color="textSecondary" size={15}>
+          <AppText color="textSecondary" size="callout">
             Nothing here yet.
           </AppText>
         ) : (

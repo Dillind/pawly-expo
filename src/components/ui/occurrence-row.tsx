@@ -11,7 +11,7 @@ import Icon from '@/components/core/icon';
 import MainButton from '@/components/core/main-button';
 import PressableOpacity from '@/components/core/pressable-opacity';
 import { Curve, Duration } from '@/constants/motion';
-import { IconSize, type AppTheme } from '@/constants/theme';
+import { IconSize, Radius, type AppTheme } from '@/constants/theme';
 import { useStyles } from '@/hooks/use-styles';
 import { formatScheduledTime, formatTimeOfDay } from '@/lib/dates';
 import type { FeedingScheduleLabel, Occurrence } from '@/types/core';
@@ -86,15 +86,15 @@ const OccurrenceRow = ({
     <>
       <Animated.View style={styles.text} layout={SlotReflow}>
         <View style={styles.heading}>
-          <AppText size={15}>{labelText[occurrence.label]}</AppText>
-          <AppText size={15} color="textSecondary">
+          <AppText size="callout">{labelText[occurrence.label]}</AppText>
+          <AppText size="callout" color="textSecondary">
             {formatScheduledTime(occurrence.localTime)}
           </AppText>
         </View>
 
         {detail ? (
           <Animated.View key={occurrence.state} entering={DetailIn}>
-            <AppText size={13} color="textSecondary" numberOfLines={2}>
+            <AppText size="footnote" color="textSecondary" numberOfLines={2}>
               {detail}
             </AppText>
           </Animated.View>
@@ -119,7 +119,7 @@ const OccurrenceRow = ({
             />
           </Animated.View>
         ) : occurrence.state === 'upcoming' ? (
-          <AppText size={13} color="textSecondary">
+          <AppText size="footnote" color="textSecondary">
             Upcoming
           </AppText>
         ) : null}
@@ -154,7 +154,7 @@ const makeStyles = ({ colors, spacing }: AppTheme) =>
       gap: spacing.three,
       paddingVertical: spacing.three,
       paddingHorizontal: spacing.three,
-      borderRadius: 12,
+      borderRadius: Radius.tile,
       borderCurve: 'continuous',
       backgroundColor: colors.backgroundElement
     },

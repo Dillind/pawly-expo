@@ -24,7 +24,7 @@ const MonthTrigger = ({ selectedDay, onPress }: { selectedDay: string; onPress?:
       accessibilityRole="button"
       accessibilityLabel={`${formatMonthAndYear(selectedDay)}. Pick a month.`}
       onPress={onPress}>
-      <AppText size={13} fontWeight="bold" color="textSecondary" style={styles.month}>
+      <AppText size="footnote" fontWeight="bold" color="textSecondary" style={styles.month}>
         {formatMonthAndYear(selectedDay)}
       </AppText>
       {onPress && <Icon name="caretDown" size={14} color="textSecondary" />}

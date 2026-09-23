@@ -20,18 +20,20 @@ export default function HomeLayout() {
   return (
     <>
       <StatusBar style={isDark ? 'light' : 'dark'} />
-      <Stack screenOptions={{ headerShown: false }}>
+      <Stack
+        screenOptions={{
+          headerShown: false,
+          headerTransparent: true,
+          headerBackButtonDisplayMode: 'minimal'
+        }}>
         <Stack.Screen name="index" options={{ headerShown: true }}>
-          {/* The switcher is a title, not a left `Stack.Toolbar.View`. A custom
-              left bar item hands its geometry to the next screen's back button,
-              which then draws its background as a wide rectangle for the whole
-              push. A title is outside the left bar-item group, so it cannot. */}
+          {/* A title, not a left Toolbar.View: a left bar item hands its geometry to the next
+              screen's back button, which then draws as a wide rectangle for the whole push. */}
           <Stack.Title asChild>
             <View style={styles.switcher}>
               <HouseholdSwitcher />
             </View>
           </Stack.Title>
-          <Stack.Header transparent />
           <Stack.Toolbar placement="right">
             <Stack.Toolbar.Button
               accessibilityLabel={unread > 0 ? `Notifications, ${unread} unread` : 'Notifications'}
@@ -48,8 +50,6 @@ export default function HomeLayout() {
 
         <Stack.Screen name="pets" options={{ headerShown: true }}>
           <Stack.Title style={HeaderTitleStyle}>Pets</Stack.Title>
-          <Stack.Header transparent />
-          <Stack.Screen.BackButton displayMode="minimal" />
           <Stack.Toolbar placement="right">
             <Stack.Toolbar.Button
               icon="plus"
@@ -62,14 +62,10 @@ export default function HomeLayout() {
 
         <Stack.Screen name="notifications" options={{ headerShown: true }}>
           <Stack.Title style={HeaderTitleStyle}>Notifications</Stack.Title>
-          <Stack.Header transparent />
-          <Stack.Screen.BackButton displayMode="minimal" />
         </Stack.Screen>
 
         <Stack.Screen name="join-household" options={{ headerShown: true }}>
           <Stack.Title style={HeaderTitleStyle}>Join a household</Stack.Title>
-          <Stack.Header transparent />
-          <Stack.Screen.BackButton displayMode="minimal" />
         </Stack.Screen>
 
         {/* A full-screen modal, not a push: a pushed screen keeps the tab bar,
@@ -87,74 +83,53 @@ export default function HomeLayout() {
 
         {/* The title is the household's name, which only the screen has, so it
             sets its own `Stack.Title`. */}
-        <Stack.Screen name="household/[householdId]/index" options={{ headerShown: true }}>
-          <Stack.Header transparent />
-          <Stack.Screen.BackButton displayMode="minimal" />
-        </Stack.Screen>
+        <Stack.Screen
+          name="household/[householdId]/index"
+          options={{ headerShown: true }}></Stack.Screen>
 
         <Stack.Screen name="household/[householdId]/handle" options={{ headerShown: true }}>
           <Stack.Title style={HeaderTitleStyle}>Handle</Stack.Title>
-          <Stack.Header transparent />
-          <Stack.Screen.BackButton displayMode="minimal" />
         </Stack.Screen>
 
         <Stack.Screen name="household/[householdId]/notifications" options={{ headerShown: true }}>
           <Stack.Title style={HeaderTitleStyle}>Notifications</Stack.Title>
-          <Stack.Header transparent />
-          <Stack.Screen.BackButton displayMode="minimal" />
         </Stack.Screen>
 
         <Stack.Screen name="household/[householdId]/members" options={{ headerShown: true }}>
           <Stack.Title style={HeaderTitleStyle}>Members</Stack.Title>
-          <Stack.Header transparent />
-          <Stack.Screen.BackButton displayMode="minimal" />
         </Stack.Screen>
 
         <Stack.Screen
           name="household/[householdId]/followers/index"
           options={{ headerShown: true }}>
           <Stack.Title style={HeaderTitleStyle}>Followers</Stack.Title>
-          <Stack.Header transparent />
-          <Stack.Screen.BackButton displayMode="minimal" />
         </Stack.Screen>
 
         <Stack.Screen
           name="household/[householdId]/followers/requests"
           options={{ headerShown: true }}>
           <Stack.Title style={HeaderTitleStyle}>Requests</Stack.Title>
-          <Stack.Header transparent />
-          <Stack.Screen.BackButton displayMode="minimal" />
         </Stack.Screen>
 
         <Stack.Screen name="household/[householdId]/followers/link" options={{ headerShown: true }}>
           <Stack.Title style={HeaderTitleStyle}>Follow link</Stack.Title>
-          <Stack.Header transparent />
-          <Stack.Screen.BackButton displayMode="minimal" />
         </Stack.Screen>
 
         <Stack.Screen name="household/[householdId]/invite" options={{ headerShown: true }}>
           <Stack.Title style={HeaderTitleStyle}>Invite someone</Stack.Title>
-          <Stack.Header transparent />
-          <Stack.Screen.BackButton displayMode="minimal" />
         </Stack.Screen>
 
-        <Stack.Screen name="travel/index" options={{ headerShown: true }}>
-          <Stack.Header transparent />
-          <Stack.Screen.BackButton displayMode="minimal" />
-        </Stack.Screen>
+        <Stack.Screen name="travel/index" options={{ headerShown: true }}></Stack.Screen>
 
         {/* The title is the checklist's name, so the screen sets it. */}
-        <Stack.Screen name="travel/[checklistId]/index" options={{ headerShown: true }}>
-          <Stack.Header transparent />
-          <Stack.Screen.BackButton displayMode="minimal" />
-        </Stack.Screen>
+        <Stack.Screen
+          name="travel/[checklistId]/index"
+          options={{ headerShown: true }}></Stack.Screen>
 
         {/* The title is the pet's name, which only the screen has, so it sets
             its own `Stack.Title`. */}
         <Stack.Screen name="[petId]/index" options={{ headerShown: true }}>
           <Stack.Title style={HeaderTitleStyle}>Pet Details</Stack.Title>
-          <Stack.Header transparent />
-          <Stack.Screen.BackButton displayMode="minimal" />
         </Stack.Screen>
 
         {/* A native screen, not a modal: iOS draws the glass circle behind a
@@ -168,7 +143,6 @@ export default function HomeLayout() {
             animation: 'fade',
             title: ''
           }}>
-          <Stack.Header transparent />
           <Stack.Screen.BackButton hidden />
           <Stack.Toolbar placement="right">
             <Stack.Toolbar.Button
@@ -179,12 +153,8 @@ export default function HomeLayout() {
           </Stack.Toolbar>
         </Stack.Screen>
 
-        {/* No bar: the destination IS the card, zoomed out of its tile, over a
-            blurred wash of the screen it came from. Presented modally so the
-            wash covers the tab bar, and *transparently* because a
-            `fullScreenModal` leaves nothing behind it -- the blur then has only
-            black to work with and the wash goes flat. The zoom survives a modal
-            presentation; only a link preview navigation requires one. */}
+        {/* A transparent modal, so the blurred wash covers the tab bar. A fullScreenModal leaves
+            only black behind it, and the wash goes flat. */}
         <Stack.Screen
           name="[petId]/care-card"
           options={{

@@ -10,9 +10,6 @@ const AVATAR_SIZE = 34;
 const SHOWN = 3;
 const OVERLAP = AVATAR_SIZE / 3;
 
-// Fixed so every row's text starts on the same line, whatever the pet count.
-export const HOUSEHOLD_PETS_WIDTH = AVATAR_SIZE + (SHOWN - 1) * (AVATAR_SIZE - OVERLAP);
-
 type Props = {
   pets: Pet[];
   hasUnseenPosts?: boolean;

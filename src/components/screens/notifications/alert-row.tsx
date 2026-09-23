@@ -52,11 +52,11 @@ const AlertRow = ({ alert, timezone, onPress }: Props) => {
       </View>
 
       <View style={styles.body}>
-        <AppText size={15} numberOfLines={3}>
+        <AppText size="callout" numberOfLines={3}>
           {sentence}
         </AppText>
 
-        <AppText size={13} color="textSecondary">
+        <AppText size="footnote" color="textSecondary">
           {formatAlertTime(alert.createdAt, timezone)}
         </AppText>
       </View>

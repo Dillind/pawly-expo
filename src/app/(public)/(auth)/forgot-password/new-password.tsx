@@ -1,12 +1,12 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter } from 'expo-router';
-import { Controller, FormProvider, useForm } from 'react-hook-form';
+import { FormProvider, useForm } from 'react-hook-form';
 import { StyleSheet, View } from 'react-native';
 
 import AppText from '@/components/core/app-text';
+import FormTextInput from '@/components/core/form-text-input';
 import MainButton from '@/components/core/main-button';
 import PressableOpacity from '@/components/core/pressable-opacity';
-import TextInputValidated from '@/components/core/text-input-validated';
 import ScreenScrollView from '@/components/layout/screen-scroll-view';
 import ScreenView from '@/components/layout/screen-view';
 import TextDescriptionHeader from '@/components/layout/text-description-header';
@@ -36,7 +36,6 @@ const ResetPassword = () => {
   });
 
   const {
-    control,
     handleSubmit,
     formState: { isSubmitting, isValid }
   } = form;
@@ -78,48 +77,30 @@ const ResetPassword = () => {
 
         <FormProvider {...form}>
           <View style={styles.form}>
-            <Controller
-              control={control}
+            <FormTextInput
               name="password"
-              render={({ field: { onChange, onBlur, value } }) => (
-                <TextInputValidated
-                  name="password"
-                  label="New password"
-                  isLabelIndicated
-                  value={value}
-                  onChangeText={onChange}
-                  onBlur={onBlur}
-                  placeholder="Enter password"
-                  secureTextEntry
-                  autoCapitalize="none"
-                  autoComplete="password-new"
-                  returnKeyType="next"
-                  testID="reset-password-password"
-                />
-              )}
+              label="New password"
+              isLabelIndicated
+              placeholder="Enter password"
+              secureTextEntry
+              autoCapitalize="none"
+              autoComplete="password-new"
+              returnKeyType="next"
+              testID="reset-password-password"
             />
-            <Controller
-              control={control}
+            <FormTextInput
               name="confirmPassword"
-              render={({ field: { onChange, onBlur, value } }) => (
-                <TextInputValidated
-                  name="confirmPassword"
-                  label="Confirm new password"
-                  isLabelIndicated
-                  value={value}
-                  onChangeText={onChange}
-                  onBlur={onBlur}
-                  placeholder="Type it again"
-                  secureTextEntry
-                  autoCapitalize="none"
-                  autoComplete="password-new"
-                  returnKeyType="done"
-                  onSubmitEditing={() => {
-                    void onSubmit();
-                  }}
-                  testID="reset-password-confirm"
-                />
-              )}
+              label="Confirm new password"
+              isLabelIndicated
+              placeholder="Type it again"
+              secureTextEntry
+              autoCapitalize="none"
+              autoComplete="password-new"
+              returnKeyType="done"
+              onSubmitEditing={() => {
+                void onSubmit();
+              }}
+              testID="reset-password-confirm"
             />
 
             <PasswordGuidelines />
@@ -140,7 +121,7 @@ const ResetPassword = () => {
               onPress={() => {
                 void startOver();
               }}>
-              <AppText size={14} fontWeight="bold" color="primaryText">
+              <AppText size="subhead" fontWeight="bold" color="primaryText">
                 Start over
               </AppText>
             </PressableOpacity>

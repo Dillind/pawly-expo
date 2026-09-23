@@ -16,7 +16,7 @@ const StatusPill = ({ label, tone = 'sunk' }: Props) => {
 
   return (
     <View style={[styles.pill, tone === 'primary' && styles.primary]}>
-      <AppText size={12} color={tone === 'primary' ? 'primaryText' : 'textSecondary'}>
+      <AppText size="caption" color={tone === 'primary' ? 'primaryText' : 'textSecondary'}>
         {label}
       </AppText>
     </View>

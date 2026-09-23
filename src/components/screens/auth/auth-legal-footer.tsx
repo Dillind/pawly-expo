@@ -5,7 +5,7 @@ import type { AppTheme } from '@/constants/theme';
 import { useStyles } from '@/hooks/use-styles';
 import { openExternalUrl } from '@/utils/external-link';
 
-// TODO: placeholders. App Store review requires a working privacy policy link.
+// TODO(CRU-157): placeholders. App Store review requires a working privacy policy link.
 const TERMS_URL = 'https://crumpet.com.au/terms';
 const PRIVACY_URL = 'https://crumpet.com.au/privacy';
 
@@ -14,11 +14,11 @@ const AuthLegalFooter = () => {
 
   return (
     <View style={styles.container}>
-      <AppText color="textSecondary" size={12} align="center">
+      <AppText color="textSecondary" size="caption" align="center">
         By using Crumpet, you agree to our{' '}
         <AppText
           color="textSecondary"
-          size={12}
+          size="caption"
           fontWeight="bold"
           onPress={() => void openExternalUrl(TERMS_URL)}>
           Terms of Use
@@ -26,7 +26,7 @@ const AuthLegalFooter = () => {
         and{' '}
         <AppText
           color="textSecondary"
-          size={12}
+          size="caption"
           fontWeight="bold"
           onPress={() => void openExternalUrl(PRIVACY_URL)}>
           Privacy Policy

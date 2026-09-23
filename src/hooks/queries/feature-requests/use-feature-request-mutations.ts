@@ -1,7 +1,9 @@
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQueryClient, type QueryClient } from '@tanstack/react-query';
 
 import { ErrorMessage, SuccessMessage } from '@/constants/enums';
-import { showErrorToast, showSuccessToast } from '@/lib/toast';
+import { UserFacingError } from '@/lib/errors';
+import { queryKeys } from '@/lib/query-keys';
+import { showErrorToast } from '@/lib/toast';
 import FeatureRequestService, {
   FeatureRequestCreateError,
   type FeatureRequest,
@@ -10,9 +12,6 @@ import FeatureRequestService, {
 } from '@/services/feature-request.service';
 import { useAuthStore } from '@/stores/auth-store';
 
-import { ALL_FEATURE_REQUESTS, featureRequestKey } from './use-feature-requests';
-
-type Client = ReturnType<typeof useQueryClient>;
 type ListData = { pages: FeatureRequestsPage[]; pageParams: unknown[] };
 
 export const applyToEveryList = (
@@ -33,22 +32,20 @@ export const applyToEveryList = (
     : data;
 
 const writeEverywhere = (
-  client: Client,
+  client: QueryClient,
   requestId: string,
   apply: (request: FeatureRequest) => FeatureRequest
 ) => {
-  client.setQueriesData<ListData>({ queryKey: ALL_FEATURE_REQUESTS }, (old) =>
+  client.setQueriesData<ListData>({ queryKey: queryKeys.featureRequests.lists }, (old) =>
     applyToEveryList(old, requestId, apply)
   );
-  client.setQueryData<FeatureRequest | null>(featureRequestKey(requestId), (old) =>
+  client.setQueryData<FeatureRequest | null>(queryKeys.featureRequests.detail(requestId), (old) =>
     old ? apply(old) : old
   );
 };
 
-const invalidateBoard = (client: Client, requestId?: string) => {
-  void client.invalidateQueries({ queryKey: ALL_FEATURE_REQUESTS });
-  if (requestId) void client.invalidateQueries({ queryKey: featureRequestKey(requestId) });
-};
+const invalidateBoard = (client: QueryClient) =>
+  client.invalidateQueries({ queryKey: queryKeys.featureRequests.all });
 
 export const toggleVote = (request: FeatureRequest): FeatureRequest => ({
   ...request,
@@ -63,20 +60,19 @@ export function useToggleVote() {
   const { userId } = useAuthStore();
 
   return useMutation({
-    mutationFn: ({ requestId, hasVoted }: { requestId: string; hasVoted: boolean }) =>
-      hasVoted
-        ? FeatureRequestService.removeVote({ requestId, userId: userId! })
-        : FeatureRequestService.vote({ requestId, userId: userId! }),
+    meta: { errorMessage: ErrorMessage.FeatureRequestVoteFailed },
+    mutationFn: ({ requestId, hasVoted }: { requestId: string; hasVoted: boolean }) => {
+      if (!userId) throw new UserFacingError('You need to sign in again before voting');
+
+      return hasVoted
+        ? FeatureRequestService.removeVote({ requestId, userId })
+        : FeatureRequestService.vote({ requestId, userId });
+    },
     onMutate: async ({ requestId }) => {
-      await queryClient.cancelQueries({ queryKey: ALL_FEATURE_REQUESTS });
-      await queryClient.cancelQueries({ queryKey: featureRequestKey(requestId) });
+      await queryClient.cancelQueries({ queryKey: queryKeys.featureRequests.all });
       writeEverywhere(queryClient, requestId, toggleVote);
     },
-    onError: (error, { requestId }) => {
-      console.error(error);
-      writeEverywhere(queryClient, requestId, toggleVote);
-      showErrorToast(ErrorMessage.FeatureRequestVoteFailed);
-    }
+    onError: (_error, { requestId }) => writeEverywhere(queryClient, requestId, toggleVote)
   });
 }
 
@@ -84,16 +80,14 @@ export function useCreateFeatureRequest() {
   const queryClient = useQueryClient();
 
   return useMutation({
+    meta: { successMessage: SuccessMessage.FeatureRequestPosted },
     mutationFn: FeatureRequestService.create,
-    onSuccess: () => {
-      invalidateBoard(queryClient);
-      showSuccessToast(SuccessMessage.FeatureRequestPosted);
-    },
+    onSuccess: () => invalidateBoard(queryClient),
     onError: (error) => {
       // The form shows these inline, under the field that caused them.
-      if (error instanceof FeatureRequestCreateError) return;
-      console.error(error);
-      showErrorToast(ErrorMessage.FeatureRequestPostFailed);
+      if (!(error instanceof FeatureRequestCreateError)) {
+        showErrorToast(ErrorMessage.FeatureRequestPostFailed);
+      }
     }
   });
 }
@@ -102,15 +96,14 @@ export function useDeleteFeatureRequest() {
   const queryClient = useQueryClient();
 
   return useMutation({
+    meta: {
+      successMessage: SuccessMessage.FeatureRequestDeleted,
+      errorMessage: ErrorMessage.FeatureRequestDeleteFailed
+    },
     mutationFn: FeatureRequestService.remove,
     onSuccess: (_data, requestId) => {
-      queryClient.setQueryData(featureRequestKey(requestId), null);
-      invalidateBoard(queryClient);
-      showSuccessToast(SuccessMessage.FeatureRequestDeleted);
-    },
-    onError: (error) => {
-      console.error(error);
-      showErrorToast(ErrorMessage.FeatureRequestDeleteFailed);
+      queryClient.setQueryData(queryKeys.featureRequests.detail(requestId), null);
+      void invalidateBoard(queryClient);
     }
   });
 }
@@ -119,15 +112,12 @@ export function useReportFeatureRequest() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: FeatureRequestService.report,
-    onSuccess: (_data, requestId) => {
-      invalidateBoard(queryClient, requestId);
-      showSuccessToast(SuccessMessage.FeatureRequestReported);
+    meta: {
+      successMessage: SuccessMessage.FeatureRequestReported,
+      errorMessage: ErrorMessage.FeatureRequestReportFailed
     },
-    onError: (error) => {
-      console.error(error);
-      showErrorToast(ErrorMessage.FeatureRequestReportFailed);
-    }
+    mutationFn: FeatureRequestService.report,
+    onSuccess: () => invalidateBoard(queryClient)
   });
 }
 
@@ -135,15 +125,12 @@ export function useHideFeatureRequestAuthor() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: FeatureRequestService.blockAuthor,
-    onSuccess: (_data, requestId) => {
-      invalidateBoard(queryClient, requestId);
-      showSuccessToast(SuccessMessage.FeatureRequestAuthorHidden);
+    meta: {
+      successMessage: SuccessMessage.FeatureRequestAuthorHidden,
+      errorMessage: ErrorMessage.FeatureRequestHideFailed
     },
-    onError: (error) => {
-      console.error(error);
-      showErrorToast(ErrorMessage.FeatureRequestHideFailed);
-    }
+    mutationFn: FeatureRequestService.blockAuthor,
+    onSuccess: () => invalidateBoard(queryClient)
   });
 }
 
@@ -151,16 +138,15 @@ export function useSetFeatureRequestStatus() {
   const queryClient = useQueryClient();
 
   return useMutation({
+    meta: {
+      successMessage: SuccessMessage.FeatureRequestStatusChanged,
+      errorMessage: ErrorMessage.FeatureRequestStatusFailed
+    },
     mutationFn: FeatureRequestService.setStatus,
     onMutate: ({ requestId, status }: { requestId: string; status: FeatureRequestStatus }) => {
       writeEverywhere(queryClient, requestId, (request) => ({ ...request, status }));
     },
-    onSuccess: () => showSuccessToast(SuccessMessage.FeatureRequestStatusChanged),
-    onError: (error) => {
-      console.error(error);
-      showErrorToast(ErrorMessage.FeatureRequestStatusFailed);
-    },
-    onSettled: (_data, _error, { requestId }) => invalidateBoard(queryClient, requestId)
+    onSettled: () => invalidateBoard(queryClient)
   });
 }
 
@@ -168,14 +154,11 @@ export function useRestoreFeatureRequest() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: FeatureRequestService.restore,
-    onSuccess: (_data, requestId) => {
-      invalidateBoard(queryClient, requestId);
-      showSuccessToast(SuccessMessage.FeatureRequestRestored);
+    meta: {
+      successMessage: SuccessMessage.FeatureRequestRestored,
+      errorMessage: ErrorMessage.FeatureRequestRestoreFailed
     },
-    onError: (error) => {
-      console.error(error);
-      showErrorToast(ErrorMessage.FeatureRequestRestoreFailed);
-    }
+    mutationFn: FeatureRequestService.restore,
+    onSuccess: () => invalidateBoard(queryClient)
   });
 }

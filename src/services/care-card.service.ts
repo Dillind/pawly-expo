@@ -1,6 +1,8 @@
 import type { CareCardContactInput, CareCardInput, MedicationInput } from '@/lib/form/pet-schemas';
 import { assertWrote } from '@/lib/supabase/assert-wrote';
 import { supabase } from '@/lib/supabase/client';
+import { unwrap } from '@/lib/supabase/unwrap';
+import type { TablesInsert } from '@/types/database';
 
 export type CareCard = {
   petId: string;
@@ -44,7 +46,9 @@ export type Medication = {
   createdAt: string;
 };
 
-const CARE_CARD_COLUMNS: Record<keyof CareCardInput, string> = {
+type CareCardColumn = Exclude<keyof TablesInsert<'care_cards'>, 'pet_id' | 'updated_at'>;
+
+const CARE_CARD_COLUMNS: Record<keyof CareCardInput, CareCardColumn> = {
   allergies: 'allergies',
   behaviourNotes: 'behaviour_notes',
   vetName: 'vet_name',
@@ -64,13 +68,13 @@ const SELECTED_COLUMNS = ['pet_id', 'updated_at', ...Object.values(CARE_CARD_COL
 
 namespace CareCardService {
   export async function getCard(petId: string): Promise<CareCard | null> {
-    const { data, error } = await supabase
-      .from('care_cards')
-      .select(SELECTED_COLUMNS)
-      .eq('pet_id', petId)
-      .maybeSingle<Record<string, string | null>>();
-
-    if (error) throw error;
+    const data = await unwrap(
+      supabase
+        .from('care_cards')
+        .select(SELECTED_COLUMNS)
+        .eq('pet_id', petId)
+        .maybeSingle<Record<string, string | null>>()
+    );
     if (!data) return null;
 
     return {
@@ -93,15 +97,15 @@ namespace CareCardService {
   }
 
   export async function listContacts(petId: string): Promise<CareCardContact[]> {
-    const { data, error } = await supabase
-      .from('care_card_contacts')
-      .select('id, pet_id, name, phone, sort_order, created_at')
-      .eq('pet_id', petId)
-      // sort_order is not unique, so created_at breaks the tie.
-      .order('sort_order', { ascending: true })
-      .order('created_at', { ascending: true });
-
-    if (error) throw error;
+    const data = await unwrap(
+      supabase
+        .from('care_card_contacts')
+        .select('id, pet_id, name, phone, sort_order, created_at')
+        .eq('pet_id', petId)
+        // sort_order is not unique, so created_at breaks the tie.
+        .order('sort_order', { ascending: true })
+        .order('created_at', { ascending: true })
+    );
 
     return data.map((row) => ({
       id: row.id,
@@ -120,12 +124,9 @@ namespace CareCardService {
     const row = { pet_id: petId, name: input.name, phone: input.phone };
 
     if (input.id) {
-      const { data, error } = await supabase
-        .from('care_card_contacts')
-        .update(row)
-        .eq('id', input.id)
-        .select('id');
-      if (error) throw error;
+      const data = await unwrap(
+        supabase.from('care_card_contacts').update(row).eq('id', input.id).select('id')
+      );
 
       assertWrote(data, 'Only an owner can change this Care Card');
       return;
@@ -142,27 +143,27 @@ namespace CareCardService {
       .maybeSingle();
     if (maxError) throw maxError;
 
-    const { error } = await supabase
-      .from('care_card_contacts')
-      .insert({ ...row, sort_order: (maxRow?.sort_order ?? -1) + 1 });
-    if (error) throw error;
+    await unwrap(
+      supabase
+        .from('care_card_contacts')
+        .insert({ ...row, sort_order: (maxRow?.sort_order ?? -1) + 1 })
+    );
   }
 
   export async function deleteContact(contactId: string): Promise<void> {
-    const { error } = await supabase.from('care_card_contacts').delete().eq('id', contactId);
-    if (error) throw error;
+    await unwrap(supabase.from('care_card_contacts').delete().eq('id', contactId));
   }
 
   export async function listMedications(petId: string): Promise<Medication[]> {
-    const { data, error } = await supabase
-      .from('care_card_medications')
-      .select('id, pet_id, name, dose, schedule_text, instructions, sort_order, created_at')
-      .eq('pet_id', petId)
-      // sort_order is not unique, so created_at breaks the tie.
-      .order('sort_order', { ascending: true })
-      .order('created_at', { ascending: true });
-
-    if (error) throw error;
+    const data = await unwrap(
+      supabase
+        .from('care_card_medications')
+        .select('id, pet_id, name, dose, schedule_text, instructions, sort_order, created_at')
+        .eq('pet_id', petId)
+        // sort_order is not unique, so created_at breaks the tie.
+        .order('sort_order', { ascending: true })
+        .order('created_at', { ascending: true })
+    );
 
     return data.map((row) => ({
       id: row.id,
@@ -179,13 +180,12 @@ namespace CareCardService {
   // Only edited fields are written: an upsert from a full snapshot clobbers
   // another member's concurrent edit to a different field.
   export async function upsertCard(petId: string, patch: Partial<CareCardInput>): Promise<void> {
-    const row: Record<string, string | null> = { pet_id: petId };
+    const row: TablesInsert<'care_cards'> = { pet_id: petId };
     for (const key of Object.keys(patch) as (keyof CareCardInput)[]) {
       row[CARE_CARD_COLUMNS[key]] = patch[key] || null;
     }
 
-    const { error } = await supabase.from('care_cards').upsert(row, { onConflict: 'pet_id' });
-    if (error) throw error;
+    await unwrap(supabase.from('care_cards').upsert(row, { onConflict: 'pet_id' }));
   }
 
   export async function upsertMedication(
@@ -218,24 +218,19 @@ namespace CareCardService {
     };
 
     if (input.id) {
-      const { data, error } = await supabase
-        .from('care_card_medications')
-        .update(row)
-        .eq('id', input.id)
-        .select('id');
-      if (error) throw error;
+      const data = await unwrap(
+        supabase.from('care_card_medications').update(row).eq('id', input.id).select('id')
+      );
 
       assertWrote(data, 'Only an owner can change this Care Card');
       return;
     }
 
-    const { error } = await supabase.from('care_card_medications').insert(row);
-    if (error) throw error;
+    await unwrap(supabase.from('care_card_medications').insert(row));
   }
 
   export async function deleteMedication(medicationId: string): Promise<void> {
-    const { error } = await supabase.from('care_card_medications').delete().eq('id', medicationId);
-    if (error) throw error;
+    await unwrap(supabase.from('care_card_medications').delete().eq('id', medicationId));
   }
 }
 

@@ -1,14 +1,14 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import type { TrueSheet } from '@lodev09/react-native-true-sheet';
 import { useState, type RefObject } from 'react';
-import { Controller, FormProvider, useForm, useFormContext, useWatch } from 'react-hook-form';
+import { FormProvider, useForm, useFormContext } from 'react-hook-form';
 import { StyleSheet, View } from 'react-native';
 
 import AppText from '@/components/core/app-text';
+import FormTextInput from '@/components/core/form-text-input';
 import Icon from '@/components/core/icon';
 import MainButton from '@/components/core/main-button';
 import PressableOpacity from '@/components/core/pressable-opacity';
-import TextInputValidated from '@/components/core/text-input-validated';
 import Tray, { useTray, type TrayStepDescriptor } from '@/components/core/tray';
 import EmojiStep from '@/components/ui/emoji-step';
 import {
@@ -21,7 +21,7 @@ import { useStyles } from '@/hooks/use-styles';
 
 const EMOJI_WELL = 64;
 
-export type ChecklistFormValues = { name: string; emoji: string | null };
+type ChecklistFormValues = { name: string; emoji: string | null };
 
 type Props = {
   sheetRef: RefObject<TrueSheet | null>;
@@ -45,8 +45,7 @@ const NameStep = ({
 }) => {
   const styles = useStyles(makeStyles);
   const { goTo } = useTray();
-  const { control, handleSubmit } = useFormContext<ChecklistNameInput>();
-  const nameValue = useWatch({ control, name: 'name' });
+  const { handleSubmit } = useFormContext<ChecklistNameInput>();
 
   const submit = () => handleSubmit((values) => onSubmit(values.name))();
 
@@ -59,35 +58,27 @@ const NameStep = ({
           accessibilityLabel={emoji ? `Emoji ${emoji}, change it` : 'Choose an emoji'}
           onPress={() => goTo('emoji')}>
           {emoji ? (
-            <AppText size={28}>{emoji}</AppText>
+            <AppText size="titleLarge">{emoji}</AppText>
           ) : (
             <Icon name="sparkles" size={22} color="textSecondary" />
           )}
         </PressableOpacity>
 
         <View style={styles.field}>
-          <Controller
-            control={control}
+          <FormTextInput
             name="name"
-            render={({ field: { onChange } }) => (
-              <TextInputValidated
-                name="name"
-                label="Name"
-                isLabelIndicated
-                placeholder="Overnight at Mum's"
-                value={nameValue ?? ''}
-                onChangeText={onChange}
-                maxLength={CHECKLIST_NAME_MAX}
-                autoFocus
-                returnKeyType="done"
-                onSubmitEditing={() => void submit()}
-              />
-            )}
+            label="Name"
+            isLabelIndicated
+            placeholder="Overnight at Mum's"
+            maxLength={CHECKLIST_NAME_MAX}
+            autoFocus
+            returnKeyType="done"
+            onSubmitEditing={() => void submit()}
           />
         </View>
       </View>
 
-      <AppText size={13} color="textSecondary">
+      <AppText size="footnote" color="textSecondary">
         Tap the emoji to change it. It is optional.
       </AppText>
 

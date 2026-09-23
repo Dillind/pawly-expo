@@ -1,7 +1,9 @@
 import { dayInTimezone, shiftDays } from '@/lib/dates';
 import { assertWrote } from '@/lib/supabase/assert-wrote';
 import { supabase } from '@/lib/supabase/client';
+import { unwrap } from '@/lib/supabase/unwrap';
 import type { FeedingScheduleLabel, FeedLog } from '@/types/core';
+import type { Rpc } from '@/types/database-overrides';
 
 // Null when the author deleted their account.
 const FEED_LOG_SELECT =
@@ -44,15 +46,7 @@ function mapFeedLogRow(row: FeedLogRow): FeedLog {
 
 // The RPC returns jsonb, which supabase-js hands back as `any`. Mapped here so
 // one place knows the wire shape and an unknown status fails loudly.
-function mapLogFeedResult(data: unknown): LogFeedResult {
-  const payload = data as {
-    status?: string;
-    log_id?: string;
-    is_extra_feed?: boolean;
-    occurrence?: { label: FeedingScheduleLabel; local_time: string };
-    existing?: { id: string; logged_at: string; logged_by: string | null };
-  };
-
+function mapLogFeedResult(payload: Rpc<'log_feed'>): LogFeedResult {
   if (payload.status === 'logged' && payload.log_id) {
     return {
       status: 'logged',
@@ -78,15 +72,11 @@ function mapLogFeedResult(data: unknown): LogFeedResult {
 
 namespace FeedLogService {
   export async function getById(logId: string): Promise<FeedLog> {
-    const { data, error } = await supabase
-      .from('feed_logs')
-      .select(FEED_LOG_SELECT)
-      .eq('id', logId)
-      .single();
+    const data = await unwrap(
+      supabase.from('feed_logs').select(FEED_LOG_SELECT).eq('id', logId).single()
+    );
 
-    if (error) throw error;
-
-    return mapFeedLogRow(data as unknown as FeedLogRow);
+    return mapFeedLogRow(data);
   }
 
   export async function getOffScheduleForDay(
@@ -94,20 +84,18 @@ namespace FeedLogService {
     day: string,
     timezone: string
   ): Promise<FeedLog[]> {
-    const { data, error } = await supabase
-      .from('feed_logs')
-      .select(FEED_LOG_SELECT)
-      .eq('pet_id', petId)
-      .is('feed_time_series_id', null)
-      .gte('logged_at', `${shiftDays(day, -1)}T00:00:00Z`)
-      .lt('logged_at', `${shiftDays(day, 2)}T00:00:00Z`)
-      .order('logged_at', { ascending: true });
+    const data = await unwrap(
+      supabase
+        .from('feed_logs')
+        .select(FEED_LOG_SELECT)
+        .eq('pet_id', petId)
+        .is('feed_time_series_id', null)
+        .gte('logged_at', `${shiftDays(day, -1)}T00:00:00Z`)
+        .lt('logged_at', `${shiftDays(day, 2)}T00:00:00Z`)
+        .order('logged_at', { ascending: true })
+    );
 
-    if (error) throw error;
-
-    return (data as unknown as FeedLogRow[])
-      .map(mapFeedLogRow)
-      .filter((log) => dayInTimezone(log.loggedAt, timezone) === day);
+    return data.map(mapFeedLogRow).filter((log) => dayInTimezone(log.loggedAt, timezone) === day);
   }
 
   // The only write path for a feed log: the check and the insert share one
@@ -123,16 +111,16 @@ namespace FeedLogService {
       occurrenceDate?: string | null;
     }
   ): Promise<LogFeedResult> {
-    const { data, error } = await supabase.rpc('log_feed', {
-      target_pet_id: petId,
-      target_logged_at: input.loggedAt ?? new Date().toISOString(),
-      target_notes: input.notes ?? null,
-      confirmed: input.confirmed ?? false,
-      target_series_id: input.seriesId ?? null,
-      target_occurrence_date: input.occurrenceDate ?? null
-    });
-
-    if (error) throw error;
+    const data = await unwrap(
+      supabase.rpc('log_feed', {
+        target_pet_id: petId,
+        target_logged_at: input.loggedAt ?? new Date().toISOString(),
+        target_notes: input.notes ?? null,
+        confirmed: input.confirmed ?? false,
+        target_series_id: input.seriesId ?? null,
+        target_occurrence_date: input.occurrenceDate ?? null
+      })
+    );
 
     return mapLogFeedResult(data);
   }
@@ -149,19 +137,15 @@ namespace FeedLogService {
     if (input.loggedAt !== undefined) patch.logged_at = input.loggedAt;
     if (input.notes !== undefined) patch.notes = input.notes;
 
-    const { data, error } = await supabase
-      .from('feed_logs')
-      .update(patch)
-      .eq('id', input.logId)
-      .select('id');
-    if (error) throw error;
+    const data = await unwrap(
+      supabase.from('feed_logs').update(patch).eq('id', input.logId).select('id')
+    );
 
     assertWrote(data, 'This feed log can no longer be edited');
   }
 
   export async function remove(logId: string): Promise<void> {
-    const { error } = await supabase.from('feed_logs').delete().eq('id', logId);
-    if (error) throw error;
+    await unwrap(supabase.from('feed_logs').delete().eq('id', logId));
   }
 }
 

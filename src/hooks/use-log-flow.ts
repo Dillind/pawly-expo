@@ -3,6 +3,7 @@ import { Alert } from 'react-native';
 
 import { useLogFeed } from '@/hooks/queries/feeding/use-feed-log-mutations';
 import { formatTimeOfDay } from '@/lib/dates';
+import { logError } from '@/lib/errors';
 import { feedLogErrorMessage } from '@/lib/feed-log-errors';
 import { showErrorToast, showSuccessToast } from '@/lib/toast';
 import type { LogFeedResult } from '@/services/feed-log.service';
@@ -85,7 +86,7 @@ export function useLogFlow({ members, timezone, onWritten }: Options) {
             onWritten();
           },
           onError: (error) => {
-            console.error(error);
+            logError(error);
             showErrorToast(feedLogErrorMessage(error));
           }
         }

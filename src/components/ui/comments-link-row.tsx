@@ -28,7 +28,7 @@ const CommentsLinkRow = ({ count, onPress }: Props) => {
       onPress={onPress}
       accessibilityRole="button"
       accessibilityLabel={text}>
-      <AppText size={15} color="primaryText" fontWeight="bold" style={styles.label}>
+      <AppText size="callout" color="primaryText" fontWeight="bold" style={styles.label}>
         {text}
       </AppText>
       <Icon name="caretRight" size={IconSize.control} color="primaryText" />

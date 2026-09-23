@@ -1,6 +1,8 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { create } from 'zustand';
 
+import { logError } from '@/lib/errors';
+
 const STORAGE_KEY = 'crumpet.activeHouseholdId';
 
 type State = {
@@ -30,7 +32,7 @@ export const useActiveHouseholdStore = create<State & Action>((set) => ({
     try {
       await AsyncStorage.setItem(STORAGE_KEY, householdId);
     } catch (error) {
-      console.error(error);
+      logError(error);
     }
   },
 
@@ -40,7 +42,7 @@ export const useActiveHouseholdStore = create<State & Action>((set) => ({
     try {
       await AsyncStorage.removeItem(STORAGE_KEY);
     } catch (error) {
-      console.error(error);
+      logError(error);
     }
   },
 
@@ -49,7 +51,7 @@ export const useActiveHouseholdStore = create<State & Action>((set) => ({
       const stored = await AsyncStorage.getItem(STORAGE_KEY);
       set({ activeHouseholdId: stored ?? undefined, hasHydrated: true });
     } catch (error) {
-      console.error(error);
+      logError(error);
       set({ hasHydrated: true });
     }
   }

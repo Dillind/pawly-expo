@@ -39,7 +39,7 @@ const AboutSheet = ({ sheetRef }: Props) => {
 
       <View style={styles.story}>
         {STORY.map((paragraph) => (
-          <AppText key={paragraph} size={15}>
+          <AppText key={paragraph} size="callout">
             {paragraph}
           </AppText>
         ))}
@@ -50,7 +50,7 @@ const AboutSheet = ({ sheetRef }: Props) => {
         <SettingsRow icon="fileText" label="Terms of Use" isSoon />
       </SettingsSection>
 
-      <AppText size={13} color="textSecondary" align="center">
+      <AppText size="footnote" color="textSecondary" align="center">
         Version {APP_VERSION}
       </AppText>
     </BaseSheet>

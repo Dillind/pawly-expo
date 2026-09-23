@@ -58,10 +58,10 @@ const Done = () => {
   return (
     <ScreenView>
       <View style={styles.head}>
-        <AppText variant="header" size={28} fontWeight="bold">
+        <AppText variant="header" size="titleLarge" fontWeight="bold">
           {name}
         </AppText>
-        <AppText size={14} color="textSecondary" style={styles.subtitle}>
+        <AppText size="subhead" color="textSecondary" style={styles.subtitle}>
           {petName} is set up. Log the first feed whenever you like.
         </AppText>
       </View>
@@ -70,10 +70,10 @@ const Done = () => {
         <View style={styles.summary}>
           {rows.map((row, index) => (
             <View key={row.label} style={[styles.row, index > 0 && styles.rowDivided]}>
-              <AppText size={14} color="textSecondary">
+              <AppText size="subhead" color="textSecondary">
                 {row.label}
               </AppText>
-              <AppText size={14} fontWeight="semibold">
+              <AppText size="subhead" fontWeight="semibold">
                 {row.value}
               </AppText>
             </View>
@@ -81,10 +81,10 @@ const Done = () => {
         </View>
 
         <View style={styles.invite}>
-          <AppText variant="header" size={18} fontWeight="bold">
+          <AppText variant="header" size="titleSmall" fontWeight="bold">
             Invite the rest of the house
           </AppText>
-          <AppText size={13} color="textSecondary">
+          <AppText size="footnote" color="textSecondary">
             They see {petName}&apos;s feed times, and everyone is told when someone feeds.
           </AppText>
         </View>

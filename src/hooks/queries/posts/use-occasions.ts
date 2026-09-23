@@ -1,14 +1,12 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { ErrorMessage, SuccessMessage } from '@/constants/enums';
-import { showErrorToast, showSuccessToast } from '@/lib/toast';
+import { queryKeys } from '@/lib/query-keys';
 import OccasionService, { type Occasion } from '@/services/occasion.service';
-
-const occasionsKey = (householdId: string | undefined) => ['occasions', householdId];
 
 export function useOccasions(householdId: string | undefined) {
   return useQuery({
-    queryKey: occasionsKey(householdId),
+    queryKey: queryKeys.occasions(householdId),
     queryFn: () => OccasionService.list(householdId!),
     enabled: Boolean(householdId)
   });
@@ -18,14 +16,13 @@ export function useCreateOccasion(householdId: string | undefined) {
   const queryClient = useQueryClient();
 
   return useMutation({
+    meta: {
+      successMessage: SuccessMessage.OccasionAdded,
+      errorMessage: ErrorMessage.OccasionAddFailed
+    },
     mutationFn: (input: { emoji: string | null; label: string | null }) =>
       OccasionService.create({ householdId: householdId!, ...input }),
-    onSettled: () => queryClient.invalidateQueries({ queryKey: occasionsKey(householdId) }),
-    onSuccess: () => showSuccessToast(SuccessMessage.OccasionAdded),
-    onError: (error) => {
-      console.error(error);
-      showErrorToast(ErrorMessage.OccasionAddFailed);
-    }
+    onSettled: () => queryClient.invalidateQueries({ queryKey: queryKeys.occasions(householdId) })
   });
 }
 
@@ -33,14 +30,13 @@ export function useUpdateOccasion(householdId: string | undefined) {
   const queryClient = useQueryClient();
 
   return useMutation({
+    meta: {
+      successMessage: SuccessMessage.OccasionUpdated,
+      errorMessage: ErrorMessage.OccasionUpdateFailed
+    },
     mutationFn: (input: { id: string; emoji: string | null; label: string | null }) =>
       OccasionService.update(input),
-    onSettled: () => queryClient.invalidateQueries({ queryKey: occasionsKey(householdId) }),
-    onSuccess: () => showSuccessToast(SuccessMessage.OccasionUpdated),
-    onError: (error) => {
-      console.error(error);
-      showErrorToast(ErrorMessage.OccasionUpdateFailed);
-    }
+    onSettled: () => queryClient.invalidateQueries({ queryKey: queryKeys.occasions(householdId) })
   });
 }
 
@@ -50,12 +46,11 @@ export function useRemoveOccasion(householdId: string | undefined) {
   const queryClient = useQueryClient();
 
   return useMutation({
+    meta: {
+      successMessage: SuccessMessage.OccasionRemoved,
+      errorMessage: ErrorMessage.OccasionRemoveFailed
+    },
     mutationFn: (occasion: Occasion) => OccasionService.remove(occasion.id),
-    onSettled: () => queryClient.invalidateQueries({ queryKey: occasionsKey(householdId) }),
-    onSuccess: () => showSuccessToast(SuccessMessage.OccasionRemoved),
-    onError: (error) => {
-      console.error(error);
-      showErrorToast(ErrorMessage.OccasionRemoveFailed);
-    }
+    onSettled: () => queryClient.invalidateQueries({ queryKey: queryKeys.occasions(householdId) })
   });
 }

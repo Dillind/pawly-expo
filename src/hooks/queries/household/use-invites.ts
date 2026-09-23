@@ -1,18 +1,16 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { ErrorMessage, SuccessMessage } from '@/constants/enums';
-import { householdsKey } from '@/hooks/queries/household/use-households';
+import { queryKeys } from '@/lib/query-keys';
 import { showErrorToast, showSuccessToast } from '@/lib/toast';
 import InviteService, { type RedeemStatus } from '@/services/invite.service';
 import { useActiveHouseholdStore } from '@/stores/active-household-store';
 import { useAuthStore } from '@/stores/auth-store';
 import type { HouseholdRole } from '@/types/core';
 
-const pendingKey = (householdId: string | undefined) => ['invites-pending', householdId];
-
 export function usePendingInvites(householdId: string | undefined) {
   return useQuery({
-    queryKey: pendingKey(householdId),
+    queryKey: queryKeys.pendingInvites(householdId),
     queryFn: () => InviteService.listPending(householdId as string),
     enabled: Boolean(householdId)
   });
@@ -20,7 +18,7 @@ export function usePendingInvites(householdId: string | undefined) {
 
 export function useInvitePreview(code: string | undefined) {
   return useQuery({
-    queryKey: ['invite-preview', code],
+    queryKey: queryKeys.invitePreview(code),
     queryFn: () => InviteService.preview(code as string),
     enabled: Boolean(code),
     retry: false
@@ -31,9 +29,11 @@ export function useCreateInvite(householdId: string | undefined) {
   const queryClient = useQueryClient();
 
   return useMutation({
+    meta: { errorMessage: ErrorMessage.InviteSendFailed },
     mutationFn: (input: { email: string; role: HouseholdRole }) =>
       InviteService.create({ householdId: householdId as string, ...input }),
-    onSettled: () => queryClient.invalidateQueries({ queryKey: pendingKey(householdId) }),
+    onSettled: () =>
+      queryClient.invalidateQueries({ queryKey: queryKeys.pendingInvites(householdId) }),
     onSuccess: (result) => {
       if (result.status === 'already_member') {
         return showErrorToast(ErrorMessage.InviteAlreadyMember);
@@ -43,10 +43,6 @@ export function useCreateInvite(householdId: string | undefined) {
 
       // Deliberately says nothing about whether the address has an account.
       showSuccessToast(SuccessMessage.InviteSent);
-    },
-    onError: (error) => {
-      console.error(error);
-      showErrorToast(ErrorMessage.InviteSendFailed);
     }
   });
 }
@@ -55,13 +51,13 @@ export function useRevokeInvite(householdId: string | undefined) {
   const queryClient = useQueryClient();
 
   return useMutation({
+    meta: {
+      successMessage: SuccessMessage.InviteRevoked,
+      errorMessage: ErrorMessage.InviteRevokeFailed
+    },
     mutationFn: (inviteId: string) => InviteService.revoke(inviteId),
-    onSettled: () => queryClient.invalidateQueries({ queryKey: pendingKey(householdId) }),
-    onSuccess: () => showSuccessToast(SuccessMessage.InviteRevoked),
-    onError: (error) => {
-      console.error(error);
-      showErrorToast(ErrorMessage.InviteRevokeFailed);
-    }
+    onSettled: () =>
+      queryClient.invalidateQueries({ queryKey: queryKeys.pendingInvites(householdId) })
   });
 }
 
@@ -82,6 +78,7 @@ export function useRedeemInvite() {
   const { setActiveHousehold } = useActiveHouseholdStore();
 
   return useMutation({
+    meta: { errorMessage: ErrorMessage.InviteJoinFailed },
     mutationFn: (input: { code?: string; inviteId?: string }) => InviteService.redeem(input),
     onSuccess: async (result) => {
       const failure = REDEEM_FAILURES[result.status];
@@ -91,14 +88,10 @@ export function useRedeemInvite() {
 
       // Refetch first: useHousehold heals an id it cannot find by falling back
       // to the first household, so a stale list overwrites this.
-      await queryClient.refetchQueries({ queryKey: householdsKey(userId) });
+      await queryClient.refetchQueries({ queryKey: queryKeys.households.of(userId) });
       await setActiveHousehold(result.householdId);
 
       showSuccessToast(SuccessMessage.HouseholdJoined);
-    },
-    onError: (error) => {
-      console.error(error);
-      showErrorToast(ErrorMessage.InviteJoinFailed);
     }
   });
 }

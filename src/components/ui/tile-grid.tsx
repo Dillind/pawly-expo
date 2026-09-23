@@ -38,7 +38,7 @@ const TileGrid = ({ tiles }: Props) => {
     <View style={styles.section}>
       {/* Quiet and secondary: the tiles are the content, and a bold heading
           competes with them. */}
-      <AppText size={17} color="textSecondary">
+      <AppText size="headline" color="textSecondary">
         Dashboard
       </AppText>
 

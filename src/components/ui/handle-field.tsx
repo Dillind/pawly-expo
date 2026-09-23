@@ -139,12 +139,12 @@ const HandleField = ({ currentHandle, stem, onAvailabilityChange, autoFocus }: P
 
       {suggestions.length > 0 && (
         <View style={styles.suggestions}>
-          <AppText size={14} color="textSecondary">
+          <AppText size="subhead" color="textSecondary">
             Available:
           </AppText>
           {suggestions.map((suggestion) => (
             <PressableOpacity key={suggestion} onPress={() => choose(suggestion)}>
-              <AppText size={14} color="primaryText">
+              <AppText size="subhead" color="primaryText">
                 {suggestion}
               </AppText>
             </PressableOpacity>

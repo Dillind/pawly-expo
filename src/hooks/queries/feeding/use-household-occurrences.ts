@@ -1,5 +1,6 @@
 import { useQueries } from '@tanstack/react-query';
 
+import { queryKeys } from '@/lib/query-keys';
 import FeedTimeService from '@/services/feed-time.service';
 import type { Occurrence, Pet } from '@/types/core';
 
@@ -11,7 +12,7 @@ const OCCURRENCES_STALE_MS = 15_000;
 export function useHouseholdOccurrences(pets: Pet[], day: string | undefined): Occurrence[] {
   return useQueries({
     queries: pets.map((pet) => ({
-      queryKey: ['occurrences', pet.id, day],
+      queryKey: queryKeys.occurrences.day(pet.id, day),
       queryFn: () => FeedTimeService.getOccurrences(pet.id, day as string),
       enabled: Boolean(day),
       staleTime: OCCURRENCES_STALE_MS

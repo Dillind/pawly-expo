@@ -83,8 +83,7 @@ const FeedTimes = () => {
           }
 
           router.replace('/home/new-household/done');
-        },
-        onError: () => showErrorToast(ErrorMessage.HouseholdCreateFailed)
+        }
       }
     );
   });
@@ -118,10 +117,10 @@ const FeedTimes = () => {
               accessibilityLabel={`Edit the ${feedTime.label} feed`}
               onPress={() => router.push(`/home/new-household/feed?index=${index}`)}>
               <View style={styles.cardBody}>
-                <AppText size={16} fontWeight="bold">
+                <AppText size="body" fontWeight="bold">
                   {optionLabel(FEEDING_SCHEDULE_LABEL_OPTIONS, feedTime.label)}
                 </AppText>
-                <AppText size={13} color="textSecondary">
+                <AppText size="footnote" color="textSecondary">
                   {dayjs(feedTime.localTime, 'HH:mm').format('h:mm A')}
                   {'  ·  '}
                   {describeDays(feedTime.daysOfWeek)}
@@ -140,7 +139,7 @@ const FeedTimes = () => {
         onPress={() => router.push('/home/new-household/feed')}
       />
 
-      <AppText size={13} color="textSecondary">
+      <AppText size="footnote" color="textSecondary">
         Instructions for each feed live on the Care Card. Add them later.
       </AppText>
     </FlowScreen>

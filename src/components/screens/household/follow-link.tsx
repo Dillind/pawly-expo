@@ -57,7 +57,7 @@ const FollowLink = ({ householdId }: Props) => {
         contentContainerStyle={styles.content}
         contentInsetAdjustmentBehavior="automatic">
         <ListCard style={styles.card}>
-          <AppText size={14} color="textSecondary" align="center">
+          <AppText size="subhead" color="textSecondary" align="center">
             Have them scan this, or send the link
           </AppText>
 
@@ -70,7 +70,11 @@ const FollowLink = ({ householdId }: Props) => {
             accessibilityLabel="Copy the follow link"
             onPress={copy}>
             <View style={styles.linkRow}>
-              <AppText size={14} numberOfLines={1} ellipsizeMode="middle" style={styles.linkText}>
+              <AppText
+                size="subhead"
+                numberOfLines={1}
+                ellipsizeMode="middle"
+                style={styles.linkText}>
                 {link}
               </AppText>
               <Icon name="copy" size={IconSize.control} color="primary" />
@@ -88,14 +92,14 @@ const FollowLink = ({ householdId }: Props) => {
         <View style={styles.notes}>
           <View style={styles.note}>
             <Icon name="lock" size={IconSize.inline} color="textSecondary" />
-            <AppText size={13} color="textSecondary" style={styles.noteText}>
+            <AppText size="footnote" color="textSecondary" style={styles.noteText}>
               Anyone with the link can ask to follow. You accept each request yourself, so the link
               gives nothing away on its own.
             </AppText>
           </View>
           <View style={styles.note}>
             <Icon name="hourglass" size={IconSize.inline} color="textSecondary" />
-            <AppText size={13} color="textSecondary" style={styles.noteText}>
+            <AppText size="footnote" color="textSecondary" style={styles.noteText}>
               It does not expire. An invite code does, because it hands over a seat.
             </AppText>
           </View>

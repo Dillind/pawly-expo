@@ -1,7 +1,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 import { ErrorMessage, SuccessMessage } from '@/constants/enums';
-import { householdsKey } from '@/hooks/queries/household/use-households';
+import { queryKeys } from '@/lib/query-keys';
 import { showErrorToast, showSuccessToast } from '@/lib/toast';
 import HouseholdService, { type MembershipStatus } from '@/services/household.service';
 import { useActiveHouseholdStore } from '@/stores/active-household-store';
@@ -24,8 +24,8 @@ function useInvalidateMembership() {
   const { userId } = useAuthStore();
 
   return (householdId: string) => {
-    void queryClient.invalidateQueries({ queryKey: householdsKey(userId) });
-    void queryClient.invalidateQueries({ queryKey: ['household-members', householdId] });
+    void queryClient.invalidateQueries({ queryKey: queryKeys.households.of(userId) });
+    void queryClient.invalidateQueries({ queryKey: queryKeys.householdMembers.of(householdId) });
   };
 }
 
@@ -33,6 +33,7 @@ export function useSetMemberRole(householdId: string | undefined) {
   const invalidate = useInvalidateMembership();
 
   return useMutation({
+    meta: { errorMessage: ErrorMessage.MemberRoleChangeFailed },
     mutationFn: (input: { userId: string; role: HouseholdRole }) =>
       HouseholdService.setMemberRole({ householdId: householdId as string, ...input }),
     onSettled: () => invalidate(householdId as string),
@@ -41,10 +42,6 @@ export function useSetMemberRole(householdId: string | undefined) {
 
       if (failure) return showErrorToast(failure);
       if (status === 'changed') showSuccessToast(SuccessMessage.MemberRoleChanged);
-    },
-    onError: (error) => {
-      console.error(error);
-      showErrorToast(ErrorMessage.MemberRoleChangeFailed);
     }
   });
 }
@@ -53,6 +50,7 @@ export function useRemoveMember(householdId: string | undefined) {
   const invalidate = useInvalidateMembership();
 
   return useMutation({
+    meta: { errorMessage: ErrorMessage.MemberRemoveFailed },
     mutationFn: (userId: string) =>
       HouseholdService.removeMember({ householdId: householdId as string, userId }),
     onSettled: () => invalidate(householdId as string),
@@ -61,10 +59,6 @@ export function useRemoveMember(householdId: string | undefined) {
 
       if (failure) return showErrorToast(failure);
       if (status === 'removed') showSuccessToast(SuccessMessage.MemberRemoved);
-    },
-    onError: (error) => {
-      console.error(error);
-      showErrorToast(ErrorMessage.MemberRemoveFailed);
     }
   });
 }
@@ -74,6 +68,7 @@ export function useLeaveHousehold(householdId: string | undefined) {
   const { activeHouseholdId, clearActiveHousehold } = useActiveHouseholdStore();
 
   return useMutation({
+    meta: { errorMessage: ErrorMessage.HouseholdLeaveFailed },
     mutationFn: () => HouseholdService.leave(householdId as string),
     onSettled: () => invalidate(householdId as string),
     onSuccess: (status) => {
@@ -88,10 +83,6 @@ export function useLeaveHousehold(householdId: string | undefined) {
       // a household you were not looking at must not move you out of the one you
       // were.
       if (householdId === activeHouseholdId) void clearActiveHousehold();
-    },
-    onError: (error) => {
-      console.error(error);
-      showErrorToast(ErrorMessage.HouseholdLeaveFailed);
     }
   });
 }

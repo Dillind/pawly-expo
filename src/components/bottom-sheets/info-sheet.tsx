@@ -8,7 +8,7 @@ import Icon from '@/components/core/icon';
 import IconButton from '@/components/core/icon-button';
 import MainButton from '@/components/core/main-button';
 import type { IconName } from '@/constants/icon-map';
-import { IconSize, Radius, type AppTheme } from '@/constants/theme';
+import { IconSize, OverlayColors, Radius, type AppTheme } from '@/constants/theme';
 import { useStyles } from '@/hooks/use-styles';
 
 export type InfoBlock = { kind: 'paragraph' | 'heading'; text: string };
@@ -51,7 +51,7 @@ const InfoSheet = ({ sheetRef, glyph, title, subtitle, body }: Props) => {
           <AppText variant="header" size={26} color="onPrimary">
             {title}
           </AppText>
-          <AppText size={15} color="onPrimary" style={styles.subtitle}>
+          <AppText size="callout" color="onPrimary" style={styles.subtitle}>
             {subtitle}
           </AppText>
         </View>
@@ -60,11 +60,11 @@ const InfoSheet = ({ sheetRef, glyph, title, subtitle, body }: Props) => {
       <View style={styles.body}>
         {body.map((block, index) =>
           block.kind === 'heading' ? (
-            <AppText key={index} variant="header" size={17}>
+            <AppText key={index} variant="header" size="headline">
               {block.text}
             </AppText>
           ) : (
-            <AppText key={index} size={15} color="textSecondary">
+            <AppText key={index} size="callout" color="textSecondary">
               {block.text}
             </AppText>
           )
@@ -97,7 +97,7 @@ const makeStyles = ({ spacing, colors }: AppTheme) =>
       alignItems: 'flex-end'
     },
     closeButton: {
-      backgroundColor: 'rgba(255, 255, 255, 0.18)'
+      backgroundColor: OverlayColors.fillSubtle
     },
     panelText: {
       gap: spacing.one

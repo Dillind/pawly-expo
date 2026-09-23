@@ -1,10 +1,10 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter } from 'expo-router';
-import { Controller, FormProvider, useForm } from 'react-hook-form';
+import { FormProvider, useForm } from 'react-hook-form';
 import { StyleSheet, View } from 'react-native';
 
+import FormTextInput from '@/components/core/form-text-input';
 import MainButton from '@/components/core/main-button';
-import TextInputValidated from '@/components/core/text-input-validated';
 import ScreenScrollView from '@/components/layout/screen-scroll-view';
 import ScreenView from '@/components/layout/screen-view';
 import TextDescriptionHeader from '@/components/layout/text-description-header';
@@ -16,7 +16,7 @@ import {
 } from '@/constants/schemas/forgot-password';
 import type { AppTheme } from '@/constants/theme';
 import { useStyles } from '@/hooks/use-styles';
-import { userFacingMessage } from '@/lib/errors';
+import { logError, userFacingMessage } from '@/lib/errors';
 import { hapticLight } from '@/lib/haptics';
 import { showErrorToast, showSuccessToast } from '@/lib/toast';
 import AuthService from '@/services/auth.service';
@@ -32,7 +32,6 @@ const ForgotPassword = () => {
   });
 
   const {
-    control,
     handleSubmit,
     formState: { isSubmitting, isValid }
   } = form;
@@ -45,7 +44,7 @@ const ForgotPassword = () => {
       showSuccessToast(SuccessMessage.ResetCodeSent);
       router.push({ pathname: '/forgot-password/verify', params: { email: values.email } });
     } catch (error) {
-      console.error(error);
+      logError(error);
       showErrorToast(ErrorMessage.ResetCodeSendFailed, userFacingMessage(error, 'Try again'));
     }
   });
@@ -63,28 +62,19 @@ const ForgotPassword = () => {
 
         <FormProvider {...form}>
           <View style={styles.form}>
-            <Controller
-              control={control}
+            <FormTextInput
               name="email"
-              render={({ field: { onChange, onBlur, value } }) => (
-                <TextInputValidated
-                  name="email"
-                  label="Email"
-                  isLabelIndicated
-                  value={value}
-                  onChangeText={onChange}
-                  onBlur={onBlur}
-                  placeholder="you@example.com"
-                  keyboardType="email-address"
-                  autoCapitalize="none"
-                  autoComplete="email"
-                  returnKeyType="done"
-                  onSubmitEditing={() => {
-                    void onSubmit();
-                  }}
-                  testID="forgot-password-email"
-                />
-              )}
+              label="Email"
+              isLabelIndicated
+              placeholder="you@example.com"
+              keyboardType="email-address"
+              autoCapitalize="none"
+              autoComplete="email"
+              returnKeyType="done"
+              onSubmitEditing={() => {
+                void onSubmit();
+              }}
+              testID="forgot-password-email"
             />
           </View>
 

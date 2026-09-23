@@ -187,13 +187,17 @@ const WeekPage = ({
                 void hapticSelection();
                 onSelectDay(day);
               }}>
-              <AppText size={11} fontWeight="bold" color="textSecondary" style={styles.initial}>
+              <AppText
+                size="captionSmall"
+                fontWeight="bold"
+                color="textSecondary"
+                style={styles.initial}>
                 {weekdayInitial(day)}
               </AppText>
               {/* Gold ink, not a gold fill: the fill means "selected". */}
               <AppText
                 variant="header"
-                size={16}
+                size="body"
                 fontWeight="bold"
                 color={todayColour(isSelected, isToday, isPast)}>
                 {dayOfMonth(day)}
@@ -262,7 +266,7 @@ const makeStyles = ({ colors, spacing }: AppTheme) =>
     dot: {
       width: 4,
       height: 4,
-      borderRadius: 100
+      borderRadius: Radius.full
     },
     underline: {
       position: 'absolute',

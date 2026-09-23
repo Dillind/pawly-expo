@@ -1,14 +1,17 @@
 import { ErrorMessage } from '@/constants/enums';
-import { UserFacingError } from '@/lib/errors';
+import { logError, UserFacingError } from '@/lib/errors';
 import type { FeedTimeInput } from '@/lib/form/pet-schemas';
 import { assertWrote } from '@/lib/supabase/assert-wrote';
 import { supabase } from '@/lib/supabase/client';
+import { unwrap } from '@/lib/supabase/unwrap';
 import type { HouseholdMember, HouseholdSummary, LeadMinutes, PetSex, PetType } from '@/types/core';
+import type { TablesUpdate } from '@/types/database';
+import type { Rpc } from '@/types/database-overrides';
 
 const PET_PHOTO_BUCKET = 'pet-photos';
 const POST_PHOTO_BUCKET = 'post-photos';
 
-export type NotificationPreferences = {
+type NotificationPreferences = {
   feedDueAlerts: boolean;
   missedFeedAlerts: boolean;
   feedLoggedAlerts: boolean;
@@ -22,21 +25,7 @@ export type AlertPreference = Exclude<keyof NotificationPreferences, 'feedDueLea
 
 // Every membership RPC answers with a jsonb status rather than throwing:
 // `last_owner` and `not_owner` are outcomes to word, not failures.
-export type MembershipStatus =
-  | 'changed'
-  | 'unchanged'
-  | 'removed'
-  | 'left'
-  | 'last_owner'
-  | 'not_owner'
-  | 'not_a_member'
-  | 'use_leave';
-
-type MembershipRow = {
-  user_id: string;
-  role: HouseholdMember['role'];
-  feed_logged_alerts: boolean;
-};
+export type MembershipStatus = Rpc<'set_member_role'>['status'];
 
 // Postgres unique_violation, raised by the handle's unique index.
 const UNIQUE_VIOLATION = '23505';
@@ -55,16 +44,14 @@ export type CreateHouseholdInput = {
 
 // `handle_taken` is an outcome to word, not a failure: nothing was written and
 // the flow sends the Owner back to step 1 with their details still in hand.
-export type CreateHouseholdResult =
+type CreateHouseholdResult =
   | { status: 'created'; householdId: string; petId: string; petName: string }
   | { status: 'handle_taken' };
 
 // Outcomes the screen words differently, so none of them throws. The RPC
 // returns `name_mismatch` even though the Zod schema refused it first: the
 // screen is not the only possible caller.
-export type DeleteHouseholdResult = {
-  status: 'deleted' | 'not_owner' | 'not_found' | 'name_mismatch';
-};
+type DeleteHouseholdResult = Rpc<'delete_household'>;
 
 type HouseholdPhotoManifest = {
   status: 'ok' | 'not_owner' | 'not_found' | 'name_mismatch';
@@ -190,12 +177,7 @@ namespace HouseholdService {
     if (error?.code === UNIQUE_VIOLATION) return { status: 'handle_taken' };
     if (error) throw error;
 
-    const row = data as {
-      status: 'created' | 'handle_taken';
-      household_id?: string;
-      pet_id?: string;
-      pet_name?: string;
-    };
+    const row = data;
 
     if (row.status !== 'created') return { status: 'handle_taken' };
 
@@ -221,32 +203,28 @@ namespace HouseholdService {
     await removeObjects(PET_PHOTO_BUCKET, manifest.petPhotos);
     await removeObjects(POST_PHOTO_BUCKET, manifest.postPhotos);
 
-    const { data, error } = await supabase.rpc('delete_household', {
-      target_household_id: householdId,
-      confirmed_name: confirmedName
-    });
+    const data = await unwrap(
+      supabase.rpc('delete_household', {
+        target_household_id: householdId,
+        confirmed_name: confirmedName
+      })
+    );
 
-    if (error) throw error;
-
-    return data as DeleteHouseholdResult;
+    return data;
   }
 
   async function photoManifest(
     householdId: string,
     confirmedName: string
   ): Promise<HouseholdPhotoManifest> {
-    const { data, error } = await supabase.rpc('household_photo_manifest', {
-      target_household_id: householdId,
-      confirmed_name: confirmedName
-    });
+    const data = await unwrap(
+      supabase.rpc('household_photo_manifest', {
+        target_household_id: householdId,
+        confirmed_name: confirmedName
+      })
+    );
 
-    if (error) throw error;
-
-    const row = data as {
-      status: HouseholdPhotoManifest['status'];
-      pet_photos?: string[];
-      post_photos?: string[];
-    };
+    const row = data;
 
     return {
       status: row.status,
@@ -263,21 +241,17 @@ namespace HouseholdService {
 
     const { error } = await supabase.storage.from(bucket).remove(paths);
 
-    if (error) console.error(error);
+    if (error) logError(error);
   }
 
   export async function isHandleAvailable(candidate: string): Promise<boolean> {
-    const { data, error } = await supabase.rpc('handle_available', { candidate });
-
-    if (error) throw error;
+    const data = await unwrap(supabase.rpc('handle_available', { candidate }));
 
     return data === true;
   }
 
   export async function getHandleSuggestions(stem: string, wanted = 3): Promise<string[]> {
-    const { data, error } = await supabase.rpc('handle_suggestions', { stem, wanted });
-
-    if (error) throw error;
+    const data = await unwrap(supabase.rpc('handle_suggestions', { stem, wanted }));
 
     return (data ?? []) as string[];
   }
@@ -290,7 +264,7 @@ namespace HouseholdService {
 
     if (membershipsError) throw membershipsError;
 
-    const userIds = (memberships as MembershipRow[]).map((membership) => membership.user_id);
+    const userIds = memberships.map((membership) => membership.user_id);
 
     if (userIds.length === 0) return [];
 
@@ -312,7 +286,7 @@ namespace HouseholdService {
       ).map((profile) => [profile.id, profile])
     );
 
-    return (memberships as MembershipRow[]).map((membership) => ({
+    return memberships.map((membership) => ({
       userId: membership.user_id,
       role: membership.role,
       firstName: profileById.get(membership.user_id)?.first_name ?? null,
@@ -322,21 +296,20 @@ namespace HouseholdService {
     }));
   }
 
-  const membershipStatus = (data: unknown): MembershipStatus =>
-    (data as { status: MembershipStatus }).status;
+  const membershipStatus = (data: Rpc<'set_member_role'>): MembershipStatus => data.status;
 
   export async function setMemberRole(params: {
     householdId: string;
     userId: string;
     role: HouseholdMember['role'];
   }): Promise<MembershipStatus> {
-    const { data, error } = await supabase.rpc('set_member_role', {
-      target_household_id: params.householdId,
-      target_user_id: params.userId,
-      new_role: params.role
-    });
-
-    if (error) throw error;
+    const data = await unwrap(
+      supabase.rpc('set_member_role', {
+        target_household_id: params.householdId,
+        target_user_id: params.userId,
+        new_role: params.role
+      })
+    );
 
     return membershipStatus(data);
   }
@@ -345,22 +318,22 @@ namespace HouseholdService {
     householdId: string;
     userId: string;
   }): Promise<MembershipStatus> {
-    const { data, error } = await supabase.rpc('remove_household_member', {
-      target_household_id: params.householdId,
-      target_user_id: params.userId
-    });
-
-    if (error) throw error;
+    const data = await unwrap(
+      supabase.rpc('remove_household_member', {
+        target_household_id: params.householdId,
+        target_user_id: params.userId
+      })
+    );
 
     return membershipStatus(data);
   }
 
   export async function leave(householdId: string): Promise<MembershipStatus> {
-    const { data, error } = await supabase.rpc('leave_household', {
-      target_household_id: householdId
-    });
-
-    if (error) throw error;
+    const data = await unwrap(
+      supabase.rpc('leave_household', {
+        target_household_id: householdId
+      })
+    );
 
     return membershipStatus(data);
   }
@@ -369,20 +342,20 @@ namespace HouseholdService {
     householdId: string,
     userId: string
   ): Promise<NotificationPreferences> {
-    const { data, error } = await supabase
-      .from('household_members')
-      .select(
-        'feed_due_alerts, feed_due_lead_minutes, missed_feed_alerts, feed_logged_alerts, post_alerts, reminder_alerts'
-      )
-      .eq('household_id', householdId)
-      .eq('user_id', userId)
-      .single();
-
-    if (error) throw error;
+    const data = await unwrap(
+      supabase
+        .from('household_members')
+        .select(
+          'feed_due_alerts, feed_due_lead_minutes, missed_feed_alerts, feed_logged_alerts, post_alerts, reminder_alerts'
+        )
+        .eq('household_id', householdId)
+        .eq('user_id', userId)
+        .single()
+    );
 
     return {
       feedDueAlerts: data.feed_due_alerts,
-      feedDueLeadMinutes: data.feed_due_lead_minutes,
+      feedDueLeadMinutes: data.feed_due_lead_minutes as LeadMinutes,
       missedFeedAlerts: data.missed_feed_alerts,
       feedLoggedAlerts: data.feed_logged_alerts,
       postAlerts: data.post_alerts,
@@ -392,7 +365,7 @@ namespace HouseholdService {
 
   // household_members takes COLUMN-level update grants, so a new preference
   // column is silently unwritable until named in a `grant update (col)`.
-  const PREFERENCE_COLUMN: Record<AlertPreference, string> = {
+  const PREFERENCE_COLUMN: Record<AlertPreference, PreferenceColumn> = {
     feedDueAlerts: 'feed_due_alerts',
     missedFeedAlerts: 'missed_feed_alerts',
     feedLoggedAlerts: 'feed_logged_alerts',
@@ -400,20 +373,30 @@ namespace HouseholdService {
     reminderAlerts: 'reminder_alerts'
   };
 
+  type PreferenceColumn =
+    | 'feed_due_alerts'
+    | 'missed_feed_alerts'
+    | 'feed_logged_alerts'
+    | 'post_alerts'
+    | 'reminder_alerts';
+
   export async function setAlertPreference(params: {
     householdId: string;
     userId: string;
     preference: AlertPreference;
     value: boolean;
   }): Promise<void> {
-    const { data, error } = await supabase
-      .from('household_members')
-      .update({ [PREFERENCE_COLUMN[params.preference]]: params.value })
-      .eq('household_id', params.householdId)
-      .eq('user_id', params.userId)
-      .select('user_id');
+    const preferencePatch: TablesUpdate<'household_members'> = {};
+    preferencePatch[PREFERENCE_COLUMN[params.preference]] = params.value;
 
-    if (error) throw error;
+    const data = await unwrap(
+      supabase
+        .from('household_members')
+        .update(preferencePatch)
+        .eq('household_id', params.householdId)
+        .eq('user_id', params.userId)
+        .select('user_id')
+    );
 
     assertWrote(data, 'Your notification settings could not be updated');
   }
@@ -423,14 +406,14 @@ namespace HouseholdService {
     userId: string;
     leadMinutes: LeadMinutes;
   }): Promise<void> {
-    const { data, error } = await supabase
-      .from('household_members')
-      .update({ feed_due_lead_minutes: params.leadMinutes })
-      .eq('household_id', params.householdId)
-      .eq('user_id', params.userId)
-      .select('user_id');
-
-    if (error) throw error;
+    const data = await unwrap(
+      supabase
+        .from('household_members')
+        .update({ feed_due_lead_minutes: params.leadMinutes })
+        .eq('household_id', params.householdId)
+        .eq('user_id', params.userId)
+        .select('user_id')
+    );
 
     assertWrote(data, 'Your notification settings could not be updated');
   }

@@ -8,10 +8,10 @@ import { ActivityIndicator, StyleSheet, View } from 'react-native';
 import AppText from '@/components/core/app-text';
 import DateTimePickerValidated from '@/components/core/date-time-picker-validated';
 import Divider from '@/components/core/divider';
+import FormTextInput from '@/components/core/form-text-input';
 import Icon from '@/components/core/icon';
 import MainButton from '@/components/core/main-button';
 import PressableOpacity from '@/components/core/pressable-opacity';
-import TextInputValidated from '@/components/core/text-input-validated';
 import Tray, { useTray, type TrayStepDescriptor } from '@/components/core/tray';
 import PetAvatar from '@/components/screens/home/pet-avatar';
 import { newFeedLogSchema, type NewFeedLogFormValues } from '@/constants/schemas/feed-log';
@@ -20,6 +20,7 @@ import { useOccurrences } from '@/hooks/queries/feeding/use-occurrences';
 import type { useLogFlow } from '@/hooks/use-log-flow';
 import { useStyles } from '@/hooks/use-styles';
 import { composeLoggedAt, formatScheduledTime, timeInTimezone } from '@/lib/dates';
+import { queryKeys } from '@/lib/query-keys';
 import FeedTimeService from '@/services/feed-time.service';
 import type { Occurrence, Pet } from '@/types/core';
 
@@ -56,7 +57,7 @@ const PetPickerStep = ({
 
   return (
     <View style={styles.stack}>
-      <AppText size={14} fontWeight="bold">
+      <AppText size="subhead" fontWeight="bold">
         Who did you feed?
       </AppText>
 
@@ -74,7 +75,7 @@ const PetPickerStep = ({
               onPress={() => onToggle(pet)}>
               <PetAvatar photoUrl={pet.photoUrl} size={32} />
 
-              <AppText size={16} style={styles.petName}>
+              <AppText size="body" style={styles.petName}>
                 {pet.name}
               </AppText>
 
@@ -123,8 +124,8 @@ const FeedPickerStep = ({
           accessibilityLabel={`${LABEL_TEXT[occurrence.label]} at ${formatScheduledTime(occurrence.localTime)}`}
           onPress={() => choose(occurrence)}>
           <View style={styles.petName}>
-            <AppText size={16}>{LABEL_TEXT[occurrence.label]}</AppText>
-            <AppText size={13} color="textSecondary">
+            <AppText size="body">{LABEL_TEXT[occurrence.label]}</AppText>
+            <AppText size="footnote" color="textSecondary">
               {formatScheduledTime(occurrence.localTime)}
               {occurrence.state === 'fed' ? '  ·  already logged' : ''}
             </AppText>
@@ -140,8 +141,8 @@ const FeedPickerStep = ({
         accessibilityLabel="Not on the schedule"
         onPress={() => choose(null)}>
         <View style={styles.petName}>
-          <AppText size={16}>Not on the schedule</AppText>
-          <AppText size={13} color="textSecondary">
+          <AppText size="body">Not on the schedule</AppText>
+          <AppText size="footnote" color="textSecondary">
             A snack, or a feed you do not plan for.
           </AppText>
         </View>
@@ -188,7 +189,7 @@ const ConfirmStep = ({
   // animals that were just fed.
   const occurrenceQueries = useQueries({
     queries: pets.map((pet) => ({
-      queryKey: ['occurrences', pet.id, today],
+      queryKey: queryKeys.occurrences.day(pet.id, today),
       queryFn: () => FeedTimeService.getOccurrences(pet.id, today)
     }))
   });
@@ -228,14 +229,14 @@ const ConfirmStep = ({
           {pets.map((pet) => (
             <View key={pet.id} style={styles.petSummaryRow}>
               <PetAvatar photoUrl={pet.photoUrl} size={32} />
-              <AppText size={16}>{pet.name}</AppText>
+              <AppText size="body">{pet.name}</AppText>
             </View>
           ))}
         </View>
 
         {occurrence?.instructions ? (
           <View style={styles.instructions}>
-            <AppText size={14}>{occurrence.instructions}</AppText>
+            <AppText size="subhead">{occurrence.instructions}</AppText>
           </View>
         ) : null}
 
@@ -256,20 +257,11 @@ const ConfirmStep = ({
           )}
         />
 
-        <Controller
-          control={control}
+        <FormTextInput
           name="notes"
-          render={({ field: { onChange, onBlur, value } }) => (
-            <TextInputValidated
-              name="notes"
-              label="Note"
-              placeholder="Anything worth passing on"
-              value={value}
-              onBlur={onBlur}
-              onChangeText={onChange}
-              isMultiline
-            />
-          )}
+          label="Note"
+          placeholder="Anything worth passing on"
+          isMultiline
         />
 
         <MainButton
@@ -289,7 +281,7 @@ const PetHeading = ({ pet }: { pet: Pet }) => {
   return (
     <View style={styles.heading}>
       <PetAvatar photoUrl={pet.photoUrl} size={32} />
-      <AppText variant="header" size={18}>
+      <AppText variant="header" size="titleSmall">
         {pet.name}
       </AppText>
     </View>

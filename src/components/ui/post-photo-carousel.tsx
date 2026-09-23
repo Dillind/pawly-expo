@@ -2,7 +2,7 @@ import { Image } from 'expo-image';
 import { useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, View, type NativeScrollEvent } from 'react-native';
 
-import { Radius, type AppTheme } from '@/constants/theme';
+import { OverlayColors, Radius, type AppTheme } from '@/constants/theme';
 import { useStyles } from '@/hooks/use-styles';
 import type { PostPhoto } from '@/services/post.service';
 
@@ -93,13 +93,13 @@ const makeStyles = ({ colors, spacing }: AppTheme) =>
       paddingVertical: spacing.two,
       paddingHorizontal: spacing.three,
       borderRadius: Radius.full,
-      backgroundColor: 'rgba(0, 0, 0, 0.35)'
+      backgroundColor: OverlayColors.scrim
     },
     dot: {
       width: DOT_SIZE,
       height: DOT_SIZE,
       borderRadius: Radius.full,
-      backgroundColor: '#FFFFFF',
+      backgroundColor: OverlayColors.onMedia,
       opacity: 0.45
     },
     dotActive: {

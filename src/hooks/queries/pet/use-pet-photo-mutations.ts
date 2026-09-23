@@ -2,6 +2,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 import { ErrorMessage, SuccessMessage } from '@/constants/enums';
 import { UserFacingError, userFacingMessage } from '@/lib/errors';
+import { queryKeys } from '@/lib/query-keys';
 import { showErrorToast, showSuccessToast } from '@/lib/toast';
 import PetPhotoService from '@/services/pet-photo.service';
 import PetService from '@/services/pet.service';
@@ -10,9 +11,8 @@ import { useAuthStore } from '@/stores/auth-store';
 export type ChangePetPhotoInput = { localUri: string; previousUrl: string | null };
 
 const invalidateCover = (queryClient: ReturnType<typeof useQueryClient>, petId: string) => {
-  void queryClient.invalidateQueries({ queryKey: ['pet-detail', petId] });
-  void queryClient.invalidateQueries({ queryKey: ['pet'] });
-  void queryClient.invalidateQueries({ queryKey: ['households'] });
+  void queryClient.invalidateQueries({ queryKey: queryKeys.petDetail(petId) });
+  void queryClient.invalidateQueries({ queryKey: queryKeys.households.all });
 };
 
 // Sequential: `add_pet_photo` derives `sort_order` from existing rows, so concurrent calls
@@ -30,7 +30,7 @@ export function useAddPetPhotos(petId: string) {
       }
     },
     onSettled: () => {
-      void queryClient.invalidateQueries({ queryKey: ['pet-photos', petId] });
+      void queryClient.invalidateQueries({ queryKey: queryKeys.petPhotos(petId) });
     },
     onSuccess: (_data, localUris) => {
       showSuccessToast(
@@ -38,7 +38,6 @@ export function useAddPetPhotos(petId: string) {
       );
     },
     onError: (error, localUris) => {
-      console.error(error);
       showErrorToast(
         userFacingMessage(
           error,
@@ -53,15 +52,14 @@ export function useDeletePetPhoto(petId: string) {
   const queryClient = useQueryClient();
 
   return useMutation({
+    meta: {
+      successMessage: SuccessMessage.PhotoDeleted,
+      errorMessage: ErrorMessage.PhotoDeleteFailed
+    },
     mutationFn: (data: { photoId: string; photoUrl: string }) => PetPhotoService.remove(data),
     onSettled: () => {
-      void queryClient.invalidateQueries({ queryKey: ['pet-photos', petId] });
+      void queryClient.invalidateQueries({ queryKey: queryKeys.petPhotos(petId) });
       invalidateCover(queryClient, petId);
-    },
-    onSuccess: () => showSuccessToast(SuccessMessage.PhotoDeleted),
-    onError: (error) => {
-      console.error(error);
-      showErrorToast(userFacingMessage(error, ErrorMessage.PhotoDeleteFailed));
     }
   });
 }
@@ -73,6 +71,10 @@ export function useChangePetPhoto(petId: string) {
   const { userId } = useAuthStore();
 
   return useMutation({
+    meta: {
+      successMessage: SuccessMessage.PetPhotoUpdated,
+      errorMessage: ErrorMessage.PetPhotoUpdateFailed
+    },
     mutationFn: async ({ localUri, previousUrl }: ChangePetPhotoInput) => {
       if (!userId) throw new UserFacingError('You need to sign in again before changing the photo');
 
@@ -80,11 +82,6 @@ export function useChangePetPhoto(petId: string) {
       await PetService.setPhotoUrl(petId, publicUrl);
       await PetPhotoService.removeByPublicUrl(previousUrl);
     },
-    onSettled: () => invalidateCover(queryClient, petId),
-    onSuccess: () => showSuccessToast(SuccessMessage.PetPhotoUpdated),
-    onError: (error) => {
-      console.error(error);
-      showErrorToast(userFacingMessage(error, ErrorMessage.PetPhotoUpdateFailed));
-    }
+    onSettled: () => invalidateCover(queryClient, petId)
   });
 }

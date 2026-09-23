@@ -3,6 +3,7 @@
   "language": "en,en-GB",
   "useGitignore": true,
   "words": [
+    "tstzrange",
     "ABCDEFGHJKMNPQRSTUVWXYZ",
     "anyelement",
     "Apoquel",
@@ -181,6 +182,7 @@
     ".claude/**",
     ".github/**",
     ".vscode",
+    "src/types/database.ts",
     "android/**",
     "bun.lock",
     "data/breeds.json",

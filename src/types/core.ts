@@ -1,35 +1,9 @@
-import { Href } from 'expo-router';
-import { StyleProp, ViewStyle } from 'react-native';
-
 import type { ThemeMode } from '@/constants/theme';
-
-export type IconBaseProps = {
-  style?: StyleProp<ViewStyle>;
-  color?: string;
-  height?: number;
-  width?: number;
-  opacity?: number;
-};
+import type { Enum } from '@/types/database-overrides';
 
 export type FontVariant = 'header' | 'body';
 
 export type FontWeight = 'regular' | 'semibold' | 'bold';
-
-export type ImageFolderType = 'example';
-
-export type NavigationProps = {
-  label: string;
-  value: string;
-  icon: React.ReactNode;
-  route: Href;
-};
-
-export type MoreOptions = {
-  label: string;
-  icon: React.ReactNode;
-  link?: string;
-  route?: Href;
-};
 
 export type UserProfile = {
   id: string;
@@ -44,9 +18,9 @@ export type UserStats = {
   postsCreated: number;
 };
 
-export type HouseholdRole = 'owner' | 'contributor';
+export type HouseholdRole = Enum<'household_role'>;
 
-export type Household = {
+type Household = {
   id: string;
   name: string;
   // Read as `@kathys-house`; stored without the @.
@@ -71,7 +45,7 @@ export type Option<T = string> = {
 // Mirrors the check constraint on the column.
 export type LeadMinutes = 10 | 15 | 30 | 60;
 
-export type PetSex = 'male' | 'female';
+export type PetSex = Enum<'pet_sex'>;
 
 export type Pet = {
   id: string;
@@ -90,11 +64,11 @@ export type HouseholdMember = {
 
 export type OccurrenceStateValue = 'fed' | 'due' | 'missed' | 'upcoming';
 
-export type FeedingScheduleLabel = 'morning' | 'lunch' | 'dinner' | 'custom';
+export type FeedingScheduleLabel = Enum<'feeding_schedule_label'>;
 
 // Adding a species is `alter type ... add value`, which cannot share a
 // transaction with other DDL, so it needs a migration of its own.
-export type PetType = 'dog' | 'cat' | 'other';
+export type PetType = Enum<'pet_type'>;
 
 export type AgeMode = 'birthdate' | 'approximate';
 
@@ -115,7 +89,7 @@ export type Occurrence = {
   satisfiedBy: string | null;
 };
 
-export type FeedLogAuthor = {
+type FeedLogAuthor = {
   firstName: string | null;
   lastName: string | null;
 };
@@ -133,8 +107,8 @@ export type FeedLog = {
 // What the Member chose, as opposed to the scheme it resolves to.
 export type ThemePreference = ThemeMode | 'system';
 
-export type ReminderKind = 'feed' | 'medication' | 'vet';
-export type ReminderRepeat = 'once' | 'weekly' | 'monthly';
+export type ReminderKind = Enum<'reminder_kind'>;
+export type ReminderRepeat = Enum<'reminder_repeat'>;
 export type ReminderLeadDays = 1 | 2 | 3;
 export type ReminderStateValue = 'due' | 'done' | 'future' | 'missed';
 

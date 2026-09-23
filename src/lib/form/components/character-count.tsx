@@ -6,7 +6,7 @@ type Props = {
 };
 
 const CharacterCount = ({ value, max }: Props) => (
-  <AppText size={12} color="textSecondary" align="right">
+  <AppText size="caption" color="textSecondary" align="right">
     {`${value?.length ?? 0}/${max}`}
   </AppText>
 );

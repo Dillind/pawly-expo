@@ -139,7 +139,7 @@ export default function Notifications() {
         ListHeaderComponent={
           alerts.length > 0 ? (
             <View style={styles.sectionHeader}>
-              <AppText size={12} color="textSecondary" fontWeight="bold">
+              <AppText size="caption" color="textSecondary" fontWeight="bold">
                 THIS WEEK
               </AppText>
             </View>

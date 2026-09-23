@@ -12,7 +12,7 @@ import { ErrorMessage } from '@/constants/enums';
 import { verifyOtpSchema, type VerifyOtpFormValues } from '@/constants/schemas/verify-otp';
 import type { AppTheme } from '@/constants/theme';
 import { useStyles } from '@/hooks/use-styles';
-import { userFacingMessage } from '@/lib/errors';
+import { logError, userFacingMessage } from '@/lib/errors';
 import { hapticLight } from '@/lib/haptics';
 import { showErrorToast } from '@/lib/toast';
 
@@ -45,7 +45,7 @@ const OtpVerifyForm = ({ title, description, onVerify, onResend, testID }: Props
     try {
       await onVerify(values.token);
     } catch (error) {
-      console.error(error);
+      logError(error);
       showErrorToast(
         ErrorMessage.VerificationFailed,
         userFacingMessage(error, 'Check the code and try again')

@@ -59,9 +59,13 @@ const CommentComposer = ({
           {/* The same sentence the placeholder uses. Two wordings for one
               state read as two different states. The name carries the gold so
               the bar answers "who", not merely "you are replying". */}
-          <AppText size={13} color="textSecondary" numberOfLines={1} style={styles.replyLabel}>
+          <AppText
+            size="footnote"
+            color="textSecondary"
+            numberOfLines={1}
+            style={styles.replyLabel}>
             Reply to{' '}
-            <AppText size={13} color="primaryText" fontWeight="bold">
+            <AppText size="footnote" color="primaryText" fontWeight="bold">
               {replyingToName}
             </AppText>
           </AppText>
@@ -90,7 +94,7 @@ const CommentComposer = ({
             accessibilityRole="button"
             accessibilityLabel={`Add ${emoji}`}
             style={styles.emojiTarget}>
-            <AppText size={22}>{emoji}</AppText>
+            <AppText size="titleMedium">{emoji}</AppText>
           </PressableOpacity>
         ))}
       </ScrollView>

@@ -20,7 +20,7 @@ const CommentsEmpty = () => {
         avatarUrl={profile?.avatarUrl}
         size={AVATAR}
       />
-      <AppText size={15} color="textSecondary" align="center">
+      <AppText size="callout" color="textSecondary" align="center">
         Be the first to comment
       </AppText>
     </View>

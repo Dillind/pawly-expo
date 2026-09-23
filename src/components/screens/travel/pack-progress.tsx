@@ -14,10 +14,10 @@ const PackProgress = ({ itemCount, tickedCount }: { itemCount: number; tickedCou
   return (
     <View style={styles.stack}>
       <View style={styles.labels}>
-        <AppText size={13} color="textSecondary">
+        <AppText size="footnote" color="textSecondary">
           {tickedCount} of {itemCount} packed
         </AppText>
-        <AppText size={13} color="textSecondary">
+        <AppText size="footnote" color="textSecondary">
           {remaining === 0 ? 'All packed' : `${remaining} to go`}
         </AppText>
       </View>

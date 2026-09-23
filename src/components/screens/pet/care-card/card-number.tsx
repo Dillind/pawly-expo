@@ -21,7 +21,11 @@ const CardNumber = ({ number, onCall }: Props) => {
       accessibilityLabel={`Call ${number.label}, ${number.value}`}
       style={styles.number}
       onPress={() => onCall(number)}>
-      <AppText size={11} fontWeight="bold" numberOfLines={1} style={[styles.ink, styles.label]}>
+      <AppText
+        size="captionSmall"
+        fontWeight="bold"
+        numberOfLines={1}
+        style={[styles.ink, styles.label]}>
         {number.label}
       </AppText>
       <AppText size={19} fontWeight="bold" style={styles.ink}>

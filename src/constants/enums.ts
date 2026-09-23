@@ -1,23 +1,6 @@
 export const PasswordRules =
   'Every password needs at least 8 characters, a capital and a lower case letter, and a number.';
 
-export enum MessageType {
-  Sent = 'Successfully sent',
-  Resent = 'Successfully resent',
-  Updated = 'Successfully updated',
-  Created = 'Successfully created',
-  Deleted = 'Successfully deleted',
-  Purchased = 'Successfully purchased',
-  Restored = 'Successfully restored',
-  Verified = 'Successfully verified',
-  Added = 'Successfully added',
-  Submitted = 'Successfully submitted',
-  Invited = 'Successfully invited',
-  Accepted = 'Successfully accepted',
-  SignOutSuccess = 'Successfully signed out',
-  SignOutError = 'Failed to sign out'
-}
-
 // "<Subject> <past-tense verb>", because the toast is the only thing that tells
 // a member which of five near-identical trays they just saved.
 export enum SuccessMessage {
@@ -30,8 +13,6 @@ export enum SuccessMessage {
   Unfollowed = 'Unfollowed',
   CareCardUpdated = 'Care Card updated',
   FeedDeleted = 'Feed deleted',
-  FeedLoggedAlertsOff = 'Feed Logged Alerts off',
-  FeedLoggedAlertsOn = 'Feed Logged Alerts on',
   FeedTimeAdded = 'Feed time added',
   FeedTimeRemoved = 'Feed time removed',
   FeedsPaused = 'Feeds paused',
@@ -39,7 +20,6 @@ export enum SuccessMessage {
   FeedTimeUpdated = 'Feed time updated',
   FeedUpdated = 'Feed updated',
   GraceWindowUpdated = 'Feed timing updated',
-  HouseholdCreated = 'Household created',
   HouseholdDeleted = 'Household deleted',
   HouseholdJoined = 'Household joined',
   HouseholdLeft = 'You left the household',
@@ -58,7 +38,6 @@ export enum SuccessMessage {
   MedicationUpdated = 'Medication updated',
   NameSaved = 'Name saved',
   ProfilePhotoUpdated = 'Profile photo updated',
-  OnboardingCompleted = 'Pet profile completed',
   PetAdded = 'Pet added',
   PetDetailsUpdated = 'Pet details updated',
   PetPhotoUpdated = 'Photo updated',
@@ -158,7 +137,6 @@ export enum ErrorMessage {
   NameSaveFailed = 'Could not save your name',
   ProfilePhotoUpdateFailed = 'Could not change your profile photo',
   NotificationSettingsUpdateFailed = 'Could not update notification settings',
-  OnboardingFailed = 'Could not finish setup',
   PetAddFailed = 'Could not add the pet',
   PetDetailsUpdateFailed = 'Could not update pet details',
   PetPhotoUpdateFailed = 'Could not change the photo',

@@ -8,7 +8,7 @@ import Animated, {
   withSpring
 } from 'react-native-reanimated';
 
-import { Spacing, type AppTheme } from '@/constants/theme';
+import { Radius, Spacing, type AppTheme } from '@/constants/theme';
 import { useStyles } from '@/hooks/use-styles';
 import FieldError from '@/lib/form/components/field-error';
 import { hapticSelection } from '@/lib/haptics';
@@ -105,7 +105,7 @@ const SegmentedControl = <T extends string>({
       {label && isLabelIndicated ? (
         <IndicatedText text={label} size={14} fontWeight="bold" />
       ) : label ? (
-        <AppText size={14} fontWeight="bold">
+        <AppText size="subhead" fontWeight="bold">
           {label}
         </AppText>
       ) : null}
@@ -125,7 +125,7 @@ const SegmentedControl = <T extends string>({
               style={styles.segment}
               onPress={() => handlePress(option)}>
               <AppText
-                size={14}
+                size="subhead"
                 align="center"
                 numberOfLines={1}
                 adjustsFontSizeToFit
@@ -164,7 +164,7 @@ const makeStyles = ({ colors, spacing }: AppTheme) =>
       flexDirection: 'row',
       gap: SegmentGap,
       padding: TrackPadding,
-      borderRadius: 12,
+      borderRadius: Radius.tile,
       borderCurve: 'continuous',
       backgroundColor: colors.backgroundElement
     },
@@ -173,7 +173,7 @@ const makeStyles = ({ colors, spacing }: AppTheme) =>
       top: TrackPadding,
       bottom: TrackPadding,
       left: TrackPadding,
-      borderRadius: 10,
+      borderRadius: Radius.control,
       borderCurve: 'continuous',
       backgroundColor: colors.backgroundSelected
     },
@@ -189,7 +189,7 @@ const makeStyles = ({ colors, spacing }: AppTheme) =>
       minHeight: 44,
       justifyContent: 'center',
       paddingHorizontal: spacing.two,
-      borderRadius: 10
+      borderRadius: Radius.control
     }
   });
 

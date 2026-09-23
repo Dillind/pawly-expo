@@ -17,7 +17,7 @@ const AuthDivider = ({ label }: Props) => {
       <View style={styles.rule}>
         <Divider />
       </View>
-      <AppText color="textSecondary" size={13} align="center">
+      <AppText color="textSecondary" size="footnote" align="center">
         {label}
       </AppText>
       <View style={styles.rule}>

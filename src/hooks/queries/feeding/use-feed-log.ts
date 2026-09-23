@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 
+import { queryKeys } from '@/lib/query-keys';
 import FeedLogService from '@/services/feed-log.service';
 
 // One log, fetched directly by id. A notification tapped three weeks later points at a log
@@ -7,7 +8,7 @@ import FeedLogService from '@/services/feed-log.service';
 // until found is unbounded.
 export function useFeedLog(logId: string | undefined) {
   return useQuery({
-    queryKey: ['feed-log', logId],
+    queryKey: queryKeys.feedLog(logId),
     queryFn: () => FeedLogService.getById(logId as string),
     enabled: Boolean(logId)
   });

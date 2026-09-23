@@ -155,7 +155,7 @@ const GalleryStrip = ({ petId }: Props) => {
               accessibilityLabel="Done editing photos"
               hitSlop={12}
               onPress={() => setIsEditing(false)}>
-              <AppText color="primaryText" size={15}>
+              <AppText color="primaryText" size="callout">
                 Done
               </AppText>
             </PressableOpacity>
@@ -196,7 +196,7 @@ const GalleryStrip = ({ petId }: Props) => {
       </View>
 
       {isOwner && isAtCap && !isEditing && (
-        <AppText color="textSecondary" size={13}>
+        <AppText color="textSecondary" size="footnote">
           {`${PHOTO_CAP} of ${PHOTO_CAP} photos. Remove one to add another.`}
         </AppText>
       )}

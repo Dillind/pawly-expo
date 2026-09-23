@@ -23,11 +23,12 @@ import { SkeletonBlock } from '@/components/core/skeleton';
 import ScreenView from '@/components/layout/screen-view';
 import FeatureRequestCard from '@/components/ui/feature-request-card';
 import { FEATURE_REQUEST_SORT_OPTIONS } from '@/constants/options';
-import { BottomTabInset, IconSize, type AppTheme } from '@/constants/theme';
+import { BottomTabInset, IconSize, Radius, type AppTheme } from '@/constants/theme';
 import {
   useFeatureRequests,
   useIsBoardBanned,
-  useIsCrumpetTeam
+  useIsCrumpetTeam,
+  useReportedFeatureRequestCount
 } from '@/hooks/queries/feature-requests/use-feature-requests';
 import { usePullToRefresh } from '@/hooks/use-pull-to-refresh';
 import { useStyles } from '@/hooks/use-styles';
@@ -69,12 +70,7 @@ const FeatureRequestBoard = () => {
     hasNextPage,
     isFetchingNextPage
   } = useFeatureRequests(sort, isReportedFilter);
-  const { data: reportedRequests = [], hasNextPage: hasMoreReported } = useFeatureRequests(
-    'top',
-    true,
-    isTeam
-  );
-  const reportedCount = `${reportedRequests.length}${hasMoreReported ? '+' : ''}`;
+  const { data: reportedCount = 0 } = useReportedFeatureRequestCount(isTeam);
   const { isRefreshing, onRefresh } = usePullToRefresh([refetch]);
 
   const setReportedFilter = (isOn: boolean) =>
@@ -90,7 +86,7 @@ const FeatureRequestBoard = () => {
           isReviewing={isReportedFilter}
         />
         {item.isHidden && item.isMine ? (
-          <AppText size={12} color="textSecondary" style={styles.hiddenNote}>
+          <AppText size="caption" color="textSecondary" style={styles.hiddenNote}>
             Only the author and the Crumpet team see a hidden request.
           </AppText>
         ) : null}
@@ -110,7 +106,7 @@ const FeatureRequestBoard = () => {
       {isBanned ? (
         <View style={styles.banned}>
           <Icon name="lock" size={IconSize.control} color="textSecondary" />
-          <AppText size={14} color="textSecondary">
+          <AppText size="subhead" color="textSecondary">
             You can no longer post on this board.
           </AppText>
         </View>
@@ -118,14 +114,14 @@ const FeatureRequestBoard = () => {
       {isReportedFilter ? (
         <View style={styles.filter}>
           <Icon name="flag" size={IconSize.inline} color="error" />
-          <AppText size={14} fontWeight="semibold" color="error" style={styles.filterText}>
+          <AppText size="subhead" fontWeight="semibold" color="error" style={styles.filterText}>
             Showing reported requests
           </AppText>
           <PressableOpacity
             accessibilityRole="button"
             hitSlop={8}
             onPress={() => setReportedFilter(false)}>
-            <AppText size={14} fontWeight="semibold">
+            <AppText size="subhead" fontWeight="semibold">
               Clear
             </AppText>
           </PressableOpacity>
@@ -134,7 +130,7 @@ const FeatureRequestBoard = () => {
       {isLoading ? (
         <View style={styles.skeleton}>
           {Array.from({ length: SKELETON_ROWS }, (_, index) => (
-            <SkeletonBlock key={index} height={SKELETON_HEIGHT} radius={18} />
+            <SkeletonBlock key={index} height={SKELETON_HEIGHT} radius={Radius.row} />
           ))}
         </View>
       ) : null}
@@ -146,7 +142,7 @@ const FeatureRequestBoard = () => {
       <Stack.Toolbar placement="right">
         <Stack.Toolbar.Menu icon="arrow.up.arrow.down" accessibilityLabel="Sort">
           {/* An empty iOS badge ignores fontSize; a space lets it size the dot. */}
-          {isTeam && reportedRequests.length > 0 ? (
+          {isTeam && reportedCount > 0 ? (
             <Stack.Toolbar.Badge style={{ fontSize: 4 }}> </Stack.Toolbar.Badge>
           ) : null}
           <Stack.Toolbar.Menu inline title="Sort by">
@@ -164,7 +160,7 @@ const FeatureRequestBoard = () => {
               icon="flag"
               isOn={isReportedFilter}
               onPress={() => setReportedFilter(!isReportedFilter)}>
-              {reportedRequests.length > 0 ? `Reported (${reportedCount})` : 'Reported'}
+              {reportedCount > 0 ? `Reported (${reportedCount})` : 'Reported'}
             </Stack.Toolbar.MenuAction>
           </Stack.Toolbar.Menu>
         </Stack.Toolbar.Menu>
@@ -250,7 +246,7 @@ const makeStyles = ({ colors, spacing }: AppTheme) =>
       gap: spacing.two + spacing.half,
       paddingHorizontal: 14,
       paddingVertical: spacing.three - spacing.one,
-      borderRadius: 14,
+      borderRadius: Radius.panel,
       borderCurve: 'continuous',
       backgroundColor: colors.backgroundSelected
     },
@@ -260,7 +256,7 @@ const makeStyles = ({ colors, spacing }: AppTheme) =>
       gap: spacing.two,
       paddingHorizontal: 14,
       paddingVertical: 10,
-      borderRadius: 14,
+      borderRadius: Radius.panel,
       borderCurve: 'continuous',
       backgroundColor: colors.errorMuted
     },

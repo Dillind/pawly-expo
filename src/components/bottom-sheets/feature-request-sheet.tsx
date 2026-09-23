@@ -1,14 +1,14 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import type { TrueSheet } from '@lodev09/react-native-true-sheet';
 import type { RefObject } from 'react';
-import { Controller, FormProvider, useForm, useWatch } from 'react-hook-form';
+import { FormProvider, useForm } from 'react-hook-form';
 import { StyleSheet, View } from 'react-native';
 
 import BaseSheet from '@/components/bottom-sheets/base-sheet';
 import AppText from '@/components/core/app-text';
+import FormTextInput from '@/components/core/form-text-input';
 import Icon from '@/components/core/icon';
 import MainButton from '@/components/core/main-button';
-import TextInputValidated from '@/components/core/text-input-validated';
 import {
   FEATURE_REQUEST_DESCRIPTION_MAX,
   FEATURE_REQUEST_TITLE_MAX,
@@ -45,10 +45,7 @@ const FeatureRequestSheet = ({ sheetRef }: Props) => {
     resolver: zodResolver(featureRequestSchema),
     defaultValues: EMPTY
   });
-  const { control, handleSubmit, setError, reset } = form;
-
-  const title = useWatch({ control, name: 'title' });
-  const description = useWatch({ control, name: 'description' });
+  const { handleSubmit, setError, reset } = form;
 
   const submit = (onDone: () => void) =>
     handleSubmit((values) => {
@@ -73,46 +70,30 @@ const FeatureRequestSheet = ({ sheetRef }: Props) => {
       onDismiss={() => reset(EMPTY)}>
       <FormProvider {...form}>
         <View style={styles.form}>
-          <Controller
-            control={control}
+          <FormTextInput
             name="title"
-            render={({ field: { onChange } }) => (
-              <TextInputValidated
-                name="title"
-                label="Title"
-                isLabelIndicated
-                placeholder="What would you like?"
-                value={title ?? ''}
-                onChangeText={onChange}
-                maxLength={FEATURE_REQUEST_TITLE_MAX}
-                showCharacterCount
-                autoFocus
-                returnKeyType="next"
-              />
-            )}
+            label="Title"
+            isLabelIndicated
+            placeholder="What would you like?"
+            maxLength={FEATURE_REQUEST_TITLE_MAX}
+            showCharacterCount
+            autoFocus
+            returnKeyType="next"
           />
 
-          <Controller
-            control={control}
+          <FormTextInput
             name="description"
-            render={({ field: { onChange } }) => (
-              <TextInputValidated
-                name="description"
-                label="Details"
-                placeholder="How would it help you and your pet?"
-                value={description ?? ''}
-                onChangeText={onChange}
-                maxLength={FEATURE_REQUEST_DESCRIPTION_MAX}
-                showCharacterCount
-                isMultiline
-                height={DESCRIPTION_HEIGHT}
-              />
-            )}
+            label="Details"
+            placeholder="How would it help you and your pet?"
+            maxLength={FEATURE_REQUEST_DESCRIPTION_MAX}
+            showCharacterCount
+            isMultiline
+            height={DESCRIPTION_HEIGHT}
           />
 
           <View style={styles.note}>
             <Icon name="info" size={IconSize.inline} color="textSecondary" />
-            <AppText size={13} color="textSecondary" style={styles.noteText}>
+            <AppText size="footnote" color="textSecondary" style={styles.noteText}>
               Every Crumpet user can see your request. Your name is not shown. No abusive or
               offensive content.
             </AppText>

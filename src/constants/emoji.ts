@@ -121,5 +121,3 @@ export const EMOJI_GROUPS: EmojiGroup[] = [
     ['💡', 'idea learnt']
   ])
 ];
-
-export const EMOJI_OPTIONS = EMOJI_GROUPS.flatMap((section) => section.emoji);

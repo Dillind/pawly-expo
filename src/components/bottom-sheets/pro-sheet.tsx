@@ -6,7 +6,7 @@ import BaseSheet from '@/components/bottom-sheets/base-sheet';
 import AppText from '@/components/core/app-text';
 import Icon from '@/components/core/icon';
 import IconButton from '@/components/core/icon-button';
-import { IconSize, Radius, type AppTheme } from '@/constants/theme';
+import { IconSize, OverlayColors, Radius, type AppTheme } from '@/constants/theme';
 import { useStyles } from '@/hooks/use-styles';
 
 type Props = {
@@ -30,7 +30,7 @@ const ProSheet = ({ sheetRef, title, lead, body }: Props) => {
 
         <View style={styles.panelHeader}>
           <View style={styles.badge}>
-            <AppText size={12} fontWeight="bold" color="onPrimary">
+            <AppText size="caption" fontWeight="bold" color="onPrimary">
               Crumpet Pro
             </AppText>
           </View>
@@ -49,18 +49,18 @@ const ProSheet = ({ sheetRef, title, lead, body }: Props) => {
           <AppText variant="header" size={26} color="onPrimary">
             {title}
           </AppText>
-          <AppText size={15} color="onPrimary">
+          <AppText size="callout" color="onPrimary">
             {lead}
           </AppText>
         </View>
       </View>
 
       <View style={styles.body}>
-        <AppText size={15} style={styles.bodyText}>
+        <AppText size="callout" style={styles.bodyText}>
           {body}
         </AppText>
         <View style={styles.comingSoon} accessibilityRole="text">
-          <AppText size={17} fontWeight="bold" color="textSecondary">
+          <AppText size="headline" fontWeight="bold" color="textSecondary">
             Coming soon
           </AppText>
         </View>
@@ -94,10 +94,10 @@ const makeStyles = ({ spacing, colors }: AppTheme) =>
       paddingVertical: spacing.one,
       paddingHorizontal: spacing.two + spacing.half,
       borderRadius: Radius.full,
-      backgroundColor: 'rgba(255, 255, 255, 0.35)'
+      backgroundColor: OverlayColors.fillStrong
     },
     close: {
-      backgroundColor: 'rgba(255, 255, 255, 0.18)'
+      backgroundColor: OverlayColors.fillSubtle
     },
     panelText: {
       gap: spacing.one

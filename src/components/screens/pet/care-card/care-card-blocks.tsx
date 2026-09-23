@@ -18,7 +18,7 @@ const CareCardBlocks = ({ blocks, isTitled = true }: Props) => {
       {blocks.map((block) => (
         <View key={block.id} style={styles.block}>
           {isTitled && (
-            <AppText color="textSecondary" size={11} style={styles.blockTitle}>
+            <AppText color="textSecondary" size="captionSmall" style={styles.blockTitle}>
               {block.title}
             </AppText>
           )}
@@ -26,14 +26,14 @@ const CareCardBlocks = ({ blocks, isTitled = true }: Props) => {
           {block.kind === 'medications'
             ? block.items.map((medication) => (
                 <View key={medication.id} style={styles.row}>
-                  <AppText size={15}>{medication.name}</AppText>
+                  <AppText size="callout">{medication.name}</AppText>
                   {medication.detail && (
-                    <AppText color="textSecondary" size={13}>
+                    <AppText color="textSecondary" size="footnote">
                       {medication.detail}
                     </AppText>
                   )}
                   {medication.instructions && (
-                    <AppText color="textSecondary" size={13}>
+                    <AppText color="textSecondary" size="footnote">
                       {medication.instructions}
                     </AppText>
                   )}
@@ -41,10 +41,10 @@ const CareCardBlocks = ({ blocks, isTitled = true }: Props) => {
               ))
             : block.rows.map((row) => (
                 <View key={row.id} style={styles.row}>
-                  <AppText color="textSecondary" size={11} style={styles.rowLabel}>
+                  <AppText color="textSecondary" size="captionSmall" style={styles.rowLabel}>
                     {row.label}
                   </AppText>
-                  <AppText size={15}>{row.value}</AppText>
+                  <AppText size="callout">{row.value}</AppText>
                 </View>
               ))}
         </View>

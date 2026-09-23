@@ -30,8 +30,8 @@ const ContactRow = ({
   return (
     <View style={styles.contact}>
       <View style={styles.contactText}>
-        <AppText size={16}>{contact.name}</AppText>
-        <AppText size={13} color="textSecondary">
+        <AppText size="body">{contact.name}</AppText>
+        <AppText size="footnote" color="textSecondary">
           {contact.phone ?? 'No number given'}
         </AppText>
       </View>
@@ -96,7 +96,7 @@ const ReachingYouStep = ({ petId, contacts, onNext }: Props) => {
   return (
     <>
       <View style={styles.step}>
-        <AppText color="textSecondary" size={15}>
+        <AppText color="textSecondary" size="callout">
           {REACHING_YOU_NOTE}
         </AppText>
 
@@ -111,7 +111,7 @@ const ReachingYouStep = ({ petId, contacts, onNext }: Props) => {
         ))}
 
         {isFull ? (
-          <AppText size={13} color="textSecondary">
+          <AppText size="footnote" color="textSecondary">
             That is the limit. A sitter with four numbers to try has none.
           </AppText>
         ) : (
@@ -124,12 +124,12 @@ const ReachingYouStep = ({ petId, contacts, onNext }: Props) => {
         )}
 
         {hasTriedToContinue && isEmpty && (
-          <AppText size={13} color="error">
+          <AppText size="footnote" color="error">
             Add at least one person a sitter can ring.
           </AppText>
         )}
 
-        <AppText size={13} color="textSecondary">
+        <AppText size="footnote" color="textSecondary">
           {contacts.length} of {MAX_CARE_CARD_CONTACTS} added
         </AppText>
       </View>
