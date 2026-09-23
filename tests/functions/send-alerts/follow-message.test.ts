@@ -7,6 +7,7 @@ describe('buildFollowRequestedMessage', () => {
   it('names the requester by their first name', () => {
     const message = buildFollowRequestedMessage({
       requesterFirstName: 'Jess',
+      requesterHouseholdName: null,
       householdId: 'household-1'
     });
 
@@ -16,15 +17,27 @@ describe('buildFollowRequestedMessage', () => {
   it('says Someone when the account has no first name', () => {
     const message = buildFollowRequestedMessage({
       requesterFirstName: null,
+      requesterHouseholdName: null,
       householdId: 'household-1'
     });
 
     expect(message.body).toBe('Someone requested to follow your household');
   });
 
+  it('names the first Household the request named', () => {
+    const message = buildFollowRequestedMessage({
+      requesterFirstName: 'Jess',
+      requesterHouseholdName: 'The Smiths',
+      householdId: 'household-1'
+    });
+
+    expect(message.body).toBe('Jess from The Smiths requested to follow your household');
+  });
+
   it('sets no title, so iOS draws the app name alone on the top line', () => {
     const message = buildFollowRequestedMessage({
       requesterFirstName: 'Jess',
+      requesterHouseholdName: null,
       householdId: 'household-1'
     });
 
@@ -34,6 +47,7 @@ describe('buildFollowRequestedMessage', () => {
   it('deep links to the Requests screen of the household that was asked', () => {
     const message = buildFollowRequestedMessage({
       requesterFirstName: 'Jess',
+      requesterHouseholdName: null,
       householdId: 'household-1'
     });
 

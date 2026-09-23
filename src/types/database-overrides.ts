@@ -113,6 +113,26 @@ type RpcReturns = {
     status: 'accepted' | 'declined' | 'not_owner' | 'not_pending' | 'not_found';
   };
   remove_follower: { status: 'removed' | 'not_owner' | 'not_found' };
+  list_household_follows: {
+    id: string;
+    follower_id: string;
+    first_name: string | null;
+    last_name: string | null;
+    avatar_url: string | null;
+    requested_at: string;
+    responded_at: string | null;
+    named_households: {
+      household_id: string;
+      name: string;
+      handle: string | null;
+      relationship: 'member' | 'pending' | 'accepted' | 'blocked' | 'none';
+    }[];
+  }[];
+  follow_request_summary: {
+    pending_count: number;
+    newest: { first_name: string | null; last_name: string | null; avatar_url: string | null }[];
+    has_unread: boolean;
+  };
 
   create_household_with_pet: {
     status: 'created' | 'handle_taken';

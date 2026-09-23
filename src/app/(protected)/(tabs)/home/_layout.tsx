@@ -108,7 +108,7 @@ export default function HomeLayout() {
         <Stack.Screen
           name="household/[householdId]/followers/requests"
           options={{ headerShown: true }}>
-          <Stack.Title style={HeaderTitleStyle}>Requests</Stack.Title>
+          <Stack.Title style={HeaderTitleStyle}>Follow requests</Stack.Title>
         </Stack.Screen>
 
         <Stack.Screen name="household/[householdId]/followers/link" options={{ headerShown: true }}>

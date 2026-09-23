@@ -44,6 +44,7 @@ export const queryKeys = {
     preview: (householdId: Id) => ['follow-preview', householdId] as const,
     followers: (householdId: Id) => ['followers', householdId] as const,
     requests: (householdId: Id) => ['follow-requests', householdId] as const,
+    requestSummary: (householdId: Id) => ['follow-requests', householdId, 'summary'] as const,
     searchAll: ['household-search'] as const,
     search: (term: string) => ['household-search', term] as const
   },

@@ -1,9 +1,13 @@
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { ErrorMessage, SuccessMessage } from '@/constants/enums';
+import { joinedNames } from '@/lib/follow-naming';
 import { queryKeys } from '@/lib/query-keys';
 import { showErrorToast, showSuccessToast } from '@/lib/toast';
-import FollowService, { type RequestFollowStatus } from '@/services/follow.service';
+import FollowService, {
+  type NamedHousehold,
+  type RequestFollowStatus
+} from '@/services/follow.service';
 
 // Its own query, so the route survives a cold start.
 export function useFollowPreview(householdId: string | undefined) {
@@ -71,24 +75,81 @@ const REQUEST_REFUSALS: Partial<Record<RequestFollowStatus, string>> = {
   not_found: ErrorMessage.FollowNotFound
 };
 
-export function useRequestFollow(householdId: string | undefined) {
+type RequestFollowInput = {
+  householdId: string;
+  namedHouseholdIds: string[];
+  // Only for the toast: the RPC keeps the names it may.
+  namedHouseholdNames: string[];
+};
+
+// One mutation for a whole list; a row compares `variables` to know it is the one sending.
+export function useRequestFollow() {
   const queryClient = useQueryClient();
 
   return useMutation({
     meta: { errorMessage: ErrorMessage.FollowRequestFailed },
-    mutationFn: () => FollowService.request(householdId as string),
-    onSettled: () => {
-      void queryClient.invalidateQueries({ queryKey: queryKeys.follow.preview(householdId) });
+    mutationFn: (input: RequestFollowInput) =>
+      FollowService.request(input.householdId, input.namedHouseholdIds),
+    onSettled: (_status, _error, input) => {
+      void queryClient.invalidateQueries({ queryKey: queryKeys.follow.preview(input.householdId) });
       void queryClient.invalidateQueries({ queryKey: queryKeys.follow.following });
       void queryClient.invalidateQueries({ queryKey: queryKeys.follow.searchAll });
     },
-    onSuccess: (status) => {
+    onSuccess: (status, input) => {
       const refusal = REQUEST_REFUSALS[status];
 
       if (refusal) return showErrorToast(refusal);
 
-      showSuccessToast(SuccessMessage.FollowRequested);
+      showSuccessToast(
+        input.namedHouseholdNames.length > 0
+          ? `${SuccessMessage.FollowRequested} as ${joinedNames(input.namedHouseholdNames)}`
+          : SuccessMessage.FollowRequested
+      );
     }
+  });
+}
+
+// A Follow Back names the Household that accepted, so the other side sees "Following".
+export function useFollowBack(acceptingHouseholdId: string | undefined) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    meta: { errorMessage: ErrorMessage.FollowRequestFailed },
+    mutationFn: (households: NamedHousehold[]) =>
+      Promise.all(
+        households.map((household) =>
+          FollowService.request(household.householdId, [acceptingHouseholdId as string])
+        )
+      ),
+    onSettled: () => {
+      void queryClient.invalidateQueries({
+        queryKey: queryKeys.follow.followers(acceptingHouseholdId)
+      });
+      void queryClient.invalidateQueries({ queryKey: queryKeys.follow.following });
+    },
+    onSuccess: (_statuses, households) =>
+      showSuccessToast(
+        `${SuccessMessage.FollowRequested} to ${joinedNames(households.map((h) => h.name))}`
+      )
+  });
+}
+
+export function useFollowRequestSummary(householdId: string | undefined, isOwner: boolean) {
+  return useQuery({
+    queryKey: queryKeys.follow.requestSummary(householdId),
+    queryFn: () => FollowService.requestSummary(householdId as string),
+    enabled: Boolean(householdId) && isOwner
+  });
+}
+
+// Only the badge refreshes, as with the Inbox rows: the dot stays until the next visit.
+export function useMarkFollowRequestAlertsRead(householdId: string | undefined) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: () => FollowService.markRequestAlertsRead(householdId as string),
+    onSettled: () =>
+      queryClient.invalidateQueries({ queryKey: queryKeys.unreadAlerts(householdId) })
   });
 }
 

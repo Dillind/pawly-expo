@@ -12,6 +12,7 @@ import EmptyState from '@/components/core/empty-state';
 import MainLegendList from '@/components/core/main-legend-list';
 import ScreenView from '@/components/layout/screen-view';
 import AlertRow from '@/components/screens/notifications/alert-row';
+import FollowRequestsRow from '@/components/screens/notifications/follow-requests-row';
 import { BottomTabInset, type AppTheme } from '@/constants/theme';
 import {
   useAlerts,
@@ -20,10 +21,13 @@ import {
   useRefreshUnreadAlertCount,
   useUnreadAlertCount
 } from '@/hooks/queries/alerts/use-alerts';
+import { useFollowRequestSummary } from '@/hooks/queries/follow/use-follows';
 import { useHousehold } from '@/hooks/queries/household/use-household';
 import { usePullToRefresh } from '@/hooks/use-pull-to-refresh';
+import { useRefreshOnFocus } from '@/hooks/use-refresh-on-focus';
 import { useStyles } from '@/hooks/use-styles';
 import { collapseLikes, type InboxRow } from '@/lib/alert-groups';
+import { queryKeys } from '@/lib/query-keys';
 
 export default function Notifications() {
   const styles = useStyles(makeStyles);
@@ -36,8 +40,13 @@ export default function Notifications() {
   const { data, isLoading, isError, refetch, fetchNextPage, hasNextPage, isFetchingNextPage } =
     useAlerts(householdId);
 
+  const isOwner = household?.isOwner ?? false;
+  const { refetch: refetchRequests } = useFollowRequestSummary(householdId, isOwner);
+  // A request answered on the next screen must not linger here on return.
+  useRefreshOnFocus(queryKeys.follow.requests(householdId));
+
   const refreshUnread = useRefreshUnreadAlertCount(householdId);
-  const { isRefreshing, onRefresh } = usePullToRefresh([refetch, refreshUnread]);
+  const { isRefreshing, onRefresh } = usePullToRefresh([refetch, refreshUnread, refetchRequests]);
   const { mutate: markRead } = useMarkAlertsRead(householdId);
   const { mutate: markAllRead, isPending: isMarkingAll } = useMarkAllAlertsRead(householdId);
   const { data: unreadCount = 0 } = useUnreadAlertCount(householdId);
@@ -137,13 +146,16 @@ export default function Notifications() {
         onViewableItemsChanged={onViewableItemsChanged}
         viewabilityConfig={{ itemVisiblePercentThreshold: 60 }}
         ListHeaderComponent={
-          alerts.length > 0 ? (
-            <View style={styles.sectionHeader}>
-              <AppText size="caption" color="textSecondary" fontWeight="bold">
-                THIS WEEK
-              </AppText>
-            </View>
-          ) : null
+          <>
+            {householdId && <FollowRequestsRow householdId={householdId} isOwner={isOwner} />}
+            {alerts.length > 0 && (
+              <View style={styles.sectionHeader}>
+                <AppText size="caption" color="textSecondary" fontWeight="bold">
+                  THIS WEEK
+                </AppText>
+              </View>
+            )}
+          </>
         }
         ListEmptyComponent={
           <EmptyState

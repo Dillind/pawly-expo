@@ -1,36 +1,93 @@
+import { useEffect, useState } from 'react';
 import { ActivityIndicator, StyleSheet, View } from 'react-native';
 
 import AppText from '@/components/core/app-text';
 import EmptyState from '@/components/core/empty-state';
 import ErrorState from '@/components/core/error-state';
-import ListCard from '@/components/core/list-card';
 import MainButton from '@/components/core/main-button';
-import UserAvatar from '@/components/core/user-avatar';
 import ScrollScreen from '@/components/layout/scroll-screen';
+import FollowBackButton from '@/components/screens/follow/follow-back-button';
+import FollowPersonRow from '@/components/screens/follow/follow-person-row';
 import { BottomTabInset, ScreenGutter, type AppTheme } from '@/constants/theme';
-import { useFollowRequests, useRespondToFollowRequest } from '@/hooks/queries/follow/use-follows';
-import { useHouseholdById } from '@/hooks/queries/household/use-household-by-id';
+import {
+  useFollowRequests,
+  useMarkFollowRequestAlertsRead,
+  useRespondToFollowRequest
+} from '@/hooks/queries/follow/use-follows';
+import { useRefreshOnFocus } from '@/hooks/use-refresh-on-focus';
 import { useStyles } from '@/hooks/use-styles';
-import { formatAlertTime } from '@/lib/dates';
-import { fullName } from '@/utils/members';
-
-const AVATAR_SIZE = 40;
+import { formatRelativeTime } from '@/lib/dates';
+import { namesText } from '@/lib/follow-naming';
+import { queryKeys } from '@/lib/query-keys';
+import type { Follower } from '@/services/follow.service';
 
 type Props = {
   householdId: string;
 };
 
-// The Owner's decision, and the one place the boundary is spelled out. It is said here rather
-// than on the follower's landing screen: the person granting the access is the one who needs to
-// know its shape.
+const detailText = (request: Follower, isAccepted: boolean): string => {
+  const names = namesText(request.namedHouseholds.map((household) => household.name));
+
+  if (isAccepted) return names ? `${names} · Accepted` : 'Following you';
+
+  return [names, formatRelativeTime(request.requestedAt)].filter(Boolean).join(' · ');
+};
+
+// The Owner's decision, and the one place the boundary is spelled out. An
+// accepted row stays until the Owner leaves, so Follow back is one more tap.
 const FollowRequests = ({ householdId }: Props) => {
   const styles = useStyles(makeStyles);
 
-  const { data: household } = useHouseholdById(householdId);
   const { data: requests = [], isLoading, isError, refetch } = useFollowRequests(householdId);
-  const { mutate: respond, isPending: isResponding } = useRespondToFollowRequest(householdId);
+  const {
+    mutate: respond,
+    variables,
+    isPending: isResponding
+  } = useRespondToFollowRequest(householdId);
+  const { mutate: markAlertsRead } = useMarkFollowRequestAlertsRead(householdId);
 
-  const timezone = household?.timezone ?? 'UTC';
+  const [accepted, setAccepted] = useState<Follower[]>([]);
+
+  useEffect(() => markAlertsRead(), [markAlertsRead]);
+  useRefreshOnFocus(queryKeys.follow.requests(householdId));
+
+  const accept = (request: Follower) =>
+    respond(
+      { followId: request.id, accept: true },
+      { onSuccess: (status) => status === 'accepted' && setAccepted((rows) => [...rows, request]) }
+    );
+
+  const acceptedIds = new Set(accepted.map((request) => request.id));
+  const rows = [...accepted, ...requests.filter((request) => !acceptedIds.has(request.id))].sort(
+    (a, b) => a.requestedAt.localeCompare(b.requestedAt)
+  );
+
+  const renderTrailing = (request: Follower) => {
+    if (acceptedIds.has(request.id)) {
+      return <FollowBackButton person={request} acceptingHouseholdId={householdId} />;
+    }
+
+    const isThisOne = isResponding && variables?.followId === request.id;
+
+    return (
+      <View style={styles.actions}>
+        <MainButton
+          text="Accept"
+          size="sm"
+          isLoading={isThisOne && variables?.accept}
+          isDisabled={isResponding}
+          onPress={() => accept(request)}
+        />
+        <MainButton
+          text="Decline"
+          size="sm"
+          variant="secondary"
+          isDisabled={isResponding}
+          onPress={() => respond({ followId: request.id, accept: false })}
+        />
+      </View>
+    );
+  };
 
   const renderBody = () => {
     if (isLoading) return <ActivityIndicator style={styles.loading} />;
@@ -46,56 +103,23 @@ const FollowRequests = ({ householdId }: Props) => {
           feeds, reminders or the Care Card.
         </AppText>
 
-        {requests.length === 0 ? (
+        {rows.length === 0 ? (
           <EmptyState
             icon="userPlus"
             title="Nobody is waiting"
             description="A request lands here when someone opens your follow link."
           />
         ) : (
-          requests.map((request) => {
-            const name = fullName(request) || 'Someone';
-            const detail = formatAlertTime(request.requestedAt, timezone);
-
-            return (
-              <ListCard key={request.id} style={styles.card}>
-                <View style={styles.person}>
-                  <UserAvatar
-                    firstName={request.firstName}
-                    lastName={request.lastName}
-                    avatarUrl={request.avatarUrl}
-                    size={AVATAR_SIZE}
-                  />
-                  <View style={styles.personText}>
-                    <AppText size="body" numberOfLines={1}>
-                      {name}
-                    </AppText>
-                    <AppText size="footnote" color="textSecondary" numberOfLines={1}>
-                      {detail}
-                    </AppText>
-                  </View>
-                </View>
-
-                <View style={styles.actions}>
-                  <MainButton
-                    text="Accept"
-                    size="sm"
-                    isDisabled={isResponding}
-                    containerStyle={styles.action}
-                    onPress={() => respond({ followId: request.id, accept: true })}
-                  />
-                  <MainButton
-                    text="Decline"
-                    size="sm"
-                    variant="secondary"
-                    isDisabled={isResponding}
-                    containerStyle={styles.action}
-                    onPress={() => respond({ followId: request.id, accept: false })}
-                  />
-                </View>
-              </ListCard>
-            );
-          })
+          <View>
+            {rows.map((request) => (
+              <FollowPersonRow
+                key={request.id}
+                person={request}
+                detail={detailText(request, acceptedIds.has(request.id))}
+                trailing={renderTrailing(request)}
+              />
+            ))}
+          </View>
         )}
       </>
     );
@@ -115,25 +139,9 @@ const makeStyles = ({ spacing }: AppTheme) =>
       paddingBottom: BottomTabInset + spacing.four,
       gap: spacing.three
     },
-    card: {
-      padding: spacing.three,
-      gap: spacing.three
-    },
-    person: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      gap: spacing.three
-    },
-    personText: {
-      flex: 1,
-      gap: spacing.half
-    },
     actions: {
       flexDirection: 'row',
       gap: spacing.two
-    },
-    action: {
-      flex: 1
     }
   });
 

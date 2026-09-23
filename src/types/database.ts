@@ -511,6 +511,36 @@ export type Database = {
           }
         ];
       };
+      follow_named_households: {
+        Row: {
+          follow_id: string;
+          household_id: string;
+        };
+        Insert: {
+          follow_id: string;
+          household_id: string;
+        };
+        Update: {
+          follow_id?: string;
+          household_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'follow_named_households_follow_id_fkey';
+            columns: ['follow_id'];
+            isOneToOne: false;
+            referencedRelation: 'household_follows';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'follow_named_households_household_id_fkey';
+            columns: ['household_id'];
+            isOneToOne: false;
+            referencedRelation: 'households';
+            referencedColumns: ['id'];
+          }
+        ];
+      };
       household_follows: {
         Row: {
           follower_id: string;
@@ -1499,6 +1529,10 @@ export type Database = {
         Returns: undefined;
       };
       follow_preview: { Args: { target_household_id: string | null }; Returns: Json };
+      follow_request_summary: {
+        Args: { target_household_id: string | null };
+        Returns: Json;
+      };
       get_feature_request: {
         Args: { request_id: string | null };
         Returns: {
@@ -1608,6 +1642,22 @@ export type Database = {
           status: Database['public']['Enums']['follow_status'];
         }[];
       };
+      list_household_follows: {
+        Args: {
+          follow_status: Database['public']['Enums']['follow_status'] | null;
+          target_household_id: string | null;
+        };
+        Returns: {
+          avatar_url: string;
+          first_name: string;
+          follower_id: string;
+          id: string;
+          last_name: string;
+          named_households: Json;
+          requested_at: string;
+          responded_at: string;
+        }[];
+      };
       log_feed: {
         Args: {
           confirmed?: boolean | null;
@@ -1621,6 +1671,10 @@ export type Database = {
       };
       mark_alerts_read: { Args: { alert_ids: string[] | null }; Returns: undefined };
       mark_all_alerts_read: {
+        Args: { target_household_id: string | null };
+        Returns: undefined;
+      };
+      mark_follow_request_alerts_read: {
         Args: { target_household_id: string | null };
         Returns: undefined;
       };
@@ -1695,7 +1749,10 @@ export type Database = {
         Args: { request_id: string | null };
         Returns: undefined;
       };
-      request_follow: { Args: { target_household_id: string | null }; Returns: Json };
+      request_follow: {
+        Args: { named_household_ids?: string[] | null; target_household_id: string | null };
+        Returns: Json;
+      };
       reset_travel_checklist: {
         Args: { target_checklist_id: string | null };
         Returns: undefined;

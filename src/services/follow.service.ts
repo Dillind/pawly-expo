@@ -1,6 +1,6 @@
 import { supabase } from '@/lib/supabase/client';
 import { unwrap } from '@/lib/supabase/unwrap';
-import type { Rpc } from '@/types/database-overrides';
+import type { Rpc, RpcRow } from '@/types/database-overrides';
 
 export type FollowRelationship = 'member' | 'pending' | 'accepted' | 'none';
 
@@ -41,6 +41,17 @@ type FollowedHousehold = {
   status: 'pending' | 'accepted';
 };
 
+type FollowRow = RpcRow<'list_household_follows'>;
+
+export type FollowBackRelationship = FollowRow['named_households'][number]['relationship'];
+
+export type NamedHousehold = {
+  householdId: string;
+  name: string;
+  handle: string | null;
+  relationship: FollowBackRelationship;
+};
+
 export type Follower = {
   id: string;
   userId: string;
@@ -49,33 +60,29 @@ export type Follower = {
   avatarUrl: string | null;
   requestedAt: string;
   respondedAt: string | null;
+  namedHouseholds: NamedHousehold[];
 };
 
-type FollowerRow = {
-  id: string;
-  follower_id: string;
-  requested_at: string;
-  responded_at: string | null;
-  users: {
-    first_name: string | null;
-    last_name: string | null;
-    avatar_url: string | null;
-  } | null;
+export type FollowRequestSummary = {
+  pendingCount: number;
+  newest: { firstName: string | null; lastName: string | null; avatarUrl: string | null }[];
+  hasUnread: boolean;
 };
 
-const FOLLOWER_SELECT = `
-  id, follower_id, requested_at, responded_at,
-  users!household_follows_follower_id_fkey(first_name, last_name, avatar_url)
-`;
-
-const toFollower = (row: FollowerRow): Follower => ({
+const toFollower = (row: FollowRow): Follower => ({
   id: row.id,
   userId: row.follower_id,
-  firstName: row.users?.first_name ?? null,
-  lastName: row.users?.last_name ?? null,
-  avatarUrl: row.users?.avatar_url ?? null,
+  firstName: row.first_name,
+  lastName: row.last_name,
+  avatarUrl: row.avatar_url,
   requestedAt: row.requested_at,
-  respondedAt: row.responded_at
+  respondedAt: row.responded_at,
+  namedHouseholds: row.named_households.map((named) => ({
+    householdId: named.household_id,
+    name: named.name,
+    handle: named.handle,
+    relationship: named.relationship
+  }))
 });
 
 namespace FollowService {
@@ -108,10 +115,15 @@ namespace FollowService {
     };
   }
 
-  export async function request(householdId: string): Promise<RequestFollowStatus> {
+  // Named Households the caller does not own are dropped by the RPC.
+  export async function request(
+    householdId: string,
+    namedHouseholdIds: string[] = []
+  ): Promise<RequestFollowStatus> {
     const data = await unwrap(
       supabase.rpc('request_follow', {
-        target_household_id: householdId
+        target_household_id: householdId,
+        named_household_ids: namedHouseholdIds
       })
     );
 
@@ -189,27 +201,46 @@ namespace FollowService {
 
   async function listByStatus(
     householdId: string,
-    status: 'accepted' | 'pending',
-    orderBy: 'responded_at' | 'requested_at'
+    status: 'accepted' | 'pending'
   ): Promise<Follower[]> {
     const data = await unwrap(
-      supabase
-        .from('household_follows')
-        .select(FOLLOWER_SELECT)
-        .eq('household_id', householdId)
-        .eq('status', status)
-        .order(orderBy, { ascending: true })
+      supabase.rpc('list_household_follows', {
+        target_household_id: householdId,
+        follow_status: status
+      })
     );
 
     return data.map(toFollower);
   }
 
   export function listFollowers(householdId: string): Promise<Follower[]> {
-    return listByStatus(householdId, 'accepted', 'responded_at');
+    return listByStatus(householdId, 'accepted');
   }
 
   export function listRequests(householdId: string): Promise<Follower[]> {
-    return listByStatus(householdId, 'pending', 'requested_at');
+    return listByStatus(householdId, 'pending');
+  }
+
+  export async function requestSummary(householdId: string): Promise<FollowRequestSummary> {
+    const data = await unwrap(
+      supabase.rpc('follow_request_summary', { target_household_id: householdId })
+    );
+
+    return {
+      pendingCount: data.pending_count,
+      newest: data.newest.map((person) => ({
+        firstName: person.first_name,
+        lastName: person.last_name,
+        avatarUrl: person.avatar_url
+      })),
+      hasUnread: data.has_unread
+    };
+  }
+
+  export async function markRequestAlertsRead(householdId: string): Promise<void> {
+    await unwrap(
+      supabase.rpc('mark_follow_request_alerts_read', { target_household_id: householdId })
+    );
   }
 }
 

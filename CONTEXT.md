@@ -148,7 +148,7 @@ An Alert with no recipient. Every Member of the Household sees it — Posts, Mis
 An Alert with one named recipient. Only that person sees it — not the rest of the Household. Like Alerts and role changes are Addressed. Invites are meant to be, and that is the case being built towards: an invitee is not a Member yet, so nothing scoped to a Household can reach them.
 
 **Inbox**:
-The list of Alerts a Member can see, and the badge that counts the unread ones. Both are built from the same rule, so the badge can always be cleared by reading the list. It holds the **last seven days** — older Alerts are not shown, though nothing is deleted. See [ADR 0022](./docs/adr/0022-the-inbox-holds-the-last-seven-days.md). It leaves out Feed Logged Alerts, which Home already carries; see [ADR 0023](./docs/adr/0023-feed-logs-are-delivered-but-not-listed.md).
+The list of Alerts a Member can see, and the badge that counts the unread ones. Both are built from the same rule, so the badge can always be cleared by reading the list. It holds the **last seven days** — older Alerts are not shown, though nothing is deleted. See [ADR 0022](./docs/adr/0022-the-inbox-holds-the-last-seven-days.md). It leaves out Feed Logged Alerts, which Home already carries; see [ADR 0023](./docs/adr/0023-feed-logs-are-delivered-but-not-listed.md). An Owner's Follow Requests are gathered into one row at the top rather than listed one by one, and they stay there while they wait, however old they are.
 
 **Feed Due Alert**:
 The push that goes out shortly before a feed is due — "Crumpet's dinner is coming up". It reaches
@@ -310,9 +310,19 @@ _Avoid_: Fan, subscriber, guest, spectator, viewer, and above all Member.
 A Follow that is waiting on an Owner. Every Household is private, so every Follow starts here. The
 person who asked sees it on their Following list and sees nothing of the Household beyond its name
 and its Pets' names. Only an Owner can accept or decline, exactly as with an Invite, and the Owner
-is notified. A decline is not a block — the person may ask again.
+is notified. A decline is not a block — the person may ask again. A request can name the
+Households the person owns, one or several, or none; the Owner sees them before deciding, and they
+are the only places a Follow Back can go. Naming a Household grants it nothing.
 _Avoid_: Application, invitation, pending invite (an Invite travels the other way, from the
 Household outwards, and it makes a Member).
+
+**Follow Back**:
+A Follow Request that an Owner sends, as a person, to a Household that someone named in the request
+they accepted. It is personal like every Follow — nobody else in the Owner's Household can read
+the other Household because of it — and it is still a request, which that Household's Owner accepts
+or declines. There is nothing to follow back when the request named no Household.
+_Avoid_: Mutual follow, follow each other, household-to-household follow (a Household never
+follows anything; a person does).
 
 **Following**:
 The list of Households a User follows, a Request still waiting included. It belongs to the person,
