@@ -43,7 +43,7 @@ const FollowHousehold = ({ householdId }: Props) => {
   const { userId } = useAuthStore();
   const { data: preview, isLoading, isError, refetch } = useFollowPreview(householdId);
   const { askingAs, send: sendTo, sendingHouseholdId } = useSendFollowRequest();
-  const isRequesting = sendingHouseholdId === householdId;
+  const isRequesting = sendingHouseholdId === householdId || !askingAs.isReady;
   const askingAsRef = useRef<TrueSheet | null>(null);
   const [isChoosingToSend, setIsChoosingToSend] = useState(false);
 

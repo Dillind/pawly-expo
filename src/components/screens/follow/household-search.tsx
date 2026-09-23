@@ -95,7 +95,7 @@ const HouseholdSearch = ({ term }: Props) => {
               key={household.householdId}
               household={household}
               isStale={isStale}
-              isSending={sendingHouseholdId === household.householdId}
+              isSending={sendingHouseholdId === household.householdId || !askingAs.isReady}
               onFollow={() => follow(household)}
             />
           ))}
