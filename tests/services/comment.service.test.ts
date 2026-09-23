@@ -86,7 +86,7 @@ describe('CommentService.list', () => {
     await CommentService.list({ postId: 'p1', viewerId: 'u1' });
 
     expect(calls).toContainEqual({ method: 'is', args: ['parent_comment_id', null] });
-    expect(calls).toContainEqual({ method: 'limit', args: [COMMENTS_PAGE_SIZE] });
+    expect(calls).toContainEqual({ method: 'limit', args: [COMMENTS_PAGE_SIZE + 1] });
     expect(calls).toContainEqual({ method: 'in', args: ['parent_comment_id', ['top-1', 'top-2']] });
   });
 
@@ -97,23 +97,33 @@ describe('CommentService.list', () => {
     expect(calls.some((call) => call.method === 'in')).toBe(false);
   });
 
-  it('returns a cursor only for a full page', async () => {
-    parentResult = {
-      data: Array.from({ length: COMMENTS_PAGE_SIZE }, (_, index) =>
-        row({
-          id: `top-${index}`,
-          created_at: `2026-08-22T01:00:${String(index).padStart(2, '0')}.000Z`
-        })
-      ),
-      error: null
-    };
+  const topLevelRows = (count: number) =>
+    Array.from({ length: count }, (_, index) =>
+      row({
+        id: `top-${index}`,
+        created_at: `2026-08-22T01:00:${String(index).padStart(2, '0')}.000Z`
+      })
+    );
 
-    const { nextCursor } = await CommentService.list({ postId: 'p1', viewerId: 'u1' });
+  it('returns a cursor when another page exists, and drops the extra row', async () => {
+    parentResult = { data: topLevelRows(COMMENTS_PAGE_SIZE + 1), error: null };
 
+    const { comments, nextCursor } = await CommentService.list({ postId: 'p1', viewerId: 'u1' });
+
+    expect(comments).toHaveLength(COMMENTS_PAGE_SIZE);
     expect(nextCursor).toEqual({
       createdAt: `2026-08-22T01:00:${COMMENTS_PAGE_SIZE - 1}.000Z`,
       id: `top-${COMMENTS_PAGE_SIZE - 1}`
     });
+  });
+
+  it('returns no cursor when exactly a page is left', async () => {
+    parentResult = { data: topLevelRows(COMMENTS_PAGE_SIZE), error: null };
+
+    const { comments, nextCursor } = await CommentService.list({ postId: 'p1', viewerId: 'u1' });
+
+    expect(comments).toHaveLength(COMMENTS_PAGE_SIZE);
+    expect(nextCursor).toBeNull();
   });
 
   it('breaks created_at ties by id after the cursor', async () => {

@@ -110,7 +110,7 @@ namespace CommentService {
       .is('parent_comment_id', null)
       .order('created_at', { ascending: true })
       .order('id', { ascending: true })
-      .limit(COMMENTS_PAGE_SIZE);
+      .limit(COMMENTS_PAGE_SIZE + 1);
 
     if (params.cursor) {
       query = query.or(
@@ -119,7 +119,12 @@ namespace CommentService {
       );
     }
 
-    const parents = (await unwrap(query)).map((row) => mapCommentRow(row, params.viewerId));
+    // One extra row says whether another page exists without a second request.
+    const rows = await unwrap(query);
+    const hasMore = rows.length > COMMENTS_PAGE_SIZE;
+    const parents = rows
+      .slice(0, COMMENTS_PAGE_SIZE)
+      .map((row) => mapCommentRow(row, params.viewerId));
 
     let replies: PostComment[] = [];
     if (parents.length > 0) {
@@ -142,10 +147,7 @@ namespace CommentService {
 
     return {
       comments: buildThread([...parents, ...replies]),
-      nextCursor:
-        parents.length === COMMENTS_PAGE_SIZE && last
-          ? { createdAt: last.createdAt, id: last.id }
-          : null
+      nextCursor: hasMore && last ? { createdAt: last.createdAt, id: last.id } : null
     };
   }
 
