@@ -876,3 +876,10 @@ and the search row do.
 `useHouseholds` has a five-minute `staleTime`, and the query cache is persisted, so a restart does
 not refetch it. A Household added with SQL during a device test stays invisible until the time runs
 out. Create test Households through the app, or wait before relaunching.
+
+## React Native text inside `RNHostView` can be measured again at the wrong size
+
+The Home month label lived inside a SwiftUI `Popover.Trigger` through `RNHostView matchContents`.
+After scrolling or coming back to Home it sometimes drew larger and lower, over the week strip. It
+did not reproduce on demand. Keep visible React Native content outside the `Host`: the label is now
+plain React Native, and the trigger is an empty 1-point anchor under it.
