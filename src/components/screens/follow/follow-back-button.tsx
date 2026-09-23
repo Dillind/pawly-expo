@@ -35,7 +35,7 @@ const FollowBackButton = ({ person, acceptingHouseholdId }: Props) => {
 
   const send = (households: NamedHousehold[]) =>
     followBack(households, {
-      onSuccess: () => setSentIds((ids) => [...ids, ...households.map((h) => h.householdId)])
+      onSuccess: (sent) => setSentIds((ids) => [...ids, ...sent.map((h) => h.householdId)])
     });
 
   if (state.kind === 'hidden') return null;

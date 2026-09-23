@@ -7,7 +7,7 @@ import { defaultAskingAs } from '@/lib/follow-naming';
 // Which of the viewer's own Households a Follow Request names. The default
 // holds until the viewer changes it.
 export function useAskingAs() {
-  const { data: households = [] } = useHouseholds();
+  const { data: households = [], isPending } = useHouseholds();
   const { data: current } = useHousehold();
 
   const owned = useMemo(() => households.filter((household) => household.isOwner), [households]);
@@ -22,6 +22,7 @@ export function useAskingAs() {
 
   return {
     owned,
+    isReady: !isPending,
     householdIds,
     names,
     needsChoice: chosenIds === null && fallback.needsChoice,

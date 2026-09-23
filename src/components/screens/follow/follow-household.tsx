@@ -50,6 +50,8 @@ const FollowHousehold = ({ householdId }: Props) => {
   const send = (namedHouseholdIds?: string[]) => sendTo(householdId, namedHouseholdIds);
 
   const follow = () => {
+    // Sending before the Households load would name none of them.
+    if (!askingAs.isReady) return;
     if (!askingAs.needsChoice) return send();
 
     setIsChoosingToSend(true);

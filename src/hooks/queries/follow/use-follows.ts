@@ -110,27 +110,41 @@ export function useRequestFollow() {
 }
 
 // A Follow Back names the Household that accepted, so the other side sees "Following".
+// Each Household is answered on its own: one refusal must not hide the others that sent.
 export function useFollowBack(acceptingHouseholdId: string | undefined) {
   const queryClient = useQueryClient();
 
   return useMutation({
     meta: { errorMessage: ErrorMessage.FollowRequestFailed },
-    mutationFn: (households: NamedHousehold[]) =>
-      Promise.all(
+    mutationFn: async (households: NamedHousehold[]) => {
+      const results = await Promise.allSettled(
         households.map((household) =>
           FollowService.request(household.householdId, [acceptingHouseholdId as string])
         )
-      ),
+      );
+      const sent = households.filter(
+        (_, index) =>
+          results[index].status === 'fulfilled' &&
+          !REQUEST_REFUSALS[(results[index] as PromiseFulfilledResult<RequestFollowStatus>).value]
+      );
+
+      if (sent.length === 0) throw new Error('Follow Back refused');
+
+      return sent;
+    },
     onSettled: () => {
       void queryClient.invalidateQueries({
         queryKey: queryKeys.follow.followers(acceptingHouseholdId)
       });
       void queryClient.invalidateQueries({ queryKey: queryKeys.follow.following });
     },
-    onSuccess: (_statuses, households) =>
+    onSuccess: (sent, households) => {
       showSuccessToast(
-        `${SuccessMessage.FollowRequested} to ${joinedNames(households.map((h) => h.name))}`
-      )
+        `${SuccessMessage.FollowRequested} to ${joinedNames(sent.map((h) => h.name))}`
+      );
+
+      if (sent.length < households.length) showErrorToast(ErrorMessage.FollowRequestFailed);
+    }
   });
 }
 
@@ -147,6 +161,7 @@ export function useMarkFollowRequestAlertsRead(householdId: string | undefined) 
   const queryClient = useQueryClient();
 
   return useMutation({
+    meta: { errorMessage: ErrorMessage.AlertsMarkReadFailed },
     mutationFn: () => FollowService.markRequestAlertsRead(householdId as string),
     onSettled: () =>
       queryClient.invalidateQueries({ queryKey: queryKeys.unreadAlerts(householdId) })

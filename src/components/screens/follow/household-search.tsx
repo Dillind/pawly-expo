@@ -53,6 +53,7 @@ const HouseholdSearch = ({ term }: Props) => {
 
   // No room on a row for "Asking as", so the default is sent and the toast names it.
   const follow = (household: HouseholdSearchResult) => {
+    if (!askingAs.isReady) return;
     if (!askingAs.needsChoice) return send(household.householdId);
 
     setChoosingFor(household);
