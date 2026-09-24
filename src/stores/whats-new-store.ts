@@ -50,7 +50,6 @@ export const useWhatsNewStore = create<State & Action>((set, get) => ({
 
   markSeen: async () => {
     const version = latestVersion(RELEASES);
-    if (get().lastSeenVersion === version) return;
 
     set({ lastSeenVersion: version });
     await save(version);

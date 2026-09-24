@@ -17,14 +17,16 @@ import { isNewerVersion } from '@/utils/version';
 const WhatsNewList = () => {
   const styles = useStyles(makeStyles);
   const router = useRouter();
-  const { lastSeenVersion, markSeen } = useWhatsNew();
+  const { hasHydrated, lastSeenVersion, markSeen } = useWhatsNew();
 
-  // Captured before markSeen moves it, so the badges survive the visit.
-  const [seenAtOpen] = useState(lastSeenVersion);
+  // Captured once the stored value has loaded and before markSeen moves it,
+  // so the badges survive the visit.
+  const [seenAtOpen, setSeenAtOpen] = useState<string | null>(null);
+  if (hasHydrated && seenAtOpen === null) setSeenAtOpen(lastSeenVersion);
 
   useEffect(() => {
-    void markSeen();
-  }, [markSeen]);
+    if (hasHydrated) void markSeen();
+  }, [hasHydrated, markSeen]);
 
   const openRequest = (requestId: string) =>
     router.push({
@@ -77,7 +79,7 @@ const WhatsNewList = () => {
               <AppText variant="header" size="titleSmall" fontWeight="bold">
                 {release.version}
               </AppText>
-              {isNewerVersion(release.version, seenAtOpen) && (
+              {seenAtOpen && isNewerVersion(release.version, seenAtOpen) && (
                 <View style={styles.newBadge}>
                   <AppText size="caption" fontWeight="bold" color="onPrimary">
                     New
