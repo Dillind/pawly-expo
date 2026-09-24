@@ -155,7 +155,6 @@ const Home = () => {
     void maybeRequest().finally(() => setIsPermissionSettled(true));
   }, [hasPets, requestPermission]);
 
-  // Waits for the permission prompt, and stays away from a notification's log sheet.
   const isHomeSettled = !isPending && (!hasPets || isPermissionSettled);
   const { hasHydrated: hasHydratedWhatsNew, hasUnseen, notes: whatsNewNotes, markSeen } = whatsNew;
 
