@@ -1361,7 +1361,7 @@ export type Database = {
       [_ in never]: never;
     };
     Functions: {
-      account_deletion_blockers: { Args: never; Returns: Json };
+      account_deletion_plan: { Args: never; Returns: Json };
       add_pet:
         | {
             Args: {
@@ -1550,6 +1550,10 @@ export type Database = {
           vote_count: number;
         }[];
       };
+      hand_over_household: {
+        Args: { successor_id: string | null; target_household_id: string | null };
+        Returns: Json;
+      };
       handle_available: { Args: { candidate: string | null }; Returns: boolean };
       handle_suggestions: {
         Args: { stem: string | null; wanted?: number | null };
@@ -1733,7 +1737,7 @@ export type Database = {
         }[];
       };
       prepare_account_deletion: {
-        Args: { target_user_id: string | null };
+        Args: { households_to_delete?: string[] | null; target_user_id: string | null };
         Returns: Json;
       };
       preview_household_invite: { Args: { invite_code: string | null }; Returns: Json };

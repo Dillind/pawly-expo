@@ -6,3 +6,6 @@ export const nameSchema = z.object({
 });
 
 export type NameFormValues = z.infer<typeof nameSchema>;
+
+// Apple does not always share a last name, so an existing account may have none.
+export const editNameSchema = nameSchema.extend({ lastName: z.string().trim() });

@@ -10,7 +10,8 @@ export const deleteAccountSchema = z.object({
     .min(1, 'Type the phrase to confirm')
     .refine((value) => value === DELETE_ACCOUNT_PHRASE, {
       message: "That doesn't match the phrase"
-    })
+    }),
+  password: z.string()
 });
 
 export type DeleteAccountInput = z.input<typeof deleteAccountSchema>;

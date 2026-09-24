@@ -1,5 +1,7 @@
 import { createClient } from 'npm:@supabase/supabase-js@2';
+import { importPKCS8, SignJWT } from 'npm:jose@5';
 
+import { APPLE_AUDIENCE, appleSubject, clientSecretClaims, jwtSubject } from './apple.ts';
 import { bearerToken, isConfirmed } from './confirmation.ts';
 
 const PET_PHOTO_BUCKET = 'pet-photos';
@@ -11,6 +13,70 @@ const json = (body: unknown, status = 200) =>
     status,
     headers: { 'Content-Type': 'application/json' }
   });
+
+const appleClientSecret = async () => {
+  const teamId = Deno.env.get('APPLE_TEAM_ID')!;
+  const keyId = Deno.env.get('APPLE_KEY_ID')!;
+  const bundleId = Deno.env.get('APPLE_BUNDLE_ID')!;
+  const key = await importPKCS8(Deno.env.get('APPLE_PRIVATE_KEY')!, 'ES256');
+  const claims = clientSecretClaims({ teamId, bundleId, now: Date.now() });
+
+  return {
+    bundleId,
+    secret: await new SignJWT(claims).setProtectedHeader({ alg: 'ES256', kid: keyId }).sign(key)
+  };
+};
+
+const applePost = (path: string, fields: Record<string, string>) =>
+  fetch(`${APPLE_AUDIENCE}/auth/${path}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: new URLSearchParams(fields)
+  });
+
+type AppleTokens = { bundleId: string; secret: string; token: string; hint: string };
+
+// Best effort: a failed exchange or revoke must never keep an account alive (ADR 0045).
+const exchangeAppleCode = async (
+  authorizationCode: string,
+  expectedSubject: string
+): Promise<AppleTokens | 'wrong_account' | null> => {
+  try {
+    const { bundleId, secret } = await appleClientSecret();
+    const response = await applePost('token', {
+      client_id: bundleId,
+      client_secret: secret,
+      code: authorizationCode,
+      grant_type: 'authorization_code'
+    });
+    const tokens = await response.json();
+    if (!response.ok) {
+      console.error('apple token', tokens);
+      return null;
+    }
+    if (jwtSubject(tokens.id_token ?? '') !== expectedSubject) return 'wrong_account';
+
+    return tokens.refresh_token
+      ? { bundleId, secret, token: tokens.refresh_token, hint: 'refresh_token' }
+      : { bundleId, secret, token: tokens.access_token, hint: 'access_token' };
+  } catch (error) {
+    console.error('apple token', error);
+    return null;
+  }
+};
+
+const revokeApple = async ({ bundleId, secret, token, hint }: AppleTokens) => {
+  const response = await applePost('revoke', {
+    client_id: bundleId,
+    client_secret: secret,
+    token,
+    token_type_hint: hint
+  }).catch((error) => {
+    console.error('apple revoke', error);
+    return null;
+  });
+  if (response && !response.ok) console.error('apple revoke', response.status);
+};
 
 Deno.serve(async (request) => {
   if (request.method !== 'POST') return json({ error: 'method_not_allowed' }, 405);
@@ -33,8 +99,22 @@ Deno.serve(async (request) => {
   const body = await request.json().catch(() => ({}));
   if (!isConfirmed(body?.confirmation)) return json({ status: 'confirmation_mismatch' });
 
+  const appleSub = appleSubject(user.identities);
+  const authorizationCode =
+    typeof body?.authorizationCode === 'string' ? body.authorizationCode : null;
+  if (appleSub && !authorizationCode) return json({ status: 'reauth_required' });
+
+  const appleTokens =
+    appleSub && authorizationCode ? await exchangeAppleCode(authorizationCode, appleSub) : null;
+  if (appleTokens === 'wrong_account') return json({ status: 'wrong_account' }, 403);
+
+  const householdsToDelete = Array.isArray(body?.householdsToDelete)
+    ? body.householdsToDelete.filter((id: unknown) => typeof id === 'string')
+    : [];
+
   const { data: plan, error: planError } = await admin.rpc('prepare_account_deletion', {
-    target_user_id: user.id
+    target_user_id: user.id,
+    households_to_delete: householdsToDelete
   });
   if (planError) {
     console.error(planError);
@@ -44,6 +124,8 @@ Deno.serve(async (request) => {
   if (plan.status === 'last_owner') {
     return json({ status: 'last_owner', households: plan.households ?? [] });
   }
+
+  if (appleTokens) await revokeApple(appleTokens);
 
   // A failed file removal orphans an object; it must not keep the account alive.
   const removeObjects = async (bucket: string, paths: string[]) => {

@@ -9,9 +9,9 @@ import FormTextInput from '@/components/core/form-text-input';
 import MainButton from '@/components/core/main-button';
 import PasswordGuidelines from '@/components/screens/auth/password-guidelines';
 import {
-  resetPasswordSchema,
-  type ResetPasswordFormValues
-} from '@/constants/schemas/reset-password';
+  updatePasswordSchema,
+  type UpdatePasswordFormValues
+} from '@/constants/schemas/update-password';
 import type { AppTheme } from '@/constants/theme';
 import { useUpdatePassword } from '@/hooks/queries/account/use-update-password';
 import { useStyles } from '@/hooks/use-styles';
@@ -24,19 +24,30 @@ const UpdatePasswordSheet = ({ sheetRef }: Props) => {
   const styles = useStyles(makeStyles);
   const { mutate: updatePassword, isPending: isSaving } = useUpdatePassword();
 
-  const form = useForm<ResetPasswordFormValues>({
-    resolver: zodResolver(resetPasswordSchema),
-    defaultValues: { password: '', confirmPassword: '' },
+  const form = useForm<UpdatePasswordFormValues>({
+    resolver: zodResolver(updatePasswordSchema),
+    defaultValues: { currentPassword: '', password: '', confirmPassword: '' },
     mode: 'onTouched'
   });
   const {
     control,
     handleSubmit,
+    setError,
     formState: { isValid }
   } = form;
 
   const submit = (onDone: () => void) =>
-    handleSubmit((values) => updatePassword(values.password, { onSuccess: onDone }))();
+    handleSubmit(({ currentPassword, password }) =>
+      updatePassword(
+        { currentPassword, password },
+        {
+          onSuccess: (status) => {
+            if (status === 'updated') return onDone();
+            setError('currentPassword', { message: 'That password is not right' });
+          }
+        }
+      )
+    )();
 
   return (
     <BaseSheet
@@ -46,6 +57,16 @@ const UpdatePasswordSheet = ({ sheetRef }: Props) => {
       onDismiss={() => form.reset()}>
       <FormProvider {...form}>
         <View style={styles.form}>
+          <FormTextInput
+            control={control}
+            name="currentPassword"
+            label="Current password"
+            isLabelIndicated
+            secureTextEntry
+            autoCapitalize="none"
+            autoComplete="current-password"
+            returnKeyType="next"
+          />
           <FormTextInput
             control={control}
             name="password"
@@ -72,7 +93,7 @@ const UpdatePasswordSheet = ({ sheetRef }: Props) => {
           <PasswordGuidelines />
 
           <MainButton
-            text={isSaving ? 'Saving password…' : 'Save password'}
+            text="Update password"
             isLoading={isSaving}
             isDisabled={isSaving || !isValid}
             onPress={() => void submit(() => void sheetRef.current?.dismiss())}

@@ -1,4 +1,4 @@
--- CRU-156. Deleting an account. ADR 0044 has the reasoning.
+-- CRU-156. Deleting an account. ADR 0045 has the reasoning.
 --
 -- Every other reference to a user already either cascades (their own rows) or
 -- sets null (the household's record of what they did). Reminders were the

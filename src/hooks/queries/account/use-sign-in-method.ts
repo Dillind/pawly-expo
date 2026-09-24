@@ -4,13 +4,12 @@ import { queryKeys } from '@/lib/query-keys';
 import AuthService from '@/services/auth.service';
 import { useAuthStore } from '@/stores/auth-store';
 
-export function useAccountDeletionBlockers(isEnabled: boolean) {
+export function useSignInMethod() {
   const { userId } = useAuthStore();
 
   return useQuery({
-    queryKey: queryKeys.accountDeletionBlockers(userId),
-    queryFn: AuthService.accountDeletionBlockers,
-    enabled: isEnabled && Boolean(userId),
-    staleTime: 0
+    queryKey: queryKeys.signInMethod(userId),
+    queryFn: AuthService.getSignInMethod,
+    enabled: Boolean(userId)
   });
 }

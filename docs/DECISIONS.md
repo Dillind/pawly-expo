@@ -1160,3 +1160,9 @@ The key did not exist before 1.0.1, so a missing key cannot tell a fresh install
 A restored session can: signed in at launch means an update, seeded `1.0.0`, and the sheet shows.
 Signed out means a fresh install, seeded with the newest version, and nothing shows. Someone who
 updates while signed out misses one sheet; the changelog still has it.
+
+## Apple token revocation does not block an account delete
+
+If Apple rejects the code exchange or the revoke, `delete-account` logs it and deletes the account
+anyway. The delete is the requirement, and the user can still remove Crumpet in their Apple ID
+settings; stopping would trap them in an account they asked to leave. ADR 0045.
