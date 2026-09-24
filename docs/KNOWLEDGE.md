@@ -883,3 +883,12 @@ The Home month label lived inside a SwiftUI `Popover.Trigger` through `RNHostVie
 After scrolling or coming back to Home it sometimes drew larger and lower, over the week strip. It
 did not reproduce on demand. Keep visible React Native content outside the `Host`: the label is now
 plain React Native, and the trigger is an empty 1-point anchor under it.
+
+## `expoConfig.version` does not change over the air
+
+`Constants.expoConfig.version` is the native version from `app.json` at build time. An OTA update
+ships new JavaScript and leaves it alone, so anything keyed on it — a "seen this release" flag, a
+changelog — never sees the update. The What's New sheet keys on the version in its own release
+notes instead. One visible side effect: after an OTA, About and the Settings footer
+(`APP_VERSION`) still say `1.0.1` while the changelog's newest entry says `1.0.1.1`. That is
+correct, not a bug.

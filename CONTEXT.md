@@ -402,3 +402,13 @@ The settings owned by a User. Reached from Profile. Covers the account itself, a
 subscription, support and sign-out. Nothing here belongs to a Household, and no Household is named
 on any of these screens — that is the whole point of the split.
 _Avoid_: Profile settings, app settings, user preferences.
+
+**Release Note**:
+One change in a release, as a user would describe it. Listed in What's New in Settings. Written
+only for a new feature or a big fix; a minor fix has none.
+_Avoid_: changelog entry, patch note.
+
+**Highlighted Note**:
+A Release Note shown in the What's New sheet the first time the app opens after an update. At most
+three per release.
+_Avoid_: featured note, headline.

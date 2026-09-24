@@ -71,3 +71,21 @@ Supabase's rate-limited default sender.
 `.env`.
 
 No Android build scripts until FCM credentials exist.
+
+## Release notes and the feedback board
+
+Every store build and every over-the-air update carries its own entry in
+`src/constants/release-notes.ts`. The What's New sheet and the changelog in Settings read it.
+
+**Before the build:**
+
+1. Bump the patch in `app.json` and `package.json` (`1.0.1` → `1.0.2`). An over-the-air update
+   leaves both alone and adds a 4th number to its release only (`1.0.2.1`), because the native
+   version cannot change over the air.
+2. Add the release at the top of `RELEASES`. `bun run check` fails when its first three parts do
+   not equal `app.json`'s version.
+3. Search the feedback board for a request each change answers, and put its id in
+   `featureRequestId`.
+
+**After the build is live on TestFlight:** set each linked request to `done` on the board. Not
+before: the board would say "done" while nobody has the build.

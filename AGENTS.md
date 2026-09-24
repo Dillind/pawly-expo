@@ -416,6 +416,16 @@ Push handling lives in `use-push-notifications`, mounted once inside `AuthGate` 
 
 **Sending is an outbox, not a direct call.** `feed_logs` → trigger → `alerts` → trigger → `pg_net` → the `send-alerts` Edge Function, which resolves recipients at send time. Anything that needs to notify a household inserts an `alerts` row; it does not call the Edge Function.
 
+### Release notes
+
+Every release, store or over the air, gets an entry in `src/constants/release-notes.ts`. The
+What's New sheet shows its highlighted notes once, and Settings > What's New lists them all.
+
+**Write a note only for a new, noticeable feature or a big bug fix.** A minor fix gets no note. A
+note is highlighted when a user would miss it otherwise, at most three per release. Link every
+note that answers a feedback-board request with `featureRequestId`, so its tag credits the people
+who asked. The steps, and when the request is set to `done`, are in the **`eas-release`** skill.
+
 ### Localisation
 
 All user-facing text uses **Australian/British English** (colour, organise, cancelled, licence, favourite, grey, "tick" not "check", etc.). Applies to labels, buttons, errors, placeholders, toasts.

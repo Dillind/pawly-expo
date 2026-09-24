@@ -18,6 +18,7 @@ type Props = {
   // What the row is. Orthogonal to `isSoon`, which is whether it works yet.
   variant?: SettingsRowVariant;
   isSoon?: boolean;
+  hasBadge?: boolean;
   isDisabled?: boolean;
   onPress?: () => void;
 };
@@ -28,6 +29,7 @@ const SettingsRow = ({
   value,
   variant = 'default',
   isSoon,
+  hasBadge,
   isDisabled,
   onPress
 }: Props) => {
@@ -37,7 +39,9 @@ const SettingsRow = ({
   const isPressable = Boolean(onPress) && !isSoon && !isDisabled;
   const tone = isDestructive ? 'error' : isSoon ? 'textSecondary' : 'text';
 
-  const readingLabel = [label, isSoon ? 'coming soon' : value].filter(Boolean).join(', ');
+  const readingLabel = [label, isSoon ? 'coming soon' : value, hasBadge && 'new']
+    .filter(Boolean)
+    .join(', ');
 
   const body = (
     <View style={[styles.row, isDisabled && styles.disabled]}>
@@ -59,6 +63,7 @@ const SettingsRow = ({
               {value}
             </AppText>
           )}
+          {hasBadge && <View style={styles.badge} />}
           {/* A destructive row acts in place, so a chevron would promise a screen. */}
           {isPressable && !isDestructive && (
             <Icon name="caretRight" size={IconSize.inline} color="textSecondary" />
@@ -97,6 +102,12 @@ const makeStyles = ({ colors, spacing }: AppTheme) =>
       gap: spacing.three,
       minHeight: ROW_HEIGHT,
       paddingHorizontal: spacing.three
+    },
+    badge: {
+      width: 9,
+      height: 9,
+      borderRadius: Radius.full,
+      backgroundColor: colors.primary
     },
     disabled: {
       opacity: 0.5

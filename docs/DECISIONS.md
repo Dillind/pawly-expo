@@ -1145,3 +1145,18 @@ before bound only an agent, and CI never ran them.
 numbers: `titleSmall`, `titleMedium`, `titleLarge` and `display`, not `title3` or `largeTitle`. 312 of the 339 literal
 sizes matched a step exactly and moved without a pixel of change. The 27 that did not are left as
 numbers until someone looks at them on a device, because snapping them is a design decision.
+
+## Release notes ship in the bundle and carry their own version
+
+`src/constants/release-notes.ts`, not a Supabase table. Each release has its own version, and the
+What's New sheet keys on that, never on `Constants.expoConfig.version`, which an over-the-air
+update cannot change. So when `expo-updates` lands (CRU-185), an OTA release is a new entry with a
+4th number and nothing else changes. Seen state is per device in AsyncStorage: sign-out does not
+clear it, so a second person on the same phone does not see notes the first one closed.
+
+## A missing What's New key is read from the session
+
+The key did not exist before 1.0.1, so a missing key cannot tell a fresh install from an update.
+A restored session can: signed in at launch means an update, seeded `1.0.0`, and the sheet shows.
+Signed out means a fresh install, seeded with the newest version, and nothing shows. Someone who
+updates while signed out misses one sheet; the changelog still has it.

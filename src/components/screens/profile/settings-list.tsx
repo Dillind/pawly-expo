@@ -15,6 +15,7 @@ import { APPEARANCE_OPTIONS } from '@/constants/options';
 import { BottomTabInset, type AppTheme } from '@/constants/theme';
 import { useLogout } from '@/hooks/use-logout';
 import { useStyles } from '@/hooks/use-styles';
+import { useWhatsNew } from '@/hooks/use-whats-new';
 import { APP_VERSION, supportMailtoForUser } from '@/lib/support';
 import { showErrorToast } from '@/lib/toast';
 import { useAuthStore } from '@/stores/auth-store';
@@ -32,6 +33,7 @@ const SettingsList = () => {
   const { preference } = useThemeStore();
   const { logout, isLoading: isSigningOut } = useLogout();
   const { userId } = useAuthStore();
+  const { hasUnseen } = useWhatsNew();
 
   const handleContactSupport = async () => {
     const opened = await openExternalURL(supportMailtoForUser(userId));
@@ -72,6 +74,12 @@ const SettingsList = () => {
             icon="lightbulb"
             label="Request a feature"
             onPress={() => router.push('/profile/settings/feature-requests')}
+          />
+          <SettingsRow
+            icon="sparkles"
+            label="What’s New"
+            hasBadge={hasUnseen}
+            onPress={() => router.push('/profile/settings/whats-new')}
           />
           <SettingsRow icon="star" label="Rate Crumpet" isSoon />
           <SettingsRow
