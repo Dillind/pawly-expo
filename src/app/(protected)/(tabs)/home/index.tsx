@@ -7,6 +7,7 @@ import Animated, { FadeIn, FadeOut, LinearTransition } from 'react-native-reanim
 
 import FeedLogDetailSheet from '@/components/bottom-sheets/feed-log-detail-sheet';
 import LogFeedTray from '@/components/bottom-sheets/log-feed-tray';
+import WhatsNewSheet from '@/components/bottom-sheets/whats-new-sheet';
 import AppText from '@/components/core/app-text';
 import EmptyState from '@/components/core/empty-state';
 import ErrorState from '@/components/core/error-state';
@@ -22,6 +23,7 @@ import PetSectionSkeleton from '@/components/screens/home/pet-section-skeleton';
 import WeekStrip from '@/components/screens/home/week-strip';
 import TileGrid from '@/components/ui/tile-grid';
 import { homeTiles } from '@/constants/home-tiles';
+import { RELEASES } from '@/constants/release-notes';
 import { BottomTabInset, type AppTheme } from '@/constants/theme';
 import { useUserProfile } from '@/hooks/queries/account/use-user-profile';
 import { useRefreshUnreadAlertCount } from '@/hooks/queries/alerts/use-alerts';
@@ -39,8 +41,10 @@ import { useRequestNotificationPermission } from '@/hooks/use-notification-permi
 import { usePullToRefresh } from '@/hooks/use-pull-to-refresh';
 import { useRefreshOnFocus } from '@/hooks/use-refresh-on-focus';
 import { useStyles } from '@/hooks/use-styles';
+import { useWhatsNew } from '@/hooks/use-whats-new';
 import { formatWeekdayName, todayInTimezone, weekOf } from '@/lib/dates';
 import { queryKeys } from '@/lib/query-keys';
+import { latestVersion } from '@/lib/whats-new';
 import type { Pet } from '@/types/core';
 import { describeDay } from '@/utils/day-summary';
 import { findHomeTip } from '@/utils/home-tip';
@@ -91,6 +95,10 @@ const Home = () => {
   const detailSheetRef = useRef<TrueSheet | null>(null);
   const logTrayRef = useRef<TrueSheet | null>(null);
   const hasCheckedPermission = useRef(false);
+  const [isPermissionSettled, setIsPermissionSettled] = useState(false);
+  const whatsNewSheetRef = useRef<TrueSheet | null>(null);
+  const hasPromptedWhatsNew = useRef(false);
+  const whatsNew = useWhatsNew();
   const requestPermission = useRequestNotificationPermission();
 
   const flow = useLogFlow({
@@ -144,8 +152,25 @@ const Home = () => {
       await requestPermission();
     };
 
-    void maybeRequest();
+    void maybeRequest().finally(() => setIsPermissionSettled(true));
   }, [hasPets, requestPermission]);
+
+  const isHomeSettled = !isPending && (!hasPets || isPermissionSettled);
+  const { hasHydrated: hasHydratedWhatsNew, hasUnseen, notes: whatsNewNotes, markSeen } = whatsNew;
+
+  useEffect(() => {
+    if (hasPromptedWhatsNew.current || !hasHydratedWhatsNew || !hasUnseen) return;
+    if (!isHomeSettled || logId || activeLogId) return;
+    hasPromptedWhatsNew.current = true;
+
+    if (whatsNewNotes.length === 0) void markSeen();
+    else void whatsNewSheetRef.current?.present();
+  }, [hasHydratedWhatsNew, hasUnseen, isHomeSettled, logId, activeLogId, whatsNewNotes, markSeen]);
+
+  const openAllChanges = async () => {
+    await whatsNewSheetRef.current?.dismiss();
+    router.push('/profile/settings/whats-new');
+  };
 
   const renderBody = () => {
     if (hasNoHousehold) return <NoHouseholdState />;
@@ -267,6 +292,14 @@ const Home = () => {
       )}
 
       <FeedLogDetailSheet sheetRef={detailSheetRef} logId={activeLogId} petId={activePetId} />
+
+      <WhatsNewSheet
+        sheetRef={whatsNewSheetRef}
+        version={latestVersion(RELEASES)}
+        notes={whatsNewNotes}
+        onDismiss={() => void markSeen()}
+        onSeeAll={() => void openAllChanges()}
+      />
     </ScreenView>
   );
 };

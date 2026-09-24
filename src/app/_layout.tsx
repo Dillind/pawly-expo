@@ -19,6 +19,7 @@ import { Toaster } from '@/lib/toast';
 import { useActiveHouseholdStore } from '@/stores/active-household-store';
 import { useAuthStore } from '@/stores/auth-store';
 import { useThemeStore } from '@/stores/theme-store';
+import { useWhatsNewStore } from '@/stores/whats-new-store';
 import { isWeb } from '@/utils/platform';
 
 // eslint-disable-next-line @typescript-eslint/no-require-imports -- keeps Reactotron out of release bundles
@@ -33,6 +34,12 @@ const AuthGate = () => {
   usePushNotifications();
   const { status, isRecovering } = useAuthStore();
   const { hasHydrated } = useThemeStore();
+  const { hydrate: hydrateWhatsNew } = useWhatsNewStore();
+
+  // Outside the splash gate: a slow read must not hold the app for a sheet.
+  useEffect(() => {
+    if (status !== 'loading') void hydrateWhatsNew(status === 'signedIn');
+  }, [status, hydrateWhatsNew]);
 
   if (status === 'loading' || !hasHydrated) return null;
 

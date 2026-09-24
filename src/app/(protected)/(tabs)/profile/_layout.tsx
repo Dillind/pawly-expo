@@ -39,6 +39,9 @@ export default function ProfileLayout() {
         <Stack.Screen name="settings/feature-requests/[requestId]/index">
           <Stack.Title>{''}</Stack.Title>
         </Stack.Screen>
+        <Stack.Screen name="settings/whats-new">
+          <Stack.Title style={HeaderTitleStyle}>What’s New</Stack.Title>
+        </Stack.Screen>
         <Stack.Screen name="following">
           <Stack.Title style={HeaderTitleStyle}>Following</Stack.Title>
         </Stack.Screen>
