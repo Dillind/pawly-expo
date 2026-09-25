@@ -1,8 +1,4 @@
-import {
-  appleSubject,
-  clientSecretClaims,
-  jwtSubject
-} from '../../../supabase/functions/delete-account/apple';
+import { clientSecretClaims, jwtSubject } from '../../../supabase/functions/delete-account/apple';
 
 const encode = (value: object) =>
   Buffer.from(JSON.stringify(value)).toString('base64').replace(/=+$/, '');
@@ -22,26 +18,6 @@ describe('clientSecretClaims', () => {
       aud: 'https://appleid.apple.com',
       sub: 'au.com.crumpet.ios'
     });
-  });
-});
-
-describe('appleSubject', () => {
-  it('reads the Apple user id from the identity data', () => {
-    expect(
-      appleSubject([
-        { provider: 'email', id: 'x' },
-        { provider: 'apple', id: 'fallback', identity_data: { sub: '001.apple' } }
-      ])
-    ).toBe('001.apple');
-  });
-
-  it('falls back to the identity id', () => {
-    expect(appleSubject([{ provider: 'apple', id: '001.apple' }])).toBe('001.apple');
-  });
-
-  it('is null for a user with no Apple identity', () => {
-    expect(appleSubject([{ provider: 'google', id: 'g' }])).toBeNull();
-    expect(appleSubject(undefined)).toBeNull();
   });
 });
 

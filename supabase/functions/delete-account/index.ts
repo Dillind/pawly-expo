@@ -1,8 +1,15 @@
 import { createClient } from 'npm:@supabase/supabase-js@2';
-import { importPKCS8, SignJWT } from 'npm:jose@5';
+import { createRemoteJWKSet, importPKCS8, jwtVerify, SignJWT } from 'npm:jose@5';
 
-import { APPLE_AUDIENCE, appleSubject, clientSecretClaims, jwtSubject } from './apple.ts';
+import { APPLE_AUDIENCE, clientSecretClaims, jwtSubject } from './apple.ts';
 import { bearerToken, isConfirmed } from './confirmation.ts';
+import {
+  APPLE_ISSUER,
+  GOOGLE_ISSUERS,
+  isFreshFor,
+  providerSubject,
+  reauthProvider
+} from './identity.ts';
 
 const PET_PHOTO_BUCKET = 'pet-photos';
 const POST_PHOTO_BUCKET = 'post-photos';
@@ -34,9 +41,37 @@ const applePost = (path: string, fields: Record<string, string>) =>
     body: new URLSearchParams(fields)
   });
 
+const APPLE_KEYS = createRemoteJWKSet(new URL(`${APPLE_ISSUER}/auth/keys`));
+const GOOGLE_KEYS = createRemoteJWKSet(new URL('https://www.googleapis.com/oauth2/v3/certs'));
+
+const isFreshIdToken = async (
+  token: unknown,
+  keys: ReturnType<typeof createRemoteJWKSet>,
+  options: { issuer: string | string[]; audience: string[] },
+  subject: string
+) => {
+  if (typeof token !== 'string') return false;
+  try {
+    const { payload } = await jwtVerify(token, keys, options);
+    return isFreshFor(payload, subject, Math.floor(Date.now() / 1000));
+  } catch (error) {
+    console.error('id token', error);
+    return false;
+  }
+};
+
+const isPasswordRight = async (email: string | undefined, password: unknown) => {
+  if (!email || typeof password !== 'string' || password.length === 0) return false;
+  const client = createClient(Deno.env.get('SUPABASE_URL')!, Deno.env.get('SUPABASE_ANON_KEY')!, {
+    auth: { persistSession: false, autoRefreshToken: false }
+  });
+  const { error } = await client.auth.signInWithPassword({ email, password });
+  return !error;
+};
+
 type AppleTokens = { bundleId: string; secret: string; token: string; hint: string };
 
-// Best effort: a failed exchange or revoke must never keep an account alive (ADR 0045).
+// Best effort: identity is proven by the id token, so a failed revoke never keeps an account alive.
 const exchangeAppleCode = async (
   authorizationCode: string,
   expectedSubject: string
@@ -99,14 +134,44 @@ Deno.serve(async (request) => {
   const body = await request.json().catch(() => ({}));
   if (!isConfirmed(body?.confirmation)) return json({ status: 'confirmation_mismatch' });
 
-  const appleSub = appleSubject(user.identities);
-  const authorizationCode =
-    typeof body?.authorizationCode === 'string' ? body.authorizationCode : null;
-  if (appleSub && !authorizationCode) return json({ status: 'reauth_required' });
+  const provider = reauthProvider(user.identities);
+  let appleTokens: AppleTokens | null = null;
 
-  const appleTokens =
-    appleSub && authorizationCode ? await exchangeAppleCode(authorizationCode, appleSub) : null;
-  if (appleTokens === 'wrong_account') return json({ status: 'wrong_account' }, 403);
+  if (provider === 'email') {
+    if (!(await isPasswordRight(user.email, body?.password))) {
+      return json({ status: 'wrong_password' });
+    }
+  }
+
+  if (provider === 'google') {
+    const isFresh = await isFreshIdToken(
+      body?.idToken,
+      GOOGLE_KEYS,
+      {
+        issuer: GOOGLE_ISSUERS,
+        audience: (Deno.env.get('GOOGLE_CLIENT_IDS') ?? '').split(',').filter(Boolean)
+      },
+      providerSubject(user.identities, 'google')!
+    );
+    if (!isFresh) return json({ status: 'reauth_failed' });
+  }
+
+  if (provider === 'apple') {
+    const appleSub = providerSubject(user.identities, 'apple')!;
+    const isFresh = await isFreshIdToken(
+      body?.idToken,
+      APPLE_KEYS,
+      { issuer: APPLE_ISSUER, audience: [Deno.env.get('APPLE_BUNDLE_ID')!] },
+      appleSub
+    );
+    if (!isFresh) return json({ status: 'reauth_failed' });
+
+    if (typeof body?.authorizationCode === 'string') {
+      const exchanged = await exchangeAppleCode(body.authorizationCode, appleSub);
+      if (exchanged === 'wrong_account') return json({ status: 'reauth_failed' });
+      appleTokens = exchanged;
+    }
+  }
 
   const householdsToDelete = Array.isArray(body?.householdsToDelete)
     ? body.householdsToDelete.filter((id: unknown) => typeof id === 'string')

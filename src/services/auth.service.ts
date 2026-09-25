@@ -48,7 +48,7 @@ export type DeleteAccountResult =
   | { status: 'confirmation_mismatch' };
 
 type DeleteAccountResponse = {
-  status: 'deleted' | 'last_owner' | 'confirmation_mismatch' | 'reauth_required' | 'wrong_account';
+  status: 'deleted' | 'last_owner' | 'confirmation_mismatch' | 'wrong_password' | 'reauth_failed';
   households?: string[];
 };
 
@@ -56,16 +56,24 @@ const isAppleCancel = (error: unknown) =>
   (error as { code?: string } | null)?.code === 'ERR_REQUEST_CANCELED';
 
 // Apple's code is single use and expires in five minutes, so it is fetched only at the delete.
-const appleAuthorizationCode = async (): Promise<string | null> => {
+const appleProof = async (): Promise<{ idToken: string; authorizationCode: string } | null> => {
   try {
     const credential = await AppleAuthentication.signInAsync({ requestedScopes: [] });
-    if (!credential.authorizationCode)
-      throw new UserFacingError('Apple did not return a sign-in code.');
-    return credential.authorizationCode;
+    if (!credential.identityToken || !credential.authorizationCode)
+      throw new UserFacingError('Apple did not return a sign-in token.');
+    return { idToken: credential.identityToken, authorizationCode: credential.authorizationCode };
   } catch (error) {
     if (isAppleCancel(error)) return null;
     throw error;
   }
+};
+
+const googleProof = async (): Promise<{ idToken: string } | null> => {
+  await GoogleSignin.hasPlayServices();
+  const response = await GoogleSignin.signIn();
+  if (response.type === 'cancelled') return null;
+  if (!response.data?.idToken) throw new UserFacingError('Google did not return a sign-in token.');
+  return { idToken: response.data.idToken };
 };
 
 namespace AuthService {
@@ -245,30 +253,20 @@ namespace AuthService {
     password?: string;
     householdsToDelete: string[];
   }): Promise<DeleteAccountResult> {
-    let authorizationCode: string | undefined;
-
-    if (params.method === 'email') {
-      if (!(await verifyPassword(params.password ?? ''))) return { status: 'wrong_password' };
-    }
-
-    if (params.method === 'apple') {
-      const code = await appleAuthorizationCode();
-      if (!code) return { status: 'cancelled' };
-      authorizationCode = code;
-    }
-
-    if (params.method === 'google') {
-      await GoogleSignin.hasPlayServices();
-      const response = await GoogleSignin.signIn();
-      if (response.type === 'cancelled') return { status: 'cancelled' };
-    }
+    const proof =
+      params.method === 'apple'
+        ? await appleProof()
+        : params.method === 'google'
+          ? await googleProof()
+          : { password: params.password ?? '' };
+    if (!proof) return { status: 'cancelled' };
 
     const result = await unwrap(
       supabase.functions.invoke<DeleteAccountResponse>('delete-account', {
         body: {
           confirmation: params.confirmation,
-          authorizationCode,
-          householdsToDelete: params.householdsToDelete
+          householdsToDelete: params.householdsToDelete,
+          ...proof
         }
       })
     );
@@ -282,6 +280,8 @@ namespace AuthService {
         return { status: 'last_owner', households: result.households ?? [] };
       case 'confirmation_mismatch':
         return { status: 'confirmation_mismatch' };
+      case 'wrong_password':
+        return { status: 'wrong_password' };
       default:
         throw new UserFacingError('Sign in with the account you want to delete.');
     }

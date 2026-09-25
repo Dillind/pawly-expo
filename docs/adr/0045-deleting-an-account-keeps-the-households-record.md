@@ -20,15 +20,17 @@ The research is in `docs/research/account-deletion-apple-google.md`.
 The function reads the user from that token, never from the body, so a caller can only delete
 themselves. It uses the service role for the rest.
 
-**Everyone signs in again first.** An email user types their password, which the app checks with
-`signInWithPassword`. An Apple user sees the Apple sheet again. It gives a fresh authorization code,
-which the function exchanges for a token and revokes. The function checks that the code belongs to
-the same Apple ID as the account, so one Apple ID cannot revoke another. A Google user sees the
-Google sheet again, and the app calls `revokeAccess()` after the delete.
+**Everyone signs in again first, and the function checks the proof.** The app only collects it:
+an email user's password, or a fresh ID token from the Apple or Google sheet. The function checks the
+password with `signInWithPassword`, and checks an ID token's signature against the provider's public
+keys, its audience, its subject against the account's identity, and that it is under ten minutes
+old. A session token alone deletes nothing, and confirming with a different Apple or Google account
+is refused.
 
-**Revocation is best effort.** A failed Apple exchange or revoke is logged and the delete goes on.
-The account and data must go whatever Apple answers, and the user can still remove Crumpet under
-their Apple ID settings.
+**Revocation is best effort; the proof is not.** For Apple the app also sends the authorization
+code, which the function exchanges and revokes. Identity is already proven by the ID token, so a
+failed exchange or revoke is logged and the delete goes on. The user can still remove Crumpet under
+their Apple ID settings. The app calls Google's `revokeAccess()` after the delete.
 
 **The confirmation is also typed, as in ADR 0040.** The phrase is `delete my account`, trimmed but
 not case-folded, checked on the screen and again in the function. Not the email address: an Apple

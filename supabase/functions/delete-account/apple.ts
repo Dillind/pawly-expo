@@ -1,8 +1,6 @@
 export const APPLE_AUDIENCE = 'https://appleid.apple.com';
 const CLIENT_SECRET_LIFETIME_SECONDS = 300;
 
-type Identity = { provider: string; id?: string; identity_data?: { sub?: unknown } | null };
-
 export function clientSecretClaims(params: { teamId: string; bundleId: string; now: number }) {
   const issuedAt = Math.floor(params.now / 1000);
   return {
@@ -12,13 +10,6 @@ export function clientSecretClaims(params: { teamId: string; bundleId: string; n
     aud: APPLE_AUDIENCE,
     sub: params.bundleId
   };
-}
-
-export function appleSubject(identities: Identity[] | undefined): string | null {
-  const apple = identities?.find((identity) => identity.provider === 'apple');
-  if (!apple) return null;
-  const sub = apple.identity_data?.sub;
-  return typeof sub === 'string' ? sub : (apple.id ?? null);
 }
 
 export function jwtSubject(token: string): string | null {

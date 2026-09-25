@@ -42,33 +42,35 @@ describe('AuthService.deleteAccount', () => {
     mockSignInWithPassword.mockResolvedValue({ error: null });
   });
 
-  it('checks the password, then sends the phrase and the Households to delete', async () => {
+  it('sends the phrase, the password and the Households to delete', async () => {
     mockInvoke.mockResolvedValue({ data: { status: 'deleted' }, error: null });
 
     await expect(
       AuthService.deleteAccount({ ...emailDelete, password: 'pw', householdsToDelete: ['h1'] })
     ).resolves.toEqual({ status: 'deleted' });
-    expect(mockSignInWithPassword).toHaveBeenCalledWith({ email: 'a@x.io', password: 'pw' });
     expect(mockInvoke).toHaveBeenCalledWith('delete-account', {
-      body: {
-        confirmation: 'delete my account',
-        authorizationCode: undefined,
-        householdsToDelete: ['h1']
-      }
+      body: { confirmation: 'delete my account', householdsToDelete: ['h1'], password: 'pw' }
     });
   });
 
-  it('stops before the function when the password is wrong', async () => {
-    mockSignInWithPassword.mockResolvedValue({ error: { code: 'invalid_credentials' } });
+  it('reports a wrong password from the function', async () => {
+    mockInvoke.mockResolvedValue({ data: { status: 'wrong_password' }, error: null });
 
     await expect(
       AuthService.deleteAccount({ ...emailDelete, password: 'bad', householdsToDelete: [] })
     ).resolves.toEqual({ status: 'wrong_password' });
-    expect(mockInvoke).not.toHaveBeenCalled();
   });
 
-  it('sends a fresh Apple authorization code', async () => {
-    mockAppleSignIn.mockResolvedValue({ authorizationCode: 'code-1' });
+  it('throws when the fresh sign-in is refused', async () => {
+    mockInvoke.mockResolvedValue({ data: { status: 'reauth_failed' }, error: null });
+
+    await expect(
+      AuthService.deleteAccount({ ...emailDelete, password: 'pw', householdsToDelete: [] })
+    ).rejects.toThrow('Sign in with the account you want to delete.');
+  });
+
+  it('sends a fresh Apple identity token and authorization code', async () => {
+    mockAppleSignIn.mockResolvedValue({ identityToken: 'apple-jwt', authorizationCode: 'code-1' });
     mockInvoke.mockResolvedValue({ data: { status: 'deleted' }, error: null });
 
     await AuthService.deleteAccount({
@@ -77,7 +79,7 @@ describe('AuthService.deleteAccount', () => {
       householdsToDelete: []
     });
     expect(mockInvoke).toHaveBeenCalledWith('delete-account', {
-      body: expect.objectContaining({ authorizationCode: 'code-1' })
+      body: expect.objectContaining({ idToken: 'apple-jwt', authorizationCode: 'code-1' })
     });
   });
 

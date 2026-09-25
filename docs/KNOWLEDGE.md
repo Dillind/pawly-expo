@@ -899,8 +899,8 @@ Apple requires the app to revoke the token when an account is deleted. Supabase 
 refresh token and `auth.admin.deleteUser` tells Apple nothing (supabase/auth #1308). The
 `delete-account` function does it: the app shows the Apple sheet again, and the function exchanges
 that fresh authorization code and revokes it. The code is single use and lasts five minutes, so it
-cannot be fetched early. The function needs `APPLE_TEAM_ID`, `APPLE_KEY_ID`, `APPLE_BUNDLE_ID` and
-`APPLE_PRIVATE_KEY` as secrets on each project.
+cannot be fetched early. The function needs `APPLE_TEAM_ID`, `APPLE_KEY_ID`, `APPLE_BUNDLE_ID`,
+`APPLE_PRIVATE_KEY` and `GOOGLE_CLIENT_IDS` as secrets on each project.
 
 ## A `mutate()` callback does not run after its screen unmounts
 
