@@ -6,8 +6,10 @@ import * as Crypto from 'expo-crypto';
 import { toUserFacingError } from '@/lib/auth-errors';
 import { UserFacingError } from '@/lib/errors';
 import { supabase } from '@/lib/supabase/client';
+import { unwrap } from '@/lib/supabase/unwrap';
 import PushTokenService from '@/services/push-token.service';
 import UserService from '@/services/user.service';
+import type { Rpc } from '@/types/database-overrides';
 
 const googleConfig = Constants.expoConfig?.extra?.googleSignIn as
   { iosClientId: string; webClientId: string } | undefined;
@@ -25,6 +27,53 @@ const saveAppleName = async (
 
   await supabase.auth.updateUser({ data: { first_name: firstName, last_name: lastName ?? '' } });
   await UserService.updateName(userId, { firstName, lastName: lastName ?? '' });
+};
+
+export type SignInMethod = 'email' | 'apple' | 'google';
+
+type PlanRow = Rpc<'account_deletion_plan'>[number];
+
+export type AccountHousehold = {
+  id: string;
+  name: string;
+  outcome: PlanRow['outcome'];
+  members: { userId: string; firstName: string | null; role: PlanRow['members'][number]['role'] }[];
+};
+
+export type DeleteAccountResult =
+  | { status: 'deleted' }
+  | { status: 'cancelled' }
+  | { status: 'wrong_password' }
+  | { status: 'last_owner'; households: string[] }
+  | { status: 'confirmation_mismatch' };
+
+type DeleteAccountResponse = {
+  status: 'deleted' | 'last_owner' | 'confirmation_mismatch' | 'wrong_password' | 'reauth_failed';
+  households?: string[];
+};
+
+const isAppleCancel = (error: unknown) =>
+  (error as { code?: string } | null)?.code === 'ERR_REQUEST_CANCELED';
+
+// Apple's code is single use and expires in five minutes, so it is fetched only at the delete.
+const appleProof = async (): Promise<{ idToken: string; authorizationCode: string } | null> => {
+  try {
+    const credential = await AppleAuthentication.signInAsync({ requestedScopes: [] });
+    if (!credential.identityToken || !credential.authorizationCode)
+      throw new UserFacingError('Apple did not return a sign-in token.');
+    return { idToken: credential.identityToken, authorizationCode: credential.authorizationCode };
+  } catch (error) {
+    if (isAppleCancel(error)) return null;
+    throw error;
+  }
+};
+
+const googleProof = async (): Promise<{ idToken: string } | null> => {
+  await GoogleSignin.hasPlayServices();
+  const response = await GoogleSignin.signIn();
+  if (response.type === 'cancelled') return null;
+  if (!response.data?.idToken) throw new UserFacingError('Google did not return a sign-in token.');
+  return { idToken: response.data.idToken };
 };
 
 namespace AuthService {
@@ -153,6 +202,95 @@ namespace AuthService {
     } = supabase.auth.onAuthStateChange((_event, session) => handler(session?.user.id));
 
     return subscription;
+  }
+
+  export async function getSignInMethod(): Promise<SignInMethod> {
+    const { data } = await supabase.auth.getSession();
+    const providers: unknown[] = data.session?.user.app_metadata.providers ?? [];
+    if (providers.includes('apple')) return 'apple';
+    if (providers.includes('google')) return 'google';
+    return 'email';
+  }
+
+  export async function verifyPassword(password: string): Promise<boolean> {
+    const email = await getSessionEmail();
+    if (!email) return false;
+
+    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    if (error?.code === 'invalid_credentials') return false;
+    if (error) throw toUserFacingError(error);
+    return true;
+  }
+
+  export async function accountDeletionPlan(): Promise<AccountHousehold[]> {
+    const rows = (await unwrap(supabase.rpc('account_deletion_plan'))) ?? [];
+    return rows.map((row) => ({
+      id: row.id,
+      name: row.name,
+      outcome: row.outcome,
+      members: row.members.map((member) => ({
+        userId: member.user_id,
+        firstName: member.first_name,
+        role: member.role
+      }))
+    }));
+  }
+
+  export async function handOverHousehold(params: { householdId: string; successorId: string }) {
+    const result = await unwrap(
+      supabase.rpc('hand_over_household', {
+        target_household_id: params.householdId,
+        successor_id: params.successorId
+      })
+    );
+    if (result?.status !== 'handed_over')
+      throw new UserFacingError('Could not make them the Owner. Try again.');
+  }
+
+  export async function deleteAccount(params: {
+    confirmation: string;
+    method: SignInMethod;
+    password?: string;
+    householdsToDelete: string[];
+  }): Promise<DeleteAccountResult> {
+    const proof =
+      params.method === 'apple'
+        ? await appleProof()
+        : params.method === 'google'
+          ? await googleProof()
+          : { password: params.password ?? '' };
+    if (!proof) return { status: 'cancelled' };
+
+    const result = await unwrap(
+      supabase.functions.invoke<DeleteAccountResponse>('delete-account', {
+        body: {
+          confirmation: params.confirmation,
+          householdsToDelete: params.householdsToDelete,
+          ...proof
+        }
+      })
+    );
+
+    if (!result) throw new Error('delete-account returned no body');
+
+    switch (result.status) {
+      case 'deleted':
+        return { status: 'deleted' };
+      case 'last_owner':
+        return { status: 'last_owner', households: result.households ?? [] };
+      case 'confirmation_mismatch':
+        return { status: 'confirmation_mismatch' };
+      case 'wrong_password':
+        return { status: 'wrong_password' };
+      default:
+        throw new UserFacingError('Sign in with the account you want to delete.');
+    }
+  }
+
+  // Local only: the server session died with the user, so a global sign-out has nothing to revoke.
+  export async function endDeletedSession(method: SignInMethod) {
+    if (method === 'google') await GoogleSignin.revokeAccess().catch(() => undefined);
+    await supabase.auth.signOut({ scope: 'local' });
   }
 
   export async function signOut() {

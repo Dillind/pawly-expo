@@ -419,3 +419,8 @@ enabled = true
 # value in Vault as `alert_dispatch_secret` on the database side.
 [functions.send-alerts]
 verify_jwt = false
+
+# Called by a signed-in user. The gateway verifies the JWT; the function reads
+# the user from it and deletes with the service role.
+[functions.delete-account]
+verify_jwt = true

@@ -892,3 +892,18 @@ changelog — never sees the update. The What's New sheet keys on the version in
 notes instead. One visible side effect: after an OTA, About and the Settings footer
 (`APP_VERSION`) still say `1.0.1` while the changelog's newest entry says `1.0.1.1`. That is
 correct, not a bug.
+
+## Supabase never revokes a Sign in with Apple token
+
+Apple requires the app to revoke the token when an account is deleted. Supabase keeps no Apple
+refresh token and `auth.admin.deleteUser` tells Apple nothing (supabase/auth #1308). The
+`delete-account` function does it: the app shows the Apple sheet again, and the function exchanges
+that fresh authorization code and revokes it. The code is single use and lasts five minutes, so it
+cannot be fetched early. The function needs `APPLE_TEAM_ID`, `APPLE_KEY_ID`, `APPLE_BUNDLE_ID`,
+`APPLE_PRIVATE_KEY` and `GOOGLE_CLIENT_IDS` as secrets on each project.
+
+## A `mutate()` callback does not run after its screen unmounts
+
+TanStack drops the per-call `onSuccess` in `mutate(vars, { onSuccess })` when the component has
+unmounted. Signing out unmounts every protected screen, so a toast there never shows. Anything that
+must happen after a sign-out goes in the `useMutation` options, as in `useDeleteAccount`.

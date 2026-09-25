@@ -33,6 +33,19 @@ _Avoid_: Helper, guest, viewer, collaborator.
 **User**:
 An authenticated account (email/password). A User may be a Member of a household. Distinct from Member.
 
+**Deleting an account**:
+A User removing themselves for good. They sign in again — Apple, Google or their password — and
+type "delete my account". Every Household they are the only Member of goes with them, and they leave
+every other one. Their Posts, Comments and likes go too. Their Feed Logs and Reminders stay with the
+Household, without an author. Before it, the last Owner of a Household someone else still uses must
+make a **Handover** or delete that Household. See [ADR 0045](./docs/adr/0045-deleting-an-account-keeps-the-households-record.md).
+_Avoid_: Closing an account, deactivating.
+
+**Handover**:
+The last Owner making another Member the Owner as they delete their account. The Household keeps
+its Pets and history, and becomes private until the new Owner lists it again.
+_Avoid_: Transfer, succession.
+
 **Danger zone**:
 The one screen where a Household is deleted. Named for what it is, not for the action: it is reached
 from the ellipsis menu on the Household screen, it is Owner only, and its red button stays dead
