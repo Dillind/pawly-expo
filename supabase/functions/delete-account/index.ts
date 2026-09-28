@@ -144,12 +144,14 @@ Deno.serve(async (request) => {
   }
 
   if (provider === 'google') {
+    const googleClientIds = (Deno.env.get('GOOGLE_CLIENT_IDS') ?? '').split(',').filter(Boolean);
+    if (googleClientIds.length === 0) console.error('GOOGLE_CLIENT_IDS is not set');
     const isFresh = await isFreshIdToken(
       body?.idToken,
       GOOGLE_KEYS,
       {
         issuer: GOOGLE_ISSUERS,
-        audience: (Deno.env.get('GOOGLE_CLIENT_IDS') ?? '').split(',').filter(Boolean)
+        audience: googleClientIds
       },
       providerSubject(user.identities, 'google')!
     );
@@ -166,11 +168,10 @@ Deno.serve(async (request) => {
     );
     if (!isFresh) return json({ status: 'reauth_failed' });
 
-    if (typeof body?.authorizationCode === 'string') {
-      const exchanged = await exchangeAppleCode(body.authorizationCode, appleSub);
-      if (exchanged === 'wrong_account') return json({ status: 'reauth_failed' });
-      appleTokens = exchanged;
-    }
+    if (typeof body?.authorizationCode !== 'string') return json({ status: 'reauth_failed' });
+    const exchanged = await exchangeAppleCode(body.authorizationCode, appleSub);
+    if (exchanged === 'wrong_account') return json({ status: 'reauth_failed' });
+    appleTokens = exchanged;
   }
 
   const householdsToDelete = Array.isArray(body?.householdsToDelete)
