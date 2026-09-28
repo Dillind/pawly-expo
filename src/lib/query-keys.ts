@@ -6,6 +6,8 @@ type Id = string | undefined;
 export const queryKeys = {
   profile: (userId: Id) => ['profile', userId] as const,
   sessionEmail: (userId: Id) => ['session-email', userId] as const,
+  signInMethod: (userId: Id) => ['sign-in-method', userId] as const,
+  accountDeletionPlan: (userId: Id) => ['account-deletion-plan', userId] as const,
   userStats: {
     all: ['user-stats'] as const,
     of: (userId: Id) => ['user-stats', userId] as const

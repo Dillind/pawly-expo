@@ -40,11 +40,12 @@ type Props = {
   // Opens on this step instead of the first one. It is then the tray's first step, so it shows
   // a close button rather than a back arrow.
   initialStepId?: string;
+  onPresent?: () => void;
   onDismiss?: () => void;
   children?: ReactNode;
 };
 
-const Tray = ({ sheetRef, steps, initialStepId, onDismiss, children }: Props) => {
+const Tray = ({ sheetRef, steps, initialStepId, onPresent, onDismiss, children }: Props) => {
   const [history, setHistory] = useState<string[]>([]);
   const [isPresented, setIsPresented] = useState(false);
 
@@ -70,7 +71,8 @@ const Tray = ({ sheetRef, steps, initialStepId, onDismiss, children }: Props) =>
 
   const handlePresent = useCallback(() => {
     setIsPresented(true);
-  }, []);
+    onPresent?.();
+  }, [onPresent]);
 
   const handleDismiss = useCallback(() => {
     setIsPresented(false);

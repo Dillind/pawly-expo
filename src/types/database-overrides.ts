@@ -44,6 +44,17 @@ type MembershipResult = {
 // What each RPC really returns. The generator types jsonb as Json and marks every `returns table`
 // column non-null; each entry here replaces one of those guesses. Keep it in step with the SQL.
 type RpcReturns = {
+  account_deletion_plan: {
+    id: string;
+    name: string;
+    outcome: 'deleted' | 'leave' | 'choose';
+    members: {
+      user_id: string;
+      first_name: string | null;
+      role: Enum<'household_role'>;
+      joined_at: string;
+    }[];
+  }[];
   list_alerts: {
     id: string;
     kind: Exclude<Enum<'alert_kind'>, 'feed_logged' | 'feed_due'>;
@@ -147,6 +158,7 @@ type RpcReturns = {
     post_photos?: string[];
   };
   set_member_role: MembershipResult;
+  hand_over_household: { status: MembershipResult['status'] | 'handed_over' };
   remove_household_member: MembershipResult;
   leave_household: MembershipResult;
 

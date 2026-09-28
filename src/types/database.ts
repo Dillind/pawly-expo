@@ -1137,21 +1137,21 @@ export type Database = {
       reminder_completions: {
         Row: {
           done_at: string;
-          done_by: string;
+          done_by: string | null;
           id: string;
           occurrence_date: string;
           reminder_id: string;
         };
         Insert: {
           done_at?: string;
-          done_by: string;
+          done_by?: string | null;
           id?: string;
           occurrence_date: string;
           reminder_id: string;
         };
         Update: {
           done_at?: string;
-          done_by?: string;
+          done_by?: string | null;
           id?: string;
           occurrence_date?: string;
           reminder_id?: string;
@@ -1169,7 +1169,7 @@ export type Database = {
       reminders: {
         Row: {
           created_at: string;
-          created_by: string;
+          created_by: string | null;
           deleted_at: string | null;
           id: string;
           kind: Database['public']['Enums']['reminder_kind'];
@@ -1182,7 +1182,7 @@ export type Database = {
         };
         Insert: {
           created_at?: string;
-          created_by: string;
+          created_by?: string | null;
           deleted_at?: string | null;
           id?: string;
           kind: Database['public']['Enums']['reminder_kind'];
@@ -1195,7 +1195,7 @@ export type Database = {
         };
         Update: {
           created_at?: string;
-          created_by?: string;
+          created_by?: string | null;
           deleted_at?: string | null;
           id?: string;
           kind?: Database['public']['Enums']['reminder_kind'];
@@ -1361,6 +1361,7 @@ export type Database = {
       [_ in never]: never;
     };
     Functions: {
+      account_deletion_plan: { Args: never; Returns: Json };
       add_pet:
         | {
             Args: {
@@ -1549,6 +1550,10 @@ export type Database = {
           vote_count: number;
         }[];
       };
+      hand_over_household: {
+        Args: { successor_id: string | null; target_household_id: string | null };
+        Returns: Json;
+      };
       handle_available: { Args: { candidate: string | null }; Returns: boolean };
       handle_suggestions: {
         Args: { stem: string | null; wanted?: number | null };
@@ -1730,6 +1735,10 @@ export type Database = {
           state: string;
           title: string;
         }[];
+      };
+      prepare_account_deletion: {
+        Args: { households_to_delete?: string[] | null; target_user_id: string | null };
+        Returns: Json;
       };
       preview_household_invite: { Args: { invite_code: string | null }; Returns: Json };
       redeem_household_invite: {
