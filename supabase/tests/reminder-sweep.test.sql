@@ -2,10 +2,8 @@
 \set ON_ERROR_STOP on
 \pset pager off
 
--- The sweep catches every error per reminder and keeps going, so a broken
--- query reads as "nothing was due". CRU-187 sent no reminder push for a month
--- that way. This checks that a due reminder actually becomes an alert row.
--- Needs no seed and is re-runnable.
+-- The sweep catches errors per reminder, so a broken query looks like a quiet day.
+-- CRU-187 sent no pushes for a month that way. Needs no seed and is re-runnable.
 
 create or replace function pg_temp.check(label text, got anyelement, want anyelement)
 returns void language plpgsql as $$
