@@ -21,10 +21,10 @@ export const RELEASES: Release[] = [
     date: '2026-10-01',
     notes: [
       {
-        icon: 'bell',
-        title: 'Reminder notifications',
+        icon: 'bug',
+        title: 'Reminder notifications fixed',
         description:
-          'Reminders now send a notification before they are due. Tap it to open that day, in the right household.',
+          'Reminders were not sending their notification. They now arrive before a reminder is due, and a tap opens that day in the right household.',
         isHighlighted: true
       }
     ]
