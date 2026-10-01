@@ -88,6 +88,15 @@ an index before you make that index partial** — `select proname, pg_get_functi
 finds them in seconds. Jest cannot reach any of this, and a green cron log is not evidence: a sweep
 that finds nothing never reaches its insert.
 
+**A PL/pgSQL function name qualifies its parameters, not its `declare` variables.** The function's
+implicit outer block holds only the parameters; `declare` opens a block inside it. So
+`sweep_reminders_due.occurrence_date` named a local variable that is not in that block, and Postgres
+read it as a table: `missing FROM-clause entry for table "sweep_reminders_due"`. It raised on every
+due reminder for a month, the per-reminder handler turned it into a warning, and no `reminder_due`
+alert was ever queued (CRU-187). Name a variable so it cannot collide with a column — `due_on`, not
+`occurrence_date` — rather than qualifying it. When a sweep sends nothing, search `postgres_logs` for
+its `skipped` warning before you read the arithmetic.
+
 **`create or replace function` keeps the old ACL, so a stale grant survives a rewrite.** A migration
 that ends `revoke all ... from public; grant execute ... to authenticated;` reads as if it locked the
 function down, and it does not: `public` is not `anon`, and a direct grant to `anon` from an earlier

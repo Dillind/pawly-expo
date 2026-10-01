@@ -14,6 +14,10 @@ which raises cannot abort the sweep or roll back its work. It replaces the shim'
 with versions that record and that raise, because the shim's own always succeeds and would prove
 nothing.
 
+`reminder-sweep.test.sql` checks that a due Reminder becomes an `alerts` row. The sweep catches
+every error per reminder, so a broken query looks the same as a quiet day — CRU-187 sent no reminder
+push for a month that way.
+
 ## Running it
 
 `supabase db reset` is the right way and needs Docker. Without Docker, a bare
@@ -36,7 +40,7 @@ $P -f supabase/tests/follow.seed.sql
 psql -h /tmp -p 55432 -U postgres -d crumpet_test -f supabase/tests/follow.test.sql
 ```
 
-Run `heartbeat.test.sql` the same way; it needs no seed and is re-runnable, so a second run
+Run `heartbeat.test.sql` and `reminder-sweep.test.sql` the same way. Neither needs a seed, and both are re-runnable, so a second run
 against the same database passes too.
 
 Every check prints `PASS`; the first failure raises and stops the file.

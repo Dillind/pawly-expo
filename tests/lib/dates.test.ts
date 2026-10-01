@@ -9,6 +9,7 @@ import {
   formatScheduledTime,
   formatTimeOfDay,
   formatWeekdayName,
+  isCalendarDay,
   shiftDays,
   timeInTimezone,
   todayInTimezone,
@@ -263,5 +264,20 @@ describe('shiftDays', () => {
 
   it('keeps the leap day', () => {
     expect(shiftDays('2028-02-28', 1)).toBe('2028-02-29');
+  });
+});
+
+describe('isCalendarDay', () => {
+  it('accepts a real day', () => {
+    expect(isCalendarDay('2026-10-02')).toBe(true);
+    expect(isCalendarDay('2028-02-29')).toBe(true);
+  });
+
+  it('refuses a day that does not exist, or the wrong shape', () => {
+    expect(isCalendarDay('2026-02-30')).toBe(false);
+    expect(isCalendarDay('2026-13-01')).toBe(false);
+    expect(isCalendarDay('2026-10-2')).toBe(false);
+    expect(isCalendarDay('')).toBe(false);
+    expect(isCalendarDay('2026-10-02T00:00:00Z')).toBe(false);
   });
 });

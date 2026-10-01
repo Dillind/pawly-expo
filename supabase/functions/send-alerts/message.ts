@@ -14,7 +14,8 @@ export type ExpoMessage = {
   title?: string;
   body: string;
   sound: 'default';
-  data: { screen: string; params: Record<string, string> };
+  // Set only where every recipient is a Member; the app ignores a household it is not in.
+  data: { screen: string; params: Record<string, string>; householdId?: string };
 };
 
 // Must match formatAuthorName in src/utils/members.ts: two names for one person reads as a bug.
@@ -172,6 +173,8 @@ export type ReminderDueInput = {
   petName: string;
   title: string;
   leadDays: number;
+  householdId: string;
+  occurrenceDate: string;
 };
 
 // Lowers the first letter to sit mid-sentence, unless the first word is a brand or an
@@ -189,7 +192,8 @@ const midSentence = (title: string): string => {
 export const buildReminderDueMessage = (input: ReminderDueInput): Omit<ExpoMessage, 'to'> => ({
   body: `${input.petName}'s ${midSentence(input.title)} is due ${input.leadDays === 1 ? 'tomorrow' : `in ${input.leadDays} days`}`,
   sound: 'default',
-  data: { screen: '/home', params: {} }
+  // Opens Home on the due day, where it can be ticked off, in its own household.
+  data: { screen: '/home', params: { day: input.occurrenceDate }, householdId: input.householdId }
 });
 
 export type FollowRequestedInput = {
