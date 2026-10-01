@@ -2,6 +2,7 @@ import {
   Asterisk,
   AtSign,
   Bell,
+  Bug,
   Calendar,
   Camera,
   Check,
@@ -129,7 +130,8 @@ export const iconMap = {
   shield: Shield,
   fileText: FileText,
   logOut: LogOut,
-  luggage: Luggage
+  luggage: Luggage,
+  bug: Bug
 } as const;
 
 export type IconName = keyof typeof iconMap;

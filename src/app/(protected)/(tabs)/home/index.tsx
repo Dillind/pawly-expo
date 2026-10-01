@@ -42,7 +42,7 @@ import { usePullToRefresh } from '@/hooks/use-pull-to-refresh';
 import { useRefreshOnFocus } from '@/hooks/use-refresh-on-focus';
 import { useStyles } from '@/hooks/use-styles';
 import { useWhatsNew } from '@/hooks/use-whats-new';
-import { formatWeekdayName, todayInTimezone, weekOf } from '@/lib/dates';
+import { formatWeekdayName, isCalendarDay, todayInTimezone, weekOf } from '@/lib/dates';
 import { queryKeys } from '@/lib/query-keys';
 import { latestVersion } from '@/lib/whats-new';
 import type { Pet } from '@/types/core';
@@ -53,7 +53,10 @@ const Home = () => {
   const [activeLogId, setActiveLogId] = useState<string | undefined>(undefined);
   const [activePetId, setActivePetId] = useState<string | undefined>(undefined);
   const [logPet, setLogPet] = useState<Pet | undefined>(undefined);
-  const { logId } = useLocalSearchParams<{ logId?: string }>();
+  const { logId, day: linkedDay } = useLocalSearchParams<{
+    logId?: string;
+    day?: string | string[];
+  }>();
   const styles = useStyles(makeStyles);
   const router = useRouter();
 
@@ -81,6 +84,17 @@ const Home = () => {
   // re-serialises every render.
   const [pickedDay, setPickedDay] = useState<string | undefined>(undefined);
   const day = pickedDay ?? today;
+
+  // A reminder push opens the day it is due. Mirrored in render, like logId below.
+  if (isCalendarDay(linkedDay) && linkedDay !== pickedDay) {
+    setPickedDay(linkedDay);
+  }
+
+  useEffect(() => {
+    if (!linkedDay) return;
+
+    router.setParams({ day: '' });
+  }, [linkedDay, router]);
 
   // The strip draws one week, so the dots ask for exactly that week.
   const week = day ? weekOf(day) : undefined;

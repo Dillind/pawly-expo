@@ -31,6 +31,7 @@ export type BuiltMessage = Omit<ExpoMessage, 'to'> | { suppressed: string } | nu
 
 type AlertSubject = {
   kind: AlertKind;
+  household_id: string | null;
   subject_id: string;
   /** The local day the alert is about. missed_feed and feed_due carry one. */
   subject_date: string | null;
@@ -242,7 +243,7 @@ export const buildMessageForAlert = async (
     }
 
     case 'reminder_due': {
-      if (!alert.subject_date) return null;
+      if (!alert.subject_date || !alert.household_id) return null;
 
       const { data: reminder } = await client
         .from('reminders')
@@ -269,7 +270,9 @@ export const buildMessageForAlert = async (
       return buildReminderDueMessage({
         petName: reminderPet.name,
         title: reminder.title as string,
-        leadDays: reminder.lead_days as number
+        leadDays: reminder.lead_days as number,
+        householdId: alert.household_id,
+        occurrenceDate: alert.subject_date
       });
     }
 

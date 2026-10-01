@@ -92,6 +92,16 @@ export function weekOf(day: string): string[] {
   });
 }
 
+// A day arriving from outside the app, such as a push payload, before weekOf trusts its shape.
+export function isCalendarDay(value: unknown): value is string {
+  if (typeof value !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
+
+  const [year, month, date] = value.split('-').map(Number);
+  const cursor = new Date(Date.UTC(year, month - 1, date));
+
+  return cursor.getUTCMonth() === month - 1 && cursor.getUTCDate() === date;
+}
+
 export function shiftDays(day: string, days: number): string {
   const [year, month, date] = day.split('-').map(Number);
   const cursor = new Date(Date.UTC(year, month - 1, date + days));

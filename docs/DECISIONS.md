@@ -17,6 +17,15 @@ Newest first. Append, don't rewrite.
 
 ---
 
+## 2026-10-01
+
+**A release note for a fix uses the `bug` icon, and says it is a fix.** What's New then shows at a
+glance which notes are fixes and which are features. A fix for something that never worked, such as
+reminder pushes in 1.0.2, is still a fix: the feature was already promised, so calling it new would
+be untrue.
+
+---
+
 ## 2026-09-10
 
 **Every Username entry below is superseded.** The 2026-09-08 block and the "A Username is how the
