@@ -17,6 +17,19 @@ export type Release = {
 // Newest first. The procedure for adding one is in AGENTS.md > Release notes.
 export const RELEASES: Release[] = [
   {
+    version: '1.0.2',
+    date: '2026-10-01',
+    notes: [
+      {
+        icon: 'bell',
+        title: 'Reminder notifications',
+        description:
+          'Reminders now send a notification before they are due. Tap it to open that day, in the right household.',
+        isHighlighted: true
+      }
+    ]
+  },
+  {
     version: '1.0.1',
     date: '2026-09-24',
     notes: [

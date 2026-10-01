@@ -10,6 +10,11 @@ it does not belong here.
 
 ## Tooling
 
+**A field set in `app.config.ts` replaces the same field in `app.json`.** It hard-coded
+`version: '1.0.0'`, so the bump to 1.0.1 in `app.json` reached no build: TestFlight builds 25 to 27
+all said 1.0.0. The release-notes test reads `app.json` and passed. Check the version a build will
+really get with `bunx expo config --type public`, not by reading `app.json`.
+
 **`bun run spellcheck` fails on Node 20 in agent shells.** cspell requires ≥22.18, so it exits
 non-zero for a reason that has nothing to do with spelling — and `bun run check` stops there. Volta
 pins Node 24 for interactive shells but agent tool calls can get an older one. Call it directly:

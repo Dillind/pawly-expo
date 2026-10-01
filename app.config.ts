@@ -12,7 +12,6 @@ const getConfig = ({ config }: ConfigContext): ExpoConfig => {
     ...config,
     name: 'Crumpet',
     slug: 'crumpet',
-    version: '1.0.0',
     orientation: 'portrait',
     scheme: 'crumpetapp',
     icon: './assets/images/icon.png',
