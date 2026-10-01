@@ -31,6 +31,7 @@ export type BuiltMessage = Omit<ExpoMessage, 'to'> | { suppressed: string } | nu
 
 type AlertSubject = {
   kind: AlertKind;
+  household_id: string | null;
   subject_id: string;
   /** The local day the alert is about. missed_feed and feed_due carry one. */
   subject_date: string | null;

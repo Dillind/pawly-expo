@@ -27,11 +27,12 @@ insert into public.pets (id, household_id, name)
   on conflict (id) do nothing;
 
 delete from public.alerts where household_id = 'eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee';
+drop table if exists slot;
 delete from public.reminders where pet_id = 'ffffffff-ffff-ffff-ffff-ffffffffffff';
 
--- Each reminder's push is due in this run's bin, at the household's own time,
--- unless the row says otherwise.
-create temp view slot as
+-- A table, not a view: a view reads now() again on every query. Each push is due
+-- in this run's bin, at the household's own time, unless the row says otherwise.
+create temp table slot as
 select
   (bin at time zone 'Australia/Brisbane')::date as local_day,
   (bin at time zone 'Australia/Brisbane')::time as local_time
@@ -56,8 +57,12 @@ select '10000000-0000-0000-0000-000000000003', slot.local_day + 1,
   '55555555-5555-5555-5555-555555555555'
 from slot;
 
+-- Counted in this household only: the sweep scans every reminder in the database.
+select private.sweep_reminders_due();
+
 select pg_temp.check('the sweep queues the two due reminders',
-  private.sweep_reminders_due(), 2);
+  (select count(*)::int from public.alerts
+    where household_id = 'eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee'), 2);
 
 select pg_temp.check('a 1-day reminder is queued for its due date, not today',
   (select subject_date from public.alerts
@@ -86,5 +91,8 @@ select pg_temp.check('a deleted reminder is not pushed',
   (select count(*)::int from public.alerts
     where subject_id = '10000000-0000-0000-0000-000000000005'), 0);
 
+select private.sweep_reminders_due();
+
 select pg_temp.check('a second run in the same bin queues nothing more',
-  private.sweep_reminders_due(), 0);
+  (select count(*)::int from public.alerts
+    where household_id = 'eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee'), 2);

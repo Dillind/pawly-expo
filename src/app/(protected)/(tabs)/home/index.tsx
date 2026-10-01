@@ -53,7 +53,10 @@ const Home = () => {
   const [activeLogId, setActiveLogId] = useState<string | undefined>(undefined);
   const [activePetId, setActivePetId] = useState<string | undefined>(undefined);
   const [logPet, setLogPet] = useState<Pet | undefined>(undefined);
-  const { logId, day: linkedDay } = useLocalSearchParams<{ logId?: string; day?: string }>();
+  const { logId, day: linkedDay } = useLocalSearchParams<{
+    logId?: string;
+    day?: string | string[];
+  }>();
   const styles = useStyles(makeStyles);
   const router = useRouter();
 
@@ -83,7 +86,7 @@ const Home = () => {
   const day = pickedDay ?? today;
 
   // A reminder push opens the day it is due. Mirrored in render, like logId below.
-  if (linkedDay && isCalendarDay(linkedDay) && linkedDay !== pickedDay) {
+  if (isCalendarDay(linkedDay) && linkedDay !== pickedDay) {
     setPickedDay(linkedDay);
   }
 

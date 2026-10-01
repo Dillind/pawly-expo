@@ -192,7 +192,6 @@ const midSentence = (title: string): string => {
 export const buildReminderDueMessage = (input: ReminderDueInput): Omit<ExpoMessage, 'to'> => ({
   body: `${input.petName}'s ${midSentence(input.title)} is due ${input.leadDays === 1 ? 'tomorrow' : `in ${input.leadDays} days`}`,
   sound: 'default',
-  // Opens Home on the due day, where it can be ticked off, in its own household.
   data: { screen: '/home', params: { day: input.occurrenceDate }, householdId: input.householdId }
 });
 

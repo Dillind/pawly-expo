@@ -280,4 +280,10 @@ describe('isCalendarDay', () => {
     expect(isCalendarDay('')).toBe(false);
     expect(isCalendarDay('2026-10-02T00:00:00Z')).toBe(false);
   });
+
+  // A repeated query parameter arrives as an array.
+  it('refuses anything that is not a string', () => {
+    expect(isCalendarDay(['2026-10-02'])).toBe(false);
+    expect(isCalendarDay(undefined)).toBe(false);
+  });
 });
